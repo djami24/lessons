@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin panel — English Folder</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <a href="../index.html" class="brand"><span class="brand-mark"></span>English Folder</a>
+    <ul class="admin-nav">
+      <li><a href="#" class="active" id="navFolders">📁 Papkalar</a></li>
+      <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
+    </ul>
+    <div class="admin-user">
+      <div>
+        <div class="admin-user-name" id="sidebarUsername">admin</div>
+        <div class="admin-user-role">Administrator</div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Chiqish</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+
+    <!-- ===== FOLDERS OVERVIEW VIEW ===== -->
+    <section id="view-folders">
+      <div class="admin-header">
+        <div>
+          <h1>Guruh papkalari</h1>
+          <p>Har bir papka — bitta o‘quv guruhi, ichida 12 ta dars.</p>
+        </div>
+        <button class="btn btn-amber" id="openAddFolder">+ Yangi papka ochish</button>
+      </div>
+
+      <div class="stat-row" id="statRow">
+        <!-- filled by JS -->
+      </div>
+
+      <div class="folders-toolbar">
+        <h2>Barcha papkalar</h2>
+        <input type="search" id="folderSearch" class="folder-search" placeholder="Papka nomi bo‘yicha qidirish…">
+      </div>
+
+      <div class="folders-grid" id="foldersGrid">
+        <!-- filled by JS -->
+      </div>
+    </section>
+
+    <!-- ===== FOLDER DETAIL (12 LESSONS) VIEW ===== -->
+    <section id="view-lessons" hidden>
+      <a href="#" id="backToFolders" class="back-link">← Barcha papkalarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="lessonsFolderName">Papka nomi</h1>
+          <p id="lessonsFolderSub">12 darslik dastur</p>
+        </div>
+        <div style="display:flex; gap:.7em;">
+          <button class="btn btn-ghost btn-sm" id="renameFolderBtn">Papkani tahrirlash</button>
+          <button class="btn btn-danger btn-sm" id="deleteFolderBtn">Papkani o‘chirish</button>
+        </div>
+      </div>
+
+      <div class="lesson-list" id="lessonList">
+        <!-- filled by JS: exactly 12 rows -->
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== MODAL: Add folder ===== -->
+<div class="modal-overlay" id="modalAddFolder" hidden>
+  <div class="modal-box">
+    <h3>Yangi papka ochish</h3>
+    <p class="modal-sub">Yangi guruh yaratiladi va avtomatik ravishda 12 ta bo‘sh dars joyi tayyorlanadi.</p>
+    <form class="modal-form" id="addFolderForm">
+      <label class="field">
+        <span>Guruh nomi</span>
+        <input type="text" id="newFolderName" placeholder="Masalan: Kechki guruh — B1" required>
+      </label>
+      <label class="field">
+        <span>Daraja / teg</span>
+        <select id="newFolderLevel">
+          <option>A1 — Boshlang‘ich</option>
+          <option>A2 — Elementar</option>
+          <option selected>B1 — O‘rta</option>
+          <option>B2 — Yuqori o‘rta</option>
+          <option>IELTS tayyorgarlik</option>
+          <option>Speaking Club</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Rang belgisi</span>
+        <select id="newFolderColor">
+          <option value="#D98E3F">Amber</option>
+          <option value="#2E6F6E">Teal</option>
+          <option value="#B3432B">Qizil-jigar</option>
+          <option value="#253559">Ko‘k-shaffof</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalAddFolder">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber">Papka ochish</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MODAL: Rename/edit folder ===== -->
+<div class="modal-overlay" id="modalEditFolder" hidden>
+  <div class="modal-box">
+    <h3>Papkani tahrirlash</h3>
+    <p class="modal-sub">Guruh nomi va darajasini yangilang.</p>
+    <form class="modal-form" id="editFolderForm">
+      <label class="field">
+        <span>Guruh nomi</span>
+        <input type="text" id="editFolderName" required>
+      </label>
+      <label class="field">
+        <span>Daraja / teg</span>
+        <select id="editFolderLevel">
+          <option>A1 — Boshlang‘ich</option>
+          <option>A2 — Elementar</option>
+          <option>B1 — O‘rta</option>
+          <option>B2 — Yuqori o‘rta</option>
+          <option>IELTS tayyorgarlik</option>
+          <option>Speaking Club</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalEditFolder">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber">Saqlash</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MODAL: Edit lesson ===== -->
+<div class="modal-overlay" id="modalEditLesson" hidden>
+  <div class="modal-box">
+    <h3 id="lessonModalTitle">Dars №1</h3>
+    <p class="modal-sub">Dars mazmuni va materiallarini kiriting.</p>
+    <form class="modal-form" id="editLessonForm">
+      <label class="field">
+        <span>Dars nomi</span>
+        <input type="text" id="lessonTitle" placeholder="Masalan: Present Simple asoslari" required>
+      </label>
+      <label class="field">
+        <span>Video havola</span>
+        <input type="url" id="lessonVideo" placeholder="https://…">
+      </label>
+      <label class="field">
+        <span>Material / PDF havola</span>
+        <input type="url" id="lessonMaterial" placeholder="https://…">
+      </label>
+      <label class="field">
+        <span>Uy vazifasi</span>
+        <textarea id="lessonHomework" rows="3" placeholder="Uy vazifasi tavsifi…"></textarea>
+      </label>
+      <label class="field">
+        <span>Holati</span>
+        <select id="lessonStatus">
+          <option value="kutilmoqda">Kutilmoqda</option>
+          <option value="tayyor">Tayyor (o‘quvchiga ochiq)</option>
+          <option value="otildi">O‘tildi</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalEditLesson">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber">Saqlash</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="auth.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

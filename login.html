@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin kirish — English Folder</title>
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="admin.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-wrap">
+  <a href="../index.html" class="brand auth-brand"><span class="brand-mark"></span>English Folder</a>
+
+  <div class="folder auth-folder">
+    <div class="folder-tab" style="--tab-color:#D98E3F"></div>
+    <div class="folder-body auth-card">
+      <p class="eyebrow">Admin panel</p>
+      <h1 class="auth-title">Tizimga kirish</h1>
+      <p class="auth-sub">Guruh papkalari va darslarni boshqarish uchun login va parolingizni kiriting.</p>
+
+      <form id="loginForm" class="auth-form" autocomplete="off">
+        <label class="field">
+          <span>Login</span>
+          <input type="text" id="username" name="username" placeholder="admin" required autocomplete="username">
+        </label>
+        <label class="field">
+          <span>Parol</span>
+          <div class="password-field">
+            <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+            <button type="button" id="togglePw" class="pw-toggle" aria-label="Parolni ko‘rsatish">Ko‘rsatish</button>
+          </div>
+        </label>
+
+        <p id="loginError" class="form-error" role="alert" hidden>Login yoki parol noto‘g‘ri. Qayta urinib ko‘ring.</p>
+
+        <button type="submit" class="btn btn-primary auth-submit">Kirish</button>
+      </form>
+
+      <p class="auth-hint">Demo kirish: <code>admin</code> / <code>Admin2026!</code></p>
+    </div>
+  </div>
+</div>
+
+<script src="auth.js"></script>
+</body>
+</html>
