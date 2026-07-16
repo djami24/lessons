@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin panel — English Folder</title>
+<style>
+/* =========================================================
+   English Folder — Design tokens
+   Palette: Ink Navy / Paper / Folder Amber / Stamp Teal / Ink Gray
+   Display: Fraunces · Body: Manrope · Utility: IBM Plex Mono
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root{
+  --ink:        #14213D;
+  --ink-soft:   #253559;
+  --paper:      #F7F7F3;
+  --paper-2:    #EFEEE5;
+  --paper-3:    #E7E4D6;
+  --amber:      #D98E3F;
+  --amber-deep: #B96F26;
+  --teal:       #2E6F6E;
+  --teal-deep:  #1F4E4D;
+  --gray:       #5B6472;
+  --line:       #DDD9CB;
+  --white:      #FFFFFF;
+  --danger:     #B3432B;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --radius-s: 6px;
+  --radius-m: 12px;
+  --radius-l: 22px;
+  --shadow-card: 0 1px 2px rgba(20,33,61,.06), 0 8px 24px -12px rgba(20,33,61,.18);
+  --shadow-pop:  0 4px 10px rgba(20,33,61,.08), 0 20px 40px -16px rgba(20,33,61,.28);
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
+}
+
+*,*::before,*::after{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+body{
+  margin:0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,h2,h3,h4{
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.08;
+  margin: 0 0 .5em;
+  color: var(--ink);
+  letter-spacing: -.01em;
+}
+h1{ font-size: clamp(2.4rem, 5vw, 4.4rem); font-weight: 600; }
+h2{ font-size: clamp(1.8rem, 3.2vw, 2.7rem); }
+h3{ font-size: 1.3rem; font-weight: 600; }
+p{ margin: 0 0 1em; color: var(--ink-soft); }
+a{ color: inherit; }
+img{ max-width:100%; display:block; }
+
+.eyebrow{
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--teal-deep);
+  display:flex; align-items:center; gap:.55em;
+  margin-bottom: 1.1em;
+}
+.eyebrow::before{
+  content:"";
+  width: 22px; height: 1px;
+  background: var(--amber-deep);
+  display:inline-block;
+}
+
+.container{
+  width: min(1160px, 92%);
+  margin: 0 auto;
+}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.5em;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: .95rem;
+  padding: .85em 1.5em;
+  border-radius: var(--radius-s);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .18s var(--ease), box-shadow .18s var(--ease), background-color .18s var(--ease), border-color .18s var(--ease);
+  line-height: 1;
+}
+.btn:focus-visible{ outline: 3px solid var(--teal); outline-offset: 2px; }
+.btn-primary{ background: var(--ink); color: var(--paper); }
+.btn-primary:hover{ background: var(--ink-soft); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+.btn-amber{ background: var(--amber); color: var(--ink); }
+.btn-amber:hover{ background: var(--amber-deep); color: var(--white); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+.btn-ghost{ background: transparent; color: var(--ink); border-color: var(--line); }
+.btn-ghost:hover{ border-color: var(--ink); }
+.btn-teal{ background: var(--teal); color: var(--white); }
+.btn-teal:hover{ background: var(--teal-deep); transform: translateY(-2px); }
+.btn-danger{ background: transparent; color: var(--danger); border-color: var(--danger); }
+.btn-danger:hover{ background: var(--danger); color: var(--white); }
+.btn-sm{ padding: .55em 1em; font-size: .82rem; }
+.btn[disabled]{ opacity:.5; cursor: not-allowed; transform:none !important; }
+
+/* ---------- Nav ---------- */
+.nav{
+  position: sticky; top:0; z-index: 50;
+  background: rgba(247,247,243,.86);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.nav .container{ display:flex; align-items:center; justify-content:space-between; padding: 1.1em 0; }
+.brand{ display:flex; align-items:center; gap:.6em; font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; text-decoration:none; color: var(--ink);}
+.brand-mark{
+  width: 34px; height: 34px; border-radius: 8px;
+  background: linear-gradient(155deg, var(--amber), var(--amber-deep));
+  position: relative; flex: none;
+}
+.brand-mark::after{
+  content:""; position:absolute; left:6px; right:6px; top:12px; height:2px; background: rgba(20,33,61,.35);
+  box-shadow: 0 6px 0 rgba(20,33,61,.35), 0 12px 0 rgba(20,33,61,.22);
+}
+.nav-links{ display:flex; gap: 2em; list-style:none; margin:0; padding:0; font-weight:600; font-size:.95rem;}
+.nav-links a{ text-decoration:none; color: var(--ink-soft); transition: color .15s; }
+.nav-links a:hover{ color: var(--ink); }
+.nav-actions{ display:flex; align-items:center; gap:1em; }
+.nav-admin-link{ font-family: var(--font-mono); font-size:.78rem; color: var(--gray); text-decoration:none; letter-spacing:.04em;}
+.nav-admin-link:hover{ color: var(--ink); }
+
+/* ---------- Folder-tab signature component ---------- */
+/* Used both on marketing "curriculum" cards and the admin dashboard folders */
+.folder{
+  --tab-color: var(--amber);
+  position: relative;
+  margin-top: 26px;
+}
+.folder-tab{
+  position: absolute;
+  top: -18px; left: 22px;
+  width: 46%;
+  min-width: 120px;
+  height: 26px;
+  background: var(--tab-color);
+  clip-path: polygon(0 100%, 0 30%, 10% 0, 90% 0, 100% 30%, 100% 100%);
+}
+.folder-body{
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 4px var(--radius-m) var(--radius-m) var(--radius-m);
+  box-shadow: var(--shadow-card);
+  padding: 1.6em 1.5em 1.4em;
+  position: relative;
+  transition: transform .22s var(--ease), box-shadow .22s var(--ease);
+}
+.folder:hover .folder-body{ transform: translateY(-4px); box-shadow: var(--shadow-pop); }
+
+/* ---------- Footer ---------- */
+footer{ background: var(--ink); color: rgba(247,247,243,.75); padding: 3.5em 0 2em; margin-top: 6em; }
+footer .container{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:2em; }
+footer h4{ color: var(--paper); font-family: var(--font-body); font-size: .8rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom:1em; }
+footer a{ color: rgba(247,247,243,.75); text-decoration:none; }
+footer a:hover{ color: var(--amber); }
+.footer-bottom{ border-top: 1px solid rgba(247,247,243,.14); margin-top: 2.5em; padding-top: 1.5em; font-size:.82rem; color: rgba(247,247,243,.5); display:flex; justify-content:space-between; flex-wrap:wrap; gap: .8em;}
+.footer-admin-link{ font-family: var(--font-mono); }
+
+/* ---------- Utility ---------- */
+.tag{
+  font-family: var(--font-mono); font-size: .72rem; letter-spacing:.04em;
+  padding: .3em .7em; border-radius: 999px; background: var(--paper-2); color: var(--ink-soft);
+  display:inline-flex; align-items:center; gap:.4em;
+}
+.grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 2.5em; }
+.grid-3{ display:grid; grid-template-columns: repeat(3,1fr); gap: 1.8em; }
+@media (max-width: 900px){
+  .grid-2, .grid-3{ grid-template-columns: 1fr; }
+  .nav-links{ display:none; }
+}
+
+</style>
+<style>
+/* ============ Admin: shared ============ */
+.auth-body{
+  min-height: 100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(217,142,63,.10), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(46,111,110,.12), transparent 45%),
+    var(--paper);
+  padding: 2em 1em;
+}
+.auth-brand{ margin-bottom: 2.4em; text-decoration:none; }
+.auth-wrap{ width: 100%; max-width: 440px; display:flex; flex-direction:column; align-items:center; }
+.auth-folder{ width:100%; }
+.auth-card{ padding: 2.4em 2.2em 2.2em; }
+.auth-title{ margin-bottom: .3em; }
+.auth-sub{ color: var(--gray); font-size:.92rem; margin-bottom: 1.8em; }
+.auth-form{ display:flex; flex-direction:column; gap: 1.2em; }
+.field{ display:flex; flex-direction:column; gap:.5em; font-weight:700; font-size:.85rem; }
+.field input, .field select, .field textarea{
+  font-family: var(--font-body); font-size: 1rem; padding: .8em .9em;
+  border-radius: var(--radius-s); border: 1.5px solid var(--line); background: var(--paper);
+  color: var(--ink); width:100%;
+}
+.field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible{
+  outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(46,111,110,.15);
+}
+.password-field{ position:relative; }
+.password-field input{ padding-right: 5.4em; }
+.pw-toggle{
+  position:absolute; right: .5em; top:50%; transform: translateY(-50%);
+  background:none; border:none; font-family: var(--font-mono); font-size:.72rem;
+  color: var(--teal-deep); cursor:pointer; padding: .3em .4em;
+}
+.form-error{
+  background: #FBEAE4; color: var(--danger); border: 1px solid rgba(179,67,43,.3);
+  padding: .8em 1em; border-radius: var(--radius-s); font-size: .85rem; margin:0;
+}
+.auth-submit{ width:100%; margin-top:.4em; }
+.auth-hint{ text-align:center; margin-top: 1.6em; font-size:.78rem; color: var(--gray); }
+.auth-hint code{ background: var(--paper-2); padding: .15em .5em; border-radius: 4px; font-family: var(--font-mono); }
+
+/* ============ Admin: dashboard shell ============ */
+.admin-shell{ display:flex; min-height:100vh; }
+
+.admin-sidebar{
+  width: 260px; flex: none; background: var(--ink); color: rgba(247,247,243,.85);
+  display:flex; flex-direction:column; padding: 1.8em 1.4em; position: sticky; top:0; height:100vh;
+}
+.admin-sidebar .brand{ color: var(--paper); text-decoration:none; margin-bottom: 2.4em; font-size: 1.1rem; }
+.admin-nav{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.3em; flex:1; }
+.admin-nav a{
+  display:flex; align-items:center; gap:.7em; text-decoration:none; color: rgba(247,247,243,.7);
+  padding:.75em .8em; border-radius: var(--radius-s); font-weight:600; font-size:.92rem;
+  transition: background .15s, color .15s;
+}
+.admin-nav a:hover{ background: rgba(247,247,243,.08); color: var(--paper); }
+.admin-nav a.active{ background: rgba(217,142,63,.16); color: var(--amber); }
+.admin-user{
+  border-top: 1px solid rgba(247,247,243,.14); padding-top: 1.2em; margin-top: 1.2em;
+  display:flex; align-items:center; justify-content:space-between; gap: .6em;
+}
+.admin-user-name{ font-size:.85rem; font-weight:700; color: var(--paper); }
+.admin-user-role{ font-family: var(--font-mono); font-size:.7rem; color: rgba(247,247,243,.5); }
+.logout-btn{
+  background:none; border: 1px solid rgba(247,247,243,.25); color: rgba(247,247,243,.75);
+  padding:.5em .8em; border-radius: var(--radius-s); font-size:.75rem; cursor:pointer; font-family: var(--font-mono);
+}
+.logout-btn:hover{ border-color: var(--danger); color: var(--danger); }
+
+.admin-main{ flex:1; padding: 2.6em 3em 5em; max-width: 1180px; }
+.admin-header{ display:flex; align-items:flex-end; justify-content:space-between; gap: 2em; flex-wrap:wrap; margin-bottom: 2em; }
+.admin-header h1{ font-size: 2rem; margin-bottom:.2em; }
+.admin-header p{ margin:0; color: var(--gray); }
+
+.stat-row{ display:grid; grid-template-columns: repeat(4,1fr); gap: 1.2em; margin-bottom: 2.6em; }
+.stat-card{ background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 1.3em 1.4em; }
+.stat-card strong{ display:block; font-family: var(--font-display); font-size: 1.8rem; }
+.stat-card span{ font-size:.78rem; color: var(--gray); }
+
+/* Folder grid on dashboard */
+.folders-toolbar{ display:flex; justify-content:space-between; align-items:center; gap:1em; margin-bottom: 1.4em; flex-wrap:wrap; }
+.folders-toolbar h2{ margin:0; font-size:1.3rem; }
+.folder-search{
+  font-family: var(--font-body); padding:.6em .9em; border-radius: var(--radius-s); border: 1.5px solid var(--line);
+  min-width: 220px; background: var(--white);
+}
+.folders-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 1.6em 1.4em; }
+.folder-card-body{ cursor:pointer; }
+.folder-card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:.6em; }
+.folder-progress-ring{ font-family: var(--font-mono); font-size:.72rem; color: var(--teal-deep); background: var(--paper-2); padding:.3em .6em; border-radius: 999px; }
+.folder-name{ margin: .7em 0 .2em; font-size: 1.1rem; }
+.folder-sub{ color: var(--gray); font-size:.82rem; margin-bottom: 1.1em; }
+.folder-progress-bar{ height:6px; border-radius:999px; background: var(--paper-2); overflow:hidden; margin-bottom: 1em; }
+.folder-progress-fill{ height:100%; background: var(--teal); border-radius: inherit; }
+.folder-card-actions{ display:flex; gap:.5em; }
+.empty-state{
+  border: 1.5px dashed var(--line); border-radius: var(--radius-m); padding: 3em 2em; text-align:center; color: var(--gray);
+  grid-column: 1 / -1;
+}
+.empty-state h3{ color: var(--ink); }
+
+/* Lesson detail view */
+.back-link{ display:inline-flex; align-items:center; gap:.5em; color: var(--gray); text-decoration:none; font-size:.85rem; font-weight:700; margin-bottom:1.4em; }
+.back-link:hover{ color: var(--ink); }
+.lesson-list{ display:flex; flex-direction:column; gap: .9em; }
+.lesson-row{
+  display:flex; gap: 1.1em; align-items:flex-start; background: var(--white); border: 1px solid var(--line);
+  border-radius: var(--radius-m); padding: 1.1em 1.3em;
+}
+.lesson-index{
+  font-family: var(--font-mono); font-weight:700; font-size:1rem; color: var(--amber-deep);
+  width: 40px; flex:none; padding-top: .2em;
+}
+.lesson-main{ flex:1; min-width:0; }
+.lesson-row-top{ display:flex; justify-content:space-between; align-items:center; gap:1em; flex-wrap:wrap; }
+.lesson-title{ font-weight:700; font-size:1rem; }
+.lesson-title.placeholder{ color: var(--gray); font-weight:600; font-style: italic; }
+.lesson-meta{ display:flex; gap:.5em; margin-top:.4em; flex-wrap:wrap; }
+.status-pill{ font-family: var(--font-mono); font-size:.68rem; padding:.28em .6em; border-radius: 999px; }
+.status-kutilmoqda{ background:#EFEEE5; color: var(--gray); }
+.status-tayyor{ background: rgba(217,142,63,.16); color: var(--amber-deep); }
+.status-otildi{ background: rgba(46,111,110,.14); color: var(--teal-deep); }
+.lesson-actions{ display:flex; gap:.5em; flex:none; }
+
+/* Modal */
+.modal-overlay{
+  position: fixed; inset:0; background: rgba(20,33,61,.5); backdrop-filter: blur(2px);
+  display:flex; align-items:center; justify-content:center; padding: 2em; z-index: 100;
+}
+.modal-overlay[hidden]{ display:none; }
+.modal-box{
+  background: var(--white); border-radius: var(--radius-m); padding: 2em 2.1em; width: 100%; max-width: 520px;
+  max-height: 88vh; overflow-y:auto; box-shadow: var(--shadow-pop);
+}
+.modal-box h3{ margin-bottom: .3em; }
+.modal-sub{ color: var(--gray); font-size:.85rem; margin-bottom: 1.6em; }
+.modal-form{ display:flex; flex-direction:column; gap: 1.1em; }
+.modal-actions{ display:flex; justify-content:flex-end; gap:.8em; margin-top: .6em; }
+.modal-close{ position:absolute; }
+
+.toast{
+  position: fixed; bottom: 1.6em; right: 1.6em; background: var(--ink); color: var(--paper);
+  padding: .9em 1.3em; border-radius: var(--radius-s); font-size:.88rem; box-shadow: var(--shadow-pop);
+  z-index: 200; transform: translateY(20px); opacity:0; transition: all .25s var(--ease);
+}
+.toast.show{ transform: translateY(0); opacity:1; }
+
+@media (max-width: 900px){
+  .admin-shell{ flex-direction:column; }
+  .admin-sidebar{ width:100%; height:auto; position:relative; flex-direction:row; align-items:center; padding:1em 1.2em; }
+  .admin-sidebar .brand{ margin:0; }
+  .admin-nav{ flex-direction:row; }
+  .admin-user{ display:none; }
+  .admin-main{ padding: 1.6em 1.2em 4em; }
+  .stat-row{ grid-template-columns: repeat(2,1fr); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <a href="../index.html" class="brand"><span class="brand-mark"></span>English Folder</a>
+    <ul class="admin-nav">
+      <li><a href="#" class="active" id="navFolders">📁 Papkalar</a></li>
+      <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
+    </ul>
+    <div class="admin-user">
+      <div>
+        <div class="admin-user-name" id="sidebarUsername">admin</div>
+        <div class="admin-user-role">Administrator</div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Chiqish</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+
+    <!-- ===== FOLDERS OVERVIEW VIEW ===== -->
+    <section id="view-folders">
+      <div class="admin-header">
+        <div>
+          <h1>Guruh papkalari</h1>
+          <p>Har bir papka — bitta o‘quv guruhi, ichida 12 ta dars.</p>
+        </div>
+        <button class="btn btn-amber" id="openAddFolder">+ Yangi papka ochish</button>
+      </div>
+
+      <div class="stat-row" id="statRow">
+        <!-- filled by JS -->
+      </div>
+
+      <div class="folders-toolbar">
+        <h2>Barcha papkalar</h2>
+        <input type="search" id="folderSearch" class="folder-search" placeholder="Papka nomi bo‘yicha qidirish…">
+      </div>
+
+      <div class="folders-grid" id="foldersGrid">
+        <!-- filled by JS -->
+      </div>
+    </section>
+
+    <!-- ===== FOLDER DETAIL (12 LESSONS) VIEW ===== -->
+    <section id="view-lessons" hidden>
+      <a href="#" id="backToFolders" class="back-link">← Barcha papkalarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="lessonsFolderName">Papka nomi</h1>
+          <p id="lessonsFolderSub">12 darslik dastur</p>
+        </div>
+        <div style="display:flex; gap:.7em;">
+          <button class="btn btn-ghost btn-sm" id="renameFolderBtn">Papkani tahrirlash</button>
+          <button class="btn btn-danger btn-sm" id="deleteFolderBtn">Papkani o‘chirish</button>
+        </div>
+      </div>
+
+      <div class="lesson-list" id="lessonList">
+        <!-- filled by JS: exactly 12 rows -->
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== MODAL: Add folder ===== -->
+<div class="modal-overlay" id="modalAddFolder" hidden>
+  <div class="modal-box">
+    <h3>Yangi papka ochish</h3>
+    <p class="modal-sub">Yangi guruh yaratiladi va avtomatik ravishda 12 ta bo‘sh dars joyi tayyorlanadi.</p>
+    <form class="modal-form" id="addFolderForm">
+      <label class="field">
+        <span>Guruh nomi</span>
+        <input type="text" id="newFolderName" placeholder="Masalan: Kechki guruh — B1" required>
+      </label>
+      <label class="field">
+        <span>Daraja / teg</span>
+        <select id="newFolderLevel">
+          <option>A1 — Boshlang‘ich</option>
+          <option>A2 — Elementar</option>
+          <option selected>B1 — O‘rta</option>
+          <option>B2 — Yuqori o‘rta</option>
+          <option>IELTS tayyorgarlik</option>
+          <option>Speaking Club</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>Rang belgisi</span>
+        <select id="newFolderColor">
+          <option value="#D98E3F">Amber</option>
+          <option value="#2E6F6E">Teal</option>
+          <option value="#B3432B">Qizil-jigar</option>
+          <option value="#253559">Ko‘k-shaffof</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalAddFolder">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber">Papka ochish</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MODAL: Rename/edit folder ===== -->
+<div class="modal-overlay" id="modalEditFolder" hidden>
+  <div class="modal-box">
+    <h3>Papkani tahrirlash</h3>
+    <p class="modal-sub">Guruh nomi va darajasini yangilang.</p>
+    <form class="modal-form" id="editFolderForm">
+      <label class="field">
+        <span>Guruh nomi</span>
+        <input type="text" id="editFolderName" required>
+      </label>
+      <label class="field">
+        <span>Daraja / teg</span>
+        <select id="editFolderLevel">
+          <option>A1 — Boshlang‘ich</option>
+          <option>A2 — Elementar</option>
+          <option>B1 — O‘rta</option>
+          <option>B2 — Yuqori o‘rta</option>
+          <option>IELTS tayyorgarlik</option>
+          <option>Speaking Club</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalEditFolder">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber">Saqlash</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== MODAL: Edit lesson ===== -->
+<div class="modal-overlay" id="modalEditLesson" hidden>
+  <div class="modal-box">
+    <h3 id="lessonModalTitle">Dars №1</h3>
+    <p class="modal-sub">Dars mazmuni va materiallarini kiriting.</p>
+    <form class="modal-form" id="editLessonForm">
+      <label class="field">
+        <span>Dars nomi</span>
+        <input type="text" id="lessonTitle" placeholder="Masalan: Present Simple asoslari" required>
+      </label>
+      <label class="field">
+        <span>Video havola</span>
+        <input type="url" id="lessonVideo" placeholder="https://…">
+      </label>
+      <label class="field">
+        <span>Material / PDF havola</span>
+        <input type="url" id="lessonMaterial" placeholder="https://…">
+      </label>
+      <label class="field">
+        <span>Uy vazifasi</span>
+        <textarea id="lessonHomework" rows="3" placeholder="Uy vazifasi tavsifi…"></textarea>
+      </label>
+      <label class="field">
+        <span>Holati</span>
+        <select id="lessonStatus">
+          <option value="kutilmoqda">Kutilmoqda</option>
+          <option value="tayyor">Tayyor (o‘quvchiga ochiq)</option>
+          <option value="otildi">O‘tildi</option>
+        </select>
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalEditLesson">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber">Saqlash</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   English Folder — Admin auth (client-side demo)
+   Credentials are stored in localStorage for demo purposes.
+   For a production deployment, replace this with real server-side
+   authentication (session cookies / JWT + backend verification).
+   ============================================================ */
+
+const CRED_KEY = 'ef_admin_credentials';
+const SESSION_KEY = 'ef_admin_session';
+
+function getCredentials(){
+  const raw = localStorage.getItem(CRED_KEY);
+  if(raw) return JSON.parse(raw);
+  const defaults = { username: 'admin', password: 'Admin2026!' };
+  localStorage.setItem(CRED_KEY, JSON.stringify(defaults));
+  return defaults;
+}
+
+function isLoggedIn(){
+  return sessionStorage.getItem(SESSION_KEY) === '1';
+}
+
+function login(username, password){
+  const creds = getCredentials();
+  if(username.trim() === creds.username && password === creds.password){
+    sessionStorage.setItem(SESSION_KEY, '1');
+    sessionStorage.setItem('ef_admin_username', creds.username);
+    return true;
+  }
+  return false;
+}
+
+function logout(){
+  sessionStorage.removeItem(SESSION_KEY);
+  window.location.href = 'login.html';
+}
+
+function requireAuth(){
+  if(!isLoggedIn()){
+    window.location.href = 'login.html';
+  }
+}
+
+// ---- Login form wiring (only present on login.html) ----
+const loginForm = document.getElementById('loginForm');
+if(loginForm){
+  getCredentials(); // ensure defaults exist
+  if(isLoggedIn()){
+    window.location.href = 'dashboard.html';
+  }
+
+  const errorEl = document.getElementById('loginError');
+  const pwInput = document.getElementById('password');
+  const toggleBtn = document.getElementById('togglePw');
+
+  toggleBtn.addEventListener('click', () => {
+    const isPw = pwInput.type === 'password';
+    pwInput.type = isPw ? 'text' : 'password';
+    toggleBtn.textContent = isPw ? 'Yashirish' : 'Ko‘rsatish';
+  });
+
+  loginForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = document.getElementById('username').value;
+    const password = pwInput.value;
+
+    if(login(username, password)){
+      window.location.href = 'dashboard.html';
+    } else {
+      errorEl.hidden = false;
+      loginForm.querySelector('.auth-submit').classList.add('shake');
+      setTimeout(() => loginForm.querySelector('.auth-submit').classList.remove('shake'), 400);
+    }
+  });
+}
+
+</script>
+<script>
+/* ============================================================
+   English Folder — Admin dashboard logic
+   Data model (localStorage key: ef_folders):
+   [{
+     id, name, level, color, createdAt,
+     lessons: [{ index, title, video, material, homework, status }] // exactly 12
+   }]
+   ============================================================ */
+
+requireAuth();
+
+const DATA_KEY = 'ef_folders';
+const LESSON_COUNT = 12;
+const STATUS_LABELS = {
+  kutilmoqda: 'Kutilmoqda',
+  tayyor: 'Tayyor',
+  otildi: 'O‘tildi'
+};
+
+let state = {
+  folders: [],
+  activeFolderId: null,
+  activeLessonIndex: null
+};
+
+// ---------- Data helpers ----------
+
+function makeEmptyLessons(){
+  return Array.from({ length: LESSON_COUNT }, (_, i) => ({
+    index: i + 1,
+    title: '',
+    video: '',
+    material: '',
+    homework: '',
+    status: 'kutilmoqda'
+  }));
+}
+
+function loadFolders(){
+  const raw = localStorage.getItem(DATA_KEY);
+  if(raw){
+    state.folders = JSON.parse(raw);
+    return;
+  }
+  // Seed with one example folder so the panel isn't empty on first run
+  state.folders = [
+    {
+      id: cryptoId(),
+      name: 'Namuna guruh — B1',
+      level: 'B1 — O‘rta',
+      color: '#2E6F6E',
+      createdAt: Date.now(),
+      lessons: makeEmptyLessons()
+    }
+  ];
+  saveFolders();
+}
+
+function saveFolders(){
+  localStorage.setItem(DATA_KEY, JSON.stringify(state.folders));
+}
+
+function cryptoId(){
+  return 'f_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+function getFolder(id){
+  return state.folders.find(f => f.id === id);
+}
+
+// ---------- Render: overview ----------
+
+const foldersGrid = document.getElementById('foldersGrid');
+const statRow = document.getElementById('statRow');
+const folderSearch = document.getElementById('folderSearch');
+
+function completedCount(folder){
+  return folder.lessons.filter(l => l.status === 'otildi').length;
+}
+function readyCount(folder){
+  return folder.lessons.filter(l => l.status === 'tayyor').length;
+}
+
+function renderStats(){
+  const totalFolders = state.folders.length;
+  const totalLessons = totalFolders * LESSON_COUNT;
+  const filled = state.folders.reduce((sum, f) => sum + f.lessons.filter(l => l.title.trim() !== '').length, 0);
+  const completed = state.folders.reduce((sum, f) => sum + completedCount(f), 0);
+
+  statRow.innerHTML = `
+    <div class="stat-card"><strong>${totalFolders}</strong><span>Jami papkalar</span></div>
+    <div class="stat-card"><strong>${totalLessons}</strong><span>Jami dars joylari (12 × papka)</span></div>
+    <div class="stat-card"><strong>${filled}</strong><span>To‘ldirilgan darslar</span></div>
+    <div class="stat-card"><strong>${completed}</strong><span>O‘tilgan darslar</span></div>
+  `;
+}
+
+function renderFolders(filterText = ''){
+  renderStats();
+  const query = filterText.trim().toLowerCase();
+  const list = state.folders.filter(f => f.name.toLowerCase().includes(query));
+
+  if(list.length === 0){
+    foldersGrid.innerHTML = `
+      <div class="empty-state">
+        <h3>${state.folders.length === 0 ? 'Hali papka ochilmagan' : 'Hech narsa topilmadi'}</h3>
+        <p>${state.folders.length === 0 ? '“Yangi papka ochish” tugmasini bosib birinchi guruhingizni yarating.' : 'Boshqa nom bilan qidirib ko‘ring.'}</p>
+      </div>`;
+    return;
+  }
+
+  foldersGrid.innerHTML = list.map(folder => {
+    const done = completedCount(folder);
+    const pct = Math.round((done / LESSON_COUNT) * 100);
+    return `
+      <article class="folder" style="--tab-color:${folder.color}">
+        <div class="folder-tab"></div>
+        <div class="folder-body folder-card-body" data-open-folder="${folder.id}">
+          <div class="folder-card-top">
+            <span class="tag">${escapeHtml(folder.level)}</span>
+            <span class="folder-progress-ring">${done}/${LESSON_COUNT}</span>
+          </div>
+          <h3 class="folder-name">${escapeHtml(folder.name)}</h3>
+          <span class="folder-sub">${readyCount(folder)} ta dars tayyor holatda</span>
+          <div class="folder-progress-bar"><div class="folder-progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="folder-card-actions" style="padding:0 1.5em 1.4em;">
+          <button class="btn btn-ghost btn-sm" data-open-folder="${folder.id}">Ochish</button>
+          <button class="btn btn-danger btn-sm" data-quick-delete="${folder.id}">O‘chirish</button>
+        </div>
+      </article>`;
+  }).join('');
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ---------- Render: lesson detail ----------
+
+const viewFolders = document.getElementById('view-folders');
+const viewLessons = document.getElementById('view-lessons');
+const lessonList = document.getElementById('lessonList');
+
+function openFolder(id){
+  state.activeFolderId = id;
+  const folder = getFolder(id);
+  if(!folder) return;
+
+  document.getElementById('lessonsFolderName').textContent = folder.name;
+  document.getElementById('lessonsFolderSub').textContent =
+    `${folder.level} · ${completedCount(folder)}/${LESSON_COUNT} dars o‘tildi`;
+
+  lessonList.innerHTML = folder.lessons.map(lesson => {
+    const hasTitle = lesson.title.trim() !== '';
+    return `
+      <div class="lesson-row">
+        <div class="lesson-index">${String(lesson.index).padStart(2,'0')}</div>
+        <div class="lesson-main">
+          <div class="lesson-row-top">
+            <span class="lesson-title ${hasTitle ? '' : 'placeholder'}">${hasTitle ? escapeHtml(lesson.title) : 'Sarlavha kiritilmagan — Dars ' + lesson.index}</span>
+            <div class="lesson-actions">
+              <button class="btn btn-ghost btn-sm" data-edit-lesson="${lesson.index}">Tahrirlash</button>
+            </div>
+          </div>
+          <div class="lesson-meta">
+            <span class="status-pill status-${lesson.status}">${STATUS_LABELS[lesson.status]}</span>
+            ${lesson.video ? '<span class="tag">🎬 Video bor</span>' : ''}
+            ${lesson.material ? '<span class="tag">📎 Material bor</span>' : ''}
+            ${lesson.homework ? '<span class="tag">📝 Uy vazifasi bor</span>' : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  viewFolders.hidden = true;
+  viewLessons.hidden = false;
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+}
+
+function closeFolder(){
+  state.activeFolderId = null;
+  viewLessons.hidden = true;
+  viewFolders.hidden = false;
+  renderFolders(folderSearch.value);
+}
+
+// ---------- Modal helpers ----------
+
+function openModal(id){ document.getElementById(id).hidden = false; }
+function closeModal(id){ document.getElementById(id).hidden = true; }
+
+document.querySelectorAll('[data-close-modal]').forEach(btn => {
+  btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
+});
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay) overlay.hidden = true;
+  });
+});
+
+let toastTimer = null;
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+// ---------- Event wiring: overview ----------
+
+document.getElementById('openAddFolder').addEventListener('click', () => {
+  document.getElementById('addFolderForm').reset();
+  openModal('modalAddFolder');
+});
+
+document.getElementById('addFolderForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('newFolderName').value.trim();
+  const level = document.getElementById('newFolderLevel').value;
+  const color = document.getElementById('newFolderColor').value;
+  if(!name) return;
+
+  state.folders.unshift({
+    id: cryptoId(),
+    name,
+    level,
+    color,
+    createdAt: Date.now(),
+    lessons: makeEmptyLessons()
+  });
+  saveFolders();
+  closeModal('modalAddFolder');
+  renderFolders(folderSearch.value);
+  showToast(`“${name}” papkasi ochildi — 12 ta dars joyi tayyor.`);
+});
+
+foldersGrid.addEventListener('click', (e) => {
+  const openBtn = e.target.closest('[data-open-folder]');
+  if(openBtn){ openFolder(openBtn.dataset.openFolder); return; }
+
+  const delBtn = e.target.closest('[data-quick-delete]');
+  if(delBtn){
+    const folder = getFolder(delBtn.dataset.quickDelete);
+    if(folder && confirm(`“${folder.name}” papkasini butunlay o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
+      state.folders = state.folders.filter(f => f.id !== folder.id);
+      saveFolders();
+      renderFolders(folderSearch.value);
+      showToast('Papka o‘chirildi.');
+    }
+  }
+});
+
+folderSearch.addEventListener('input', () => renderFolders(folderSearch.value));
+
+// ---------- Event wiring: lesson detail ----------
+
+document.getElementById('backToFolders').addEventListener('click', (e) => {
+  e.preventDefault();
+  closeFolder();
+});
+
+document.getElementById('renameFolderBtn').addEventListener('click', () => {
+  const folder = getFolder(state.activeFolderId);
+  if(!folder) return;
+  document.getElementById('editFolderName').value = folder.name;
+  document.getElementById('editFolderLevel').value = folder.level;
+  openModal('modalEditFolder');
+});
+
+document.getElementById('editFolderForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const folder = getFolder(state.activeFolderId);
+  if(!folder) return;
+  folder.name = document.getElementById('editFolderName').value.trim() || folder.name;
+  folder.level = document.getElementById('editFolderLevel').value;
+  saveFolders();
+  closeModal('modalEditFolder');
+  openFolder(folder.id);
+  showToast('Papka ma’lumotlari yangilandi.');
+});
+
+document.getElementById('deleteFolderBtn').addEventListener('click', () => {
+  const folder = getFolder(state.activeFolderId);
+  if(!folder) return;
+  if(confirm(`“${folder.name}” papkasini butunlay o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
+    state.folders = state.folders.filter(f => f.id !== folder.id);
+    saveFolders();
+    closeFolder();
+    showToast('Papka o‘chirildi.');
+  }
+});
+
+lessonList.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-edit-lesson]');
+  if(!btn) return;
+  state.activeLessonIndex = Number(btn.dataset.editLesson);
+  const folder = getFolder(state.activeFolderId);
+  const lesson = folder.lessons.find(l => l.index === state.activeLessonIndex);
+
+  document.getElementById('lessonModalTitle').textContent = `Dars №${lesson.index}`;
+  document.getElementById('lessonTitle').value = lesson.title;
+  document.getElementById('lessonVideo').value = lesson.video;
+  document.getElementById('lessonMaterial').value = lesson.material;
+  document.getElementById('lessonHomework').value = lesson.homework;
+  document.getElementById('lessonStatus').value = lesson.status;
+  openModal('modalEditLesson');
+});
+
+document.getElementById('editLessonForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const folder = getFolder(state.activeFolderId);
+  const lesson = folder.lessons.find(l => l.index === state.activeLessonIndex);
+  if(!lesson) return;
+
+  lesson.title = document.getElementById('lessonTitle').value.trim();
+  lesson.video = document.getElementById('lessonVideo').value.trim();
+  lesson.material = document.getElementById('lessonMaterial').value.trim();
+  lesson.homework = document.getElementById('lessonHomework').value.trim();
+  lesson.status = document.getElementById('lessonStatus').value;
+
+  saveFolders();
+  closeModal('modalEditLesson');
+  openFolder(folder.id);
+  showToast(`Dars №${lesson.index} saqlandi.`);
+});
+
+// ---------- Logout ----------
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if(confirm('Tizimdan chiqmoqchimisiz?')) logout();
+});
+
+document.getElementById('sidebarUsername').textContent =
+  sessionStorage.getItem('ef_admin_username') || 'admin';
+
+// ---------- Init ----------
+
+loadFolders();
+renderFolders();
+
+</script>
+</body>
+</html>
