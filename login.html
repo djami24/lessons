@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin kirish — English Folder</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-wrap">
+  <a href="../index.html" class="brand auth-brand"><span class="brand-mark"></span>English Folder</a>
+
+  <div class="folder auth-folder">
+    <div class="folder-tab" style="--tab-color:#D98E3F"></div>
+    <div class="folder-body auth-card">
+      <p class="eyebrow">Admin panel</p>
+      <h1 class="auth-title">Tizimga kirish</h1>
+      <p class="auth-sub">Guruh papkalari, darslar va o‘quvchilarni boshqarish uchun kiring.</p>
+
+      <form id="loginForm" class="auth-form" autocomplete="off">
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="email" name="email" placeholder="admin@englishfolder.uz" required autocomplete="username">
+        </label>
+        <label class="field">
+          <span>Parol</span>
+          <div class="password-field">
+            <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+            <button type="button" id="togglePw" class="pw-toggle" aria-label="Parolni ko‘rsatish">Ko‘rsatish</button>
+          </div>
+        </label>
+
+        <p id="loginError" class="form-error" role="alert" hidden></p>
+
+        <button type="submit" class="btn btn-primary auth-submit" id="submitBtn">Kirish</button>
+      </form>
+
+      <p class="auth-hint">Admin hisobingiz yo‘qmi? Firebase Console orqali yarating — <code>FIREBASE_SETUP.md</code> qo‘llanmasiga qarang.</p>
+    </div>
+  </div>
+
+  <p class="auth-switch">O‘quvchimisiz? <a href="../student/login.html">Bu yerdan kiring →</a></p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script>
+const loginForm = document.getElementById('loginForm');
+const errorEl = document.getElementById('loginError');
+const pwInput = document.getElementById('password');
+const toggleBtn = document.getElementById('togglePw');
+const submitBtn = document.getElementById('submitBtn');
+
+toggleBtn.addEventListener('click', () => {
+  const isPw = pwInput.type === 'password';
+  pwInput.type = isPw ? 'text' : 'password';
+  toggleBtn.textContent = isPw ? 'Yashirish' : 'Ko‘rsatish';
+});
+
+function showError(msg){
+  errorEl.textContent = msg;
+  errorEl.hidden = false;
+  loginForm.querySelector('.auth-submit').classList.add('shake');
+  setTimeout(() => loginForm.querySelector('.auth-submit').classList.remove('shake'), 400);
+}
+
+// If already signed in AND an admin, skip straight to dashboard.
+auth.onAuthStateChanged(async (user) => {
+  if(!user) return;
+  const adminDoc = await db.collection('admins').doc(user.uid).get();
+  if(adminDoc.exists){
+    window.location.href = 'dashboard.html';
+  }
+});
+
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorEl.hidden = true;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Tekshirilmoqda…';
+
+  const email = document.getElementById('email').value.trim();
+  const password = pwInput.value;
+
+  try{
+    const cred = await auth.signInWithEmailAndPassword(email, password);
+    const adminDoc = await db.collection('admins').doc(cred.user.uid).get();
+    if(adminDoc.exists){
+      window.location.href = 'dashboard.html';
+    } else {
+      await auth.signOut();
+      showError('Bu hisob admin sifatida ro‘yxatdan o‘tmagan.');
+    }
+  } catch(err){
+    showError('Email yoki parol noto‘g‘ri. Qayta urinib ko‘ring.');
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Kirish';
+  }
+});
+</script>
+</body>
+</html>
