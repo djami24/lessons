@@ -40,8 +40,9 @@
       <div class="admin-header">
         <div>
           <h1>Kurslar va darslar</h1>
-          <p>General English, CEFR va IELTS darslarini boshqarish bo'limi.</p>
+          <p>General English darslari hamda dinamik papkalarni boshqarish bo'limi.</p>
         </div>
+        <button class="btn btn-amber" id="btnOpenAddCourseFolder">+ Yangi papka (kurs) qo‘shish</button>
       </div>
 
       <div class="stat-row" id="statRow"></div>
@@ -65,9 +66,15 @@
     <section id="view-admin-skills" hidden>
       <a href="#" id="backToLevelsFromSkills" class="back-link">← Kurslarga qaytish</a>
       <div class="admin-header">
-        <div>
-          <h1 id="adminSkillsTitle">Mavzular</h1>
-          <p>Ushbu bo'limdagi darslarni, testlarni va uy vazifalarini boshqaring.</p>
+        <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+          <div>
+            <h1 id="adminSkillsTitle">Mavzular</h1>
+            <p>Ushbu bo'limdagi darslarni, testlarni va uy vazifalarini boshqaring.</p>
+          </div>
+          <div style="display:flex; gap:10px;">
+            <button class="btn btn-ghost" id="btnRenameActiveCourse">✏️ Nomini o'zgartirish</button>
+            <button class="btn btn-danger" id="btnDeleteActiveCourse">🗑️ Papkani o'chirish</button>
+          </div>
         </div>
       </div>
       <div class="level-grid" id="adminSkillsGrid"></div>
@@ -204,6 +211,7 @@
       </div>
 
       <form class="modal-form" id="siteSettingsForm" style="max-width:720px;">
+        <!-- ... Brend, Hero, Process va hokazo sayt sozlamalari inputlari ... -->
         <h3 style="margin-top:0;">🎨 Brend va ranglar</h3>
         <div class="field">
           <span>Asosiy rang (tugmalar, urg‘u)</span>
@@ -382,6 +390,32 @@
   </main>
 </div>
 
+<!-- ===== MODAL: Dinamik Papka (Kurs) qo‘shish ===== -->
+<div class="modal-overlay" id="modalAddCourseFolder" hidden>
+  <div class="modal-box">
+    <h3>Yangi papka (kurs) qo'shish</h3>
+    <p class="modal-sub">Ushbu yangi kurs uchun alohida Listening, Reading va Speaking bo'limlari ochiladi.</p>
+    <form class="modal-form" id="addCourseFolderForm">
+      <label class="field">
+        <span>Papka (Kurs) nomi</span>
+        <input type="text" id="newCourseName" placeholder="Masalan: MULTI-LEVEL, KIDS" required>
+      </label>
+      <label class="field">
+        <span>Qisqacha tavsif (Sub-text)</span>
+        <input type="text" id="newCourseDesc" placeholder="Kurs haqida qisqa ma'lumot">
+      </label>
+      <label class="field">
+        <span>Papka rangi (Color)</span>
+        <input type="color" id="newCourseColor" value="#D98E3F" style="width:100%; height:44px; cursor:pointer;">
+      </label>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalAddCourseFolder">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber">Papkani yaratish</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- ===== MODAL: Review Student Essay ===== -->
 <div class="modal-overlay" id="modalReviewSubmission" hidden>
   <div class="modal-box" style="max-width:720px; max-height: 90vh;">
@@ -544,22 +578,17 @@
 <script src="../site-settings.js"></script>
 <script>
 /* ============================================================
-   English Folder — Admin dashboard logic (Firestore-backed)
+   English Folder — Admin dashboard logic (Dinamik Papka + Save State)
    ============================================================ */
 
-const LEVELS = [
+const DEFAULT_LEVELS = [
   { id: 'beginner', name: 'Beginner', order: 1, course: 'general' },
   { id: 'elementary', name: 'Elementary', order: 2, course: 'general' },
-  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' },
-  // CEFR split skills
-  { id: 'cefr_listening', name: 'CEFR Listening', order: 4, course: 'cefr', skill: 'listening' },
-  { id: 'cefr_reading', name: 'CEFR Reading', order: 5, course: 'cefr', skill: 'reading' },
-  { id: 'cefr_speaking', name: 'CEFR Speaking', order: 6, course: 'cefr', skill: 'speaking' }, // Grammar -> Speaking
-  // IELTS split skills
-  { id: 'ielts_listening', name: 'IELTS Listening', order: 7, course: 'ielts', skill: 'listening' },
-  { id: 'ielts_reading', name: 'IELTS Reading', order: 8, course: 'ielts', skill: 'reading' },
-  { id: 'ielts_speaking', name: 'IELTS Speaking', order: 9, course: 'ielts', skill: 'speaking' } // Grammar -> Speaking
+  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' }
 ];
+
+let LEVELS = [...DEFAULT_LEVELS];
+let DYNAMIC_COURSES = [];
 const PASS_PERCENT = 60;
 
 let state = {
@@ -568,10 +597,50 @@ let state = {
   activeLevelId: null,
   activeLessonId: null,
   quizDraft: [],
-  detailStudentId: null
+  detailStudentId: null,
+  activeView: 'levels',
+  activeCourseId: null // Dinamik tanlangan ochiq papka IDsi
 };
 
 let currentReviewSubmissionId = null;
+
+// Xotiraga yozish
+function saveCurrentState() {
+  localStorage.setItem('admin_activeView', state.activeView || 'levels');
+  localStorage.setItem('admin_activeLevelId', state.activeLevelId || '');
+  localStorage.setItem('admin_activeCourseId', state.activeCourseId || '');
+}
+
+// Xotiradan yuklash
+async function restoreState() {
+  const savedView = localStorage.getItem('admin_activeView');
+  const savedLevelId = localStorage.getItem('admin_activeLevelId');
+  const savedCourseId = localStorage.getItem('admin_activeCourseId');
+
+  if (savedView) state.activeView = savedView;
+  if (savedLevelId) state.activeLevelId = savedLevelId;
+  if (savedCourseId) state.activeCourseId = savedCourseId;
+
+  if (state.activeView === 'admin-ge-levels') {
+    openGeneralEnglishLevelsView();
+  } else if (state.activeView === 'admin-skills' && state.activeCourseId) {
+    openAdminSkillsView(state.activeCourseId);
+  } else if (state.activeView === 'lessons' && state.activeLevelId) {
+    openLevel(state.activeLevelId);
+  } else if (state.activeView === 'students') {
+    switchView('students');
+    renderStudents();
+  } else if (state.activeView === 'site-settings') {
+    switchView('site-settings');
+    loadSiteSettingsForm();
+  } else if (state.activeView === 'admin-writing') {
+    switchView('admin-writing');
+    loadAdminSubmissions();
+  } else {
+    switchView('levels');
+    renderLevelsOverview();
+  }
+}
 
 auth.onAuthStateChanged(async (user) => {
   if(!user){ window.location.href = 'login.html'; return; }
@@ -584,21 +653,26 @@ auth.onAuthStateChanged(async (user) => {
   document.getElementById('sidebarUsername').textContent = user.email;
   document.getElementById('loadingScreen').hidden = true;
   document.getElementById('appShell').hidden = false;
+
+  await loadDynamicCourses();
   await ensureLevelsExist();
   await loadLevels();
   await loadStudents();
-  renderLevelsOverview();
-  renderStudents();
+  await restoreState();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  if(confirm('Tizimdan chiqmoqchimisiz?')) auth.signOut().then(() => window.location.href = 'login.html');
+  if(confirm('Tizimdan chiqmoqchimisiz?')) {
+    localStorage.clear();
+    auth.signOut().then(() => window.location.href = 'login.html');
+  }
 });
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
+// Rich Text Editor qismi
 const RTE_BUTTONS = [
   { cmd: 'bold', icon: '<b>B</b>', title: 'Qalin (Bold)' },
   { cmd: 'italic', icon: '<i>I</i>', title: 'Qiya (Italic)' },
@@ -648,6 +722,20 @@ function setRteValue(id, html){
   if(el) el.innerHTML = html || '';
 }
 
+// Dinamik papkalar yuklash
+async function loadDynamicCourses() {
+  const snap = await db.collection('dynamic_courses').orderBy('createdAt', 'asc').get();
+  DYNAMIC_COURSES = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  LEVELS = [...DEFAULT_LEVELS];
+  DYNAMIC_COURSES.forEach(c => {
+    LEVELS.push({ id: `${c.id}_listening`, name: `${c.name} Listening`, order: 10, course: c.id, skill: 'listening' });
+    LEVELS.push({ id: `${c.id}_reading`, name: `${c.name} Reading`, order: 11, course: c.id, skill: 'reading' });
+    LEVELS.push({ id: `${c.id}_speaking`, name: `${c.name} Speaking`, order: 12, course: c.id, skill: 'speaking' });
+  });
+}
+
+// Barcha levellar bazada mavjudligini ta'minlash
 async function ensureLevelsExist(){
   for(const lvl of LEVELS){
     const ref = db.collection('levels').doc(lvl.id);
@@ -672,9 +760,87 @@ async function loadStudents(){
 
 function getLevel(id){ return state.levels[id]; }
 
+// Papka qo'shish modalini ochish
+document.getElementById('btnOpenAddCourseFolder').addEventListener('click', () => {
+  document.getElementById('addCourseFolderForm').reset();
+  openModal('modalAddCourseFolder');
+});
+
+// Yangi papka yaratish
+document.getElementById('addCourseFolderForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('newCourseName').value.trim();
+  const desc = document.getElementById('newCourseDesc').value.trim();
+  const color = document.getElementById('newCourseColor').value;
+  const id = 'course_' + Date.now();
+
+  if(!name) return;
+
+  try {
+    await db.collection('dynamic_courses').doc(id).set({ name, desc, color, createdAt: Date.now() });
+    closeModal('modalAddCourseFolder');
+    showToast('Yangi papka muvaffaqiyatli qo‘shildi!');
+    
+    await loadDynamicCourses();
+    await ensureLevelsExist();
+    await loadLevels();
+    renderLevelsOverview();
+  } catch (err) {
+    showToast('Xatolik: ' + err.message, true);
+  }
+});
+
+// Papka nomini o'zgartirish
+document.getElementById('btnRenameActiveCourse').addEventListener('click', async () => {
+  if(!state.activeCourseId) return;
+  const course = DYNAMIC_COURSES.find(c => c.id === state.activeCourseId);
+  if(!course) return;
+
+  const newName = prompt("Papkaning yangi nomini kiriting:", course.name);
+  if (newName && newName.trim() !== "" && newName.trim() !== course.name) {
+    try {
+      await db.collection('dynamic_courses').doc(state.activeCourseId).update({ name: newName.trim() });
+      showToast('Kurs nomi yangilandi.');
+      await loadDynamicCourses();
+      await loadLevels();
+      openAdminSkillsView(state.activeCourseId);
+    } catch (err) {
+      showToast('Xatolik: ' + err.message, true);
+    }
+  }
+});
+
+// Papkani butunlay o'chirish
+document.getElementById('btnDeleteActiveCourse').addEventListener('click', async () => {
+  if(!state.activeCourseId) return;
+  if(confirm("Ushbu papkani (barcha dars va testlari bilan) o‘chirmoqchimisiz? Bu amalni ortga qaytarib bo‘lmaydi!")) {
+    try {
+      await db.collection('dynamic_courses').doc(state.activeCourseId).delete();
+      
+      // Tegishli skills levellarini ham tozalash
+      const skills = ['listening', 'reading', 'speaking'];
+      for(const sk of skills) {
+        await db.collection('levels').doc(`${state.activeCourseId}_${sk}`).delete();
+      }
+
+      showToast('Papka butunlay o‘chirib tashlandi.');
+      state.activeCourseId = null;
+      state.activeView = 'levels';
+      saveCurrentState();
+      
+      await loadDynamicCourses();
+      await loadLevels();
+      renderLevelsOverview();
+      switchView('levels');
+    } catch (err) {
+      showToast('Xatolik: ' + err.message, true);
+    }
+  }
+});
+
 function renderLevelsOverview(){
-  const totalLessons = LEVELS.reduce((sum, l) => sum + getLevel(l.id).lessons.length, 0);
-  const totalQuestions = LEVELS.reduce((sum, l) => sum + getLevel(l.id).lessons.reduce((s, les) => s + (les.quiz ? les.quiz.length : 0), 0), 0);
+  const totalLessons = LEVELS.reduce((sum, l) => sum + (getLevel(l.id)?.lessons?.length || 0), 0);
+  const totalQuestions = LEVELS.reduce((sum, l) => sum + (getLevel(l.id)?.lessons?.reduce((s, les) => s + (les.quiz ? les.quiz.length : 0), 0) || 0), 0);
   const pendingPayments = state.students.filter(s => s.paymentStatus === 'pending' || s.writingPaymentStatus === 'pending').length;
   const approvedStudents = state.students.filter(s => s.paymentStatus === 'approved' || s.isFree === true).length;
 
@@ -685,8 +851,8 @@ function renderLevelsOverview(){
     <div class="stat-card"><strong>${pendingPayments}</strong><span>Kutilayotgan to‘lovlar</span></div>
   `;
 
-  // DRAW MAIN 3 COURSE FOLDERS
-  document.getElementById('levelsGrid').innerHTML = `
+  // Draw Dynamic Folder Cards
+  let html = `
     <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-course="general">
       <div class="folder-tab"></div>
       <div class="folder-body">
@@ -695,23 +861,22 @@ function renderLevelsOverview(){
         <p class="level-sub">Beginner, Elementary, Pre-Intermediate darslari</p>
       </div>
     </article>
-    <article class="folder level-card" style="--tab-color:#D98E3F" data-open-course="cefr">
-      <div class="folder-tab"></div>
-      <div class="folder-body">
-        <span class="tag">B1–C1</span>
-        <h3 class="level-title">CEFR</h3>
-        <p class="level-sub">Listening, Reading, Speaking darslari</p>
-      </div>
-    </article>
-    <article class="folder level-card" style="--tab-color:#253559" data-open-course="ielts">
-      <div class="folder-tab"></div>
-      <div class="folder-body">
-        <span class="tag">IELTS</span>
-        <h3 class="level-title">IELTS</h3>
-        <p class="level-sub">Listening, Reading, Speaking darslari</p>
-      </div>
-    </article>
   `;
+
+  DYNAMIC_COURSES.forEach(c => {
+    html += `
+      <article class="folder level-card" style="--tab-color:${c.color || '#D98E3F'}" data-open-course="${c.id}">
+        <div class="folder-tab"></div>
+        <div class="folder-body">
+          <span class="tag">KURS</span>
+          <h3 class="level-title">${escapeHtml(c.name)}</h3>
+          <p class="level-sub">${escapeHtml(c.desc || `${c.name} darslari va testlari`)}</p>
+        </div>
+      </article>
+    `;
+  });
+
+  document.getElementById('levelsGrid').innerHTML = html;
 }
 
 document.getElementById('levelsGrid').addEventListener('click', (e) => {
@@ -726,6 +891,8 @@ document.getElementById('levelsGrid').addEventListener('click', (e) => {
 });
 
 function openGeneralEnglishLevelsView() {
+  state.activeView = 'admin-ge-levels';
+  saveCurrentState();
   const grid = document.getElementById('adminGeLevelsGrid');
   const generalLevels = LEVELS.filter(l => l.course === 'general');
   grid.innerHTML = generalLevels.map(lvl => {
@@ -746,17 +913,21 @@ function openGeneralEnglishLevelsView() {
 }
 
 function openAdminSkillsView(courseId) {
+  state.activeCourseId = courseId;
+  state.activeView = 'admin-skills';
+  saveCurrentState();
   const grid = document.getElementById('adminSkillsGrid');
   const title = document.getElementById('adminSkillsTitle');
-  title.textContent = courseId === 'cefr' ? 'CEFR Boshqaruvi' : 'IELTS Boshqaruvi';
+  const courseObj = DYNAMIC_COURSES.find(c => c.id === courseId);
+  title.textContent = courseObj ? courseObj.name : courseId.toUpperCase();
 
   const skills = [
     { id: 'listening', name: 'Listening', desc: 'Listening darslari, audio materiallar va testlar' },
     { id: 'reading', name: 'Reading', desc: 'Reading darslari, matnlar va savollar' },
-    { id: 'speaking', name: 'Speaking', desc: 'Speaking darslari, mavzular va testlar' } // Grammar -> Speaking
+    { id: 'speaking', name: 'Speaking', desc: 'Speaking darslari, mavzular va testlar' }
   ];
 
-  let tabColor = courseId === 'cefr' ? '#D98E3F' : '#253559';
+  let tabColor = courseObj ? courseObj.color : '#D98E3F';
 
   grid.innerHTML = skills.map(sk => {
     const levelId = `${courseId}_${sk.id}`;
@@ -789,12 +960,16 @@ document.getElementById('adminSkillsGrid').addEventListener('click', (e) => {
 
 document.getElementById('backToCoursesFromGe').addEventListener('click', (e) => {
   e.preventDefault();
+  state.activeView = 'levels';
+  saveCurrentState();
   switchView('levels');
   renderLevelsOverview();
 });
 
 document.getElementById('backToLevelsFromSkills').addEventListener('click', (e) => {
   e.preventDefault();
+  state.activeView = 'levels';
+  saveCurrentState();
   switchView('levels');
   renderLevelsOverview();
 });
@@ -806,10 +981,12 @@ const lessonList = document.getElementById('lessonList');
 
 function openLevel(id){
   state.activeLevelId = id;
+  state.activeView = 'lessons';
+  saveCurrentState();
   const lvl = LEVELS.find(l => l.id === id);
   const data = getLevel(id);
 
-  document.getElementById('lessonsLevelName').textContent = lvl.name;
+  document.getElementById('lessonsLevelName').textContent = lvl ? lvl.name : 'Darslar';
   document.getElementById('lessonsLevelSub').textContent = `${data.lessons.length} ta dars`;
 
   if(data.lessons.length === 0){
@@ -846,13 +1023,9 @@ function openLevel(id){
   switchView('lessons');
 }
 
-function closeLevel(){
-  state.activeLevelId = null;
-  switchView('levels');
-  renderLevelsOverview();
-}
-
 function switchView(view){
+  state.activeView = view;
+  saveCurrentState();
   viewLevels.hidden = view !== 'levels';
   viewLessons.hidden = view !== 'lessons';
   viewStudents.hidden = view !== 'students';
@@ -877,6 +1050,8 @@ document.getElementById('backToLevels').addEventListener('click', (e) => {
       openAdminSkillsView(lvl.course);
     }
   } else {
+    state.activeView = 'levels';
+    saveCurrentState();
     switchView('levels');
     renderLevelsOverview();
   }
@@ -885,6 +1060,8 @@ document.getElementById('backToLevels').addEventListener('click', (e) => {
 document.getElementById('navLevels').addEventListener('click', (e) => {
   e.preventDefault();
   state.activeLevelId = null;
+  state.activeView = 'levels';
+  saveCurrentState();
   switchView('levels');
   renderLevelsOverview();
 });
