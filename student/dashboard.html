@@ -48,6 +48,17 @@
             <p class="course-sub" id="generalEnglishSub">Beginner → Elementary → Pre-Intermediate</p>
           </div>
         </article>
+        
+        <!-- WRITING CARD -->
+        <article class="folder course-card" id="cardWriting">
+          <div class="folder-tab" style="--tab-color:#B3432B"></div>
+          <div class="folder-body">
+            <span class="tag">IELTS / CEFR</span>
+            <h3 class="course-title">Writing</h3>
+            <p class="course-sub">CEFR (Part 1.1, 1.2, 2) & IELTS (Task 1, 2) insholar</p>
+          </div>
+        </article>
+
         <article class="folder course-card is-locked">
           <div class="folder-tab" style="--tab-color:#D98E3F"></div>
           <div class="folder-body">
@@ -67,7 +78,119 @@
       </div>
     </section>
 
-    <!-- ===== PAYMENT GATE (General English, not approved yet) ===== -->
+    <!-- ===== WRITING COURSES VIEW ===== -->
+    <section id="view-writing-courses" hidden>
+      <a href="#" id="backToCoursesFromWriting" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>Writing kurslari</h1>
+          <p>Yozish ko'nikmalarini oshirish uchun yo'nalishni tanlang.</p>
+        </div>
+      </div>
+      <div class="course-grid">
+        <article class="folder course-card" id="cardWritingCefr">
+          <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
+          <div class="folder-body">
+            <span class="tag">CEFR</span>
+            <h3 class="course-title">CEFR Writing</h3>
+            <p class="course-sub">Part 1.1, Part 1.2 va Part 2 bo'limlari</p>
+          </div>
+        </article>
+        <article class="folder course-card" id="cardWritingIelts">
+          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
+          <div class="folder-body">
+            <span class="tag">IELTS</span>
+            <h3 class="course-title">IELTS Writing</h3>
+            <p class="course-sub">Task 1 va Task 2 bo'limlari</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== WRITING PARTS VIEW ===== -->
+    <section id="view-writing-parts" hidden>
+      <a href="#" id="backToWritingCourses" class="back-link">← Orqaga</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="writingPartsTitle">Bo'limlar</h1>
+          <p>Tegishli bo'limdagi yozma vazifalarni bajarish uchun tanlang.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="writingPartsGrid"></div>
+    </section>
+
+    <!-- ===== WRITING TASKS VIEW ===== -->
+    <section id="view-writing-tasks" hidden>
+      <a href="#" id="backToWritingParts" class="back-link">← Bo'limlarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="writingTasksTitle">Vazifalar</h1>
+          <p>Mavzulardan birini tanlab, insho yozishni boshlang.</p>
+        </div>
+      </div>
+      <div class="lesson-list" id="writingTaskList"></div>
+    </section>
+
+    <!-- ===== WRITING EDITOR VIEW ===== -->
+    <section id="view-writing-editor" hidden>
+      <a href="#" id="backToWritingTasks" class="back-link">← Vazifalarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="writingEditorTaskTitle">Insho yozish</h1>
+          <p id="writingEditorTaskMeta">Insho yozish jarayoni</p>
+        </div>
+      </div>
+      
+      <div class="writing-grid">
+        <div class="writing-prompt-box">
+          <span class="tag" style="margin-bottom:1em;">Mavzu va Savol</span>
+          <div id="writingEditorPrompt" class="rich-content"></div>
+        </div>
+        
+        <div class="writing-editor-box">
+          <div id="writingActiveSubmissionArea">
+            <textarea id="writingEssayTextarea" class="writing-textarea" placeholder="Inshoingizni shu yerga yozing..."></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5em;">
+              <span class="word-counter" id="writingWordCount">0 so'z</span>
+              <button type="button" class="btn btn-teal" id="submitWritingBtn">Inshoni yuborish</button>
+            </div>
+          </div>
+          
+          <div id="writingSubmittedArea" hidden>
+            <div class="form-notice" style="margin-bottom:1em;">
+              ⏳ Insho muvaffaqiyatli topshirildi. Hozirda o'qituvchi tomonidan tekshirilmoqda. Tez orada ushbu sahifada baho va feedback paydo bo'ladi.
+            </div>
+            <div class="field">
+              <span>Siz topshirgan matn:</span>
+              <div id="writingSavedEssayText" style="white-space:pre-wrap; background:var(--paper-2); padding:1.2em; border-radius:var(--radius-s); border:1px solid var(--line); max-height:300px; overflow-y:auto; line-height:1.6;"></div>
+            </div>
+          </div>
+
+          <div id="writingGradedArea" hidden>
+            <div class="writing-feedback-box">
+              <div class="writing-feedback-header">
+                <div>
+                  <h3 style="margin:0; color:var(--teal-deep);">Tekshirildi</h3>
+                  <span style="font-size:0.8rem; color:var(--gray);" id="writingGradedAt">Sana</span>
+                </div>
+                <div class="writing-grade-badge" id="writingGradeBadge">Band 7.0</div>
+              </div>
+              <div class="field">
+                <span style="font-weight:700;">O'qituvchi fikri (Feedback):</span>
+                <div id="writingFeedbackContent" class="rich-content" style="background:var(--white); padding:1em; border-radius:var(--radius-s); border:1px solid var(--line);"></div>
+              </div>
+            </div>
+            
+            <div class="field" style="margin-top:1.5em;">
+              <span>Siz topshirgan matn:</span>
+              <div id="writingSavedGradedEssayText" style="white-space:pre-wrap; background:var(--paper-2); padding:1.2em; border-radius:var(--radius-s); border:1px solid var(--line); max-height:200px; overflow-y:auto; line-height:1.6;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PAYMENT GATE (General English) ===== -->
     <section id="view-payment" hidden>
       <a href="#" id="backToCoursesFromPayment" class="back-link">← Kurslarga qaytish</a>
       <div class="admin-header">
@@ -92,7 +215,7 @@
       </div>
     </section>
 
-    <!-- ===== LEVELS (General English, approved) ===== -->
+    <!-- ===== LEVELS (General English) ===== -->
     <section id="view-levels" hidden>
       <a href="#" id="backToCoursesFromLevels" class="back-link">← Kurslarga qaytish</a>
       <div class="admin-header">
@@ -104,7 +227,7 @@
       <div class="level-grid" id="levelsGrid"></div>
     </section>
 
-    <!-- ===== LESSON LIST (inside a level) ===== -->
+    <!-- ===== LESSON LIST ===== -->
     <section id="view-lessons" hidden>
       <a href="#" id="backToLevels" class="back-link">← Darajalarga qaytish</a>
       <div class="admin-header">
@@ -160,18 +283,20 @@ const PASS_PERCENT = 60;
 
 let currentUid = null;
 let state = {
-  student: null,        // {name,email,paymentStatus,progress,...}
-  levels: {},            // {levelId: {name,order,lessons:[...]}}
+  student: null,
+  levels: {},
   activeLevelId: null,
   activeLessonId: null,
-  lastQuizContext: null   // {levelId, lessonId} — used by "Qayta urinish"
+  lastQuizContext: null,
+  writingActiveCourse: null,
+  writingActivePart: null,
+  writingActiveTaskId: null,
+  writingActiveTask: null
 };
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
-
-// ---------- Auth gate ----------
 
 auth.onAuthStateChanged(async (user) => {
   if(!user){ window.location.href = 'login.html'; return; }
@@ -205,8 +330,6 @@ async function loadLevels(){
 }
 
 function getLevel(id){ return state.levels[id]; }
-
-// ---------- Progress helpers ----------
 
 function getLessonProgress(levelId, lessonId){
   return (state.student.progress[levelId] && state.student.progress[levelId][lessonId]) || { passed: false, bestScore: null };
@@ -242,15 +365,11 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
   state.student.progress[levelId][lessonId] = { passed: newPassed, bestScore };
 }
 
-// ---------- View switching ----------
-
-const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result'];
+const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'writing-courses', 'writing-parts', 'writing-tasks', 'writing-editor'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
-
-// ---------- Courses overview ----------
 
 function renderCoursesOverview(){
   const sub = document.getElementById('generalEnglishSub');
@@ -274,8 +393,6 @@ document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
   }
 });
 
-// ---------- Payment gate ----------
-
 function openPaymentView(){
   const area = document.getElementById('paymentActionArea');
   if(state.student.paymentStatus === 'pending'){
@@ -296,8 +413,6 @@ function openPaymentView(){
 
 document.getElementById('backToCoursesFromPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 document.getElementById('backToCoursesFromLevels').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
-
-// ---------- Levels ----------
 
 function openLevelsView(){
   document.getElementById('levelsGrid').innerHTML = LEVELS.map(lvl => {
@@ -321,8 +436,6 @@ document.getElementById('levelsGrid').addEventListener('click', (e) => {
   const card = e.target.closest('[data-open-level]');
   if(card) openLessonsView(card.dataset.openLevel);
 });
-
-// ---------- Lesson list ----------
 
 function openLessonsView(levelId){
   state.activeLevelId = levelId;
@@ -364,8 +477,6 @@ document.getElementById('lessonList').addEventListener('click', (e) => {
 
 document.getElementById('backToLevels').addEventListener('click', (e) => { e.preventDefault(); openLevelsView(); });
 
-// ---------- Lesson detail ----------
-
 function getCurrentLesson(){
   return getLevel(state.activeLevelId).lessons.find(l => l.id === state.activeLessonId);
 }
@@ -376,7 +487,6 @@ async function openLessonDetail(lessonId){
   const progress = getLessonProgress(state.activeLevelId, lessonId);
   const hasQuiz = lesson.quiz && lesson.quiz.length > 0;
 
-  // Lessons with no quiz unlock the next lesson automatically the first time they're opened.
   if(!hasQuiz && !progress.passed){
     await saveProgress(state.activeLevelId, lessonId, true, null);
   }
@@ -430,8 +540,6 @@ async function openLessonDetail(lessonId){
 }
 
 document.getElementById('backToLessons').addEventListener('click', (e) => { e.preventDefault(); openLessonsView(state.activeLevelId); });
-
-// ---------- Quiz ----------
 
 function openQuiz(levelId, lessonId){
   state.lastQuizContext = { levelId, lessonId };
@@ -505,6 +613,235 @@ function renderQuizResult(scorePct, passed){
   document.getElementById('backToLessonsFromResultBtn').addEventListener('click', () => openLessonsView(state.lastQuizContext.levelId));
   switchView('quiz-result');
 }
+
+// ============ WRITING LOGIC ============
+
+document.getElementById('cardWriting').addEventListener('click', () => {
+  switchView('writing-courses');
+});
+
+document.getElementById('cardWritingCefr').addEventListener('click', () => {
+  state.writingActiveCourse = 'cefr';
+  openWritingPartsView();
+});
+
+document.getElementById('cardWritingIelts').addEventListener('click', () => {
+  state.writingActiveCourse = 'ielts';
+  openWritingPartsView();
+});
+
+function openWritingPartsView() {
+  const partsGrid = document.getElementById('writingPartsGrid');
+  const course = state.writingActiveCourse;
+  
+  document.getElementById('writingPartsTitle').textContent = course === 'cefr' ? 'CEFR Writing Bo\'limlari' : 'IELTS Writing Bo\'limlari';
+  
+  let parts = [];
+  if (course === 'cefr') {
+    parts = [
+      { id: 'part1_1', name: 'Part 1.1', desc: 'Sodda yozma savollar va elektron maktub mashqlari.' },
+      { id: 'part1_2', name: 'Part 1.2', desc: 'Interaktiv yoki qisqa matn yaratish mashqlari.' },
+      { id: 'part2', name: 'Part 2', desc: 'Insho yozish (Opinions, Discursive Essay) mashqlari.' }
+    ];
+  } else {
+    parts = [
+      { id: 'task1', name: 'Task 1', desc: 'Academic Report (Graph, Chart, Map) / General Letter' },
+      { id: 'task2', name: 'Task 2', desc: 'Essay Writing (Agree/Disagree, Discussion, Advantages/Disadvantages)' }
+    ];
+  }
+  
+  partsGrid.innerHTML = parts.map(p => `
+    <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-writing-part="${p.id}">
+      <div class="folder-tab"></div>
+      <div class="folder-body">
+        <span class="tag">${course.toUpperCase()}</span>
+        <h3 class="level-title">${p.name}</h3>
+        <p class="level-sub">${p.desc}</p>
+      </div>
+    </article>
+  `).join('');
+  
+  switchView('writing-parts');
+}
+
+document.getElementById('writingPartsGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-open-writing-part]');
+  if(card) openWritingTasksView(card.dataset.openWritingPart);
+});
+
+async function openWritingTasksView(partId) {
+  state.writingActivePart = partId;
+  const course = state.writingActiveCourse;
+  
+  const displayPartName = partId === 'part1_1' ? 'Part 1.1' :
+                          partId === 'part1_2' ? 'Part 1.2' :
+                          partId === 'part2' ? 'Part 2' :
+                          partId === 'task1' ? 'Task 1' : 'Task 2';
+                          
+  document.getElementById('writingTasksTitle').textContent = `${course.toUpperCase()} - ${displayPartName} Vazifalari`;
+  
+  const taskList = document.getElementById('writingTaskList');
+  taskList.innerHTML = '<div style="text-align:center; padding:2em; color:var(--gray);">Yuklanmoqda...</div>';
+  
+  switchView('writing-tasks');
+  
+  try {
+    const snap = await db.collection('writing_tasks')
+      .where('course', '==', course)
+      .where('part', '==', partId)
+      .get();
+      
+    if (snap.empty) {
+      taskList.innerHTML = `<div class="empty-state"><h3>Ushbu bo'limda hozircha vazifalar yo'q</h3><p>Tez orada admin tomonidan yangi vazifalar qo'shiladi.</p></div>`;
+    } else {
+      const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      
+      const subSnap = await db.collection('writing_submissions')
+        .where('studentUid', '==', currentUid)
+        .where('course', '==', course)
+        .where('part', '==', partId)
+        .get();
+        
+      const subMap = {};
+      subSnap.forEach(doc => {
+        const d = doc.data();
+        subMap[d.taskId] = d;
+      });
+      
+      taskList.innerHTML = tasks.map((t, i) => {
+        const sub = subMap[t.id];
+        let statusBadge = '<span class="status-pill status-kutilmoqda">Boshlanmagan</span>';
+        if (sub) {
+          if (sub.status === 'graded') {
+            statusBadge = `<span class="status-pill status-otildi" style="background:rgba(46,111,110,.14); color:var(--teal-deep);">Baholandi: ${escapeHtml(sub.grade)} ✓</span>`;
+          } else {
+            statusBadge = '<span class="status-pill status-tayyor" style="background:rgba(217,142,63,.16); color:var(--amber-deep);">Tekshirilmoqda</span>';
+          }
+        }
+        
+        return `
+          <div class="lesson-row is-clickable" data-open-writing-task="${t.id}">
+            <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
+            <div class="lesson-main">
+              <div class="lesson-row-top">
+                <span class="lesson-title">${escapeHtml(t.title)}</span>
+                ${sub && sub.status === 'graded' ? `<span class="lesson-score">Baho: ${escapeHtml(sub.grade)}</span>` : ''}
+              </div>
+              <div class="lesson-meta">
+                ${statusBadge}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  } catch (err) {
+    taskList.innerHTML = `<div class="form-error">Xatolik yuz berdi: ${err.message}</div>`;
+  }
+}
+
+document.getElementById('writingTaskList').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-open-writing-task]');
+  if(row) openWritingEditorView(row.dataset.openWritingTask);
+});
+
+async function openWritingEditorView(taskId) {
+  state.writingActiveTaskId = taskId;
+  
+  const textarea = document.getElementById('writingEssayTextarea');
+  textarea.value = '';
+  document.getElementById('writingWordCount').textContent = "0 so'z";
+  
+  document.getElementById('writingActiveSubmissionArea').hidden = true;
+  document.getElementById('writingSubmittedArea').hidden = true;
+  document.getElementById('writingGradedArea').hidden = true;
+  
+  switchView('writing-editor');
+  
+  try {
+    const taskDoc = await db.collection('writing_tasks').doc(taskId).get();
+    if (!taskDoc.exists) return;
+    const task = taskDoc.data();
+    state.writingActiveTask = task;
+    
+    document.getElementById('writingEditorTaskTitle').textContent = task.title;
+    document.getElementById('writingEditorTaskMeta').textContent = `${state.writingActiveCourse.toUpperCase()} Writing - ${state.writingActivePart.toUpperCase()}`;
+    document.getElementById('writingEditorPrompt').innerHTML = task.prompt;
+    
+    const subSnap = await db.collection('writing_submissions')
+      .where('studentUid', '==', currentUid)
+      .where('taskId', '==', taskId)
+      .limit(1)
+      .get();
+      
+    if (!subSnap.empty) {
+      const sub = subSnap.docs[0].data();
+      if (sub.status === 'graded') {
+        document.getElementById('writingGradedArea').hidden = false;
+        document.getElementById('writingGradeBadge').textContent = sub.grade;
+        document.getElementById('writingGradedAt').textContent = sub.gradedAt ? new Date(sub.gradedAt).toLocaleDateString('uz-UZ') + ' ' + new Date(sub.gradedAt).toLocaleTimeString('uz-UZ', {hour: '2-digit', minute:'2-digit'}) : '';
+        document.getElementById('writingFeedbackContent').innerHTML = sub.feedback;
+        document.getElementById('writingSavedGradedEssayText').textContent = sub.essayText;
+      } else {
+        document.getElementById('writingSubmittedArea').hidden = false;
+        document.getElementById('writingSavedEssayText').textContent = sub.essayText;
+      }
+    } else {
+      document.getElementById('writingActiveSubmissionArea').hidden = false;
+    }
+  } catch (err) {
+    alert("Xatolik: " + err.message);
+  }
+}
+
+document.getElementById('writingEssayTextarea').addEventListener('input', (e) => {
+  const text = e.target.value.trim();
+  const words = text === '' ? 0 : text.split(/\s+/).length;
+  document.getElementById('writingWordCount').textContent = `${words} so'z`;
+});
+
+document.getElementById('submitWritingBtn').addEventListener('click', async () => {
+  const text = document.getElementById('writingEssayTextarea').value.trim();
+  if (text === '') {
+    alert('Iltimos, insho matnini yozing!');
+    return;
+  }
+  
+  if (!confirm('Inshoni yubormoqchimisiz? Yuborilgandan keyin uni tahrirlab bo\'lmaydi.')) {
+    return;
+  }
+  
+  const btn = document.getElementById('submitWritingBtn');
+  btn.disabled = true;
+  btn.textContent = 'Yuborilmoqda...';
+  
+  try {
+    const submissionId = `${currentUid}_${state.writingActiveTaskId}`;
+    await db.collection('writing_submissions').doc(submissionId).set({
+      studentUid: currentUid,
+      studentName: state.student.name || 'Nomsiz o\'quvchi',
+      studentEmail: state.student.email,
+      taskId: state.writingActiveTaskId,
+      taskTitle: state.writingActiveTask.title,
+      course: state.writingActiveCourse,
+      part: state.writingActivePart,
+      essayText: text,
+      status: 'submitted',
+      submittedAt: Date.now()
+    });
+    
+    await openWritingEditorView(state.writingActiveTaskId);
+  } catch (err) {
+    alert('Yuborishda xatolik yuz berdi: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Inshoni yuborish';
+  }
+});
+
+document.getElementById('backToCoursesFromWriting').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+document.getElementById('backToWritingCourses').addEventListener('click', (e) => { e.preventDefault(); switchView('writing-courses'); });
+document.getElementById('backToWritingParts').addEventListener('click', (e) => { e.preventDefault(); openWritingPartsView(); });
+document.getElementById('backToWritingTasks').addEventListener('click', (e) => { e.preventDefault(); openWritingTasksView(state.writingActivePart); });
 </script>
 </body>
 </html>
