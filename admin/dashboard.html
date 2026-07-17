@@ -682,199 +682,19 @@ function renderLevelsOverview(){
     <div class="stat-card"><strong>${totalLessons}</strong><span>Jami darslar</span></div>
     <div class="stat-card"><strong>${totalQuestions}</strong><span>Jami test savollari</span></div>
     <div class="stat-card"><strong>${approvedStudents}</strong><span>Faol o‘quvchi</span></div>
-    <div class="stat-card"><strong>${pendingPayments}</strong><span>Kutilayotgan to‘lovlar</span></div>
-  `;
-
-  // DRAW MAIN 3 COURSE FOLDERS
-  document.getElementById('levelsGrid').innerHTML = `
-    <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-course="general">
-      <div class="folder-tab"></div>
-      <div class="folder-body">
-        <span class="tag">A1–B1</span>
-        <h3 class="level-title">General English</h3>
-        <p class="level-sub">Beginner, Elementary, Pre-Intermediate darslari</p>
-      </div>
-    </article>
-    <article class="folder level-card" style="--tab-color:#D98E3F" data-open-course="cefr">
-      <div class="folder-tab"></div>
-      <div class="folder-body">
-        <span class="tag">B1–C1</span>
-        <h3 class="level-title">CEFR</h3>
-        <p class="level-sub">Listening, Reading, Grammar darslari</p>
-      </div>
-    </article>
-    <article class="folder level-card" style="--tab-color:#253559" data-open-course="ielts">
-      <div class="folder-tab"></div>
-      <div class="folder-body">
-        <span class="tag">IELTS</span>
-        <h3 class="level-title">IELTS</h3>
-        <p class="level-sub">Listening, Reading, Grammar darslari</p>
-      </div>
-    </article>
+    <div class="stat-card"><strong>${pendingPayments}</strong><span>To‘lov kutayotganlar</span></div>
   `;
 }
 
-document.getElementById('levelsGrid').addEventListener('click', (e) => {
-  const card = e.target.closest('[data-open-course]');
-  if(!card) return;
-  const course = card.dataset.openCourse;
-  if (course === 'general') {
-    openGeneralEnglishLevelsView();
-  } else {
-    openAdminSkillsView(course);
-  }
-});
-
-function openGeneralEnglishLevelsView() {
-  const grid = document.getElementById('adminGeLevelsGrid');
-  const generalLevels = LEVELS.filter(l => l.course === 'general');
-  grid.innerHTML = generalLevels.map(lvl => {
-    const data = getLevel(lvl.id);
-    const questionCount = data.lessons.reduce((s, l) => s + (l.quiz ? l.quiz.length : 0), 0);
-    return `
-      <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-level="${lvl.id}">
-        <div class="folder-tab"></div>
-        <div class="folder-body">
-          <span class="tag">Daraja ${lvl.order}</span>
-          <h3 class="level-title">${escapeHtml(lvl.name)}</h3>
-          <p class="level-sub">${data.lessons.length} ta dars · ${questionCount} ta test</p>
-        </div>
-      </article>
-    `;
-  }).join('');
-  switchView('admin-ge-levels');
-}
-
-function openAdminSkillsView(courseId) {
-  const grid = document.getElementById('adminSkillsGrid');
-  const title = document.getElementById('adminSkillsTitle');
-  title.textContent = courseId === 'cefr' ? 'CEFR Boshqaruvi' : 'IELTS Boshqaruvi';
-
-  const skills = [
-    { id: 'listening', name: 'Listening', desc: 'Listening darslari, audio materiallar va testlar' },
-    { id: 'reading', name: 'Reading', desc: 'Reading darslari, matnlar va savollar' },
-    { id: 'grammar', name: 'Grammar', desc: 'Grammatika darslari va testlar' }
-  ];
-
-  let tabColor = courseId === 'cefr' ? '#D98E3F' : '#253559';
-
-  grid.innerHTML = skills.map(sk => {
-    const levelId = `${courseId}_${sk.id}`;
-    const data = getLevel(levelId) || { lessons: [] };
-    const questionCount = data.lessons.reduce((s, l) => s + (l.quiz ? l.quiz.length : 0), 0);
-    return `
-      <article class="folder level-card" style="--tab-color:${tabColor}" data-open-level="${levelId}">
-        <div class="folder-tab"></div>
-        <div class="folder-body">
-          <span class="tag">${courseId.toUpperCase()}</span>
-          <h3 class="level-title">${sk.name}</h3>
-          <p class="level-sub">${data.lessons.length} ta dars · ${questionCount} ta test</p>
-        </div>
-      </article>
-    `;
-  }).join('');
-
-  switchView('admin-skills');
-}
-
-document.getElementById('adminGeLevelsGrid').addEventListener('click', (e) => {
-  const card = e.target.closest('[data-open-level]');
-  if(card) openLevel(card.dataset.openLevel);
-});
-
-document.getElementById('adminSkillsGrid').addEventListener('click', (e) => {
-  const card = e.target.closest('[data-open-level]');
-  if(card) openLevel(card.dataset.openLevel);
-});
-
-document.getElementById('backToCoursesFromGe').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('levels');
-  renderLevelsOverview();
-});
-
-document.getElementById('backToLevelsFromSkills').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('levels');
-  renderLevelsOverview();
-});
-
-const viewLevels = document.getElementById('view-levels');
-const viewLessons = document.getElementById('view-lessons');
-const viewStudents = document.getElementById('view-students');
-const lessonList = document.getElementById('lessonList');
-
-function openLevel(id){
-  state.activeLevelId = id;
-  const lvl = LEVELS.find(l => l.id === id);
-  const data = getLevel(id);
-
-  document.getElementById('lessonsLevelName').textContent = lvl.name;
-  document.getElementById('lessonsLevelSub').textContent = `${data.lessons.length} ta dars`;
-
-  if(data.lessons.length === 0){
-    lessonList.innerHTML = `
-      <div class="empty-state">
-        <h3>Bu yo'nalishda hali dars yo‘q</h3>
-        <p>“Yangi dars qo‘shish” tugmasini bosib birinchi darsni yarating.</p>
-      </div>`;
-  } else {
-    lessonList.innerHTML = data.lessons.map((lesson, i) => `
-      <div class="lesson-row">
-        <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
-        <div class="lesson-main">
-          <div class="lesson-row-top">
-            <span class="lesson-title">${escapeHtml(lesson.title || 'Nomsiz dars')}</span>
-            <div class="lesson-actions">
-              <button class="btn btn-ghost btn-sm" data-move-lesson="up" data-lesson-id="${lesson.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-              <button class="btn btn-ghost btn-sm" data-move-lesson="down" data-lesson-id="${lesson.id}" ${i === data.lessons.length - 1 ? 'disabled' : ''}>↓</button>
-              <button class="btn btn-ghost btn-sm" data-edit-lesson="${lesson.id}">Tahrirlash</button>
-              <button class="btn btn-danger btn-sm" data-delete-lesson="${lesson.id}">O‘chirish</button>
-            </div>
-          </div>
-          <div class="lesson-meta">
-            <span class="tag">${(lesson.quiz || []).length} ta test savoli</span>
-            ${lesson.video ? '<span class="tag">🎬 Video bor</span>' : ''}
-            ${lesson.material ? '<span class="tag">📎 Material bor</span>' : ''}
-            ${lesson.homework ? '<span class="tag">📝 Uy vazifasi bor</span>' : ''}
-            ${lesson.homeworkAnswer ? '<span class="tag">✅ Javoblar bor</span>' : ''}
-          </div>
-        </div>
-      </div>`).join('');
-  }
-
-  switchView('lessons');
-}
-
-function closeLevel(){
-  state.activeLevelId = null;
-  switchView('levels');
-  renderLevelsOverview();
-}
-
-function switchView(view){
-  viewLevels.hidden = view !== 'levels';
-  viewLessons.hidden = view !== 'lessons';
-  viewStudents.hidden = view !== 'students';
-  document.getElementById('view-site-settings').hidden = view !== 'site-settings';
-  document.getElementById('view-admin-writing').hidden = view !== 'admin-writing';
-  document.getElementById('view-admin-ge-levels').hidden = view !== 'admin-ge-levels';
-  document.getElementById('view-admin-skills').hidden = view !== 'admin-skills';
-  
-  document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons' || view === 'admin-ge-levels' || view === 'admin-skills');
-  document.getElementById('navStudents').classList.toggle('active', view === 'students');
-  document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
-  document.getElementById('navWriting').classList.toggle('active', view === 'admin-writing');
-}
-
+// "Orqaga" tugmasi bosilganda darslar oynasidan mos darajaga qaytarish hodisasi
 document.getElementById('backToLevels').addEventListener('click', (e) => {
   e.preventDefault();
   const lvl = LEVELS.find(l => l.id === state.activeLevelId);
   if (lvl) {
     if (lvl.course === 'general') {
-      openGeneralEnglishLevelsView();
+      openGeneralEnglishLevelsView(); // Agar General English bo'lsa
     } else {
-      openAdminSkillsView(lvl.course);
+      openAdminSkillsView(lvl.course); // CEFR yoki IELTS bo'lsa
     }
   } else {
     switchView('levels');
@@ -882,629 +702,80 @@ document.getElementById('backToLevels').addEventListener('click', (e) => {
   }
 });
 
-document.getElementById('navLevels').addEventListener('click', (e) => {
-  e.preventDefault();
-  state.activeLevelId = null;
-  switchView('levels');
-  renderLevelsOverview();
+// Sayt sozlamalarini yuklash funksiyasi
+function loadSiteSettingsForm() {
+  const errorEl = document.getElementById('siteSettingsError');
+  if (errorEl) errorEl.hidden = true;
+  
+  if (typeof siteSettings !== 'undefined') {
+    document.getElementById('settingBrandName').value = siteSettings.brandName || '';
+    document.getElementById('settingLogoUrl').value = siteSettings.logoUrl || '';
+    document.getElementById('settingColorPrimary').value = siteSettings.colorPrimary || '#D98E3F';
+    document.getElementById('settingColorAccent').value = siteSettings.colorAccent || '#2E6F6E';
+    document.getElementById('settingColorBackground').value = siteSettings.colorBackground || '#FFFFFF';
+    
+    // Matnli label'larni ham HEX kodlariga moslab yangilaymiz
+    document.getElementById('settingColorPrimaryLabel').textContent = (siteSettings.colorPrimary || '#D98E3F').toUpperCase();
+    document.getElementById('settingColorAccentLabel').textContent = (siteSettings.colorAccent || '#2E6F6E').toUpperCase();
+    document.getElementById('settingColorBackgroundLabel').textContent = (siteSettings.colorBackground || '#FFFFFF').toUpperCase();
+  }
+}
+
+// Ranglar paneldan o'zgartirilganda yozma HEX kodlarini jonli (live) yangilash
+document.getElementById('settingColorPrimary').addEventListener('input', (e) => {
+  document.getElementById('settingColorPrimaryLabel').textContent = e.target.value.toUpperCase();
+});
+document.getElementById('settingColorAccent').addEventListener('input', (e) => {
+  document.getElementById('settingColorAccentLabel').textContent = e.target.value.toUpperCase();
+});
+document.getElementById('settingColorBackground').addEventListener('input', (e) => {
+  document.getElementById('settingColorBackgroundLabel').textContent = e.target.value.toUpperCase();
 });
 
-document.getElementById('navStudents').addEventListener('click', (e) => {
+// Sayt sozlamalari formasini Firestore'ga saqlash hodisasi
+document.getElementById('siteSettingsForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  switchView('students');
-  renderStudents();
+  const submitBtn = document.getElementById('siteSettingsSubmit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saqlanmoqda...';
+
+  const updatedSettings = {
+    colorPrimary: document.getElementById('settingColorPrimary').value,
+    colorAccent: document.getElementById('settingColorAccent').value,
+    colorBackground: document.getElementById('settingColorBackground').value,
+    brandName: document.getElementById('settingBrandName').value.trim(),
+    logoUrl: document.getElementById('settingLogoUrl').value.trim(),
+    heroEyebrow: document.getElementById('settingHeroEyebrow').value.trim(),
+    heroTitle: document.getElementById('settingHeroTitle').value.trim(),
+    heroLead: document.getElementById('settingHeroLead').value.trim(),
+    updatedAt: Date.now()
+  };
+
+  try {
+    // Firestore'dagi 'settings/general' hujjatiga ma'lumotlarni yozamiz
+    await db.collection('settings').doc('general').set(updatedSettings, { merge: true });
+    if (typeof showToast === 'function') {
+      showToast('Sayt sozlamalari muvaffaqiyatli saqlandi!');
+    } else {
+      alert('Sayt sozlamalari muvaffaqiyatli saqlandi!');
+    }
+  } catch (err) {
+    if (typeof showToast === 'function') {
+      showToast('Xatolik yuz berdi: ' + err.message, true);
+    } else {
+      alert('Xatolik yuz berdi: ' + err.message);
+    }
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Saqlash';
+  }
 });
+
+// Navigatsiya orqali sozlamalar bo'limiga o'tilganda formani to'ldirish
 document.getElementById('navSiteSettings').addEventListener('click', (e) => {
   e.preventDefault();
-  switchView('site-settings');
+  if (typeof switchView === 'function') switchView('site-settings');
   loadSiteSettingsForm();
-});
-
-function openModal(id){ document.getElementById(id).hidden = false; }
-function closeModal(id){ document.getElementById(id).hidden = true; }
-
-document.querySelectorAll('[data-close-modal]').forEach(btn => {
-  btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
-});
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.hidden = true; });
-});
-
-let toastTimer = null;
-function showToast(msg, isError = false){
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.toggle('toast-error', isError);
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
-}
-
-// ---------- Quiz editor ----------
-
-const quizEditor = document.getElementById('quizEditor');
-
-function renderQuizEditor(){
-  if(state.quizDraft.length === 0){
-    quizEditor.innerHTML = `<p class="quiz-empty">Hali savol qo‘shilmagan.</p>`;
-    return;
-  }
-  quizEditor.innerHTML = state.quizDraft.map((q, qi) => `
-    <div class="quiz-question-block" data-qindex="${qi}">
-      <div class="quiz-question-head">
-        <span class="quiz-question-num">Savol №${qi + 1}</span>
-        <button type="button" class="btn btn-ghost btn-sm" data-remove-question="${qi}">O‘chirish</button>
-      </div>
-      <input type="text" class="quiz-q-text" data-qfield="question" placeholder="Savol matni" value="${escapeHtml(q.question)}">
-      <div class="quiz-options">
-        ${q.options.map((opt, oi) => `
-          <div class="quiz-option-row">
-            <input type="radio" name="correct-${qi}" data-qfield="correct" value="${oi}" ${q.correctIndex === oi ? 'checked' : ''}>
-            <input type="text" data-qfield="option-${oi}" placeholder="Variant ${String.fromCharCode(65 + oi)}" value="${escapeHtml(opt)}">
-          </div>`).join('')}
-      </div>
-    </div>`).join('');
-}
-
-function syncQuizDraftFromDOM(){
-  document.querySelectorAll('#quizEditor .quiz-question-block').forEach(block => {
-    const qi = Number(block.dataset.qindex);
-    if(!state.quizDraft[qi]) return;
-    state.quizDraft[qi].question = block.querySelector('[data-qfield="question"]').value.trim();
-    state.quizDraft[qi].options = [0, 1, 2, 3].map(oi => block.querySelector(`[data-qfield="option-${oi}"]`).value.trim());
-    const checked = block.querySelector('[data-qfield="correct"]:checked');
-    state.quizDraft[qi].correctIndex = checked ? Number(checked.value) : 0;
-  });
-}
-
-document.getElementById('addQuestionBtn').addEventListener('click', () => {
-  syncQuizDraftFromDOM();
-  state.quizDraft.push({ question: '', options: ['', '', '', ''], correctIndex: 0 });
-  renderQuizEditor();
-});
-
-quizEditor.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-remove-question]');
-  if(!btn) return;
-  syncQuizDraftFromDOM();
-  state.quizDraft.splice(Number(btn.dataset.removeQuestion), 1);
-  renderQuizEditor();
-});
-
-document.getElementById('openAddLesson').addEventListener('click', () => {
-  state.activeLessonId = null;
-  state.quizDraft = [];
-  document.getElementById('lessonModalTitle').textContent = 'Yangi dars';
-  document.getElementById('editLessonForm').reset();
-  setRteValue('lessonTopicText', '');
-  setRteValue('lessonHomework', '');
-  setRteValue('lessonHomeworkAnswer', '');
-  renderQuizEditor();
-  openModal('modalEditLesson');
-});
-
-lessonList.addEventListener('click', (e) => {
-  const editBtn = e.target.closest('[data-edit-lesson]');
-  if(editBtn){
-    const lesson = getLevel(state.activeLevelId).lessons.find(l => l.id === editBtn.dataset.editLesson);
-    if(!lesson) return;
-    state.activeLessonId = lesson.id;
-    state.quizDraft = JSON.parse(JSON.stringify(lesson.quiz || []));
-    document.getElementById('lessonModalTitle').textContent = 'Darsni tahrirlash';
-    document.getElementById('lessonTitle').value = lesson.title || '';
-    document.getElementById('lessonVideo').value = lesson.video || '';
-    document.getElementById('lessonMaterial').value = lesson.material || '';
-    setRteValue('lessonTopicText', lesson.topicText || '');
-    setRteValue('lessonHomework', lesson.homework || '');
-    setRteValue('lessonHomeworkAnswer', lesson.homeworkAnswer || '');
-    renderQuizEditor();
-    openModal('modalEditLesson');
-    return;
-  }
-
-  const delBtn = e.target.closest('[data-delete-lesson]');
-  if(delBtn){
-    const data = getLevel(state.activeLevelId);
-    const lesson = data.lessons.find(l => l.id === delBtn.dataset.deleteLesson);
-    if(lesson && confirm(`“${lesson.title || 'Nomsiz dars'}” darsini o‘chirmoqchimisiz?`)){
-      data.lessons = data.lessons.filter(l => l.id !== lesson.id);
-      db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons })
-        .then(() => { openLevel(state.activeLevelId); showToast('Dars o‘chirildi.'); });
-    }
-    return;
-  }
-
-  const moveBtn = e.target.closest('[data-move-lesson]');
-  if(moveBtn){
-    const data = getLevel(state.activeLevelId);
-    const idx = data.lessons.findIndex(l => l.id === moveBtn.dataset.lessonId);
-    const dir = moveBtn.dataset.moveLesson === 'up' ? -1 : 1;
-    const targetIdx = idx + dir;
-    if(targetIdx < 0 || targetIdx >= data.lessons.length) return;
-    [data.lessons[idx], data.lessons[targetIdx]] = [data.lessons[targetIdx], data.lessons[idx]];
-    db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons })
-      .then(() => openLevel(state.activeLevelId));
-    return;
-  }
-});
-
-document.getElementById('editLessonForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  syncQuizDraftFromDOM();
-
-  const cleanedQuiz = state.quizDraft
-    .filter(q => q.question.trim() !== '')
-    .map(q => ({
-      question: q.question.trim(),
-      options: q.options.map(o => o.trim()),
-      correctIndex: q.correctIndex
-    }));
-
-  for(const q of cleanedQuiz){
-    if(q.options.some(o => o === '')){
-      showToast('Har bir savolning barcha variantlari to‘ldirilishi kerak.', true);
-      return;
-    }
-  }
-
-  const data = getLevel(state.activeLevelId);
-  const lessonData = {
-    title: document.getElementById('lessonTitle').value.trim(),
-    video: document.getElementById('lessonVideo').value.trim(),
-    material: document.getElementById('lessonMaterial').value.trim(),
-    topicText: getRteValue('lessonTopicText'),
-    homework: getRteValue('lessonHomework'),
-    homeworkAnswer: getRteValue('lessonHomeworkAnswer'),
-    quiz: cleanedQuiz
-  };
-
-  if(state.activeLessonId){
-    const idx = data.lessons.findIndex(l => l.id === state.activeLessonId);
-    data.lessons[idx] = { id: state.activeLessonId, ...lessonData };
-  } else {
-    data.lessons.push({ id: 'lsn_' + Date.now(), ...lessonData });
-  }
-
-  await db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons });
-  closeModal('modalEditLesson');
-  openLevel(state.activeLevelId);
-  showToast('Dars saqlandi.');
-});
-
-// ---------- Students: render ----------
-
-const STATUS_LABELS = {
-  none: '<span class="tag">To‘lov yo‘q</span>',
-  pending: '<span class="tag" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">Kutilmoqda</span>',
-  approved: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Tasdiqlangan ✓</span>'
-};
-
-function renderStudents(){
-  const tbody = document.getElementById('studentsTableBody');
-  const empty = document.getElementById('studentsEmpty');
-  if(state.students.length === 0){
-    tbody.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  tbody.innerHTML = state.students.map(s => {
-    let displayStatus = STATUS_LABELS[s.paymentStatus || 'none'];
-    if (s.isFree === true) {
-      displayStatus = '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">VIP / Bepul ✓</span>';
-    }
-    return `
-      <tr>
-        <td>${escapeHtml(s.name)}</td>
-        <td>${escapeHtml(s.email)}</td>
-        <td>${displayStatus}</td>
-        <td>${s.createdAt ? new Date(s.createdAt).toLocaleDateString('uz-UZ') : '—'}</td>
-        <td><button class="btn btn-ghost btn-sm" data-student-detail="${s.id}">Ko‘rish</button></td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// ============ ADMIN WRITING SYSTEM ============
-
-const writingTaskCourseSelect = document.getElementById('writingTaskCourse');
-const writingTaskPartSelect = document.getElementById('writingTaskPart');
-
-function updatePartOptions() {
-  const course = writingTaskCourseSelect.value;
-  if (course === 'cefr') {
-    writingTaskPartSelect.innerHTML = `
-      <option value="part1_1">Part 1.1</option>
-      <option value="part1_2">Part 1.2</option>
-      <option value="part2">Part 2</option>
-    `;
-  } else {
-    writingTaskPartSelect.innerHTML = `
-      <option value="task1">Task 1</option>
-      <option value="task2">Task 2</option>
-    `;
-  }
-}
-writingTaskCourseSelect.addEventListener('change', updatePartOptions);
-updatePartOptions();
-
-const btnTabSubmissions = document.getElementById('btnTabSubmissions');
-const btnTabTasks = document.getElementById('btnTabTasks');
-const writingTabSubmissions = document.getElementById('writingTabSubmissions');
-const writingTabTasks = document.getElementById('writingTabTasks');
-
-btnTabSubmissions.addEventListener('click', () => {
-  btnTabSubmissions.className = 'btn btn-primary';
-  btnTabTasks.className = 'btn btn-ghost';
-  writingTabSubmissions.hidden = false;
-  writingTabTasks.hidden = true;
-  loadAdminSubmissions();
-});
-
-btnTabTasks.addEventListener('click', () => {
-  btnTabSubmissions.className = 'btn btn-ghost';
-  btnTabTasks.className = 'btn btn-primary';
-  writingTabSubmissions.hidden = true;
-  writingTabTasks.hidden = false;
-  loadAdminWritingTasks();
-});
-
-document.getElementById('navWriting').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('admin-writing');
-  loadAdminSubmissions();
-});
-
-async function loadAdminSubmissions() {
-  const tbody = document.getElementById('writingSubmissionsTableBody');
-  const empty = document.getElementById('writingSubmissionsEmpty');
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2em; color:var(--gray);">Yuklanmoqda...</td></tr>';
-  
-  try {
-    const snap = await db.collection('writing_submissions')
-      .orderBy('submittedAt', 'desc')
-      .get();
-      
-    if (snap.empty) {
-      tbody.innerHTML = '';
-      empty.style.display = 'block';
-      return;
-    }
-    
-    empty.style.display = 'none';
-    tbody.innerHTML = snap.docs.map(doc => {
-      const s = doc.data();
-      const submissionId = doc.id;
-      const formattedDate = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('uz-UZ') + ' ' + new Date(s.submittedAt).toLocaleTimeString('uz-UZ', {hour:'2-digit', minute:'2-digit'}) : '—';
-      
-      let statusLabel = '<span class="tag" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">Topshirildi</span>';
-      let actionBtnText = 'Tekshirish';
-      if (s.status === 'graded') {
-        statusLabel = '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Baholandi ✓</span>';
-        actionBtnText = 'Qayta tekshirish';
-      }
-      
-      const displayPartName = s.part === 'part1_1' ? 'Part 1.1' :
-                              s.part === 'part1_2' ? 'Part 1.2' :
-                              s.part === 'part2' ? 'Part 2' :
-                              s.part === 'task1' ? 'Task 1' : 'Task 2';
-                              
-      return `
-        <tr>
-          <td><strong>${escapeHtml(s.studentName)}</strong><br><span style="font-size:0.75rem; color:var(--gray);">${escapeHtml(s.studentEmail)}</span></td>
-          <td><span class="tag">${s.course.toUpperCase()}</span> ${displayPartName}</td>
-          <td>${escapeHtml(s.taskTitle)}</td>
-          <td>${formattedDate}</td>
-          <td>${statusLabel}</td>
-          <td><button class="btn btn-ghost btn-sm" data-review-submission="${submissionId}">${actionBtnText}</button></td>
-        </tr>
-      `;
-    }).join('');
-  } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="6" class="form-error">Yuklashda xatolik: ${err.message}</td></tr>`;
-  }
-}
-
-document.getElementById('writingSubmissionsTableBody').addEventListener('click', async (e) => {
-  const btn = e.target.closest('[data-review-submission]');
-  if (!btn) return;
-  
-  const subId = btn.dataset.reviewSubmission;
-  currentReviewSubmissionId = subId;
-  
-  try {
-    const subDoc = await db.collection('writing_submissions').doc(subId).get();
-    if (!subDoc.exists) return;
-    const s = subDoc.data();
-    
-    document.getElementById('reviewStudentName').textContent = s.studentName;
-    
-    const displayPartName = s.part === 'part1_1' ? 'Part 1.1' :
-                            s.part === 'part1_2' ? 'Part 1.2' :
-                            s.part === 'part2' ? 'Part 2' :
-                            s.part === 'task1' ? 'Task 1' : 'Task 2';
-    document.getElementById('reviewStudentMeta').textContent = `${s.course.toUpperCase()} - ${displayPartName}`;
-    document.getElementById('reviewTaskTitle').textContent = s.taskTitle;
-    document.getElementById('reviewEssayText').textContent = s.essayText;
-    
-    const essayText = s.essayText.trim();
-    const words = essayText === '' ? 0 : essayText.split(/\s+/).length;
-    document.getElementById('reviewWordCount').textContent = `${words} ta so'z`;
-    
-    document.getElementById('reviewGrade').value = s.grade || '';
-    setRteValue('reviewFeedback', s.feedback || '');
-    
-    openModal('modalReviewSubmission');
-  } catch (err) {
-    alert('Yuklashda xatolik: ' + err.message);
-  }
-});
-
-document.getElementById('reviewGradingForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!currentReviewSubmissionId) return;
-  
-  const grade = document.getElementById('reviewGrade').value.trim();
-  const feedback = getRteValue('reviewFeedback');
-  
-  if (grade === '' || feedback === '') {
-    showToast('Iltimos, baho va feedbackni to\'liq kiriting!', true);
-    return;
-  }
-  
-  const submitBtn = e.target.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Yuborilmoqda...';
-  
-  try {
-    await db.collection('writing_submissions').doc(currentReviewSubmissionId).update({
-      grade: grade,
-      feedback: feedback,
-      status: 'graded',
-      gradedAt: Date.now()
-    });
-    
-    closeModal('modalReviewSubmission');
-    loadAdminSubmissions();
-    showToast('Feedback va baho muvaffaqiyatli yuborildi!');
-  } catch (err) {
-    showToast('Saqlashda xatolik: ' + err.message, true);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Tasdiqlash va Yuborish';
-  }
-});
-
-document.getElementById('addWritingTaskForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const course = document.getElementById('writingTaskCourse').value;
-  const part = document.getElementById('writingTaskPart').value;
-  const title = document.getElementById('writingTaskTitle').value.trim();
-  const prompt = getRteValue('writingTaskPrompt');
-  
-  if (title === '' || prompt === '') {
-    showToast('Iltimos, sarlavha va savol matnini to\'ldiring!', true);
-    return;
-  }
-  
-  const submitBtn = e.target.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Yaratilmoqda...';
-  
-  try {
-    const taskId = 'wt_' + Date.now();
-    await db.collection('writing_tasks').doc(taskId).set({
-      course: course,
-      part: part,
-      title: title,
-      prompt: prompt,
-      createdAt: Date.now()
-    });
-    
-    document.getElementById('writingTaskTitle').value = '';
-    setRteValue('writingTaskPrompt', '');
-    
-    loadAdminWritingTasks();
-    showToast('Yangi Writing vazifa yaratildi!');
-  } catch (err) {
-    showToast('Xatolik: ' + err.message, true);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Vazifani yaratish';
-  }
-});
-
-async function loadAdminWritingTasks() {
-  const taskList = document.getElementById('adminWritingTaskList');
-  taskList.innerHTML = '<div style="color:var(--gray); font-size:0.9rem;">Yuklanmoqda...</div>';
-  
-  try {
-    const snap = await db.collection('writing_tasks').orderBy('createdAt', 'desc').get();
-    if (snap.empty) {
-      taskList.innerHTML = '<div style="color:var(--gray); font-size:0.9rem; font-style:italic;">Hali birorta ham vazifa yaratilmagan.</div>';
-      return;
-    }
-    
-    taskList.innerHTML = snap.docs.map(doc => {
-      const t = doc.data();
-      const taskId = doc.id;
-      
-      const displayPartName = t.part === 'part1_1' ? 'Part 1.1' :
-                              t.part === 'part1_2' ? 'Part 1.2' :
-                              t.part === 'part2' ? 'Part 2' :
-                              t.part === 'task1' ? 'Task 1' : 'Task 2';
-                              
-      return `
-        <div class="lesson-row" style="padding:0.9em 1.1em; background:var(--white);">
-          <div style="flex:1;">
-            <div style="display:flex; gap:0.5em; align-items:center; flex-wrap:wrap;">
-              <span class="tag" style="background:var(--paper-3);">${t.course.toUpperCase()} - ${displayPartName}</span>
-              <strong>${escapeHtml(t.title)}</strong>
-            </div>
-          </div>
-          <button type="button" class="btn btn-danger btn-sm" data-delete-writing-task="${taskId}">O'chirish</button>
-        </div>
-      `;
-    }).join('');
-  } catch (err) {
-    taskList.innerHTML = `<div class="form-error">Yuklashda xatolik: ${err.message}</div>`;
-  }
-}
-
-document.getElementById('adminWritingTaskList').addEventListener('click', async (e) => {
-  const btn = e.target.closest('[data-delete-writing-task]');
-  if (!btn) return;
-  
-  const taskId = btn.dataset.deleteWritingTask;
-  if (confirm('Ushbu vazifani o\'chirmoqchimisiz?')) {
-    try {
-      await db.collection('writing_tasks').doc(taskId).delete();
-      loadAdminWritingTasks();
-      showToast('Vazifa o\'chirildi.');
-    } catch (err) {
-      showToast('O\'chirishda xatolik: ' + err.message, true);
-    }
-  }
-});
-
-// ---------- Student details & Payment & Free Switch logic ----------
-
-document.getElementById('studentsTableBody').addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-student-detail]');
-  if(!btn) return;
-  const student = state.students.find(s => s.id === btn.dataset.studentDetail);
-  if(!student) return;
-  state.detailStudentId = student.id;
-  document.getElementById('studentDetailName').textContent = student.name;
-  document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
-
-  const statusText = {
-    none: 'To‘lov yo‘q',
-    pending: 'Kutilmoqda (Skrinshotni tekshiring)',
-    approved: 'Tasdiqlangan'
-  };
-  document.getElementById('studentDetailStatus').innerHTML = `<strong>General/CEFR/IELTS:</strong> ${STATUS_LABELS[student.paymentStatus || 'none']} — ${statusText[student.paymentStatus || 'none']}`;
-  document.getElementById('studentDetailWritingStatus').innerHTML = `<strong>Writing bo'limi:</strong> ${STATUS_LABELS[student.writingPaymentStatus || 'none']} — ${statusText[student.writingPaymentStatus || 'none']}`;
-
-  // VIP / Free switch state
-  const freeToggle = document.getElementById('studentDetailFreeToggle');
-  freeToggle.checked = student.isFree === true;
-
-  // Toggle General Payment Button
-  const btnGeneral = document.getElementById('btnToggleGeneralPayment');
-  if (student.paymentStatus === 'approved') {
-    btnGeneral.textContent = 'Bekor qilish';
-    btnGeneral.className = 'btn btn-danger btn-sm';
-  } else {
-    btnGeneral.textContent = 'Tasdiqlash';
-    btnGeneral.className = 'btn btn-teal btn-sm';
-  }
-
-  // Toggle Writing Payment Button
-  const btnWriting = document.getElementById('btnToggleWritingPayment');
-  if (student.writingPaymentStatus === 'approved') {
-    btnWriting.textContent = 'Bekor qilish';
-    btnWriting.className = 'btn btn-danger btn-sm';
-  } else {
-    btnWriting.textContent = 'Tasdiqlash';
-    btnWriting.className = 'btn btn-teal btn-sm';
-  }
-
-  openModal('modalStudentDetail');
-});
-
-// Bepul / Free VIP Toggle Event
-document.getElementById('studentDetailFreeToggle').addEventListener('change', async (e) => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  const isFree = e.target.checked;
-  await db.collection('students').doc(student.id).update({ isFree });
-  student.isFree = isFree;
-  showToast(isFree ? `“${student.name}” VIP (bepul) rejimiga o‘tkazildi.` : 'VIP rejim bekor qilindi.');
-});
-
-// Toggle General Payment
-document.getElementById('btnToggleGeneralPayment').addEventListener('click', async () => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  const newStatus = student.paymentStatus === 'approved' ? 'none' : 'approved';
-  if(newStatus === 'none' && !confirm(`“${student.name}” uchun General English, CEFR va IELTS darslari ruxsatini bekor qilmoqchimisiz?`)) return;
-
-  await db.collection('students').doc(student.id).update({ paymentStatus: newStatus });
-  student.paymentStatus = newStatus;
-  closeModal('modalStudentDetail');
-  renderStudents();
-  showToast(newStatus === 'approved' ? `“${student.name}” uchun kurs ochildi.` : 'Tasdiq bekor qilindi.');
-});
-
-// Toggle Writing Payment
-document.getElementById('btnToggleWritingPayment').addEventListener('click', async () => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  const newStatus = student.writingPaymentStatus === 'approved' ? 'none' : 'approved';
-  if(newStatus === 'none' && !confirm(`“${student.name}” uchun Writing bo'limi ruxsatini bekor qilmoqchimisiz?`)) return;
-
-  await db.collection('students').doc(student.id).update({ writingPaymentStatus: newStatus });
-  student.writingPaymentStatus = newStatus;
-  closeModal('modalStudentDetail');
-  renderStudents();
-  showToast(newStatus === 'approved' ? `“${student.name}” uchun Writing bo'limi ochildi.` : 'Writing tasdig‘i bekor qilindi.');
-});
-
-document.getElementById('deleteStudentBtn').addEventListener('click', async () => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  if(confirm(`“${student.name}” hisobini o‘chirmoqchimisiz? Uning Firestore yozuvi o‘chiriladi.`)){
-    await db.collection('students').doc(student.id).delete();
-    state.students = state.students.filter(s => s.id !== student.id);
-    closeModal('modalStudentDetail');
-    renderStudents();
-    showToast('O‘quvchi o‘chirildi.');
-  }
-});
-
-document.getElementById('openAddStudent').addEventListener('click', () => {
-  document.getElementById('addStudentForm').reset();
-  document.getElementById('addStudentError').hidden = true;
-  openModal('modalAddStudent');
-});
-
-document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = document.getElementById('newStudentName').value.trim();
-  const email = document.getElementById('newStudentEmail').value.trim();
-  const password = document.getElementById('newStudentPassword').value;
-  const errorEl = document.getElementById('addStudentError');
-  const submitBtn = document.getElementById('addStudentSubmit');
-  errorEl.hidden = true;
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Yaratilmoqda…';
-
-  try{
-    const secondaryAuth = getSecondaryAuth();
-    const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
-    const uid = cred.user.uid;
-    await secondaryAuth.signOut();
-
-    const studentData = { name, email, paymentStatus: 'none', writingPaymentStatus: 'none', isFree: false, progress: {}, createdAt: Date.now() };
-    await db.collection('students').doc(uid).set(studentData);
-    state.students.unshift({ id: uid, ...studentData });
-
-    closeModal('modalAddStudent');
-    renderStudents();
-    showToast(`“${name}” uchun hisob yaratildi.`);
-  } catch(err){
-    let msg = 'Xatolik yuz berdi. Qayta urinib ko‘ring.';
-    if(err.code === 'auth/email-already-in-use') msg = 'Bu email allaqachon ro‘yxatdan o‘tgan.';
-    if(err.code === 'auth/weak-password') msg = 'Parol juda oddiy — kamida 6 belgi bo‘lsin.';
-    if(err.code === 'auth/invalid-email') msg = 'Email formati noto‘g‘ri.';
-    errorEl.textContent = msg;
-    errorEl.hidden = false;
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'O‘quvchi qo‘shish';
-  }
 });
 </script>
 </body>
