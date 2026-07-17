@@ -126,7 +126,8 @@
     <section id="view-quiz" hidden>
       <a href="#" id="backToLessonFromQuiz" class="back-link">← Darsga qaytish</a>
       <div class="quiz-box">
-        <h1 id="quizTitle" style="margin-bottom:1em;">Test</h1>
+        <h1 id="quizTitle" style="margin-bottom:.3em;">Test</h1>
+        <p class="quiz-progress" id="quizProgress"></p>
         <div id="quizQuestions"></div>
         <button type="button" class="btn btn-amber" id="submitQuizBtn">Yakunlash</button>
       </div>
@@ -382,19 +383,47 @@ async function openLessonDetail(lessonId){
   const box = document.getElementById('lessonDetailBox');
   box.innerHTML = `
     <h1>${escapeHtml(lesson.title || 'Nomsiz dars')}</h1>
-    ${lesson.topicText ? `<p style="margin-top:.8em; color:var(--ink-soft);">${escapeHtml(lesson.topicText)}</p>` : ''}
+    ${lesson.topicText ? `<div class="rich-content" style="margin-top:.8em;">${lesson.topicText}</div>` : ''}
     <div class="lesson-detail-links">
       ${lesson.video ? `<a href="${escapeHtml(lesson.video)}" target="_blank" rel="noopener">🎬 Video darsni ko‘rish</a>` : ''}
       ${lesson.material ? `<a href="${escapeHtml(lesson.material)}" target="_blank" rel="noopener">📎 Materialni ko‘rish</a>` : ''}
     </div>
-    ${lesson.homework ? `<div class="lesson-detail-homework"><strong>📝 Uy vazifasi:</strong> ${escapeHtml(lesson.homework)}</div>` : ''}
     ${hasQuiz
       ? `<button type="button" class="btn btn-amber" id="startQuizBtn">${getLessonProgress(state.activeLevelId, lessonId).passed ? 'Testni qayta ishlash' : 'Testni boshlash'}</button>
          ${getLessonProgress(state.activeLevelId, lessonId).bestScore != null ? `<p class="lesson-score" style="margin-top:.8em;">Eng yaxshi natijangiz: ${getLessonProgress(state.activeLevelId, lessonId).bestScore}%</p>` : ''}`
       : `<p class="quiz-empty">Bu darsda test yo‘q — dars ochilishi bilan keyingi dars avtomatik ochildi.</p>`}
+    ${lesson.homework ? `
+    <div class="homework-block">
+      <button type="button" class="btn btn-ghost" id="toggleHomeworkBtn">📝 Uy vazifa</button>
+      <div class="homework-content rich-content" id="homeworkContent" hidden>
+        ${lesson.homework}
+        ${lesson.homeworkAnswer ? `
+        <div class="homework-answer-area">
+          <button type="button" class="btn btn-teal btn-sm" id="toggleAnswerBtn">✅ Javoblar</button>
+          <div class="homework-answer-content rich-content" id="homeworkAnswerContent" hidden>${lesson.homeworkAnswer}</div>
+        </div>` : ''}
+      </div>
+    </div>` : ''}
   `;
   const startBtn = document.getElementById('startQuizBtn');
   if(startBtn) startBtn.addEventListener('click', () => openQuiz(state.activeLevelId, lessonId));
+
+  const hwBtn = document.getElementById('toggleHomeworkBtn');
+  if(hwBtn){
+    hwBtn.addEventListener('click', () => {
+      const content = document.getElementById('homeworkContent');
+      content.hidden = !content.hidden;
+      hwBtn.textContent = content.hidden ? '📝 Uy vazifa' : '📝 Uy vazifani yashirish';
+    });
+  }
+  const ansBtn = document.getElementById('toggleAnswerBtn');
+  if(ansBtn){
+    ansBtn.addEventListener('click', () => {
+      const content = document.getElementById('homeworkAnswerContent');
+      content.hidden = !content.hidden;
+      ansBtn.textContent = content.hidden ? '✅ Javoblar' : '✅ Javoblarni yashirish';
+    });
+  }
 
   switchView('lesson-detail');
 }
@@ -416,8 +445,20 @@ function openQuiz(levelId, lessonId){
           <span>${escapeHtml(opt)}</span>
         </label>`).join('')}
     </div>`).join('');
+  updateQuizProgress();
   switchView('quiz');
 }
+
+function updateQuizProgress(){
+  const { levelId, lessonId } = state.lastQuizContext;
+  const lesson = getLevel(levelId).lessons.find(l => l.id === lessonId);
+  const answered = lesson.quiz.filter((q, qi) => document.querySelector(`input[name="quiz-q-${qi}"]:checked`)).length;
+  document.getElementById('quizProgress').textContent = `${answered} / ${lesson.quiz.length} savolga javob berildi`;
+}
+
+document.getElementById('quizQuestions').addEventListener('change', (e) => {
+  if(e.target.matches('input[type="radio"]')) updateQuizProgress();
+});
 
 document.getElementById('backToLessonFromQuiz').addEventListener('click', (e) => {
   e.preventDefault();
