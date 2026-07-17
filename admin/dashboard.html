@@ -159,7 +159,7 @@
       <div class="table-wrap">
         <table class="data-table">
           <thead>
-            <tr><th>Ism</th><th>Email (login)</th><th>To‘lov holati</th><th>Qo‘shilgan sana</th><th></th></tr>
+            <tr><th>Ism</th><th>Email (login)</th><th>To‘lov holati (GE)</th><th>Sana</th><th></th></tr>
           </thead>
           <tbody id="studentsTableBody"></tbody>
         </table>
@@ -471,18 +471,42 @@
   </div>
 </div>
 
-<!-- ===== MODAL: Student details ===== -->
+<!-- ===== MODAL: Student details (EXAPNDED WITH FREE/VIP TOGGLE AND SEPARATE WRITING CONTROL) ===== -->
 <div class="modal-overlay" id="modalStudentDetail" hidden>
   <div class="modal-box">
     <h3 id="studentDetailName">O‘quvchi</h3>
     <p class="modal-sub" id="studentDetailEmail"></p>
-    <p id="studentDetailStatus" style="margin-bottom:1.6em;"></p>
-    <div class="modal-actions" style="justify-content:space-between;">
-      <button type="button" class="btn btn-danger btn-sm" id="deleteStudentBtn">O‘quvchini o‘chirish</button>
-      <div style="display:flex; gap:.8em;">
-        <button type="button" class="btn btn-ghost" data-close-modal="modalStudentDetail">Yopish</button>
-        <button type="button" class="btn btn-amber" id="togglePaymentBtn">Tasdiqlash</button>
+    
+    <!-- Status block -->
+    <div style="background: var(--paper-2); padding: 1.2em; border-radius: var(--radius-s); margin-bottom: 1.4em; border: 1px solid var(--line);">
+      <p id="studentDetailStatus" style="margin: 0 0 0.6em 0; font-size: 0.9rem;"></p>
+      <p id="studentDetailWritingStatus" style="margin: 0; font-size: 0.9rem;"></p>
+    </div>
+
+    <!-- Free / VIP User Toggle -->
+    <div class="field" style="margin-bottom: 1.6em; flex-direction: row; align-items: center; justify-content: space-between; background: rgba(46,111,110,.08); padding: 0.8em 1.2em; border-radius: var(--radius-s); border: 1px solid rgba(46,111,110,.2);">
+      <div>
+        <span style="font-weight: 700; display: block;">Bepul foydalanish (VIP)</span>
+        <span style="font-size: 0.75rem; color: var(--gray); font-weight: normal;">Talabaga barcha pullik kurslarni tekin qilish.</span>
       </div>
+      <input type="checkbox" id="studentDetailFreeToggle" style="width: 22px; height: 22px; cursor: pointer; accent-color: var(--teal);">
+    </div>
+
+    <!-- Payment management controls -->
+    <div style="display: flex; flex-direction: column; gap: 0.9em; margin-bottom: 1.6em;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.9rem; font-weight: 700;">General/CEFR/IELTS Kursi:</span>
+        <button type="button" class="btn btn-sm" id="btnToggleGeneralPayment" style="min-width: 150px;"></button>
+      </div>
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.9rem; font-weight: 700;">Writing bo'limi:</span>
+        <button type="button" class="btn btn-sm" id="btnToggleWritingPayment" style="min-width: 150px;"></button>
+      </div>
+    </div>
+
+    <div class="modal-actions" style="justify-content:space-between; border-top:1px solid var(--line); padding-top:1em;">
+      <button type="button" class="btn btn-danger btn-sm" id="deleteStudentBtn">O‘quvchini o‘chirish</button>
+      <button type="button" class="btn btn-ghost" data-close-modal="modalStudentDetail">Yopish</button>
     </div>
   </div>
 </div>
@@ -503,8 +527,14 @@ const LEVELS = [
   { id: 'beginner', name: 'Beginner', order: 1, course: 'general' },
   { id: 'elementary', name: 'Elementary', order: 2, course: 'general' },
   { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' },
-  { id: 'cefr', name: 'CEFR Course', order: 4, course: 'cefr' },
-  { id: 'ielts', name: 'IELTS Course', order: 5, course: 'ielts' }
+  // CEFR split skills
+  { id: 'cefr_listening', name: 'CEFR Listening', order: 4, course: 'cefr', skill: 'listening' },
+  { id: 'cefr_reading', name: 'CEFR Reading', order: 5, course: 'cefr', skill: 'reading' },
+  { id: 'cefr_grammar', name: 'CEFR Grammar', order: 6, course: 'cefr', skill: 'grammar' },
+  // IELTS split skills
+  { id: 'ielts_listening', name: 'IELTS Listening', order: 7, course: 'ielts', skill: 'listening' },
+  { id: 'ielts_reading', name: 'IELTS Reading', order: 8, course: 'ielts', skill: 'reading' },
+  { id: 'ielts_grammar', name: 'IELTS Grammar', order: 9, course: 'ielts', skill: 'grammar' }
 ];
 const PASS_PERCENT = 60;
 
@@ -621,14 +651,14 @@ function getLevel(id){ return state.levels[id]; }
 function renderLevelsOverview(){
   const totalLessons = LEVELS.reduce((sum, l) => sum + getLevel(l.id).lessons.length, 0);
   const totalQuestions = LEVELS.reduce((sum, l) => sum + getLevel(l.id).lessons.reduce((s, les) => s + (les.quiz ? les.quiz.length : 0), 0), 0);
-  const pendingPayments = state.students.filter(s => s.paymentStatus === 'pending').length;
-  const approvedStudents = state.students.filter(s => s.paymentStatus === 'approved').length;
+  const pendingPayments = state.students.filter(s => s.paymentStatus === 'pending' || s.writingPaymentStatus === 'pending').length;
+  const approvedStudents = state.students.filter(s => s.paymentStatus === 'approved' || s.isFree === true).length;
 
   document.getElementById('statRow').innerHTML = `
     <div class="stat-card"><strong>${totalLessons}</strong><span>Jami darslar</span></div>
     <div class="stat-card"><strong>${totalQuestions}</strong><span>Jami test savollari</span></div>
-    <div class="stat-card"><strong>${approvedStudents}</strong><span>To‘lovi tasdiqlangan o‘quvchi</span></div>
-    <div class="stat-card"><strong>${pendingPayments}</strong><span>Tasdiq kutayotgan to‘lov</span></div>
+    <div class="stat-card"><strong>${approvedStudents}</strong><span>Faol o‘quvchi</span></div>
+    <div class="stat-card"><strong>${pendingPayments}</strong><span>Kutilayotgan to‘lovlar</span></div>
   `;
 
   document.getElementById('levelsGrid').innerHTML = LEVELS.map(lvl => {
@@ -639,10 +669,10 @@ function renderLevelsOverview(){
     let tagText = `Daraja ${lvl.order}`;
     if (lvl.course === 'cefr') {
       tabColor = '#D98E3F'; // amber for CEFR
-      tagText = 'CEFR';
+      tagText = 'CEFR ' + lvl.skill.toUpperCase();
     } else if (lvl.course === 'ielts') {
       tabColor = '#253559'; // navy for IELTS
-      tagText = 'IELTS';
+      tagText = 'IELTS ' + lvl.skill.toUpperCase();
     }
 
     return `
@@ -929,15 +959,21 @@ function renderStudents(){
     return;
   }
   empty.style.display = 'none';
-  tbody.innerHTML = state.students.map(s => `
-    <tr>
-      <td>${escapeHtml(s.name)}</td>
-      <td>${escapeHtml(s.email)}</td>
-      <td>${STATUS_LABELS[s.paymentStatus] || STATUS_LABELS.none}</td>
-      <td>${s.createdAt ? new Date(s.createdAt).toLocaleDateString('uz-UZ') : '—'}</td>
-      <td><button class="btn btn-ghost btn-sm" data-student-detail="${s.id}">Ko‘rish</button></td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = state.students.map(s => {
+    let displayStatus = STATUS_LABELS[s.paymentStatus || 'none'];
+    if (s.isFree === true) {
+      displayStatus = '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">VIP / Bepul ✓</span>';
+    }
+    return `
+      <tr>
+        <td>${escapeHtml(s.name)}</td>
+        <td>${escapeHtml(s.email)}</td>
+        <td>${displayStatus}</td>
+        <td>${s.createdAt ? new Date(s.createdAt).toLocaleDateString('uz-UZ') : '—'}</td>
+        <td><button class="btn btn-ghost btn-sm" data-student-detail="${s.id}">Ko‘rish</button></td>
+      </tr>
+    `;
+  }).join('');
 }
 
 // ============ ADMIN WRITING SYSTEM ============
@@ -1203,7 +1239,7 @@ document.getElementById('adminWritingTaskList').addEventListener('click', async 
   }
 });
 
-// ---------- Unmodified legacy Admin JS handlers ----------
+// ---------- Student details & Payment & Free Switch logic ----------
 
 document.getElementById('studentsTableBody').addEventListener('click', (e) => {
   const btn = e.target.closest('[data-student-detail]');
@@ -1215,35 +1251,76 @@ document.getElementById('studentsTableBody').addEventListener('click', (e) => {
   document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
 
   const statusText = {
-    none: 'To‘lov haqida hali xabar bermagan.',
-    pending: 'To‘lov qilganini bildirgan — Telegram’dagi skrinshotni tekshirib, tasdiqlang.',
-    approved: 'To‘lov tasdiqlangan — Kurslar to‘liq ochiq.'
+    none: 'To‘lov yo‘q',
+    pending: 'Kutilmoqda (Skrinshotni tekshiring)',
+    approved: 'Tasdiqlangan'
   };
-  document.getElementById('studentDetailStatus').innerHTML = `${STATUS_LABELS[student.paymentStatus] || STATUS_LABELS.none} — ${statusText[student.paymentStatus] || statusText.none}`;
+  document.getElementById('studentDetailStatus').innerHTML = `<strong>General/CEFR/IELTS:</strong> ${STATUS_LABELS[student.paymentStatus || 'none']} — ${statusText[student.paymentStatus || 'none']}`;
+  document.getElementById('studentDetailWritingStatus').innerHTML = `<strong>Writing bo'limi:</strong> ${STATUS_LABELS[student.writingPaymentStatus || 'none']} — ${statusText[student.writingPaymentStatus || 'none']}`;
 
-  const toggleBtn = document.getElementById('togglePaymentBtn');
-  if(student.paymentStatus === 'approved'){
-    toggleBtn.textContent = 'Tasdiqni bekor qilish';
-    toggleBtn.className = 'btn btn-danger';
+  // VIP / Free switch state
+  const freeToggle = document.getElementById('studentDetailFreeToggle');
+  freeToggle.checked = student.isFree === true;
+
+  // Toggle General Payment Button
+  const btnGeneral = document.getElementById('btnToggleGeneralPayment');
+  if (student.paymentStatus === 'approved') {
+    btnGeneral.textContent = 'Bekor qilish';
+    btnGeneral.className = 'btn btn-danger btn-sm';
   } else {
-    toggleBtn.textContent = 'To‘lovni tasdiqlash';
-    toggleBtn.className = 'btn btn-amber';
+    btnGeneral.textContent = 'Tasdiqlash';
+    btnGeneral.className = 'btn btn-teal btn-sm';
+  }
+
+  // Toggle Writing Payment Button
+  const btnWriting = document.getElementById('btnToggleWritingPayment');
+  if (student.writingPaymentStatus === 'approved') {
+    btnWriting.textContent = 'Bekor qilish';
+    btnWriting.className = 'btn btn-danger btn-sm';
+  } else {
+    btnWriting.textContent = 'Tasdiqlash';
+    btnWriting.className = 'btn btn-teal btn-sm';
   }
 
   openModal('modalStudentDetail');
 });
 
-document.getElementById('togglePaymentBtn').addEventListener('click', async () => {
+// Bepul / Free VIP Toggle Event
+document.getElementById('studentDetailFreeToggle').addEventListener('change', async (e) => {
+  const student = state.students.find(s => s.id === state.detailStudentId);
+  if(!student) return;
+  const isFree = e.target.checked;
+  await db.collection('students').doc(student.id).update({ isFree });
+  student.isFree = isFree;
+  showToast(isFree ? `“${student.name}” VIP (bepul) rejimiga o‘tkazildi.` : 'VIP rejim bekor qilindi.');
+});
+
+// Toggle General Payment
+document.getElementById('btnToggleGeneralPayment').addEventListener('click', async () => {
   const student = state.students.find(s => s.id === state.detailStudentId);
   if(!student) return;
   const newStatus = student.paymentStatus === 'approved' ? 'none' : 'approved';
-  if(newStatus === 'none' && !confirm(`“${student.name}” uchun kurs ruxsatini bekor qilmoqchimisiz?`)) return;
+  if(newStatus === 'none' && !confirm(`“${student.name}” uchun General English, CEFR va IELTS darslari ruxsatini bekor qilmoqchimisiz?`)) return;
 
   await db.collection('students').doc(student.id).update({ paymentStatus: newStatus });
   student.paymentStatus = newStatus;
   closeModal('modalStudentDetail');
   renderStudents();
   showToast(newStatus === 'approved' ? `“${student.name}” uchun kurs ochildi.` : 'Tasdiq bekor qilindi.');
+});
+
+// Toggle Writing Payment
+document.getElementById('btnToggleWritingPayment').addEventListener('click', async () => {
+  const student = state.students.find(s => s.id === state.detailStudentId);
+  if(!student) return;
+  const newStatus = student.writingPaymentStatus === 'approved' ? 'none' : 'approved';
+  if(newStatus === 'none' && !confirm(`“${student.name}” uchun Writing bo'limi ruxsatini bekor qilmoqchimisiz?`)) return;
+
+  await db.collection('students').doc(student.id).update({ writingPaymentStatus: newStatus });
+  student.writingPaymentStatus = newStatus;
+  closeModal('modalStudentDetail');
+  renderStudents();
+  showToast(newStatus === 'approved' ? `“${student.name}” uchun Writing bo'limi ochildi.` : 'Writing tasdig‘i bekor qilindi.');
 });
 
 document.getElementById('deleteStudentBtn').addEventListener('click', async () => {
@@ -1281,7 +1358,7 @@ document.getElementById('addStudentForm').addEventListener('submit', async (e) =
     const uid = cred.user.uid;
     await secondaryAuth.signOut();
 
-    const studentData = { name, email, paymentStatus: 'none', progress: {}, createdAt: Date.now() };
+    const studentData = { name, email, paymentStatus: 'none', writingPaymentStatus: 'none', isFree: false, progress: {}, createdAt: Date.now() };
     await db.collection('students').doc(uid).set(studentData);
     state.students.unshift({ id: uid, ...studentData });
 
