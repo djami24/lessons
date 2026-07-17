@@ -165,7 +165,7 @@ img{ max-width:100%; display:block; }
 .folder:hover .folder-body{ transform: translateY(-4px); box-shadow: var(--shadow-pop); }
 
 /* ---------- Footer ---------- */
-footer{ background: var(--ink); color: rgba(247,247,243,.75); padding: 3.5em 0 2em; margin-top: 6em; }
+footer{ background: var(--ink); color: rgba(247,247,243,.75); padding: 3.5em 0 2em; margin-top: 0; } /* Oq chiziqni yo'qotish uchun margin-top: 0 qilindi */
 footer .container{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:2em; }
 footer h4{ color: var(--paper); font-family: var(--font-body); font-size: .8rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom:1em; }
 footer a{ color: rgba(247,247,243,.75); text-decoration:none; }
@@ -182,9 +182,6 @@ footer a:hover{ color: var(--amber); }
 .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 2.5em; }
 .grid-3{ display:grid; grid-template-columns: repeat(3,1fr); gap: 1.8em; }
 
-/* The [hidden] attribute must always win, even over classes that set
-   their own display (e.g. .loading-screen{display:flex}, .admin-shell{display:flex}).
-   Without this, some browsers keep such elements visible despite [hidden]. */
 [hidden]{ display: none !important; }
 
 @media (max-width: 900px){
@@ -288,7 +285,7 @@ footer a:hover{ color: var(--amber); }
 .folders-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 1.6em 1.4em; }
 .folder-card-body{ cursor:pointer; }
 .folder-card-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:.6em; }
-.folder-progress-ring{ font-family: var(--font-mono); font-size:.72rem; color: var(--teal-deep); background: var(--paper-2); padding:.3em .6em; border-radius: 999px; }
+.folder-progress-ring{ font-family: var(--font-mono); font-size:.72rem; color: var(--teal-deep); background: var(--paper-2); padding:.3em .65em; border-radius: 999px; }
 .folder-name{ margin: .7em 0 .2em; font-size: 1.1rem; }
 .folder-sub{ color: var(--gray); font-size:.82rem; margin-bottom: 1.1em; }
 .folder-progress-bar{ height:6px; border-radius:999px; background: var(--paper-2); overflow:hidden; margin-bottom: 1em; }
@@ -528,4 +525,19 @@ table.data-table td .tag{ margin-right:.3em; }
   .lesson-detail-box{ padding: 1.6em 1.4em; }
   .quiz-question{ padding: 1.3em 1.4em; }
   .payment-box{ padding: 1.8em 1.5em; }
+}
+
+/* ============ Writing Section Styles ============ */
+.writing-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 2em; margin-top: 1.5em; }
+.writing-prompt-box { background: var(--paper-2); border-left: 4px solid var(--teal); padding: 1.5em; border-radius: var(--radius-m); border: 1px solid var(--line); border-left-width: 4px; }
+.writing-editor-box { display: flex; flex-direction: column; gap: 1.1em; }
+.writing-textarea { width: 100%; min-height: 300px; resize: vertical; font-family: var(--font-body); font-size: 1rem; padding: 1.1em; border: 1.5px solid var(--line); border-radius: var(--radius-m); background: var(--white); color: var(--ink); line-height: 1.6; }
+.writing-textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(46,111,110,.12); }
+.word-counter { font-family: var(--font-mono); font-size: 0.82rem; color: var(--gray); text-align: right; }
+.writing-feedback-box { background: rgba(46,111,110,0.06); border: 1.5px solid var(--teal); border-radius: var(--radius-m); padding: 1.5em; }
+.writing-feedback-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8em; border-bottom: 1px dashed var(--line); padding-bottom: 0.8em; }
+.writing-grade-badge { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--white); background: var(--teal); padding: 0.2em 0.8em; border-radius: var(--radius-s); }
+
+@media (max-width: 900px) {
+  .writing-grid { grid-template-columns: 1fr; }
 }
