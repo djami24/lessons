@@ -48,197 +48,26 @@
             <p class="course-sub" id="generalEnglishSub">Beginner → Elementary → Pre-Intermediate</p>
           </div>
         </article>
-
-        <!-- CEFR CARD -->
-        <article class="folder course-card" id="cardCefr">
+        <article class="folder course-card is-locked">
           <div class="folder-tab" style="--tab-color:#D98E3F"></div>
           <div class="folder-body">
-            <span class="tag">B1–C1</span>
+            <span class="badge-soon">Tez orada</span>
             <h3 class="course-title">CEFR</h3>
-            <p class="course-sub">Rasmiy CEFR darajalariga tayyorgarlik darslari</p>
+            <p class="course-sub">Rasmiy CEFR darajalariga tayyorgarlik</p>
           </div>
         </article>
-
-        <!-- IELTS CARD -->
-        <article class="folder course-card" id="cardIelts">
+        <article class="folder course-card is-locked">
           <div class="folder-tab" style="--tab-color:#253559"></div>
           <div class="folder-body">
-            <span class="tag">IELTS</span>
+            <span class="badge-soon">Tez orada</span>
             <h3 class="course-title">IELTS</h3>
-            <p class="course-sub">IELTS imtihoniga tayyorgarlik darslari</p>
-          </div>
-        </article>
-        
-        <!-- WRITING CARD -->
-        <article class="folder course-card" id="cardWriting">
-          <div class="folder-tab" style="--tab-color:#B3432B"></div>
-          <div class="folder-body">
-            <span class="tag">IELTS / CEFR</span>
-            <h3 class="course-title">Writing</h3>
-            <p class="course-sub" id="writingCourseSub">CEFR & IELTS insholar · 60 000 so‘m</p>
+            <p class="course-sub">IELTS imtihoniga tayyorgarlik</p>
           </div>
         </article>
       </div>
     </section>
 
-    <!-- ===== SKILLS VIEW (LISTENING, READING, GRAMMAR SUBFOLDERS) ===== -->
-    <section id="view-skills" hidden>
-      <a href="#" id="backToCoursesFromSkills" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1 id="skillsTitle">Mavzular</h1>
-          <p>Ushbu bo'limdagi darslar, mashqlar va testlarni yakunlang.</p>
-        </div>
-      </div>
-      <div class="level-grid" id="skillsGrid"></div>
-    </section>
-
-    <!-- ===== WRITING PAYMENT GATE ===== -->
-    <section id="view-writing-payment" hidden>
-      <a href="#" id="backToCoursesFromWritingPayment" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1>Writing kursi</h1>
-          <p>Kursni ochish uchun to‘lovni amalga oshiring.</p>
-        </div>
-      </div>
-      <div class="payment-box">
-        <p class="eyebrow">To‘lov</p>
-        <div class="payment-price">60 000 so‘m</div>
-        
-        <!-- KARTA MA'LUMOTLARI -->
-        <div class="payment-card-details" style="background:var(--paper-2); padding:1.2em; border-radius:var(--radius-m); margin-bottom:1.5em; border:1px solid var(--line); text-align:center;">
-          <p style="margin:0; font-size:0.85rem; color:var(--gray); text-transform: uppercase; letter-spacing: 0.5px;">To‘lov uchun Humo/Uzcard karta:</p>
-          <strong style="font-size:1.4rem; letter-spacing:1px; color:var(--teal-deep); display:block; margin:0.3em 0;">5614 6818 5667 8473</strong>
-          <span style="font-weight:700; font-size:0.95rem; color: var(--text);">ABDURAXMON</span>
-        </div>
-
-        <p>CEFR va IELTS bo'limlarida 10 dan ziyod writing mashqlar mavjud. Yozishga qulay va haqiqiy o'qituvchi tomonidan tekshirilib feedback va baholar beriladi.</p>
-        <ol class="payment-steps">
-          <li>60 000 so‘mni yuqoridagi hisob raqamiga o‘tkazing.</li>
-          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
-          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
-          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
-        </ol>
-        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
-
-        <div id="writingPaymentActionArea" style="margin-top:1.6em;"></div>
-      </div>
-    </section>
-
-    <!-- ===== WRITING COURSES VIEW ===== -->
-    <section id="view-writing-courses" hidden>
-      <a href="#" id="backToCoursesFromWriting" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1>Writing kurslari</h1>
-          <p>Yozish ko'nikmalarini oshirish uchun yo'nalishni tanlang.</p>
-        </div>
-      </div>
-      <div class="course-grid">
-        <article class="folder course-card" id="cardWritingCefr">
-          <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
-          <div class="folder-body">
-            <span class="tag">CEFR</span>
-            <h3 class="course-title">CEFR Writing</h3>
-            <p class="course-sub">Part 1.1, Part 1.2 va Part 2 bo'limlari</p>
-          </div>
-        </article>
-        <article class="folder course-card" id="cardWritingIelts">
-          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
-          <div class="folder-body">
-            <span class="tag">IELTS</span>
-            <h3 class="course-title">IELTS Writing</h3>
-            <p class="course-sub">Task 1 va Task 2 bo'limlari</p>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- ===== WRITING PARTS VIEW ===== -->
-    <section id="view-writing-parts" hidden>
-      <a href="#" id="backToWritingCourses" class="back-link">← Orqaga</a>
-      <div class="admin-header">
-        <div>
-          <h1 id="writingPartsTitle">Bo'limlar</h1>
-          <p>Tegishli bo'limdagi yozma vazifalarni bajarish uchun tanlang.</p>
-        </div>
-      </div>
-      <div class="level-grid" id="writingPartsGrid"></div>
-    </section>
-
-    <!-- ===== WRITING TASKS VIEW ===== -->
-    <section id="view-writing-tasks" hidden>
-      <a href="#" id="backToWritingParts" class="back-link">← Bo'limlarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1 id="writingTasksTitle">Vazifalar</h1>
-          <p>Mavzulardan birini tanlab, insho yozishni boshlang.</p>
-        </div>
-      </div>
-      <div class="lesson-list" id="writingTaskList"></div>
-    </section>
-
-    <!-- ===== WRITING EDITOR VIEW ===== -->
-    <section id="view-writing-editor" hidden>
-      <a href="#" id="backToWritingTasks" class="back-link">← Vazifalarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1 id="writingEditorTaskTitle">Insho yozish</h1>
-          <p id="writingEditorTaskMeta">Insho yozish jarayoni</p>
-        </div>
-      </div>
-      
-      <div class="writing-grid">
-        <div class="writing-prompt-box">
-          <span class="tag" style="margin-bottom:1em;">Mavzu va Savol</span>
-          <div id="writingEditorPrompt" class="rich-content"></div>
-        </div>
-        
-        <div class="writing-editor-box">
-          <div id="writingActiveSubmissionArea">
-            <textarea id="writingEssayTextarea" class="writing-textarea" placeholder="Inshoingizni shu yerga yozing..."></textarea>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5em;">
-              <span class="word-counter" id="writingWordCount">0 so'z</span>
-              <button type="button" class="btn btn-teal" id="submitWritingBtn">Inshoni yuborish</button>
-            </div>
-          </div>
-          
-          <div id="writingSubmittedArea" hidden>
-            <div class="form-notice" style="margin-bottom:1em;">
-              ⏳ Insho muvaffaqiyatli topshirildi. Hozirda o'qituvchi tomonidan tekshirilmoqda. Tez orada ushbu sahifada baho va feedback paydo bo'ladi.
-            </div>
-            <div class="field">
-              <span>Siz topshirgan matn:</span>
-              <div id="writingSavedEssayText" style="white-space:pre-wrap; background:var(--paper-2); padding:1.2em; border-radius:var(--radius-s); border:1px solid var(--line); max-height:300px; overflow-y:auto; line-height:1.6;"></div>
-            </div>
-          </div>
-
-          <div id="writingGradedArea" hidden>
-            <div class="writing-feedback-box">
-              <div class="writing-feedback-header">
-                <div>
-                  <h3 style="margin:0; color:var(--teal-deep);">Tekshirildi</h3>
-                  <span style="font-size:0.8rem; color:var(--gray);" id="writingGradedAt">Sana</span>
-                </div>
-                <div class="writing-grade-badge" id="writingGradeBadge">Band 7.0</div>
-              </div>
-              <div class="field">
-                <span style="font-weight:700;">O'qituvchi fikri (Feedback):</span>
-                <div id="writingFeedbackContent" class="rich-content" style="background:var(--white); padding:1em; border-radius:var(--radius-s); border:1px solid var(--line);"></div>
-              </div>
-            </div>
-            
-            <div class="field" style="margin-top:1.5em;">
-              <span>Siz topshirgan matn:</span>
-              <div id="writingSavedGradedEssayText" style="white-space:pre-wrap; background:var(--paper-2); padding:1.2em; border-radius:var(--radius-s); border:1px solid var(--line); max-height:200px; overflow-y:auto; line-height:1.6;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== PAYMENT GATE (General English) ===== -->
+    <!-- ===== PAYMENT GATE (General English, not approved yet) ===== -->
     <section id="view-payment" hidden>
       <a href="#" id="backToCoursesFromPayment" class="back-link">← Kurslarga qaytish</a>
       <div class="admin-header">
@@ -250,17 +79,9 @@
       <div class="payment-box">
         <p class="eyebrow">To‘lov</p>
         <div class="payment-price">50 000 so‘m</div>
-        
-        <!-- KARTA MA'LUMOTLARI -->
-        <div class="payment-card-details" style="background:var(--paper-2); padding:1.2em; border-radius:var(--radius-m); margin-bottom:1.5em; border:1px solid var(--line); text-align:center;">
-          <p style="margin:0; font-size:0.85rem; color:var(--gray); text-transform: uppercase; letter-spacing: 0.5px;">To‘lov uchun Humo/Uzcard karta:</p>
-          <strong style="font-size:1.4rem; letter-spacing:1px; color:var(--teal-deep); display:block; margin:0.3em 0;">5614 6818 5667 8473</strong>
-          <span style="font-weight:700; font-size:0.95rem; color: var(--text);">ABDURAXMON</span>
-        </div>
-
         <p>Kurs to‘liq ochilgach, Beginner darajasidan boshlab barcha darslar, uy vazifalari va testlarga ega bo‘lasiz.</p>
         <ol class="payment-steps">
-          <li>50 000 so‘mni yuqoridagi hisob raqamiga o‘tkazing.</li>
+          <li>50 000 so‘mni ko‘rsatilgan hisobga o‘tkazing.</li>
           <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
           <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
           <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
@@ -271,7 +92,7 @@
       </div>
     </section>
 
-    <!-- ===== LEVELS (General English) ===== -->
+    <!-- ===== LEVELS (General English, approved) ===== -->
     <section id="view-levels" hidden>
       <a href="#" id="backToCoursesFromLevels" class="back-link">← Kurslarga qaytish</a>
       <div class="admin-header">
@@ -283,7 +104,7 @@
       <div class="level-grid" id="levelsGrid"></div>
     </section>
 
-    <!-- ===== LESSON LIST ===== -->
+    <!-- ===== LESSON LIST (inside a level) ===== -->
     <section id="view-lessons" hidden>
       <a href="#" id="backToLevels" class="back-link">← Darajalarga qaytish</a>
       <div class="admin-header">
@@ -331,36 +152,26 @@
    ============================================================ */
 
 const LEVELS = [
-  { id: 'beginner', name: 'Beginner', order: 1, course: 'general' },
-  { id: 'elementary', name: 'Elementary', order: 2, course: 'general' },
-  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' },
-  // CEFR Skills
-  { id: 'cefr_listening', name: 'CEFR Listening', order: 4, course: 'cefr', skill: 'listening' },
-  { id: 'cefr_reading', name: 'CEFR Reading', order: 5, course: 'cefr', skill: 'reading' },
-  { id: 'cefr_grammar', name: 'CEFR Grammar', order: 6, course: 'cefr', skill: 'grammar' },
-  // IELTS Skills
-  { id: 'ielts_listening', name: 'IELTS Listening', order: 7, course: 'ielts', skill: 'listening' },
-  { id: 'ielts_reading', name: 'IELTS Reading', order: 8, course: 'ielts', skill: 'reading' },
-  { id: 'ielts_grammar', name: 'IELTS Grammar', order: 9, course: 'ielts', skill: 'grammar' }
+  { id: 'beginner', name: 'Beginner', order: 1 },
+  { id: 'elementary', name: 'Elementary', order: 2 },
+  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3 }
 ];
 const PASS_PERCENT = 60;
 
 let currentUid = null;
 let state = {
-  student: null,
-  levels: {},
+  student: null,        // {name,email,paymentStatus,progress,...}
+  levels: {},            // {levelId: {name,order,lessons:[...]}}
   activeLevelId: null,
   activeLessonId: null,
-  lastQuizContext: null,
-  writingActiveCourse: null,
-  writingActivePart: null,
-  writingActiveTaskId: null,
-  writingActiveTask: null
+  lastQuizContext: null   // {levelId, lessonId} — used by "Qayta urinish"
 };
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
+
+// ---------- Auth gate ----------
 
 auth.onAuthStateChanged(async (user) => {
   if(!user){ window.location.href = 'login.html'; return; }
@@ -395,6 +206,8 @@ async function loadLevels(){
 
 function getLevel(id){ return state.levels[id]; }
 
+// ---------- Progress helpers ----------
+
 function getLessonProgress(levelId, lessonId){
   return (state.student.progress[levelId] && state.student.progress[levelId][lessonId]) || { passed: false, bestScore: null };
 }
@@ -405,23 +218,11 @@ function isLevelCompleted(levelId){
   return lessons.every(l => getLessonProgress(levelId, l.id).passed);
 }
 
-function hasAccess(courseType) {
-  if (state.student.isFree === true) return true;
-  if (courseType === 'general' || courseType === 'cefr' || courseType === 'ielts') {
-    return state.student.paymentStatus === 'approved';
-  }
-  if (courseType === 'writing') {
-    return state.student.writingPaymentStatus === 'approved';
-  }
-  return false;
-}
-
 function isLevelUnlocked(levelId){
   const lvl = LEVELS.find(l => l.id === levelId);
-  if(lvl.course !== 'general') return true;
   if(lvl.order === 1) return true;
-  const prevLevel = LEVELS.find(l => l.course === 'general' && l.order === lvl.order - 1);
-  return prevLevel ? isLevelCompleted(prevLevel.id) : true;
+  const prevLevel = LEVELS.find(l => l.order === lvl.order - 1);
+  return isLevelCompleted(prevLevel.id);
 }
 
 function isLessonUnlocked(levelId, lessonIndex){
@@ -441,93 +242,39 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
   state.student.progress[levelId][lessonId] = { passed: newPassed, bestScore };
 }
 
-const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'writing-courses', 'writing-parts', 'writing-tasks', 'writing-editor', 'skills', 'writing-payment'];
+// ---------- View switching ----------
+
+const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
+// ---------- Courses overview ----------
+
 function renderCoursesOverview(){
   const sub = document.getElementById('generalEnglishSub');
-  const generalLevels = LEVELS.filter(l => l.course === 'general');
-  if(hasAccess('general')){
-    const totalLessons = generalLevels.reduce((s, l) => s + getLevel(l.id).lessons.length, 0);
-    const doneLessons = generalLevels.reduce((s, l) => s + getLevel(l.id).lessons.filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
+  if(state.student.paymentStatus === 'approved'){
+    const totalLessons = LEVELS.reduce((s, l) => s + getLevel(l.id).lessons.length, 0);
+    const doneLessons = LEVELS.reduce((s, l) => s + getLevel(l.id).lessons.filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
     sub.textContent = `${doneLessons}/${totalLessons} dars yakunlangan`;
   } else if(state.student.paymentStatus === 'pending'){
     sub.textContent = 'To‘lov tekshirilmoqda…';
   } else {
     sub.textContent = 'Beginner → Elementary → Pre-Intermediate · 50 000 so‘m';
   }
-
-  const writingSub = document.getElementById('writingCourseSub');
-  if (hasAccess('writing')) {
-    writingSub.textContent = "CEFR (Part 1.1, 1.2, 2) & IELTS (Task 1, 2) insholar";
-  } else if (state.student.writingPaymentStatus === 'pending') {
-    writingSub.textContent = 'To‘lov tekshirilmoqda…';
-  } else {
-    writingSub.textContent = 'CEFR & IELTS insholar · 60 000 so‘m';
-  }
-
   switchView('courses');
 }
 
 document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
-  if(hasAccess('general')){
+  if(state.student.paymentStatus === 'approved'){
     openLevelsView();
   } else {
     openPaymentView();
   }
 });
 
-document.getElementById('cardCefr').addEventListener('click', () => {
-  if(hasAccess('cefr')){
-    openSkillsView('cefr');
-  } else {
-    openPaymentView();
-  }
-});
-
-document.getElementById('cardIelts').addEventListener('click', () => {
-  if(hasAccess('ielts')){
-    openSkillsView('ielts');
-  } else {
-    openPaymentView();
-  }
-});
-
-function openSkillsView(courseId) {
-  const grid = document.getElementById('skillsGrid');
-  const title = document.getElementById('skillsTitle');
-  title.textContent = courseId === 'cefr' ? 'CEFR Kursi' : 'IELTS Kursi';
-
-  const skills = [
-    { id: 'listening', name: 'Listening', desc: 'Eshitib tushunish darslari, audio materiallar va testlar' },
-    { id: 'reading', name: 'Reading', desc: 'O\'qib tushunish darslari, matnlar va savollar' },
-    { id: 'grammar', name: 'Grammar', desc: 'Grammatika darslari va mustahkamlovchi mashqlar' }
-  ];
-
-  grid.innerHTML = skills.map(sk => `
-    <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-skill="${courseId}_${sk.id}">
-      <div class="folder-tab"></div>
-      <div class="folder-body">
-        <span class="tag">${courseId.toUpperCase()}</span>
-        <h3 class="level-title">${sk.name}</h3>
-        <p class="level-sub">${sk.desc}</p>
-      </div>
-    </article>
-  `).join('');
-
-  switchView('skills');
-}
-
-document.getElementById('skillsGrid').addEventListener('click', (e) => {
-  const card = e.target.closest('[data-open-skill]');
-  if(card) openLessonsView(card.dataset.openSkill);
-});
-
-document.getElementById('backToCoursesFromSkills').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
-document.getElementById('backToCoursesFromWritingPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+// ---------- Payment gate ----------
 
 function openPaymentView(){
   const area = document.getElementById('paymentActionArea');
@@ -547,30 +294,13 @@ function openPaymentView(){
   switchView('payment');
 }
 
-function openWritingPaymentView(){
-  const area = document.getElementById('writingPaymentActionArea');
-  if(state.student.writingPaymentStatus === 'pending'){
-    area.innerHTML = `<p class="payment-pending-box">⏳ So‘rovingiz ko‘rib chiqilmoqda. Admin skrinshotni tasdiqlagach, kurs avtomatik ochiladi.</p>`;
-  } else {
-    area.innerHTML = `<button type="button" class="btn btn-amber" id="paidWritingBtn">To‘lov qildim</button>`;
-    document.getElementById('paidWritingBtn').addEventListener('click', async () => {
-      const btn = document.getElementById('paidWritingBtn');
-      btn.disabled = true;
-      btn.textContent = 'Yuborilmoqda…';
-      await db.collection('students').doc(currentUid).update({ writingPaymentStatus: 'pending', writingPaymentRequestedAt: Date.now() });
-      state.student.writingPaymentStatus = 'pending';
-      openWritingPaymentView();
-    });
-  }
-  switchView('writing-payment');
-}
-
 document.getElementById('backToCoursesFromPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 document.getElementById('backToCoursesFromLevels').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 
+// ---------- Levels ----------
+
 function openLevelsView(){
-  const generalLevels = LEVELS.filter(l => l.course === 'general');
-  document.getElementById('levelsGrid').innerHTML = generalLevels.map(lvl => {
+  document.getElementById('levelsGrid').innerHTML = LEVELS.map(lvl => {
     const data = getLevel(lvl.id);
     const unlocked = isLevelUnlocked(lvl.id);
     const doneCount = data.lessons.filter(l => getLessonProgress(lvl.id, l.id).passed).length;
@@ -592,24 +322,19 @@ document.getElementById('levelsGrid').addEventListener('click', (e) => {
   if(card) openLessonsView(card.dataset.openLevel);
 });
 
+// ---------- Lesson list ----------
+
 function openLessonsView(levelId){
   state.activeLevelId = levelId;
   const lvl = LEVELS.find(l => l.id === levelId);
   const data = getLevel(levelId);
 
-  document.getElementById('lessonsLevelName').textContent = lvl ? lvl.name : 'Darslar';
+  document.getElementById('lessonsLevelName').textContent = lvl.name;
   document.getElementById('lessonsLevelSub').textContent = `${data.lessons.length} ta dars`;
-
-  const backBtn = document.getElementById('backToLevels');
-  if (lvl && lvl.course !== 'general') {
-    backBtn.textContent = '← Bo‘limlarga qaytish';
-  } else {
-    backBtn.textContent = '← Darajalarga qaytish';
-  }
 
   const lessonList = document.getElementById('lessonList');
   if(data.lessons.length === 0){
-    lessonList.innerHTML = `<div class="empty-state"><h3>Ushbu yo'nalishga hali dars qo‘shilmagan</h3><p>Tez orada darslar joylanadi.</p></div>`;
+    lessonList.innerHTML = `<div class="empty-state"><h3>Bu darajaga hali dars qo‘shilmagan</h3><p>Tez orada darslar joylanadi.</p></div>`;
   } else {
     lessonList.innerHTML = data.lessons.map((lesson, i) => {
       const unlocked = isLessonUnlocked(levelId, i);
@@ -637,15 +362,9 @@ document.getElementById('lessonList').addEventListener('click', (e) => {
   if(row) openLessonDetail(row.dataset.openLesson);
 });
 
-document.getElementById('backToLevels').addEventListener('click', (e) => {
-  e.preventDefault();
-  const lvl = LEVELS.find(l => l.id === state.activeLevelId);
-  if(lvl && lvl.course !== 'general'){
-    openSkillsView(lvl.course);
-  } else {
-    openLevelsView();
-  }
-});
+document.getElementById('backToLevels').addEventListener('click', (e) => { e.preventDefault(); openLevelsView(); });
+
+// ---------- Lesson detail ----------
 
 function getCurrentLesson(){
   return getLevel(state.activeLevelId).lessons.find(l => l.id === state.activeLessonId);
@@ -657,6 +376,7 @@ async function openLessonDetail(lessonId){
   const progress = getLessonProgress(state.activeLevelId, lessonId);
   const hasQuiz = lesson.quiz && lesson.quiz.length > 0;
 
+  // Lessons with no quiz unlock the next lesson automatically the first time they're opened.
   if(!hasQuiz && !progress.passed){
     await saveProgress(state.activeLevelId, lessonId, true, null);
   }
@@ -710,6 +430,8 @@ async function openLessonDetail(lessonId){
 }
 
 document.getElementById('backToLessons').addEventListener('click', (e) => { e.preventDefault(); openLessonsView(state.activeLevelId); });
+
+// ---------- Quiz ----------
 
 function openQuiz(levelId, lessonId){
   state.lastQuizContext = { levelId, lessonId };
@@ -783,239 +505,6 @@ function renderQuizResult(scorePct, passed){
   document.getElementById('backToLessonsFromResultBtn').addEventListener('click', () => openLessonsView(state.lastQuizContext.levelId));
   switchView('quiz-result');
 }
-
-// ============ WRITING LOGIC ============
-
-document.getElementById('cardWriting').addEventListener('click', () => {
-  if (hasAccess('writing')) {
-    switchView('writing-courses');
-  } else {
-    openWritingPaymentView();
-  }
-});
-
-document.getElementById('cardWritingCefr').addEventListener('click', () => {
-  state.writingActiveCourse = 'cefr';
-  openWritingPartsView();
-});
-
-document.getElementById('cardWritingIelts').addEventListener('click', () => {
-  state.writingActiveCourse = 'ielts';
-  openWritingPartsView();
-});
-
-function openWritingPartsView() {
-  const partsGrid = document.getElementById('writingPartsGrid');
-  const course = state.writingActiveCourse;
-  
-  document.getElementById('writingPartsTitle').textContent = course === 'cefr' ? 'CEFR Writing Bo\'limlari' : 'IELTS Writing Bo\'limlari';
-  
-  let parts = [];
-  if (course === 'cefr') {
-    parts = [
-      { id: 'part1_1', name: 'Part 1.1', desc: 'Sodda yozma savollar va elektron maktub mashqlari.' },
-      { id: 'part1_2', name: 'Part 1.2', desc: 'Interaktiv yoki qisqa matn yaratish mashqlari.' },
-      { id: 'part2', name: 'Part 2', desc: 'Insho yozish (Opinions, Discursive Essay) mashqlari.' }
-    ];
-  } else {
-    parts = [
-      { id: 'task1', name: 'Task 1', desc: 'Academic Report (Graph, Chart, Map) / General Letter' },
-      { id: 'task2', name: 'Task 2', desc: 'Essay Writing (Agree/Disagree, Discussion, Advantages/Disadvantages)' }
-    ];
-  }
-  
-  partsGrid.innerHTML = parts.map(p => `
-    <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-writing-part="${p.id}">
-      <div class="folder-tab"></div>
-      <div class="folder-body">
-        <span class="tag">${course.toUpperCase()}</span>
-        <h3 class="level-title">${p.name}</h3>
-        <p class="level-sub">${p.desc}</p>
-      </div>
-    </article>
-  `).join('');
-  
-  switchView('writing-parts');
-}
-
-document.getElementById('writingPartsGrid').addEventListener('click', (e) => {
-  const card = e.target.closest('[data-open-writing-part]');
-  if(card) openWritingTasksView(card.dataset.openWritingPart);
-});
-
-async function openWritingTasksView(partId) {
-  state.writingActivePart = partId;
-  const course = state.writingActiveCourse;
-  
-  const displayPartName = partId === 'part1_1' ? 'Part 1.1' :
-                          partId === 'part1_2' ? 'Part 1.2' :
-                          partId === 'part2' ? 'Part 2' :
-                          partId === 'task1' ? 'Task 1' : 'Task 2';
-                          
-  document.getElementById('writingTasksTitle').textContent = `${course.toUpperCase()} - ${displayPartName} Vazifalari`;
-  
-  const taskList = document.getElementById('writingTaskList');
-  taskList.innerHTML = '<div style="text-align:center; padding:2em; color:var(--gray);">Yuklanmoqda...</div>';
-  
-  switchView('writing-tasks');
-  
-  try {
-    const snap = await db.collection('writing_tasks')
-      .where('course', '==', course)
-      .where('part', '==', partId)
-      .get();
-      
-    if (snap.empty) {
-      taskList.innerHTML = `<div class="empty-state"><h3>Ushbu bo'limda hozircha vazifalar yo'q</h3><p>Tez orada admin tomonidan yangi vazifalar qo'shiladi.</p></div>`;
-    } else {
-      const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      
-      const subSnap = await db.collection('writing_submissions')
-        .where('studentUid', '==', currentUid)
-        .where('course', '==', course)
-        .where('part', '==', partId)
-        .get();
-        
-      const subMap = {};
-      subSnap.forEach(doc => {
-        const d = doc.data();
-        subMap[d.taskId] = d;
-      });
-      
-      taskList.innerHTML = tasks.map((t, i) => {
-        const sub = subMap[t.id];
-        let statusBadge = '<span class="status-pill status-kutilmoqda">Boshlanmagan</span>';
-        if (sub) {
-          if (sub.status === 'graded') {
-            statusBadge = `<span class="status-pill status-otildi" style="background:rgba(46,111,110,.14); color:var(--teal-deep);">Baholandi: ${escapeHtml(sub.grade)} ✓</span>`;
-          } else {
-            statusBadge = '<span class="status-pill status-tayyor" style="background:rgba(217,142,63,.16); color:var(--amber-deep);">Tekshirilmoqda</span>';
-          }
-        }
-        
-        return `
-          <div class="lesson-row is-clickable" data-open-writing-task="${t.id}">
-            <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
-            <div class="lesson-main">
-              <div class="lesson-row-top">
-                <span class="lesson-title">${escapeHtml(t.title)}</span>
-                ${sub && sub.status === 'graded' ? `<span class="lesson-score">Baho: ${escapeHtml(sub.grade)}</span>` : ''}
-              </div>
-              <div class="lesson-meta">
-                ${statusBadge}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    }
-  } catch (err) {
-    taskList.innerHTML = `<div class="form-error">Xatolik yuz berdi: ${err.message}</div>`;
-  }
-}
-
-document.getElementById('writingTaskList').addEventListener('click', (e) => {
-  const row = e.target.closest('[data-open-writing-task]');
-  if(row) openWritingEditorView(row.dataset.openWritingTask);
-});
-
-async function openWritingEditorView(taskId) {
-  state.writingActiveTaskId = taskId;
-  
-  const textarea = document.getElementById('writingEssayTextarea');
-  textarea.value = '';
-  document.getElementById('writingWordCount').textContent = "0 so'z";
-  
-  document.getElementById('writingActiveSubmissionArea').hidden = true;
-  document.getElementById('writingSubmittedArea').hidden = true;
-  document.getElementById('writingGradedArea').hidden = true;
-  
-  switchView('writing-editor');
-  
-  try {
-    const taskDoc = await db.collection('writing_tasks').doc(taskId).get();
-    if (!taskDoc.exists) return;
-    const task = taskDoc.data();
-    state.writingActiveTask = task;
-    
-    document.getElementById('writingEditorTaskTitle').textContent = task.title;
-    document.getElementById('writingEditorTaskMeta').textContent = `${state.writingActiveCourse.toUpperCase()} Writing - ${state.writingActivePart.toUpperCase()}`;
-    document.getElementById('writingEditorPrompt').innerHTML = task.prompt;
-    
-    const subSnap = await db.collection('writing_submissions')
-      .where('studentUid', '==', currentUid)
-      .where('taskId', '==', taskId)
-      .limit(1)
-      .get();
-      
-    if (!subSnap.empty) {
-      const sub = subSnap.docs[0].data();
-      if (sub.status === 'graded') {
-        document.getElementById('writingGradedArea').hidden = false;
-        document.getElementById('writingGradeBadge').textContent = sub.grade;
-        document.getElementById('writingGradedAt').textContent = sub.gradedAt ? new Date(sub.gradedAt).toLocaleDateString('uz-UZ') + ' ' + new Date(sub.gradedAt).toLocaleTimeString('uz-UZ', {hour: '2-digit', minute:'2-digit'}) : '';
-        document.getElementById('writingFeedbackContent').innerHTML = sub.feedback;
-        document.getElementById('writingSavedGradedEssayText').textContent = sub.essayText;
-      } else {
-        document.getElementById('writingSubmittedArea').hidden = false;
-        document.getElementById('writingSavedEssayText').textContent = sub.essayText;
-      }
-    } else {
-      document.getElementById('writingActiveSubmissionArea').hidden = false;
-    }
-  } catch (err) {
-    alert("Xatolik: " + err.message);
-  }
-}
-
-document.getElementById('writingEssayTextarea').addEventListener('input', (e) => {
-  const text = e.target.value.trim();
-  const words = text === '' ? 0 : text.split(/\s+/).length;
-  document.getElementById('writingWordCount').textContent = `${words} so'z`;
-});
-
-document.getElementById('submitWritingBtn').addEventListener('click', async () => {
-  const text = document.getElementById('writingEssayTextarea').value.trim();
-  if (text === '') {
-    alert('Iltimos, insho matnini yozing!');
-    return;
-  }
-  
-  if (!confirm('Inshoni yubormoqchimisiz? Yuborilgandan keyin uni tahrirlab bo\'lmaydi.')) {
-    return;
-  }
-  
-  const btn = document.getElementById('submitWritingBtn');
-  btn.disabled = true;
-  btn.textContent = 'Yuborilmoqda...';
-  
-  try {
-    const submissionId = `${currentUid}_${state.writingActiveTaskId}`;
-    await db.collection('writing_submissions').doc(submissionId).set({
-      studentUid: currentUid,
-      studentName: state.student.name || 'Nomsiz o\'quvchi',
-      studentEmail: state.student.email,
-      taskId: state.writingActiveTaskId,
-      taskTitle: state.writingActiveTask.title,
-      course: state.writingActiveCourse,
-      part: state.writingActivePart,
-      essayText: text,
-      status: 'submitted',
-      submittedAt: Date.now()
-    });
-    
-    await openWritingEditorView(state.writingActiveTaskId);
-  } catch (err) {
-    alert('Yuborishda xatolik yuz berdi: ' + err.message);
-    btn.disabled = false;
-    btn.textContent = 'Inshoni yuborish';
-  }
-});
-
-document.getElementById('backToCoursesFromWriting').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
-document.getElementById('backToWritingCourses').addEventListener('click', (e) => { e.preventDefault(); switchView('writing-courses'); });
-document.getElementById('backToWritingParts').addEventListener('click', (e) => { e.preventDefault(); openWritingPartsView(); });
-document.getElementById('backToWritingTasks').addEventListener('click', (e) => { e.preventDefault(); openWritingTasksView(state.writingActivePart); });
 </script>
 </body>
 </html>
