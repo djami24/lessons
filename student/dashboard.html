@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mening kursim — English Folder</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+
+<div id="loadingScreen" class="loading-screen">Yuklanmoqda…</div>
+
+<div class="admin-shell" id="appShell" hidden>
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar">
+    <a href="../index.html" class="brand"><span class="brand-mark"></span>English Folder</a>
+    <ul class="admin-nav">
+      <li><a href="#" class="active" id="navCourses">📚 Kurslarim</a></li>
+      <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
+    </ul>
+    <div class="admin-user">
+      <div>
+        <div class="admin-user-name" id="sidebarUsername">o‘quvchi</div>
+        <div class="admin-user-role">O‘quvchi</div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Chiqish</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+
+    <!-- ===== COURSES OVERVIEW ===== -->
+    <section id="view-courses">
+      <div class="admin-header">
+        <div>
+          <h1>Kurslarim</h1>
+          <p>O‘qimoqchi bo‘lgan kursni tanlang.</p>
+        </div>
+      </div>
+      <div class="course-grid">
+        <article class="folder course-card" id="cardGeneralEnglish">
+          <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
+          <div class="folder-body">
+            <span class="tag">A1–B1</span>
+            <h3 class="course-title">General English</h3>
+            <p class="course-sub" id="generalEnglishSub">Beginner → Elementary → Pre-Intermediate</p>
+          </div>
+        </article>
+        <article class="folder course-card is-locked">
+          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
+          <div class="folder-body">
+            <span class="badge-soon">Tez orada</span>
+            <h3 class="course-title">CEFR</h3>
+            <p class="course-sub">Rasmiy CEFR darajalariga tayyorgarlik</p>
+          </div>
+        </article>
+        <article class="folder course-card is-locked">
+          <div class="folder-tab" style="--tab-color:#253559"></div>
+          <div class="folder-body">
+            <span class="badge-soon">Tez orada</span>
+            <h3 class="course-title">IELTS</h3>
+            <p class="course-sub">IELTS imtihoniga tayyorgarlik</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== PAYMENT GATE (General English, not approved yet) ===== -->
+    <section id="view-payment" hidden>
+      <a href="#" id="backToCoursesFromPayment" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>General English kursi</h1>
+          <p>Kursni ochish uchun to‘lovni amalga oshiring.</p>
+        </div>
+      </div>
+      <div class="payment-box">
+        <p class="eyebrow">To‘lov</p>
+        <div class="payment-price">50 000 so‘m</div>
+        <p>Kurs to‘liq ochilgach, Beginner darajasidan boshlab barcha darslar, uy vazifalari va testlarga ega bo‘lasiz.</p>
+        <ol class="payment-steps">
+          <li>50 000 so‘mni ko‘rsatilgan hisobga o‘tkazing.</li>
+          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
+          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
+          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
+        </ol>
+        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
+
+        <div id="paymentActionArea" style="margin-top:1.6em;"></div>
+      </div>
+    </section>
+
+    <!-- ===== LEVELS (General English, approved) ===== -->
+    <section id="view-levels" hidden>
+      <a href="#" id="backToCoursesFromLevels" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>General English</h1>
+          <p>Darajalar ketma-ket ochiladi — oldingi darajadagi barcha darslarni yakunlasangiz, keyingisi ochiladi.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="levelsGrid"></div>
+    </section>
+
+    <!-- ===== LESSON LIST (inside a level) ===== -->
+    <section id="view-lessons" hidden>
+      <a href="#" id="backToLevels" class="back-link">← Darajalarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="lessonsLevelName">Daraja nomi</h1>
+          <p id="lessonsLevelSub"></p>
+        </div>
+      </div>
+      <div class="lesson-list" id="lessonList"></div>
+    </section>
+
+    <!-- ===== LESSON DETAIL ===== -->
+    <section id="view-lesson-detail" hidden>
+      <a href="#" id="backToLessons" class="back-link">← Darslar ro‘yxatiga qaytish</a>
+      <div class="lesson-detail-box" id="lessonDetailBox"></div>
+    </section>
+
+    <!-- ===== QUIZ ===== -->
+    <section id="view-quiz" hidden>
+      <a href="#" id="backToLessonFromQuiz" class="back-link">← Darsga qaytish</a>
+      <div class="quiz-box">
+        <h1 id="quizTitle" style="margin-bottom:1em;">Test</h1>
+        <div id="quizQuestions"></div>
+        <button type="button" class="btn btn-amber" id="submitQuizBtn">Yakunlash</button>
+      </div>
+    </section>
+
+    <!-- ===== QUIZ RESULT ===== -->
+    <section id="view-quiz-result" hidden>
+      <div class="quiz-result-box" id="quizResultBox"></div>
+    </section>
+
+  </main>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script>
+/* ============================================================
+   English Folder — Student dashboard logic (Firestore-backed)
+   ============================================================ */
+
+const LEVELS = [
+  { id: 'beginner', name: 'Beginner', order: 1 },
+  { id: 'elementary', name: 'Elementary', order: 2 },
+  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3 }
+];
+const PASS_PERCENT = 60;
+
+let currentUid = null;
+let state = {
+  student: null,        // {name,email,paymentStatus,progress,...}
+  levels: {},            // {levelId: {name,order,lessons:[...]}}
+  activeLevelId: null,
+  activeLessonId: null,
+  lastQuizContext: null   // {levelId, lessonId} — used by "Qayta urinish"
+};
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ---------- Auth gate ----------
+
+auth.onAuthStateChanged(async (user) => {
+  if(!user){ window.location.href = 'login.html'; return; }
+  const studentDoc = await db.collection('students').doc(user.uid).get();
+  if(!studentDoc.exists){
+    await auth.signOut();
+    window.location.href = 'login.html';
+    return;
+  }
+  currentUid = user.uid;
+  state.student = studentDoc.data();
+  state.student.progress = state.student.progress || {};
+
+  document.getElementById('sidebarUsername').textContent = state.student.name || state.student.email;
+  document.getElementById('loadingScreen').hidden = true;
+  document.getElementById('appShell').hidden = false;
+
+  await loadLevels();
+  renderCoursesOverview();
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if(confirm('Tizimdan chiqmoqchimisiz?')) auth.signOut().then(() => window.location.href = 'login.html');
+});
+
+async function loadLevels(){
+  const results = await Promise.all(LEVELS.map(l => db.collection('levels').doc(l.id).get()));
+  results.forEach((doc, i) => {
+    state.levels[LEVELS[i].id] = doc.exists ? doc.data() : { name: LEVELS[i].name, order: LEVELS[i].order, lessons: [] };
+  });
+}
+
+function getLevel(id){ return state.levels[id]; }
+
+// ---------- Progress helpers ----------
+
+function getLessonProgress(levelId, lessonId){
+  return (state.student.progress[levelId] && state.student.progress[levelId][lessonId]) || { passed: false, bestScore: null };
+}
+
+function isLevelCompleted(levelId){
+  const lessons = getLevel(levelId).lessons;
+  if(lessons.length === 0) return false;
+  return lessons.every(l => getLessonProgress(levelId, l.id).passed);
+}
+
+function isLevelUnlocked(levelId){
+  const lvl = LEVELS.find(l => l.id === levelId);
+  if(lvl.order === 1) return true;
+  const prevLevel = LEVELS.find(l => l.order === lvl.order - 1);
+  return isLevelCompleted(prevLevel.id);
+}
+
+function isLessonUnlocked(levelId, lessonIndex){
+  if(!isLevelUnlocked(levelId)) return false;
+  if(lessonIndex === 0) return true;
+  const lessons = getLevel(levelId).lessons;
+  return getLessonProgress(levelId, lessons[lessonIndex - 1].id).passed;
+}
+
+async function saveProgress(levelId, lessonId, passed, scorePct){
+  const prev = getLessonProgress(levelId, lessonId);
+  const bestScore = (prev.bestScore == null) ? scorePct : Math.max(prev.bestScore, scorePct == null ? 0 : scorePct);
+  const newPassed = prev.passed || passed;
+  const path = `progress.${levelId}.${lessonId}`;
+  await db.collection('students').doc(currentUid).update({ [path]: { passed: newPassed, bestScore } });
+  state.student.progress[levelId] = state.student.progress[levelId] || {};
+  state.student.progress[levelId][lessonId] = { passed: newPassed, bestScore };
+}
+
+// ---------- View switching ----------
+
+const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result'];
+function switchView(view){
+  VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+}
+
+// ---------- Courses overview ----------
+
+function renderCoursesOverview(){
+  const sub = document.getElementById('generalEnglishSub');
+  if(state.student.paymentStatus === 'approved'){
+    const totalLessons = LEVELS.reduce((s, l) => s + getLevel(l.id).lessons.length, 0);
+    const doneLessons = LEVELS.reduce((s, l) => s + getLevel(l.id).lessons.filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
+    sub.textContent = `${doneLessons}/${totalLessons} dars yakunlangan`;
+  } else if(state.student.paymentStatus === 'pending'){
+    sub.textContent = 'To‘lov tekshirilmoqda…';
+  } else {
+    sub.textContent = 'Beginner → Elementary → Pre-Intermediate · 50 000 so‘m';
+  }
+  switchView('courses');
+}
+
+document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
+  if(state.student.paymentStatus === 'approved'){
+    openLevelsView();
+  } else {
+    openPaymentView();
+  }
+});
+
+// ---------- Payment gate ----------
+
+function openPaymentView(){
+  const area = document.getElementById('paymentActionArea');
+  if(state.student.paymentStatus === 'pending'){
+    area.innerHTML = `<p class="payment-pending-box">⏳ So‘rovingiz ko‘rib chiqilmoqda. Admin skrinshotni tasdiqlagach, kurs avtomatik ochiladi.</p>`;
+  } else {
+    area.innerHTML = `<button type="button" class="btn btn-amber" id="paidBtn">To‘lov qildim</button>`;
+    document.getElementById('paidBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('paidBtn');
+      btn.disabled = true;
+      btn.textContent = 'Yuborilmoqda…';
+      await db.collection('students').doc(currentUid).update({ paymentStatus: 'pending', paymentRequestedAt: Date.now() });
+      state.student.paymentStatus = 'pending';
+      openPaymentView();
+    });
+  }
+  switchView('payment');
+}
+
+document.getElementById('backToCoursesFromPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+document.getElementById('backToCoursesFromLevels').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+
+// ---------- Levels ----------
+
+function openLevelsView(){
+  document.getElementById('levelsGrid').innerHTML = LEVELS.map(lvl => {
+    const data = getLevel(lvl.id);
+    const unlocked = isLevelUnlocked(lvl.id);
+    const doneCount = data.lessons.filter(l => getLessonProgress(lvl.id, l.id).passed).length;
+    return `
+      <article class="folder level-card ${unlocked ? '' : 'is-locked'}" ${unlocked ? `data-open-level="${lvl.id}"` : ''}>
+        <div class="folder-tab" style="--tab-color:${unlocked ? '#2E6F6E' : '#9a9a95'}"></div>
+        <div class="folder-body">
+          <span class="tag">Daraja ${lvl.order}</span>
+          <h3 class="level-title">${escapeHtml(lvl.name)} ${unlocked ? '' : '🔒'}</h3>
+          <p class="level-sub">${unlocked ? `${doneCount}/${data.lessons.length} dars yakunlangan` : 'Oldingi darajani yakunlang'}</p>
+        </div>
+      </article>`;
+  }).join('');
+  switchView('levels');
+}
+
+document.getElementById('levelsGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-open-level]');
+  if(card) openLessonsView(card.dataset.openLevel);
+});
+
+// ---------- Lesson list ----------
+
+function openLessonsView(levelId){
+  state.activeLevelId = levelId;
+  const lvl = LEVELS.find(l => l.id === levelId);
+  const data = getLevel(levelId);
+
+  document.getElementById('lessonsLevelName').textContent = lvl.name;
+  document.getElementById('lessonsLevelSub').textContent = `${data.lessons.length} ta dars`;
+
+  const lessonList = document.getElementById('lessonList');
+  if(data.lessons.length === 0){
+    lessonList.innerHTML = `<div class="empty-state"><h3>Bu darajaga hali dars qo‘shilmagan</h3><p>Tez orada darslar joylanadi.</p></div>`;
+  } else {
+    lessonList.innerHTML = data.lessons.map((lesson, i) => {
+      const unlocked = isLessonUnlocked(levelId, i);
+      const progress = getLessonProgress(levelId, lesson.id);
+      return `
+        <div class="lesson-row ${unlocked ? 'is-clickable' : 'lesson-locked'}" ${unlocked ? `data-open-lesson="${lesson.id}"` : ''}>
+          <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
+          <div class="lesson-main">
+            <div class="lesson-row-top">
+              <span class="lesson-title ${unlocked ? '' : 'placeholder'}">${unlocked ? escapeHtml(lesson.title || 'Nomsiz dars') : '🔒 ' + (lesson.title || 'Nomsiz dars')}</span>
+              ${progress.bestScore != null ? `<span class="lesson-score">Eng yaxshi natija: ${progress.bestScore}%</span>` : ''}
+            </div>
+            <div class="lesson-meta">
+              ${progress.passed ? '<span class="status-pill" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Yakunlangan ✓</span>' : (unlocked ? '<span class="status-pill" style="background:var(--paper-2); color:var(--gray);">Boshlanmagan</span>' : '<span class="status-pill" style="background:var(--paper-2); color:var(--gray);">Qulflangan</span>')}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
+  switchView('lessons');
+}
+
+document.getElementById('lessonList').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-open-lesson]');
+  if(row) openLessonDetail(row.dataset.openLesson);
+});
+
+document.getElementById('backToLevels').addEventListener('click', (e) => { e.preventDefault(); openLevelsView(); });
+
+// ---------- Lesson detail ----------
+
+function getCurrentLesson(){
+  return getLevel(state.activeLevelId).lessons.find(l => l.id === state.activeLessonId);
+}
+
+async function openLessonDetail(lessonId){
+  state.activeLessonId = lessonId;
+  const lesson = getCurrentLesson();
+  const progress = getLessonProgress(state.activeLevelId, lessonId);
+  const hasQuiz = lesson.quiz && lesson.quiz.length > 0;
+
+  // Lessons with no quiz unlock the next lesson automatically the first time they're opened.
+  if(!hasQuiz && !progress.passed){
+    await saveProgress(state.activeLevelId, lessonId, true, null);
+  }
+
+  const box = document.getElementById('lessonDetailBox');
+  box.innerHTML = `
+    <h1>${escapeHtml(lesson.title || 'Nomsiz dars')}</h1>
+    ${lesson.topicText ? `<p style="margin-top:.8em; color:var(--ink-soft);">${escapeHtml(lesson.topicText)}</p>` : ''}
+    <div class="lesson-detail-links">
+      ${lesson.video ? `<a href="${escapeHtml(lesson.video)}" target="_blank" rel="noopener">🎬 Video darsni ko‘rish</a>` : ''}
+      ${lesson.material ? `<a href="${escapeHtml(lesson.material)}" target="_blank" rel="noopener">📎 Materialni ko‘rish</a>` : ''}
+    </div>
+    ${lesson.homework ? `<div class="lesson-detail-homework"><strong>📝 Uy vazifasi:</strong> ${escapeHtml(lesson.homework)}</div>` : ''}
+    ${hasQuiz
+      ? `<button type="button" class="btn btn-amber" id="startQuizBtn">${getLessonProgress(state.activeLevelId, lessonId).passed ? 'Testni qayta ishlash' : 'Testni boshlash'}</button>
+         ${getLessonProgress(state.activeLevelId, lessonId).bestScore != null ? `<p class="lesson-score" style="margin-top:.8em;">Eng yaxshi natijangiz: ${getLessonProgress(state.activeLevelId, lessonId).bestScore}%</p>` : ''}`
+      : `<p class="quiz-empty">Bu darsda test yo‘q — dars ochilishi bilan keyingi dars avtomatik ochildi.</p>`}
+  `;
+  const startBtn = document.getElementById('startQuizBtn');
+  if(startBtn) startBtn.addEventListener('click', () => openQuiz(state.activeLevelId, lessonId));
+
+  switchView('lesson-detail');
+}
+
+document.getElementById('backToLessons').addEventListener('click', (e) => { e.preventDefault(); openLessonsView(state.activeLevelId); });
+
+// ---------- Quiz ----------
+
+function openQuiz(levelId, lessonId){
+  state.lastQuizContext = { levelId, lessonId };
+  const lesson = getLevel(levelId).lessons.find(l => l.id === lessonId);
+  document.getElementById('quizTitle').textContent = `Test — ${lesson.title || 'Nomsiz dars'}`;
+  document.getElementById('quizQuestions').innerHTML = lesson.quiz.map((q, qi) => `
+    <div class="quiz-question">
+      <div class="quiz-question-title">${qi + 1}. ${escapeHtml(q.question)}</div>
+      ${q.options.map((opt, oi) => `
+        <label class="quiz-option">
+          <input type="radio" name="quiz-q-${qi}" value="${oi}">
+          <span>${escapeHtml(opt)}</span>
+        </label>`).join('')}
+    </div>`).join('');
+  switchView('quiz');
+}
+
+document.getElementById('backToLessonFromQuiz').addEventListener('click', (e) => {
+  e.preventDefault();
+  openLessonDetail(state.lastQuizContext.lessonId);
+});
+
+document.getElementById('submitQuizBtn').addEventListener('click', async () => {
+  const { levelId, lessonId } = state.lastQuizContext;
+  const lesson = getLevel(levelId).lessons.find(l => l.id === lessonId);
+
+  let answered = 0, correct = 0;
+  lesson.quiz.forEach((q, qi) => {
+    const checked = document.querySelector(`input[name="quiz-q-${qi}"]:checked`);
+    if(checked){
+      answered++;
+      if(Number(checked.value) === q.correctIndex) correct++;
+    }
+  });
+
+  if(answered < lesson.quiz.length){
+    alert('Iltimos, barcha savollarga javob bering.');
+    return;
+  }
+
+  const scorePct = Math.round((correct / lesson.quiz.length) * 100);
+  const passed = scorePct >= PASS_PERCENT;
+  await saveProgress(levelId, lessonId, passed, scorePct);
+  renderQuizResult(scorePct, passed);
+});
+
+function renderQuizResult(scorePct, passed){
+  document.getElementById('quizResultBox').innerHTML = `
+    <p class="eyebrow">Natija</p>
+    <div class="quiz-result-score ${passed ? 'quiz-result-pass' : 'quiz-result-fail'}">${scorePct}%</div>
+    <p>${passed ? `Tabriklaymiz! Siz testni muvaffaqiyatli topshirdingiz (kamida ${PASS_PERCENT}% kerak edi) — keyingi dars ochildi.` : `Afsuski, test o‘tmadi (kamida ${PASS_PERCENT}% kerak). Darsni qayta ko‘rib, testni qayta ishlab ko‘ring.`}</p>
+    <div class="quiz-result-actions">
+      ${!passed ? `<button type="button" class="btn btn-amber" id="retryQuizBtn">Qayta urinish</button>` : ''}
+      <button type="button" class="btn btn-ghost" id="backToLessonsFromResultBtn">Darslar ro‘yxatiga qaytish</button>
+    </div>
+  `;
+  const retryBtn = document.getElementById('retryQuizBtn');
+  if(retryBtn) retryBtn.addEventListener('click', () => openQuiz(state.lastQuizContext.levelId, state.lastQuizContext.lessonId));
+  document.getElementById('backToLessonsFromResultBtn').addEventListener('click', () => openLessonsView(state.lastQuizContext.levelId));
+  switchView('quiz-result');
+}
+</script>
+</body>
+</html>

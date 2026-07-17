@@ -16,7 +16,7 @@
     <div class="folder-body auth-card">
       <p class="eyebrow">O‘quvchi portali</p>
       <h1 class="auth-title">Ro‘yxatdan o‘ting</h1>
-      <p class="auth-sub">Hisob yaratgach, o‘qituvchingiz sizni tegishli guruh papkasiga biriktiradi — shundan keyin darslar ochiladi.</p>
+      <p class="auth-sub">Hisob yarating, so‘ng General English kursini tanlab, to‘lovni amalga oshiring — kurs tasdiqlangach darslar ochiladi.</p>
 
       <form id="registerForm" class="auth-form" autocomplete="off">
         <label class="field">
@@ -40,7 +40,7 @@
         <button type="submit" class="btn btn-teal auth-submit" id="submitBtn">Ro‘yxatdan o‘tish</button>
       </form>
 
-      <p class="auth-hint">Ro‘yxatdan o‘tgach darslar darhol ochilmasligi mumkin — o‘qituvchingiz sizni guruhga biriktirishi kerak.</p>
+      <p class="auth-hint">Ro‘yxatdan o‘tgach kurslar ro‘yxati chiqadi — General English kursi uchun to‘lov qilib, admin tasdiqlashini kutishingiz kerak bo‘ladi.</p>
     </div>
   </div>
 
@@ -76,9 +76,8 @@ form.addEventListener('submit', async (e) => {
 
   try{
     const cred = await auth.createUserWithEmailAndPassword(email, password);
-    // folderId is intentionally left empty — only an admin can assign a folder.
     await db.collection('students').doc(cred.user.uid).set({
-      name, email, folderId: '', createdAt: Date.now()
+      name, email, paymentStatus: 'none', progress: {}, createdAt: Date.now()
     });
     window.location.href = 'dashboard.html';
   } catch(err){
