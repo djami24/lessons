@@ -1,6 +1,6 @@
 # English Folder — Firebase sozlash qo‘llanmasi
 
-Bu tizim endi **Firebase** (Authentication + Firestore) ustida ishlaydi — ya'ni siz papka/dars qo'shsangiz, bu darhol **barcha qurilmalarda** ko'rinadi, va har bir o'quvchi **o'z shaxsiy login/paroli** bilan kiradi.
+Bu tizim **Firebase** (Authentication + Firestore) ustida ishlaydi: General English kursi Beginner → Elementary → Pre-Intermediate darajalaridan iborat, har bir darsda video/material, uy vazifasi va test bor. O'quvchi testni kamida 60% ball bilan yechsagina keyingi dars ochiladi. Kurs 50 000 so'mlik to'lov admin tomonidan tasdiqlangach ochiladi.
 
 ## 1. Firebase loyihasini yaratish (5 daqiqa)
 
@@ -40,20 +40,7 @@ Bu tizim endi **Firebase** (Authentication + Firestore) ustida ishlaydi — ya'n
 2. `FIRESTORE_RULES.txt` faylidagi barcha matnni nusxalab, mavjud qoidalar o'rniga joylashtiring
 3. **Publish** tugmasini bosing
 
-## 6. Storage'ni yoqish (video/PDF/Word fayllar uchun)
-
-Darslarga video, PDF yoki Word fayl yuklash uchun Firebase Storage kerak:
-
-1. Chap menyudan **Build → Storage → Get started**
-2. Taklif qilingan xavfsizlik rejimini tanlab davom eting (keyingi qadamda qoidalarni o'zimiz almashtiramiz)
-3. Sizga yaqin regionni tanlang → **Done**
-4. **Rules** bo'limiga o'ting → `STORAGE_RULES.txt` faylidagi barcha matnni nusxalab, mavjud qoidalar o'rniga joylashtiring → **Publish**
-
-Bu qoidalar: istalgan tizimga kirgan foydalanuvchi (o'quvchi yoki admin) darslar faylini ko'ra/yuklab ola oladi, lekin faqat **admin** yangi fayl yuklashi yoki almashtirishi mumkin.
-
-> **Eslatma:** Firebase'ning bepul (Spark) rejasida Storage'da jami 5GB joy va kuniga 1GB yuklab olish (download) limiti bor. Ko'p video yoki ko'p o'quvchi bo'lsa, **Blaze** (to'lovli, lekin haqiqiy foydalanishga qarab juda arzon) rejaga o'tish kerak bo'lishi mumkin.
-
-## 7. Birinchi admin hisobini yaratish
+## 6. Birinchi admin hisobini yaratish
 
 Admin hisoblari xavfsizlik uchun faqat Firebase Console orqali yaratiladi:
 
@@ -67,7 +54,7 @@ Admin hisoblari xavfsizlik uchun faqat Firebase Console orqali yaratiladi:
 
 Endi shu email/parol bilan `admin/login.html` orqali kira olasiz.
 
-## 8. Saytni joylashtirish (hosting)
+## 7. Saytni joylashtirish (hosting)
 
 Firebase Authentication `file://` orqali ochilgan sahifalarda ishlamasligi mumkin — saytni internetga joylashtiring:
 
@@ -80,14 +67,21 @@ firebase deploy
 ```
 Yoki oddiygina loyiha papkasini **Netlify** yoki **GitHub Pages**'ga tashlang — ular ham bepul va tez ishlaydi.
 
-## 9. O'quvchi qo'shish
+## 8. Darslarni joylashtirish (General English)
 
-1. `admin/login.html` orqali kiring
-2. Avval kamida bitta **papka** yarating ("Yangi papka ochish")
-3. **"O'quvchilar"** bo'limiga o'ting → **"Yangi o'quvchi qo'shish"**
-4. Ism, email, boshlang'ich parol va papkani kiriting → saqlang
+1. `admin/dashboard.html` ga kiring — birinchi kirishda **Beginner / Elementary / Pre-Intermediate** darajalari avtomatik yaratiladi.
+2. Bir darajani oching → **"Yangi dars qo'shish"** → dars nomi, video havolasi, material havolasi, mavzu tavsifi, uy vazifasi va test savollarini kiriting.
+3. Har bir test savoliga 4 ta variant va to'g'ri javobni belgilang. O'quvchi shu testni kamida **60%** to'g'ri yechsagina keyingi dars ochiladi.
 
-O'quvchi endi `student/login.html` orqali shu email/parol bilan kiradi va faqat o'ziga biriktirilgan papkani ko'radi.
+## 9. O'quvchilar va to'lovni tasdiqlash
+
+O'quvchilar `student/register.html` orqali **o'zlari** ro'yxatdan o'tadi (yoki admin ularni qo'lda qo'shishi ham mumkin). Ro'yxatdan o'tgach:
+
+1. O'quvchi General English kursini ochadi → 50 000 so'mlik to'lov ko'rsatiladi → pulni o'tkazib, skrinshotni Telegram orqali (**t.me/djamiteacher**) yuboradi → saytda **"To'lov qildim"** tugmasini bosadi.
+2. Admin `admin/dashboard.html` → **"O'quvchilar"** bo'limida shu o'quvchini topadi (holati: "Kutilmoqda") → Telegram'dagi skrinshotni tekshiradi → **"Ko'rish"** → **"To'lovni tasdiqlash"**.
+3. Tasdiqlangach, o'quvchiga Beginner darajasidan boshlab butun kurs ochiladi.
+
+> Agar admin biror o'quvchiga to'g'ridan-to'g'ri (Telegram orqali kutmasdan) kurs ochib bermoqchi bo'lsa, shunchaki uni "O'quvchilar" ro'yxatida topib, tasdiqlab qo'ya oladi — o'quvchi hech narsa qilmasa ham bo'ladi.
 
 ## Fayl tuzilishi
 
@@ -99,10 +93,11 @@ O'quvchi endi `student/login.html` orqali shu email/parol bilan kiradi va faqat 
 ├── FIRESTORE_RULES.txt        ← Firestore Rules'ga joylashtiriladi (5-qadam)
 ├── admin/
 │   ├── login.html
-│   └── dashboard.html         ← papkalar + o'quvchilar boshqaruvi
+│   └── dashboard.html         ← darajalar/darslar/test boshqaruvi + to'lov tasdiqlash
 └── student/
     ├── login.html
-    └── dashboard.html         ← o'quvchining shaxsiy papkasi
+    ├── register.html
+    └── dashboard.html         ← kurslar, darslar, testlar
 ```
 
 ## Muhim eslatmalar
