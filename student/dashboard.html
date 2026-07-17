@@ -48,6 +48,26 @@
             <p class="course-sub" id="generalEnglishSub">Beginner → Elementary → Pre-Intermediate</p>
           </div>
         </article>
+
+        <!-- CEFR CARD (Yangi ochilgan papka) -->
+        <article class="folder course-card" id="cardCefr">
+          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
+          <div class="folder-body">
+            <span class="tag">B1–C1</span>
+            <h3 class="course-title">CEFR</h3>
+            <p class="course-sub">Rasmiy CEFR darajalariga tayyorgarlik darslari</p>
+          </div>
+        </article>
+
+        <!-- IELTS CARD (Yangi ochilgan papka) -->
+        <article class="folder course-card" id="cardIelts">
+          <div class="folder-tab" style="--tab-color:#253559"></div>
+          <div class="folder-body">
+            <span class="tag">IELTS</span>
+            <h3 class="course-title">IELTS</h3>
+            <p class="course-sub">IELTS imtihoniga tayyorgarlik darslari</p>
+          </div>
+        </article>
         
         <!-- WRITING CARD -->
         <article class="folder course-card" id="cardWriting">
@@ -56,23 +76,6 @@
             <span class="tag">IELTS / CEFR</span>
             <h3 class="course-title">Writing</h3>
             <p class="course-sub">CEFR (Part 1.1, 1.2, 2) & IELTS (Task 1, 2) insholar</p>
-          </div>
-        </article>
-
-        <article class="folder course-card is-locked">
-          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
-          <div class="folder-body">
-            <span class="badge-soon">Tez orada</span>
-            <h3 class="course-title">CEFR</h3>
-            <p class="course-sub">Rasmiy CEFR darajalariga tayyorgarlik</p>
-          </div>
-        </article>
-        <article class="folder course-card is-locked">
-          <div class="folder-tab" style="--tab-color:#253559"></div>
-          <div class="folder-body">
-            <span class="badge-soon">Tez orada</span>
-            <h3 class="course-title">IELTS</h3>
-            <p class="course-sub">IELTS imtihoniga tayyorgarlik</p>
           </div>
         </article>
       </div>
@@ -275,9 +278,11 @@
    ============================================================ */
 
 const LEVELS = [
-  { id: 'beginner', name: 'Beginner', order: 1 },
-  { id: 'elementary', name: 'Elementary', order: 2 },
-  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3 }
+  { id: 'beginner', name: 'Beginner', order: 1, course: 'general' },
+  { id: 'elementary', name: 'Elementary', order: 2, course: 'general' },
+  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' },
+  { id: 'cefr', name: 'CEFR Course', order: 4, course: 'cefr' },
+  { id: 'ielts', name: 'IELTS Course', order: 5, course: 'ielts' }
 ];
 const PASS_PERCENT = 60;
 
@@ -343,9 +348,10 @@ function isLevelCompleted(levelId){
 
 function isLevelUnlocked(levelId){
   const lvl = LEVELS.find(l => l.id === levelId);
+  if(lvl.course !== 'general') return true;
   if(lvl.order === 1) return true;
-  const prevLevel = LEVELS.find(l => l.order === lvl.order - 1);
-  return isLevelCompleted(prevLevel.id);
+  const prevLevel = LEVELS.find(l => l.course === 'general' && l.order === lvl.order - 1);
+  return prevLevel ? isLevelCompleted(prevLevel.id) : true;
 }
 
 function isLessonUnlocked(levelId, lessonIndex){
@@ -373,9 +379,10 @@ function switchView(view){
 
 function renderCoursesOverview(){
   const sub = document.getElementById('generalEnglishSub');
+  const generalLevels = LEVELS.filter(l => l.course === 'general');
   if(state.student.paymentStatus === 'approved'){
-    const totalLessons = LEVELS.reduce((s, l) => s + getLevel(l.id).lessons.length, 0);
-    const doneLessons = LEVELS.reduce((s, l) => s + getLevel(l.id).lessons.filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
+    const totalLessons = generalLevels.reduce((s, l) => s + getLevel(l.id).lessons.length, 0);
+    const doneLessons = generalLevels.reduce((s, l) => s + getLevel(l.id).lessons.filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
     sub.textContent = `${doneLessons}/${totalLessons} dars yakunlangan`;
   } else if(state.student.paymentStatus === 'pending'){
     sub.textContent = 'To‘lov tekshirilmoqda…';
@@ -388,6 +395,22 @@ function renderCoursesOverview(){
 document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
   if(state.student.paymentStatus === 'approved'){
     openLevelsView();
+  } else {
+    openPaymentView();
+  }
+});
+
+document.getElementById('cardCefr').addEventListener('click', () => {
+  if(state.student.paymentStatus === 'approved'){
+    openLessonsView('cefr');
+  } else {
+    openPaymentView();
+  }
+});
+
+document.getElementById('cardIelts').addEventListener('click', () => {
+  if(state.student.paymentStatus === 'approved'){
+    openLessonsView('ielts');
   } else {
     openPaymentView();
   }
@@ -415,7 +438,8 @@ document.getElementById('backToCoursesFromPayment').addEventListener('click', (e
 document.getElementById('backToCoursesFromLevels').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 
 function openLevelsView(){
-  document.getElementById('levelsGrid').innerHTML = LEVELS.map(lvl => {
+  const generalLevels = LEVELS.filter(l => l.course === 'general');
+  document.getElementById('levelsGrid').innerHTML = generalLevels.map(lvl => {
     const data = getLevel(lvl.id);
     const unlocked = isLevelUnlocked(lvl.id);
     const doneCount = data.lessons.filter(l => getLessonProgress(lvl.id, l.id).passed).length;
@@ -442,8 +466,15 @@ function openLessonsView(levelId){
   const lvl = LEVELS.find(l => l.id === levelId);
   const data = getLevel(levelId);
 
-  document.getElementById('lessonsLevelName').textContent = lvl.name;
+  document.getElementById('lessonsLevelName').textContent = lvl ? lvl.name : 'Darslar';
   document.getElementById('lessonsLevelSub').textContent = `${data.lessons.length} ta dars`;
+
+  const backBtn = document.getElementById('backToLevels');
+  if (lvl && lvl.course !== 'general') {
+    backBtn.textContent = '← Kurslarga qaytish';
+  } else {
+    backBtn.textContent = '← Darajalarga qaytish';
+  }
 
   const lessonList = document.getElementById('lessonList');
   if(data.lessons.length === 0){
@@ -475,7 +506,15 @@ document.getElementById('lessonList').addEventListener('click', (e) => {
   if(row) openLessonDetail(row.dataset.openLesson);
 });
 
-document.getElementById('backToLevels').addEventListener('click', (e) => { e.preventDefault(); openLevelsView(); });
+document.getElementById('backToLevels').addEventListener('click', (e) => {
+  e.preventDefault();
+  const lvl = LEVELS.find(l => l.id === state.activeLevelId);
+  if(lvl && lvl.course !== 'general'){
+    renderCoursesOverview();
+  } else {
+    openLevelsView();
+  }
+});
 
 function getCurrentLesson(){
   return getLevel(state.activeLevelId).lessons.find(l => l.id === state.activeLessonId);
