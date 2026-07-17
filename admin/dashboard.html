@@ -17,7 +17,7 @@
   <aside class="admin-sidebar">
     <a href="../index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
     <ul class="admin-nav">
-      <li><a href="#" class="active" id="navLevels">📚 Darslar (General English)</a></li>
+      <li><a href="#" class="active" id="navLevels">📚 Kurslar va darslar</a></li>
       <li><a href="#" id="navWriting">✍️ Writing boshqaruvi</a></li>
       <li><a href="#" id="navStudents">🎓 O‘quvchilar</a></li>
       <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
@@ -39,8 +39,8 @@
     <section id="view-levels">
       <div class="admin-header">
         <div>
-          <h1>General English — darajalar</h1>
-          <p>Beginner, Elementary va Pre-Intermediate darajalarining darslarini shu yerdan boshqarasiz.</p>
+          <h1>Kurslar va darajalar</h1>
+          <p>General English, CEFR va IELTS darslarini, test va materiallarini shu yerdan boshqarasiz.</p>
         </div>
       </div>
 
@@ -51,7 +51,7 @@
 
     <!-- ===== LESSON LIST ===== -->
     <section id="view-lessons" hidden>
-      <a href="#" id="backToLevels" class="back-link">← Darajalarga qaytish</a>
+      <a href="#" id="backToLevels" class="back-link">← Kurs va darajalarga qaytish</a>
       <div class="admin-header">
         <div>
           <h1 id="lessonsLevelName">Daraja nomi</h1>
@@ -325,7 +325,7 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>🦶 Footer</h3>
+        <h3>💡 Footer</h3>
         <label class="field">
           <span>Logotip ostidagi tavsif</span>
           <textarea id="settingFooterDescription" rows="2"></textarea>
@@ -500,9 +500,11 @@
    ============================================================ */
 
 const LEVELS = [
-  { id: 'beginner', name: 'Beginner', order: 1 },
-  { id: 'elementary', name: 'Elementary', order: 2 },
-  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3 }
+  { id: 'beginner', name: 'Beginner', order: 1, course: 'general' },
+  { id: 'elementary', name: 'Elementary', order: 2, course: 'general' },
+  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' },
+  { id: 'cefr', name: 'CEFR Course', order: 4, course: 'cefr' },
+  { id: 'ielts', name: 'IELTS Course', order: 5, course: 'ielts' }
 ];
 const PASS_PERCENT = 60;
 
@@ -632,11 +634,22 @@ function renderLevelsOverview(){
   document.getElementById('levelsGrid').innerHTML = LEVELS.map(lvl => {
     const data = getLevel(lvl.id);
     const questionCount = data.lessons.reduce((s, l) => s + (l.quiz ? l.quiz.length : 0), 0);
+    
+    let tabColor = '#2E6F6E'; // teal for general english
+    let tagText = `Daraja ${lvl.order}`;
+    if (lvl.course === 'cefr') {
+      tabColor = '#D98E3F'; // amber for CEFR
+      tagText = 'CEFR';
+    } else if (lvl.course === 'ielts') {
+      tabColor = '#253559'; // navy for IELTS
+      tagText = 'IELTS';
+    }
+
     return `
-      <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-level="${lvl.id}">
+      <article class="folder level-card" style="--tab-color:${tabColor}" data-open-level="${lvl.id}">
         <div class="folder-tab"></div>
         <div class="folder-body">
-          <span class="tag">Daraja ${lvl.order}</span>
+          <span class="tag">${tagText}</span>
           <h3 class="level-title">${escapeHtml(lvl.name)}</h3>
           <p class="level-sub">${data.lessons.length} ta dars · ${questionCount} ta test savoli</p>
         </div>
@@ -665,7 +678,7 @@ function openLevel(id){
   if(data.lessons.length === 0){
     lessonList.innerHTML = `
       <div class="empty-state">
-        <h3>Bu darajada hali dars yo‘q</h3>
+        <h3>Bu yo'nalishda hali dars yo‘q</h3>
         <p>“Yangi dars qo‘shish” tugmasini bosib birinchi darsni yarating.</p>
       </div>`;
   } else {
@@ -1204,7 +1217,7 @@ document.getElementById('studentsTableBody').addEventListener('click', (e) => {
   const statusText = {
     none: 'To‘lov haqida hali xabar bermagan.',
     pending: 'To‘lov qilganini bildirgan — Telegram’dagi skrinshotni tekshirib, tasdiqlang.',
-    approved: 'To‘lov tasdiqlangan — General English kursi to‘liq ochiq.'
+    approved: 'To‘lov tasdiqlangan — Kurslar to‘liq ochiq.'
   };
   document.getElementById('studentDetailStatus').innerHTML = `${STATUS_LABELS[student.paymentStatus] || STATUS_LABELS.none} — ${statusText[student.paymentStatus] || statusText.none}`;
 
