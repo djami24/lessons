@@ -18,6 +18,14 @@ service cloud.firestore {
       allow write: if false; // only editable from the Firebase console
     }
 
+    // Site settings (colors, brand name, logo, homepage text) — editable
+    // by the admin from the dashboard. Publicly readable because the
+    // marketing homepage (index.html) has no signed-in user.
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // Course structure: fixed level docs (beginner / elementary / pre-intermediate),
     // each holding an embedded `lessons` array (topic, homework, quiz questions).
     // Any signed-in user may read — needed to show locked previews to unpaid
