@@ -81,7 +81,7 @@
       </div>
     </section>
 
-    <!-- ===== SKILLS VIEW (LISTENING, READING, GRAMMAR SUBFOLDERS) ===== -->
+    <!-- ===== SKILLS VIEW (LISTENING, READING, SPEAKING SUBFOLDERS) ===== -->
     <section id="view-skills" hidden>
       <a href="#" id="backToCoursesFromSkills" class="back-link">← Kurslarga qaytish</a>
       <div class="admin-header">
@@ -337,11 +337,11 @@ const LEVELS = [
   // CEFR Skills
   { id: 'cefr_listening', name: 'CEFR Listening', order: 4, course: 'cefr', skill: 'listening' },
   { id: 'cefr_reading', name: 'CEFR Reading', order: 5, course: 'cefr', skill: 'reading' },
-  { id: 'cefr_grammar', name: 'CEFR Grammar', order: 6, course: 'cefr', skill: 'grammar' },
+  { id: 'cefr_speaking', name: 'CEFR Speaking', order: 6, course: 'cefr', skill: 'speaking' }, // Grammar -> Speaking
   // IELTS Skills
   { id: 'ielts_listening', name: 'IELTS Listening', order: 7, course: 'ielts', skill: 'listening' },
   { id: 'ielts_reading', name: 'IELTS Reading', order: 8, course: 'ielts', skill: 'reading' },
-  { id: 'ielts_grammar', name: 'IELTS Grammar', order: 9, course: 'ielts', skill: 'grammar' }
+  { id: 'ielts_speaking', name: 'IELTS Speaking', order: 9, course: 'ielts', skill: 'speaking' } // Grammar -> Speaking
 ];
 const PASS_PERCENT = 60;
 
@@ -504,7 +504,7 @@ function openSkillsView(courseId) {
   const skills = [
     { id: 'listening', name: 'Listening', desc: 'Eshitib tushunish darslari, audio materiallar va testlar' },
     { id: 'reading', name: 'Reading', desc: 'O\'qib tushunish darslari, matnlar va savollar' },
-    { id: 'grammar', name: 'Grammar', desc: 'Grammatika darslari va mustahkamlovchi mashqlar' }
+    { id: 'speaking', name: 'Speaking', desc: 'Gapirish ko\'nikmasini oshirish darslari, mavzular va savollar' } // Grammar -> Speaking
   ];
 
   grid.innerHTML = skills.map(sk => `
