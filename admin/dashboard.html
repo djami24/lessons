@@ -15,10 +15,11 @@
 
   <!-- SIDEBAR -->
   <aside class="admin-sidebar">
-    <a href="../index.html" class="brand"><span class="brand-mark"></span>English Folder</a>
+    <a href="../index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
     <ul class="admin-nav">
       <li><a href="#" class="active" id="navLevels">📚 Darslar (General English)</a></li>
       <li><a href="#" id="navStudents">🎓 O‘quvchilar</a></li>
+      <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -83,6 +84,77 @@
         <h3>Hali o‘quvchi qo‘shilmagan</h3>
         <p>“Yangi o‘quvchi qo‘shish” tugmasini bosib birinchi hisobni yarating, yoki o‘quvchilar mustaqil ro‘yxatdan o‘tishini kuting.</p>
       </div>
+    </section>
+
+    <!-- ===== SITE SETTINGS VIEW ===== -->
+    <section id="view-site-settings" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>Sayt sozlamalari</h1>
+          <p>Bosh sahifa hamda admin/o‘quvchi panelidagi ranglar, logotip va matnlarni shu yerdan boshqaring. O‘zgarishlar saqlangach, saytda darrov ko‘rinadi.</p>
+        </div>
+      </div>
+
+      <form class="modal-form" id="siteSettingsForm" style="max-width:640px;">
+
+        <div class="field">
+          <span>Asosiy rang (tugmalar, urg‘u)</span>
+          <div style="display:flex; align-items:center; gap:1em;">
+            <input type="color" id="settingColorPrimary" value="#D98E3F" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
+            <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingColorPrimaryLabel">#D98E3F</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <span>Ikkinchi rang (linklar, teal urg‘u)</span>
+          <div style="display:flex; align-items:center; gap:1em;">
+            <input type="color" id="settingColorAccent" value="#2E6F6E" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
+            <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingColorAccentLabel">#2E6F6E</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <span>Orqa fon rangi</span>
+          <div style="display:flex; align-items:center; gap:1em;">
+            <input type="color" id="settingColorBackground" value="#FFFFFF" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
+            <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingColorBackgroundLabel">#FFFFFF</span>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>Sayt nomi (brend)</span>
+          <input type="text" id="settingBrandName" placeholder="English Folder">
+        </label>
+
+        <label class="field">
+          <span>Logotip rasm havolasi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy — bo‘sh qoldirsangiz, standart belgi ishlatiladi)</span></span>
+          <input type="url" id="settingLogoUrl" placeholder="https://…">
+        </label>
+
+        <label class="field">
+          <span>Bosh sahifa — asosiy sarlavha</span>
+          <input type="text" id="settingHeroTitle" placeholder="Ingliz tilini tartibli papkada o‘rganing.">
+        </label>
+        <label class="field">
+          <span>Bosh sahifa — sarlavha ostidagi matn</span>
+          <textarea id="settingHeroLead" rows="3" placeholder="Har bir guruh — alohida papka…"></textarea>
+        </label>
+        <label class="field">
+          <span>Pastdagi chaqiruv (CTA) sarlavhasi</span>
+          <input type="text" id="settingCtaTitle" placeholder="Papkangizni bugun oching">
+        </label>
+        <label class="field">
+          <span>CTA ostidagi matn</span>
+          <textarea id="settingCtaText" rows="2" placeholder="Bepul sinov darsiga yoziling…"></textarea>
+        </label>
+
+        <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
+
+        <div class="modal-actions" style="justify-content:flex-start;">
+          <button type="submit" class="btn btn-amber" id="siteSettingsSubmit">Saqlash</button>
+          <button type="button" class="btn btn-ghost" id="siteSettingsReset">Standart holatga qaytarish</button>
+        </div>
+      </form>
     </section>
 
   </main>
@@ -185,6 +257,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
+<script src="../site-settings.js"></script>
 <script>
 /* ============================================================
    English Folder — Admin dashboard logic (Firestore-backed)
@@ -411,8 +484,10 @@ function switchView(view){
   viewLevels.hidden = view !== 'levels';
   viewLessons.hidden = view !== 'lessons';
   viewStudents.hidden = view !== 'students';
+  document.getElementById('view-site-settings').hidden = view !== 'site-settings';
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navStudents').classList.toggle('active', view === 'students');
+  document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
 }
 
 document.getElementById('backToLevels').addEventListener('click', (e) => { e.preventDefault(); closeLevel(); });
@@ -421,6 +496,11 @@ document.getElementById('navStudents').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('students');
   renderStudents();
+});
+document.getElementById('navSiteSettings').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('site-settings');
+  loadSiteSettingsForm();
 });
 
 // ---------- Modal helpers ----------
@@ -723,6 +803,88 @@ document.getElementById('addStudentForm').addEventListener('submit', async (e) =
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'O‘quvchi qo‘shish';
+  }
+});
+
+// ---------- Site settings (colors, brand, logo, homepage text) ----------
+
+const DEFAULT_SITE_SETTINGS = {
+  colorPrimary: '#D98E3F',
+  colorAccent: '#2E6F6E',
+  colorBackground: '#FFFFFF',
+  brandName: 'English Folder',
+  logoUrl: '',
+  heroTitle: 'Ingliz tilini tartibli papkada o‘rganing.',
+  heroLead: 'Har bir guruh — alohida papka. Har bir papka — aniq izchillikda joylashgan 12 ta dars: video, mashqlar, uy vazifasi va o‘qituvchi izohi bilan.',
+  ctaTitle: 'Papkangizni bugun oching',
+  ctaText: 'Bepul sinov darsiga yoziling — sizga mos darajadagi guruh papkasi tayyorlanadi.'
+};
+
+function fillSiteSettingsForm(data){
+  document.getElementById('settingColorPrimary').value = data.colorPrimary;
+  document.getElementById('settingColorPrimaryLabel').textContent = data.colorPrimary;
+  document.getElementById('settingColorAccent').value = data.colorAccent;
+  document.getElementById('settingColorAccentLabel').textContent = data.colorAccent;
+  document.getElementById('settingColorBackground').value = data.colorBackground;
+  document.getElementById('settingColorBackgroundLabel').textContent = data.colorBackground;
+  document.getElementById('settingBrandName').value = data.brandName || '';
+  document.getElementById('settingLogoUrl').value = data.logoUrl || '';
+  document.getElementById('settingHeroTitle').value = data.heroTitle || '';
+  document.getElementById('settingHeroLead').value = data.heroLead || '';
+  document.getElementById('settingCtaTitle').value = data.ctaTitle || '';
+  document.getElementById('settingCtaText').value = data.ctaText || '';
+}
+
+async function loadSiteSettingsForm(){
+  try{
+    const doc = await db.collection('settings').doc('site').get();
+    fillSiteSettingsForm(doc.exists ? { ...DEFAULT_SITE_SETTINGS, ...doc.data() } : DEFAULT_SITE_SETTINGS);
+  } catch(err){
+    fillSiteSettingsForm(DEFAULT_SITE_SETTINGS);
+  }
+}
+
+['settingColorPrimary', 'settingColorAccent', 'settingColorBackground'].forEach(id => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    document.getElementById(id + 'Label').textContent = e.target.value.toUpperCase();
+  });
+});
+
+document.getElementById('siteSettingsReset').addEventListener('click', () => {
+  if(confirm('Sayt sozlamalarini standart holatga qaytarmoqchimisiz? (Saqlash tugmasini bosmaguningizcha o‘zgarish qo‘llanmaydi.)')){
+    fillSiteSettingsForm(DEFAULT_SITE_SETTINGS);
+  }
+});
+
+document.getElementById('siteSettingsForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('siteSettingsError');
+  const submitBtn = document.getElementById('siteSettingsSubmit');
+  errorEl.hidden = true;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saqlanmoqda…';
+
+  const data = {
+    colorPrimary: document.getElementById('settingColorPrimary').value,
+    colorAccent: document.getElementById('settingColorAccent').value,
+    colorBackground: document.getElementById('settingColorBackground').value,
+    brandName: document.getElementById('settingBrandName').value.trim() || 'English Folder',
+    logoUrl: document.getElementById('settingLogoUrl').value.trim(),
+    heroTitle: document.getElementById('settingHeroTitle').value.trim(),
+    heroLead: document.getElementById('settingHeroLead').value.trim(),
+    ctaTitle: document.getElementById('settingCtaTitle').value.trim(),
+    ctaText: document.getElementById('settingCtaText').value.trim()
+  };
+
+  try{
+    await db.collection('settings').doc('site').set(data, { merge: true });
+    showToast('Sayt sozlamalari saqlandi.');
+  } catch(err){
+    errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
+    errorEl.hidden = false;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Saqlash';
   }
 });
 </script>
