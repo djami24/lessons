@@ -35,12 +35,12 @@
   <!-- MAIN -->
   <main class="admin-main">
 
-    <!-- ===== LEVELS OVERVIEW ===== -->
+    <!-- ===== LEVELS OVERVIEW (MAIN COURSE SELECTOR) ===== -->
     <section id="view-levels">
       <div class="admin-header">
         <div>
-          <h1>Kurslar va darajalar</h1>
-          <p>General English, CEFR va IELTS darslarini, test va materiallarini shu yerdan boshqarasiz.</p>
+          <h1>Kurslar va darslar</h1>
+          <p>General English, CEFR va IELTS darslarini boshqarish bo'limi.</p>
         </div>
       </div>
 
@@ -49,9 +49,33 @@
       <div class="level-grid" id="levelsGrid"></div>
     </section>
 
+    <!-- ===== ADMIN GENERAL ENGLISH LEVELS VIEW ===== -->
+    <section id="view-admin-ge-levels" hidden>
+      <a href="#" id="backToCoursesFromGe" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>General English darajalari</h1>
+          <p>Beginner, Elementary va Pre-Intermediate darslarini boshqaring.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="adminGeLevelsGrid"></div>
+    </section>
+
+    <!-- ===== ADMIN SKILLS VIEW (LISTENING, READING, GRAMMAR SUBFOLDERS) ===== -->
+    <section id="view-admin-skills" hidden>
+      <a href="#" id="backToLevelsFromSkills" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="adminSkillsTitle">Mavzular</h1>
+          <p>Ushbu bo'limdagi darslarni, testlarni va uy vazifalarini boshqaring.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="adminSkillsGrid"></div>
+    </section>
+
     <!-- ===== LESSON LIST ===== -->
     <section id="view-lessons" hidden>
-      <a href="#" id="backToLevels" class="back-link">← Kurs va darajalarga qaytish</a>
+      <a href="#" id="backToLevels" class="back-link">← Orqaga</a>
       <div class="admin-header">
         <div>
           <h1 id="lessonsLevelName">Daraja nomi</h1>
@@ -471,7 +495,7 @@
   </div>
 </div>
 
-<!-- ===== MODAL: Student details (EXAPNDED WITH FREE/VIP TOGGLE AND SEPARATE WRITING CONTROL) ===== -->
+<!-- ===== MODAL: Student details ===== -->
 <div class="modal-overlay" id="modalStudentDetail" hidden>
   <div class="modal-box">
     <h3 id="studentDetailName">O‘quvchi</h3>
@@ -661,35 +685,118 @@ function renderLevelsOverview(){
     <div class="stat-card"><strong>${pendingPayments}</strong><span>Kutilayotgan to‘lovlar</span></div>
   `;
 
-  document.getElementById('levelsGrid').innerHTML = LEVELS.map(lvl => {
-    const data = getLevel(lvl.id);
-    const questionCount = data.lessons.reduce((s, l) => s + (l.quiz ? l.quiz.length : 0), 0);
-    
-    let tabColor = '#2E6F6E'; // teal for general english
-    let tagText = `Daraja ${lvl.order}`;
-    if (lvl.course === 'cefr') {
-      tabColor = '#D98E3F'; // amber for CEFR
-      tagText = 'CEFR ' + lvl.skill.toUpperCase();
-    } else if (lvl.course === 'ielts') {
-      tabColor = '#253559'; // navy for IELTS
-      tagText = 'IELTS ' + lvl.skill.toUpperCase();
-    }
-
-    return `
-      <article class="folder level-card" style="--tab-color:${tabColor}" data-open-level="${lvl.id}">
-        <div class="folder-tab"></div>
-        <div class="folder-body">
-          <span class="tag">${tagText}</span>
-          <h3 class="level-title">${escapeHtml(lvl.name)}</h3>
-          <p class="level-sub">${data.lessons.length} ta dars · ${questionCount} ta test savoli</p>
-        </div>
-      </article>`;
-  }).join('');
+  // DRAW MAIN 3 COURSE FOLDERS
+  document.getElementById('levelsGrid').innerHTML = `
+    <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-course="general">
+      <div class="folder-tab"></div>
+      <div class="folder-body">
+        <span class="tag">A1–B1</span>
+        <h3 class="level-title">General English</h3>
+        <p class="level-sub">Beginner, Elementary, Pre-Intermediate darslari</p>
+      </div>
+    </article>
+    <article class="folder level-card" style="--tab-color:#D98E3F" data-open-course="cefr">
+      <div class="folder-tab"></div>
+      <div class="folder-body">
+        <span class="tag">B1–C1</span>
+        <h3 class="level-title">CEFR</h3>
+        <p class="level-sub">Listening, Reading, Grammar darslari</p>
+      </div>
+    </article>
+    <article class="folder level-card" style="--tab-color:#253559" data-open-course="ielts">
+      <div class="folder-tab"></div>
+      <div class="folder-body">
+        <span class="tag">IELTS</span>
+        <h3 class="level-title">IELTS</h3>
+        <p class="level-sub">Listening, Reading, Grammar darslari</p>
+      </div>
+    </article>
+  `;
 }
 
 document.getElementById('levelsGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-open-course]');
+  if(!card) return;
+  const course = card.dataset.openCourse;
+  if (course === 'general') {
+    openGeneralEnglishLevelsView();
+  } else {
+    openAdminSkillsView(course);
+  }
+});
+
+function openGeneralEnglishLevelsView() {
+  const grid = document.getElementById('adminGeLevelsGrid');
+  const generalLevels = LEVELS.filter(l => l.course === 'general');
+  grid.innerHTML = generalLevels.map(lvl => {
+    const data = getLevel(lvl.id);
+    const questionCount = data.lessons.reduce((s, l) => s + (l.quiz ? l.quiz.length : 0), 0);
+    return `
+      <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-level="${lvl.id}">
+        <div class="folder-tab"></div>
+        <div class="folder-body">
+          <span class="tag">Daraja ${lvl.order}</span>
+          <h3 class="level-title">${escapeHtml(lvl.name)}</h3>
+          <p class="level-sub">${data.lessons.length} ta dars · ${questionCount} ta test</p>
+        </div>
+      </article>
+    `;
+  }).join('');
+  switchView('admin-ge-levels');
+}
+
+function openAdminSkillsView(courseId) {
+  const grid = document.getElementById('adminSkillsGrid');
+  const title = document.getElementById('adminSkillsTitle');
+  title.textContent = courseId === 'cefr' ? 'CEFR Boshqaruvi' : 'IELTS Boshqaruvi';
+
+  const skills = [
+    { id: 'listening', name: 'Listening', desc: 'Listening darslari, audio materiallar va testlar' },
+    { id: 'reading', name: 'Reading', desc: 'Reading darslari, matnlar va savollar' },
+    { id: 'grammar', name: 'Grammar', desc: 'Grammatika darslari va testlar' }
+  ];
+
+  let tabColor = courseId === 'cefr' ? '#D98E3F' : '#253559';
+
+  grid.innerHTML = skills.map(sk => {
+    const levelId = `${courseId}_${sk.id}`;
+    const data = getLevel(levelId) || { lessons: [] };
+    const questionCount = data.lessons.reduce((s, l) => s + (l.quiz ? l.quiz.length : 0), 0);
+    return `
+      <article class="folder level-card" style="--tab-color:${tabColor}" data-open-level="${levelId}">
+        <div class="folder-tab"></div>
+        <div class="folder-body">
+          <span class="tag">${courseId.toUpperCase()}</span>
+          <h3 class="level-title">${sk.name}</h3>
+          <p class="level-sub">${data.lessons.length} ta dars · ${questionCount} ta test</p>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  switchView('admin-skills');
+}
+
+document.getElementById('adminGeLevelsGrid').addEventListener('click', (e) => {
   const card = e.target.closest('[data-open-level]');
   if(card) openLevel(card.dataset.openLevel);
+});
+
+document.getElementById('adminSkillsGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-open-level]');
+  if(card) openLevel(card.dataset.openLevel);
+});
+
+document.getElementById('backToCoursesFromGe').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('levels');
+  renderLevelsOverview();
+});
+
+document.getElementById('backToLevelsFromSkills').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('levels');
+  renderLevelsOverview();
 });
 
 const viewLevels = document.getElementById('view-levels');
@@ -751,15 +858,37 @@ function switchView(view){
   viewStudents.hidden = view !== 'students';
   document.getElementById('view-site-settings').hidden = view !== 'site-settings';
   document.getElementById('view-admin-writing').hidden = view !== 'admin-writing';
+  document.getElementById('view-admin-ge-levels').hidden = view !== 'admin-ge-levels';
+  document.getElementById('view-admin-skills').hidden = view !== 'admin-skills';
   
-  document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
+  document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons' || view === 'admin-ge-levels' || view === 'admin-skills');
   document.getElementById('navStudents').classList.toggle('active', view === 'students');
   document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
   document.getElementById('navWriting').classList.toggle('active', view === 'admin-writing');
 }
 
-document.getElementById('backToLevels').addEventListener('click', (e) => { e.preventDefault(); closeLevel(); });
-document.getElementById('navLevels').addEventListener('click', (e) => { e.preventDefault(); closeLevel(); });
+document.getElementById('backToLevels').addEventListener('click', (e) => {
+  e.preventDefault();
+  const lvl = LEVELS.find(l => l.id === state.activeLevelId);
+  if (lvl) {
+    if (lvl.course === 'general') {
+      openGeneralEnglishLevelsView();
+    } else {
+      openAdminSkillsView(lvl.course);
+    }
+  } else {
+    switchView('levels');
+    renderLevelsOverview();
+  }
+});
+
+document.getElementById('navLevels').addEventListener('click', (e) => {
+  e.preventDefault();
+  state.activeLevelId = null;
+  switchView('levels');
+  renderLevelsOverview();
+});
+
 document.getElementById('navStudents').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('students');
