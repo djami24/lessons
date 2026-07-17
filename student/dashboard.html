@@ -49,7 +49,7 @@
           </div>
         </article>
 
-        <!-- CEFR CARD (Yangi ochilgan papka) -->
+        <!-- CEFR CARD -->
         <article class="folder course-card" id="cardCefr">
           <div class="folder-tab" style="--tab-color:#D98E3F"></div>
           <div class="folder-body">
@@ -59,7 +59,7 @@
           </div>
         </article>
 
-        <!-- IELTS CARD (Yangi ochilgan papka) -->
+        <!-- IELTS CARD -->
         <article class="folder course-card" id="cardIelts">
           <div class="folder-tab" style="--tab-color:#253559"></div>
           <div class="folder-body">
@@ -75,9 +75,46 @@
           <div class="folder-body">
             <span class="tag">IELTS / CEFR</span>
             <h3 class="course-title">Writing</h3>
-            <p class="course-sub">CEFR (Part 1.1, 1.2, 2) & IELTS (Task 1, 2) insholar</p>
+            <p class="course-sub" id="writingCourseSub">CEFR & IELTS insholar · 60 000 so‘m</p>
           </div>
         </article>
+      </div>
+    </section>
+
+    <!-- ===== SKILLS VIEW (LISTENING, READING, GRAMMAR SUBFOLDERS) ===== -->
+    <section id="view-skills" hidden>
+      <a href="#" id="backToCoursesFromSkills" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="skillsTitle">Mavzular</h1>
+          <p>Ushbu bo'limdagi darslar, mashqlar va testlarni yakunlang.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="skillsGrid"></div>
+    </section>
+
+    <!-- ===== WRITING PAYMENT GATE ===== -->
+    <section id="view-writing-payment" hidden>
+      <a href="#" id="backToCoursesFromWritingPayment" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>Writing kursi</h1>
+          <p>Kursni ochish uchun to‘lovni amalga oshiring.</p>
+        </div>
+      </div>
+      <div class="payment-box">
+        <p class="eyebrow">To‘lov</p>
+        <div class="payment-price">60 000 so‘m</div>
+        <p>CEFR va IELTS bo'limlarida 10 dan ziyod writing mashqlar mavjud. Yozishga qulay va haqiqiy o'qituvchi tomonidan tekshirilib feedback va baholar beriladi.</p>
+        <ol class="payment-steps">
+          <li>60 000 so‘mni ko‘rsatilgan hisobga o‘tkazing.</li>
+          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
+          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
+          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
+        </ol>
+        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
+
+        <div id="writingPaymentActionArea" style="margin-top:1.6em;"></div>
       </div>
     </section>
 
@@ -281,8 +318,14 @@ const LEVELS = [
   { id: 'beginner', name: 'Beginner', order: 1, course: 'general' },
   { id: 'elementary', name: 'Elementary', order: 2, course: 'general' },
   { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' },
-  { id: 'cefr', name: 'CEFR Course', order: 4, course: 'cefr' },
-  { id: 'ielts', name: 'IELTS Course', order: 5, course: 'ielts' }
+  // CEFR Skills
+  { id: 'cefr_listening', name: 'CEFR Listening', order: 4, course: 'cefr', skill: 'listening' },
+  { id: 'cefr_reading', name: 'CEFR Reading', order: 5, course: 'cefr', skill: 'reading' },
+  { id: 'cefr_grammar', name: 'CEFR Grammar', order: 6, course: 'cefr', skill: 'grammar' },
+  // IELTS Skills
+  { id: 'ielts_listening', name: 'IELTS Listening', order: 7, course: 'ielts', skill: 'listening' },
+  { id: 'ielts_reading', name: 'IELTS Reading', order: 8, course: 'ielts', skill: 'reading' },
+  { id: 'ielts_grammar', name: 'IELTS Grammar', order: 9, course: 'ielts', skill: 'grammar' }
 ];
 const PASS_PERCENT = 60;
 
@@ -346,6 +389,17 @@ function isLevelCompleted(levelId){
   return lessons.every(l => getLessonProgress(levelId, l.id).passed);
 }
 
+function hasAccess(courseType) {
+  if (state.student.isFree === true) return true;
+  if (courseType === 'general' || courseType === 'cefr' || courseType === 'ielts') {
+    return state.student.paymentStatus === 'approved';
+  }
+  if (courseType === 'writing') {
+    return state.student.writingPaymentStatus === 'approved';
+  }
+  return false;
+}
+
 function isLevelUnlocked(levelId){
   const lvl = LEVELS.find(l => l.id === levelId);
   if(lvl.course !== 'general') return true;
@@ -371,7 +425,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
   state.student.progress[levelId][lessonId] = { passed: newPassed, bestScore };
 }
 
-const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'writing-courses', 'writing-parts', 'writing-tasks', 'writing-editor'];
+const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'writing-courses', 'writing-parts', 'writing-tasks', 'writing-editor', 'skills', 'writing-payment'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -380,7 +434,7 @@ function switchView(view){
 function renderCoursesOverview(){
   const sub = document.getElementById('generalEnglishSub');
   const generalLevels = LEVELS.filter(l => l.course === 'general');
-  if(state.student.paymentStatus === 'approved'){
+  if(hasAccess('general')){
     const totalLessons = generalLevels.reduce((s, l) => s + getLevel(l.id).lessons.length, 0);
     const doneLessons = generalLevels.reduce((s, l) => s + getLevel(l.id).lessons.filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
     sub.textContent = `${doneLessons}/${totalLessons} dars yakunlangan`;
@@ -389,11 +443,21 @@ function renderCoursesOverview(){
   } else {
     sub.textContent = 'Beginner → Elementary → Pre-Intermediate · 50 000 so‘m';
   }
+
+  const writingSub = document.getElementById('writingCourseSub');
+  if (hasAccess('writing')) {
+    writingSub.textContent = "CEFR (Part 1.1, 1.2, 2) & IELTS (Task 1, 2) insholar";
+  } else if (state.student.writingPaymentStatus === 'pending') {
+    writingSub.textContent = 'To‘lov tekshirilmoqda…';
+  } else {
+    writingSub.textContent = 'CEFR & IELTS insholar · 60 000 so‘m';
+  }
+
   switchView('courses');
 }
 
 document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
-  if(state.student.paymentStatus === 'approved'){
+  if(hasAccess('general')){
     openLevelsView();
   } else {
     openPaymentView();
@@ -401,20 +465,53 @@ document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
 });
 
 document.getElementById('cardCefr').addEventListener('click', () => {
-  if(state.student.paymentStatus === 'approved'){
-    openLessonsView('cefr');
+  if(hasAccess('cefr')){
+    openSkillsView('cefr');
   } else {
     openPaymentView();
   }
 });
 
 document.getElementById('cardIelts').addEventListener('click', () => {
-  if(state.student.paymentStatus === 'approved'){
-    openLessonsView('ielts');
+  if(hasAccess('ielts')){
+    openSkillsView('ielts');
   } else {
     openPaymentView();
   }
 });
+
+function openSkillsView(courseId) {
+  const grid = document.getElementById('skillsGrid');
+  const title = document.getElementById('skillsTitle');
+  title.textContent = courseId === 'cefr' ? 'CEFR Kursi' : 'IELTS Kursi';
+
+  const skills = [
+    { id: 'listening', name: 'Listening', desc: 'Eshitib tushunish darslari, audio materiallar va testlar' },
+    { id: 'reading', name: 'Reading', desc: 'O\'qib tushunish darslari, matnlar va savollar' },
+    { id: 'grammar', name: 'Grammar', desc: 'Grammatika darslari va mustahkamlovchi mashqlar' }
+  ];
+
+  grid.innerHTML = skills.map(sk => `
+    <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-skill="${courseId}_${sk.id}">
+      <div class="folder-tab"></div>
+      <div class="folder-body">
+        <span class="tag">${courseId.toUpperCase()}</span>
+        <h3 class="level-title">${sk.name}</h3>
+        <p class="level-sub">${sk.desc}</p>
+      </div>
+    </article>
+  `).join('');
+
+  switchView('skills');
+}
+
+document.getElementById('skillsGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-open-skill]');
+  if(card) openLessonsView(card.dataset.openSkill);
+});
+
+document.getElementById('backToCoursesFromSkills').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+document.getElementById('backToCoursesFromWritingPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 
 function openPaymentView(){
   const area = document.getElementById('paymentActionArea');
@@ -432,6 +529,24 @@ function openPaymentView(){
     });
   }
   switchView('payment');
+}
+
+function openWritingPaymentView(){
+  const area = document.getElementById('writingPaymentActionArea');
+  if(state.student.writingPaymentStatus === 'pending'){
+    area.innerHTML = `<p class="payment-pending-box">⏳ So‘rovingiz ko‘rib chiqilmoqda. Admin skrinshotni tasdiqlagach, kurs avtomatik ochiladi.</p>`;
+  } else {
+    area.innerHTML = `<button type="button" class="btn btn-amber" id="paidWritingBtn">To‘lov qildim</button>`;
+    document.getElementById('paidWritingBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('paidWritingBtn');
+      btn.disabled = true;
+      btn.textContent = 'Yuborilmoqda…';
+      await db.collection('students').doc(currentUid).update({ writingPaymentStatus: 'pending', writingPaymentRequestedAt: Date.now() });
+      state.student.writingPaymentStatus = 'pending';
+      openWritingPaymentView();
+    });
+  }
+  switchView('writing-payment');
 }
 
 document.getElementById('backToCoursesFromPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
@@ -471,14 +586,14 @@ function openLessonsView(levelId){
 
   const backBtn = document.getElementById('backToLevels');
   if (lvl && lvl.course !== 'general') {
-    backBtn.textContent = '← Kurslarga qaytish';
+    backBtn.textContent = '← Bo‘limlarga qaytish';
   } else {
     backBtn.textContent = '← Darajalarga qaytish';
   }
 
   const lessonList = document.getElementById('lessonList');
   if(data.lessons.length === 0){
-    lessonList.innerHTML = `<div class="empty-state"><h3>Bu darajaga hali dars qo‘shilmagan</h3><p>Tez orada darslar joylanadi.</p></div>`;
+    lessonList.innerHTML = `<div class="empty-state"><h3>Ushbu yo'nalishga hali dars qo‘shilmagan</h3><p>Tez orada darslar joylanadi.</p></div>`;
   } else {
     lessonList.innerHTML = data.lessons.map((lesson, i) => {
       const unlocked = isLessonUnlocked(levelId, i);
@@ -510,7 +625,7 @@ document.getElementById('backToLevels').addEventListener('click', (e) => {
   e.preventDefault();
   const lvl = LEVELS.find(l => l.id === state.activeLevelId);
   if(lvl && lvl.course !== 'general'){
-    renderCoursesOverview();
+    openSkillsView(lvl.course);
   } else {
     openLevelsView();
   }
@@ -656,7 +771,11 @@ function renderQuizResult(scorePct, passed){
 // ============ WRITING LOGIC ============
 
 document.getElementById('cardWriting').addEventListener('click', () => {
-  switchView('writing-courses');
+  if (hasAccess('writing')) {
+    switchView('writing-courses');
+  } else {
+    openWritingPaymentView();
+  }
 });
 
 document.getElementById('cardWritingCefr').addEventListener('click', () => {
