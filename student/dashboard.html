@@ -39,7 +39,7 @@
           <p>O‘qimoqchi bo‘lgan kursni tanlang.</p>
         </div>
       </div>
-      <div class="course-grid">
+      <div class="course-grid" id="studentCoursesGrid">
         <article class="folder course-card" id="cardGeneralEnglish">
           <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
           <div class="folder-body">
@@ -49,25 +49,8 @@
           </div>
         </article>
 
-        <!-- CEFR CARD -->
-        <article class="folder course-card" id="cardCefr">
-          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
-          <div class="folder-body">
-            <span class="tag">B1–C1</span>
-            <h3 class="course-title">CEFR</h3>
-            <p class="course-sub">Rasmiy CEFR darajalariga tayyorgarlik darslari</p>
-          </div>
-        </article>
-
-        <!-- IELTS CARD -->
-        <article class="folder course-card" id="cardIelts">
-          <div class="folder-tab" style="--tab-color:#253559"></div>
-          <div class="folder-body">
-            <span class="tag">IELTS</span>
-            <h3 class="course-title">IELTS</h3>
-            <p class="course-sub">IELTS imtihoniga tayyorgarlik darslari</p>
-          </div>
-        </article>
+        <!-- Dinamik papkalar (IELTS, CEFR va yangilar) shu yerga tushadi -->
+        <div id="studentDynamicCoursesArea" style="display:contents;"></div>
         
         <!-- WRITING CARD -->
         <article class="folder course-card" id="cardWriting">
@@ -113,7 +96,7 @@
           <span style="font-weight:700; font-size:0.95rem; color: var(--text);">ABDURAXMON</span>
         </div>
 
-        <p>CEFR bo'limida 10 dan ziyod writing mashqlar mavjud. Yozishga qulay va haqiqiy o'qituvchi tomonidan tekshirilib feedback va baholar beriladi.</p>
+        <p>CEFR va IELTS bo'limlarida 10 dan ziyod writing mashqlar mavjud. Yozishga qulay va haqiqiy o'qituvchi tomonidan tekshirilib feedback va baholar beriladi.</p>
         <ol class="payment-steps">
           <li>60 000 so‘mni yuqoridagi hisob raqamiga o‘tkazing.</li>
           <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
@@ -285,7 +268,7 @@
 
     <!-- ===== LESSON LIST ===== -->
     <section id="view-lessons" hidden>
-      <a href="#" id="backToLevels" class="back-link">← Darajalarga qaytish</a>
+      <a href="#" id="backToLevels" class="back-link">← Orqaga</a>
       <div class="admin-header">
         <div>
           <h1 id="lessonsLevelName">Daraja nomi</h1>
@@ -327,22 +310,17 @@
 <script src="../site-settings.js"></script>
 <script>
 /* ============================================================
-   English Folder — Student dashboard logic (Firestore-backed)
+   English Folder — Student dashboard logic (Firestore + Save State)
    ============================================================ */
 
-const LEVELS = [
+const DEFAULT_LEVELS = [
   { id: 'beginner', name: 'Beginner', order: 1, course: 'general' },
   { id: 'elementary', name: 'Elementary', order: 2, course: 'general' },
-  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' },
-  // CEFR Skills
-  { id: 'cefr_listening', name: 'CEFR Listening', order: 4, course: 'cefr', skill: 'listening' },
-  { id: 'cefr_reading', name: 'CEFR Reading', order: 5, course: 'cefr', skill: 'reading' },
-  { id: 'cefr_speaking', name: 'CEFR Speaking', order: 6, course: 'cefr', skill: 'speaking' }, // Grammar -> Speaking
-  // IELTS Skills
-  { id: 'ielts_listening', name: 'IELTS Listening', order: 7, course: 'ielts', skill: 'listening' },
-  { id: 'ielts_reading', name: 'IELTS Reading', order: 8, course: 'ielts', skill: 'reading' },
-  { id: 'ielts_speaking', name: 'IELTS Speaking', order: 9, course: 'ielts', skill: 'speaking' } // Grammar -> Speaking
+  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' }
 ];
+
+let LEVELS = [...DEFAULT_LEVELS];
+let DYNAMIC_COURSES = [];
 const PASS_PERCENT = 60;
 
 let currentUid = null;
@@ -355,11 +333,64 @@ let state = {
   writingActiveCourse: null,
   writingActivePart: null,
   writingActiveTaskId: null,
-  writingActiveTask: null
+  writingActiveTask: null,
+  activeView: 'courses'
 };
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// Xotirani saqlash
+function saveCurrentState() {
+  localStorage.setItem('student_activeView', state.activeView || 'courses');
+  localStorage.setItem('student_activeLevelId', state.activeLevelId || '');
+  localStorage.setItem('student_activeLessonId', state.activeLessonId || '');
+  localStorage.setItem('student_writingActiveCourse', state.writingActiveCourse || '');
+  localStorage.setItem('student_writingActivePart', state.writingActivePart || '');
+  localStorage.setItem('student_writingActiveTaskId', state.writingActiveTaskId || '');
+}
+
+// Xotirani yuklash
+async function restoreState() {
+  const savedView = localStorage.getItem('student_activeView');
+  const savedLevelId = localStorage.getItem('student_activeLevelId');
+  const savedLessonId = localStorage.getItem('student_activeLessonId');
+  const savedWCourse = localStorage.getItem('student_writingActiveCourse');
+  const savedWPart = localStorage.getItem('student_writingActivePart');
+  const savedWTaskId = localStorage.getItem('student_writingActiveTaskId');
+
+  if (savedView) state.activeView = savedView;
+  if (savedLevelId) state.activeLevelId = savedLevelId;
+  if (savedLessonId) state.activeLessonId = savedLessonId;
+  if (savedWCourse) state.writingActiveCourse = savedWCourse;
+  if (savedWPart) state.writingActivePart = savedWPart;
+  if (savedWTaskId) state.writingActiveTaskId = savedWTaskId;
+
+  // Qaysi sahifada turgan bo'lsa o'sha yerni ochish
+  if (state.activeView === 'levels') {
+    openLevelsView();
+  } else if (state.activeView === 'skills' && state.writingActiveCourse) {
+    openSkillsView(state.writingActiveCourse);
+  } else if (state.activeView === 'lessons' && state.activeLevelId) {
+    openLessonsView(state.activeLevelId);
+  } else if (state.activeView === 'lesson-detail' && state.activeLessonId) {
+    openLessonDetail(state.activeLessonId);
+  } else if (state.activeView === 'writing-courses') {
+    switchView('writing-courses');
+  } else if (state.activeView === 'writing-parts') {
+    openWritingPartsView();
+  } else if (state.activeView === 'writing-tasks' && state.writingActivePart) {
+    openWritingTasksView(state.writingActivePart);
+  } else if (state.activeView === 'writing-editor' && state.writingActiveTaskId) {
+    openWritingEditorView(state.writingActiveTaskId);
+  } else if (state.activeView === 'payment') {
+    openPaymentView();
+  } else if (state.activeView === 'writing-payment') {
+    openWritingPaymentView();
+  } else {
+    renderCoursesOverview();
+  }
 }
 
 auth.onAuthStateChanged(async (user) => {
@@ -378,13 +409,59 @@ auth.onAuthStateChanged(async (user) => {
   document.getElementById('loadingScreen').hidden = true;
   document.getElementById('appShell').hidden = false;
 
+  await loadDynamicCourses();
   await loadLevels();
-  renderCoursesOverview();
+  await restoreState();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  if(confirm('Tizimdan chiqmoqchimisiz?')) auth.signOut().then(() => window.location.href = 'login.html');
+  if(confirm('Tizimdan chiqmoqchimisiz?')) {
+    localStorage.clear();
+    auth.signOut().then(() => window.location.href = 'login.html');
+  }
 });
+
+async function loadDynamicCourses() {
+  const snap = await db.collection('dynamic_courses').orderBy('createdAt', 'asc').get();
+  DYNAMIC_COURSES = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  
+  LEVELS = [...DEFAULT_LEVELS];
+  DYNAMIC_COURSES.forEach(c => {
+    LEVELS.push({ id: `${c.id}_listening`, name: `${c.name} Listening`, order: 10, course: c.id, skill: 'listening' });
+    LEVELS.push({ id: `${c.id}_reading`, name: `${c.name} Reading`, order: 11, course: c.id, skill: 'reading' });
+    LEVELS.push({ id: `${c.id}_speaking`, name: `${c.name} Speaking`, order: 12, course: c.id, skill: 'speaking' });
+  });
+
+  renderDynamicCoursesCards();
+}
+
+function renderDynamicCoursesCards() {
+  const area = document.getElementById('studentDynamicCoursesArea');
+  area.innerHTML = DYNAMIC_COURSES.map(c => `
+    <article class="folder course-card" id="cardCourse_${c.id}" data-open-dynamic-course="${c.id}">
+      <div class="folder-tab" style="--tab-color:${c.color || '#D98E3F'}"></div>
+      <div class="folder-body">
+        <span class="tag">${c.name.toUpperCase()}</span>
+        <h3 class="course-title">${escapeHtml(c.name)}</h3>
+        <p class="course-sub">${escapeHtml(c.desc || `${c.name} darslari va mashqlari`)}</p>
+      </div>
+    </article>
+  `).join('');
+
+  DYNAMIC_COURSES.forEach(c => {
+    const card = document.getElementById(`cardCourse_${c.id}`);
+    if (card) {
+      card.addEventListener('click', () => {
+        if (hasAccess(c.id)) {
+          state.writingActiveCourse = c.id;
+          openSkillsView(c.id);
+        } else {
+          openPaymentView();
+        }
+      });
+    }
+  });
+}
 
 async function loadLevels(){
   const results = await Promise.all(LEVELS.map(l => db.collection('levels').doc(l.id).get()));
@@ -401,24 +478,21 @@ function getLessonProgress(levelId, lessonId){
 
 function isLevelCompleted(levelId){
   const lessons = getLevel(levelId).lessons;
-  if(lessons.length === 0) return false;
+  if(!lessons || lessons.length === 0) return false;
   return lessons.every(l => getLessonProgress(levelId, l.id).passed);
 }
 
 function hasAccess(courseType) {
   if (state.student.isFree === true) return true;
-  if (courseType === 'general' || courseType === 'cefr' || courseType === 'ielts') {
-    return state.student.paymentStatus === 'approved';
+  if (courseType === 'general' || courseType === 'writing') {
+    return courseType === 'writing' ? state.student.writingPaymentStatus === 'approved' : state.student.paymentStatus === 'approved';
   }
-  if (courseType === 'writing') {
-    return state.student.writingPaymentStatus === 'approved';
-  }
-  return false;
+  return state.student.paymentStatus === 'approved';
 }
 
 function isLevelUnlocked(levelId){
   const lvl = LEVELS.find(l => l.id === levelId);
-  if(lvl.course !== 'general') return true;
+  if(!lvl || lvl.course !== 'general') return true;
   if(lvl.order === 1) return true;
   const prevLevel = LEVELS.find(l => l.course === 'general' && l.order === lvl.order - 1);
   return prevLevel ? isLevelCompleted(prevLevel.id) : true;
@@ -443,6 +517,8 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'writing-courses', 'writing-parts', 'writing-tasks', 'writing-editor', 'skills', 'writing-payment'];
 function switchView(view){
+  state.activeView = view;
+  saveCurrentState();
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
@@ -480,31 +556,17 @@ document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
   }
 });
 
-document.getElementById('cardCefr').addEventListener('click', () => {
-  if(hasAccess('cefr')){
-    openSkillsView('cefr');
-  } else {
-    openPaymentView();
-  }
-});
-
-document.getElementById('cardIelts').addEventListener('click', () => {
-  if(hasAccess('ielts')){
-    openSkillsView('ielts');
-  } else {
-    openPaymentView();
-  }
-});
-
 function openSkillsView(courseId) {
+  state.writingActiveCourse = courseId;
   const grid = document.getElementById('skillsGrid');
   const title = document.getElementById('skillsTitle');
-  title.textContent = courseId === 'cefr' ? 'CEFR Kursi' : 'IELTS Kursi';
+  const courseObj = DYNAMIC_COURSES.find(c => c.id === courseId);
+  title.textContent = courseObj ? courseObj.name : courseId.toUpperCase();
 
   const skills = [
     { id: 'listening', name: 'Listening', desc: 'Eshitib tushunish darslari, audio materiallar va testlar' },
     { id: 'reading', name: 'Reading', desc: 'O\'qib tushunish darslari, matnlar va savollar' },
-    { id: 'speaking', name: 'Speaking', desc: 'Gapirish ko\'nikmasini oshirish darslari, mavzular va savollar' } // Grammar -> Speaking
+    { id: 'speaking', name: 'Speaking', desc: 'Gapirish ko\'nikmasini oshirish darslari, mavzular va savollar' }
   ];
 
   grid.innerHTML = skills.map(sk => `
@@ -654,6 +716,7 @@ function getCurrentLesson(){
 async function openLessonDetail(lessonId){
   state.activeLessonId = lessonId;
   const lesson = getCurrentLesson();
+  if (!lesson) return;
   const progress = getLessonProgress(state.activeLevelId, lessonId);
   const hasQuiz = lesson.quiz && lesson.quiz.length > 0;
 
