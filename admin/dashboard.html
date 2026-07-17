@@ -97,6 +97,18 @@
 
       <form class="modal-form" id="siteSettingsForm" style="max-width:720px;">
 
+        <h3 style="margin-top:0;">🧭 Navigatsiya (menyu)</h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field"><span>"Dasturlar" havolasi</span><input type="text" id="settingNavProgramsLabel" placeholder="Dasturlar"></label>
+          <label class="field"><span>"Qanday ishlaydi" havolasi</span><input type="text" id="settingNavProcessLabel" placeholder="Qanday ishlaydi"></label>
+          <label class="field"><span>"Natijalar" havolasi</span><input type="text" id="settingNavResultsLabel" placeholder="Natijalar"></label>
+          <label class="field"><span>"Aloqa" havolasi</span><input type="text" id="settingNavContactLabel" placeholder="Aloqa"></label>
+          <label class="field"><span>"O‘quvchi kirish" tugmasi</span><input type="text" id="settingNavLoginLabel" placeholder="O‘quvchi kirish"></label>
+          <label class="field"><span>"Ro‘yxatdan o‘tish" tugmasi</span><input type="text" id="settingNavRegisterLabel" placeholder="Ro‘yxatdan o‘tish"></label>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3 style="margin-top:0;">🎨 Brend va ranglar</h3>
 
         <div class="field">
@@ -120,6 +132,14 @@
           <div style="display:flex; align-items:center; gap:1em;">
             <input type="color" id="settingColorBackground" value="#FFFFFF" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
             <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingColorBackgroundLabel">#FFFFFF</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <span>CTA / Footer fon rangi <span style="font-weight:400; color:var(--gray);">(pastdagi qorong‘i bo‘limlar — hozir ko‘k-navy)</span></span>
+          <div style="display:flex; align-items:center; gap:1em;">
+            <input type="color" id="settingColorDark" value="#14213D" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
+            <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingColorDarkLabel">#14213D</span>
           </div>
         </div>
 
@@ -278,6 +298,10 @@
           <span>Mualliflik huquqi qatori</span>
           <input type="text" id="settingFooterCopyright" placeholder="© 2026 English Folder. Barcha huquqlar himoyalangan.">
         </label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field"><span>"Sahifa" ustunining sarlavhasi</span><input type="text" id="settingFooterNavTitle" placeholder="Sahifa"></label>
+          <label class="field"><span>"Aloqa" ustunining sarlavhasi</span><input type="text" id="settingFooterContactTitle" placeholder="Aloqa"></label>
+        </div>
 
         <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
 
@@ -940,9 +964,17 @@ document.getElementById('addStudentForm').addEventListener('submit', async (e) =
 // ---------- Site settings (colors, brand, logo, full homepage content) ----------
 
 const DEFAULT_SITE_SETTINGS = {
+  navProgramsLabel: 'Dasturlar',
+  navProcessLabel: 'Qanday ishlaydi',
+  navResultsLabel: 'Natijalar',
+  navContactLabel: 'Aloqa',
+  navLoginLabel: 'O‘quvchi kirish',
+  navRegisterLabel: 'Ro‘yxatdan o‘tish',
+
   colorPrimary: '#D98E3F',
   colorAccent: '#2E6F6E',
   colorBackground: '#FFFFFF',
+  colorDark: '#14213D',
   brandName: 'English Folder',
   logoUrl: '',
 
@@ -990,7 +1022,9 @@ const DEFAULT_SITE_SETTINGS = {
   footerPhone: '+998 90 000 00 00',
   footerEmail: 'info@englishfolder.uz',
   footerAddress: 'Toshkent, Chilonzor tumani',
-  footerCopyright: '© 2026 English Folder. Barcha huquqlar himoyalangan.'
+  footerCopyright: '© 2026 English Folder. Barcha huquqlar himoyalangan.',
+  footerNavTitle: 'Sahifa',
+  footerContactTitle: 'Aloqa'
 };
 
 // ---- Dynamic row builders: dastur papkalari & fikrlar ----
@@ -1054,12 +1088,21 @@ document.getElementById('addTestimonialRow').addEventListener('click', () => {
 });
 
 function fillSiteSettingsForm(data){
+  document.getElementById('settingNavProgramsLabel').value = data.navProgramsLabel || '';
+  document.getElementById('settingNavProcessLabel').value = data.navProcessLabel || '';
+  document.getElementById('settingNavResultsLabel').value = data.navResultsLabel || '';
+  document.getElementById('settingNavContactLabel').value = data.navContactLabel || '';
+  document.getElementById('settingNavLoginLabel').value = data.navLoginLabel || '';
+  document.getElementById('settingNavRegisterLabel').value = data.navRegisterLabel || '';
+
   document.getElementById('settingColorPrimary').value = data.colorPrimary;
   document.getElementById('settingColorPrimaryLabel').textContent = data.colorPrimary;
   document.getElementById('settingColorAccent').value = data.colorAccent;
   document.getElementById('settingColorAccentLabel').textContent = data.colorAccent;
   document.getElementById('settingColorBackground').value = data.colorBackground;
   document.getElementById('settingColorBackgroundLabel').textContent = data.colorBackground;
+  document.getElementById('settingColorDark').value = data.colorDark;
+  document.getElementById('settingColorDarkLabel').textContent = data.colorDark;
   document.getElementById('settingBrandName').value = data.brandName || '';
   document.getElementById('settingLogoUrl').value = data.logoUrl || '';
 
@@ -1104,6 +1147,8 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingFooterEmail').value = data.footerEmail || '';
   document.getElementById('settingFooterAddress').value = data.footerAddress || '';
   document.getElementById('settingFooterCopyright').value = data.footerCopyright || '';
+  document.getElementById('settingFooterNavTitle').value = data.footerNavTitle || '';
+  document.getElementById('settingFooterContactTitle').value = data.footerContactTitle || '';
 }
 
 async function loadSiteSettingsForm(){
@@ -1115,7 +1160,7 @@ async function loadSiteSettingsForm(){
   }
 }
 
-['settingColorPrimary', 'settingColorAccent', 'settingColorBackground'].forEach(id => {
+['settingColorPrimary', 'settingColorAccent', 'settingColorBackground', 'settingColorDark'].forEach(id => {
   document.getElementById(id).addEventListener('input', (e) => {
     document.getElementById(id + 'Label').textContent = e.target.value.toUpperCase();
   });
@@ -1149,9 +1194,17 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
   }));
 
   const data = {
+    navProgramsLabel: document.getElementById('settingNavProgramsLabel').value.trim(),
+    navProcessLabel: document.getElementById('settingNavProcessLabel').value.trim(),
+    navResultsLabel: document.getElementById('settingNavResultsLabel').value.trim(),
+    navContactLabel: document.getElementById('settingNavContactLabel').value.trim(),
+    navLoginLabel: document.getElementById('settingNavLoginLabel').value.trim(),
+    navRegisterLabel: document.getElementById('settingNavRegisterLabel').value.trim(),
+
     colorPrimary: document.getElementById('settingColorPrimary').value,
     colorAccent: document.getElementById('settingColorAccent').value,
     colorBackground: document.getElementById('settingColorBackground').value,
+    colorDark: document.getElementById('settingColorDark').value,
     brandName: document.getElementById('settingBrandName').value.trim() || 'English Folder',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
 
@@ -1195,7 +1248,9 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     footerPhone: document.getElementById('settingFooterPhone').value.trim(),
     footerEmail: document.getElementById('settingFooterEmail').value.trim(),
     footerAddress: document.getElementById('settingFooterAddress').value.trim(),
-    footerCopyright: document.getElementById('settingFooterCopyright').value.trim()
+    footerCopyright: document.getElementById('settingFooterCopyright').value.trim(),
+    footerNavTitle: document.getElementById('settingFooterNavTitle').value.trim(),
+    footerContactTitle: document.getElementById('settingFooterContactTitle').value.trim()
   };
 
   try{
