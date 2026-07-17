@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin panel — English Folder</title>
+<title>Mening kursim — English Folder</title>
 <link rel="stylesheet" href="../style.css">
-<style>.shake{animation: shakeX .4s;} @keyframes shakeX{ 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }</style>
 </head>
 <body>
 
@@ -17,16 +16,13 @@
   <aside class="admin-sidebar">
     <a href="../index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
     <ul class="admin-nav">
-      <li><a href="#" class="active" id="navLevels">📚 Kurslar va darslar</a></li>
-      <li><a href="#" id="navWriting">✍️ Writing boshqaruvi</a></li>
-      <li><a href="#" id="navStudents">🎓 O‘quvchilar</a></li>
-      <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
+      <li><a href="#" class="active" id="navCourses">📚 Kurslarim</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
       <div>
-        <div class="admin-user-name" id="sidebarUsername">admin</div>
-        <div class="admin-user-role">Administrator</div>
+        <div class="admin-user-name" id="sidebarUsername">o‘quvchi</div>
+        <div class="admin-user-role">O‘quvchi</div>
       </div>
       <button class="logout-btn" id="logoutBtn">Chiqish</button>
     </div>
@@ -35,507 +31,294 @@
   <!-- MAIN -->
   <main class="admin-main">
 
-    <!-- ===== LEVELS OVERVIEW (MAIN COURSE SELECTOR) ===== -->
-    <section id="view-levels">
+    <!-- ===== COURSES OVERVIEW ===== -->
+    <section id="view-courses">
       <div class="admin-header">
         <div>
-          <h1>Kurslar va darslar</h1>
-          <p>General English, CEFR va IELTS darslarini boshqarish bo'limi.</p>
+          <h1>Kurslarim</h1>
+          <p>O‘qimoqchi bo‘lgan kursni tanlang.</p>
         </div>
       </div>
+      <div class="course-grid">
+        <article class="folder course-card" id="cardGeneralEnglish">
+          <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
+          <div class="folder-body">
+            <span class="tag">A1–B1</span>
+            <h3 class="course-title">General English</h3>
+            <p class="course-sub" id="generalEnglishSub">Beginner → Elementary → Pre-Intermediate</p>
+          </div>
+        </article>
 
-      <div class="stat-row" id="statRow"></div>
+        <!-- CEFR CARD -->
+        <article class="folder course-card" id="cardCefr">
+          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
+          <div class="folder-body">
+            <span class="tag">B1–C1</span>
+            <h3 class="course-title">CEFR</h3>
+            <p class="course-sub">Rasmiy CEFR darajalariga tayyorgarlik darslari</p>
+          </div>
+        </article>
 
+        <!-- IELTS CARD -->
+        <article class="folder course-card" id="cardIelts">
+          <div class="folder-tab" style="--tab-color:#253559"></div>
+          <div class="folder-body">
+            <span class="tag">IELTS</span>
+            <h3 class="course-title">IELTS</h3>
+            <p class="course-sub">IELTS imtihoniga tayyorgarlik darslari</p>
+          </div>
+        </article>
+        
+        <!-- WRITING CARD -->
+        <article class="folder course-card" id="cardWriting">
+          <div class="folder-tab" style="--tab-color:#B3432B"></div>
+          <div class="folder-body">
+            <span class="tag">IELTS / CEFR</span>
+            <h3 class="course-title">Writing</h3>
+            <p class="course-sub" id="writingCourseSub">CEFR & IELTS insholar · 60 000 so‘m</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== SKILLS VIEW (LISTENING, READING, SPEAKING SUBFOLDERS) ===== -->
+    <section id="view-skills" hidden>
+      <a href="#" id="backToCoursesFromSkills" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="skillsTitle">Mavzular</h1>
+          <p>Ushbu bo'limdagi darslar, mashqlar va testlarni yakunlang.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="skillsGrid"></div>
+    </section>
+
+    <!-- ===== WRITING PAYMENT GATE ===== -->
+    <section id="view-writing-payment" hidden>
+      <a href="#" id="backToCoursesFromWritingPayment" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>Writing kursi</h1>
+          <p>Kursni ochish uchun to‘lovni amalga oshiring.</p>
+        </div>
+      </div>
+      <div class="payment-box">
+        <p class="eyebrow">To‘lov</p>
+        <div class="payment-price">60 000 so‘m</div>
+        
+        <!-- KARTA MA'LUMOTLARI -->
+        <div class="payment-card-details" style="background:var(--paper-2); padding:1.2em; border-radius:var(--radius-m); margin-bottom:1.5em; border:1px solid var(--line); text-align:center;">
+          <p style="margin:0; font-size:0.85rem; color:var(--gray); text-transform: uppercase; letter-spacing: 0.5px;">To‘lov uchun Humo/Uzcard karta:</p>
+          <strong style="font-size:1.4rem; letter-spacing:1px; color:var(--teal-deep); display:block; margin:0.3em 0;">5614 6818 5667 8473</strong>
+          <span style="font-weight:700; font-size:0.95rem; color: var(--text);">ABDURAXMON</span>
+        </div>
+
+        <p>CEFR va IELTS bo'limlarida 10 dan ziyod writing mashqlar mavjud. Yozishga qulay va haqiqiy o'qituvchi tomonidan tekshirilib feedback va baholar beriladi.</p>
+        <ol class="payment-steps">
+          <li>60 000 so‘mni yuqoridagi hisob raqamiga o‘tkazing.</li>
+          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
+          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
+          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
+        </ol>
+        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
+
+        <div id="writingPaymentActionArea" style="margin-top:1.6em;"></div>
+      </div>
+    </section>
+
+    <!-- ===== WRITING COURSES VIEW ===== -->
+    <section id="view-writing-courses" hidden>
+      <a href="#" id="backToCoursesFromWriting" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>Writing kurslari</h1>
+          <p>Yozish ko'nikmalarini oshirish uchun yo'nalishni tanlang.</p>
+        </div>
+      </div>
+      <div class="course-grid">
+        <article class="folder course-card" id="cardWritingCefr">
+          <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
+          <div class="folder-body">
+            <span class="tag">CEFR</span>
+            <h3 class="course-title">CEFR Writing</h3>
+            <p class="course-sub">Part 1.1, Part 1.2 va Part 2 bo'limlari</p>
+          </div>
+        </article>
+        <article class="folder course-card" id="cardWritingIelts">
+          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
+          <div class="folder-body">
+            <span class="tag">IELTS</span>
+            <h3 class="course-title">IELTS Writing</h3>
+            <p class="course-sub">Task 1 va Task 2 bo'limlari</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== WRITING PARTS VIEW ===== -->
+    <section id="view-writing-parts" hidden>
+      <a href="#" id="backToWritingCourses" class="back-link">← Orqaga</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="writingPartsTitle">Bo'limlar</h1>
+          <p>Tegishli bo'limdagi yozma vazifalarni bajarish uchun tanlang.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="writingPartsGrid"></div>
+    </section>
+
+    <!-- ===== WRITING TASKS VIEW ===== -->
+    <section id="view-writing-tasks" hidden>
+      <a href="#" id="backToWritingParts" class="back-link">← Bo'limlarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="writingTasksTitle">Vazifalar</h1>
+          <p>Mavzulardan birini tanlab, insho yozishni boshlang.</p>
+        </div>
+      </div>
+      <div class="lesson-list" id="writingTaskList"></div>
+    </section>
+
+    <!-- ===== WRITING EDITOR VIEW ===== -->
+    <section id="view-writing-editor" hidden>
+      <a href="#" id="backToWritingTasks" class="back-link">← Vazifalarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="writingEditorTaskTitle">Insho yozish</h1>
+          <p id="writingEditorTaskMeta">Insho yozish jarayoni</p>
+        </div>
+      </div>
+      
+      <div class="writing-grid">
+        <div class="writing-prompt-box">
+          <span class="tag" style="margin-bottom:1em;">Mavzu va Savol</span>
+          <div id="writingEditorPrompt" class="rich-content"></div>
+        </div>
+        
+        <div class="writing-editor-box">
+          <div id="writingActiveSubmissionArea">
+            <textarea id="writingEssayTextarea" class="writing-textarea" placeholder="Inshoingizni shu yerga yozing..."></textarea>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5em;">
+              <span class="word-counter" id="writingWordCount">0 so'z</span>
+              <button type="button" class="btn btn-teal" id="submitWritingBtn">Inshoni yuborish</button>
+            </div>
+          </div>
+          
+          <div id="writingSubmittedArea" hidden>
+            <div class="form-notice" style="margin-bottom:1em;">
+              ⏳ Insho muvaffaqiyatli topshirildi. Hozirda o'qituvchi tomonidan tekshirilmoqda. Tez orada ushbu sahifada baho va feedback paydo bo'ladi.
+            </div>
+            <div class="field">
+              <span>Siz topshirgan matn:</span>
+              <div id="writingSavedEssayText" style="white-space:pre-wrap; background:var(--paper-2); padding:1.2em; border-radius:var(--radius-s); border:1px solid var(--line); max-height:300px; overflow-y:auto; line-height:1.6;"></div>
+            </div>
+          </div>
+
+          <div id="writingGradedArea" hidden>
+            <div class="writing-feedback-box">
+              <div class="writing-feedback-header">
+                <div>
+                  <h3 style="margin:0; color:var(--teal-deep);">Tekshirildi</h3>
+                  <span style="font-size:0.8rem; color:var(--gray);" id="writingGradedAt">Sana</span>
+                </div>
+                <div class="writing-grade-badge" id="writingGradeBadge">Band 7.0</div>
+              </div>
+              <div class="field">
+                <span style="font-weight:700;">O'qituvchi fikri (Feedback):</span>
+                <div id="writingFeedbackContent" class="rich-content" style="background:var(--white); padding:1em; border-radius:var(--radius-s); border:1px solid var(--line);"></div>
+              </div>
+            </div>
+            
+            <div class="field" style="margin-top:1.5em;">
+              <span>Siz topshirgan matn:</span>
+              <div id="writingSavedGradedEssayText" style="white-space:pre-wrap; background:var(--paper-2); padding:1.2em; border-radius:var(--radius-s); border:1px solid var(--line); max-height:200px; overflow-y:auto; line-height:1.6;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PAYMENT GATE (General English) ===== -->
+    <section id="view-payment" hidden>
+      <a href="#" id="backToCoursesFromPayment" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>General English kursi</h1>
+          <p>Kursni ochish uchun to‘lovni amalga oshiring.</p>
+        </div>
+      </div>
+      <div class="payment-box">
+        <p class="eyebrow">To‘lov</p>
+        <div class="payment-price">50 000 so‘m</div>
+        
+        <!-- KARTA MA'LUMOTLARI -->
+        <div class="payment-card-details" style="background:var(--paper-2); padding:1.2em; border-radius:var(--radius-m); margin-bottom:1.5em; border:1px solid var(--line); text-align:center;">
+          <p style="margin:0; font-size:0.85rem; color:var(--gray); text-transform: uppercase; letter-spacing: 0.5px;">To‘lov uchun Humo/Uzcard karta:</p>
+          <strong style="font-size:1.4rem; letter-spacing:1px; color:var(--teal-deep); display:block; margin:0.3em 0;">5614 6818 5667 8473</strong>
+          <span style="font-weight:700; font-size:0.95rem; color: var(--text);">ABDURAXMON</span>
+        </div>
+
+        <p>Kurs to‘liq ochilgach, Beginner darajasidan boshlab barcha darslar, uy vazifalari va testlarga ega bo‘lasiz.</p>
+        <ol class="payment-steps">
+          <li>50 000 so‘mni yuqoridagi hisob raqamiga o‘tkazing.</li>
+          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
+          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
+          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
+        </ol>
+        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
+
+        <div id="paymentActionArea" style="margin-top:1.6em;"></div>
+      </div>
+    </section>
+
+    <!-- ===== LEVELS (General English) ===== -->
+    <section id="view-levels" hidden>
+      <a href="#" id="backToCoursesFromLevels" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>General English</h1>
+          <p>Darajalar ketma-ket ochiladi — oldingi darajadagi barcha darslarni yakunlasangiz, keyingisi ochiladi.</p>
+        </div>
+      </div>
       <div class="level-grid" id="levelsGrid"></div>
-    </section>
-
-    <!-- ===== ADMIN GENERAL ENGLISH LEVELS VIEW ===== -->
-    <section id="view-admin-ge-levels" hidden>
-      <a href="#" id="backToCoursesFromGe" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1>General English darajalari</h1>
-          <p>Beginner, Elementary va Pre-Intermediate darslarini boshqaring.</p>
-        </div>
-      </div>
-      <div class="level-grid" id="adminGeLevelsGrid"></div>
-    </section>
-
-    <!-- ===== ADMIN SKILLS VIEW (LISTENING, READING, SPEAKING SUBFOLDERS) ===== -->
-    <section id="view-admin-skills" hidden>
-      <a href="#" id="backToLevelsFromSkills" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1 id="adminSkillsTitle">Mavzular</h1>
-          <p>Ushbu bo'limdagi darslarni, testlarni va uy vazifalarini boshqaring.</p>
-        </div>
-      </div>
-      <div class="level-grid" id="adminSkillsGrid"></div>
     </section>
 
     <!-- ===== LESSON LIST ===== -->
     <section id="view-lessons" hidden>
-      <a href="#" id="backToLevels" class="back-link">← Orqaga</a>
+      <a href="#" id="backToLevels" class="back-link">← Darajalarga qaytish</a>
       <div class="admin-header">
         <div>
           <h1 id="lessonsLevelName">Daraja nomi</h1>
-          <p id="lessonsLevelSub">0 ta dars</p>
+          <p id="lessonsLevelSub"></p>
         </div>
-        <button class="btn btn-amber" id="openAddLesson">+ Yangi dars qo‘shish</button>
       </div>
-
       <div class="lesson-list" id="lessonList"></div>
     </section>
 
-    <!-- ===== ADMIN WRITING MANAGEMENT ===== -->
-    <section id="view-admin-writing" hidden>
-      <div class="admin-header">
-        <div>
-          <h1>Writing bo'limi boshqaruvi</h1>
-          <p>Writing vazifalarini yaratish, tahrirlash va talabalar insholarini tekshirib, baholash tizimi.</p>
-        </div>
-      </div>
-      
-      <div class="folders-toolbar" style="margin-bottom: 2em; border-bottom: 1.5px solid var(--line); padding-bottom: 0.5em;">
-        <div style="display:flex; gap:1em;">
-          <button type="button" class="btn btn-primary" id="btnTabSubmissions">📥 Yozma ishlar (Submissions)</button>
-          <button type="button" class="btn btn-ghost" id="btnTabTasks">📝 Yangi vazifa qo'shish</button>
-        </div>
-      </div>
+    <!-- ===== LESSON DETAIL ===== -->
+    <section id="view-lesson-detail" hidden>
+      <a href="#" id="backToLessons" class="back-link">← Darslar ro‘yxatiga qaytish</a>
+      <div class="lesson-detail-box" id="lessonDetailBox"></div>
+    </section>
 
-      <!-- Tab Content 1: Submissions -->
-      <div id="writingTabSubmissions">
-        <div class="table-wrap">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>O'quvchi</th>
-                <th>Yo'nalish</th>
-                <th>Vazifa nomi</th>
-                <th>Topshirilgan sana</th>
-                <th>Holati</th>
-                <th>Amal</th>
-              </tr>
-            </thead>
-            <tbody id="writingSubmissionsTableBody"></tbody>
-          </table>
-        </div>
-        <div id="writingSubmissionsEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
-          <h3>Kelib tushgan insholar yo'q</h3>
-          <p>Hozircha hech qaysi talaba insho topshirmadi.</p>
-        </div>
-      </div>
-
-      <!-- Tab Content 2: Tasks -->
-      <div id="writingTabTasks" hidden>
-        <div class="grid-2" style="align-items: start;">
-          <!-- Left: Add Task Form -->
-          <form class="modal-form" id="addWritingTaskForm" style="background:var(--white); border:1px solid var(--line); border-radius:var(--radius-m); padding:2em;">
-            <h3 style="margin-top:0;">Yangi Writing Vazifa</h3>
-            
-            <label class="field">
-              <span>Kurs turi</span>
-              <select id="writingTaskCourse" required>
-                <option value="cefr">CEFR</option>
-                <option value="ielts">IELTS</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span>Bo'lim (Part)</span>
-              <select id="writingTaskPart" required>
-              </select>
-            </label>
-
-            <label class="field">
-              <span>Vazifa sarlavhasi</span>
-              <input type="text" id="writingTaskTitle" placeholder="Masalan: Writing Opinion Essay" required>
-            </label>
-
-            <label class="field">
-              <span>Savol matni (Prompt)</span>
-              <div class="rte-toolbar" data-rte-toolbar="writingTaskPrompt"></div>
-              <div class="rte-editor" id="writingTaskPrompt" contenteditable="true" data-placeholder="Vazifa shartlari, grafik yoki matn..."></div>
-            </label>
-
-            <button type="submit" class="btn btn-amber" style="width:100%; margin-top:1em;">Vazifani yaratish</button>
-          </form>
-
-          <!-- Right: Created Tasks -->
-          <div>
-            <h3>Yaratilgan vazifalar</h3>
-            <div style="max-height: 550px; overflow-y: auto; display: flex; flex-direction: column; gap: 1em;" id="adminWritingTaskList"></div>
-          </div>
-        </div>
+    <!-- ===== QUIZ ===== -->
+    <section id="view-quiz" hidden>
+      <a href="#" id="backToLessonFromQuiz" class="back-link">← Darsga qaytish</a>
+      <div class="quiz-box">
+        <h1 id="quizTitle" style="margin-bottom:.3em;">Test</h1>
+        <p class="quiz-progress" id="quizProgress"></p>
+        <div id="quizQuestions"></div>
+        <button type="button" class="btn btn-amber" id="submitQuizBtn">Yakunlash</button>
       </div>
     </section>
 
-    <!-- ===== STUDENTS VIEW ===== -->
-    <section id="view-students" hidden>
-      <div class="admin-header">
-        <div>
-          <h1>O‘quvchilar</h1>
-          <p>To‘lov skrinshotini Telegram’da (t.me/djamiteacher) ko‘rib bo‘lgach, shu yerda tasdiqlang — kurs shundan keyin ochiladi.</p>
-        </div>
-        <button class="btn btn-amber" id="openAddStudent">+ Yangi o‘quvchi qo‘shish</button>
-      </div>
-
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead>
-            <tr><th>Ism</th><th>Email (login)</th><th>To‘lov holati (GE)</th><th>Sana</th><th></th></tr>
-          </thead>
-          <tbody id="studentsTableBody"></tbody>
-        </table>
-      </div>
-      <div id="studentsEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
-        <h3>Hali o‘quvchi qo‘shilmagan</h3>
-        <p>“Yangi o‘quvchi qo‘shish” tugmasini bosib birinchi hisobni yarating, yoki o‘quvchilar mustaqil ro‘yxatdan o‘tishini kuting.</p>
-      </div>
-    </section>
-
-    <!-- ===== SITE SETTINGS VIEW ===== -->
-    <section id="view-site-settings" hidden>
-      <div class="admin-header">
-        <div>
-          <h1>Sayt sozlamalari</h1>
-          <p>Bosh sahifaning boshidan oxirigacha — har bir yozuv, rasm va bo‘limni shu yerdan boshqaring. O‘zgarishlar saqlangach, saytda darrov ko‘rinadi.</p>
-        </div>
-      </div>
-
-      <form class="modal-form" id="siteSettingsForm" style="max-width:720px;">
-        <h3 style="margin-top:0;">🎨 Brend va ranglar</h3>
-        <div class="field">
-          <span>Asosiy rang (tugmalar, urg‘u)</span>
-          <div style="display:flex; align-items:center; gap:1em;">
-            <input type="color" id="settingColorPrimary" value="#D98E3F" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
-            <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingColorPrimaryLabel">#D98E3F</span>
-          </div>
-        </div>
-        <div class="field">
-          <span>Ikkinchi rang (linklar, teal urg‘u)</span>
-          <div style="display:flex; align-items:center; gap:1em;">
-            <input type="color" id="settingColorAccent" value="#2E6F6E" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
-            <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingColorAccentLabel">#2E6F6E</span>
-          </div>
-        </div>
-        <div class="field">
-          <span>Orqa fon rangi</span>
-          <div style="display:flex; align-items:center; gap:1em;">
-            <input type="color" id="settingColorBackground" value="#FFFFFF" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
-            <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingColorBackgroundLabel">#FFFFFF</span>
-          </div>
-        </div>
-        <label class="field">
-          <span>Sayt nomi (brend)</span>
-          <input type="text" id="settingBrandName" placeholder="English Folder">
-        </label>
-        <label class="field">
-          <span>Logotip rasm havolasi</span>
-          <input type="url" id="settingLogoUrl" placeholder="https://…">
-        </label>
-
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>🏠 Hero (birinchi ekran)</h3>
-        <label class="field">
-          <span>Kichik sarlavha (eyebrow)</span>
-          <input type="text" id="settingHeroEyebrow" placeholder="Papka №1 dan Papka №12 gacha">
-        </label>
-        <label class="field">
-          <span>Asosiy sarlavha</span>
-          <input type="text" id="settingHeroTitle" placeholder="Ingliz tilini tartibli papkada o‘rganing.">
-        </label>
-        <label class="field">
-          <span>Sarlavha ostidagi matn</span>
-          <textarea id="settingHeroLead" rows="3" placeholder="Har bir guruh — alohida papka…"></textarea>
-        </label>
-        <label class="field">
-          <span>Asosiy tugma matni</span>
-          <input type="text" id="settingHeroCtaPrimaryText" placeholder="Bepul sinov darsiga yozilish">
-        </label>
-        <label class="field">
-          <span>Ikkinchi tugma matni</span>
-          <input type="text" id="settingHeroCtaGhostText" placeholder="Tizim qanday ishlaydi →">
-        </label>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
-          <label class="field"><span>1-son</span><input type="text" id="settingHeroStat1Number" placeholder="12"></label>
-          <label class="field"><span>1-izoh</span><input type="text" id="settingHeroStat1Label" placeholder="dars / har bir papkada"></label>
-          <span></span>
-          <label class="field"><span>2-son</span><input type="text" id="settingHeroStat2Number" placeholder="420+"></label>
-          <label class="field"><span>2-izoh</span><input type="text" id="settingHeroStat2Label" placeholder="faol o‘quvchi"></label>
-          <span></span>
-          <label class="field"><span>3-son</span><input type="text" id="settingHeroStat3Number" placeholder="4.9"></label>
-          <label class="field"><span>3-izoh</span><input type="text" id="settingHeroStat3Label" placeholder="o‘rtacha baho"></label>
-          <span></span>
-        </div>
-        <label class="field">
-          <span>Hero rasmi</span>
-          <input type="url" id="settingHeroImageUrl" placeholder="https://…">
-        </label>
-
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>🔁 "Qanday ishlaydi" bo‘limi</h3>
-        <label class="field">
-          <span>Kichik sarlavha</span>
-          <input type="text" id="settingProcessEyebrow" placeholder="Qanday ishlaydi">
-        </label>
-        <label class="field">
-          <span>Bo‘lim sarlavhasi</span>
-          <input type="text" id="settingProcessHeading" placeholder="Uch qadamda — tartibli o‘quv jarayoni">
-        </label>
-        <div style="display:flex; flex-direction:column; gap:1em;">
-          <div style="border:1px solid var(--line); border-radius:var(--radius-m); padding:1.2em;">
-            <label class="field"><span>1-qadam sarlavhasi</span><input type="text" id="settingProcess1Title"></label>
-            <label class="field" style="margin-top:.8em;"><span>1-qadam matni</span><textarea id="settingProcess1Text" rows="2"></textarea></label>
-          </div>
-          <div style="border:1px solid var(--line); border-radius:var(--radius-m); padding:1.2em;">
-            <label class="field"><span>2-qadam sarlavhasi</span><input type="text" id="settingProcess2Title"></label>
-            <label class="field" style="margin-top:.8em;"><span>2-qadam matni</span><textarea id="settingProcess2Text" rows="2"></textarea></label>
-          </div>
-          <div style="border:1px solid var(--line); border-radius:var(--radius-m); padding:1.2em;">
-            <label class="field"><span>3-qadam sarlavhasi</span><input type="text" id="settingProcess3Title"></label>
-            <label class="field" style="margin-top:.8em;"><span>3-qadam matni</span><textarea id="settingProcess3Text" rows="2"></textarea></label>
-          </div>
-        </div>
-
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>📁 Dastur papkalari</h3>
-        <label class="field">
-          <span>Kichik sarlavha</span>
-          <input type="text" id="settingProgramsEyebrow" placeholder="Dastur papkalari">
-        </label>
-        <label class="field">
-          <span>Bo‘lim sarlavhasi</span>
-          <input type="text" id="settingProgramsHeading" placeholder="Darajangizga mos papkani tanlang">
-        </label>
-        <label class="field">
-          <span>Bo‘lim tavsifi</span>
-          <textarea id="settingProgramsLead" rows="2"></textarea>
-        </label>
-        <div id="programsRows" style="display:flex; flex-direction:column; gap:1em;"></div>
-        <button type="button" class="btn btn-ghost btn-sm" id="addProgramRow" style="align-self:flex-start;">+ Yangi papka qo‘shish</button>
-
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>💬 Natijalar / O‘quvchilar fikri</h3>
-        <label class="field">
-          <span>Kichik sarlavha</span>
-          <input type="text" id="settingResultsEyebrow" placeholder="Natijalar">
-        </label>
-        <label class="field">
-          <span>Bo‘lim sarlavhasi</span>
-          <input type="text" id="settingResultsHeading" placeholder="O‘quvchilar nima deydi">
-        </label>
-        <label class="field">
-          <span>Bo‘lim tavsifi</span>
-          <textarea id="settingResultsLead" rows="2"></textarea>
-        </label>
-        <div id="testimonialsRows" style="display:flex; flex-direction:column; gap:1em;"></div>
-        <button type="button" class="btn btn-ghost btn-sm" id="addTestimonialRow" style="align-self:flex-start;">+ Yangi fikr qo‘shish</button>
-
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>📣 Pastdagi chaqiruv (CTA)</h3>
-        <label class="field">
-          <span>CTA sarlavhasi</span>
-          <input type="text" id="settingCtaTitle" placeholder="Papkangizni bugun oching">
-        </label>
-        <label class="field">
-          <span>CTA ostidagi matn</span>
-          <textarea id="settingCtaText" rows="2" placeholder="Bepul sinov darsiga yoziling…"></textarea>
-        </label>
-        <label class="field">
-          <span>Kichik izoh matni</span>
-          <input type="text" id="settingCtaNoteText" placeholder="Allaqachon guruhga qabul qilingansiz?">
-        </label>
-
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>💡 Footer</h3>
-        <label class="field">
-          <span>Logotip ostidagi tavsif</span>
-          <textarea id="settingFooterDescription" rows="2"></textarea>
-        </label>
-        <label class="field">
-          <span>Telefon raqami</span>
-          <input type="text" id="settingFooterPhone" placeholder="+998 90 000 00 00">
-        </label>
-        <label class="field">
-          <span>Email</span>
-          <input type="email" id="settingFooterEmail" placeholder="info@englishfolder.uz">
-        </label>
-        <label class="field">
-          <span>Manzil</span>
-          <input type="text" id="settingFooterAddress" placeholder="Toshkent, Chilonzor tumani">
-        </label>
-        <label class="field">
-          <span>Mualliflik huquqi qatori</span>
-          <input type="text" id="settingFooterCopyright" placeholder="© 2026 English Folder. Barcha huquqlar himoyalangan.">
-        </label>
-
-        <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
-        <div class="modal-actions" style="justify-content:flex-start; position:sticky; bottom:0; background:var(--paper); padding:1em 0;">
-          <button type="submit" class="btn btn-amber" id="siteSettingsSubmit">Saqlash</button>
-          <button type="button" class="btn btn-ghost" id="siteSettingsReset">Standart holatga qaytarish</button>
-        </div>
-      </form>
+    <!-- ===== QUIZ RESULT ===== -->
+    <section id="view-quiz-result" hidden>
+      <div class="quiz-result-box" id="quizResultBox"></div>
     </section>
 
   </main>
 </div>
-
-<!-- ===== MODAL: Review Student Essay ===== -->
-<div class="modal-overlay" id="modalReviewSubmission" hidden>
-  <div class="modal-box" style="max-width:720px; max-height: 90vh;">
-    <h3>Inshoni tekshirish va baholash</h3>
-    <p class="modal-sub">Talabaning yozgan inshosini tekshiring va shaxsiy feedback hamda bahoni yuboring.</p>
-    
-    <div style="background:var(--paper-2); padding:1.2em; border-radius:var(--radius-s); margin-bottom:1.5em; border: 1px dashed var(--line);">
-      <div style="display:flex; justify-content:space-between; margin-bottom:0.5em; font-size:0.85rem; color:var(--gray);">
-        <span><strong>O'quvchi:</strong> <span id="reviewStudentName">Ism</span></span>
-        <span><strong>Yo'nalish:</strong> <span id="reviewStudentMeta">Kurs</span></span>
-      </div>
-      <div><strong>Vazifa:</strong> <span id="reviewTaskTitle">Nomi</span></div>
-    </div>
-
-    <div class="field" style="margin-bottom:1.5em;">
-      <span>Talabaning inshosi:</span>
-      <div id="reviewEssayText" style="white-space:pre-wrap; background:var(--white); padding:1.2em; border-radius:var(--radius-s); border:1px solid var(--line); max-height:220px; overflow-y:auto; line-height:1.6; font-size:0.95rem;"></div>
-      <div style="text-align:right; font-size:0.8rem; color:var(--gray); margin-top:0.3em;" id="reviewWordCount">0 ta so'z</div>
-    </div>
-
-    <form class="modal-form" id="reviewGradingForm">
-      <label class="field">
-        <span>Baho / Natija (Grade/Band)</span>
-        <input type="text" id="reviewGrade" placeholder="Masalan: Band 7.5, B2, 85/100" required>
-      </label>
-      
-      <label class="field">
-        <span>Feedback / Fikr-mulohaza</span>
-        <div class="rte-toolbar" data-rte-toolbar="reviewFeedback"></div>
-        <div class="rte-editor" id="reviewFeedback" contenteditable="true" data-placeholder="Xatolar ustida ishlash va tavsiyalar..."></div>
-      </label>
-
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" data-close-modal="modalReviewSubmission">Bekor qilish</button>
-        <button type="submit" class="btn btn-teal">Tasdiqlash va Yuborish</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ===== MODAL: Add/Edit lesson ===== -->
-<div class="modal-overlay" id="modalEditLesson" hidden>
-  <div class="modal-box" style="max-width:640px;">
-    <h3 id="lessonModalTitle">Yangi dars</h3>
-    <p class="modal-sub">Dars mazmuni, uy vazifasi va testni kiriting. Test kamida 60% to‘g‘ri javob bilan yechilsa, keyingi dars o‘quvchiga ochiladi.</p>
-    <form class="modal-form" id="editLessonForm">
-      <label class="field">
-        <span>Dars nomi</span>
-        <input type="text" id="lessonTitle" placeholder="Masalan: Present Simple asoslari" required>
-      </label>
-      <label class="field">
-        <span>Video havola</span>
-        <input type="url" id="lessonVideo" placeholder="https://…">
-      </label>
-      <label class="field">
-        <span>Material havola</span>
-        <input type="url" id="lessonMaterial" placeholder="https://…">
-      </label>
-      <label class="field">
-        <span>Mavzu tavsifi</span>
-        <div class="rte-toolbar" data-rte-toolbar="lessonTopicText"></div>
-        <div class="rte-editor" id="lessonTopicText" contenteditable="true" data-placeholder="Bu darsda nima o‘rgatilishi haqida qisqacha…"></div>
-      </label>
-      <label class="field">
-        <span>Uy vazifasi</span>
-        <div class="rte-toolbar" data-rte-toolbar="lessonHomework"></div>
-        <div class="rte-editor" id="lessonHomework" contenteditable="true" data-placeholder="Uy vazifasi tavsifi…"></div>
-      </label>
-      <label class="field">
-        <span>Uy vazifasi javoblari</span>
-        <div class="rte-toolbar" data-rte-toolbar="lessonHomeworkAnswer"></div>
-        <div class="rte-editor" id="lessonHomeworkAnswer" contenteditable="true" data-placeholder="Uy vazifasi uchun to‘g‘ri javoblarni shu yerga yozing…"></div>
-      </label>
-      <div class="field">
-        <span>Test savollari</span>
-        <div class="quiz-editor" id="quizEditor"></div>
-        <button type="button" class="btn btn-ghost btn-sm" id="addQuestionBtn" style="align-self:flex-start;">+ Savol qo‘shish</button>
-      </div>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" data-close-modal="modalEditLesson">Bekor qilish</button>
-        <button type="submit" class="btn btn-amber">Saqlash</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ===== MODAL: Add student ===== -->
-<div class="modal-overlay" id="modalAddStudent" hidden>
-  <div class="modal-box">
-    <h3>Yangi o‘quvchi qo‘shish</h3>
-    <p class="modal-sub">O‘quvchi shu email va parol bilan o‘z portaliga kiradi.</p>
-    <form class="modal-form" id="addStudentForm">
-      <label class="field">
-        <span>Ism familiya</span>
-        <input type="text" id="newStudentName" placeholder="Masalan: Madina Yusupova" required>
-      </label>
-      <label class="field">
-        <span>Email (login)</span>
-        <input type="email" id="newStudentEmail" placeholder="madina@example.com" required>
-      </label>
-      <label class="field">
-        <span>Boshlang‘ich parol</span>
-        <input type="text" id="newStudentPassword" placeholder="Kamida 6 belgi" required minlength="6">
-      </label>
-      <p id="addStudentError" class="form-error" role="alert" hidden></p>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" data-close-modal="modalAddStudent">Bekor qilish</button>
-        <button type="submit" class="btn btn-amber" id="addStudentSubmit">O‘quvchi qo‘shish</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- ===== MODAL: Student details ===== -->
-<div class="modal-overlay" id="modalStudentDetail" hidden>
-  <div class="modal-box">
-    <h3 id="studentDetailName">O‘quvchi</h3>
-    <p class="modal-sub" id="studentDetailEmail"></p>
-    
-    <!-- Status block -->
-    <div style="background: var(--paper-2); padding: 1.2em; border-radius: var(--radius-s); margin-bottom: 1.4em; border: 1px solid var(--line);">
-      <p id="studentDetailStatus" style="margin: 0 0 0.6em 0; font-size: 0.9rem;"></p>
-      <p id="studentDetailWritingStatus" style="margin: 0; font-size: 0.9rem;"></p>
-    </div>
-
-    <!-- Free / VIP User Toggle -->
-    <div class="field" style="margin-bottom: 1.6em; flex-direction: row; align-items: center; justify-content: space-between; background: rgba(46,111,110,.08); padding: 0.8em 1.2em; border-radius: var(--radius-s); border: 1px solid rgba(46,111,110,.2);">
-      <div>
-        <span style="font-weight: 700; display: block;">Bepul foydalanish (VIP)</span>
-        <span style="font-size: 0.75rem; color: var(--gray); font-weight: normal;">Talabaga barcha pullik kurslarni tekin qilish.</span>
-      </div>
-      <input type="checkbox" id="studentDetailFreeToggle" style="width: 22px; height: 22px; cursor: pointer; accent-color: var(--teal);">
-    </div>
-
-    <!-- Payment management controls -->
-    <div style="display: flex; flex-direction: column; gap: 0.9em; margin-bottom: 1.6em;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 0.9rem; font-weight: 700;">General/CEFR/IELTS Kursi:</span>
-        <button type="button" class="btn btn-sm" id="btnToggleGeneralPayment" style="min-width: 150px;"></button>
-      </div>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 0.9rem; font-weight: 700;">Writing bo'limi:</span>
-        <button type="button" class="btn btn-sm" id="btnToggleWritingPayment" style="min-width: 150px;"></button>
-      </div>
-    </div>
-
-    <div class="modal-actions" style="justify-content:space-between; border-top:1px solid var(--line); padding-top:1em;">
-      <button type="button" class="btn btn-danger btn-sm" id="deleteStudentBtn">O‘quvchini o‘chirish</button>
-      <button type="button" class="btn btn-ghost" data-close-modal="modalStudentDetail">Yopish</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
@@ -544,119 +327,64 @@
 <script src="../site-settings.js"></script>
 <script>
 /* ============================================================
-   English Folder — Admin dashboard logic (Firestore-backed)
+   English Folder — Student dashboard logic (Firestore-backed)
    ============================================================ */
 
 const LEVELS = [
   { id: 'beginner', name: 'Beginner', order: 1, course: 'general' },
   { id: 'elementary', name: 'Elementary', order: 2, course: 'general' },
   { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3, course: 'general' },
-  // CEFR split skills
+  // CEFR Skills
   { id: 'cefr_listening', name: 'CEFR Listening', order: 4, course: 'cefr', skill: 'listening' },
   { id: 'cefr_reading', name: 'CEFR Reading', order: 5, course: 'cefr', skill: 'reading' },
   { id: 'cefr_speaking', name: 'CEFR Speaking', order: 6, course: 'cefr', skill: 'speaking' }, // Grammar -> Speaking
-  // IELTS split skills
+  // IELTS Skills
   { id: 'ielts_listening', name: 'IELTS Listening', order: 7, course: 'ielts', skill: 'listening' },
   { id: 'ielts_reading', name: 'IELTS Reading', order: 8, course: 'ielts', skill: 'reading' },
   { id: 'ielts_speaking', name: 'IELTS Speaking', order: 9, course: 'ielts', skill: 'speaking' } // Grammar -> Speaking
 ];
 const PASS_PERCENT = 60;
 
+let currentUid = null;
 let state = {
+  student: null,
   levels: {},
-  students: [],
   activeLevelId: null,
   activeLessonId: null,
-  quizDraft: [],
-  detailStudentId: null
+  lastQuizContext: null,
+  writingActiveCourse: null,
+  writingActivePart: null,
+  writingActiveTaskId: null,
+  writingActiveTask: null
 };
-
-let currentReviewSubmissionId = null;
-
-auth.onAuthStateChanged(async (user) => {
-  if(!user){ window.location.href = 'login.html'; return; }
-  const adminDoc = await db.collection('admins').doc(user.uid).get();
-  if(!adminDoc.exists){
-    await auth.signOut();
-    window.location.href = 'login.html';
-    return;
-  }
-  document.getElementById('sidebarUsername').textContent = user.email;
-  document.getElementById('loadingScreen').hidden = true;
-  document.getElementById('appShell').hidden = false;
-  await ensureLevelsExist();
-  await loadLevels();
-  await loadStudents();
-  renderLevelsOverview();
-  renderStudents();
-});
-
-document.getElementById('logoutBtn').addEventListener('click', () => {
-  if(confirm('Tizimdan chiqmoqchimisiz?')) auth.signOut().then(() => window.location.href = 'login.html');
-});
 
 function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
-const RTE_BUTTONS = [
-  { cmd: 'bold', icon: '<b>B</b>', title: 'Qalin (Bold)' },
-  { cmd: 'italic', icon: '<i>I</i>', title: 'Qiya (Italic)' },
-  { cmd: 'underline', icon: '<u>U</u>', title: 'Tagi chizilgan' },
-  { sep: true },
-  { cmd: 'justifyLeft', icon: '⇤', title: 'Chapga tekislash' },
-  { cmd: 'justifyCenter', icon: '≡', title: 'Markazga tekislash' },
-  { cmd: 'justifyRight', icon: '⇥', title: 'O‘ngga tekislash' },
-  { sep: true },
-  { cmd: 'insertUnorderedList', icon: '•', title: 'Belgili ro‘yxat' },
-  { cmd: 'insertOrderedList', icon: '1.', title: 'Raqamli ro‘yxat' },
-  { sep: true },
-  { cmd: 'removeFormat', icon: '✕', title: 'Formatni tozalash' }
-];
+auth.onAuthStateChanged(async (user) => {
+  if(!user){ window.location.href = 'login.html'; return; }
+  const studentDoc = await db.collection('students').doc(user.uid).get();
+  if(!studentDoc.exists){
+    await auth.signOut();
+    window.location.href = 'login.html';
+    return;
+  }
+  currentUid = user.uid;
+  state.student = studentDoc.data();
+  state.student.progress = state.student.progress || {};
 
-function buildRteToolbar(editorId){
-  return RTE_BUTTONS.map(b => b.sep
-    ? `<span class="rte-sep"></span>`
-    : `<button type="button" class="rte-btn" data-rte-cmd="${b.cmd}" data-rte-target="${editorId}" title="${b.title}">${b.icon}</button>`
-  ).join('');
-}
+  document.getElementById('sidebarUsername').textContent = state.student.name || state.student.email;
+  document.getElementById('loadingScreen').hidden = true;
+  document.getElementById('appShell').hidden = false;
 
-function initRichTextEditors(){
-  document.querySelectorAll('[data-rte-toolbar]').forEach(bar => {
-    bar.innerHTML = buildRteToolbar(bar.dataset.rteToolbar);
-  });
-}
-initRichTextEditors();
-
-document.addEventListener('mousedown', (e) => {
-  const btn = e.target.closest('.rte-btn');
-  if(!btn) return;
-  e.preventDefault();
-  const editor = document.getElementById(btn.dataset.rteTarget);
-  editor.focus();
-  document.execCommand(btn.dataset.rteCmd, false, null);
+  await loadLevels();
+  renderCoursesOverview();
 });
 
-function getRteValue(id){
-  const el = document.getElementById(id);
-  if(!el) return '';
-  const plain = el.textContent.replace(/\u200B/g, '').trim();
-  return plain === '' ? '' : el.innerHTML.trim();
-}
-function setRteValue(id, html){
-  const el = document.getElementById(id);
-  if(el) el.innerHTML = html || '';
-}
-
-async function ensureLevelsExist(){
-  for(const lvl of LEVELS){
-    const ref = db.collection('levels').doc(lvl.id);
-    const doc = await ref.get();
-    if(!doc.exists){
-      await ref.set({ name: lvl.name, order: lvl.order, lessons: [] });
-    }
-  }
-}
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if(confirm('Tizimdan chiqmoqchimisiz?')) auth.signOut().then(() => window.location.href = 'login.html');
+});
 
 async function loadLevels(){
   const results = await Promise.all(LEVELS.map(l => db.collection('levels').doc(l.id).get()));
@@ -665,847 +393,629 @@ async function loadLevels(){
   });
 }
 
-async function loadStudents(){
-  const snap = await db.collection('students').orderBy('createdAt', 'desc').get();
-  state.students = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-}
-
 function getLevel(id){ return state.levels[id]; }
 
-function renderLevelsOverview(){
-  const totalLessons = LEVELS.reduce((sum, l) => sum + getLevel(l.id).lessons.length, 0);
-  const totalQuestions = LEVELS.reduce((sum, l) => sum + getLevel(l.id).lessons.reduce((s, les) => s + (les.quiz ? les.quiz.length : 0), 0), 0);
-  const pendingPayments = state.students.filter(s => s.paymentStatus === 'pending' || s.writingPaymentStatus === 'pending').length;
-  const approvedStudents = state.students.filter(s => s.paymentStatus === 'approved' || s.isFree === true).length;
+function getLessonProgress(levelId, lessonId){
+  return (state.student.progress[levelId] && state.student.progress[levelId][lessonId]) || { passed: false, bestScore: null };
+}
 
-  document.getElementById('statRow').innerHTML = `
-    <div class="stat-card"><strong>${totalLessons}</strong><span>Jami darslar</span></div>
-    <div class="stat-card"><strong>${totalQuestions}</strong><span>Jami test savollari</span></div>
-    <div class="stat-card"><strong>${approvedStudents}</strong><span>Faol o‘quvchi</span></div>
-    <div class="stat-card"><strong>${pendingPayments}</strong><span>Kutilayotgan to‘lovlar</span></div>
-  `;
+function isLevelCompleted(levelId){
+  const lessons = getLevel(levelId).lessons;
+  if(lessons.length === 0) return false;
+  return lessons.every(l => getLessonProgress(levelId, l.id).passed);
+}
 
-  // DRAW MAIN 3 COURSE FOLDERS
-  document.getElementById('levelsGrid').innerHTML = `
-    <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-course="general">
+function hasAccess(courseType) {
+  if (state.student.isFree === true) return true;
+  if (courseType === 'general' || courseType === 'cefr' || courseType === 'ielts') {
+    return state.student.paymentStatus === 'approved';
+  }
+  if (courseType === 'writing') {
+    return state.student.writingPaymentStatus === 'approved';
+  }
+  return false;
+}
+
+function isLevelUnlocked(levelId){
+  const lvl = LEVELS.find(l => l.id === levelId);
+  if(lvl.course !== 'general') return true;
+  if(lvl.order === 1) return true;
+  const prevLevel = LEVELS.find(l => l.course === 'general' && l.order === lvl.order - 1);
+  return prevLevel ? isLevelCompleted(prevLevel.id) : true;
+}
+
+function isLessonUnlocked(levelId, lessonIndex){
+  if(!isLevelUnlocked(levelId)) return false;
+  if(lessonIndex === 0) return true;
+  const lessons = getLevel(levelId).lessons;
+  return getLessonProgress(levelId, lessons[lessonIndex - 1].id).passed;
+}
+
+async function saveProgress(levelId, lessonId, passed, scorePct){
+  const prev = getLessonProgress(levelId, lessonId);
+  const bestScore = (prev.bestScore == null) ? scorePct : Math.max(prev.bestScore, scorePct == null ? 0 : scorePct);
+  const newPassed = prev.passed || passed;
+  const path = `progress.${levelId}.${lessonId}`;
+  await db.collection('students').doc(currentUid).update({ [path]: { passed: newPassed, bestScore } });
+  state.student.progress[levelId] = state.student.progress[levelId] || {};
+  state.student.progress[levelId][lessonId] = { passed: newPassed, bestScore };
+}
+
+const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'writing-courses', 'writing-parts', 'writing-tasks', 'writing-editor', 'skills', 'writing-payment'];
+function switchView(view){
+  VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+}
+
+function renderCoursesOverview(){
+  const sub = document.getElementById('generalEnglishSub');
+  const generalLevels = LEVELS.filter(l => l.course === 'general');
+  if(hasAccess('general')){
+    const totalLessons = generalLevels.reduce((s, l) => s + getLevel(l.id).lessons.length, 0);
+    const doneLessons = generalLevels.reduce((s, l) => s + getLevel(l.id).lessons.filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
+    sub.textContent = `${doneLessons}/${totalLessons} dars yakunlangan`;
+  } else if(state.student.paymentStatus === 'pending'){
+    sub.textContent = 'To‘lov tekshirilmoqda…';
+  } else {
+    sub.textContent = 'Beginner → Elementary → Pre-Intermediate · 50 000 so‘m';
+  }
+
+  const writingSub = document.getElementById('writingCourseSub');
+  if (hasAccess('writing')) {
+    writingSub.textContent = "CEFR (Part 1.1, 1.2, 2) & IELTS (Task 1, 2) insholar";
+  } else if (state.student.writingPaymentStatus === 'pending') {
+    writingSub.textContent = 'To‘lov tekshirilmoqda…';
+  } else {
+    writingSub.textContent = 'CEFR & IELTS insholar · 60 000 so‘m';
+  }
+
+  switchView('courses');
+}
+
+document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
+  if(hasAccess('general')){
+    openLevelsView();
+  } else {
+    openPaymentView();
+  }
+});
+
+document.getElementById('cardCefr').addEventListener('click', () => {
+  if(hasAccess('cefr')){
+    openSkillsView('cefr');
+  } else {
+    openPaymentView();
+  }
+});
+
+document.getElementById('cardIelts').addEventListener('click', () => {
+  if(hasAccess('ielts')){
+    openSkillsView('ielts');
+  } else {
+    openPaymentView();
+  }
+});
+
+function openSkillsView(courseId) {
+  const grid = document.getElementById('skillsGrid');
+  const title = document.getElementById('skillsTitle');
+  title.textContent = courseId === 'cefr' ? 'CEFR Kursi' : 'IELTS Kursi';
+
+  const skills = [
+    { id: 'listening', name: 'Listening', desc: 'Eshitib tushunish darslari, audio materiallar va testlar' },
+    { id: 'reading', name: 'Reading', desc: 'O\'qib tushunish darslari, matnlar va savollar' },
+    { id: 'speaking', name: 'Speaking', desc: 'Gapirish ko\'nikmasini oshirish darslari, mavzular va savollar' } // Grammar -> Speaking
+  ];
+
+  grid.innerHTML = skills.map(sk => `
+    <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-skill="${courseId}_${sk.id}">
       <div class="folder-tab"></div>
       <div class="folder-body">
-        <span class="tag">A1–B1</span>
-        <h3 class="level-title">General English</h3>
-        <p class="level-sub">Beginner, Elementary, Pre-Intermediate darslari</p>
+        <span class="tag">${courseId.toUpperCase()}</span>
+        <h3 class="level-title">${sk.name}</h3>
+        <p class="level-sub">${sk.desc}</p>
       </div>
     </article>
-    <article class="folder level-card" style="--tab-color:#D98E3F" data-open-course="cefr">
-      <div class="folder-tab"></div>
-      <div class="folder-body">
-        <span class="tag">B1–C1</span>
-        <h3 class="level-title">CEFR</h3>
-        <p class="level-sub">Listening, Reading, Speaking darslari</p>
-      </div>
-    </article>
-    <article class="folder level-card" style="--tab-color:#253559" data-open-course="ielts">
-      <div class="folder-tab"></div>
-      <div class="folder-body">
-        <span class="tag">IELTS</span>
-        <h3 class="level-title">IELTS</h3>
-        <p class="level-sub">Listening, Reading, Speaking darslari</p>
-      </div>
-    </article>
-  `;
+  `).join('');
+
+  switchView('skills');
+}
+
+document.getElementById('skillsGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-open-skill]');
+  if(card) openLessonsView(card.dataset.openSkill);
+});
+
+document.getElementById('backToCoursesFromSkills').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+document.getElementById('backToCoursesFromWritingPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+
+function openPaymentView(){
+  const area = document.getElementById('paymentActionArea');
+  if(state.student.paymentStatus === 'pending'){
+    area.innerHTML = `<p class="payment-pending-box">⏳ So‘rovingiz ko‘rib chiqilmoqda. Admin skrinshotni tasdiqlagach, kurs avtomatik ochiladi.</p>`;
+  } else {
+    area.innerHTML = `<button type="button" class="btn btn-amber" id="paidBtn">To‘lov qildim</button>`;
+    document.getElementById('paidBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('paidBtn');
+      btn.disabled = true;
+      btn.textContent = 'Yuborilmoqda…';
+      await db.collection('students').doc(currentUid).update({ paymentStatus: 'pending', paymentRequestedAt: Date.now() });
+      state.student.paymentStatus = 'pending';
+      openPaymentView();
+    });
+  }
+  switchView('payment');
+}
+
+function openWritingPaymentView(){
+  const area = document.getElementById('writingPaymentActionArea');
+  if(state.student.writingPaymentStatus === 'pending'){
+    area.innerHTML = `<p class="payment-pending-box">⏳ So‘rovingiz ko‘rib chiqilmoqda. Admin skrinshotni tasdiqlagach, kurs avtomatik ochiladi.</p>`;
+  } else {
+    area.innerHTML = `<button type="button" class="btn btn-amber" id="paidWritingBtn">To‘lov qildim</button>`;
+    document.getElementById('paidWritingBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('paidWritingBtn');
+      btn.disabled = true;
+      btn.textContent = 'Yuborilmoqda…';
+      await db.collection('students').doc(currentUid).update({ writingPaymentStatus: 'pending', writingPaymentRequestedAt: Date.now() });
+      state.student.writingPaymentStatus = 'pending';
+      openWritingPaymentView();
+    });
+  }
+  switchView('writing-payment');
+}
+
+document.getElementById('backToCoursesFromPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+document.getElementById('backToCoursesFromLevels').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+
+function openLevelsView(){
+  const generalLevels = LEVELS.filter(l => l.course === 'general');
+  document.getElementById('levelsGrid').innerHTML = generalLevels.map(lvl => {
+    const data = getLevel(lvl.id);
+    const unlocked = isLevelUnlocked(lvl.id);
+    const doneCount = data.lessons.filter(l => getLessonProgress(lvl.id, l.id).passed).length;
+    return `
+      <article class="folder level-card ${unlocked ? '' : 'is-locked'}" ${unlocked ? `data-open-level="${lvl.id}"` : ''}>
+        <div class="folder-tab" style="--tab-color:${unlocked ? '#2E6F6E' : '#9a9a95'}"></div>
+        <div class="folder-body">
+          <span class="tag">Daraja ${lvl.order}</span>
+          <h3 class="level-title">${escapeHtml(lvl.name)} ${unlocked ? '' : '🔒'}</h3>
+          <p class="level-sub">${unlocked ? `${doneCount}/${data.lessons.length} dars yakunlangan` : 'Oldingi darajani yakunlang'}</p>
+        </div>
+      </article>`;
+  }).join('');
+  switchView('levels');
 }
 
 document.getElementById('levelsGrid').addEventListener('click', (e) => {
-  const card = e.target.closest('[data-open-course]');
-  if(!card) return;
-  const course = card.dataset.openCourse;
-  if (course === 'general') {
-    openGeneralEnglishLevelsView();
-  } else {
-    openAdminSkillsView(course);
-  }
-});
-
-function openGeneralEnglishLevelsView() {
-  const grid = document.getElementById('adminGeLevelsGrid');
-  const generalLevels = LEVELS.filter(l => l.course === 'general');
-  grid.innerHTML = generalLevels.map(lvl => {
-    const data = getLevel(lvl.id);
-    const questionCount = data.lessons.reduce((s, l) => s + (l.quiz ? l.quiz.length : 0), 0);
-    return `
-      <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-level="${lvl.id}">
-        <div class="folder-tab"></div>
-        <div class="folder-body">
-          <span class="tag">Daraja ${lvl.order}</span>
-          <h3 class="level-title">${escapeHtml(lvl.name)}</h3>
-          <p class="level-sub">${data.lessons.length} ta dars · ${questionCount} ta test</p>
-        </div>
-      </article>
-    `;
-  }).join('');
-  switchView('admin-ge-levels');
-}
-
-function openAdminSkillsView(courseId) {
-  const grid = document.getElementById('adminSkillsGrid');
-  const title = document.getElementById('adminSkillsTitle');
-  title.textContent = courseId === 'cefr' ? 'CEFR Boshqaruvi' : 'IELTS Boshqaruvi';
-
-  const skills = [
-    { id: 'listening', name: 'Listening', desc: 'Listening darslari, audio materiallar va testlar' },
-    { id: 'reading', name: 'Reading', desc: 'Reading darslari, matnlar va savollar' },
-    { id: 'speaking', name: 'Speaking', desc: 'Speaking darslari, mavzular va testlar' } // Grammar -> Speaking
-  ];
-
-  let tabColor = courseId === 'cefr' ? '#D98E3F' : '#253559';
-
-  grid.innerHTML = skills.map(sk => {
-    const levelId = `${courseId}_${sk.id}`;
-    const data = getLevel(levelId) || { lessons: [] };
-    const questionCount = data.lessons.reduce((s, l) => s + (l.quiz ? l.quiz.length : 0), 0);
-    return `
-      <article class="folder level-card" style="--tab-color:${tabColor}" data-open-level="${levelId}">
-        <div class="folder-tab"></div>
-        <div class="folder-body">
-          <span class="tag">${courseId.toUpperCase()}</span>
-          <h3 class="level-title">${sk.name}</h3>
-          <p class="level-sub">${data.lessons.length} ta dars · ${questionCount} ta test</p>
-        </div>
-      </article>
-    `;
-  }).join('');
-
-  switchView('admin-skills');
-}
-
-document.getElementById('adminGeLevelsGrid').addEventListener('click', (e) => {
   const card = e.target.closest('[data-open-level]');
-  if(card) openLevel(card.dataset.openLevel);
+  if(card) openLessonsView(card.dataset.openLevel);
 });
 
-document.getElementById('adminSkillsGrid').addEventListener('click', (e) => {
-  const card = e.target.closest('[data-open-level]');
-  if(card) openLevel(card.dataset.openLevel);
-});
+function openLessonsView(levelId){
+  state.activeLevelId = levelId;
+  const lvl = LEVELS.find(l => l.id === levelId);
+  const data = getLevel(levelId);
 
-document.getElementById('backToCoursesFromGe').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('levels');
-  renderLevelsOverview();
-});
-
-document.getElementById('backToLevelsFromSkills').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('levels');
-  renderLevelsOverview();
-});
-
-const viewLevels = document.getElementById('view-levels');
-const viewLessons = document.getElementById('view-lessons');
-const viewStudents = document.getElementById('view-students');
-const lessonList = document.getElementById('lessonList');
-
-function openLevel(id){
-  state.activeLevelId = id;
-  const lvl = LEVELS.find(l => l.id === id);
-  const data = getLevel(id);
-
-  document.getElementById('lessonsLevelName').textContent = lvl.name;
+  document.getElementById('lessonsLevelName').textContent = lvl ? lvl.name : 'Darslar';
   document.getElementById('lessonsLevelSub').textContent = `${data.lessons.length} ta dars`;
 
-  if(data.lessons.length === 0){
-    lessonList.innerHTML = `
-      <div class="empty-state">
-        <h3>Bu yo'nalishda hali dars yo‘q</h3>
-        <p>“Yangi dars qo‘shish” tugmasini bosib birinchi darsni yarating.</p>
-      </div>`;
+  const backBtn = document.getElementById('backToLevels');
+  if (lvl && lvl.course !== 'general') {
+    backBtn.textContent = '← Bo‘limlarga qaytish';
   } else {
-    lessonList.innerHTML = data.lessons.map((lesson, i) => `
-      <div class="lesson-row">
-        <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
-        <div class="lesson-main">
-          <div class="lesson-row-top">
-            <span class="lesson-title">${escapeHtml(lesson.title || 'Nomsiz dars')}</span>
-            <div class="lesson-actions">
-              <button class="btn btn-ghost btn-sm" data-move-lesson="up" data-lesson-id="${lesson.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-              <button class="btn btn-ghost btn-sm" data-move-lesson="down" data-lesson-id="${lesson.id}" ${i === data.lessons.length - 1 ? 'disabled' : ''}>↓</button>
-              <button class="btn btn-ghost btn-sm" data-edit-lesson="${lesson.id}">Tahrirlash</button>
-              <button class="btn btn-danger btn-sm" data-delete-lesson="${lesson.id}">O‘chirish</button>
-            </div>
-          </div>
-          <div class="lesson-meta">
-            <span class="tag">${(lesson.quiz || []).length} ta test savoli</span>
-            ${lesson.video ? '<span class="tag">🎬 Video bor</span>' : ''}
-            ${lesson.material ? '<span class="tag">📎 Material bor</span>' : ''}
-            ${lesson.homework ? '<span class="tag">📝 Uy vazifasi bor</span>' : ''}
-            ${lesson.homeworkAnswer ? '<span class="tag">✅ Javoblar bor</span>' : ''}
-          </div>
-        </div>
-      </div>`).join('');
+    backBtn.textContent = '← Darajalarga qaytish';
   }
 
+  const lessonList = document.getElementById('lessonList');
+  if(data.lessons.length === 0){
+    lessonList.innerHTML = `<div class="empty-state"><h3>Ushbu yo'nalishga hali dars qo‘shilmagan</h3><p>Tez orada darslar joylanadi.</p></div>`;
+  } else {
+    lessonList.innerHTML = data.lessons.map((lesson, i) => {
+      const unlocked = isLessonUnlocked(levelId, i);
+      const progress = getLessonProgress(levelId, lesson.id);
+      return `
+        <div class="lesson-row ${unlocked ? 'is-clickable' : 'lesson-locked'}" ${unlocked ? `data-open-lesson="${lesson.id}"` : ''}>
+          <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
+          <div class="lesson-main">
+            <div class="lesson-row-top">
+              <span class="lesson-title ${unlocked ? '' : 'placeholder'}">${unlocked ? escapeHtml(lesson.title || 'Nomsiz dars') : '🔒 ' + (lesson.title || 'Nomsiz dars')}</span>
+              ${progress.bestScore != null ? `<span class="lesson-score">Eng yaxshi natija: ${progress.bestScore}%</span>` : ''}
+            </div>
+            <div class="lesson-meta">
+              ${progress.passed ? '<span class="status-pill" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Yakunlangan ✓</span>' : (unlocked ? '<span class="status-pill" style="background:var(--paper-2); color:var(--gray);">Boshlanmagan</span>' : '<span class="status-pill" style="background:var(--paper-2); color:var(--gray);">Qulflangan</span>')}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  }
   switchView('lessons');
 }
 
-function closeLevel(){
-  state.activeLevelId = null;
-  switchView('levels');
-  renderLevelsOverview();
-}
-
-function switchView(view){
-  viewLevels.hidden = view !== 'levels';
-  viewLessons.hidden = view !== 'lessons';
-  viewStudents.hidden = view !== 'students';
-  document.getElementById('view-site-settings').hidden = view !== 'site-settings';
-  document.getElementById('view-admin-writing').hidden = view !== 'admin-writing';
-  document.getElementById('view-admin-ge-levels').hidden = view !== 'admin-ge-levels';
-  document.getElementById('view-admin-skills').hidden = view !== 'admin-skills';
-  
-  document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons' || view === 'admin-ge-levels' || view === 'admin-skills');
-  document.getElementById('navStudents').classList.toggle('active', view === 'students');
-  document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
-  document.getElementById('navWriting').classList.toggle('active', view === 'admin-writing');
-}
+document.getElementById('lessonList').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-open-lesson]');
+  if(row) openLessonDetail(row.dataset.openLesson);
+});
 
 document.getElementById('backToLevels').addEventListener('click', (e) => {
   e.preventDefault();
   const lvl = LEVELS.find(l => l.id === state.activeLevelId);
-  if (lvl) {
-    if (lvl.course === 'general') {
-      openGeneralEnglishLevelsView();
-    } else {
-      openAdminSkillsView(lvl.course);
-    }
+  if(lvl && lvl.course !== 'general'){
+    openSkillsView(lvl.course);
   } else {
-    switchView('levels');
-    renderLevelsOverview();
+    openLevelsView();
   }
 });
 
-document.getElementById('navLevels').addEventListener('click', (e) => {
-  e.preventDefault();
-  state.activeLevelId = null;
-  switchView('levels');
-  renderLevelsOverview();
-});
-
-document.getElementById('navStudents').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('students');
-  renderStudents();
-});
-document.getElementById('navSiteSettings').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('site-settings');
-  loadSiteSettingsForm();
-});
-
-function openModal(id){ document.getElementById(id).hidden = false; }
-function closeModal(id){ document.getElementById(id).hidden = true; }
-
-document.querySelectorAll('[data-close-modal]').forEach(btn => {
-  btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
-});
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.hidden = true; });
-});
-
-let toastTimer = null;
-function showToast(msg, isError = false){
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.toggle('toast-error', isError);
-  toast.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+function getCurrentLesson(){
+  return getLevel(state.activeLevelId).lessons.find(l => l.id === state.activeLessonId);
 }
 
-// ---------- Quiz editor ----------
+async function openLessonDetail(lessonId){
+  state.activeLessonId = lessonId;
+  const lesson = getCurrentLesson();
+  const progress = getLessonProgress(state.activeLevelId, lessonId);
+  const hasQuiz = lesson.quiz && lesson.quiz.length > 0;
 
-const quizEditor = document.getElementById('quizEditor');
-
-function renderQuizEditor(){
-  if(state.quizDraft.length === 0){
-    quizEditor.innerHTML = `<p class="quiz-empty">Hali savol qo‘shilmagan.</p>`;
-    return;
+  if(!hasQuiz && !progress.passed){
+    await saveProgress(state.activeLevelId, lessonId, true, null);
   }
-  quizEditor.innerHTML = state.quizDraft.map((q, qi) => `
-    <div class="quiz-question-block" data-qindex="${qi}">
-      <div class="quiz-question-head">
-        <span class="quiz-question-num">Savol №${qi + 1}</span>
-        <button type="button" class="btn btn-ghost btn-sm" data-remove-question="${qi}">O‘chirish</button>
+
+  const box = document.getElementById('lessonDetailBox');
+  box.innerHTML = `
+    <h1>${escapeHtml(lesson.title || 'Nomsiz dars')}</h1>
+    ${lesson.topicText ? `<div class="rich-content" style="margin-top:.8em;">${lesson.topicText}</div>` : ''}
+    <div class="lesson-detail-links">
+      ${lesson.video ? `<a href="${escapeHtml(lesson.video)}" target="_blank" rel="noopener">🎬 Video darsni ko‘rish</a>` : ''}
+      ${lesson.material ? `<a href="${escapeHtml(lesson.material)}" target="_blank" rel="noopener">📎 Materialni ko‘rish</a>` : ''}
+    </div>
+    ${hasQuiz
+      ? `<button type="button" class="btn btn-amber" id="startQuizBtn">${getLessonProgress(state.activeLevelId, lessonId).passed ? 'Testni qayta ishlash' : 'Testni boshlash'}</button>
+         ${getLessonProgress(state.activeLevelId, lessonId).bestScore != null ? `<p class="lesson-score" style="margin-top:.8em;">Eng yaxshi natijangiz: ${getLessonProgress(state.activeLevelId, lessonId).bestScore}%</p>` : ''}`
+      : `<p class="quiz-empty">Bu darsda test yo‘q — dars ochilishi bilan keyingi dars avtomatik ochildi.</p>`}
+    ${lesson.homework ? `
+    <div class="homework-block">
+      <button type="button" class="btn btn-ghost" id="toggleHomeworkBtn">📝 Uy vazifa</button>
+      <div class="homework-content rich-content" id="homeworkContent" hidden>
+        ${lesson.homework}
+        ${lesson.homeworkAnswer ? `
+        <div class="homework-answer-area">
+          <button type="button" class="btn btn-teal btn-sm" id="toggleAnswerBtn">✅ Javoblar</button>
+          <div class="homework-answer-content rich-content" id="homeworkAnswerContent" hidden>${lesson.homeworkAnswer}</div>
+        </div>` : ''}
       </div>
-      <input type="text" class="quiz-q-text" data-qfield="question" placeholder="Savol matni" value="${escapeHtml(q.question)}">
-      <div class="quiz-options">
-        ${q.options.map((opt, oi) => `
-          <div class="quiz-option-row">
-            <input type="radio" name="correct-${qi}" data-qfield="correct" value="${oi}" ${q.correctIndex === oi ? 'checked' : ''}>
-            <input type="text" data-qfield="option-${oi}" placeholder="Variant ${String.fromCharCode(65 + oi)}" value="${escapeHtml(opt)}">
-          </div>`).join('')}
-      </div>
+    </div>` : ''}
+  `;
+  const startBtn = document.getElementById('startQuizBtn');
+  if(startBtn) startBtn.addEventListener('click', () => openQuiz(state.activeLevelId, lessonId));
+
+  const hwBtn = document.getElementById('toggleHomeworkBtn');
+  if(hwBtn){
+    hwBtn.addEventListener('click', () => {
+      const content = document.getElementById('homeworkContent');
+      content.hidden = !content.hidden;
+      hwBtn.textContent = content.hidden ? '📝 Uy vazifa' : '📝 Uy vazifani yashirish';
+    });
+  }
+  const ansBtn = document.getElementById('toggleAnswerBtn');
+  if(ansBtn){
+    ansBtn.addEventListener('click', () => {
+      const content = document.getElementById('homeworkAnswerContent');
+      content.hidden = !content.hidden;
+      ansBtn.textContent = content.hidden ? '✅ Javoblar' : '✅ Javoblarni yashirish';
+    });
+  }
+
+  switchView('lesson-detail');
+}
+
+document.getElementById('backToLessons').addEventListener('click', (e) => { e.preventDefault(); openLessonsView(state.activeLevelId); });
+
+function openQuiz(levelId, lessonId){
+  state.lastQuizContext = { levelId, lessonId };
+  const lesson = getLevel(levelId).lessons.find(l => l.id === lessonId);
+  document.getElementById('quizTitle').textContent = `Test — ${lesson.title || 'Nomsiz dars'}`;
+  document.getElementById('quizQuestions').innerHTML = lesson.quiz.map((q, qi) => `
+    <div class="quiz-question">
+      <div class="quiz-question-title">${qi + 1}. ${escapeHtml(q.question)}</div>
+      ${q.options.map((opt, oi) => `
+        <label class="quiz-option">
+          <input type="radio" name="quiz-q-${qi}" value="${oi}">
+          <span>${escapeHtml(opt)}</span>
+        </label>`).join('')}
     </div>`).join('');
+  updateQuizProgress();
+  switchView('quiz');
 }
 
-function syncQuizDraftFromDOM(){
-  document.querySelectorAll('#quizEditor .quiz-question-block').forEach(block => {
-    const qi = Number(block.dataset.qindex);
-    if(!state.quizDraft[qi]) return;
-    state.quizDraft[qi].question = block.querySelector('[data-qfield="question"]').value.trim();
-    state.quizDraft[qi].options = [0, 1, 2, 3].map(oi => block.querySelector(`[data-qfield="option-${oi}"]`).value.trim());
-    const checked = block.querySelector('[data-qfield="correct"]:checked');
-    state.quizDraft[qi].correctIndex = checked ? Number(checked.value) : 0;
+function updateQuizProgress(){
+  const { levelId, lessonId } = state.lastQuizContext;
+  const lesson = getLevel(levelId).lessons.find(l => l.id === lessonId);
+  const answered = lesson.quiz.filter((q, qi) => document.querySelector(`input[name="quiz-q-${qi}"]:checked`)).length;
+  document.getElementById('quizProgress').textContent = `${answered} / ${lesson.quiz.length} savolga javob berildi`;
+}
+
+document.getElementById('quizQuestions').addEventListener('change', (e) => {
+  if(e.target.matches('input[type="radio"]')) updateQuizProgress();
+});
+
+document.getElementById('backToLessonFromQuiz').addEventListener('click', (e) => {
+  e.preventDefault();
+  openLessonDetail(state.lastQuizContext.lessonId);
+});
+
+document.getElementById('submitQuizBtn').addEventListener('click', async () => {
+  const { levelId, lessonId } = state.lastQuizContext;
+  const lesson = getLevel(levelId).lessons.find(l => l.id === lessonId);
+
+  let answered = 0, correct = 0;
+  lesson.quiz.forEach((q, qi) => {
+    const checked = document.querySelector(`input[name="quiz-q-${qi}"]:checked`);
+    if(checked){
+      answered++;
+      if(Number(checked.value) === q.correctIndex) correct++;
+    }
   });
+
+  if(answered < lesson.quiz.length){
+    alert('Iltimos, barcha savollarga javob bering.');
+    return;
+  }
+
+  const scorePct = Math.round((correct / lesson.quiz.length) * 100);
+  const passed = scorePct >= PASS_PERCENT;
+  await saveProgress(levelId, lessonId, passed, scorePct);
+  renderQuizResult(scorePct, passed);
+});
+
+function renderQuizResult(scorePct, passed){
+  document.getElementById('quizResultBox').innerHTML = `
+    <p class="eyebrow">Natija</p>
+    <div class="quiz-result-score ${passed ? 'quiz-result-pass' : 'quiz-result-fail'}">${scorePct}%</div>
+    <p>${passed ? `Tabriklaymiz! Siz testni muvaffaqiyatli topshirdingiz (kamida ${PASS_PERCENT}% kerak edi) — keyingi dars ochildi.` : `Afsuski, test o‘tmadi (kamida ${PASS_PERCENT}% kerak). Darsni qayta ko‘rib, testni qayta ishlab ko‘ring.`}</p>
+    <div class="quiz-result-actions">
+      ${!passed ? `<button type="button" class="btn btn-amber" id="retryQuizBtn">Qayta urinish</button>` : ''}
+      <button type="button" class="btn btn-ghost" id="backToLessonsFromResultBtn">Darslar ro‘yxatiga qaytish</button>
+    </div>
+  `;
+  const retryBtn = document.getElementById('retryQuizBtn');
+  if(retryBtn) retryBtn.addEventListener('click', () => openQuiz(state.lastQuizContext.levelId, state.lastQuizContext.lessonId));
+  document.getElementById('backToLessonsFromResultBtn').addEventListener('click', () => openLessonsView(state.lastQuizContext.levelId));
+  switchView('quiz-result');
 }
 
-document.getElementById('addQuestionBtn').addEventListener('click', () => {
-  syncQuizDraftFromDOM();
-  state.quizDraft.push({ question: '', options: ['', '', '', ''], correctIndex: 0 });
-  renderQuizEditor();
-});
+// ============ WRITING LOGIC ============
 
-quizEditor.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-remove-question]');
-  if(!btn) return;
-  syncQuizDraftFromDOM();
-  state.quizDraft.splice(Number(btn.dataset.removeQuestion), 1);
-  renderQuizEditor();
-});
-
-document.getElementById('openAddLesson').addEventListener('click', () => {
-  state.activeLessonId = null;
-  state.quizDraft = [];
-  document.getElementById('lessonModalTitle').textContent = 'Yangi dars';
-  document.getElementById('editLessonForm').reset();
-  setRteValue('lessonTopicText', '');
-  setRteValue('lessonHomework', '');
-  setRteValue('lessonHomeworkAnswer', '');
-  renderQuizEditor();
-  openModal('modalEditLesson');
-});
-
-lessonList.addEventListener('click', (e) => {
-  const editBtn = e.target.closest('[data-edit-lesson]');
-  if(editBtn){
-    const lesson = getLevel(state.activeLevelId).lessons.find(l => l.id === editBtn.dataset.editLesson);
-    if(!lesson) return;
-    state.activeLessonId = lesson.id;
-    state.quizDraft = JSON.parse(JSON.stringify(lesson.quiz || []));
-    document.getElementById('lessonModalTitle').textContent = 'Darsni tahrirlash';
-    document.getElementById('lessonTitle').value = lesson.title || '';
-    document.getElementById('lessonVideo').value = lesson.video || '';
-    document.getElementById('lessonMaterial').value = lesson.material || '';
-    setRteValue('lessonTopicText', lesson.topicText || '');
-    setRteValue('lessonHomework', lesson.homework || '');
-    setRteValue('lessonHomeworkAnswer', lesson.homeworkAnswer || '');
-    renderQuizEditor();
-    openModal('modalEditLesson');
-    return;
-  }
-
-  const delBtn = e.target.closest('[data-delete-lesson]');
-  if(delBtn){
-    const data = getLevel(state.activeLevelId);
-    const lesson = data.lessons.find(l => l.id === delBtn.dataset.deleteLesson);
-    if(lesson && confirm(`“${lesson.title || 'Nomsiz dars'}” darsini o‘chirmoqchimisiz?`)){
-      data.lessons = data.lessons.filter(l => l.id !== lesson.id);
-      db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons })
-        .then(() => { openLevel(state.activeLevelId); showToast('Dars o‘chirildi.'); });
-    }
-    return;
-  }
-
-  const moveBtn = e.target.closest('[data-move-lesson]');
-  if(moveBtn){
-    const data = getLevel(state.activeLevelId);
-    const idx = data.lessons.findIndex(l => l.id === moveBtn.dataset.lessonId);
-    const dir = moveBtn.dataset.moveLesson === 'up' ? -1 : 1;
-    const targetIdx = idx + dir;
-    if(targetIdx < 0 || targetIdx >= data.lessons.length) return;
-    [data.lessons[idx], data.lessons[targetIdx]] = [data.lessons[targetIdx], data.lessons[idx]];
-    db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons })
-      .then(() => openLevel(state.activeLevelId));
-    return;
-  }
-});
-
-document.getElementById('editLessonForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  syncQuizDraftFromDOM();
-
-  const cleanedQuiz = state.quizDraft
-    .filter(q => q.question.trim() !== '')
-    .map(q => ({
-      question: q.question.trim(),
-      options: q.options.map(o => o.trim()),
-      correctIndex: q.correctIndex
-    }));
-
-  for(const q of cleanedQuiz){
-    if(q.options.some(o => o === '')){
-      showToast('Har bir savolning barcha variantlari to‘ldirilishi kerak.', true);
-      return;
-    }
-  }
-
-  const data = getLevel(state.activeLevelId);
-  const lessonData = {
-    title: document.getElementById('lessonTitle').value.trim(),
-    video: document.getElementById('lessonVideo').value.trim(),
-    material: document.getElementById('lessonMaterial').value.trim(),
-    topicText: getRteValue('lessonTopicText'),
-    homework: getRteValue('lessonHomework'),
-    homeworkAnswer: getRteValue('lessonHomeworkAnswer'),
-    quiz: cleanedQuiz
-  };
-
-  if(state.activeLessonId){
-    const idx = data.lessons.findIndex(l => l.id === state.activeLessonId);
-    data.lessons[idx] = { id: state.activeLessonId, ...lessonData };
+document.getElementById('cardWriting').addEventListener('click', () => {
+  if (hasAccess('writing')) {
+    switchView('writing-courses');
   } else {
-    data.lessons.push({ id: 'lsn_' + Date.now(), ...lessonData });
+    openWritingPaymentView();
   }
-
-  await db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons });
-  closeModal('modalEditLesson');
-  openLevel(state.activeLevelId);
-  showToast('Dars saqlandi.');
 });
 
-// ---------- Students: render ----------
+document.getElementById('cardWritingCefr').addEventListener('click', () => {
+  state.writingActiveCourse = 'cefr';
+  openWritingPartsView();
+});
 
-const STATUS_LABELS = {
-  none: '<span class="tag">To‘lov yo‘q</span>',
-  pending: '<span class="tag" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">Kutilmoqda</span>',
-  approved: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Tasdiqlangan ✓</span>'
-};
+document.getElementById('cardWritingIelts').addEventListener('click', () => {
+  state.writingActiveCourse = 'ielts';
+  openWritingPartsView();
+});
 
-function renderStudents(){
-  const tbody = document.getElementById('studentsTableBody');
-  const empty = document.getElementById('studentsEmpty');
-  if(state.students.length === 0){
-    tbody.innerHTML = '';
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
-  tbody.innerHTML = state.students.map(s => {
-    let displayStatus = STATUS_LABELS[s.paymentStatus || 'none'];
-    if (s.isFree === true) {
-      displayStatus = '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">VIP / Bepul ✓</span>';
-    }
-    return `
-      <tr>
-        <td>${escapeHtml(s.name)}</td>
-        <td>${escapeHtml(s.email)}</td>
-        <td>${displayStatus}</td>
-        <td>${s.createdAt ? new Date(s.createdAt).toLocaleDateString('uz-UZ') : '—'}</td>
-        <td><button class="btn btn-ghost btn-sm" data-student-detail="${s.id}">Ko‘rish</button></td>
-      </tr>
-    `;
-  }).join('');
-}
-
-// ============ ADMIN WRITING SYSTEM ============
-
-const writingTaskCourseSelect = document.getElementById('writingTaskCourse');
-const writingTaskPartSelect = document.getElementById('writingTaskPart');
-
-function updatePartOptions() {
-  const course = writingTaskCourseSelect.value;
+function openWritingPartsView() {
+  const partsGrid = document.getElementById('writingPartsGrid');
+  const course = state.writingActiveCourse;
+  
+  document.getElementById('writingPartsTitle').textContent = course === 'cefr' ? 'CEFR Writing Bo\'limlari' : 'IELTS Writing Bo\'limlari';
+  
+  let parts = [];
   if (course === 'cefr') {
-    writingTaskPartSelect.innerHTML = `
-      <option value="part1_1">Part 1.1</option>
-      <option value="part1_2">Part 1.2</option>
-      <option value="part2">Part 2</option>
-    `;
+    parts = [
+      { id: 'part1_1', name: 'Part 1.1', desc: 'Sodda yozma savollar va elektron maktub mashqlari.' },
+      { id: 'part1_2', name: 'Part 1.2', desc: 'Interaktiv yoki qisqa matn yaratish mashqlari.' },
+      { id: 'part2', name: 'Part 2', desc: 'Insho yozish (Opinions, Discursive Essay) mashqlari.' }
+    ];
   } else {
-    writingTaskPartSelect.innerHTML = `
-      <option value="task1">Task 1</option>
-      <option value="task2">Task 2</option>
-    `;
+    parts = [
+      { id: 'task1', name: 'Task 1', desc: 'Academic Report (Graph, Chart, Map) / General Letter' },
+      { id: 'task2', name: 'Task 2', desc: 'Essay Writing (Agree/Disagree, Discussion, Advantages/Disadvantages)' }
+    ];
   }
+  
+  partsGrid.innerHTML = parts.map(p => `
+    <article class="folder level-card" style="--tab-color:#2E6F6E" data-open-writing-part="${p.id}">
+      <div class="folder-tab"></div>
+      <div class="folder-body">
+        <span class="tag">${course.toUpperCase()}</span>
+        <h3 class="level-title">${p.name}</h3>
+        <p class="level-sub">${p.desc}</p>
+      </div>
+    </article>
+  `).join('');
+  
+  switchView('writing-parts');
 }
-writingTaskCourseSelect.addEventListener('change', updatePartOptions);
-updatePartOptions();
 
-const btnTabSubmissions = document.getElementById('btnTabSubmissions');
-const btnTabTasks = document.getElementById('btnTabTasks');
-const writingTabSubmissions = document.getElementById('writingTabSubmissions');
-const writingTabTasks = document.getElementById('writingTabTasks');
-
-btnTabSubmissions.addEventListener('click', () => {
-  btnTabSubmissions.className = 'btn btn-primary';
-  btnTabTasks.className = 'btn btn-ghost';
-  writingTabSubmissions.hidden = false;
-  writingTabTasks.hidden = true;
-  loadAdminSubmissions();
+document.getElementById('writingPartsGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-open-writing-part]');
+  if(card) openWritingTasksView(card.dataset.openWritingPart);
 });
 
-btnTabTasks.addEventListener('click', () => {
-  btnTabSubmissions.className = 'btn btn-ghost';
-  btnTabTasks.className = 'btn btn-primary';
-  writingTabSubmissions.hidden = true;
-  writingTabTasks.hidden = false;
-  loadAdminWritingTasks();
-});
-
-document.getElementById('navWriting').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('admin-writing');
-  loadAdminSubmissions();
-});
-
-async function loadAdminSubmissions() {
-  const tbody = document.getElementById('writingSubmissionsTableBody');
-  const empty = document.getElementById('writingSubmissionsEmpty');
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:2em; color:var(--gray);">Yuklanmoqda...</td></tr>';
+async function openWritingTasksView(partId) {
+  state.writingActivePart = partId;
+  const course = state.writingActiveCourse;
+  
+  const displayPartName = partId === 'part1_1' ? 'Part 1.1' :
+                          partId === 'part1_2' ? 'Part 1.2' :
+                          partId === 'part2' ? 'Part 2' :
+                          partId === 'task1' ? 'Task 1' : 'Task 2';
+                          
+  document.getElementById('writingTasksTitle').textContent = `${course.toUpperCase()} - ${displayPartName} Vazifalari`;
+  
+  const taskList = document.getElementById('writingTaskList');
+  taskList.innerHTML = '<div style="text-align:center; padding:2em; color:var(--gray);">Yuklanmoqda...</div>';
+  
+  switchView('writing-tasks');
   
   try {
-    const snap = await db.collection('writing_submissions')
-      .orderBy('submittedAt', 'desc')
+    const snap = await db.collection('writing_tasks')
+      .where('course', '==', course)
+      .where('part', '==', partId)
       .get();
       
     if (snap.empty) {
-      tbody.innerHTML = '';
-      empty.style.display = 'block';
-      return;
-    }
-    
-    empty.style.display = 'none';
-    tbody.innerHTML = snap.docs.map(doc => {
-      const s = doc.data();
-      const submissionId = doc.id;
-      const formattedDate = s.submittedAt ? new Date(s.submittedAt).toLocaleDateString('uz-UZ') + ' ' + new Date(s.submittedAt).toLocaleTimeString('uz-UZ', {hour:'2-digit', minute:'2-digit'}) : '—';
+      taskList.innerHTML = `<div class="empty-state"><h3>Ushbu bo'limda hozircha vazifalar yo'q</h3><p>Tez orada admin tomonidan yangi vazifalar qo'shiladi.</p></div>`;
+    } else {
+      const tasks = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       
-      let statusLabel = '<span class="tag" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">Topshirildi</span>';
-      let actionBtnText = 'Tekshirish';
-      if (s.status === 'graded') {
-        statusLabel = '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Baholandi ✓</span>';
-        actionBtnText = 'Qayta tekshirish';
-      }
+      const subSnap = await db.collection('writing_submissions')
+        .where('studentUid', '==', currentUid)
+        .where('course', '==', course)
+        .where('part', '==', partId)
+        .get();
+        
+      const subMap = {};
+      subSnap.forEach(doc => {
+        const d = doc.data();
+        subMap[d.taskId] = d;
+      });
       
-      const displayPartName = s.part === 'part1_1' ? 'Part 1.1' :
-                              s.part === 'part1_2' ? 'Part 1.2' :
-                              s.part === 'part2' ? 'Part 2' :
-                              s.part === 'task1' ? 'Task 1' : 'Task 2';
-                              
-      return `
-        <tr>
-          <td><strong>${escapeHtml(s.studentName)}</strong><br><span style="font-size:0.75rem; color:var(--gray);">${escapeHtml(s.studentEmail)}</span></td>
-          <td><span class="tag">${s.course.toUpperCase()}</span> ${displayPartName}</td>
-          <td>${escapeHtml(s.taskTitle)}</td>
-          <td>${formattedDate}</td>
-          <td>${statusLabel}</td>
-          <td><button class="btn btn-ghost btn-sm" data-review-submission="${submissionId}">${actionBtnText}</button></td>
-        </tr>
-      `;
-    }).join('');
-  } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="6" class="form-error">Yuklashda xatolik: ${err.message}</td></tr>`;
-  }
-}
-
-document.getElementById('writingSubmissionsTableBody').addEventListener('click', async (e) => {
-  const btn = e.target.closest('[data-review-submission]');
-  if (!btn) return;
-  
-  const subId = btn.dataset.reviewSubmission;
-  currentReviewSubmissionId = subId;
-  
-  try {
-    const subDoc = await db.collection('writing_submissions').doc(subId).get();
-    if (!subDoc.exists) return;
-    const s = subDoc.data();
-    
-    document.getElementById('reviewStudentName').textContent = s.studentName;
-    
-    const displayPartName = s.part === 'part1_1' ? 'Part 1.1' :
-                            s.part === 'part1_2' ? 'Part 1.2' :
-                            s.part === 'part2' ? 'Part 2' :
-                            s.part === 'task1' ? 'Task 1' : 'Task 2';
-    document.getElementById('reviewStudentMeta').textContent = `${s.course.toUpperCase()} - ${displayPartName}`;
-    document.getElementById('reviewTaskTitle').textContent = s.taskTitle;
-    document.getElementById('reviewEssayText').textContent = s.essayText;
-    
-    const essayText = s.essayText.trim();
-    const words = essayText === '' ? 0 : essayText.split(/\s+/).length;
-    document.getElementById('reviewWordCount').textContent = `${words} ta so'z`;
-    
-    document.getElementById('reviewGrade').value = s.grade || '';
-    setRteValue('reviewFeedback', s.feedback || '');
-    
-    openModal('modalReviewSubmission');
-  } catch (err) {
-    alert('Yuklashda xatolik: ' + err.message);
-  }
-});
-
-document.getElementById('reviewGradingForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (!currentReviewSubmissionId) return;
-  
-  const grade = document.getElementById('reviewGrade').value.trim();
-  const feedback = getRteValue('reviewFeedback');
-  
-  if (grade === '' || feedback === '') {
-    showToast('Iltimos, baho va feedbackni to\'liq kiriting!', true);
-    return;
-  }
-  
-  const submitBtn = e.target.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Yuborilmoqda...';
-  
-  try {
-    await db.collection('writing_submissions').doc(currentReviewSubmissionId).update({
-      grade: grade,
-      feedback: feedback,
-      status: 'graded',
-      gradedAt: Date.now()
-    });
-    
-    closeModal('modalReviewSubmission');
-    loadAdminSubmissions();
-    showToast('Feedback va baho muvaffaqiyatli yuborildi!');
-  } catch (err) {
-    showToast('Saqlashda xatolik: ' + err.message, true);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Tasdiqlash va Yuborish';
-  }
-});
-
-document.getElementById('addWritingTaskForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const course = document.getElementById('writingTaskCourse').value;
-  const part = document.getElementById('writingTaskPart').value;
-  const title = document.getElementById('writingTaskTitle').value.trim();
-  const prompt = getRteValue('writingTaskPrompt');
-  
-  if (title === '' || prompt === '') {
-    showToast('Iltimos, sarlavha va savol matnini to\'ldiring!', true);
-    return;
-  }
-  
-  const submitBtn = e.target.querySelector('button[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Yaratilmoqda...';
-  
-  try {
-    const taskId = 'wt_' + Date.now();
-    await db.collection('writing_tasks').doc(taskId).set({
-      course: course,
-      part: part,
-      title: title,
-      prompt: prompt,
-      createdAt: Date.now()
-    });
-    
-    document.getElementById('writingTaskTitle').value = '';
-    setRteValue('writingTaskPrompt', '');
-    
-    loadAdminWritingTasks();
-    showToast('Yangi Writing vazifa yaratildi!');
-  } catch (err) {
-    showToast('Xatolik: ' + err.message, true);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Vazifani yaratish';
-  }
-});
-
-async function loadAdminWritingTasks() {
-  const taskList = document.getElementById('adminWritingTaskList');
-  taskList.innerHTML = '<div style="color:var(--gray); font-size:0.9rem;">Yuklanmoqda...</div>';
-  
-  try {
-    const snap = await db.collection('writing_tasks').orderBy('createdAt', 'desc').get();
-    if (snap.empty) {
-      taskList.innerHTML = '<div style="color:var(--gray); font-size:0.9rem; font-style:italic;">Hali birorta ham vazifa yaratilmagan.</div>';
-      return;
-    }
-    
-    taskList.innerHTML = snap.docs.map(doc => {
-      const t = doc.data();
-      const taskId = doc.id;
-      
-      const displayPartName = t.part === 'part1_1' ? 'Part 1.1' :
-                              t.part === 'part1_2' ? 'Part 1.2' :
-                              t.part === 'part2' ? 'Part 2' :
-                              t.part === 'task1' ? 'Task 1' : 'Task 2';
-                              
-      return `
-        <div class="lesson-row" style="padding:0.9em 1.1em; background:var(--white);">
-          <div style="flex:1;">
-            <div style="display:flex; gap:0.5em; align-items:center; flex-wrap:wrap;">
-              <span class="tag" style="background:var(--paper-3);">${t.course.toUpperCase()} - ${displayPartName}</span>
-              <strong>${escapeHtml(t.title)}</strong>
+      taskList.innerHTML = tasks.map((t, i) => {
+        const sub = subMap[t.id];
+        let statusBadge = '<span class="status-pill status-kutilmoqda">Boshlanmagan</span>';
+        if (sub) {
+          if (sub.status === 'graded') {
+            statusBadge = `<span class="status-pill status-otildi" style="background:rgba(46,111,110,.14); color:var(--teal-deep);">Baholandi: ${escapeHtml(sub.grade)} ✓</span>`;
+          } else {
+            statusBadge = '<span class="status-pill status-tayyor" style="background:rgba(217,142,63,.16); color:var(--amber-deep);">Tekshirilmoqda</span>';
+          }
+        }
+        
+        return `
+          <div class="lesson-row is-clickable" data-open-writing-task="${t.id}">
+            <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
+            <div class="lesson-main">
+              <div class="lesson-row-top">
+                <span class="lesson-title">${escapeHtml(t.title)}</span>
+                ${sub && sub.status === 'graded' ? `<span class="lesson-score">Baho: ${escapeHtml(sub.grade)}</span>` : ''}
+              </div>
+              <div class="lesson-meta">
+                ${statusBadge}
+              </div>
             </div>
           </div>
-          <button type="button" class="btn btn-danger btn-sm" data-delete-writing-task="${taskId}">O'chirish</button>
-        </div>
-      `;
-    }).join('');
+        `;
+      }).join('');
+    }
   } catch (err) {
-    taskList.innerHTML = `<div class="form-error">Yuklashda xatolik: ${err.message}</div>`;
+    taskList.innerHTML = `<div class="form-error">Xatolik yuz berdi: ${err.message}</div>`;
   }
 }
 
-document.getElementById('adminWritingTaskList').addEventListener('click', async (e) => {
-  const btn = e.target.closest('[data-delete-writing-task]');
-  if (!btn) return;
+document.getElementById('writingTaskList').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-open-writing-task]');
+  if(row) openWritingEditorView(row.dataset.openWritingTask);
+});
+
+async function openWritingEditorView(taskId) {
+  state.writingActiveTaskId = taskId;
   
-  const taskId = btn.dataset.deleteWritingTask;
-  if (confirm('Ushbu vazifani o\'chirmoqchimisiz?')) {
-    try {
-      await db.collection('writing_tasks').doc(taskId).delete();
-      loadAdminWritingTasks();
-      showToast('Vazifa o\'chirildi.');
-    } catch (err) {
-      showToast('O\'chirishda xatolik: ' + err.message, true);
+  const textarea = document.getElementById('writingEssayTextarea');
+  textarea.value = '';
+  document.getElementById('writingWordCount').textContent = "0 so'z";
+  
+  document.getElementById('writingActiveSubmissionArea').hidden = true;
+  document.getElementById('writingSubmittedArea').hidden = true;
+  document.getElementById('writingGradedArea').hidden = true;
+  
+  switchView('writing-editor');
+  
+  try {
+    const taskDoc = await db.collection('writing_tasks').doc(taskId).get();
+    if (!taskDoc.exists) return;
+    const task = taskDoc.data();
+    state.writingActiveTask = task;
+    
+    document.getElementById('writingEditorTaskTitle').textContent = task.title;
+    document.getElementById('writingEditorTaskMeta').textContent = `${state.writingActiveCourse.toUpperCase()} Writing - ${state.writingActivePart.toUpperCase()}`;
+    document.getElementById('writingEditorPrompt').innerHTML = task.prompt;
+    
+    const subSnap = await db.collection('writing_submissions')
+      .where('studentUid', '==', currentUid)
+      .where('taskId', '==', taskId)
+      .limit(1)
+      .get();
+      
+    if (!subSnap.empty) {
+      const sub = subSnap.docs[0].data();
+      if (sub.status === 'graded') {
+        document.getElementById('writingGradedArea').hidden = false;
+        document.getElementById('writingGradeBadge').textContent = sub.grade;
+        document.getElementById('writingGradedAt').textContent = sub.gradedAt ? new Date(sub.gradedAt).toLocaleDateString('uz-UZ') + ' ' + new Date(sub.gradedAt).toLocaleTimeString('uz-UZ', {hour: '2-digit', minute:'2-digit'}) : '';
+        document.getElementById('writingFeedbackContent').innerHTML = sub.feedback;
+        document.getElementById('writingSavedGradedEssayText').textContent = sub.essayText;
+      } else {
+        document.getElementById('writingSubmittedArea').hidden = false;
+        document.getElementById('writingSavedEssayText').textContent = sub.essayText;
+      }
+    } else {
+      document.getElementById('writingActiveSubmissionArea').hidden = false;
     }
+  } catch (err) {
+    alert("Xatolik: " + err.message);
+  }
+}
+
+document.getElementById('writingEssayTextarea').addEventListener('input', (e) => {
+  const text = e.target.value.trim();
+  const words = text === '' ? 0 : text.split(/\s+/).length;
+  document.getElementById('writingWordCount').textContent = `${words} so'z`;
+});
+
+document.getElementById('submitWritingBtn').addEventListener('click', async () => {
+  const text = document.getElementById('writingEssayTextarea').value.trim();
+  if (text === '') {
+    alert('Iltimos, insho matnini yozing!');
+    return;
+  }
+  
+  if (!confirm('Inshoni yubormoqchimisiz? Yuborilgandan keyin uni tahrirlab bo\'lmaydi.')) {
+    return;
+  }
+  
+  const btn = document.getElementById('submitWritingBtn');
+  btn.disabled = true;
+  btn.textContent = 'Yuborilmoqda...';
+  
+  try {
+    const submissionId = `${currentUid}_${state.writingActiveTaskId}`;
+    await db.collection('writing_submissions').doc(submissionId).set({
+      studentUid: currentUid,
+      studentName: state.student.name || 'Nomsiz o\'quvchi',
+      studentEmail: state.student.email,
+      taskId: state.writingActiveTaskId,
+      taskTitle: state.writingActiveTask.title,
+      course: state.writingActiveCourse,
+      part: state.writingActivePart,
+      essayText: text,
+      status: 'submitted',
+      submittedAt: Date.now()
+    });
+    
+    await openWritingEditorView(state.writingActiveTaskId);
+  } catch (err) {
+    alert('Yuborishda xatolik yuz berdi: ' + err.message);
+    btn.disabled = false;
+    btn.textContent = 'Inshoni yuborish';
   }
 });
 
-// ---------- Student details & Payment & Free Switch logic ----------
-
-document.getElementById('studentsTableBody').addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-student-detail]');
-  if(!btn) return;
-  const student = state.students.find(s => s.id === btn.dataset.studentDetail);
-  if(!student) return;
-  state.detailStudentId = student.id;
-  document.getElementById('studentDetailName').textContent = student.name;
-  document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
-
-  const statusText = {
-    none: 'To‘lov yo‘q',
-    pending: 'Kutilmoqda (Skrinshotni tekshiring)',
-    approved: 'Tasdiqlangan'
-  };
-  document.getElementById('studentDetailStatus').innerHTML = `<strong>General/CEFR/IELTS:</strong> ${STATUS_LABELS[student.paymentStatus || 'none']} — ${statusText[student.paymentStatus || 'none']}`;
-  document.getElementById('studentDetailWritingStatus').innerHTML = `<strong>Writing bo'limi:</strong> ${STATUS_LABELS[student.writingPaymentStatus || 'none']} — ${statusText[student.writingPaymentStatus || 'none']}`;
-
-  // VIP / Free switch state
-  const freeToggle = document.getElementById('studentDetailFreeToggle');
-  freeToggle.checked = student.isFree === true;
-
-  // Toggle General Payment Button
-  const btnGeneral = document.getElementById('btnToggleGeneralPayment');
-  if (student.paymentStatus === 'approved') {
-    btnGeneral.textContent = 'Bekor qilish';
-    btnGeneral.className = 'btn btn-danger btn-sm';
-  } else {
-    btnGeneral.textContent = 'Tasdiqlash';
-    btnGeneral.className = 'btn btn-teal btn-sm';
-  }
-
-  // Toggle Writing Payment Button
-  const btnWriting = document.getElementById('btnToggleWritingPayment');
-  if (student.writingPaymentStatus === 'approved') {
-    btnWriting.textContent = 'Bekor qilish';
-    btnWriting.className = 'btn btn-danger btn-sm';
-  } else {
-    btnWriting.textContent = 'Tasdiqlash';
-    btnWriting.className = 'btn btn-teal btn-sm';
-  }
-
-  openModal('modalStudentDetail');
-});
-
-// Bepul / Free VIP Toggle Event
-document.getElementById('studentDetailFreeToggle').addEventListener('change', async (e) => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  const isFree = e.target.checked;
-  await db.collection('students').doc(student.id).update({ isFree });
-  student.isFree = isFree;
-  showToast(isFree ? `“${student.name}” VIP (bepul) rejimiga o‘tkazildi.` : 'VIP rejim bekor qilindi.');
-});
-
-// Toggle General Payment
-document.getElementById('btnToggleGeneralPayment').addEventListener('click', async () => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  const newStatus = student.paymentStatus === 'approved' ? 'none' : 'approved';
-  if(newStatus === 'none' && !confirm(`“${student.name}” uchun General English, CEFR va IELTS darslari ruxsatini bekor qilmoqchimisiz?`)) return;
-
-  await db.collection('students').doc(student.id).update({ paymentStatus: newStatus });
-  student.paymentStatus = newStatus;
-  closeModal('modalStudentDetail');
-  renderStudents();
-  showToast(newStatus === 'approved' ? `“${student.name}” uchun kurs ochildi.` : 'Tasdiq bekor qilindi.');
-});
-
-// Toggle Writing Payment
-document.getElementById('btnToggleWritingPayment').addEventListener('click', async () => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  const newStatus = student.writingPaymentStatus === 'approved' ? 'none' : 'approved';
-  if(newStatus === 'none' && !confirm(`“${student.name}” uchun Writing bo'limi ruxsatini bekor qilmoqchimisiz?`)) return;
-
-  await db.collection('students').doc(student.id).update({ writingPaymentStatus: newStatus });
-  student.writingPaymentStatus = newStatus;
-  closeModal('modalStudentDetail');
-  renderStudents();
-  showToast(newStatus === 'approved' ? `“${student.name}” uchun Writing bo'limi ochildi.` : 'Writing tasdig‘i bekor qilindi.');
-});
-
-document.getElementById('deleteStudentBtn').addEventListener('click', async () => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  if(confirm(`“${student.name}” hisobini o‘chirmoqchimisiz? Uning Firestore yozuvi o‘chiriladi.`)){
-    await db.collection('students').doc(student.id).delete();
-    state.students = state.students.filter(s => s.id !== student.id);
-    closeModal('modalStudentDetail');
-    renderStudents();
-    showToast('O‘quvchi o‘chirildi.');
-  }
-});
-
-document.getElementById('openAddStudent').addEventListener('click', () => {
-  document.getElementById('addStudentForm').reset();
-  document.getElementById('addStudentError').hidden = true;
-  openModal('modalAddStudent');
-});
-
-document.getElementById('addStudentForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const name = document.getElementById('newStudentName').value.trim();
-  const email = document.getElementById('newStudentEmail').value.trim();
-  const password = document.getElementById('newStudentPassword').value;
-  const errorEl = document.getElementById('addStudentError');
-  const submitBtn = document.getElementById('addStudentSubmit');
-  errorEl.hidden = true;
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Yaratilmoqda…';
-
-  try{
-    const secondaryAuth = getSecondaryAuth();
-    const cred = await secondaryAuth.createUserWithEmailAndPassword(email, password);
-    const uid = cred.user.uid;
-    await secondaryAuth.signOut();
-
-    const studentData = { name, email, paymentStatus: 'none', writingPaymentStatus: 'none', isFree: false, progress: {}, createdAt: Date.now() };
-    await db.collection('students').doc(uid).set(studentData);
-    state.students.unshift({ id: uid, ...studentData });
-
-    closeModal('modalAddStudent');
-    renderStudents();
-    showToast(`“${name}” uchun hisob yaratildi.`);
-  } catch(err){
-    let msg = 'Xatolik yuz berdi. Qayta urinib ko‘ring.';
-    if(err.code === 'auth/email-already-in-use') msg = 'Bu email allaqachon ro‘yxatdan o‘tgan.';
-    if(err.code === 'auth/weak-password') msg = 'Parol juda oddiy — kamida 6 belgi bo‘lsin.';
-    if(err.code === 'auth/invalid-email') msg = 'Email formati noto‘g‘ri.';
-    errorEl.textContent = msg;
-    errorEl.hidden = false;
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'O‘quvchi qo‘shish';
-  }
-});
+document.getElementById('backToCoursesFromWriting').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+document.getElementById('backToWritingCourses').addEventListener('click', (e) => { e.preventDefault(); switchView('writing-courses'); });
+document.getElementById('backToWritingParts').addEventListener('click', (e) => { e.preventDefault(); openWritingPartsView(); });
+document.getElementById('backToWritingTasks').addEventListener('click', (e) => { e.preventDefault(); openWritingTasksView(state.writingActivePart); });
 </script>
 </body>
 </html>
