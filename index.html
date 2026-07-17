@@ -17,6 +17,7 @@
 :root{
   --ink:        #14213D;
   --ink-soft:   #253559;
+  --dark-bg:    #14213D;
   --paper:      #FFFFFF;
   --paper-2:    #F4F5F7;
   --paper-3:    #E9EAED;
@@ -177,7 +178,7 @@ img{ max-width:100%; display:block; }
 .brand-mark-custom::after{ content: none !important; }
 
 /* ---------- Footer ---------- */
-footer{ background: var(--ink); color: rgba(247,247,243,.75); padding: 3.5em 0 2em; margin-top: 6em; }
+footer{ background: var(--dark-bg); color: rgba(247,247,243,.75); padding: 3.5em 0 2em; margin-top: 6em; }
 footer .container{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:2em; }
 footer h4{ color: var(--paper); font-family: var(--font-body); font-size: .8rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom:1em; }
 footer a{ color: rgba(247,247,243,.75); text-decoration:none; }
@@ -206,14 +207,14 @@ footer a:hover{ color: var(--amber); }
   <div class="container">
     <a href="index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
     <ul class="nav-links">
-      <li><a href="#dasturlar">Dasturlar</a></li>
-      <li><a href="#jarayon">Qanday ishlaydi</a></li>
-      <li><a href="#natijalar">Natijalar</a></li>
-      <li><a href="#aloqa">Aloqa</a></li>
+      <li><a href="#dasturlar" data-site-nav-programs>Dasturlar</a></li>
+      <li><a href="#jarayon" data-site-nav-process>Qanday ishlaydi</a></li>
+      <li><a href="#natijalar" data-site-nav-results>Natijalar</a></li>
+      <li><a href="#aloqa" data-site-nav-contact>Aloqa</a></li>
     </ul>
     <div class="nav-actions">
-      <a href="student/login.html" class="nav-admin-link">O‘quvchi kirish</a>
-      <a href="student/register.html" class="btn btn-amber btn-sm">Ro‘yxatdan o‘tish</a>
+      <a href="student/login.html" class="nav-admin-link" data-site-nav-login>O‘quvchi kirish</a>
+      <a href="student/register.html" class="btn btn-amber btn-sm" data-site-nav-register>Ro‘yxatdan o‘tish</a>
     </div>
   </div>
 </nav>
@@ -372,13 +373,13 @@ footer a:hover{ color: var(--amber); }
       <p style="max-width:280px;margin-top:1em;" data-site-footer-description>Ingliz tilini papka-tizimi asosida, bosqichma-bosqich o‘rgatuvchi ta’lim markazi.</p>
     </div>
     <div>
-      <h4>Sahifa</h4>
-      <p><a href="#dasturlar">Dasturlar</a></p>
-      <p><a href="#jarayon">Qanday ishlaydi</a></p>
-      <p><a href="#natijalar">Natijalar</a></p>
+      <h4 data-site-footer-nav-title>Sahifa</h4>
+      <p><a href="#dasturlar" data-site-nav-programs>Dasturlar</a></p>
+      <p><a href="#jarayon" data-site-nav-process>Qanday ishlaydi</a></p>
+      <p><a href="#natijalar" data-site-nav-results>Natijalar</a></p>
     </div>
     <div>
-      <h4>Aloqa</h4>
+      <h4 data-site-footer-contact-title>Aloqa</h4>
       <p><a href="tel:+998900000000" data-site-footer-phone>+998 90 000 00 00</a></p>
       <p><a href="mailto:info@englishfolder.uz" data-site-footer-email>info@englishfolder.uz</a></p>
       <p data-site-footer-address>Toshkent, Chilonzor tumani</p>
@@ -447,9 +448,10 @@ footer a:hover{ color: var(--amber); }
 .testimonials p{ font-size: 1.02rem; color: var(--ink); }
 .testimonials cite{ font-style:normal; font-size:.82rem; color: var(--gray); }
 
-.section-cta{ background: var(--ink); color: var(--paper); text-align:center; }
+.section-cta{ background: var(--dark-bg); color: var(--paper); text-align:center; }
 .section-cta h2{ color: var(--paper); }
 .section-cta p{ color: rgba(247,247,243,.75); max-width: 46ch; margin: 0 auto 2em; }
+.section-cta + footer{ margin-top: 0; }
 .cta-inner{ max-width: 640px; }
 .cta-form{ display:flex; gap: .8em; flex-wrap:wrap; justify-content:center; }
 .cta-form input{

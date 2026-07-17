@@ -96,6 +96,9 @@
     if(data.colorBackground){
       root.setProperty('--paper', data.colorBackground);
     }
+    if(data.colorDark){
+      root.setProperty('--dark-bg', data.colorDark);
+    }
 
     if(data.brandName){
       document.querySelectorAll('[data-site-brand-name]').forEach(el => {
@@ -110,6 +113,14 @@
         el.innerHTML = `<img src="${escapeHtml(data.logoUrl)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;">`;
       });
     }
+
+    // Navigation (top nav + duplicate footer "Sahifa" links share the same labels)
+    setText('[data-site-nav-programs]', data.navProgramsLabel);
+    setText('[data-site-nav-process]', data.navProcessLabel);
+    setText('[data-site-nav-results]', data.navResultsLabel);
+    setText('[data-site-nav-contact]', data.navContactLabel);
+    setText('[data-site-nav-login]', data.navLoginLabel);
+    setText('[data-site-nav-register]', data.navRegisterLabel);
 
     // ---- Homepage-only fields (elements simply won't exist on other pages) ----
 
@@ -158,6 +169,8 @@
     setText('[data-site-footer-description]', data.footerDescription);
     setText('[data-site-footer-address]', data.footerAddress);
     setText('[data-site-footer-copyright]', data.footerCopyright);
+    setText('[data-site-footer-nav-title]', data.footerNavTitle);
+    setText('[data-site-footer-contact-title]', data.footerContactTitle);
     if(data.footerPhone){
       setText('[data-site-footer-phone]', data.footerPhone);
       setHref('[data-site-footer-phone]', 'tel:' + data.footerPhone.replace(/[^\d+]/g, ''));
