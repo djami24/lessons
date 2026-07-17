@@ -91,11 +91,13 @@
       <div class="admin-header">
         <div>
           <h1>Sayt sozlamalari</h1>
-          <p>Bosh sahifa hamda admin/o‘quvchi panelidagi ranglar, logotip va matnlarni shu yerdan boshqaring. O‘zgarishlar saqlangach, saytda darrov ko‘rinadi.</p>
+          <p>Bosh sahifaning boshidan oxirigacha — har bir yozuv, rasm va bo‘limni shu yerdan boshqaring. O‘zgarishlar saqlangach, saytda darrov ko‘rinadi.</p>
         </div>
       </div>
 
-      <form class="modal-form" id="siteSettingsForm" style="max-width:640px;">
+      <form class="modal-form" id="siteSettingsForm" style="max-width:720px;">
+
+        <h3 style="margin-top:0;">🎨 Brend va ranglar</h3>
 
         <div class="field">
           <span>Asosiy rang (tugmalar, urg‘u)</span>
@@ -131,26 +133,155 @@
           <input type="url" id="settingLogoUrl" placeholder="https://…">
         </label>
 
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>🏠 Hero (birinchi ekran)</h3>
+
         <label class="field">
-          <span>Bosh sahifa — asosiy sarlavha</span>
+          <span>Kichik sarlavha (eyebrow)</span>
+          <input type="text" id="settingHeroEyebrow" placeholder="Papka №1 dan Papka №12 gacha">
+        </label>
+        <label class="field">
+          <span>Asosiy sarlavha</span>
           <input type="text" id="settingHeroTitle" placeholder="Ingliz tilini tartibli papkada o‘rganing.">
         </label>
         <label class="field">
-          <span>Bosh sahifa — sarlavha ostidagi matn</span>
+          <span>Sarlavha ostidagi matn</span>
           <textarea id="settingHeroLead" rows="3" placeholder="Har bir guruh — alohida papka…"></textarea>
         </label>
         <label class="field">
-          <span>Pastdagi chaqiruv (CTA) sarlavhasi</span>
+          <span>Asosiy tugma matni</span>
+          <input type="text" id="settingHeroCtaPrimaryText" placeholder="Bepul sinov darsiga yozilish">
+        </label>
+        <label class="field">
+          <span>Ikkinchi tugma matni</span>
+          <input type="text" id="settingHeroCtaGhostText" placeholder="Tizim qanday ishlaydi →">
+        </label>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
+          <label class="field"><span>1-son</span><input type="text" id="settingHeroStat1Number" placeholder="12"></label>
+          <label class="field"><span>1-izoh</span><input type="text" id="settingHeroStat1Label" placeholder="dars / har bir papkada"></label>
+          <span></span>
+          <label class="field"><span>2-son</span><input type="text" id="settingHeroStat2Number" placeholder="420+"></label>
+          <label class="field"><span>2-izoh</span><input type="text" id="settingHeroStat2Label" placeholder="faol o‘quvchi"></label>
+          <span></span>
+          <label class="field"><span>3-son</span><input type="text" id="settingHeroStat3Number" placeholder="4.9"></label>
+          <label class="field"><span>3-izoh</span><input type="text" id="settingHeroStat3Label" placeholder="o‘rtacha baho"></label>
+          <span></span>
+        </div>
+
+        <label class="field">
+          <span>Hero rasmi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy — haqiqiy surat qo‘ysangiz, standart papka-maketi o‘rniga shu rasm chiqadi)</span></span>
+          <input type="url" id="settingHeroImageUrl" placeholder="https://…">
+        </label>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>🔁 "Qanday ishlaydi" bo‘limi</h3>
+
+        <label class="field">
+          <span>Kichik sarlavha</span>
+          <input type="text" id="settingProcessEyebrow" placeholder="Qanday ishlaydi">
+        </label>
+        <label class="field">
+          <span>Bo‘lim sarlavhasi</span>
+          <input type="text" id="settingProcessHeading" placeholder="Uch qadamda — tartibli o‘quv jarayoni">
+        </label>
+
+        <div style="display:flex; flex-direction:column; gap:1em;">
+          <div style="border:1px solid var(--line); border-radius:var(--radius-m); padding:1.2em;">
+            <label class="field"><span>1-qadam sarlavhasi</span><input type="text" id="settingProcess1Title"></label>
+            <label class="field" style="margin-top:.8em;"><span>1-qadam matni</span><textarea id="settingProcess1Text" rows="2"></textarea></label>
+          </div>
+          <div style="border:1px solid var(--line); border-radius:var(--radius-m); padding:1.2em;">
+            <label class="field"><span>2-qadam sarlavhasi</span><input type="text" id="settingProcess2Title"></label>
+            <label class="field" style="margin-top:.8em;"><span>2-qadam matni</span><textarea id="settingProcess2Text" rows="2"></textarea></label>
+          </div>
+          <div style="border:1px solid var(--line); border-radius:var(--radius-m); padding:1.2em;">
+            <label class="field"><span>3-qadam sarlavhasi</span><input type="text" id="settingProcess3Title"></label>
+            <label class="field" style="margin-top:.8em;"><span>3-qadam matni</span><textarea id="settingProcess3Text" rows="2"></textarea></label>
+          </div>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>📁 Dastur papkalari</h3>
+
+        <label class="field">
+          <span>Kichik sarlavha</span>
+          <input type="text" id="settingProgramsEyebrow" placeholder="Dastur papkalari">
+        </label>
+        <label class="field">
+          <span>Bo‘lim sarlavhasi</span>
+          <input type="text" id="settingProgramsHeading" placeholder="Darajangizga mos papkani tanlang">
+        </label>
+        <label class="field">
+          <span>Bo‘lim tavsifi</span>
+          <textarea id="settingProgramsLead" rows="2"></textarea>
+        </label>
+
+        <div id="programsRows" style="display:flex; flex-direction:column; gap:1em;"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="addProgramRow" style="align-self:flex-start;">+ Yangi papka qo‘shish</button>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>💬 Natijalar / O‘quvchilar fikri</h3>
+
+        <label class="field">
+          <span>Kichik sarlavha</span>
+          <input type="text" id="settingResultsEyebrow" placeholder="Natijalar">
+        </label>
+        <label class="field">
+          <span>Bo‘lim sarlavhasi</span>
+          <input type="text" id="settingResultsHeading" placeholder="O‘quvchilar nima deydi">
+        </label>
+        <label class="field">
+          <span>Bo‘lim tavsifi</span>
+          <textarea id="settingResultsLead" rows="2"></textarea>
+        </label>
+
+        <div id="testimonialsRows" style="display:flex; flex-direction:column; gap:1em;"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="addTestimonialRow" style="align-self:flex-start;">+ Yangi fikr qo‘shish</button>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>📣 Pastdagi chaqiruv (CTA)</h3>
+
+        <label class="field">
+          <span>CTA sarlavhasi</span>
           <input type="text" id="settingCtaTitle" placeholder="Papkangizni bugun oching">
         </label>
         <label class="field">
           <span>CTA ostidagi matn</span>
           <textarea id="settingCtaText" rows="2" placeholder="Bepul sinov darsiga yoziling…"></textarea>
         </label>
+        <label class="field">
+          <span>Kichik izoh matni (o‘quvchi kirish havolasi oldidan)</span>
+          <input type="text" id="settingCtaNoteText" placeholder="Allaqachon guruhga qabul qilingansiz?">
+        </label>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>🦶 Footer</h3>
+
+        <label class="field">
+          <span>Logotip ostidagi tavsif</span>
+          <textarea id="settingFooterDescription" rows="2"></textarea>
+        </label>
+        <label class="field">
+          <span>Telefon raqami</span>
+          <input type="text" id="settingFooterPhone" placeholder="+998 90 000 00 00">
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input type="email" id="settingFooterEmail" placeholder="info@englishfolder.uz">
+        </label>
+        <label class="field">
+          <span>Manzil</span>
+          <input type="text" id="settingFooterAddress" placeholder="Toshkent, Chilonzor tumani">
+        </label>
+        <label class="field">
+          <span>Mualliflik huquqi qatori</span>
+          <input type="text" id="settingFooterCopyright" placeholder="© 2026 English Folder. Barcha huquqlar himoyalangan.">
+        </label>
 
         <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
 
-        <div class="modal-actions" style="justify-content:flex-start;">
+        <div class="modal-actions" style="justify-content:flex-start; position:sticky; bottom:0; background:var(--paper); padding:1em 0;">
           <button type="submit" class="btn btn-amber" id="siteSettingsSubmit">Saqlash</button>
           <button type="button" class="btn btn-ghost" id="siteSettingsReset">Standart holatga qaytarish</button>
         </div>
@@ -806,7 +937,7 @@ document.getElementById('addStudentForm').addEventListener('submit', async (e) =
   }
 });
 
-// ---------- Site settings (colors, brand, logo, homepage text) ----------
+// ---------- Site settings (colors, brand, logo, full homepage content) ----------
 
 const DEFAULT_SITE_SETTINGS = {
   colorPrimary: '#D98E3F',
@@ -814,11 +945,113 @@ const DEFAULT_SITE_SETTINGS = {
   colorBackground: '#FFFFFF',
   brandName: 'English Folder',
   logoUrl: '',
+
+  heroEyebrow: 'Papka №1 dan Papka №12 gacha',
   heroTitle: 'Ingliz tilini tartibli papkada o‘rganing.',
   heroLead: 'Har bir guruh — alohida papka. Har bir papka — aniq izchillikda joylashgan 12 ta dars: video, mashqlar, uy vazifasi va o‘qituvchi izohi bilan.',
+  heroCtaPrimaryText: 'Bepul sinov darsiga yozilish',
+  heroCtaGhostText: 'Tizim qanday ishlaydi →',
+  heroStat1Number: '12', heroStat1Label: 'dars / har bir papkada',
+  heroStat2Number: '420+', heroStat2Label: 'faol o‘quvchi',
+  heroStat3Number: '4.9', heroStat3Label: 'o‘rtacha baho',
+  heroImageUrl: '',
+
+  processEyebrow: 'Qanday ishlaydi',
+  processHeading: 'Uch qadamda — tartibli o‘quv jarayoni',
+  process1Title: 'Guruhingiz papkasi ochiladi',
+  process1Text: 'O‘qituvchi sizning darajangiz va jadvalingizga mos guruh papkasini yaratadi — bu papka faqat sizning guruhingizga tegishli.',
+  process2Title: 'Papka ichida 12 ta dars',
+  process2Text: 'Har bir papkada aniq izchillikdagi 12 dars joylashgan: video darslik, grammatika, lug‘at, audio mashq va uy vazifasi.',
+  process3Title: 'Bosqichma-bosqich yakunlaysiz',
+  process3Text: 'Har bir darsni tugatgach, keyingisiga o‘tasiz. O‘qituvchi progressingizni kuzatib boradi va shaxsiy fikr-mulohaza beradi.',
+
+  programsEyebrow: 'Dastur papkalari',
+  programsHeading: 'Darajangizga mos papkani tanlang',
+  programsLead: 'Har bir dastur — 12 darslik mustaqil papka. Guruh boshlanishi bilan sizga shaxsiy kirish beriladi.',
+  programs: [
+    { tag: 'A1–A2 · BOSHLANG‘ICH', title: 'Beginner Start', text: 'Alifbodan sodda suhbatgacha — 12 darslik asos kursi. Talaffuz, kundalik lug‘at va birinchi jumlalar.', meta: '12 dars · 6 hafta', color: '#D98E3F' },
+    { tag: 'B1 · O‘RTA', title: 'Confident Speaker', text: 'Erkin gapirish uchun grammatika va nutq mashqlari. Speaking club darslari bilan mustahkamlanadi.', meta: '12 dars · 8 hafta', color: '#2E6F6E' },
+    { tag: 'B2–C1 · IELTS', title: 'IELTS Intensive', text: 'Writing, Speaking, Listening va Reading bo‘yicha 12 bosqichli tayyorgarlik, real test formatida.', meta: '12 dars · 10 hafta', color: '#B3432B' }
+  ],
+
+  resultsEyebrow: 'Natijalar',
+  resultsHeading: 'O‘quvchilar nima deydi',
+  resultsLead: 'Har bir papkani oxirigacha yakunlagan o‘quvchilarning haqiqiy tajribasi.',
+  testimonials: [
+    { quote: '12 ta darsni ketma-ket o‘tganimda, oldingi bilim ustiga yangisi qo‘shilib borayotganini his qildim. Tartib meni charchatmadi.', author: 'Madina, Confident Speaker bitiruvchisi' },
+    { quote: 'Papkam ichida nima borligini har doim bilib turaman: qaysi darsni tugatganim, qaysi biri navbatda.', author: 'Jasur, IELTS Intensive o‘quvchisi' }
+  ],
+
   ctaTitle: 'Papkangizni bugun oching',
-  ctaText: 'Bepul sinov darsiga yoziling — sizga mos darajadagi guruh papkasi tayyorlanadi.'
+  ctaText: 'Bepul sinov darsiga yoziling — sizga mos darajadagi guruh papkasi tayyorlanadi.',
+  ctaNoteText: 'Allaqachon guruhga qabul qilingansiz?',
+
+  footerDescription: 'Ingliz tilini papka-tizimi asosida, bosqichma-bosqich o‘rgatuvchi ta’lim markazi.',
+  footerPhone: '+998 90 000 00 00',
+  footerEmail: 'info@englishfolder.uz',
+  footerAddress: 'Toshkent, Chilonzor tumani',
+  footerCopyright: '© 2026 English Folder. Barcha huquqlar himoyalangan.'
 };
+
+// ---- Dynamic row builders: dastur papkalari & fikrlar ----
+
+function createProgramRow(item){
+  item = item || {};
+  const wrap = document.createElement('div');
+  wrap.className = 'dyn-program-row';
+  wrap.style.cssText = 'border:1px solid var(--line); border-radius:var(--radius-m); padding:1.2em; display:flex; flex-direction:column; gap:.8em;';
+  wrap.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <strong style="font-size:.78rem; color:var(--gray); font-family:var(--font-mono); text-transform:uppercase;">Papka</strong>
+      <button type="button" class="btn btn-danger btn-sm" data-remove-program>O‘chirish</button>
+    </div>
+    <label class="field"><span>Teg</span><input type="text" class="prog-tag" placeholder="A1–A2 · BOSHLANG‘ICH" value="${escapeHtml(item.tag || '')}"></label>
+    <label class="field"><span>Sarlavha</span><input type="text" class="prog-title" placeholder="Beginner Start" value="${escapeHtml(item.title || '')}"></label>
+    <label class="field"><span>Tavsif</span><textarea rows="2" class="prog-text" placeholder="Qisqacha tavsif…">${escapeHtml(item.text || '')}</textarea></label>
+    <label class="field"><span>Qo‘shimcha matn</span><input type="text" class="prog-meta" placeholder="12 dars · 6 hafta" value="${escapeHtml(item.meta || '')}"></label>
+    <div class="field"><span>Rang</span>
+      <input type="color" class="prog-color" value="${item.color || '#D98E3F'}" style="width:56px;height:40px;padding:.2em;border-radius:var(--radius-s);border:1.5px solid var(--line);cursor:pointer;">
+    </div>
+  `;
+  wrap.querySelector('[data-remove-program]').addEventListener('click', () => wrap.remove());
+  return wrap;
+}
+
+function createTestimonialRow(item){
+  item = item || {};
+  const wrap = document.createElement('div');
+  wrap.className = 'dyn-testimonial-row';
+  wrap.style.cssText = 'border:1px solid var(--line); border-radius:var(--radius-m); padding:1.2em; display:flex; flex-direction:column; gap:.8em;';
+  wrap.innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <strong style="font-size:.78rem; color:var(--gray); font-family:var(--font-mono); text-transform:uppercase;">Fikr</strong>
+      <button type="button" class="btn btn-danger btn-sm" data-remove-testimonial>O‘chirish</button>
+    </div>
+    <label class="field"><span>Fikr matni</span><textarea rows="2" class="test-quote" placeholder="O‘quvchi fikri…">${escapeHtml(item.quote || '')}</textarea></label>
+    <label class="field"><span>Muallif</span><input type="text" class="test-author" placeholder="Ism, kurs nomi" value="${escapeHtml(item.author || '')}"></label>
+  `;
+  wrap.querySelector('[data-remove-testimonial]').addEventListener('click', () => wrap.remove());
+  return wrap;
+}
+
+function renderProgramRows(list){
+  const container = document.getElementById('programsRows');
+  container.innerHTML = '';
+  (list && list.length ? list : []).forEach(item => container.appendChild(createProgramRow(item)));
+}
+
+function renderTestimonialRows(list){
+  const container = document.getElementById('testimonialsRows');
+  container.innerHTML = '';
+  (list && list.length ? list : []).forEach(item => container.appendChild(createTestimonialRow(item)));
+}
+
+document.getElementById('addProgramRow').addEventListener('click', () => {
+  document.getElementById('programsRows').appendChild(createProgramRow({ color: '#D98E3F' }));
+});
+document.getElementById('addTestimonialRow').addEventListener('click', () => {
+  document.getElementById('testimonialsRows').appendChild(createTestimonialRow({}));
+});
 
 function fillSiteSettingsForm(data){
   document.getElementById('settingColorPrimary').value = data.colorPrimary;
@@ -829,10 +1062,48 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingColorBackgroundLabel').textContent = data.colorBackground;
   document.getElementById('settingBrandName').value = data.brandName || '';
   document.getElementById('settingLogoUrl').value = data.logoUrl || '';
+
+  document.getElementById('settingHeroEyebrow').value = data.heroEyebrow || '';
   document.getElementById('settingHeroTitle').value = data.heroTitle || '';
   document.getElementById('settingHeroLead').value = data.heroLead || '';
+  document.getElementById('settingHeroCtaPrimaryText').value = data.heroCtaPrimaryText || '';
+  document.getElementById('settingHeroCtaGhostText').value = data.heroCtaGhostText || '';
+  document.getElementById('settingHeroStat1Number').value = data.heroStat1Number || '';
+  document.getElementById('settingHeroStat1Label').value = data.heroStat1Label || '';
+  document.getElementById('settingHeroStat2Number').value = data.heroStat2Number || '';
+  document.getElementById('settingHeroStat2Label').value = data.heroStat2Label || '';
+  document.getElementById('settingHeroStat3Number').value = data.heroStat3Number || '';
+  document.getElementById('settingHeroStat3Label').value = data.heroStat3Label || '';
+  document.getElementById('settingHeroImageUrl').value = data.heroImageUrl || '';
+
+  document.getElementById('settingProcessEyebrow').value = data.processEyebrow || '';
+  document.getElementById('settingProcessHeading').value = data.processHeading || '';
+  document.getElementById('settingProcess1Title').value = data.process1Title || '';
+  document.getElementById('settingProcess1Text').value = data.process1Text || '';
+  document.getElementById('settingProcess2Title').value = data.process2Title || '';
+  document.getElementById('settingProcess2Text').value = data.process2Text || '';
+  document.getElementById('settingProcess3Title').value = data.process3Title || '';
+  document.getElementById('settingProcess3Text').value = data.process3Text || '';
+
+  document.getElementById('settingProgramsEyebrow').value = data.programsEyebrow || '';
+  document.getElementById('settingProgramsHeading').value = data.programsHeading || '';
+  document.getElementById('settingProgramsLead').value = data.programsLead || '';
+  renderProgramRows(data.programs);
+
+  document.getElementById('settingResultsEyebrow').value = data.resultsEyebrow || '';
+  document.getElementById('settingResultsHeading').value = data.resultsHeading || '';
+  document.getElementById('settingResultsLead').value = data.resultsLead || '';
+  renderTestimonialRows(data.testimonials);
+
   document.getElementById('settingCtaTitle').value = data.ctaTitle || '';
   document.getElementById('settingCtaText').value = data.ctaText || '';
+  document.getElementById('settingCtaNoteText').value = data.ctaNoteText || '';
+
+  document.getElementById('settingFooterDescription').value = data.footerDescription || '';
+  document.getElementById('settingFooterPhone').value = data.footerPhone || '';
+  document.getElementById('settingFooterEmail').value = data.footerEmail || '';
+  document.getElementById('settingFooterAddress').value = data.footerAddress || '';
+  document.getElementById('settingFooterCopyright').value = data.footerCopyright || '';
 }
 
 async function loadSiteSettingsForm(){
@@ -864,16 +1135,67 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
   submitBtn.disabled = true;
   submitBtn.textContent = 'Saqlanmoqda…';
 
+  const programs = Array.from(document.querySelectorAll('#programsRows .dyn-program-row')).map(row => ({
+    tag: row.querySelector('.prog-tag').value.trim(),
+    title: row.querySelector('.prog-title').value.trim(),
+    text: row.querySelector('.prog-text').value.trim(),
+    meta: row.querySelector('.prog-meta').value.trim(),
+    color: row.querySelector('.prog-color').value
+  }));
+
+  const testimonials = Array.from(document.querySelectorAll('#testimonialsRows .dyn-testimonial-row')).map(row => ({
+    quote: row.querySelector('.test-quote').value.trim(),
+    author: row.querySelector('.test-author').value.trim()
+  }));
+
   const data = {
     colorPrimary: document.getElementById('settingColorPrimary').value,
     colorAccent: document.getElementById('settingColorAccent').value,
     colorBackground: document.getElementById('settingColorBackground').value,
     brandName: document.getElementById('settingBrandName').value.trim() || 'English Folder',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
+
+    heroEyebrow: document.getElementById('settingHeroEyebrow').value.trim(),
     heroTitle: document.getElementById('settingHeroTitle').value.trim(),
     heroLead: document.getElementById('settingHeroLead').value.trim(),
+    heroCtaPrimaryText: document.getElementById('settingHeroCtaPrimaryText').value.trim(),
+    heroCtaGhostText: document.getElementById('settingHeroCtaGhostText').value.trim(),
+    heroStat1Number: document.getElementById('settingHeroStat1Number').value.trim(),
+    heroStat1Label: document.getElementById('settingHeroStat1Label').value.trim(),
+    heroStat2Number: document.getElementById('settingHeroStat2Number').value.trim(),
+    heroStat2Label: document.getElementById('settingHeroStat2Label').value.trim(),
+    heroStat3Number: document.getElementById('settingHeroStat3Number').value.trim(),
+    heroStat3Label: document.getElementById('settingHeroStat3Label').value.trim(),
+    heroImageUrl: document.getElementById('settingHeroImageUrl').value.trim(),
+
+    processEyebrow: document.getElementById('settingProcessEyebrow').value.trim(),
+    processHeading: document.getElementById('settingProcessHeading').value.trim(),
+    process1Title: document.getElementById('settingProcess1Title').value.trim(),
+    process1Text: document.getElementById('settingProcess1Text').value.trim(),
+    process2Title: document.getElementById('settingProcess2Title').value.trim(),
+    process2Text: document.getElementById('settingProcess2Text').value.trim(),
+    process3Title: document.getElementById('settingProcess3Title').value.trim(),
+    process3Text: document.getElementById('settingProcess3Text').value.trim(),
+
+    programsEyebrow: document.getElementById('settingProgramsEyebrow').value.trim(),
+    programsHeading: document.getElementById('settingProgramsHeading').value.trim(),
+    programsLead: document.getElementById('settingProgramsLead').value.trim(),
+    programs: programs,
+
+    resultsEyebrow: document.getElementById('settingResultsEyebrow').value.trim(),
+    resultsHeading: document.getElementById('settingResultsHeading').value.trim(),
+    resultsLead: document.getElementById('settingResultsLead').value.trim(),
+    testimonials: testimonials,
+
     ctaTitle: document.getElementById('settingCtaTitle').value.trim(),
-    ctaText: document.getElementById('settingCtaText').value.trim()
+    ctaText: document.getElementById('settingCtaText').value.trim(),
+    ctaNoteText: document.getElementById('settingCtaNoteText').value.trim(),
+
+    footerDescription: document.getElementById('settingFooterDescription').value.trim(),
+    footerPhone: document.getElementById('settingFooterPhone').value.trim(),
+    footerEmail: document.getElementById('settingFooterEmail').value.trim(),
+    footerAddress: document.getElementById('settingFooterAddress').value.trim(),
+    footerCopyright: document.getElementById('settingFooterCopyright').value.trim()
   };
 
   try{
