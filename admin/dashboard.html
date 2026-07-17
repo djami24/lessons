@@ -108,11 +108,18 @@
       </label>
       <label class="field">
         <span>Mavzu tavsifi</span>
-        <textarea id="lessonTopicText" rows="3" placeholder="Bu darsda nima o‘rgatilishi haqida qisqacha…"></textarea>
+        <div class="rte-toolbar" data-rte-toolbar="lessonTopicText"></div>
+        <div class="rte-editor" id="lessonTopicText" contenteditable="true" data-placeholder="Bu darsda nima o‘rgatilishi haqida qisqacha…"></div>
       </label>
       <label class="field">
         <span>Uy vazifasi</span>
-        <textarea id="lessonHomework" rows="3" placeholder="Uy vazifasi tavsifi…"></textarea>
+        <div class="rte-toolbar" data-rte-toolbar="lessonHomework"></div>
+        <div class="rte-editor" id="lessonHomework" contenteditable="true" data-placeholder="Uy vazifasi tavsifi…"></div>
+      </label>
+      <label class="field">
+        <span>Uy vazifasi javoblari <span style="font-weight:400; color:var(--gray);">(talaba “Javoblar” tugmasini bosganda ko‘radi)</span></span>
+        <div class="rte-toolbar" data-rte-toolbar="lessonHomeworkAnswer"></div>
+        <div class="rte-editor" id="lessonHomeworkAnswer" contenteditable="true" data-placeholder="Uy vazifasi uchun to‘g‘ri javoblarni shu yerga yozing…"></div>
       </label>
 
       <div class="field">
@@ -231,6 +238,58 @@ function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
+// ---------- Rich text editor (Word-style: bold, align, lists) ----------
+
+const RTE_BUTTONS = [
+  { cmd: 'bold', icon: '<b>B</b>', title: 'Qalin (Bold)' },
+  { cmd: 'italic', icon: '<i>I</i>', title: 'Qiya (Italic)' },
+  { cmd: 'underline', icon: '<u>U</u>', title: 'Tagi chizilgan' },
+  { sep: true },
+  { cmd: 'justifyLeft', icon: '⇤', title: 'Chapga tekislash' },
+  { cmd: 'justifyCenter', icon: '≡', title: 'Markazga tekislash' },
+  { cmd: 'justifyRight', icon: '⇥', title: 'O‘ngga tekislash' },
+  { sep: true },
+  { cmd: 'insertUnorderedList', icon: '•', title: 'Belgili ro‘yxat' },
+  { cmd: 'insertOrderedList', icon: '1.', title: 'Raqamli ro‘yxat' },
+  { sep: true },
+  { cmd: 'removeFormat', icon: '✕', title: 'Formatni tozalash' }
+];
+
+function buildRteToolbar(editorId){
+  return RTE_BUTTONS.map(b => b.sep
+    ? `<span class="rte-sep"></span>`
+    : `<button type="button" class="rte-btn" data-rte-cmd="${b.cmd}" data-rte-target="${editorId}" title="${b.title}">${b.icon}</button>`
+  ).join('');
+}
+
+function initRichTextEditors(){
+  document.querySelectorAll('[data-rte-toolbar]').forEach(bar => {
+    bar.innerHTML = buildRteToolbar(bar.dataset.rteToolbar);
+  });
+}
+initRichTextEditors();
+
+document.addEventListener('mousedown', (e) => {
+  // mousedown (not click) so the editor's selection isn't lost before the command runs
+  const btn = e.target.closest('.rte-btn');
+  if(!btn) return;
+  e.preventDefault();
+  const editor = document.getElementById(btn.dataset.rteTarget);
+  editor.focus();
+  document.execCommand(btn.dataset.rteCmd, false, null);
+});
+
+function getRteValue(id){
+  const el = document.getElementById(id);
+  if(!el) return '';
+  const plain = el.textContent.replace(/\u200B/g, '').trim();
+  return plain === '' ? '' : el.innerHTML.trim();
+}
+function setRteValue(id, html){
+  const el = document.getElementById(id);
+  if(el) el.innerHTML = html || '';
+}
+
 // ---------- Data helpers ----------
 
 async function ensureLevelsExist(){
@@ -332,6 +391,7 @@ function openLevel(id){
             ${lesson.video ? '<span class="tag">🎬 Video bor</span>' : ''}
             ${lesson.material ? '<span class="tag">📎 Material bor</span>' : ''}
             ${lesson.homework ? '<span class="tag">📝 Uy vazifasi bor</span>' : ''}
+            ${lesson.homeworkAnswer ? '<span class="tag">✅ Javoblar bor</span>' : ''}
           </div>
         </div>
       </div>`).join('');
@@ -443,6 +503,9 @@ document.getElementById('openAddLesson').addEventListener('click', () => {
   state.quizDraft = [];
   document.getElementById('lessonModalTitle').textContent = 'Yangi dars';
   document.getElementById('editLessonForm').reset();
+  setRteValue('lessonTopicText', '');
+  setRteValue('lessonHomework', '');
+  setRteValue('lessonHomeworkAnswer', '');
   renderQuizEditor();
   openModal('modalEditLesson');
 });
@@ -458,8 +521,9 @@ lessonList.addEventListener('click', (e) => {
     document.getElementById('lessonTitle').value = lesson.title || '';
     document.getElementById('lessonVideo').value = lesson.video || '';
     document.getElementById('lessonMaterial').value = lesson.material || '';
-    document.getElementById('lessonTopicText').value = lesson.topicText || '';
-    document.getElementById('lessonHomework').value = lesson.homework || '';
+    setRteValue('lessonTopicText', lesson.topicText || '');
+    setRteValue('lessonHomework', lesson.homework || '');
+    setRteValue('lessonHomeworkAnswer', lesson.homeworkAnswer || '');
     renderQuizEditor();
     openModal('modalEditLesson');
     return;
@@ -515,8 +579,9 @@ document.getElementById('editLessonForm').addEventListener('submit', async (e) =
     title: document.getElementById('lessonTitle').value.trim(),
     video: document.getElementById('lessonVideo').value.trim(),
     material: document.getElementById('lessonMaterial').value.trim(),
-    topicText: document.getElementById('lessonTopicText').value.trim(),
-    homework: document.getElementById('lessonHomework').value.trim(),
+    topicText: getRteValue('lessonTopicText'),
+    homework: getRteValue('lessonHomework'),
+    homeworkAnswer: getRteValue('lessonHomeworkAnswer'),
     quiz: cleanedQuiz
   };
 
