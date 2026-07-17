@@ -375,6 +375,9 @@ table.data-table td .tag{ margin-right:.3em; }
   table.data-table{ font-size:.8rem; }
 }
 
+.brand-mark-custom{ background: none !important; }
+.brand-mark-custom::after{ content: none !important; }
+
 /* ============ Level / course card grids (student + admin) ============ */
 .level-grid, .course-grid{
   display:grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 1.8em 1.5em; margin-top: .4em;

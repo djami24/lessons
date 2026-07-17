@@ -173,6 +173,9 @@ img{ max-width:100%; display:block; }
 }
 .folder:hover .folder-body{ transform: translateY(-4px); box-shadow: var(--shadow-pop); }
 
+.brand-mark-custom{ background: none !important; }
+.brand-mark-custom::after{ content: none !important; }
+
 /* ---------- Footer ---------- */
 footer{ background: var(--ink); color: rgba(247,247,243,.75); padding: 3.5em 0 2em; margin-top: 6em; }
 footer .container{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:2em; }
@@ -201,7 +204,7 @@ footer a:hover{ color: var(--amber); }
 
 <nav class="nav">
   <div class="container">
-    <a href="index.html" class="brand"><span class="brand-mark"></span>English Folder</a>
+    <a href="index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
     <ul class="nav-links">
       <li><a href="#dasturlar">Dasturlar</a></li>
       <li><a href="#jarayon">Qanday ishlaydi</a></li>
@@ -220,8 +223,8 @@ footer a:hover{ color: var(--amber); }
   <div class="container hero-inner">
     <div class="hero-text">
       <p class="eyebrow">Papka №1 dan Papka №12 gacha</p>
-      <h1>Ingliz tilini <em>tarqoq darslar</em>da emas, <em>tartibli papkada</em> o‘rganing.</h1>
-      <p class="hero-lead">Har bir guruh — alohida papka. Har bir papka — aniq izchillikda joylashgan 12 ta dars: video, mashqlar, uy vazifasi va o‘qituvchi izohi bilan. Ochasiz, boshlaysiz, yakunlaysiz.</p>
+      <h1 data-site-hero-title>Ingliz tilini <em>tarqoq darslar</em>da emas, <em>tartibli papkada</em> o‘rganing.</h1>
+      <p class="hero-lead" data-site-hero-lead>Har bir guruh — alohida papka. Har bir papka — aniq izchillikda joylashgan 12 ta dars: video, mashqlar, uy vazifasi va o‘qituvchi izohi bilan. Ochasiz, boshlaysiz, yakunlaysiz.</p>
       <div class="hero-cta">
         <a href="#aloqa" class="btn btn-primary">Bepul sinov darsiga yozilish</a>
         <a href="#jarayon" class="btn btn-ghost">Tizim qanday ishlaydi →</a>
@@ -347,8 +350,8 @@ footer a:hover{ color: var(--amber); }
 <!-- CTA -->
 <section id="aloqa" class="section section-cta">
   <div class="container cta-inner">
-    <h2>Papkangizni bugun oching</h2>
-    <p>Bepul sinov darsiga yoziling — sizga mos darajadagi guruh papkasi tayyorlanadi.</p>
+    <h2 data-site-cta-title>Papkangizni bugun oching</h2>
+    <p data-site-cta-text>Bepul sinov darsiga yoziling — sizga mos darajadagi guruh papkasi tayyorlanadi.</p>
     <form class="cta-form" onsubmit="event.preventDefault(); this.querySelector('.cta-success').style.display='block'; this.reset();">
       <input type="text" placeholder="Ismingiz" required>
       <input type="tel" placeholder="Telefon raqamingiz" required>
@@ -365,7 +368,7 @@ footer a:hover{ color: var(--amber); }
 <footer>
   <div class="container">
     <div>
-      <a href="index.html" class="brand" style="color:#FFFFFF"><span class="brand-mark"></span>English Folder</a>
+      <a href="index.html" class="brand" style="color:#FFFFFF"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
       <p style="max-width:280px;margin-top:1em;">Ingliz tilini papka-tizimi asosida, bosqichma-bosqich o‘rgatuvchi ta’lim markazi.</p>
     </div>
     <div>
@@ -464,5 +467,11 @@ footer a:hover{ color: var(--amber); }
 }
 
 </style>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="site-settings.js"></script>
 </body>
 </html>
