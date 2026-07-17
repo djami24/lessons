@@ -9,9 +9,9 @@
 :root{
   --ink:        #14213D;
   --ink-soft:   #253559;
-  --paper:      #F7F7F3;
-  --paper-2:    #EFEEE5;
-  --paper-3:    #E7E4D6;
+  --paper:      #FFFFFF;
+  --paper-2:    #F4F5F7;
+  --paper-3:    #E9EAED;
   --amber:      #D98E3F;
   --amber-deep: #B96F26;
   --teal:       #2E6F6E;
@@ -116,7 +116,7 @@ img{ max-width:100%; display:block; }
 /* ---------- Nav ---------- */
 .nav{
   position: sticky; top:0; z-index: 50;
-  background: rgba(247,247,243,.86);
+  background: rgba(255,255,255,.86);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--line);
 }
@@ -318,7 +318,7 @@ footer a:hover{ color: var(--amber); }
 .lesson-title.placeholder{ color: var(--gray); font-weight:600; font-style: italic; }
 .lesson-meta{ display:flex; gap:.5em; margin-top:.4em; flex-wrap:wrap; }
 .status-pill{ font-family: var(--font-mono); font-size:.68rem; padding:.28em .6em; border-radius: 999px; }
-.status-kutilmoqda{ background:#EFEEE5; color: var(--gray); }
+.status-kutilmoqda{ background: var(--paper-2); color: var(--gray); }
 .status-tayyor{ background: rgba(217,142,63,.16); color: var(--amber-deep); }
 .status-otildi{ background: rgba(46,111,110,.14); color: var(--teal-deep); }
 .lesson-actions{ display:flex; gap:.5em; flex:none; }
@@ -373,4 +373,156 @@ table.data-table td .tag{ margin-right:.3em; }
   .admin-main{ padding: 1.6em 1.2em 4em; }
   .stat-row{ grid-template-columns: repeat(2,1fr); }
   table.data-table{ font-size:.8rem; }
+}
+
+/* ============ Level / course card grids (student + admin) ============ */
+.level-grid, .course-grid{
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 1.8em 1.5em; margin-top: .4em;
+}
+.level-card, .course-card{ cursor:pointer; }
+.level-title, .course-title{ margin: .6em 0 .3em; font-size: 1.15rem; }
+.level-sub, .course-sub{ color: var(--gray); font-size:.85rem; margin:0; }
+.level-card.is-locked, .course-card.is-locked{ cursor: not-allowed; }
+.level-card.is-locked .folder-body, .course-card.is-locked .folder-body{ opacity:.6; }
+.level-card.is-locked:hover .folder-body, .course-card.is-locked:hover .folder-body{ transform:none; box-shadow: var(--shadow-card); }
+.badge-soon{
+  font-family: var(--font-mono); font-size:.68rem; letter-spacing:.05em; text-transform:uppercase;
+  background: var(--paper-2); color: var(--gray); padding: .3em .65em; border-radius: 999px; display:inline-block;
+}
+
+/* ============ Lesson detail (student) ============ */
+.lesson-detail-box{
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-m);
+  padding: 2.4em 2.6em; box-shadow: var(--shadow-card); max-width: 820px;
+}
+.lesson-detail-links{ display:flex; gap: .9em; margin: 1.5em 0; flex-wrap:wrap; }
+.lesson-detail-links a{
+  display:inline-flex; align-items:center; gap:.5em; text-decoration:none; font-weight:700; font-size:.88rem;
+  color: var(--teal-deep); background: rgba(46,111,110,.08); border: 1px solid rgba(46,111,110,.2);
+  padding: .7em 1.1em; border-radius: var(--radius-s); transition: all .15s var(--ease);
+}
+.lesson-detail-links a:hover{ background: var(--teal); color: var(--white); transform: translateY(-1px); }
+.lesson-score{
+  display:inline-block; font-family: var(--font-mono); font-size:.74rem; color: var(--teal-deep);
+  background: rgba(46,111,110,.12); padding:.3em .7em; border-radius: 999px;
+}
+
+/* ============ Rich text content (rendered lesson/homework HTML) ============ */
+.rich-content{ font-size:1rem; line-height:1.7; color: var(--ink-soft); }
+.rich-content p{ margin: 0 0 .8em; }
+.rich-content p:last-child{ margin-bottom:0; }
+.rich-content strong, .rich-content b{ font-weight: 800; color: var(--ink); }
+.rich-content em, .rich-content i{ font-style: italic; }
+.rich-content ul, .rich-content ol{ margin: 0 0 .8em; padding-left: 1.4em; }
+.rich-content li{ margin-bottom: .3em; }
+.rich-content a{ color: var(--teal-deep); text-decoration: underline; }
+
+/* ============ Rich text editor (admin: lesson content / homework) ============ */
+.rte-toolbar{
+  display:flex; flex-wrap:wrap; align-items:center; gap:.25em;
+  padding:.4em; background: var(--paper-2); border: 1.5px solid var(--line); border-bottom:none;
+  border-radius: var(--radius-s) var(--radius-s) 0 0;
+}
+.rte-btn{
+  width: 32px; height: 32px; display:flex; align-items:center; justify-content:center;
+  background: var(--white); border: 1px solid var(--line); border-radius: 6px;
+  font-family: var(--font-body); font-weight: 700; font-size:.85rem; color: var(--ink);
+  cursor:pointer; transition: all .12s var(--ease); flex: none; padding:0;
+}
+.rte-btn:hover{ background: var(--paper-3); }
+.rte-btn:active{ transform: scale(.94); }
+.rte-sep{ width:1px; height:22px; background: var(--line); margin: 0 .3em; flex: none; }
+.rte-editor{
+  min-height: 110px; max-height: 300px; overflow-y:auto;
+  padding: .9em 1em; border: 1.5px solid var(--line); border-radius: 0 0 var(--radius-s) var(--radius-s);
+  background: var(--white); color: var(--ink); font-family: var(--font-body); font-size: 1rem; line-height:1.6;
+}
+.rte-editor:focus{ outline:none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(46,111,110,.12); }
+.rte-editor p{ margin: 0 0 .7em; }
+.rte-editor ul, .rte-editor ol{ margin: 0 0 .7em; padding-left: 1.3em; }
+.rte-editor[data-placeholder]:empty::before{ content: attr(data-placeholder); color: var(--gray); pointer-events:none; }
+
+/* ============ Homework reveal + answers (student) ============ */
+.homework-block{ margin-top: 1.8em; padding-top: 1.6em; border-top: 1px solid var(--line); }
+.homework-content{
+  margin-top: 1.1em; background: var(--paper-2); padding: 1.3em 1.5em; border-radius: var(--radius-m);
+  border-left: 3px solid var(--amber);
+}
+.homework-answer-area{ margin-top: 1.3em; padding-top: 1.2em; border-top: 1px dashed var(--line); }
+.homework-answer-content{
+  margin-top: 1em; background: rgba(46,111,110,.08); padding: 1.2em 1.4em; border-radius: var(--radius-m);
+  border-left: 3px solid var(--teal);
+}
+
+/* ============ Quiz editor (admin) ============ */
+.quiz-editor{ display:flex; flex-direction:column; gap: 1.1em; margin-top:.5em; }
+.quiz-question-block{ border: 1.5px solid var(--line); border-radius: var(--radius-m); padding: 1.1em 1.2em; background: var(--paper); }
+.quiz-question-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:.8em; }
+.quiz-question-num{ font-family: var(--font-mono); font-size:.76rem; font-weight:700; color: var(--teal-deep); letter-spacing:.04em; }
+.quiz-q-text{
+  width:100%; padding:.75em .9em; margin-bottom:.8em; border: 1.5px solid var(--line); border-radius: var(--radius-s);
+  font-family: var(--font-body); font-size:.95rem; background: var(--white);
+}
+.quiz-options{ display:flex; flex-direction:column; gap:.55em; }
+.quiz-option-row{ display:flex; align-items:center; gap:.7em; }
+.quiz-option-row input[type="radio"]{ width:19px; height:19px; accent-color: var(--teal); flex:none; }
+.quiz-option-row input[type="text"]{
+  flex:1; padding:.6em .85em; border: 1.5px solid var(--line); border-radius: var(--radius-s);
+  font-family: var(--font-body); font-size:.9rem; background: var(--white);
+}
+.quiz-empty{ color: var(--gray); font-size:.88rem; padding: 1em 0; }
+
+/* ============ Quiz taking (student) ============ */
+.quiz-box{ max-width: 720px; }
+.quiz-progress{
+  font-family: var(--font-mono); font-size:.8rem; color: var(--gray); margin-bottom: 1.6em;
+}
+.quiz-question{
+  background: var(--white); border: 1.5px solid var(--line); border-radius: var(--radius-m);
+  padding: 1.7em 1.9em; margin-bottom: 1.3em; box-shadow: var(--shadow-card);
+}
+.quiz-question-title{ font-weight: 700; font-size: 1.05rem; margin-bottom: 1.1em; color: var(--ink); }
+.quiz-option{
+  display:flex; align-items:center; gap: .9em; padding: .95em 1.15em; margin-bottom:.7em;
+  border: 1.5px solid var(--line); border-radius: var(--radius-s); cursor:pointer;
+  transition: all .15s var(--ease); background: var(--paper);
+}
+.quiz-option:last-child{ margin-bottom:0; }
+.quiz-option:hover{ border-color: var(--teal); background: rgba(46,111,110,.05); }
+.quiz-option input[type="radio"]{ width:19px; height:19px; accent-color: var(--teal); flex:none; }
+.quiz-option:has(input:checked){ border-color: var(--teal); background: rgba(46,111,110,.09); font-weight: 700; }
+#submitQuizBtn{ margin-top: .6em; }
+
+.quiz-result-box{
+  max-width: 520px; margin: 3em auto 0; text-align:center; background: var(--white);
+  border: 1px solid var(--line); border-radius: var(--radius-l); padding: 3.2em 2.6em; box-shadow: var(--shadow-pop);
+}
+.quiz-result-score{ font-family: var(--font-display); font-size: 4.2rem; font-weight: 700; margin: .3em 0 .5em; }
+.quiz-result-pass{ color: var(--teal-deep); }
+.quiz-result-fail{ color: var(--danger); }
+.quiz-result-actions{ display:flex; gap: 1em; justify-content:center; margin-top: 1.8em; flex-wrap:wrap; }
+
+/* ============ Payment gate (student) ============ */
+.payment-box{
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-l);
+  padding: 2.6em 2.4em; max-width: 540px; box-shadow: var(--shadow-card);
+}
+.payment-price{ font-family: var(--font-display); font-size: 2.7rem; font-weight: 700; color: var(--amber-deep); margin: .2em 0 .7em; }
+.payment-steps{ padding-left: 1.3em; color: var(--ink-soft); margin: 1.2em 0; }
+.payment-steps li{ margin-bottom: .55em; }
+.payment-tg-link{
+  display:inline-flex; align-items:center; gap:.5em; font-weight: 700; color: var(--white);
+  background: #229ED9; padding: .8em 1.3em; border-radius: var(--radius-s); text-decoration:none;
+  transition: all .15s var(--ease);
+}
+.payment-tg-link:hover{ background:#1c85ba; transform: translateY(-1px); }
+.payment-pending-box{
+  background: rgba(217,142,63,.12); border: 1px solid rgba(217,142,63,.35); color: var(--amber-deep);
+  font-weight: 600; padding: 1.1em 1.3em; border-radius: var(--radius-s); margin:0;
+}
+
+@media (max-width: 640px){
+  .lesson-detail-box{ padding: 1.6em 1.4em; }
+  .quiz-question{ padding: 1.3em 1.4em; }
+  .payment-box{ padding: 1.8em 1.5em; }
 }
