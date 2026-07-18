@@ -84,16 +84,6 @@
     if(!data) return;
     const root = document.documentElement.style;
 
-     function applySettings(data) {
-  // ... boshqa kodlar ...
-  
-  // Kurslar haqida ma'lumotni yuklash
-  const coursesEl = document.getElementById('coursesInfoContent');
-  if(coursesEl && data.coursesInfo) {
-    coursesEl.innerHTML = data.coursesInfo;
-  }
-}
-
     // ---- Brand & colors ----
     if(data.colorPrimary){
       root.setProperty('--amber', data.colorPrimary);
