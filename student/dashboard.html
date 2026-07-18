@@ -48,20 +48,20 @@
             <p class="course-sub" id="generalEnglishSub">Beginner → Elementary → Pre-Intermediate → Intermediate</p>
           </div>
         </article>
-        <article class="folder course-card is-locked">
+        <article class="folder course-card" id="cardCefr">
           <div class="folder-tab" style="--tab-color:#D98E3F"></div>
           <div class="folder-body">
-            <span class="badge-soon">Tez orada</span>
+            <span class="tag">Listening · Reading · Speaking</span>
             <h3 class="course-title">CEFR</h3>
-            <p class="course-sub">Rasmiy CEFR darajalariga tayyorgarlik</p>
+            <p class="course-sub" id="cefrSub">Rasmiy CEFR darajalariga tayyorgarlik · 60 000 so‘m</p>
           </div>
         </article>
-        <article class="folder course-card is-locked">
+        <article class="folder course-card" id="cardIelts">
           <div class="folder-tab" style="--tab-color:#253559"></div>
           <div class="folder-body">
-            <span class="badge-soon">Tez orada</span>
+            <span class="tag">Listening · Reading · Speaking</span>
             <h3 class="course-title">IELTS</h3>
-            <p class="course-sub">IELTS imtihoniga tayyorgarlik</p>
+            <p class="course-sub" id="ieltsSub">IELTS imtihoniga tayyorgarlik · 60 000 so‘m</p>
           </div>
         </article>
       </div>
@@ -122,6 +122,60 @@
       <div class="lesson-detail-box" id="lessonDetailBox"></div>
     </section>
 
+    <!-- ===== PAYMENT GATE (IELTS / CEFR) ===== -->
+    <section id="view-course-payment" hidden>
+      <a href="#" id="backToCoursesFromCoursePayment" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="coursePaymentTitle">IELTS kursi</h1>
+          <p>Kursni ochish uchun to‘lovni amalga oshiring.</p>
+        </div>
+      </div>
+      <div class="payment-box">
+        <p class="eyebrow">To‘lov</p>
+        <div class="payment-price" id="coursePaymentPrice">60 000 so‘m</div>
+        <p>Kurs to‘liq ochilgach, Listening, Reading va Speaking bo‘limlaridagi barcha mavzularga ega bo‘lasiz.</p>
+        <ol class="payment-steps">
+          <li id="coursePaymentStep1">60 000 so‘mni ko‘rsatilgan hisobga o‘tkazing.</li>
+          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
+          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
+          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
+        </ol>
+        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
+        <div id="coursePaymentActionArea" style="margin-top:1.6em;"></div>
+      </div>
+    </section>
+
+    <!-- ===== COURSE SECTIONS (Listening / Reading / Speaking) ===== -->
+    <section id="view-course-sections" hidden>
+      <a href="#" id="backToCoursesFromSections" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="courseSectionsTitle">IELTS</h1>
+          <p>Bo‘limni tanlang.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="courseSectionsGrid"></div>
+    </section>
+
+    <!-- ===== COURSE TOPICS (inside a section) ===== -->
+    <section id="view-course-topics" hidden>
+      <a href="#" id="backToCourseSections" class="back-link">← Bo‘limlarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="courseTopicsSectionName">Listening</h1>
+          <p id="courseTopicsSub"></p>
+        </div>
+      </div>
+      <div class="lesson-list" id="courseTopicsList"></div>
+    </section>
+
+    <!-- ===== COURSE TOPIC DETAIL ===== -->
+    <section id="view-topic-detail" hidden>
+      <a href="#" id="backToCourseTopics" class="back-link">← Mavzular ro‘yxatiga qaytish</a>
+      <div class="lesson-detail-box" id="topicDetailBox"></div>
+    </section>
+
     <!-- ===== QUIZ ===== -->
     <section id="view-quiz" hidden>
       <a href="#" id="backToLessonFromQuiz" class="back-link">← Darsga qaytish</a>
@@ -159,12 +213,26 @@ const LEVELS = [
 ];
 const PASS_PERCENT = 60;
 
+const COURSES = {
+  ielts: { name: 'IELTS', price: 60000 },
+  cefr: { name: 'CEFR', price: 60000 }
+};
+const SECTIONS = [
+  { id: 'listening', name: 'Listening', hasTimer: false },
+  { id: 'reading', name: 'Reading', hasTimer: false },
+  { id: 'speaking', name: 'Speaking', hasTimer: true }
+];
+
 let currentUid = null;
 let state = {
-  student: null,        // {name,email,paymentStatus,progress,...}
+  student: null,        // {name,email,paymentStatus,coursePayments:{ielts,cefr},progress,...}
   levels: {},            // {levelId: {name,order,lessons:[...]}}
+  courses: {},            // {ielts|cefr: {name,price,sections:{listening|reading|speaking:{locked,lockedMessage,topics:[...]}}}}
   activeLevelId: null,
   activeLessonId: null,
+  activeCourseId: null,
+  activeSectionId: null,
+  activeTopicId: null,
   lastQuizContext: null   // {levelId, lessonId} — used by "Qayta urinish"
 };
 
@@ -185,12 +253,14 @@ auth.onAuthStateChanged(async (user) => {
   currentUid = user.uid;
   state.student = studentDoc.data();
   state.student.progress = state.student.progress || {};
+  state.student.coursePayments = state.student.coursePayments || {};
 
   document.getElementById('sidebarUsername').textContent = state.student.name || state.student.email;
   document.getElementById('loadingScreen').hidden = true;
   document.getElementById('appShell').hidden = false;
 
   await loadLevels();
+  await loadCourses();
   renderCoursesOverview();
 });
 
@@ -207,6 +277,26 @@ async function loadLevels(){
 }
 
 function getLevel(id){ return state.levels[id]; }
+
+async function loadCourses(){
+  const ids = Object.keys(COURSES);
+  const results = await Promise.all(ids.map(id => db.collection('courses').doc(id).get()));
+  ids.forEach((id, i) => {
+    const fallbackSections = {};
+    SECTIONS.forEach(s => { fallbackSections[s.id] = { locked: false, lockedMessage: '', topics: [] }; });
+    const fallback = { name: COURSES[id].name, price: COURSES[id].price, sections: fallbackSections };
+    const doc = results[i];
+    if(!doc.exists){ state.courses[id] = fallback; return; }
+    const remoteData = doc.data();
+    const mergedSections = { ...fallbackSections };
+    Object.keys(remoteData.sections || {}).forEach(sid => {
+      mergedSections[sid] = { ...fallbackSections[sid], ...remoteData.sections[sid] };
+    });
+    state.courses[id] = { ...fallback, ...remoteData, sections: mergedSections };
+  });
+}
+
+function getCourse(id){ return state.courses[id]; }
 
 // ---------- Progress helpers ----------
 
@@ -247,7 +337,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result'];
+const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -266,6 +356,21 @@ function renderCoursesOverview(){
   } else {
     sub.textContent = 'Beginner → Elementary → Pre-Intermediate → Intermediate · 50 000 so‘m';
   }
+
+  ['ielts', 'cefr'].forEach(courseId => {
+    const el = document.getElementById(courseId + 'Sub');
+    const course = getCourse(courseId);
+    const status = state.student.coursePayments[courseId] || 'none';
+    if(status === 'approved'){
+      const totalTopics = SECTIONS.reduce((s, sec) => s + course.sections[sec.id].topics.length, 0);
+      el.textContent = `${totalTopics} ta mavzu · Listening · Reading · Speaking`;
+    } else if(status === 'pending'){
+      el.textContent = 'To‘lov tekshirilmoqda…';
+    } else {
+      el.textContent = `${COURSES[courseId].name === 'IELTS' ? 'IELTS imtihoniga tayyorgarlik' : 'Rasmiy CEFR darajalariga tayyorgarlik'} · ${course.price.toLocaleString('uz-UZ')} so‘m`;
+    }
+  });
+
   switchView('courses');
 }
 
@@ -276,6 +381,18 @@ document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
     openPaymentView();
   }
 });
+
+document.getElementById('cardIelts').addEventListener('click', () => openCourseEntry('ielts'));
+document.getElementById('cardCefr').addEventListener('click', () => openCourseEntry('cefr'));
+
+function openCourseEntry(courseId){
+  const status = state.student.coursePayments[courseId] || 'none';
+  if(status === 'approved'){
+    openCourseSectionsView(courseId);
+  } else {
+    openCoursePaymentView(courseId);
+  }
+}
 
 // ---------- Payment gate ----------
 
@@ -299,6 +416,183 @@ function openPaymentView(){
 
 document.getElementById('backToCoursesFromPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 document.getElementById('backToCoursesFromLevels').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+
+// ---------- Payment gate: IELTS / CEFR ----------
+
+function openCoursePaymentView(courseId){
+  state.activeCourseId = courseId;
+  const course = getCourse(courseId);
+  const status = state.student.coursePayments[courseId] || 'none';
+  const priceText = course.price.toLocaleString('uz-UZ') + ' so‘m';
+
+  document.getElementById('coursePaymentTitle').textContent = `${course.name} kursi`;
+  document.getElementById('coursePaymentPrice').textContent = priceText;
+  document.getElementById('coursePaymentStep1').textContent = `${priceText}ni ko‘rsatilgan hisobga o‘tkazing.`;
+
+  const area = document.getElementById('coursePaymentActionArea');
+  if(status === 'pending'){
+    area.innerHTML = `<p class="payment-pending-box">⏳ So‘rovingiz ko‘rib chiqilmoqda. Admin skrinshotni tasdiqlagach, kurs avtomatik ochiladi.</p>`;
+  } else {
+    area.innerHTML = `<button type="button" class="btn btn-amber" id="coursePaidBtn">To‘lov qildim</button>`;
+    document.getElementById('coursePaidBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('coursePaidBtn');
+      btn.disabled = true;
+      btn.textContent = 'Yuborilmoqda…';
+      await db.collection('students').doc(currentUid).update({ [`coursePayments.${courseId}`]: 'pending', [`coursePaymentRequestedAt.${courseId}`]: Date.now() });
+      state.student.coursePayments[courseId] = 'pending';
+      openCoursePaymentView(courseId);
+    });
+  }
+  switchView('course-payment');
+}
+
+document.getElementById('backToCoursesFromCoursePayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+document.getElementById('backToCoursesFromSections').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+
+// ---------- IELTS / CEFR: sections ----------
+
+function openCourseSectionsView(courseId){
+  state.activeCourseId = courseId;
+  const course = getCourse(courseId);
+  document.getElementById('courseSectionsTitle').textContent = course.name;
+
+  document.getElementById('courseSectionsGrid').innerHTML = SECTIONS.map(s => {
+    const data = course.sections[s.id];
+    const locked = !!data.locked;
+    const subText = locked
+      ? escapeHtml(data.lockedMessage || 'Tez kunda ochiladi — yangi mavzular qo‘shilyapti.')
+      : `${data.topics.length} ta mavzu`;
+    return `
+      <article class="folder level-card ${locked ? 'is-locked' : ''}" ${locked ? '' : `data-open-section="${s.id}"`}>
+        <div class="folder-tab" style="--tab-color:${locked ? '#9a9a95' : '#2E6F6E'}"></div>
+        <div class="folder-body">
+          <span class="tag">${s.hasTimer ? '⏱️ Taymerli' : 'Bo‘lim'}</span>
+          <h3 class="level-title">${s.name} ${locked ? '🔒' : ''}</h3>
+          <p class="level-sub">${subText}</p>
+        </div>
+      </article>`;
+  }).join('');
+
+  switchView('course-sections');
+}
+
+document.getElementById('courseSectionsGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-open-section]');
+  if(card) openCourseTopicsView(card.dataset.openSection);
+});
+
+document.getElementById('backToCourseSections').addEventListener('click', (e) => { e.preventDefault(); openCourseSectionsView(state.activeCourseId); });
+
+// ---------- IELTS / CEFR: topic list ----------
+
+function openCourseTopicsView(sectionId){
+  state.activeSectionId = sectionId;
+  const course = getCourse(state.activeCourseId);
+  const section = course.sections[sectionId];
+  const sectionMeta = SECTIONS.find(s => s.id === sectionId);
+
+  document.getElementById('courseTopicsSectionName').textContent = `${course.name} — ${sectionMeta.name}`;
+  document.getElementById('courseTopicsSub').textContent = `${section.topics.length} ta mavzu`;
+
+  const list = document.getElementById('courseTopicsList');
+  if(section.topics.length === 0){
+    list.innerHTML = `<div class="empty-state"><h3>Bu bo‘limga hali mavzu qo‘shilmagan</h3><p>Tez orada mavzular joylanadi.</p></div>`;
+  } else {
+    list.innerHTML = section.topics.map((t, i) => `
+      <div class="lesson-row is-clickable" data-open-topic="${t.id}">
+        <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
+        <div class="lesson-main">
+          <div class="lesson-row-top">
+            <span class="lesson-title">${escapeHtml(t.title || 'Nomsiz mavzu')}</span>
+          </div>
+          <div class="lesson-meta">
+            ${t.timerSeconds ? `<span class="tag">⏱️ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
+          </div>
+        </div>
+      </div>`).join('');
+  }
+  switchView('course-topics');
+}
+
+document.getElementById('courseTopicsList').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-open-topic]');
+  if(row) openTopicDetail(row.dataset.openTopic);
+});
+
+// ---------- IELTS / CEFR: topic detail (+ optional speaking timer) ----------
+
+let speakingTimer = { remaining: 0, total: 0, interval: null };
+
+function stopSpeakingTimer(){
+  clearInterval(speakingTimer.interval);
+  speakingTimer.interval = null;
+}
+
+function openTopicDetail(topicId){
+  stopSpeakingTimer();
+  state.activeTopicId = topicId;
+  const section = getCourse(state.activeCourseId).sections[state.activeSectionId];
+  const topic = section.topics.find(t => t.id === topicId);
+  const box = document.getElementById('topicDetailBox');
+
+  const hasTimer = !!topic.timerSeconds;
+  box.innerHTML = `
+    <h1>${escapeHtml(topic.title || 'Nomsiz mavzu')}</h1>
+    ${topic.description ? `<div class="rich-content" style="margin-top:.8em;">${topic.description}</div>` : ''}
+    ${topic.material ? `<div class="lesson-detail-links"><a href="${escapeHtml(topic.material)}" target="_blank" rel="noopener">📎 Materialni ko‘rish</a></div>` : ''}
+    ${hasTimer ? `
+    <div style="margin-top:1.6em; padding:1.2em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
+      <label style="display:flex; align-items:center; gap:.7em; cursor:pointer;">
+        <input type="checkbox" id="timerToggle">
+        <span>⏱️ Taymerdan foydalanish (${Math.round(topic.timerSeconds / 60 * 10) / 10} daqiqa) — xohlasangiz yoqing, xohlasangiz taymersiz mashq qiling.</span>
+      </label>
+      <div id="timerControls" hidden style="margin-top:1em; display:flex; align-items:center; gap:1em;">
+        <div id="timerDisplay" style="font-family:var(--font-mono); font-size:1.6rem; font-weight:700;">--:--</div>
+        <button type="button" class="btn btn-amber btn-sm" id="timerStartBtn">Boshlash</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="timerResetBtn">Qayta boshlash</button>
+      </div>
+    </div>` : ''}
+  `;
+
+  if(hasTimer){
+    speakingTimer.total = topic.timerSeconds;
+    speakingTimer.remaining = topic.timerSeconds;
+    const formatTime = (sec) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+    const display = document.getElementById('timerDisplay');
+    display.textContent = formatTime(speakingTimer.remaining);
+
+    document.getElementById('timerToggle').addEventListener('change', (e) => {
+      document.getElementById('timerControls').hidden = !e.target.checked;
+      if(!e.target.checked){ stopSpeakingTimer(); speakingTimer.remaining = speakingTimer.total; display.textContent = formatTime(speakingTimer.remaining); }
+    });
+
+    document.getElementById('timerStartBtn').addEventListener('click', () => {
+      if(speakingTimer.interval) return;
+      speakingTimer.interval = setInterval(() => {
+        speakingTimer.remaining--;
+        display.textContent = formatTime(Math.max(speakingTimer.remaining, 0));
+        if(speakingTimer.remaining <= 0){
+          stopSpeakingTimer();
+          display.textContent = 'Vaqt tugadi';
+        }
+      }, 1000);
+    });
+
+    document.getElementById('timerResetBtn').addEventListener('click', () => {
+      stopSpeakingTimer();
+      speakingTimer.remaining = speakingTimer.total;
+      display.textContent = formatTime(speakingTimer.remaining);
+    });
+  }
+
+  switchView('topic-detail');
+}
+
+document.getElementById('backToCourseTopics').addEventListener('click', (e) => {
+  e.preventDefault();
+  stopSpeakingTimer();
+  openCourseTopicsView(state.activeSectionId);
+});
 
 // ---------- Levels ----------
 
