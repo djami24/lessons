@@ -3,88 +3,91 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>O‘quvchi ro‘yxatdan o‘tish — English Folder</title>
+<title>Ro‘yxatdan o‘tish — English Folder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
 </head>
 <body class="auth-body">
 
+<a href="../index.html" class="brand auth-brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
+
 <div class="auth-wrap">
-  <a href="../index.html" class="brand auth-brand"><span class="brand-mark"></span>English Folder</a>
-
-  <div class="folder auth-folder">
-    <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
+  <div class="folder auth-folder" style="--tab-color:#2E6F6E">
+    <div class="folder-tab"></div>
     <div class="folder-body auth-card">
-      <p class="eyebrow">O‘quvchi portali</p>
-      <h1 class="auth-title">Ro‘yxatdan o‘ting</h1>
-      <p class="auth-sub">Hisob yarating, so‘ng General English kursini tanlab, to‘lovni amalga oshiring — kurs tasdiqlangach darslar ochiladi.</p>
+      <h1 class="auth-title">Ro‘yxatdan o‘tish</h1>
+      <p class="auth-sub">Talaba profilingizni yarating.</p>
 
-      <form id="registerForm" class="auth-form" autocomplete="off">
+      <form class="auth-form" id="registerForm">
         <label class="field">
-          <span>Ism familiya</span>
-          <input type="text" id="name" name="name" placeholder="Ismingiz" required autocomplete="name">
+          <span>Ismingiz</span>
+          <input type="text" id="regName" required autocomplete="name">
         </label>
         <label class="field">
           <span>Email</span>
-          <input type="email" id="email" name="email" placeholder="email@example.com" required autocomplete="username">
+          <input type="email" id="regEmail" required autocomplete="username">
         </label>
         <label class="field">
           <span>Parol</span>
           <div class="password-field">
-            <input type="password" id="password" name="password" placeholder="Kamida 6 belgi" required minlength="6" autocomplete="new-password">
-            <button type="button" id="togglePw" class="pw-toggle" aria-label="Parolni ko‘rsatish">Ko‘rsatish</button>
+            <input type="password" id="regPassword" required autocomplete="new-password" minlength="6">
+            <button type="button" class="pw-toggle" id="pwToggle">Ko‘rsatish</button>
           </div>
         </label>
 
-        <p id="formError" class="form-error" role="alert" hidden></p>
+        <p class="form-error" id="registerError" role="alert" hidden></p>
 
-        <button type="submit" class="btn btn-teal auth-submit" id="submitBtn">Ro‘yxatdan o‘tish</button>
+        <button type="submit" class="btn btn-amber auth-submit" id="registerSubmit">Ro‘yxatdan o‘tish</button>
       </form>
 
-      <p class="auth-hint">Ro‘yxatdan o‘tgach kurslar ro‘yxati chiqadi — General English kursi uchun to‘lov qilib, admin tasdiqlashini kutishingiz kerak bo‘ladi.</p>
+      <p class="auth-switch">Hisobingiz bormi? <a href="login.html">Kirish</a></p>
     </div>
   </div>
-
-  <p class="auth-switch">Hisobingiz bormi? <a href="login.html">Bu yerdan kiring →</a></p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
+<script src="../site-settings.js"></script>
 <script>
-const form = document.getElementById('registerForm');
-const errorEl = document.getElementById('formError');
-const pwInput = document.getElementById('password');
-const toggleBtn = document.getElementById('togglePw');
-const submitBtn = document.getElementById('submitBtn');
 
-toggleBtn.addEventListener('click', () => {
-  const isPw = pwInput.type === 'password';
-  pwInput.type = isPw ? 'text' : 'password';
-  toggleBtn.textContent = isPw ? 'Yashirish' : 'Ko‘rsatish';
+document.getElementById('pwToggle').addEventListener('click', () => {
+  const input = document.getElementById('regPassword');
+  const btn = document.getElementById('pwToggle');
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.textContent = show ? 'Yashirish' : 'Ko‘rsatish';
 });
 
-form.addEventListener('submit', async (e) => {
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  const errorEl = document.getElementById('registerError');
+  const submitBtn = document.getElementById('registerSubmit');
   errorEl.hidden = true;
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Hisob yaratilmoqda…';
+  submitBtn.textContent = 'Yaratilmoqda…';
 
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const password = pwInput.value;
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
 
   try{
     const cred = await auth.createUserWithEmailAndPassword(email, password);
     await db.collection('students').doc(cred.user.uid).set({
-      name, email, paymentStatus: 'none', progress: {}, createdAt: Date.now()
+      name: name,
+      email: email,
+      paymentStatus: 'none',
+      progress: {},
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     window.location.href = 'dashboard.html';
   } catch(err){
-    let msg = 'Xatolik yuz berdi. Qayta urinib ko‘ring.';
-    if(err.code === 'auth/email-already-in-use') msg = 'Bu email allaqachon ro‘yxatdan o‘tgan. Kirish sahifasidan foydalaning.';
-    if(err.code === 'auth/weak-password') msg = 'Parol juda oddiy — kamida 6 belgi bo‘lsin.';
-    if(err.code === 'auth/invalid-email') msg = 'Email formati noto‘g‘ri.';
+    let msg = 'Ro‘yxatdan o‘tishda xatolik yuz berdi. Qayta urinib ko‘ring.';
+    if(err && err.code === 'auth/email-already-in-use') msg = 'Bu email allaqachon ro‘yxatdan o‘tgan. Kirish sahifasidan foydalaning.';
+    if(err && err.code === 'auth/weak-password') msg = 'Parol juda oddiy — kamida 6 ta belgi kiriting.';
+    if(err && err.code === 'auth/invalid-email') msg = 'Email manzil noto‘g‘ri kiritildi.';
     errorEl.textContent = msg;
     errorEl.hidden = false;
     submitBtn.disabled = false;

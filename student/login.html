@@ -3,99 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>O‘quvchi kirish — English Folder</title>
+<title>Talaba kirish — English Folder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
 </head>
 <body class="auth-body">
 
+<a href="../index.html" class="brand auth-brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
+
 <div class="auth-wrap">
-  <a href="../index.html" class="brand auth-brand"><span class="brand-mark"></span>English Folder</a>
-
-  <div class="folder auth-folder">
-    <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
+  <div class="folder auth-folder" style="--tab-color:#2E6F6E">
+    <div class="folder-tab"></div>
     <div class="folder-body auth-card">
-      <p class="eyebrow">O‘quvchi portali</p>
-      <h1 class="auth-title">Kursingizga kiring</h1>
-      <p class="auth-sub">Ro‘yxatdan o‘tgan email va parol bilan kiring — kurslaringiz shu yerda.</p>
+      <h1 class="auth-title">Talaba profiliga kirish</h1>
+      <p class="auth-sub">Email va parolingizni kiriting.</p>
 
-      <form id="loginForm" class="auth-form" autocomplete="off">
+      <form class="auth-form" id="studentLoginForm">
         <label class="field">
           <span>Email</span>
-          <input type="email" id="email" name="email" placeholder="email@example.com" required autocomplete="username">
+          <input type="email" id="loginEmail" required autocomplete="username">
         </label>
         <label class="field">
           <span>Parol</span>
           <div class="password-field">
-            <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
-            <button type="button" id="togglePw" class="pw-toggle" aria-label="Parolni ko‘rsatish">Ko‘rsatish</button>
+            <input type="password" id="loginPassword" required autocomplete="current-password">
+            <button type="button" class="pw-toggle" id="pwToggle">Ko‘rsatish</button>
           </div>
         </label>
 
-        <p id="loginError" class="form-error" role="alert" hidden></p>
+        <p class="form-error" id="loginError" role="alert" hidden></p>
 
-        <button type="submit" class="btn btn-teal auth-submit" id="submitBtn">Kirish</button>
+        <button type="submit" class="btn btn-amber auth-submit" id="loginSubmit">Kirish</button>
       </form>
 
-      <p class="auth-hint">Hisobingiz yo‘qmi? Ro‘yxatdan o‘ting va General English kursi uchun to‘lov qiling.</p>
+      <p class="auth-switch">Hisobingiz yo‘qmi? <a href="register.html">Ro‘yxatdan o‘ting</a></p>
     </div>
   </div>
-
-  <p class="auth-switch">Hisobingiz yo‘qmi? <a href="register.html">Ro‘yxatdan o‘ting →</a></p>
-
-  <p class="auth-switch">Adminmisiz? <a href="../admin/login.html">Bu yerdan kiring →</a></p>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
+<script src="../site-settings.js"></script>
 <script>
-const loginForm = document.getElementById('loginForm');
-const errorEl = document.getElementById('loginError');
-const pwInput = document.getElementById('password');
-const toggleBtn = document.getElementById('togglePw');
-const submitBtn = document.getElementById('submitBtn');
 
-toggleBtn.addEventListener('click', () => {
-  const isPw = pwInput.type === 'password';
-  pwInput.type = isPw ? 'text' : 'password';
-  toggleBtn.textContent = isPw ? 'Yashirish' : 'Ko‘rsatish';
+document.getElementById('pwToggle').addEventListener('click', () => {
+  const input = document.getElementById('loginPassword');
+  const btn = document.getElementById('pwToggle');
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.textContent = show ? 'Yashirish' : 'Ko‘rsatish';
 });
 
-function showError(msg){
-  errorEl.textContent = msg;
-  errorEl.hidden = false;
-}
-
+// If already signed in as a student, skip straight to the dashboard.
 auth.onAuthStateChanged(async (user) => {
   if(!user) return;
   const studentDoc = await db.collection('students').doc(user.uid).get();
-  if(studentDoc.exists){
-    window.location.href = 'dashboard.html';
-  }
+  if(studentDoc.exists){ window.location.href = 'dashboard.html'; }
 });
 
-loginForm.addEventListener('submit', async (e) => {
+document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  const errorEl = document.getElementById('loginError');
+  const submitBtn = document.getElementById('loginSubmit');
   errorEl.hidden = true;
   submitBtn.disabled = true;
   submitBtn.textContent = 'Tekshirilmoqda…';
 
-  const email = document.getElementById('email').value.trim();
-  const password = pwInput.value;
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
 
   try{
     const cred = await auth.signInWithEmailAndPassword(email, password);
     const studentDoc = await db.collection('students').doc(cred.user.uid).get();
-    if(studentDoc.exists){
-      window.location.href = 'dashboard.html';
-    } else {
+    if(!studentDoc.exists){
       await auth.signOut();
-      showError('Bu hisob o‘quvchi sifatida ro‘yxatdan o‘tmagan.');
+      errorEl.textContent = 'Bu hisob talaba sifatida ro‘yxatdan o‘tmagan.';
+      errorEl.hidden = false;
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Kirish';
+      return;
     }
+    window.location.href = 'dashboard.html';
   } catch(err){
-    showError('Email yoki parol noto‘g‘ri. Qayta urinib ko‘ring.');
-  } finally {
+    errorEl.textContent = 'Email yoki parol noto‘g‘ri.';
+    errorEl.hidden = false;
     submitBtn.disabled = false;
     submitBtn.textContent = 'Kirish';
   }
