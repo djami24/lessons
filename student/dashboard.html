@@ -552,6 +552,8 @@ function renderCoursesOverview(){
   }
 
   switchView('courses');
+  document.getElementById('navCourses').classList.add('active');
+  document.getElementById('navMyEssays').classList.remove('active');
 }
 
 document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
@@ -565,6 +567,7 @@ document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
 document.getElementById('cardIelts').addEventListener('click', () => openCourseEntry('ielts'));
 document.getElementById('cardCefr').addEventListener('click', () => openCourseEntry('cefr'));
 document.getElementById('cardWriting').addEventListener('click', () => openWritingEntry());
+document.getElementById('navCourses').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 document.getElementById('navMyEssays').addEventListener('click', async (e) => {
   e.preventDefault();
   await loadMySubmissions();
@@ -884,6 +887,8 @@ function openWritingQuestionDetail(questionId){
 // ---------- My essays (all submissions across all questions) ----------
 
 function renderMyEssays(){
+  document.getElementById('navCourses').classList.remove('active');
+  document.getElementById('navMyEssays').classList.add('active');
   const list = document.getElementById('myEssaysList');
   const empty = document.getElementById('myEssaysEmpty');
   if(state.mySubmissions.length === 0){
