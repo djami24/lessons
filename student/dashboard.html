@@ -852,23 +852,103 @@ function renderEssayStatusBlock(question){
 }
 
 function openWritingQuestionDetail(questionId){
+  stopEssayTimer(); 
   state.activeWritingQuestionId = questionId;
   const question = findWritingQuestion(questionId);
   const box = document.getElementById('writingQuestionBox');
+  
   box.innerHTML = `
     <h1>${escapeHtml(question.title || 'Nomsiz savol')}</h1>
     ${question.text ? `<div class="rich-content" style="margin-top:.8em;">${question.text}</div>` : ''}
     ${question.timerMinutes ? `<p class="tag" style="margin-top:.8em; display:inline-block;">⏱️ Tavsiya etilgan vaqt: ${question.timerMinutes} daqiqa</p>` : ''}
     ${renderEssayStatusBlock(question)}
   `;
+
+  const toggle = document.getElementById('essayTimerToggle');
+  if(toggle){
+    const formatTime = (sec) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+    const controls = document.getElementById('essayTimerControls');
+    const minInput = document.getElementById('essayTimerMinutes');
+    const display = document.getElementById('essayTimerDisplay');
+    const startBtn = document.getElementById('essayTimerStartBtn');
+    const resetBtn = document.getElementById('essayTimerResetBtn');
+    const essayInput = document.getElementById('writingEssayInput');
+    const timeUpNotice = document.getElementById('essayTimeUpNotice');
+    const rewriteBtn = document.getElementById('essayRewriteBtn');
+
+    const updateInitialDisplay = () => {
+      essayTimer.total = (parseInt(minInput.value) || 20) * 60;
+      essayTimer.remaining = essayTimer.total;
+      display.textContent = formatTime(essayTimer.remaining);
+    };
+    updateInitialDisplay();
+
+    toggle.addEventListener('change', (e) => {
+      controls.hidden = !e.target.checked;
+      if(!e.target.checked){
+        stopEssayTimer();
+        updateInitialDisplay();
+        essayInput.disabled = false;
+        timeUpNotice.hidden = true;
+        rewriteBtn.hidden = true;
+      }
+    });
+
+    minInput.addEventListener('input', updateInitialDisplay);
+
+    startBtn.addEventListener('click', () => {
+      if(essayTimer.interval) return; 
+      if(essayTimer.remaining <= 0) essayTimer.remaining = essayTimer.total;
+      
+      essayInput.disabled = false;
+      timeUpNotice.hidden = true;
+      rewriteBtn.hidden = true;
+
+      essayTimer.interval = setInterval(() => {
+        essayTimer.remaining--;
+        display.textContent = formatTime(Math.max(essayTimer.remaining, 0));
+        
+        // Vaqt tugaganda
+        if(essayTimer.remaining <= 0){
+          stopEssayTimer();
+          display.textContent = 'Vaqt tugadi';
+          essayInput.disabled = true; // Yozish joyi yopiladi
+          timeUpNotice.hidden = false;
+          rewriteBtn.hidden = false;
+        }
+      }, 1000);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      stopEssayTimer();
+      updateInitialDisplay();
+      essayInput.disabled = false;
+      timeUpNotice.hidden = true;
+      rewriteBtn.hidden = true;
+    });
+
+    // Qaytadan yozish tugmasi
+    rewriteBtn.addEventListener('click', () => {
+      essayInput.value = '';
+      essayInput.disabled = false;
+      timeUpNotice.hidden = true;
+      rewriteBtn.hidden = true;
+      stopEssayTimer();
+      updateInitialDisplay();
+    });
+  }
+
   const submitBtn = document.getElementById('submitEssayBtn');
   if(submitBtn){
     submitBtn.addEventListener('click', async () => {
       const text = document.getElementById('writingEssayInput').value.trim();
       const errorEl = document.getElementById('writingEssayError');
       if(!text){ errorEl.textContent = 'Iltimos, inshoyingizni yozing.'; errorEl.hidden = false; return; }
+      
+      stopEssayTimer(); 
       submitBtn.disabled = true;
       submitBtn.textContent = 'Yuborilmoqda…';
+      
       try{
         const track = WRITING_TRACKS.find(t => t.id === state.activeWritingTrackId);
         const docRef = await db.collection('writingSubmissions').add({
@@ -1009,11 +1089,11 @@ document.getElementById('courseTopicsList').addEventListener('click', (e) => {
 
 // ---------- IELTS / CEFR: topic detail (+ optional speaking timer) ----------
 
-let speakingTimer = { remaining: 0, total: 0, interval: null };
+let essayTimer = { remaining: 0, total: 0, interval: null };
 
-function stopSpeakingTimer(){
-  clearInterval(speakingTimer.interval);
-  speakingTimer.interval = null;
+function stopEssayTimer(){
+  clearInterval(essayTimer.interval);
+  essayTimer.interval = null;
 }
 
 function openTopicDetail(topicId){
