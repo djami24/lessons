@@ -329,6 +329,17 @@ footer a:hover{ color: var(--amber); }
 .lesson-links a:hover{ text-decoration:underline; }
 .lesson-homework{ margin-top:.6em; font-size:.85rem; background: var(--paper-2); padding:.8em 1em; border-radius: var(--radius-s); }
 
+/* Nested folders inside admin lesson / topic lists */
+.breadcrumb-trail{ display:flex; align-items:center; flex-wrap:wrap; gap:.45em; font-size:.85rem; margin-bottom:1.2em; }
+.breadcrumb-trail a{ color: var(--gray); text-decoration:none; font-weight:700; cursor:pointer; }
+.breadcrumb-trail a:hover{ color: var(--teal-deep); text-decoration:underline; }
+.breadcrumb-trail .crumb-sep{ color: var(--line); }
+.breadcrumb-trail .crumb-current{ color: var(--ink); font-weight:700; }
+.folder-row{ cursor:pointer; border-color: rgba(46,111,110,.25); background: rgba(46,111,110,.04); }
+.folder-row:hover{ border-color: var(--teal); }
+.folder-row .lesson-index{ color: var(--teal-deep); font-size:1.35rem; padding-top:0; }
+.folder-row .lesson-title{ cursor:pointer; }
+
 /* Students table */
 .table-wrap{ background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-m); overflow:hidden; }
 table.data-table{ width:100%; border-collapse: collapse; font-size:.9rem; }
