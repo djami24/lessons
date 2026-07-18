@@ -23,6 +23,11 @@ service cloud.firestore {
       return courseStatus(request.resource.data, 'cefr') == courseStatus(resource.data, 'cefr') ||
              courseStatus(request.resource.data, 'cefr') == 'pending';
     }
+    // Writing (insho) — separate paid add-on, same self-service-to-'pending'-only rule.
+    function validCoursePaymentsUpdateWriting() {
+      return courseStatus(request.resource.data, 'writing') == courseStatus(resource.data, 'writing') ||
+             courseStatus(request.resource.data, 'writing') == 'pending';
+    }
  
     // Admin accounts — document ID = the admin's Firebase Auth UID.
     // Create these manually in the Firestore console (see setup guide).
@@ -85,10 +90,40 @@ service cloud.firestore {
           .hasOnly(['progress','paymentStatus','paymentRequestedAt','coursePayments','coursePaymentRequestedAt']) &&
         request.resource.data.paymentStatus in ['pending', resource.data.paymentStatus] &&
         validCoursePaymentsUpdate() &&
-        validCoursePaymentsUpdateCefr()
+        validCoursePaymentsUpdateCefr() &&
+        validCoursePaymentsUpdateWriting()
       );
  
       allow delete: if isAdmin();
+    }
+
+    // Writing (insho) submissions — a student picks a question (under
+    // courses/writing) and submits an essay; only an admin may grade it.
+    // Document shape: { studentId, studentName, trackId, trackName,
+    //   questionId, questionTitle, questionText, essayText, status:
+    //   'pending'|'graded', score, comment, submittedAt, gradedAt }
+    match /writingSubmissions/{submissionId} {
+      // A student may read only their own submissions; admin reads all.
+      allow read: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid);
+
+      // A student may submit an essay for THEMSELVES only, always starting
+      // out ungraded (no score/comment yet) — and only if their Writing
+      // course access has been approved by an admin.
+      allow create: if isSignedIn() &&
+        request.resource.data.studentId == request.auth.uid &&
+        request.resource.data.status == 'pending' &&
+        request.resource.data.score == null &&
+        request.resource.data.comment == null &&
+        get(/databases/$(database)/documents/students/$(request.auth.uid)).data
+          .get('coursePayments', {}).get('writing', 'none') == 'approved';
+
+      // Only an admin can grade (set status/score/comment/gradedAt).
+      allow update: if isAdmin() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','score','comment','gradedAt']);
+
+      // Admin can delete any submission; a student may withdraw their own
+      // submission only while it's still ungraded.
+      allow delete: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid && resource.data.status == 'pending');
     }
   }
 }
