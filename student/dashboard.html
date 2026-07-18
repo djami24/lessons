@@ -813,7 +813,7 @@ function renderEssayStatusBlock(question){
         ? `<p class="status-pill" style="background:rgba(46,111,110,.15); color:var(--teal-deep); display:inline-block; margin-bottom:.6em;">Baholangan${latest.score ? ' · Ball: ' + escapeHtml(String(latest.score)) : ''}</p>
            ${latest.comment ? `<div class="rich-content" style="margin-top:.4em;"><strong>Admin izohi:</strong><p>${escapeHtml(latest.comment)}</p></div>` : ''}`
         : `<p class="status-pill" style="background:rgba(217,142,63,.18); color:var(--amber-deep); display:inline-block;">⏳ Admin javobini kutmoqda</p>`}
-      <div class="homework-content rich-content" style="margin-top:1em; white-space:pre-wrap;">${escapeHtml(latest.essayText || '')}</div>
+    <div class="homework-content rich-content" style="margin-top:1em; white-space:pre-wrap; word-break:break-word; overflow-wrap:break-word;">${escapeHtml(latest.essayText || '')}</div>
     </div>`;
   }
 
