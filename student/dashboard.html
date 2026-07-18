@@ -17,6 +17,7 @@
     <a href="../index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
     <ul class="admin-nav">
       <li><a href="#" class="active" id="navCourses">📚 Kurslarim</a></li>
+      <li><a href="#" id="navMyEssays">✍️ Insholarim</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -62,6 +63,14 @@
             <span class="tag">Listening · Reading · Speaking</span>
             <h3 class="course-title">IELTS</h3>
             <p class="course-sub" id="ieltsSub">IELTS imtihoniga tayyorgarlik · 60 000 so‘m</p>
+          </div>
+        </article>
+        <article class="folder course-card" id="cardWriting">
+          <div class="folder-tab" style="--tab-color:#A63A50"></div>
+          <div class="folder-body">
+            <span class="tag">CEFR · IELTS</span>
+            <h3 class="course-title">Writing</h3>
+            <p class="course-sub" id="writingSub">Insho yozing, admin baholaydi · 50 000 so‘m</p>
           </div>
         </article>
       </div>
@@ -192,6 +201,76 @@
       <div class="quiz-result-box" id="quizResultBox"></div>
     </section>
 
+    <!-- ===== PAYMENT GATE (Writing) ===== -->
+    <section id="view-writing-payment" hidden>
+      <a href="#" id="backToCoursesFromWritingPayment" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>Writing kursi</h1>
+          <p>Insho yozib yuborish uchun to‘lovni amalga oshiring.</p>
+        </div>
+      </div>
+      <div class="payment-box">
+        <p class="eyebrow">To‘lov</p>
+        <div class="payment-price" id="writingPaymentPrice">50 000 so‘m</div>
+        <p>To‘lov tasdiqlangach, CEFR va IELTS insho savollariga ega bo‘lasiz — istalgan savolni tanlab insho yozib, adminga yuborasiz. Admin ball qo‘yib, izoh yozib qaytaradi.</p>
+        <ol class="payment-steps">
+          <li id="writingPaymentStep1">50 000 so‘mni ko‘rsatilgan hisobga o‘tkazing.</li>
+          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
+          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
+          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
+        </ol>
+        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
+        <div id="writingPaymentActionArea" style="margin-top:1.6em;"></div>
+      </div>
+    </section>
+
+    <!-- ===== WRITING: tracks (CEFR / IELTS) ===== -->
+    <section id="view-writing-tracks" hidden>
+      <a href="#" id="backToCoursesFromWritingTracks" class="back-link">← Kurslarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1>Writing</h1>
+          <p>Bo‘limni tanlang.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="writingTracksGrid"></div>
+    </section>
+
+    <!-- ===== WRITING: folders / questions inside a track ===== -->
+    <section id="view-writing-folders" hidden>
+      <a href="#" id="backToWritingTracks" class="back-link">← Writing bo‘limlariga qaytish</a>
+      <div class="breadcrumb-trail" id="writingBreadcrumb"></div>
+      <div class="admin-header">
+        <div>
+          <h1 id="writingTrackName">CEFR</h1>
+          <p id="writingFoldersSub"></p>
+        </div>
+      </div>
+      <div class="lesson-list" id="writingFoldersList"></div>
+    </section>
+
+    <!-- ===== WRITING: question detail + essay form ===== -->
+    <section id="view-writing-question" hidden>
+      <a href="#" id="backToWritingFolders" class="back-link">← Ro‘yxatga qaytish</a>
+      <div class="lesson-detail-box" id="writingQuestionBox"></div>
+    </section>
+
+    <!-- ===== MY ESSAYS ===== -->
+    <section id="view-my-essays" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>Insholarim</h1>
+          <p>Yuborgan barcha insholaringiz va admin bahosi shu yerda.</p>
+        </div>
+      </div>
+      <div class="lesson-list" id="myEssaysList"></div>
+      <div id="myEssaysEmpty" class="empty-state" style="display:none;">
+        <h3>Hali insho yubormagansiz</h3>
+        <p>Writing bo‘limidan savol tanlab, birinchi inshoyingizni yuboring.</p>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -223,6 +302,16 @@ const SECTIONS = [
   { id: 'speaking', name: 'Speaking', hasTimer: true }
 ];
 
+// Writing (insho) — separate paid add-on. Structure: two fixed tracks
+// (CEFR / IELTS), each holding a real folder tree (Part 1.1, Part 1.2,
+// Part 2, Full Mock by default, but admin can add/remove more) whose
+// leaves (`type:'question'`) are essay prompts the student answers.
+const WRITING_COURSE_META = { name: 'Writing', price: 50000 };
+const WRITING_TRACKS = [
+  { id: 'cefr', name: 'CEFR' },
+  { id: 'ielts', name: 'IELTS' }
+];
+
 let currentUid = null;
 let state = {
   student: null,        // {name,email,paymentStatus,coursePayments:{ielts,cefr},progress,...}
@@ -233,7 +322,12 @@ let state = {
   activeCourseId: null,
   activeSectionId: null,
   activeTopicId: null,
-  lastQuizContext: null   // {levelId, lessonId} — used by "Qayta urinish"
+  lastQuizContext: null,  // {levelId, lessonId} — used by "Qayta urinish"
+  writingCourse: null,     // { name, price, tracks: { cefr|ielts: {locked, lockedMessage, folders:[NODE...]} } }
+  activeWritingTrackId: null,
+  writingPath: [],          // array of folder ids — where we are inside the current track's folder tree
+  activeWritingQuestionId: null,
+  mySubmissions: []          // this student's own writingSubmissions docs
 };
 
 function escapeHtml(str){
@@ -261,6 +355,8 @@ auth.onAuthStateChanged(async (user) => {
 
   await loadLevels();
   await loadCourses();
+  await loadWriting();
+  await loadMySubmissions();
   renderCoursesOverview();
 });
 
@@ -297,6 +393,64 @@ async function loadCourses(){
 }
 
 function getCourse(id){ return state.courses[id]; }
+
+// ---------- Writing (insho): data helpers ----------
+
+async function loadWriting(){
+  const doc = await db.collection('courses').doc('writing').get();
+  const fallbackTracks = {};
+  WRITING_TRACKS.forEach(t => { fallbackTracks[t.id] = { locked: false, lockedMessage: '', folders: [] }; });
+  const fallback = { name: WRITING_COURSE_META.name, price: WRITING_COURSE_META.price, tracks: fallbackTracks };
+  if(!doc.exists){ state.writingCourse = fallback; return; }
+  const remoteData = doc.data();
+  const mergedTracks = { ...fallbackTracks };
+  Object.keys(remoteData.tracks || {}).forEach(tid => {
+    mergedTracks[tid] = { ...fallbackTracks[tid], ...remoteData.tracks[tid] };
+  });
+  state.writingCourse = { ...fallback, ...remoteData, tracks: mergedTracks };
+}
+
+function getWritingCourse(){ return state.writingCourse; }
+
+async function loadMySubmissions(){
+  const snap = await db.collection('writingSubmissions').where('studentId', '==', currentUid).get();
+  state.mySubmissions = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+}
+
+// Walks `path` (a list of folder ids) down from `rootArray` and returns the
+// array of items at that depth — used to browse the Writing folder tree
+// (unlike lessons/topics, students navigate this tree folder-by-folder
+// instead of seeing one flattened list).
+function getItemsAtPath(rootArray, path){
+  let items = rootArray;
+  for(const fid of path){
+    const node = items.find(n => n.id === fid && n.type === 'folder');
+    if(!node) return items;
+    items = node.children || [];
+  }
+  return items;
+}
+
+function getBreadcrumbNodes(rootArray, path){
+  let items = rootArray;
+  const nodes = [];
+  for(const fid of path){
+    const node = items.find(n => n.id === fid);
+    if(!node) break;
+    nodes.push(node);
+    items = node.children || [];
+  }
+  return nodes;
+}
+
+function countQuestionsDeep(items){
+  let count = 0;
+  (items || []).forEach(it => {
+    if(it.type === 'folder') count += countQuestionsDeep(it.children);
+    else count += 1;
+  });
+  return count;
+}
 
 // Admin can now organize lessons/topics into nested folders (any depth).
 // Students always see a single flat, ordered list — folders are just an
@@ -350,7 +504,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail'];
+const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -384,6 +538,19 @@ function renderCoursesOverview(){
     }
   });
 
+  {
+    const el = document.getElementById('writingSub');
+    const writingStatus = state.student.coursePayments.writing || 'none';
+    if(writingStatus === 'approved'){
+      const totalQuestions = WRITING_TRACKS.reduce((s, t) => s + countQuestionsDeep(getWritingCourse().tracks[t.id].folders), 0);
+      el.textContent = `${totalQuestions} ta savol · CEFR · IELTS`;
+    } else if(writingStatus === 'pending'){
+      el.textContent = 'To‘lov tekshirilmoqda…';
+    } else {
+      el.textContent = `Insho yozing, admin baholaydi · ${getWritingCourse().price.toLocaleString('uz-UZ')} so‘m`;
+    }
+  }
+
   switchView('courses');
 }
 
@@ -397,6 +564,12 @@ document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
 
 document.getElementById('cardIelts').addEventListener('click', () => openCourseEntry('ielts'));
 document.getElementById('cardCefr').addEventListener('click', () => openCourseEntry('cefr'));
+document.getElementById('cardWriting').addEventListener('click', () => openWritingEntry());
+document.getElementById('navMyEssays').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await loadMySubmissions();
+  renderMyEssays();
+});
 
 function openCourseEntry(courseId){
   const status = state.student.coursePayments[courseId] || 'none';
@@ -461,6 +634,282 @@ function openCoursePaymentView(courseId){
 
 document.getElementById('backToCoursesFromCoursePayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 document.getElementById('backToCoursesFromSections').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+
+// ---------- Writing: payment gate, tracks, folders, question, submissions ----------
+
+function openWritingEntry(){
+  const status = state.student.coursePayments.writing || 'none';
+  if(status === 'approved'){
+    openWritingTracksView();
+  } else {
+    openWritingPaymentView();
+  }
+}
+
+function openWritingPaymentView(){
+  const course = getWritingCourse();
+  const status = state.student.coursePayments.writing || 'none';
+  const priceText = course.price.toLocaleString('uz-UZ') + ' so‘m';
+  document.getElementById('writingPaymentPrice').textContent = priceText;
+  document.getElementById('writingPaymentStep1').textContent = `${priceText}ni ko‘rsatilgan hisobga o‘tkazing.`;
+
+  const area = document.getElementById('writingPaymentActionArea');
+  if(status === 'pending'){
+    area.innerHTML = `<p class="payment-pending-box">⏳ So‘rovingiz ko‘rib chiqilmoqda. Admin skrinshotni tasdiqlagach, kurs avtomatik ochiladi.</p>`;
+  } else {
+    area.innerHTML = `<button type="button" class="btn btn-amber" id="writingPaidBtn">To‘lov qildim</button>`;
+    document.getElementById('writingPaidBtn').addEventListener('click', async () => {
+      const btn = document.getElementById('writingPaidBtn');
+      btn.disabled = true;
+      btn.textContent = 'Yuborilmoqda…';
+      await db.collection('students').doc(currentUid).update({ 'coursePayments.writing': 'pending', 'coursePaymentRequestedAt.writing': Date.now() });
+      state.student.coursePayments.writing = 'pending';
+      openWritingPaymentView();
+    });
+  }
+  switchView('writing-payment');
+}
+
+document.getElementById('backToCoursesFromWritingPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+document.getElementById('backToCoursesFromWritingTracks').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
+
+function openWritingTracksView(){
+  const course = getWritingCourse();
+  document.getElementById('writingTracksGrid').innerHTML = WRITING_TRACKS.map(t => {
+    const data = course.tracks[t.id];
+    const locked = !!data.locked;
+    const subText = locked
+      ? escapeHtml(data.lockedMessage || 'Tez kunda ochiladi — yangi savollar qo‘shilyapti.')
+      : `${countQuestionsDeep(data.folders)} ta savol`;
+    return `
+      <article class="folder level-card ${locked ? 'is-locked' : ''}" ${locked ? '' : `data-open-writing-track="${t.id}"`}>
+        <div class="folder-tab" style="--tab-color:${locked ? '#9a9a95' : '#A63A50'}"></div>
+        <div class="folder-body">
+          <span class="tag">Writing</span>
+          <h3 class="level-title">${t.name} ${locked ? '🔒' : ''}</h3>
+          <p class="level-sub">${subText}</p>
+        </div>
+      </article>`;
+  }).join('');
+  switchView('writing-tracks');
+}
+
+document.getElementById('writingTracksGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-open-writing-track]');
+  if(card) openWritingFoldersView(card.dataset.openWritingTrack, []);
+});
+
+document.getElementById('backToWritingTracks').addEventListener('click', (e) => {
+  e.preventDefault();
+  openWritingTracksView();
+});
+
+function openWritingFoldersView(trackId, path){
+  state.activeWritingTrackId = trackId;
+  state.writingPath = path;
+  const track = getWritingCourse().tracks[trackId];
+  const trackMeta = WRITING_TRACKS.find(t => t.id === trackId);
+  const items = getItemsAtPath(track.folders, path);
+
+  const crumbEl = document.getElementById('writingBreadcrumb');
+  if(path.length === 0){
+    crumbEl.innerHTML = '';
+  } else {
+    const crumbs = getBreadcrumbNodes(track.folders, path);
+    let html = `<a data-goto-writing-path="-1">Writing — ${escapeHtml(trackMeta.name)}</a>`;
+    crumbs.forEach((node, i) => {
+      html += `<span class="crumb-sep">/</span>`;
+      html += (i === crumbs.length - 1)
+        ? `<span class="crumb-current">${escapeHtml(node.title || 'Nomsiz papka')}</span>`
+        : `<a data-goto-writing-path="${i}">${escapeHtml(node.title || 'Nomsiz papka')}</a>`;
+    });
+    crumbEl.innerHTML = html;
+  }
+
+  document.getElementById('writingTrackName').textContent = `Writing — ${trackMeta.name}`;
+  document.getElementById('writingFoldersSub').textContent = `${items.filter(it => it.type !== 'folder').length} ta savol${items.filter(it => it.type === 'folder').length ? ` · ${items.filter(it => it.type === 'folder').length} ta papka` : ''}`;
+
+  const list = document.getElementById('writingFoldersList');
+  if(items.length === 0){
+    list.innerHTML = `<div class="empty-state"><h3>Bu yerda hali hech narsa yo‘q</h3><p>Tez orada savollar joylanadi.</p></div>`;
+  } else {
+    list.innerHTML = items.map((item, i) => {
+      if(item.type === 'folder'){
+        return `
+        <div class="lesson-row is-clickable folder-row" data-open-writing-subfolder="${item.id}">
+          <div class="lesson-index">📁</div>
+          <div class="lesson-main">
+            <div class="lesson-row-top"><span class="lesson-title">${escapeHtml(item.title || 'Nomsiz papka')}</span></div>
+            <div class="lesson-meta"><span class="tag">${countQuestionsDeep(item.children)} ta savol</span></div>
+          </div>
+        </div>`;
+      }
+      const mine = state.mySubmissions.filter(s => s.questionId === item.id).sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+      const latest = mine[0];
+      return `
+      <div class="lesson-row is-clickable" data-open-writing-question="${item.id}">
+        <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
+        <div class="lesson-main">
+          <div class="lesson-row-top"><span class="lesson-title">${escapeHtml(item.title || 'Nomsiz savol')}</span></div>
+          <div class="lesson-meta">
+            ${latest ? (latest.status === 'graded' ? `<span class="status-pill" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Baholangan${latest.score ? ' · ' + escapeHtml(String(latest.score)) : ''}</span>` : '<span class="status-pill" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">Kutilmoqda</span>') : '<span class="status-pill" style="background:var(--paper-2); color:var(--gray);">Yozilmagan</span>'}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  switchView('writing-folders');
+}
+
+document.getElementById('writingBreadcrumb').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-goto-writing-path]');
+  if(!btn) return;
+  const idx = Number(btn.dataset.gotoWritingPath);
+  const newPath = idx < 0 ? [] : state.writingPath.slice(0, idx + 1);
+  openWritingFoldersView(state.activeWritingTrackId, newPath);
+});
+
+document.getElementById('writingFoldersList').addEventListener('click', (e) => {
+  const subfolderBtn = e.target.closest('[data-open-writing-subfolder]');
+  if(subfolderBtn){
+    openWritingFoldersView(state.activeWritingTrackId, [...state.writingPath, subfolderBtn.dataset.openWritingSubfolder]);
+    return;
+  }
+  const qBtn = e.target.closest('[data-open-writing-question]');
+  if(qBtn) openWritingQuestionDetail(qBtn.dataset.openWritingQuestion);
+});
+
+document.getElementById('backToWritingFolders').addEventListener('click', (e) => {
+  e.preventDefault();
+  openWritingFoldersView(state.activeWritingTrackId, state.writingPath);
+});
+
+function findWritingQuestion(questionId){
+  const track = getWritingCourse().tracks[state.activeWritingTrackId];
+  function search(items){
+    for(const it of items || []){
+      if(it.type === 'folder'){ const found = search(it.children); if(found) return found; }
+      else if(it.id === questionId) return it;
+    }
+    return null;
+  }
+  return search(track.folders);
+}
+
+function renderEssayStatusBlock(question){
+  const mine = state.mySubmissions.filter(s => s.questionId === question.id).sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
+  const latest = mine[0];
+  const canSubmit = !latest || latest.status === 'graded';
+
+  let html = '';
+  if(latest){
+    html += `
+    <div style="margin-top:1.6em; padding:1.2em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
+      <p class="eyebrow" style="margin-bottom:.4em;">So‘nggi urinish — ${new Date(latest.submittedAt).toLocaleString('uz-UZ')}</p>
+      ${latest.status === 'graded'
+        ? `<p class="status-pill" style="background:rgba(46,111,110,.15); color:var(--teal-deep); display:inline-block; margin-bottom:.6em;">Baholangan${latest.score ? ' · Ball: ' + escapeHtml(String(latest.score)) : ''}</p>
+           ${latest.comment ? `<div class="rich-content" style="margin-top:.4em;"><strong>Admin izohi:</strong><p>${escapeHtml(latest.comment)}</p></div>` : ''}`
+        : `<p class="status-pill" style="background:rgba(217,142,63,.18); color:var(--amber-deep); display:inline-block;">⏳ Admin javobini kutmoqda</p>`}
+      <div class="homework-content rich-content" style="margin-top:1em; white-space:pre-wrap;">${escapeHtml(latest.essayText || '')}</div>
+    </div>`;
+  }
+
+  if(canSubmit){
+    html += `
+    <div style="margin-top:1.6em;">
+      <label class="field">
+        <span>${latest ? 'Qayta yozish' : 'Inshoyingizni shu yerga yozing'}</span>
+        <textarea id="writingEssayInput" rows="10" placeholder="Inshoyingizni shu yerga yozing…"></textarea>
+      </label>
+      <p class="form-error" id="writingEssayError" role="alert" hidden></p>
+      <button type="button" class="btn btn-amber" id="submitEssayBtn">Adminga yuborish</button>
+    </div>`;
+  }
+  return html;
+}
+
+function openWritingQuestionDetail(questionId){
+  state.activeWritingQuestionId = questionId;
+  const question = findWritingQuestion(questionId);
+  const box = document.getElementById('writingQuestionBox');
+  box.innerHTML = `
+    <h1>${escapeHtml(question.title || 'Nomsiz savol')}</h1>
+    ${question.text ? `<div class="rich-content" style="margin-top:.8em;">${question.text}</div>` : ''}
+    ${question.timerMinutes ? `<p class="tag" style="margin-top:.8em; display:inline-block;">⏱️ Tavsiya etilgan vaqt: ${question.timerMinutes} daqiqa</p>` : ''}
+    ${renderEssayStatusBlock(question)}
+  `;
+  const submitBtn = document.getElementById('submitEssayBtn');
+  if(submitBtn){
+    submitBtn.addEventListener('click', async () => {
+      const text = document.getElementById('writingEssayInput').value.trim();
+      const errorEl = document.getElementById('writingEssayError');
+      if(!text){ errorEl.textContent = 'Iltimos, inshoyingizni yozing.'; errorEl.hidden = false; return; }
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Yuborilmoqda…';
+      try{
+        const track = WRITING_TRACKS.find(t => t.id === state.activeWritingTrackId);
+        const docRef = await db.collection('writingSubmissions').add({
+          studentId: currentUid,
+          studentName: state.student.name || '',
+          studentEmail: state.student.email || '',
+          trackId: state.activeWritingTrackId,
+          trackName: track.name,
+          questionId: question.id,
+          questionTitle: question.title || '',
+          questionText: question.text || '',
+          essayText: text,
+          status: 'pending',
+          score: null,
+          comment: null,
+          submittedAt: Date.now(),
+          gradedAt: null
+        });
+        state.mySubmissions.unshift({
+          id: docRef.id, studentId: currentUid, trackId: state.activeWritingTrackId, trackName: track.name,
+          questionId: question.id, questionTitle: question.title || '', questionText: question.text || '',
+          essayText: text, status: 'pending', score: null, comment: null, submittedAt: Date.now(), gradedAt: null
+        });
+        openWritingQuestionDetail(questionId);
+      } catch(err){
+        errorEl.textContent = 'Yuborishda xatolik yuz berdi. Qayta urinib ko‘ring.';
+        errorEl.hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Adminga yuborish';
+      }
+    });
+  }
+  switchView('writing-question');
+}
+
+// ---------- My essays (all submissions across all questions) ----------
+
+function renderMyEssays(){
+  const list = document.getElementById('myEssaysList');
+  const empty = document.getElementById('myEssaysEmpty');
+  if(state.mySubmissions.length === 0){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    switchView('my-essays');
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = state.mySubmissions.map(s => `
+    <div class="lesson-row">
+      <div class="lesson-index">${s.status === 'graded' ? '✅' : '⏳'}</div>
+      <div class="lesson-main">
+        <div class="lesson-row-top">
+          <span class="lesson-title">${escapeHtml((s.trackName || '') + ' — ' + (s.questionTitle || 'Nomsiz savol'))}</span>
+          ${s.status === 'graded' && s.score ? `<span class="lesson-score">Ball: ${escapeHtml(String(s.score))}</span>` : ''}
+        </div>
+        <div class="lesson-meta">
+          <span class="tag">${s.submittedAt ? new Date(s.submittedAt).toLocaleString('uz-UZ') : ''}</span>
+          ${s.status === 'graded' ? '<span class="status-pill" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Baholangan ✓</span>' : '<span class="status-pill" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">Kutilmoqda</span>'}
+        </div>
+        ${s.status === 'graded' && s.comment ? `<div class="rich-content" style="margin-top:.6em;"><strong>Admin izohi:</strong><p>${escapeHtml(s.comment)}</p></div>` : ''}
+      </div>
+    </div>`).join('');
+  switchView('my-essays');
+}
 
 // ---------- IELTS / CEFR: sections ----------
 
