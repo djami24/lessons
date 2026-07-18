@@ -53,12 +53,16 @@
     <!-- ===== LESSON LIST (inside one level) ===== -->
     <section id="view-lessons" hidden>
       <a href="#" id="backToLevels" class="back-link">← Darajalarga qaytish</a>
+      <div class="breadcrumb-trail" id="lessonBreadcrumb"></div>
       <div class="admin-header">
         <div>
           <h1 id="lessonsLevelName">Daraja nomi</h1>
           <p id="lessonsLevelSub">0 ta dars</p>
         </div>
-        <button class="btn btn-amber" id="openAddLesson">+ Yangi dars qo‘shish</button>
+        <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+          <button class="btn btn-ghost" id="openAddLessonFolder">📁 Yangi papka</button>
+          <button class="btn btn-amber" id="openAddLesson">+ Yangi dars qo‘shish</button>
+        </div>
       </div>
 
       <div class="lesson-list" id="lessonList"></div>
@@ -78,12 +82,16 @@
     <!-- ===== COURSE TOPICS (inside Listening / Reading / Speaking) ===== -->
     <section id="view-course-topics" hidden>
       <a href="#" id="backToCourseSections" class="back-link">← Bo‘limlarga qaytish</a>
+      <div class="breadcrumb-trail" id="topicBreadcrumb"></div>
       <div class="admin-header">
         <div>
           <h1 id="courseTopicsSectionName">Listening</h1>
           <p id="courseTopicsSub">0 ta mavzu</p>
         </div>
-        <button class="btn btn-amber" id="openAddTopic">+ Yangi mavzu qo‘shish</button>
+        <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+          <button class="btn btn-ghost" id="openAddTopicFolder">📁 Yangi papka</button>
+          <button class="btn btn-amber" id="openAddTopic">+ Yangi mavzu qo‘shish</button>
+        </div>
       </div>
       <div class="lesson-list" id="courseTopicsList"></div>
     </section>
@@ -279,6 +287,24 @@
   </div>
 </div>
 
+<!-- ===== MODAL: Add/rename folder (used inside lessons AND course topics) ===== -->
+<div class="modal-overlay" id="modalAddFolder" hidden>
+  <div class="modal-box">
+    <h3 id="folderModalTitle">Yangi papka</h3>
+    <form class="modal-form" id="addFolderForm">
+      <label class="field">
+        <span>Papka nomi</span>
+        <input type="text" id="folderTitleInput" placeholder="Masalan: 1-bo‘lim" required>
+      </label>
+      <p id="folderModalError" class="form-error" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalAddFolder">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber">Saqlash</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- ===== MODAL: Add student ===== -->
 <div class="modal-overlay" id="modalAddStudent" hidden>
   <div class="modal-box">
@@ -373,9 +399,18 @@
    English Folder — Admin dashboard logic (Firestore-backed)
 
    Data model:
-   levels/{beginner|elementary|pre-intermediate}  { name, order, lessons:[{id,title,video,material,topicText,homework,quiz:[{question,options:[4],correctIndex}]}] }
+   levels/{beginner|elementary|pre-intermediate}  { name, order, lessons:[NODE...], locked, lockedMessage }
+   courses/{ielts|cefr}  { name, price, sections:{listening|reading|speaking:{locked,lockedMessage,topics:[NODE...]}} }
    students/{uid}       { name, email, paymentStatus:'none'|'pending'|'approved', progress:{levelId:{lessonId:{passed,bestScore}}}, createdAt }
    admins/{uid}          { email }   (managed via console)
+
+   NODE (tree item inside `lessons` / `topics` — folders can nest to any depth):
+     folder: {id, type:'folder', title, children:[NODE...]}
+     lesson: {id, type:'lesson', title, video, material, topicText, homework, homeworkAnswer, quiz:[{question,options:[4],correctIndex}]}
+     topic:  {id, type:'topic', title, material, description, timerSeconds}
+   Items saved before this feature existed have no `type` field — anything
+   that isn't `type:'folder'` is treated as a leaf lesson/topic, so old data
+   keeps working unchanged.
    ============================================================ */
 
 const LEVELS = [
@@ -410,8 +445,68 @@ let state = {
   activeTopicId: null,
   quizDraft: [],
   detailStudentId: null,
-  lockTarget: null      // {type:'level', levelId} | {type:'section', courseId, sectionId}
+  lockTarget: null,      // {type:'level', levelId} | {type:'section', courseId, sectionId}
+  lessonPath: [],        // array of folder ids — where we are inside the current level's lesson tree
+  topicPath: [],         // array of folder ids — where we are inside the current section's topic tree
+  folderCtx: null        // {kind:'lesson'|'topic', editId: string|null} — which tree the folder modal targets
 };
+
+// ---------- Folder tree helpers (shared by lessons and topics) ----------
+
+// Walks `path` (a list of folder ids) down from `rootArray` and returns the
+// array of items that live at that depth — root array itself if path is empty.
+function getItemsAtPath(rootArray, path){
+  let items = rootArray;
+  for(const fid of path){
+    const node = items.find(n => n.id === fid && n.type === 'folder');
+    if(!node) return items; // stale path (e.g. folder got deleted elsewhere) — fall back safely
+    if(!node.children) node.children = [];
+    items = node.children;
+  }
+  return items;
+}
+
+// Returns the folder node objects along `path`, in order, for breadcrumb rendering.
+function getBreadcrumbNodes(rootArray, path){
+  let items = rootArray;
+  const nodes = [];
+  for(const fid of path){
+    const node = items.find(n => n.id === fid);
+    if(!node) break;
+    nodes.push(node);
+    items = node.children || [];
+  }
+  return nodes;
+}
+
+// Recursively counts real lessons/topics (leaf nodes) and quiz questions inside a tree.
+function countLeavesDeep(items){
+  let count = 0, quiz = 0;
+  (items || []).forEach(it => {
+    if(it.type === 'folder'){
+      const sub = countLeavesDeep(it.children);
+      count += sub.count; quiz += sub.quiz;
+    } else {
+      count += 1;
+      quiz += (it.quiz ? it.quiz.length : 0);
+    }
+  });
+  return { count, quiz };
+}
+
+function renderBreadcrumb(elId, rootLabel, rootArray, path, onNavigateAttr){
+  const el = document.getElementById(elId);
+  if(path.length === 0){ el.innerHTML = ''; return; }
+  const crumbs = getBreadcrumbNodes(rootArray, path);
+  let html = `<a data-${onNavigateAttr}="-1">${escapeHtml(rootLabel)}</a>`;
+  crumbs.forEach((node, i) => {
+    html += `<span class="crumb-sep">/</span>`;
+    html += (i === crumbs.length - 1)
+      ? `<span class="crumb-current">${escapeHtml(node.title || 'Nomsiz papka')}</span>`
+      : `<a data-${onNavigateAttr}="${i}">${escapeHtml(node.title || 'Nomsiz papka')}</a>`;
+  });
+  el.innerHTML = html;
+}
 
 // ---------- Auth gate ----------
 auth.onAuthStateChanged(async (user) => {
@@ -524,8 +619,8 @@ function getLevel(id){ return state.levels[id]; }
 // ---------- Render: levels overview ----------
 
 function renderLevelsOverview(){
-  const totalLessons = LEVELS.reduce((sum, l) => sum + getLevel(l.id).lessons.length, 0);
-  const totalQuestions = LEVELS.reduce((sum, l) => sum + getLevel(l.id).lessons.reduce((s, les) => s + (les.quiz ? les.quiz.length : 0), 0), 0);
+  const totalLessons = LEVELS.reduce((sum, l) => sum + countLeavesDeep(getLevel(l.id).lessons).count, 0);
+  const totalQuestions = LEVELS.reduce((sum, l) => sum + countLeavesDeep(getLevel(l.id).lessons).quiz, 0);
   const pendingPayments = state.students.filter(s => s.paymentStatus === 'pending').length;
   const approvedStudents = state.students.filter(s => s.paymentStatus === 'approved').length;
 
@@ -538,7 +633,7 @@ function renderLevelsOverview(){
 
   document.getElementById('levelsGrid').innerHTML = LEVELS.map(lvl => {
     const data = getLevel(lvl.id);
-    const questionCount = data.lessons.reduce((s, l) => s + (l.quiz ? l.quiz.length : 0), 0);
+    const stats = countLeavesDeep(data.lessons);
     const locked = !!data.locked;
     return `
       <article class="folder level-card" style="--tab-color:${locked ? '#9a9a95' : '#2E6F6E'}" data-open-level="${lvl.id}">
@@ -549,7 +644,7 @@ function renderLevelsOverview(){
             ${locked ? '<span class="badge-soon">🔒 Qulflangan</span>' : ''}
           </div>
           <h3 class="level-title">${escapeHtml(lvl.name)}</h3>
-          <p class="level-sub">${data.lessons.length} ta dars · ${questionCount} ta test savoli</p>
+          <p class="level-sub">${stats.count} ta dars · ${stats.quiz} ta test savoli</p>
           <button type="button" class="btn btn-ghost btn-sm" data-toggle-lock="${lvl.id}" style="align-self:flex-start; margin-top:.6em;">${locked ? 'Qulfni ochish' : 'Qulflash'}</button>
         </div>
       </article>`;
@@ -664,7 +759,7 @@ function renderCourseSectionsGrid(){
             ${locked ? '<span class="badge-soon">🔒 Qulflangan</span>' : ''}
           </div>
           <h3 class="level-title">${s.name}</h3>
-          <p class="level-sub">${data.topics.length} ta mavzu</p>
+          <p class="level-sub">${countLeavesDeep(data.topics).count} ta mavzu</p>
           <button type="button" class="btn btn-ghost btn-sm" data-toggle-section-lock="${s.id}" style="align-self:flex-start; margin-top:.6em;">${locked ? 'Qulfni ochish' : 'Qulflash'}</button>
         </div>
       </article>`;
@@ -685,35 +780,64 @@ document.getElementById('navCefr').addEventListener('click', (e) => { e.preventD
 
 function openCourseTopics(sectionId){
   state.activeSectionId = sectionId;
+  state.topicPath = [];
   const course = state.courses[state.activeCourseId];
-  const section = course.sections[sectionId];
   const sectionMeta = SECTIONS.find(s => s.id === sectionId);
   document.getElementById('courseTopicsSectionName').textContent = `${course.name} — ${sectionMeta.name}`;
-  document.getElementById('courseTopicsSub').textContent = `${section.topics.length} ta mavzu`;
   renderCourseTopicsList();
   switchView('course-topics');
 }
 
 function renderCourseTopicsList(){
-  const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
+  const course = state.courses[state.activeCourseId];
+  const section = course.sections[state.activeSectionId];
+  const sectionMeta = SECTIONS.find(s => s.id === state.activeSectionId);
+  const items = getItemsAtPath(section.topics, state.topicPath);
+
+  renderBreadcrumb('topicBreadcrumb', `${course.name} — ${sectionMeta.name}`, section.topics, state.topicPath, 'goto-topic-path');
+
+  const stats = { topics: items.filter(it => it.type !== 'folder').length, folders: items.filter(it => it.type === 'folder').length };
+  document.getElementById('courseTopicsSub').textContent = `${stats.topics} ta mavzu${stats.folders ? ` · ${stats.folders} ta papka` : ''}`;
+
   const list = document.getElementById('courseTopicsList');
-  if(section.topics.length === 0){
+  if(items.length === 0){
     list.innerHTML = `
       <div class="empty-state">
-        <h3>Bu bo‘limda hali mavzu yo‘q</h3>
-        <p>“Yangi mavzu qo‘shish” tugmasini bosib birinchisini yarating.</p>
+        <h3>Bu yerda hali hech narsa yo‘q</h3>
+        <p>“Yangi papka” yoki “Yangi mavzu qo‘shish” tugmasini bosib boshlang.</p>
       </div>`;
     return;
   }
-  list.innerHTML = section.topics.map((t, i) => `
+  list.innerHTML = items.map((item, i) => {
+    if(item.type === 'folder'){
+      const childCount = (item.children || []).length;
+      return `
+      <div class="lesson-row folder-row" data-open-folder-item="${item.id}">
+        <div class="lesson-index">📁</div>
+        <div class="lesson-main">
+          <div class="lesson-row-top">
+            <span class="lesson-title">${escapeHtml(item.title || 'Nomsiz papka')}</span>
+            <div class="lesson-actions">
+              <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${item.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
+              <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
+              <button class="btn btn-ghost btn-sm" data-rename-folder="${item.id}">Nomini o‘zgartirish</button>
+              <button class="btn btn-danger btn-sm" data-delete-folder="${item.id}">O‘chirish</button>
+            </div>
+          </div>
+          <div class="lesson-meta"><span class="tag">${childCount} ta element</span></div>
+        </div>
+      </div>`;
+    }
+    const t = item;
+    return `
     <div class="lesson-row">
       <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
       <div class="lesson-main">
         <div class="lesson-row-top">
           <span class="lesson-title">${escapeHtml(t.title || 'Nomsiz mavzu')}</span>
           <div class="lesson-actions">
-            <button class="btn btn-ghost btn-sm" data-move-topic="up" data-topic-id="${t.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-            <button class="btn btn-ghost btn-sm" data-move-topic="down" data-topic-id="${t.id}" ${i === section.topics.length - 1 ? 'disabled' : ''}>↓</button>
+            <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${t.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
+            <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${t.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
             <button class="btn btn-ghost btn-sm" data-edit-topic="${t.id}">Tahrirlash</button>
             <button class="btn btn-danger btn-sm" data-delete-topic="${t.id}">O‘chirish</button>
           </div>
@@ -724,12 +848,30 @@ function renderCourseTopicsList(){
           ${t.timerSeconds ? `<span class="tag">⏱️ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
         </div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
+
+document.getElementById('topicBreadcrumb').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-goto-topic-path]');
+  if(!btn) return;
+  const idx = Number(btn.dataset.gotoTopicPath);
+  state.topicPath = idx < 0 ? [] : state.topicPath.slice(0, idx + 1);
+  renderCourseTopicsList();
+});
+
+document.getElementById('openAddTopicFolder').addEventListener('click', () => {
+  state.folderCtx = { kind: 'topic', editId: null };
+  document.getElementById('folderModalTitle').textContent = 'Yangi papka';
+  document.getElementById('addFolderForm').reset();
+  document.getElementById('folderModalError').hidden = true;
+  openModal('modalAddFolder');
+});
 
 document.getElementById('backToCourseSections').addEventListener('click', (e) => {
   e.preventDefault();
   state.activeSectionId = null;
+  state.topicPath = [];
   renderCourseSectionsGrid();
   switchView('course-sections');
 });
@@ -749,10 +891,41 @@ document.getElementById('openAddTopic').addEventListener('click', () => {
 
 document.getElementById('courseTopicsList').addEventListener('click', (e) => {
   const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
+  const items = getItemsAtPath(section.topics, state.topicPath);
+
+  const openFolderBtn = e.target.closest('[data-open-folder-item]');
+  if(openFolderBtn){
+    state.topicPath.push(openFolderBtn.dataset.openFolderItem);
+    renderCourseTopicsList();
+    return;
+  }
+
+  const renameFolderBtn = e.target.closest('[data-rename-folder]');
+  if(renameFolderBtn){
+    const folder = items.find(n => n.id === renameFolderBtn.dataset.renameFolder);
+    if(!folder) return;
+    state.folderCtx = { kind: 'topic', editId: folder.id };
+    document.getElementById('folderModalTitle').textContent = 'Papka nomini o‘zgartirish';
+    document.getElementById('folderTitleInput').value = folder.title || '';
+    document.getElementById('folderModalError').hidden = true;
+    openModal('modalAddFolder');
+    return;
+  }
+
+  const deleteFolderBtn = e.target.closest('[data-delete-folder]');
+  if(deleteFolderBtn){
+    const folder = items.find(n => n.id === deleteFolderBtn.dataset.deleteFolder);
+    if(folder && confirm(`“${folder.title || 'Nomsiz papka'}” papkasini ichidagi hamma narsasi bilan o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
+      items.splice(items.indexOf(folder), 1);
+      db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections })
+        .then(() => { renderCourseTopicsList(); showToast('Papka o‘chirildi.'); });
+    }
+    return;
+  }
 
   const editBtn = e.target.closest('[data-edit-topic]');
   if(editBtn){
-    const topic = section.topics.find(t => t.id === editBtn.dataset.editTopic);
+    const topic = items.find(t => t.id === editBtn.dataset.editTopic);
     if(!topic) return;
     state.activeTopicId = topic.id;
     document.getElementById('topicModalTitle').textContent = 'Mavzuni tahrirlash';
@@ -769,22 +942,22 @@ document.getElementById('courseTopicsList').addEventListener('click', (e) => {
 
   const delBtn = e.target.closest('[data-delete-topic]');
   if(delBtn){
-    const topic = section.topics.find(t => t.id === delBtn.dataset.deleteTopic);
+    const topic = items.find(t => t.id === delBtn.dataset.deleteTopic);
     if(topic && confirm(`“${topic.title || 'Nomsiz mavzu'}” mavzusini o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
-      section.topics = section.topics.filter(t => t.id !== topic.id);
+      items.splice(items.indexOf(topic), 1);
       db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections })
-        .then(() => { renderCourseTopicsList(); document.getElementById('courseTopicsSub').textContent = `${section.topics.length} ta mavzu`; showToast('Mavzu o‘chirildi.'); });
+        .then(() => { renderCourseTopicsList(); showToast('Mavzu o‘chirildi.'); });
     }
     return;
   }
 
-  const moveBtn = e.target.closest('[data-move-topic]');
+  const moveBtn = e.target.closest('[data-move-item]');
   if(moveBtn){
-    const idx = section.topics.findIndex(t => t.id === moveBtn.dataset.topicId);
-    const dir = moveBtn.dataset.moveTopic === 'up' ? -1 : 1;
+    const idx = items.findIndex(n => n.id === moveBtn.dataset.itemId);
+    const dir = moveBtn.dataset.moveItem === 'up' ? -1 : 1;
     const targetIdx = idx + dir;
-    if(targetIdx < 0 || targetIdx >= section.topics.length) return;
-    [section.topics[idx], section.topics[targetIdx]] = [section.topics[targetIdx], section.topics[idx]];
+    if(idx < 0 || targetIdx < 0 || targetIdx >= items.length) return;
+    [items[idx], items[targetIdx]] = [items[targetIdx], items[idx]];
     db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections })
       .then(() => renderCourseTopicsList());
     return;
@@ -809,17 +982,17 @@ document.getElementById('editTopicForm').addEventListener('submit', async (e) =>
   };
 
   const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
+  const items = getItemsAtPath(section.topics, state.topicPath);
   if(state.activeTopicId){
-    const idx = section.topics.findIndex(t => t.id === state.activeTopicId);
-    section.topics[idx] = { id: state.activeTopicId, ...topicData };
+    const idx = items.findIndex(t => t.id === state.activeTopicId);
+    items[idx] = { id: state.activeTopicId, type: 'topic', ...topicData };
   } else {
-    section.topics.push({ id: 'tpc_' + Date.now(), ...topicData });
+    items.push({ id: 'tpc_' + Date.now(), type: 'topic', ...topicData });
   }
 
   await db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections });
   closeModal('modalEditTopic');
   renderCourseTopicsList();
-  document.getElementById('courseTopicsSub').textContent = `${section.topics.length} ta mavzu`;
   showToast('Mavzu saqlandi.');
 });
 
@@ -832,28 +1005,63 @@ const lessonList = document.getElementById('lessonList');
 
 function openLevel(id){
   state.activeLevelId = id;
+  state.lessonPath = [];
   const lvl = LEVELS.find(l => l.id === id);
-  const data = getLevel(id);
-
   document.getElementById('lessonsLevelName').textContent = lvl.name;
-  document.getElementById('lessonsLevelSub').textContent = `${data.lessons.length} ta dars`;
+  renderLessonList();
+  switchView('lessons');
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+}
 
-  if(data.lessons.length === 0){
+function renderLessonList(){
+  const lvl = LEVELS.find(l => l.id === state.activeLevelId);
+  const data = getLevel(state.activeLevelId);
+  const items = getItemsAtPath(data.lessons, state.lessonPath);
+
+  renderBreadcrumb('lessonBreadcrumb', lvl.name, data.lessons, state.lessonPath, 'goto-lesson-path');
+
+  const stats = { lessons: items.filter(it => it.type !== 'folder').length, folders: items.filter(it => it.type === 'folder').length };
+  document.getElementById('lessonsLevelSub').textContent = `${stats.lessons} ta dars${stats.folders ? ` · ${stats.folders} ta papka` : ''}`;
+
+  if(items.length === 0){
     lessonList.innerHTML = `
       <div class="empty-state">
-        <h3>Bu darajada hali dars yo‘q</h3>
-        <p>“Yangi dars qo‘shish” tugmasini bosib birinchi darsni yarating.</p>
+        <h3>Bu yerda hali hech narsa yo‘q</h3>
+        <p>“Yangi papka” yoki “Yangi dars qo‘shish” tugmasini bosib boshlang.</p>
       </div>`;
-  } else {
-    lessonList.innerHTML = data.lessons.map((lesson, i) => `
+    return;
+  }
+
+  lessonList.innerHTML = items.map((item, i) => {
+    if(item.type === 'folder'){
+      const childCount = (item.children || []).length;
+      return `
+      <div class="lesson-row folder-row" data-open-folder-item="${item.id}">
+        <div class="lesson-index">📁</div>
+        <div class="lesson-main">
+          <div class="lesson-row-top">
+            <span class="lesson-title">${escapeHtml(item.title || 'Nomsiz papka')}</span>
+            <div class="lesson-actions">
+              <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${item.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
+              <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
+              <button class="btn btn-ghost btn-sm" data-rename-folder="${item.id}">Nomini o‘zgartirish</button>
+              <button class="btn btn-danger btn-sm" data-delete-folder="${item.id}">O‘chirish</button>
+            </div>
+          </div>
+          <div class="lesson-meta"><span class="tag">${childCount} ta element</span></div>
+        </div>
+      </div>`;
+    }
+    const lesson = item;
+    return `
       <div class="lesson-row">
         <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
         <div class="lesson-main">
           <div class="lesson-row-top">
             <span class="lesson-title">${escapeHtml(lesson.title || 'Nomsiz dars')}</span>
             <div class="lesson-actions">
-              <button class="btn btn-ghost btn-sm" data-move-lesson="up" data-lesson-id="${lesson.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-              <button class="btn btn-ghost btn-sm" data-move-lesson="down" data-lesson-id="${lesson.id}" ${i === data.lessons.length - 1 ? 'disabled' : ''}>↓</button>
+              <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${lesson.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
+              <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${lesson.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
               <button class="btn btn-ghost btn-sm" data-edit-lesson="${lesson.id}">Tahrirlash</button>
               <button class="btn btn-danger btn-sm" data-delete-lesson="${lesson.id}">O‘chirish</button>
             </div>
@@ -866,15 +1074,29 @@ function openLevel(id){
             ${lesson.homeworkAnswer ? '<span class="tag">✅ Javoblar bor</span>' : ''}
           </div>
         </div>
-      </div>`).join('');
-  }
-
-  switchView('lessons');
-  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+      </div>`;
+  }).join('');
 }
+
+document.getElementById('lessonBreadcrumb').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-goto-lesson-path]');
+  if(!btn) return;
+  const idx = Number(btn.dataset.gotoLessonPath);
+  state.lessonPath = idx < 0 ? [] : state.lessonPath.slice(0, idx + 1);
+  renderLessonList();
+});
+
+document.getElementById('openAddLessonFolder').addEventListener('click', () => {
+  state.folderCtx = { kind: 'lesson', editId: null };
+  document.getElementById('folderModalTitle').textContent = 'Yangi papka';
+  document.getElementById('addFolderForm').reset();
+  document.getElementById('folderModalError').hidden = true;
+  openModal('modalAddFolder');
+});
 
 function closeLevel(){
   state.activeLevelId = null;
+  state.lessonPath = [];
   switchView('levels');
   renderLevelsOverview();
 }
@@ -995,9 +1217,42 @@ document.getElementById('openAddLesson').addEventListener('click', () => {
 });
 
 lessonList.addEventListener('click', (e) => {
+  const data = getLevel(state.activeLevelId);
+  const items = getItemsAtPath(data.lessons, state.lessonPath);
+
+  const openFolderBtn = e.target.closest('[data-open-folder-item]');
+  if(openFolderBtn){
+    state.lessonPath.push(openFolderBtn.dataset.openFolderItem);
+    renderLessonList();
+    return;
+  }
+
+  const renameFolderBtn = e.target.closest('[data-rename-folder]');
+  if(renameFolderBtn){
+    const folder = items.find(n => n.id === renameFolderBtn.dataset.renameFolder);
+    if(!folder) return;
+    state.folderCtx = { kind: 'lesson', editId: folder.id };
+    document.getElementById('folderModalTitle').textContent = 'Papka nomini o‘zgartirish';
+    document.getElementById('folderTitleInput').value = folder.title || '';
+    document.getElementById('folderModalError').hidden = true;
+    openModal('modalAddFolder');
+    return;
+  }
+
+  const deleteFolderBtn = e.target.closest('[data-delete-folder]');
+  if(deleteFolderBtn){
+    const folder = items.find(n => n.id === deleteFolderBtn.dataset.deleteFolder);
+    if(folder && confirm(`“${folder.title || 'Nomsiz papka'}” papkasini ichidagi hamma narsasi bilan o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
+      items.splice(items.indexOf(folder), 1);
+      db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons })
+        .then(() => { renderLessonList(); showToast('Papka o‘chirildi.'); });
+    }
+    return;
+  }
+
   const editBtn = e.target.closest('[data-edit-lesson]');
   if(editBtn){
-    const lesson = getLevel(state.activeLevelId).lessons.find(l => l.id === editBtn.dataset.editLesson);
+    const lesson = items.find(l => l.id === editBtn.dataset.editLesson);
     if(!lesson) return;
     state.activeLessonId = lesson.id;
     state.quizDraft = JSON.parse(JSON.stringify(lesson.quiz || []));
@@ -1015,26 +1270,24 @@ lessonList.addEventListener('click', (e) => {
 
   const delBtn = e.target.closest('[data-delete-lesson]');
   if(delBtn){
-    const data = getLevel(state.activeLevelId);
-    const lesson = data.lessons.find(l => l.id === delBtn.dataset.deleteLesson);
+    const lesson = items.find(l => l.id === delBtn.dataset.deleteLesson);
     if(lesson && confirm(`“${lesson.title || 'Nomsiz dars'}” darsini o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
-      data.lessons = data.lessons.filter(l => l.id !== lesson.id);
+      items.splice(items.indexOf(lesson), 1);
       db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons })
-        .then(() => { openLevel(state.activeLevelId); showToast('Dars o‘chirildi.'); });
+        .then(() => { renderLessonList(); showToast('Dars o‘chirildi.'); });
     }
     return;
   }
 
-  const moveBtn = e.target.closest('[data-move-lesson]');
+  const moveBtn = e.target.closest('[data-move-item]');
   if(moveBtn){
-    const data = getLevel(state.activeLevelId);
-    const idx = data.lessons.findIndex(l => l.id === moveBtn.dataset.lessonId);
-    const dir = moveBtn.dataset.moveLesson === 'up' ? -1 : 1;
+    const idx = items.findIndex(n => n.id === moveBtn.dataset.itemId);
+    const dir = moveBtn.dataset.moveItem === 'up' ? -1 : 1;
     const targetIdx = idx + dir;
-    if(targetIdx < 0 || targetIdx >= data.lessons.length) return;
-    [data.lessons[idx], data.lessons[targetIdx]] = [data.lessons[targetIdx], data.lessons[idx]];
+    if(idx < 0 || targetIdx < 0 || targetIdx >= items.length) return;
+    [items[idx], items[targetIdx]] = [items[targetIdx], items[idx]];
     db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons })
-      .then(() => openLevel(state.activeLevelId));
+      .then(() => renderLessonList());
     return;
   }
 });
@@ -1059,6 +1312,7 @@ document.getElementById('editLessonForm').addEventListener('submit', async (e) =
   }
 
   const data = getLevel(state.activeLevelId);
+  const items = getItemsAtPath(data.lessons, state.lessonPath);
   const lessonData = {
     title: document.getElementById('lessonTitle').value.trim(),
     video: document.getElementById('lessonVideo').value.trim(),
@@ -1070,16 +1324,53 @@ document.getElementById('editLessonForm').addEventListener('submit', async (e) =
   };
 
   if(state.activeLessonId){
-    const idx = data.lessons.findIndex(l => l.id === state.activeLessonId);
-    data.lessons[idx] = { id: state.activeLessonId, ...lessonData };
+    const idx = items.findIndex(l => l.id === state.activeLessonId);
+    items[idx] = { id: state.activeLessonId, type: 'lesson', ...lessonData };
   } else {
-    data.lessons.push({ id: 'lsn_' + Date.now(), ...lessonData });
+    items.push({ id: 'lsn_' + Date.now(), type: 'lesson', ...lessonData });
   }
 
   await db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons });
   closeModal('modalEditLesson');
-  openLevel(state.activeLevelId);
+  renderLessonList();
   showToast('Dars saqlandi.');
+});
+
+// ---------- Folder: add / rename (shared by lessons and topics trees) ----------
+
+document.getElementById('addFolderForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const title = document.getElementById('folderTitleInput').value.trim();
+  const errorEl = document.getElementById('folderModalError');
+  if(!title){ errorEl.textContent = 'Papka nomini kiriting.'; errorEl.hidden = false; return; }
+
+  const ctx = state.folderCtx;
+  if(ctx.kind === 'lesson'){
+    const data = getLevel(state.activeLevelId);
+    const items = getItemsAtPath(data.lessons, state.lessonPath);
+    if(ctx.editId){
+      const folder = items.find(n => n.id === ctx.editId);
+      if(folder) folder.title = title;
+    } else {
+      items.push({ id: 'fld_' + Date.now(), type: 'folder', title, children: [] });
+    }
+    await db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons });
+    closeModal('modalAddFolder');
+    renderLessonList();
+  } else {
+    const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
+    const items = getItemsAtPath(section.topics, state.topicPath);
+    if(ctx.editId){
+      const folder = items.find(n => n.id === ctx.editId);
+      if(folder) folder.title = title;
+    } else {
+      items.push({ id: 'fld_' + Date.now(), type: 'folder', title, children: [] });
+    }
+    await db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections });
+    closeModal('modalAddFolder');
+    renderCourseTopicsList();
+  }
+  showToast('Papka saqlandi.');
 });
 
 // ---------- Students: render ----------
