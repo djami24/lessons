@@ -1111,20 +1111,9 @@ function openTopicDetail(topicId){
   const hasTimer = !!topic.timerSeconds;
   box.innerHTML = `
     <h1>${escapeHtml(topic.title || 'Nomsiz mavzu')}</h1>
+    ${topic.image ? `<div style="margin-top:1em; margin-bottom:1em;"><img src="${escapeHtml(topic.image)}" style="max-width:100%; height:auto; border-radius:8px;" alt="Mavzu rasmi"></div>` : ''}
     ${topic.description ? `<div class="rich-content" style="margin-top:.8em;">${topic.description}</div>` : ''}
     ${topic.material ? `<div class="lesson-detail-links"><a href="${escapeHtml(topic.material)}" target="_blank" rel="noopener">📎 Materialni ko‘rish</a></div>` : ''}
-    ${hasTimer ? `
-    <div style="margin-top:1.6em; padding:1.2em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
-      <label style="display:flex; align-items:center; gap:.7em; cursor:pointer;">
-        <input type="checkbox" id="timerToggle">
-        <span>⏱️ Taymerdan foydalanish (${Math.round(topic.timerSeconds / 60 * 10) / 10} daqiqa) — xohlasangiz yoqing, xohlasangiz taymersiz mashq qiling.</span>
-      </label>
-      <div id="timerControls" hidden style="margin-top:1em; display:flex; align-items:center; gap:1em;">
-        <div id="timerDisplay" style="font-family:var(--font-mono); font-size:1.6rem; font-weight:700;">--:--</div>
-        <button type="button" class="btn btn-amber btn-sm" id="timerStartBtn">Boshlash</button>
-        <button type="button" class="btn btn-ghost btn-sm" id="timerResetBtn">Qayta boshlash</button>
-      </div>
-    </div>` : ''}
   `;
 
   if(hasTimer){
