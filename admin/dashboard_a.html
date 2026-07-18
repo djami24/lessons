@@ -267,11 +267,6 @@
   </main>
 </div>
 
-  <div class="setting-group">
-  <h3>Kurslar ma'lumoti</h3>
-  <textarea id="settingCoursesInfo" class="form-control" placeholder="Kurslar haqida ma'lumotni shu yerga yozing..."></textarea>
-</div>
-
 <!-- ===== MODAL: Add/Edit lesson (+ quiz builder) ===== -->
 <div class="modal-overlay" id="modalEditLesson" hidden>
   <div class="modal-box" style="max-width:640px;">
@@ -2121,12 +2116,6 @@ async function loadSiteSettingsForm(){
     fillSiteSettingsForm(DEFAULT_SITE_SETTINGS);
   }
 }
-  const data = {
-  // ... eski sozlamalar qolaveradi ...
-  homeAdminBtnText: document.getElementById('settingHomeAdminBtnText').value.trim(),
-  // Yangi qator:
-  coursesInfo: document.getElementById('settingCoursesInfo').value.trim() 
-};
 
 ['settingColorPrimary', 'settingColorAccent', 'settingColorBackground', 'settingColorDark'].forEach(id => {
   document.getElementById(id).addEventListener('input', (e) => {
