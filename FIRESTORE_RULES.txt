@@ -1,23 +1,36 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
     function isSignedIn() {
       return request.auth != null;
     }
-
     function isAdmin() {
       return isSignedIn() &&
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-
+    // Reads a nested course-payment status safely, defaulting to 'none'
+    // when the student doc (or the coursePayments map) doesn't have it yet.
+    function courseStatus(data, courseId) {
+      return data.get('coursePayments', {}).get(courseId, 'none');
+    }
+    // A student may move any course's payment status to 'pending', or leave
+    // it unchanged — but never jump straight to 'approved' themselves.
+    function validCoursePaymentsUpdate() {
+      return courseStatus(request.resource.data, 'ielts') == courseStatus(resource.data, 'ielts') ||
+             courseStatus(request.resource.data, 'ielts') == 'pending';
+    }
+    function validCoursePaymentsUpdateCefr() {
+      return courseStatus(request.resource.data, 'cefr') == courseStatus(resource.data, 'cefr') ||
+             courseStatus(request.resource.data, 'cefr') == 'pending';
+    }
+ 
     // Admin accounts — document ID = the admin's Firebase Auth UID.
     // Create these manually in the Firestore console (see setup guide).
     match /admins/{adminId} {
       allow read: if isSignedIn() && request.auth.uid == adminId;
       allow write: if false; // only editable from the Firebase console
     }
-
+ 
     // Site settings (colors, brand name, logo, homepage text) — editable
     // by the admin from the dashboard. Publicly readable because the
     // marketing homepage (index.html) has no signed-in user.
@@ -25,21 +38,31 @@ service cloud.firestore {
       allow read: if true;
       allow write: if isAdmin();
     }
-
-    // Course structure: fixed level docs (beginner / elementary / pre-intermediate),
-    // each holding an embedded `lessons` array (topic, homework, quiz questions).
-    // Any signed-in user may read — needed to show locked previews to unpaid
-    // students and to fetch quiz questions when taking a test.
-    // Only admins may create/edit/delete lessons.
+ 
+    // General English: fixed level docs (beginner / elementary /
+    // pre-intermediate / intermediate), each holding an embedded `lessons`
+    // array (topic, homework, quiz questions) and an optional admin lock
+    // (locked, lockedMessage). Any signed-in user may read — needed to show
+    // locked previews to unpaid students and to fetch quiz questions.
+    // Only admins may create/edit/delete lessons or toggle the lock.
     match /levels/{levelId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
-
+ 
+    // IELTS / CEFR: fixed course docs (ielts / cefr), each holding an
+    // embedded `sections` map (listening / reading / speaking), and each
+    // section holding its own `topics` array plus an optional admin lock.
+    // Same read/write shape as `levels`.
+    match /courses/{courseId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+ 
     // Student accounts — document ID = the student's Firebase Auth UID.
     match /students/{studentId} {
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
-
+ 
       // A signed-in user may create ONLY their own document, always unpaid
       // and with empty progress (course access + progress are never
       // self-assigned at creation time).
@@ -47,19 +70,24 @@ service cloud.firestore {
         request.resource.data.paymentStatus == 'none' &&
         request.resource.data.progress == {} &&
         request.resource.data.keys().hasOnly(['name','email','paymentStatus','progress','createdAt']);
-
-      // Admin can change anything (approve/revoke payment, edit, delete).
+ 
+      // Admin can change anything (approve/revoke payment for General
+      // English, IELTS, or CEFR; edit; delete).
       // A student may only:
       //   - update their own quiz progress, and
-      //   - flip their own paymentStatus to 'pending' (e.g. after clicking
-      //     "To'lov qildim") — they can NEVER set it to 'approved' themselves;
-      //     only an admin can grant course access.
+      //   - flip their OWN paymentStatus / coursePayments.ielts /
+      //     coursePayments.cefr to 'pending' (e.g. after clicking "To'lov
+      //     qildim") — they can NEVER set any of these to 'approved'
+      //     themselves; only an admin can grant course access.
       allow update: if isAdmin() || (
         isSignedIn() && request.auth.uid == studentId &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['progress','paymentStatus','paymentRequestedAt']) &&
-        request.resource.data.paymentStatus in ['pending', resource.data.paymentStatus]
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['progress','paymentStatus','paymentRequestedAt','coursePayments','coursePaymentRequestedAt']) &&
+        request.resource.data.paymentStatus in ['pending', resource.data.paymentStatus] &&
+        validCoursePaymentsUpdate() &&
+        validCoursePaymentsUpdateCefr()
       );
-
+ 
       allow delete: if isAdmin();
     }
   }
