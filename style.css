@@ -581,3 +581,8 @@ table.data-table td .tag{ margin-right:.3em; }
   .quiz-question{ padding: 1.3em 1.4em; }
   .payment-box{ padding: 1.8em 1.5em; }
 }
+/* Barcha savollar va dars matnlari shriftini o'zgartirish */
+.rich-content, .homework-content {
+  font-size: 18px !important; 
+  line-height: 1.6 !important;
+}
