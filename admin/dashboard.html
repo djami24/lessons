@@ -18,6 +18,8 @@
     <a href="../index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
     <ul class="admin-nav">
       <li><a href="#" class="active" id="navLevels">📚 Darslar (General English)</a></li>
+      <li><a href="#" id="navIelts">🎧 IELTS</a></li>
+      <li><a href="#" id="navCefr">🗂️ CEFR</a></li>
       <li><a href="#" id="navStudents">🎓 O‘quvchilar</a></li>
       <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
@@ -60,6 +62,30 @@
       </div>
 
       <div class="lesson-list" id="lessonList"></div>
+    </section>
+
+    <!-- ===== COURSE SECTIONS (IELTS / CEFR overview) ===== -->
+    <section id="view-course-sections" hidden>
+      <div class="admin-header">
+        <div>
+          <h1 id="courseSectionsTitle">IELTS</h1>
+          <p>Listening, Reading va Speaking bo‘limlarini shu yerdan boshqarasiz. Har bir bo‘limni alohida qulflab qo‘yishingiz mumkin.</p>
+        </div>
+      </div>
+      <div class="level-grid" id="courseSectionsGrid"></div>
+    </section>
+
+    <!-- ===== COURSE TOPICS (inside Listening / Reading / Speaking) ===== -->
+    <section id="view-course-topics" hidden>
+      <a href="#" id="backToCourseSections" class="back-link">← Bo‘limlarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="courseTopicsSectionName">Listening</h1>
+          <p id="courseTopicsSub">0 ta mavzu</p>
+        </div>
+        <button class="btn btn-amber" id="openAddTopic">+ Yangi mavzu qo‘shish</button>
+      </div>
+      <div class="lesson-list" id="courseTopicsList"></div>
     </section>
 
     <!-- ===== STUDENTS VIEW ===== -->
@@ -222,6 +248,37 @@
   </div>
 </div>
 
+<!-- ===== MODAL: Add/Edit course topic (IELTS/CEFR Listening/Reading/Speaking) ===== -->
+<div class="modal-overlay" id="modalEditTopic" hidden>
+  <div class="modal-box" style="max-width:640px;">
+    <h3 id="topicModalTitle">Yangi mavzu</h3>
+    <form class="modal-form" id="editTopicForm">
+      <label class="field">
+        <span>Mavzu nomi</span>
+        <input type="text" id="topicTitle" placeholder="Masalan: Section 1 — Everyday conversation" required>
+      </label>
+      <label class="field">
+        <span>Material havolasi <span style="font-weight:400; color:var(--gray);">(audio, matn, PDF va h.k.)</span></span>
+        <input type="url" id="topicMaterial" placeholder="https://…">
+      </label>
+      <label class="field">
+        <span>Tavsif / vazifa</span>
+        <div class="rte-toolbar" data-rte-toolbar="topicDescription"></div>
+        <div class="rte-editor" id="topicDescription" contenteditable="true" data-placeholder="Mavzu haqida, o‘quvchi bajarishi kerak bo‘lgan vazifa…"></div>
+      </label>
+      <label class="field" id="topicTimerField" hidden>
+        <span>⏱️ Taymer (daqiqada) <span style="font-weight:400; color:var(--gray);">— bo‘sh qoldirsangiz, taymersiz bo‘ladi. Talaba taymerdan foydalanish yoki foydalanmaslikni o‘zi tanlaydi.</span></span>
+        <input type="number" id="topicTimerMinutes" min="0" step="0.5" placeholder="Masalan: 2">
+      </label>
+      <p id="editTopicError" class="form-error" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalEditTopic">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber">Saqlash</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- ===== MODAL: Add student ===== -->
 <div class="modal-overlay" id="modalAddStudent" hidden>
   <div class="modal-box">
@@ -254,13 +311,34 @@
   <div class="modal-box">
     <h3 id="studentDetailName">O‘quvchi</h3>
     <p class="modal-sub" id="studentDetailEmail"></p>
-    <p id="studentDetailStatus" style="margin-bottom:1.6em;"></p>
+
+    <div style="display:flex; flex-direction:column; gap:1em; margin-bottom:1.6em;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.8em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
+        <div>
+          <strong>General English</strong>
+          <p id="studentDetailStatusGE" style="margin:.2em 0 0;"></p>
+        </div>
+        <button type="button" class="btn btn-sm" id="togglePaymentBtnGE">Tasdiqlash</button>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.8em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
+        <div>
+          <strong>IELTS</strong>
+          <p id="studentDetailStatusIelts" style="margin:.2em 0 0;"></p>
+        </div>
+        <button type="button" class="btn btn-sm" id="togglePaymentBtnIelts">Tasdiqlash</button>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.8em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
+        <div>
+          <strong>CEFR</strong>
+          <p id="studentDetailStatusCefr" style="margin:.2em 0 0;"></p>
+        </div>
+        <button type="button" class="btn btn-sm" id="togglePaymentBtnCefr">Tasdiqlash</button>
+      </div>
+    </div>
+
     <div class="modal-actions" style="justify-content:space-between;">
       <button type="button" class="btn btn-danger btn-sm" id="deleteStudentBtn">O‘quvchini o‘chirish</button>
-      <div style="display:flex; gap:.8em;">
-        <button type="button" class="btn btn-ghost" data-close-modal="modalStudentDetail">Yopish</button>
-        <button type="button" class="btn btn-amber" id="togglePaymentBtn">Tasdiqlash</button>
-      </div>
+      <button type="button" class="btn btn-ghost" data-close-modal="modalStudentDetail">Yopish</button>
     </div>
   </div>
 </div>
@@ -308,14 +386,31 @@ const LEVELS = [
 ];
 const PASS_PERCENT = 60;
 
+// IELTS / CEFR: each course has 3 fixed sections. Speaking sections support
+// a per-topic timer that the admin sets; the student later chooses whether
+// to use it or not while practicing.
+const COURSES = {
+  ielts: { name: 'IELTS', price: 60000 },
+  cefr: { name: 'CEFR', price: 60000 }
+};
+const SECTIONS = [
+  { id: 'listening', name: 'Listening', hasTimer: false },
+  { id: 'reading', name: 'Reading', hasTimer: false },
+  { id: 'speaking', name: 'Speaking', hasTimer: true }
+];
+
 let state = {
   levels: {},         // { levelId: {name, order, lessons:[...]} }
+  courses: {},         // { ielts|cefr: { name, price, sections: { listening|reading|speaking: {locked, lockedMessage, topics:[...]} } } }
   students: [],
   activeLevelId: null,
   activeLessonId: null,   // null = adding a new lesson
+  activeCourseId: null,
+  activeSectionId: null,
+  activeTopicId: null,
   quizDraft: [],
   detailStudentId: null,
-  lockLevelId: null
+  lockTarget: null      // {type:'level', levelId} | {type:'section', courseId, sectionId}
 };
 
 // ---------- Auth gate ----------
@@ -332,6 +427,8 @@ auth.onAuthStateChanged(async (user) => {
   document.getElementById('appShell').hidden = false;
   await ensureLevelsExist();
   await loadLevels();
+  await ensureCoursesExist();
+  await loadCourses();
   await loadStudents();
   renderLevelsOverview();
   renderStudents();
@@ -461,18 +558,28 @@ function renderLevelsOverview(){
 
 document.getElementById('levelsGrid').addEventListener('click', (e) => {
   const lockBtn = e.target.closest('[data-toggle-lock]');
-  if(lockBtn){ e.stopPropagation(); openLockModal(lockBtn.dataset.toggleLock); return; }
+  if(lockBtn){ e.stopPropagation(); openLockModal({ type: 'level', levelId: lockBtn.dataset.toggleLock }); return; }
   const card = e.target.closest('[data-open-level]');
   if(card) openLevel(card.dataset.openLevel);
 });
 
-// ---------- Lock / unlock a level ----------
+// ---------- Lock / unlock a level OR a course section (shared modal) ----------
 
-function openLockModal(levelId){
-  state.lockLevelId = levelId;
-  const data = getLevel(levelId);
-  const lvl = LEVELS.find(l => l.id === levelId);
-  document.getElementById('lockModalTitle').textContent = (data.locked ? 'Qulfni ochish — ' : 'Qulflash — ') + lvl.name;
+function getLockTargetData(){
+  if(state.lockTarget.type === 'level') return getLevel(state.lockTarget.levelId);
+  return state.courses[state.lockTarget.courseId].sections[state.lockTarget.sectionId];
+}
+
+function getLockTargetLabel(){
+  if(state.lockTarget.type === 'level') return LEVELS.find(l => l.id === state.lockTarget.levelId).name;
+  const sectionName = SECTIONS.find(s => s.id === state.lockTarget.sectionId).name;
+  return `${COURSES[state.lockTarget.courseId].name} — ${sectionName}`;
+}
+
+function openLockModal(target){
+  state.lockTarget = target;
+  const data = getLockTargetData();
+  document.getElementById('lockModalTitle').textContent = (data.locked ? 'Qulfni ochish — ' : 'Qulflash — ') + getLockTargetLabel();
   document.getElementById('lockMessageField').value = data.lockedMessage || 'Tez kunda ochiladi — yangi mavzular qo‘shilyapti.';
   document.getElementById('lockMessageField').closest('.field').hidden = !!data.locked;
   document.getElementById('lockConfirmBtn').textContent = data.locked ? 'Qulfni ochish' : 'Qulflash';
@@ -481,16 +588,239 @@ function openLockModal(levelId){
 }
 
 document.getElementById('lockConfirmBtn').addEventListener('click', async () => {
-  const levelId = state.lockLevelId;
-  const data = getLevel(levelId);
+  const target = state.lockTarget;
+  const data = getLockTargetData();
   const newLocked = !data.locked;
   const message = document.getElementById('lockMessageField').value.trim() || 'Tez kunda ochiladi — yangi mavzular qo‘shilyapti.';
-  const update = newLocked ? { locked: true, lockedMessage: message } : { locked: false };
-  await db.collection('levels').doc(levelId).update(update);
-  state.levels[levelId] = { ...data, locked: newLocked, lockedMessage: newLocked ? message : data.lockedMessage };
+
+  if(target.type === 'level'){
+    const update = newLocked ? { locked: true, lockedMessage: message } : { locked: false };
+    await db.collection('levels').doc(target.levelId).update(update);
+    state.levels[target.levelId] = { ...data, locked: newLocked, lockedMessage: newLocked ? message : data.lockedMessage };
+    renderLevelsOverview();
+  } else {
+    const course = state.courses[target.courseId];
+    course.sections[target.sectionId] = { ...data, locked: newLocked, lockedMessage: newLocked ? message : data.lockedMessage };
+    await db.collection('courses').doc(target.courseId).update({ sections: course.sections });
+    renderCourseSectionsGrid();
+  }
+
   closeModal('modalLockLevel');
-  renderLevelsOverview();
-  showToast(newLocked ? 'Daraja qulflandi.' : 'Qulf ochildi.');
+  showToast(newLocked ? 'Qulflandi.' : 'Qulf ochildi.');
+});
+
+// ---------- IELTS / CEFR: data helpers ----------
+
+async function ensureCoursesExist(){
+  for(const courseId of Object.keys(COURSES)){
+    const ref = db.collection('courses').doc(courseId);
+    const doc = await ref.get();
+    if(!doc.exists){
+      const sections = {};
+      SECTIONS.forEach(s => { sections[s.id] = { locked: false, lockedMessage: '', topics: [] }; });
+      await ref.set({ name: COURSES[courseId].name, price: COURSES[courseId].price, sections });
+    }
+  }
+}
+
+async function loadCourses(){
+  const ids = Object.keys(COURSES);
+  const results = await Promise.all(ids.map(id => db.collection('courses').doc(id).get()));
+  ids.forEach((id, i) => {
+    const fallbackSections = {};
+    SECTIONS.forEach(s => { fallbackSections[s.id] = { locked: false, lockedMessage: '', topics: [] }; });
+    const fallback = { name: COURSES[id].name, price: COURSES[id].price, sections: fallbackSections };
+    const doc = results[i];
+    if(!doc.exists){ state.courses[id] = fallback; return; }
+    const remoteData = doc.data();
+    const mergedSections = { ...fallbackSections };
+    Object.keys(remoteData.sections || {}).forEach(sid => {
+      mergedSections[sid] = { ...fallbackSections[sid], ...remoteData.sections[sid] };
+    });
+    state.courses[id] = { ...fallback, ...remoteData, sections: mergedSections };
+  });
+}
+
+// ---------- Render: IELTS / CEFR section overview ----------
+
+function openCourseSections(courseId){
+  state.activeCourseId = courseId;
+  document.getElementById('courseSectionsTitle').textContent = COURSES[courseId].name;
+  renderCourseSectionsGrid();
+  switchView('course-sections');
+}
+
+function renderCourseSectionsGrid(){
+  const course = state.courses[state.activeCourseId];
+  document.getElementById('courseSectionsGrid').innerHTML = SECTIONS.map(s => {
+    const data = course.sections[s.id];
+    const locked = !!data.locked;
+    return `
+      <article class="folder level-card" style="--tab-color:${locked ? '#9a9a95' : '#2E6F6E'}" data-open-section="${s.id}">
+        <div class="folder-tab"></div>
+        <div class="folder-body">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:.6em;">
+            <span class="tag">${s.hasTimer ? '⏱️ Taymerli bo‘lim' : 'Bo‘lim'}</span>
+            ${locked ? '<span class="badge-soon">🔒 Qulflangan</span>' : ''}
+          </div>
+          <h3 class="level-title">${s.name}</h3>
+          <p class="level-sub">${data.topics.length} ta mavzu</p>
+          <button type="button" class="btn btn-ghost btn-sm" data-toggle-section-lock="${s.id}" style="align-self:flex-start; margin-top:.6em;">${locked ? 'Qulfni ochish' : 'Qulflash'}</button>
+        </div>
+      </article>`;
+  }).join('');
+}
+
+document.getElementById('courseSectionsGrid').addEventListener('click', (e) => {
+  const lockBtn = e.target.closest('[data-toggle-section-lock]');
+  if(lockBtn){ e.stopPropagation(); openLockModal({ type: 'section', courseId: state.activeCourseId, sectionId: lockBtn.dataset.toggleSectionLock }); return; }
+  const card = e.target.closest('[data-open-section]');
+  if(card) openCourseTopics(card.dataset.openSection);
+});
+
+document.getElementById('navIelts').addEventListener('click', (e) => { e.preventDefault(); openCourseSections('ielts'); });
+document.getElementById('navCefr').addEventListener('click', (e) => { e.preventDefault(); openCourseSections('cefr'); });
+
+// ---------- Render: topic list inside a section ----------
+
+function openCourseTopics(sectionId){
+  state.activeSectionId = sectionId;
+  const course = state.courses[state.activeCourseId];
+  const section = course.sections[sectionId];
+  const sectionMeta = SECTIONS.find(s => s.id === sectionId);
+  document.getElementById('courseTopicsSectionName').textContent = `${course.name} — ${sectionMeta.name}`;
+  document.getElementById('courseTopicsSub').textContent = `${section.topics.length} ta mavzu`;
+  renderCourseTopicsList();
+  switchView('course-topics');
+}
+
+function renderCourseTopicsList(){
+  const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
+  const list = document.getElementById('courseTopicsList');
+  if(section.topics.length === 0){
+    list.innerHTML = `
+      <div class="empty-state">
+        <h3>Bu bo‘limda hali mavzu yo‘q</h3>
+        <p>“Yangi mavzu qo‘shish” tugmasini bosib birinchisini yarating.</p>
+      </div>`;
+    return;
+  }
+  list.innerHTML = section.topics.map((t, i) => `
+    <div class="lesson-row">
+      <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
+      <div class="lesson-main">
+        <div class="lesson-row-top">
+          <span class="lesson-title">${escapeHtml(t.title || 'Nomsiz mavzu')}</span>
+          <div class="lesson-actions">
+            <button class="btn btn-ghost btn-sm" data-move-topic="up" data-topic-id="${t.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
+            <button class="btn btn-ghost btn-sm" data-move-topic="down" data-topic-id="${t.id}" ${i === section.topics.length - 1 ? 'disabled' : ''}>↓</button>
+            <button class="btn btn-ghost btn-sm" data-edit-topic="${t.id}">Tahrirlash</button>
+            <button class="btn btn-danger btn-sm" data-delete-topic="${t.id}">O‘chirish</button>
+          </div>
+        </div>
+        <div class="lesson-meta">
+          ${t.material ? '<span class="tag">📎 Material bor</span>' : ''}
+          ${t.description ? '<span class="tag">📝 Tavsif bor</span>' : ''}
+          ${t.timerSeconds ? `<span class="tag">⏱️ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+document.getElementById('backToCourseSections').addEventListener('click', (e) => {
+  e.preventDefault();
+  state.activeSectionId = null;
+  renderCourseSectionsGrid();
+  switchView('course-sections');
+});
+
+// ---------- Topic: add / edit / save / delete / move ----------
+
+document.getElementById('openAddTopic').addEventListener('click', () => {
+  state.activeTopicId = null;
+  document.getElementById('topicModalTitle').textContent = 'Yangi mavzu';
+  document.getElementById('editTopicForm').reset();
+  document.getElementById('editTopicError').hidden = true;
+  setRteValue('topicDescription', '');
+  const isSpeaking = state.activeSectionId === 'speaking';
+  document.getElementById('topicTimerField').hidden = !isSpeaking;
+  openModal('modalEditTopic');
+});
+
+document.getElementById('courseTopicsList').addEventListener('click', (e) => {
+  const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
+
+  const editBtn = e.target.closest('[data-edit-topic]');
+  if(editBtn){
+    const topic = section.topics.find(t => t.id === editBtn.dataset.editTopic);
+    if(!topic) return;
+    state.activeTopicId = topic.id;
+    document.getElementById('topicModalTitle').textContent = 'Mavzuni tahrirlash';
+    document.getElementById('topicTitle').value = topic.title || '';
+    document.getElementById('topicMaterial').value = topic.material || '';
+    setRteValue('topicDescription', topic.description || '');
+    const isSpeaking = state.activeSectionId === 'speaking';
+    document.getElementById('topicTimerField').hidden = !isSpeaking;
+    document.getElementById('topicTimerMinutes').value = topic.timerSeconds ? (topic.timerSeconds / 60) : '';
+    document.getElementById('editTopicError').hidden = true;
+    openModal('modalEditTopic');
+    return;
+  }
+
+  const delBtn = e.target.closest('[data-delete-topic]');
+  if(delBtn){
+    const topic = section.topics.find(t => t.id === delBtn.dataset.deleteTopic);
+    if(topic && confirm(`“${topic.title || 'Nomsiz mavzu'}” mavzusini o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
+      section.topics = section.topics.filter(t => t.id !== topic.id);
+      db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections })
+        .then(() => { renderCourseTopicsList(); document.getElementById('courseTopicsSub').textContent = `${section.topics.length} ta mavzu`; showToast('Mavzu o‘chirildi.'); });
+    }
+    return;
+  }
+
+  const moveBtn = e.target.closest('[data-move-topic]');
+  if(moveBtn){
+    const idx = section.topics.findIndex(t => t.id === moveBtn.dataset.topicId);
+    const dir = moveBtn.dataset.moveTopic === 'up' ? -1 : 1;
+    const targetIdx = idx + dir;
+    if(targetIdx < 0 || targetIdx >= section.topics.length) return;
+    [section.topics[idx], section.topics[targetIdx]] = [section.topics[targetIdx], section.topics[idx]];
+    db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections })
+      .then(() => renderCourseTopicsList());
+    return;
+  }
+});
+
+document.getElementById('editTopicForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const title = document.getElementById('topicTitle').value.trim();
+  const errorEl = document.getElementById('editTopicError');
+  if(!title){ errorEl.textContent = 'Mavzu nomini kiriting.'; errorEl.hidden = false; return; }
+
+  const isSpeaking = state.activeSectionId === 'speaking';
+  const timerMinutesRaw = document.getElementById('topicTimerMinutes').value;
+  const timerSeconds = (isSpeaking && timerMinutesRaw !== '') ? Math.round(parseFloat(timerMinutesRaw) * 60) : 0;
+
+  const topicData = {
+    title,
+    material: document.getElementById('topicMaterial').value.trim(),
+    description: getRteValue('topicDescription'),
+    timerSeconds
+  };
+
+  const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
+  if(state.activeTopicId){
+    const idx = section.topics.findIndex(t => t.id === state.activeTopicId);
+    section.topics[idx] = { id: state.activeTopicId, ...topicData };
+  } else {
+    section.topics.push({ id: 'tpc_' + Date.now(), ...topicData });
+  }
+
+  await db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections });
+  closeModal('modalEditTopic');
+  renderCourseTopicsList();
+  document.getElementById('courseTopicsSub').textContent = `${section.topics.length} ta mavzu`;
+  showToast('Mavzu saqlandi.');
 });
 
 // ---------- Render: lesson list inside a level ----------
@@ -553,10 +883,15 @@ function switchView(view){
   viewLevels.hidden = view !== 'levels';
   viewLessons.hidden = view !== 'lessons';
   viewStudents.hidden = view !== 'students';
+  document.getElementById('view-course-sections').hidden = view !== 'course-sections';
+  document.getElementById('view-course-topics').hidden = view !== 'course-topics';
   document.getElementById('view-site-settings').hidden = view !== 'site-settings';
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
+  document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
+  document.getElementById('navCefr').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'cefr');
   document.getElementById('navStudents').classList.toggle('active', view === 'students');
   document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
 document.getElementById('backToLevels').addEventListener('click', (e) => { e.preventDefault(); closeLevel(); });
@@ -755,6 +1090,12 @@ const STATUS_LABELS = {
   approved: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Tasdiqlangan ✓</span>'
 };
 
+const COURSE_PAYMENT_ROWS = [
+  { key: 'ge', label: 'General English', statusElId: 'studentDetailStatusGE', btnId: 'togglePaymentBtnGE', getStatus: s => s.paymentStatus || 'none', firestoreField: 'paymentStatus' },
+  { key: 'ielts', label: 'IELTS', statusElId: 'studentDetailStatusIelts', btnId: 'togglePaymentBtnIelts', getStatus: s => (s.coursePayments && s.coursePayments.ielts) || 'none', firestoreField: 'coursePayments.ielts' },
+  { key: 'cefr', label: 'CEFR', statusElId: 'studentDetailStatusCefr', btnId: 'togglePaymentBtnCefr', getStatus: s => (s.coursePayments && s.coursePayments.cefr) || 'none', firestoreField: 'coursePayments.cefr' }
+];
+
 function renderStudents(){
   const tbody = document.getElementById('studentsTableBody');
   const empty = document.getElementById('studentsEmpty');
@@ -768,11 +1109,33 @@ function renderStudents(){
     <tr>
       <td>${escapeHtml(s.name)}</td>
       <td>${escapeHtml(s.email)}</td>
-      <td>${STATUS_LABELS[s.paymentStatus] || STATUS_LABELS.none}</td>
+      <td style="display:flex; flex-direction:column; gap:.3em;">
+        ${COURSE_PAYMENT_ROWS.map(row => `<span>${row.label}: ${STATUS_LABELS[row.getStatus(s)] || STATUS_LABELS.none}</span>`).join('')}
+      </td>
       <td>${s.createdAt ? new Date(s.createdAt).toLocaleDateString('uz-UZ') : '—'}</td>
       <td><button class="btn btn-ghost btn-sm" data-student-detail="${s.id}">Ko‘rish</button></td>
     </tr>
   `).join('');
+}
+
+function refreshStudentDetailModal(student){
+  const statusText = {
+    none: 'To‘lov haqida hali xabar bermagan.',
+    pending: 'To‘lov qilganini bildirgan — Telegram’dagi skrinshotni tekshirib, tasdiqlang.',
+    approved: 'To‘lov tasdiqlangan — kurs ochiq.'
+  };
+  COURSE_PAYMENT_ROWS.forEach(row => {
+    const status = row.getStatus(student);
+    document.getElementById(row.statusElId).innerHTML = `${STATUS_LABELS[status] || STATUS_LABELS.none} — ${statusText[status] || statusText.none}`;
+    const btn = document.getElementById(row.btnId);
+    if(status === 'approved'){
+      btn.textContent = 'Bekor qilish';
+      btn.className = 'btn btn-danger btn-sm';
+    } else {
+      btn.textContent = 'Tasdiqlash';
+      btn.className = 'btn btn-amber btn-sm';
+    }
+  });
 }
 
 document.getElementById('studentsTableBody').addEventListener('click', (e) => {
@@ -783,37 +1146,29 @@ document.getElementById('studentsTableBody').addEventListener('click', (e) => {
   state.detailStudentId = student.id;
   document.getElementById('studentDetailName').textContent = student.name;
   document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
-
-  const statusText = {
-    none: 'To‘lov haqida hali xabar bermagan.',
-    pending: 'To‘lov qilganini bildirgan — Telegram’dagi skrinshotni tekshirib, tasdiqlang.',
-    approved: 'To‘lov tasdiqlangan — General English kursi to‘liq ochiq.'
-  };
-  document.getElementById('studentDetailStatus').innerHTML = `${STATUS_LABELS[student.paymentStatus] || STATUS_LABELS.none} — ${statusText[student.paymentStatus] || statusText.none}`;
-
-  const toggleBtn = document.getElementById('togglePaymentBtn');
-  if(student.paymentStatus === 'approved'){
-    toggleBtn.textContent = 'Tasdiqni bekor qilish';
-    toggleBtn.className = 'btn btn-danger';
-  } else {
-    toggleBtn.textContent = 'To‘lovni tasdiqlash';
-    toggleBtn.className = 'btn btn-amber';
-  }
-
+  refreshStudentDetailModal(student);
   openModal('modalStudentDetail');
 });
 
-document.getElementById('togglePaymentBtn').addEventListener('click', async () => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  const newStatus = student.paymentStatus === 'approved' ? 'none' : 'approved';
-  if(newStatus === 'none' && !confirm(`“${student.name}” uchun kurs ruxsatini bekor qilmoqchimisiz?`)) return;
+COURSE_PAYMENT_ROWS.forEach(row => {
+  document.getElementById(row.btnId).addEventListener('click', async () => {
+    const student = state.students.find(s => s.id === state.detailStudentId);
+    if(!student) return;
+    const current = row.getStatus(student);
+    const newStatus = current === 'approved' ? 'none' : 'approved';
+    if(newStatus === 'none' && !confirm(`“${student.name}” uchun ${row.label} kursi ruxsatini bekor qilmoqchimisiz?`)) return;
 
-  await db.collection('students').doc(student.id).update({ paymentStatus: newStatus });
-  student.paymentStatus = newStatus;
-  closeModal('modalStudentDetail');
-  renderStudents();
-  showToast(newStatus === 'approved' ? `“${student.name}” uchun kurs ochildi.` : 'Tasdiq bekor qilindi.');
+    await db.collection('students').doc(student.id).update({ [row.firestoreField]: newStatus });
+    if(row.key === 'ge'){
+      student.paymentStatus = newStatus;
+    } else {
+      student.coursePayments = student.coursePayments || {};
+      student.coursePayments[row.key] = newStatus;
+    }
+    refreshStudentDetailModal(student);
+    renderStudents();
+    showToast(newStatus === 'approved' ? `“${student.name}” uchun ${row.label} kursi ochildi.` : 'Tasdiq bekor qilindi.');
+  });
 });
 
 document.getElementById('deleteStudentBtn').addEventListener('click', async () => {
