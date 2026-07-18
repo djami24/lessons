@@ -298,6 +298,19 @@ async function loadCourses(){
 
 function getCourse(id){ return state.courses[id]; }
 
+// Admin can now organize lessons/topics into nested folders (any depth).
+// Students always see a single flat, ordered list — folders are just an
+// admin-side organization tool and don't change what students see or the
+// lesson unlock order.
+function flattenLeaves(items){
+  let out = [];
+  (items || []).forEach(it => {
+    if(it.type === 'folder') out = out.concat(flattenLeaves(it.children));
+    else out.push(it);
+  });
+  return out;
+}
+
 // ---------- Progress helpers ----------
 
 function getLessonProgress(levelId, lessonId){
@@ -305,7 +318,7 @@ function getLessonProgress(levelId, lessonId){
 }
 
 function isLevelCompleted(levelId){
-  const lessons = getLevel(levelId).lessons;
+  const lessons = flattenLeaves(getLevel(levelId).lessons);
   if(lessons.length === 0) return false;
   return lessons.every(l => getLessonProgress(levelId, l.id).passed);
 }
@@ -321,7 +334,7 @@ function isLevelUnlocked(levelId){
 function isLessonUnlocked(levelId, lessonIndex){
   if(!isLevelUnlocked(levelId)) return false;
   if(lessonIndex === 0) return true;
-  const lessons = getLevel(levelId).lessons;
+  const lessons = flattenLeaves(getLevel(levelId).lessons);
   return getLessonProgress(levelId, lessons[lessonIndex - 1].id).passed;
 }
 
@@ -348,8 +361,8 @@ function switchView(view){
 function renderCoursesOverview(){
   const sub = document.getElementById('generalEnglishSub');
   if(state.student.paymentStatus === 'approved'){
-    const totalLessons = LEVELS.reduce((s, l) => s + getLevel(l.id).lessons.length, 0);
-    const doneLessons = LEVELS.reduce((s, l) => s + getLevel(l.id).lessons.filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
+    const totalLessons = LEVELS.reduce((s, l) => s + flattenLeaves(getLevel(l.id).lessons).length, 0);
+    const doneLessons = LEVELS.reduce((s, l) => s + flattenLeaves(getLevel(l.id).lessons).filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
     sub.textContent = `${doneLessons}/${totalLessons} dars yakunlangan`;
   } else if(state.student.paymentStatus === 'pending'){
     sub.textContent = 'To‘lov tekshirilmoqda…';
@@ -362,7 +375,7 @@ function renderCoursesOverview(){
     const course = getCourse(courseId);
     const status = state.student.coursePayments[courseId] || 'none';
     if(status === 'approved'){
-      const totalTopics = SECTIONS.reduce((s, sec) => s + course.sections[sec.id].topics.length, 0);
+      const totalTopics = SECTIONS.reduce((s, sec) => s + flattenLeaves(course.sections[sec.id].topics).length, 0);
       el.textContent = `${totalTopics} ta mavzu · Listening · Reading · Speaking`;
     } else if(status === 'pending'){
       el.textContent = 'To‘lov tekshirilmoqda…';
@@ -461,7 +474,7 @@ function openCourseSectionsView(courseId){
     const locked = !!data.locked;
     const subText = locked
       ? escapeHtml(data.lockedMessage || 'Tez kunda ochiladi — yangi mavzular qo‘shilyapti.')
-      : `${data.topics.length} ta mavzu`;
+      : `${flattenLeaves(data.topics).length} ta mavzu`;
     return `
       <article class="folder level-card ${locked ? 'is-locked' : ''}" ${locked ? '' : `data-open-section="${s.id}"`}>
         <div class="folder-tab" style="--tab-color:${locked ? '#9a9a95' : '#2E6F6E'}"></div>
@@ -491,14 +504,15 @@ function openCourseTopicsView(sectionId){
   const section = course.sections[sectionId];
   const sectionMeta = SECTIONS.find(s => s.id === sectionId);
 
+  const topics = flattenLeaves(section.topics);
   document.getElementById('courseTopicsSectionName').textContent = `${course.name} — ${sectionMeta.name}`;
-  document.getElementById('courseTopicsSub').textContent = `${section.topics.length} ta mavzu`;
+  document.getElementById('courseTopicsSub').textContent = `${topics.length} ta mavzu`;
 
   const list = document.getElementById('courseTopicsList');
-  if(section.topics.length === 0){
+  if(topics.length === 0){
     list.innerHTML = `<div class="empty-state"><h3>Bu bo‘limga hali mavzu qo‘shilmagan</h3><p>Tez orada mavzular joylanadi.</p></div>`;
   } else {
-    list.innerHTML = section.topics.map((t, i) => `
+    list.innerHTML = topics.map((t, i) => `
       <div class="lesson-row is-clickable" data-open-topic="${t.id}">
         <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
         <div class="lesson-main">
@@ -532,7 +546,7 @@ function openTopicDetail(topicId){
   stopSpeakingTimer();
   state.activeTopicId = topicId;
   const section = getCourse(state.activeCourseId).sections[state.activeSectionId];
-  const topic = section.topics.find(t => t.id === topicId);
+  const topic = flattenLeaves(section.topics).find(t => t.id === topicId);
   const box = document.getElementById('topicDetailBox');
 
   const hasTimer = !!topic.timerSeconds;
@@ -599,13 +613,14 @@ document.getElementById('backToCourseTopics').addEventListener('click', (e) => {
 function openLevelsView(){
   document.getElementById('levelsGrid').innerHTML = LEVELS.map(lvl => {
     const data = getLevel(lvl.id);
+    const lessonsFlat = flattenLeaves(data.lessons);
     const unlocked = isLevelUnlocked(lvl.id);
-    const doneCount = data.lessons.filter(l => getLessonProgress(lvl.id, l.id).passed).length;
+    const doneCount = lessonsFlat.filter(l => getLessonProgress(lvl.id, l.id).passed).length;
     let subText;
     if(data.locked){
       subText = escapeHtml(data.lockedMessage || 'Tez kunda ochiladi — yangi mavzular qo‘shilyapti.');
     } else if(unlocked){
-      subText = `${doneCount}/${data.lessons.length} dars yakunlangan`;
+      subText = `${doneCount}/${lessonsFlat.length} dars yakunlangan`;
     } else {
       subText = 'Oldingi darajani yakunlang';
     }
@@ -633,15 +648,16 @@ function openLessonsView(levelId){
   state.activeLevelId = levelId;
   const lvl = LEVELS.find(l => l.id === levelId);
   const data = getLevel(levelId);
+  const lessons = flattenLeaves(data.lessons);
 
   document.getElementById('lessonsLevelName').textContent = lvl.name;
-  document.getElementById('lessonsLevelSub').textContent = `${data.lessons.length} ta dars`;
+  document.getElementById('lessonsLevelSub').textContent = `${lessons.length} ta dars`;
 
   const lessonList = document.getElementById('lessonList');
-  if(data.lessons.length === 0){
+  if(lessons.length === 0){
     lessonList.innerHTML = `<div class="empty-state"><h3>Bu darajaga hali dars qo‘shilmagan</h3><p>Tez orada darslar joylanadi.</p></div>`;
   } else {
-    lessonList.innerHTML = data.lessons.map((lesson, i) => {
+    lessonList.innerHTML = lessons.map((lesson, i) => {
       const unlocked = isLessonUnlocked(levelId, i);
       const progress = getLessonProgress(levelId, lesson.id);
       return `
@@ -672,7 +688,7 @@ document.getElementById('backToLevels').addEventListener('click', (e) => { e.pre
 // ---------- Lesson detail ----------
 
 function getCurrentLesson(){
-  return getLevel(state.activeLevelId).lessons.find(l => l.id === state.activeLessonId);
+  return flattenLeaves(getLevel(state.activeLevelId).lessons).find(l => l.id === state.activeLessonId);
 }
 
 async function openLessonDetail(lessonId){
@@ -740,7 +756,7 @@ document.getElementById('backToLessons').addEventListener('click', (e) => { e.pr
 
 function openQuiz(levelId, lessonId){
   state.lastQuizContext = { levelId, lessonId };
-  const lesson = getLevel(levelId).lessons.find(l => l.id === lessonId);
+  const lesson = flattenLeaves(getLevel(levelId).lessons).find(l => l.id === lessonId);
   document.getElementById('quizTitle').textContent = `Test — ${lesson.title || 'Nomsiz dars'}`;
   document.getElementById('quizQuestions').innerHTML = lesson.quiz.map((q, qi) => `
     <div class="quiz-question">
@@ -757,7 +773,7 @@ function openQuiz(levelId, lessonId){
 
 function updateQuizProgress(){
   const { levelId, lessonId } = state.lastQuizContext;
-  const lesson = getLevel(levelId).lessons.find(l => l.id === lessonId);
+  const lesson = flattenLeaves(getLevel(levelId).lessons).find(l => l.id === lessonId);
   const answered = lesson.quiz.filter((q, qi) => document.querySelector(`input[name="quiz-q-${qi}"]:checked`)).length;
   document.getElementById('quizProgress').textContent = `${answered} / ${lesson.quiz.length} savolga javob berildi`;
 }
@@ -773,7 +789,7 @@ document.getElementById('backToLessonFromQuiz').addEventListener('click', (e) =>
 
 document.getElementById('submitQuizBtn').addEventListener('click', async () => {
   const { levelId, lessonId } = state.lastQuizContext;
-  const lesson = getLevel(levelId).lessons.find(l => l.id === lessonId);
+  const lesson = flattenLeaves(getLevel(levelId).lessons).find(l => l.id === lessonId);
 
   let answered = 0, correct = 0;
   lesson.quiz.forEach((q, qi) => {
