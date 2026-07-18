@@ -379,6 +379,46 @@ table.data-table td .tag{ margin-right:.3em; }
 .brand-mark-custom{ background: none !important; }
 .brand-mark-custom::after{ content: none !important; }
 
+/* ============ Home page (single entry screen) ============ */
+.home-body{
+  min-height: 100vh; display:flex; flex-direction:column;
+  background: var(--paper); color: var(--ink);
+  transition: background .25s var(--ease), color .25s var(--ease);
+}
+[data-theme="dark"] .home-body{
+  --paper-2: #1C2B4E; --paper-3: #253559; --line: #2C3D66; --gray: #9AA5C0;
+  background: var(--dark-bg); color: var(--paper);
+}
+.home-topbar{ display:flex; align-items:center; justify-content:space-between; padding: 1.6em 2em; }
+.theme-toggle{
+  display:inline-flex; align-items:center; gap:.5em; background: var(--paper-2); color: var(--ink);
+  border: 1.5px solid var(--line); border-radius: 999px; padding: .5em 1em; font-size:.85rem;
+  font-weight:700; cursor:pointer; font-family: var(--font-body);
+}
+[data-theme="dark"] .theme-toggle{ background: var(--paper-2); color: var(--paper); border-color: var(--line); }
+.home-main{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 2.4em; text-align:center; padding: 2em 1.4em; }
+.home-labels{ display:flex; flex-wrap:wrap; justify-content:center; gap: .9em; }
+.home-label{
+  font-family: var(--font-display); font-weight:600; font-size: clamp(1.3rem, 3vw, 2rem);
+  padding: .5em 1.1em; border: 2px solid var(--line); border-radius: var(--radius-m);
+  color: var(--ink); background: var(--paper-2);
+}
+[data-theme="dark"] .home-label{ color: var(--paper); border-color: var(--line); background: var(--paper-2); }
+.home-student-btn{ font-size: 1.05rem; padding: 1em 2.4em; }
+.home-bottombar{ display:flex; justify-content:center; padding: 2em 1em 2.6em; }
+.home-admin-link{
+  color: var(--gray); font-size:.85rem; text-decoration:none; font-family: var(--font-mono);
+  border: 1px solid var(--line); border-radius: 999px; padding: .5em 1.2em;
+}
+.home-admin-link:hover{ color: var(--ink); border-color: var(--gray); }
+[data-theme="dark"] .home-admin-link:hover{ color: var(--paper); }
+
+@media (max-width: 640px){
+  .home-topbar{ padding: 1.2em 1.4em; }
+  .home-labels{ gap:.6em; }
+  .home-label{ font-size: 1.1rem; padding:.45em .85em; }
+}
+
 /* ============ Level / course card grids (student + admin) ============ */
 .level-grid, .course-grid{
   display:grid; grid-template-columns: repeat(auto-fill, minmax(250px,1fr)); gap: 1.8em 1.5em; margin-top: .4em;

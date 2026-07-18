@@ -3,477 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>English Folder — Ingliz tilini tizim asosida o‘rganing</title>
-<meta name="description" content="English Folder — har bir guruh o‘z papkasiga, har bir papka 12 ta darsga ega. Ingliz tilini tartibli, bosqichma-bosqich o‘rganing.">
-<style>
-/* =========================================================
-   English Folder — Design tokens
-   Palette: Ink Navy / Paper / Folder Amber / Stamp Teal / Ink Gray
-   Display: Fraunces · Body: Manrope · Utility: IBM Plex Mono
-   ========================================================= */
-
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
-
-:root{
-  --ink:        #14213D;
-  --ink-soft:   #253559;
-  --dark-bg:    #14213D;
-  --paper:      #FFFFFF;
-  --paper-2:    #F4F5F7;
-  --paper-3:    #E9EAED;
-  --amber:      #D98E3F;
-  --amber-deep: #B96F26;
-  --teal:       #2E6F6E;
-  --teal-deep:  #1F4E4D;
-  --gray:       #5B6472;
-  --line:       #DDD9CB;
-  --white:      #FFFFFF;
-  --danger:     #B3432B;
-
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-
-  --radius-s: 6px;
-  --radius-m: 12px;
-  --radius-l: 22px;
-  --shadow-card: 0 1px 2px rgba(20,33,61,.06), 0 8px 24px -12px rgba(20,33,61,.18);
-  --shadow-pop:  0 4px 10px rgba(20,33,61,.08), 0 20px 40px -16px rgba(20,33,61,.28);
-  --ease: cubic-bezier(.22,.61,.36,1);
-}
-
-@media (prefers-reduced-motion: reduce){
-  *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
-}
-
-*,*::before,*::after{ box-sizing: border-box; }
-html{ scroll-behavior: smooth; }
-body{
-  margin:0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-body);
-  font-size: 16px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1,h2,h3,h4{
-  font-family: var(--font-display);
-  font-weight: 600;
-  line-height: 1.08;
-  margin: 0 0 .5em;
-  color: var(--ink);
-  letter-spacing: -.01em;
-}
-h1{ font-size: clamp(2.4rem, 5vw, 4.4rem); font-weight: 600; }
-h2{ font-size: clamp(1.8rem, 3.2vw, 2.7rem); }
-h3{ font-size: 1.3rem; font-weight: 600; }
-p{ margin: 0 0 1em; color: var(--ink-soft); }
-a{ color: inherit; }
-img{ max-width:100%; display:block; }
-
-.eyebrow{
-  font-family: var(--font-mono);
-  font-size: .78rem;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--teal-deep);
-  display:flex; align-items:center; gap:.55em;
-  margin-bottom: 1.1em;
-}
-.eyebrow::before{
-  content:"";
-  width: 22px; height: 1px;
-  background: var(--amber-deep);
-  display:inline-block;
-}
-
-.container{
-  width: min(1160px, 92%);
-  margin: 0 auto;
-}
-
-/* ---------- Buttons ---------- */
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:.5em;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: .95rem;
-  padding: .85em 1.5em;
-  border-radius: var(--radius-s);
-  border: 1.5px solid transparent;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform .18s var(--ease), box-shadow .18s var(--ease), background-color .18s var(--ease), border-color .18s var(--ease);
-  line-height: 1;
-}
-.btn:focus-visible{ outline: 3px solid var(--teal); outline-offset: 2px; }
-.btn-primary{ background: var(--ink); color: var(--paper); }
-.btn-primary:hover{ background: var(--ink-soft); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
-.btn-amber{ background: var(--amber); color: var(--ink); }
-.btn-amber:hover{ background: var(--amber-deep); color: var(--white); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
-.btn-ghost{ background: transparent; color: var(--ink); border-color: var(--line); }
-.btn-ghost:hover{ border-color: var(--ink); }
-.btn-teal{ background: var(--teal); color: var(--white); }
-.btn-teal:hover{ background: var(--teal-deep); transform: translateY(-2px); }
-.btn-danger{ background: transparent; color: var(--danger); border-color: var(--danger); }
-.btn-danger:hover{ background: var(--danger); color: var(--white); }
-.btn-sm{ padding: .55em 1em; font-size: .82rem; }
-.btn[disabled]{ opacity:.5; cursor: not-allowed; transform:none !important; }
-
-/* ---------- Nav ---------- */
-.nav{
-  position: sticky; top:0; z-index: 50;
-  background: rgba(255,255,255,.86);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
-}
-.nav .container{ display:flex; align-items:center; justify-content:space-between; padding: 1.1em 0; }
-.brand{ display:flex; align-items:center; gap:.6em; font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; text-decoration:none; color: var(--ink);}
-.brand-mark{
-  width: 34px; height: 34px; border-radius: 8px;
-  background: linear-gradient(155deg, var(--amber), var(--amber-deep));
-  position: relative; flex: none;
-}
-.brand-mark::after{
-  content:""; position:absolute; left:6px; right:6px; top:12px; height:2px; background: rgba(20,33,61,.35);
-  box-shadow: 0 6px 0 rgba(20,33,61,.35), 0 12px 0 rgba(20,33,61,.22);
-}
-.nav-links{ display:flex; gap: 2em; list-style:none; margin:0; padding:0; font-weight:600; font-size:.95rem;}
-.nav-links a{ text-decoration:none; color: var(--ink-soft); transition: color .15s; }
-.nav-links a:hover{ color: var(--ink); }
-.nav-actions{ display:flex; align-items:center; gap:1em; }
-.nav-admin-link{ font-family: var(--font-mono); font-size:.78rem; color: var(--gray); text-decoration:none; letter-spacing:.04em;}
-.nav-admin-link:hover{ color: var(--ink); }
-
-/* ---------- Folder-tab signature component ---------- */
-/* Used both on marketing "curriculum" cards and the admin dashboard folders */
-.folder{
-  --tab-color: var(--amber);
-  position: relative;
-  margin-top: 26px;
-}
-.folder-tab{
-  position: absolute;
-  top: -18px; left: 22px;
-  width: 46%;
-  min-width: 120px;
-  height: 26px;
-  background: var(--tab-color);
-  clip-path: polygon(0 100%, 0 30%, 10% 0, 90% 0, 100% 30%, 100% 100%);
-}
-.folder-body{
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 4px var(--radius-m) var(--radius-m) var(--radius-m);
-  box-shadow: var(--shadow-card);
-  padding: 1.6em 1.5em 1.4em;
-  position: relative;
-  transition: transform .22s var(--ease), box-shadow .22s var(--ease);
-}
-.folder:hover .folder-body{ transform: translateY(-4px); box-shadow: var(--shadow-pop); }
-
-.brand-mark-custom{ background: none !important; }
-.brand-mark-custom::after{ content: none !important; }
-
-/* ---------- Footer ---------- */
-footer{ background: var(--dark-bg); color: rgba(247,247,243,.75); padding: 3.5em 0 2em; margin-top: 6em; }
-footer .container{ display:flex; flex-wrap:wrap; justify-content:space-between; gap:2em; }
-footer h4{ color: var(--paper); font-family: var(--font-body); font-size: .8rem; text-transform:uppercase; letter-spacing:.1em; margin-bottom:1em; }
-footer a{ color: rgba(247,247,243,.75); text-decoration:none; }
-footer a:hover{ color: var(--amber); }
-.footer-bottom{ border-top: 1px solid rgba(247,247,243,.14); margin-top: 2.5em; padding-top: 1.5em; font-size:.82rem; color: rgba(247,247,243,.5); display:flex; justify-content:space-between; flex-wrap:wrap; gap: .8em;}
-.footer-admin-link{ font-family: var(--font-mono); }
-
-/* ---------- Utility ---------- */
-.tag{
-  font-family: var(--font-mono); font-size: .72rem; letter-spacing:.04em;
-  padding: .3em .7em; border-radius: 999px; background: var(--paper-2); color: var(--ink-soft);
-  display:inline-flex; align-items:center; gap:.4em;
-}
-.grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap: 2.5em; }
-.grid-3{ display:grid; grid-template-columns: repeat(3,1fr); gap: 1.8em; }
-@media (max-width: 900px){
-  .grid-2, .grid-3{ grid-template-columns: 1fr; }
-  .nav-links{ display:none; }
-}
-
-</style>
+<title>English Folder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>
+  // Apply saved theme before paint to avoid a flash of the wrong mode.
+  (function(){
+    var saved = localStorage.getItem('ef-theme');
+    if(saved === 'dark'){ document.documentElement.setAttribute('data-theme', 'dark'); }
+  })();
+</script>
 </head>
-<body>
+<body class="home-body">
 
-<nav class="nav">
-  <div class="container">
-    <a href="index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
-    <ul class="nav-links">
-      <li><a href="#dasturlar" data-site-nav-programs>Dasturlar</a></li>
-      <li><a href="#jarayon" data-site-nav-process>Qanday ishlaydi</a></li>
-      <li><a href="#natijalar" data-site-nav-results>Natijalar</a></li>
-      <li><a href="#aloqa" data-site-nav-contact>Aloqa</a></li>
-    </ul>
-    <div class="nav-actions">
-      <a href="student/login.html" class="nav-admin-link" data-site-nav-login>O‘quvchi kirish</a>
-      <a href="student/register.html" class="btn btn-amber btn-sm" data-site-nav-register>Ro‘yxatdan o‘tish</a>
-    </div>
+<div class="home-topbar">
+  <a href="index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
+  <button class="theme-toggle" id="themeToggle" type="button">
+    <span id="themeToggleIcon">🌙</span>
+    <span id="themeToggleLabel">Tungi rejim</span>
+  </button>
+</div>
+
+<main class="home-main">
+  <div class="home-labels">
+    <span class="home-label" data-site-home-label-1>GENERAL ENGLISH</span>
+    <span class="home-label" data-site-home-label-2>IELTS</span>
+    <span class="home-label" data-site-home-label-3>CEFR</span>
   </div>
-</nav>
 
-<!-- HERO -->
-<header class="hero">
-  <div class="container hero-inner">
-    <div class="hero-text">
-      <p class="eyebrow" data-site-hero-eyebrow>Papka №1 dan Papka №12 gacha</p>
-      <h1 data-site-hero-title>Ingliz tilini <em>tarqoq darslar</em>da emas, <em>tartibli papkada</em> o‘rganing.</h1>
-      <p class="hero-lead" data-site-hero-lead>Har bir guruh — alohida papka. Har bir papka — aniq izchillikda joylashgan 12 ta dars: video, mashqlar, uy vazifasi va o‘qituvchi izohi bilan. Ochasiz, boshlaysiz, yakunlaysiz.</p>
-      <div class="hero-cta">
-        <a href="#aloqa" class="btn btn-primary" data-site-hero-cta-primary>Bepul sinov darsiga yozilish</a>
-        <a href="#jarayon" class="btn btn-ghost" data-site-hero-cta-ghost>Tizim qanday ishlaydi →</a>
-      </div>
-      <div class="hero-stats">
-        <div><strong data-site-stat-1-number>12</strong><span data-site-stat-1-label>dars / har bir papkada</span></div>
-        <div><strong data-site-stat-2-number>420+</strong><span data-site-stat-2-label>faol o‘quvchi</span></div>
-        <div><strong data-site-stat-3-number>4.9</strong><span data-site-stat-3-label>o‘rtacha baho</span></div>
-      </div>
-    </div>
+  <a href="student/login.html" class="btn btn-amber home-student-btn" data-site-home-student-btn>Talaba profili</a>
+</main>
 
-    <div class="hero-visual" aria-hidden="true" data-site-hero-visual>
-      <div class="stack-folder stack-3"></div>
-      <div class="stack-folder stack-2"></div>
-      <div class="folder stack-1">
-        <div class="folder-tab"></div>
-        <div class="folder-body hero-folder-body">
-          <div class="hero-folder-head">
-            <span class="tag">GURUH · PRE-INTERMEDIATE</span>
-            <span class="hero-folder-progress">7/12 dars</span>
-          </div>
-          <ul class="hero-lesson-list">
-            <li class="done"><span>01</span> Present Simple asoslari</li>
-            <li class="done"><span>02</span> Kundalik suhbat lug‘ati</li>
-            <li class="done"><span>03</span> Past Simple: hikoya qilish</li>
-            <li class="active"><span>04</span> Telefon orqali muloqot</li>
-            <li><span>05</span> Comparatives & Superlatives</li>
-            <li><span>06</span> Ish suhbati: Speaking club</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
-
-<!-- WHY / PROCESS -->
-<section id="jarayon" class="section">
-  <div class="container">
-    <p class="eyebrow" data-site-process-eyebrow>Qanday ishlaydi</p>
-    <h2 data-site-process-heading>Uch qadamda — tartibli o‘quv jarayoni</h2>
-    <div class="process-grid">
-      <div class="process-card">
-        <span class="process-num">01</span>
-        <h3 data-site-process-1-title>Guruhingiz papkasi ochiladi</h3>
-        <p data-site-process-1-text>O‘qituvchi sizning darajangiz va jadvalingizga mos guruh papkasini yaratadi — bu papka faqat sizning guruhingizga tegishli.</p>
-      </div>
-      <div class="process-card">
-        <span class="process-num">02</span>
-        <h3 data-site-process-2-title>Papka ichida 12 ta dars</h3>
-        <p data-site-process-2-text>Har bir papkada aniq izchillikdagi 12 dars joylashgan: video darslik, grammatika, lug‘at, audio mashq va uy vazifasi.</p>
-      </div>
-      <div class="process-card">
-        <span class="process-num">03</span>
-        <h3 data-site-process-3-title>Bosqichma-bosqich yakunlaysiz</h3>
-        <p data-site-process-3-text>Har bir darsni tugatgach, keyingisiga o‘tasiz. O‘qituvchi progressingizni kuzatib boradi va shaxsiy fikr-mulohaza beradi.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PROGRAMS / SAMPLE FOLDERS -->
-<section id="dasturlar" class="section section-alt">
-  <div class="container">
-    <p class="eyebrow" data-site-programs-eyebrow>Dastur papkalari</p>
-    <h2 data-site-programs-heading>Darajangizga mos papkani tanlang</h2>
-    <p class="section-lead" data-site-programs-lead>Har bir dastur — 12 darslik mustaqil papka. Guruh boshlanishi bilan sizga shaxsiy kirish beriladi.</p>
-
-    <div class="grid-3 programs-grid" data-site-programs-container>
-      <article class="folder" style="--tab-color:#D98E3F">
-        <div class="folder-tab"></div>
-        <div class="folder-body">
-          <span class="tag">A1–A2 · BOSHLANG‘ICH</span>
-          <h3>Beginner Start</h3>
-          <p>Alifbodan sodda suhbatgacha — 12 darslik asos kursi. Talaffuz, kundalik lug‘at va birinchi jumlalar.</p>
-          <span class="folder-meta">12 dars · 6 hafta</span>
-        </div>
-      </article>
-
-      <article class="folder" style="--tab-color:#2E6F6E">
-        <div class="folder-tab"></div>
-        <div class="folder-body">
-          <span class="tag">B1 · O‘RTA</span>
-          <h3>Confident Speaker</h3>
-          <p>Erkin gapirish uchun grammatika va nutq mashqlari. Speaking club darslari bilan mustahkamlanadi.</p>
-          <span class="folder-meta">12 dars · 8 hafta</span>
-        </div>
-      </article>
-
-      <article class="folder" style="--tab-color:#B3432B">
-        <div class="folder-tab"></div>
-        <div class="folder-body">
-          <span class="tag">B2–C1 · IELTS</span>
-          <h3>IELTS Intensive</h3>
-          <p>Writing, Speaking, Listening va Reading bo‘yicha 12 bosqichli tayyorgarlik, real test formatida.</p>
-          <span class="folder-meta">12 dars · 10 hafta</span>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- RESULTS -->
-<section id="natijalar" class="section">
-  <div class="container grid-2 results-grid">
-    <div>
-      <p class="eyebrow" data-site-results-eyebrow>Natijalar</p>
-      <h2 data-site-results-heading>O‘quvchilar nima deydi</h2>
-      <p class="section-lead" data-site-results-lead>Har bir papkani oxirigacha yakunlagan o‘quvchilarning haqiqiy tajribasi.</p>
-    </div>
-    <div class="testimonials" data-site-testimonials-container>
-      <blockquote>
-        <p>“12 ta darsni ketma-ket o‘tganimda, oldingi bilim ustiga yangisi qo‘shilib borayotganini his qildim. Tartib meni charchatmadi.”</p>
-        <cite>— Madina, Confident Speaker bitiruvchisi</cite>
-      </blockquote>
-      <blockquote>
-        <p>“Papkam ichida nima borligini har doim bilib turaman: qaysi darsni tugatganim, qaysi biri navbatda.”</p>
-        <cite>— Jasur, IELTS Intensive o‘quvchisi</cite>
-      </blockquote>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<section id="aloqa" class="section section-cta">
-  <div class="container cta-inner">
-    <h2 data-site-cta-title>Papkangizni bugun oching</h2>
-    <p data-site-cta-text>Bepul sinov darsiga yoziling — sizga mos darajadagi guruh papkasi tayyorlanadi.</p>
-    <form class="cta-form" onsubmit="event.preventDefault(); this.querySelector('.cta-success').style.display='block'; this.reset();">
-      <input type="text" placeholder="Ismingiz" required>
-      <input type="tel" placeholder="Telefon raqamingiz" required>
-      <button type="submit" class="btn btn-amber">Yuborish</button>
-    </form>
-    <p class="cta-success" style="display:none;">Rahmat! Tez orada siz bilan bog‘lanamiz.</p>
-    <p style="margin-top:1.6em; color:rgba(247,247,243,.6); font-size:.88rem;">
-      <span data-site-cta-note>Allaqachon guruhga qabul qilingansiz?</span>
-      <a href="student/register.html" style="color:var(--amber); font-weight:700; text-decoration:none;">Shu yerdan ro‘yxatdan o‘ting →</a>
-    </p>
-  </div>
-</section>
-
-<footer>
-  <div class="container">
-    <div>
-      <a href="index.html" class="brand" style="color:#FFFFFF"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
-      <p style="max-width:280px;margin-top:1em;" data-site-footer-description>Ingliz tilini papka-tizimi asosida, bosqichma-bosqich o‘rgatuvchi ta’lim markazi.</p>
-    </div>
-    <div>
-      <h4 data-site-footer-nav-title>Sahifa</h4>
-      <p><a href="#dasturlar" data-site-nav-programs>Dasturlar</a></p>
-      <p><a href="#jarayon" data-site-nav-process>Qanday ishlaydi</a></p>
-      <p><a href="#natijalar" data-site-nav-results>Natijalar</a></p>
-    </div>
-    <div>
-      <h4 data-site-footer-contact-title>Aloqa</h4>
-      <p><a href="tel:+998900000000" data-site-footer-phone>+998 90 000 00 00</a></p>
-      <p><a href="mailto:info@englishfolder.uz" data-site-footer-email>info@englishfolder.uz</a></p>
-      <p data-site-footer-address>Toshkent, Chilonzor tumani</p>
-    </div>
-  </div>
-  <div class="container footer-bottom">
-    <span data-site-footer-copyright>© 2026 English Folder. Barcha huquqlar himoyalangan.</span>
-    <span>
-      <a href="student/login.html" class="footer-admin-link">O‘quvchi kirish →</a>
-      <a href="admin/login.html" class="footer-admin-link">Admin panel →</a>
-    </span>
-  </div>
-</footer>
-
-<style>
-/* Landing page specific styles, layered on top of style.css tokens */
-
-.hero{ padding: 5em 0 6em; overflow: hidden; }
-.hero-inner{ display:grid; grid-template-columns: 1.1fr .9fr; gap: 4em; align-items:center; }
-.hero-text em{ font-style: italic; color: var(--amber-deep); }
-.hero-lead{ font-size: 1.15rem; max-width: 46ch; }
-.hero-cta{ display:flex; gap: 1em; flex-wrap:wrap; margin: 2em 0 2.5em; }
-.hero-stats{ display:flex; gap: 2.4em; }
-.hero-stats div{ display:flex; flex-direction:column; }
-.hero-stats strong{ font-family: var(--font-display); font-size: 1.9rem; color: var(--ink); }
-.hero-stats span{ font-size:.78rem; color: var(--gray); }
-
-.hero-visual{ position:relative; height: 420px; }
-.stack-folder{
-  position:absolute; inset: 40px 10px 10px 40px;
-  background: var(--paper-2);
-  border: 1px solid var(--line);
-  border-radius: 4px var(--radius-m) var(--radius-m) var(--radius-m);
-}
-.stack-3{ transform: rotate(-6deg) translate(6px, 26px); background:#E9EAED; z-index:1; }
-.stack-2{ transform: rotate(-2deg) translate(2px, 12px); background:#F4F5F7; z-index:2; }
-.stack-1{ position:relative; z-index:3; margin-top: 40px; animation: floatIn .8s var(--ease); }
-@keyframes floatIn{ from{ opacity:0; transform: translateY(18px);} to{ opacity:1; transform:translateY(0);} }
-
-.hero-folder-body{ min-height: 300px; }
-.hero-folder-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom: 1.2em; }
-.hero-folder-progress{ font-family: var(--font-mono); font-size:.78rem; color: var(--teal-deep); }
-.hero-lesson-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.55em; }
-.hero-lesson-list li{ display:flex; align-items:center; gap:.8em; font-size:.92rem; color: var(--gray); padding: .5em .2em; border-radius: var(--radius-s); }
-.hero-lesson-list li span{ font-family: var(--font-mono); font-size:.75rem; width:22px; color: var(--gray); }
-.hero-lesson-list li.done{ color: var(--ink); }
-.hero-lesson-list li.done span{ color: var(--teal); }
-.hero-lesson-list li.active{ background: var(--paper-2); color: var(--ink); font-weight:700; }
-.hero-lesson-list li.active span{ color: var(--amber-deep); }
-
-.section{ padding: 5.5em 0; }
-.section-alt{ background: var(--paper-2); }
-.section-lead{ max-width: 56ch; font-size: 1.05rem; margin-top: -.4em; margin-bottom: 2.5em; }
-
-.process-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap: 1.8em; margin-top: 2.4em; }
-.process-card{ background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-m); padding: 2em 1.7em; }
-.process-num{ font-family: var(--font-mono); color: var(--amber-deep); font-size:.85rem; }
-.process-card h3{ margin: .6em 0 .5em; }
-
-.programs-grid{ margin-top: 2.2em; }
-.folder-meta{ display:block; margin-top: 1em; font-family: var(--font-mono); font-size:.76rem; color: var(--gray); }
-
-.results-grid{ align-items: start; }
-.testimonials{ display:flex; flex-direction:column; gap: 1.4em; }
-.testimonials blockquote{ margin:0; background: var(--white); border-left: 3px solid var(--amber); padding: 1.4em 1.6em; border-radius: 0 var(--radius-m) var(--radius-m) 0; box-shadow: var(--shadow-card); }
-.testimonials p{ font-size: 1.02rem; color: var(--ink); }
-.testimonials cite{ font-style:normal; font-size:.82rem; color: var(--gray); }
-
-.section-cta{ background: var(--dark-bg); color: var(--paper); text-align:center; }
-.section-cta h2{ color: var(--paper); }
-.section-cta p{ color: rgba(247,247,243,.75); max-width: 46ch; margin: 0 auto 2em; }
-.section-cta + footer{ margin-top: 0; }
-.cta-inner{ max-width: 640px; }
-.cta-form{ display:flex; gap: .8em; flex-wrap:wrap; justify-content:center; }
-.cta-form input{
-  flex: 1 1 200px; padding: .9em 1.1em; border-radius: var(--radius-s); border: 1px solid rgba(247,247,243,.25);
-  background: rgba(247,247,243,.08); color: var(--paper); font-family: var(--font-body);
-}
-.cta-form input::placeholder{ color: rgba(247,247,243,.5); }
-.cta-form input:focus-visible{ outline: 2px solid var(--amber); }
-.cta-success{ margin-top: 1.2em; color: var(--amber); font-weight:700; }
-
-@media (max-width: 900px){
-  .hero-inner{ grid-template-columns: 1fr; }
-  .hero-visual{ height: 380px; }
-  .process-grid{ grid-template-columns: 1fr; }
-}
-
-</style>
+<div class="home-bottombar">
+  <a href="admin/login.html" class="home-admin-link" data-site-home-admin-btn>Admin profili</a>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="site-settings.js"></script>
+<script>
+  const themeToggle = document.getElementById('themeToggle');
+  const themeIcon = document.getElementById('themeToggleIcon');
+  const themeLabel = document.getElementById('themeToggleLabel');
+
+  function reflectTheme(){
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    themeIcon.textContent = isDark ? '☀️' : '🌙';
+    themeLabel.textContent = isDark ? 'Kunduzgi rejim' : 'Tungi rejim';
+  }
+  reflectTheme();
+
+  themeToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if(isDark){
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('ef-theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('ef-theme', 'dark');
+    }
+    reflectTheme();
+  });
+</script>
 </body>
 </html>
