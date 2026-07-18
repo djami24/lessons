@@ -245,7 +245,7 @@ footer a:hover{ color: var(--amber); }
 .admin-shell{ display:flex; min-height:100vh; }
 
 .admin-sidebar{
-  width: 260px; flex: none; background: var(--ink); color: rgba(247,247,243,.85);
+  width: 260px; flex: none; background: var(--ink); color: rgba(0,0,128,.85);
   display:flex; flex-direction:column; padding: 1.8em 1.4em; position: sticky; top:0; height:100vh;
 }
 .admin-sidebar .brand{ color: var(--paper); text-decoration:none; margin-bottom: 2.4em; font-size: 1.1rem; }
