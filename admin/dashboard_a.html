@@ -316,6 +316,7 @@
 </div>
 
 <!-- ===== MODAL: Add/Edit course topic (IELTS/CEFR Listening/Reading/Speaking) ===== -->
+<!-- ===== MODAL: Add/Edit course topic (IELTS/CEFR Listening/Reading/Speaking) ===== -->
 <div class="modal-overlay" id="modalEditTopic" hidden>
   <div class="modal-box" style="max-width:640px;">
     <h3 id="topicModalTitle">Yangi mavzu</h3>
@@ -324,6 +325,14 @@
         <span>Mavzu nomi</span>
         <input type="text" id="topicTitle" placeholder="Masalan: Section 1 — Everyday conversation" required>
       </label>
+      
+      <!-- MANA SHU QISM QO'SHILDI -->
+      <label class="field">
+        <span>Rasm havolasi (ixtiyoriy) <span style="font-weight:400; color:var(--gray);">— Boshqa saytdagi rasm linkini joylang, talabaga rasm bo'lib ko'rinadi</span></span>
+        <input type="url" id="topicImage" placeholder="https://misol.uz/rasm.jpg">
+      </label>
+      <!-- YUQORIDAGI QISM QO'SHILDI -->
+
       <label class="field">
         <span>Material havolasi <span style="font-weight:400; color:var(--gray);">(audio, matn, PDF va h.k.)</span></span>
         <input type="url" id="topicMaterial" placeholder="https://…">
@@ -1412,6 +1421,10 @@ document.getElementById('editTopicForm').addEventListener('submit', async (e) =>
     material: document.getElementById('topicMaterial').value.trim(),
     description: getRteValue('topicDescription'),
     timerSeconds
+    const topicImage = document.getElementById('topicImage').value.trim();
+  title: topicTitle,
+  image: topicImage, // Shu qatorni qo'shasiz
+  material: topicMaterial,
   };
 
   const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
