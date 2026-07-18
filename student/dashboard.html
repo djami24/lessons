@@ -45,7 +45,7 @@
           <div class="folder-body">
             <span class="tag">A1–B1</span>
             <h3 class="course-title">General English</h3>
-            <p class="course-sub" id="generalEnglishSub">Beginner → Elementary → Pre-Intermediate</p>
+            <p class="course-sub" id="generalEnglishSub">Beginner → Elementary → Pre-Intermediate → Intermediate</p>
           </div>
         </article>
         <article class="folder course-card is-locked">
@@ -154,7 +154,8 @@
 const LEVELS = [
   { id: 'beginner', name: 'Beginner', order: 1 },
   { id: 'elementary', name: 'Elementary', order: 2 },
-  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3 }
+  { id: 'pre-intermediate', name: 'Pre-Intermediate', order: 3 },
+  { id: 'intermediate', name: 'Intermediate', order: 4 }
 ];
 const PASS_PERCENT = 60;
 
@@ -200,7 +201,8 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
 async function loadLevels(){
   const results = await Promise.all(LEVELS.map(l => db.collection('levels').doc(l.id).get()));
   results.forEach((doc, i) => {
-    state.levels[LEVELS[i].id] = doc.exists ? doc.data() : { name: LEVELS[i].name, order: LEVELS[i].order, lessons: [] };
+    const fallback = { name: LEVELS[i].name, order: LEVELS[i].order, lessons: [], locked: false, lockedMessage: '' };
+    state.levels[LEVELS[i].id] = doc.exists ? { ...fallback, ...doc.data() } : fallback;
   });
 }
 
@@ -219,6 +221,7 @@ function isLevelCompleted(levelId){
 }
 
 function isLevelUnlocked(levelId){
+  if(getLevel(levelId).locked) return false;
   const lvl = LEVELS.find(l => l.id === levelId);
   if(lvl.order === 1) return true;
   const prevLevel = LEVELS.find(l => l.order === lvl.order - 1);
@@ -261,7 +264,7 @@ function renderCoursesOverview(){
   } else if(state.student.paymentStatus === 'pending'){
     sub.textContent = 'To‘lov tekshirilmoqda…';
   } else {
-    sub.textContent = 'Beginner → Elementary → Pre-Intermediate · 50 000 so‘m';
+    sub.textContent = 'Beginner → Elementary → Pre-Intermediate → Intermediate · 50 000 so‘m';
   }
   switchView('courses');
 }
@@ -304,13 +307,21 @@ function openLevelsView(){
     const data = getLevel(lvl.id);
     const unlocked = isLevelUnlocked(lvl.id);
     const doneCount = data.lessons.filter(l => getLessonProgress(lvl.id, l.id).passed).length;
+    let subText;
+    if(data.locked){
+      subText = escapeHtml(data.lockedMessage || 'Tez kunda ochiladi — yangi mavzular qo‘shilyapti.');
+    } else if(unlocked){
+      subText = `${doneCount}/${data.lessons.length} dars yakunlangan`;
+    } else {
+      subText = 'Oldingi darajani yakunlang';
+    }
     return `
       <article class="folder level-card ${unlocked ? '' : 'is-locked'}" ${unlocked ? `data-open-level="${lvl.id}"` : ''}>
         <div class="folder-tab" style="--tab-color:${unlocked ? '#2E6F6E' : '#9a9a95'}"></div>
         <div class="folder-body">
           <span class="tag">Daraja ${lvl.order}</span>
           <h3 class="level-title">${escapeHtml(lvl.name)} ${unlocked ? '' : '🔒'}</h3>
-          <p class="level-sub">${unlocked ? `${doneCount}/${data.lessons.length} dars yakunlangan` : 'Oldingi darajani yakunlang'}</p>
+          <p class="level-sub">${subText}</p>
         </div>
       </article>`;
   }).join('');
