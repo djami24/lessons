@@ -820,12 +820,32 @@ function renderEssayStatusBlock(question){
   if(canSubmit){
     html += `
     <div style="margin-top:1.6em;">
+      <div style="padding:1em; border:1.5px solid var(--line); border-radius:var(--radius-s); margin-bottom:1em;">
+        <label style="display:flex; align-items:center; gap:.7em; cursor:pointer;">
+          <input type="checkbox" id="essayTimerToggle">
+          <span>⏱️ Taymerdan foydalanish (ixtiyoriy) — vaqt tugagach yozish joyi yopiladi.</span>
+        </label>
+        <div id="essayTimerControls" hidden style="margin-top:1em; display:flex; align-items:center; gap:1em; flex-wrap:wrap;">
+          <label style="display:flex; align-items:center; gap:.5em;">
+            <span>Daqiqa:</span>
+            <input type="number" id="essayTimerMinutes" min="1" step="1" value="${question.timerMinutes || 20}" style="width:70px;">
+          </label>
+          <div id="essayTimerDisplay" style="font-family:var(--font-mono); font-size:1.6rem; font-weight:700;">--:--</div>
+          <button type="button" class="btn btn-amber btn-sm" id="essayTimerStartBtn">Boshlash</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="essayTimerResetBtn">Qayta boshlash</button>
+        </div>
+      </div>
+
       <label class="field">
         <span>${latest ? 'Qayta yozish' : 'Inshoyingizni shu yerga yozing'}</span>
         <textarea id="writingEssayInput" rows="10" placeholder="Inshoyingizni shu yerga yozing…"></textarea>
       </label>
+      <p class="tag" id="essayTimeUpNotice" hidden style="background:rgba(217,142,63,.18); color:var(--amber-deep); margin-bottom:.8em;">⏰ Vaqt tugadi — yozish joyi yopildi. Yuboring yoki qaytadan yozing.</p>
       <p class="form-error" id="writingEssayError" role="alert" hidden></p>
-      <button type="button" class="btn btn-amber" id="submitEssayBtn">Adminga yuborish</button>
+      <div style="display:flex; gap:.7em; flex-wrap:wrap;">
+        <button type="button" class="btn btn-amber" id="submitEssayBtn">Adminga yuborish</button>
+        <button type="button" class="btn btn-ghost" id="essayRewriteBtn" hidden>Qaytadan yozish</button>
+      </div>
     </div>`;
   }
   return html;
