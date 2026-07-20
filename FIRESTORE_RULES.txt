@@ -42,8 +42,32 @@ service cloud.firestore {
     match /settings/{docId} {
       allow read: if true;
       allow write: if isAdmin();
+
+      // Homepage "rate the site" widget: any visitor (signed in or not)
+      // may cast exactly one vote per request, worth 1-5 points, by
+      // bumping ratingSum/ratingCount on settings/site — nothing else.
+      // Covers the very first vote (doc doesn't exist yet)...
+      allow create: if !isAdmin() && docId == 'site' &&
+        request.resource.data.keys().hasOnly(['ratingSum', 'ratingCount']) &&
+        request.resource.data.ratingCount == 1 &&
+        request.resource.data.ratingSum >= 1 && request.resource.data.ratingSum <= 5;
+
+      // ...and every vote after that (doc already exists).
+      allow update: if !isAdmin() && docId == 'site' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ratingSum', 'ratingCount']) &&
+        request.resource.data.ratingCount == resource.data.get('ratingCount', 0) + 1 &&
+        request.resource.data.ratingSum >= resource.data.get('ratingSum', 0) + 1 &&
+        request.resource.data.ratingSum <= resource.data.get('ratingSum', 0) + 5;
     }
  
+    // Blog posts ("Djami's Blog") — admin writes them from the dashboard;
+    // publicly readable since the homepage preview and blog.html detail
+    // page both run with no signed-in user.
+    match /blogs/{blogId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // General English: fixed level docs (beginner / elementary /
     // pre-intermediate / intermediate), each holding an embedded `lessons`
     // array (topic, homework, quiz questions) and an optional admin lock
