@@ -19,6 +19,22 @@
   <div class="blog-post-wrap" id="blogPostWrap">
     <p class="blog-post-loading" id="blogPostLoading">Yuklanmoqda…</p>
   </div>
+
+  <div class="blog-post-wrap blog-comments-section" id="blogCommentsSection" hidden>
+    <h2 class="blog-comments-heading">Kommentlar (<span id="commentCount">0</span>)</h2>
+
+    <form class="blog-comment-form" id="commentForm">
+      <input type="text" id="commentName" placeholder="Ismingiz" maxlength="60" required>
+      <textarea id="commentText" rows="3" placeholder="Fikringizni yozing…" maxlength="1000" required></textarea>
+      <div class="blog-comment-form-row">
+        <p class="blog-comment-error" id="commentError" hidden></p>
+        <button type="submit" class="btn btn-amber btn-sm" id="commentSubmit">Yuborish</button>
+      </div>
+    </form>
+
+    <div class="blog-comment-list" id="commentList"></div>
+    <p class="blog-comments-empty" id="commentsEmpty" hidden>Hali kommentlar yo‘q — birinchi bo‘lib fikr bildiring!</p>
+  </div>
 </main>
 
 <div class="home-bottombar">
@@ -71,6 +87,7 @@
         '</div>';
 
       setupActions(id, b);
+      setupComments(id);
     } catch (err) {
       showMessage('Blogni yuklashda xatolik yuz berdi.');
     }
@@ -159,6 +176,101 @@
       }
       fallbackCopy();
     });
+  }
+
+  /* ---- Comments: any visitor may read and post; no login required ---- */
+  function setupComments(blogId) {
+    var sectionEl = document.getElementById('blogCommentsSection');
+    var listEl = document.getElementById('commentList');
+    var emptyEl = document.getElementById('commentsEmpty');
+    var countEl = document.getElementById('commentCount');
+    var formEl = document.getElementById('commentForm');
+    var nameEl = document.getElementById('commentName');
+    var textEl = document.getElementById('commentText');
+    var errorEl = document.getElementById('commentError');
+    var submitBtn = document.getElementById('commentSubmit');
+
+    var NAME_KEY = 'efCommentName';
+    try {
+      var savedName = localStorage.getItem(NAME_KEY);
+      if (savedName) nameEl.value = savedName;
+    } catch (e) {}
+
+    function formatDate(ts) {
+      if (!ts || typeof ts.toDate !== 'function') return '';
+      var d = ts.toDate();
+      return d.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short', year: 'numeric' }) +
+        ' · ' + d.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderComments(docs) {
+      countEl.textContent = docs.length;
+      if (docs.length === 0) {
+        listEl.innerHTML = '';
+        emptyEl.hidden = false;
+        return;
+      }
+      emptyEl.hidden = true;
+      listEl.innerHTML = docs.map(function (doc) {
+        var c = doc.data();
+        return '<div class="blog-comment-item">' +
+          '<div class="blog-comment-item-head">' +
+            '<span class="blog-comment-author">' + escapeHtml(c.name || 'Anonim') + '</span>' +
+            '<span class="blog-comment-date">' + formatDate(c.createdAt) + '</span>' +
+          '</div>' +
+          '<p class="blog-comment-text">' + escapeHtml(c.text || '') + '</p>' +
+        '</div>';
+      }).join('');
+    }
+
+    async function loadComments() {
+      try {
+        var snap = await db.collection('blogs').doc(blogId).collection('comments')
+          .orderBy('createdAt', 'desc').get();
+        renderComments(snap.docs);
+      } catch (err) {
+        console.error('Comments load failed:', err);
+        renderComments([]);
+      }
+    }
+
+    formEl.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      errorEl.hidden = true;
+
+      var name = nameEl.value.trim();
+      var text = textEl.value.trim();
+      if (!name || !text) {
+        errorEl.textContent = 'Ism va komment matnini kiriting.';
+        errorEl.hidden = false;
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Yuborilmoqda…';
+
+      try {
+        try { localStorage.setItem(NAME_KEY, name); } catch (e) {}
+
+        await db.collection('blogs').doc(blogId).collection('comments').add({
+          name: name,
+          text: text,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        textEl.value = '';
+        await loadComments();
+      } catch (err) {
+        errorEl.textContent = 'Kommentni yuborishda xatolik yuz berdi. Qayta urinib ko‘ring.';
+        errorEl.hidden = false;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Yuborish';
+      }
+    });
+
+    sectionEl.hidden = false;
+    loadComments();
   }
 
   loadBlogPost();
