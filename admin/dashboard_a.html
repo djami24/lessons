@@ -346,11 +346,11 @@
         <input type="text" id="topicTitle" placeholder="Masalan: Section 1 — Everyday conversation" required>
       </label>
       <label class="field">
-        <span>Material havolasi <span style="font-weight:400; color:var(--gray);">(audio, matn, PDF va h.k.)</span></span>
+        <span>Material havolasi <span style="font-weight:400; color:var(--gray);">(audio, matn, PDF va h.k. — alohida "Materialni ko‘rish" tugmasi bo‘lib chiqadi, boshqa sahifaga olib ketadi)</span></span>
         <input type="url" id="topicMaterial" placeholder="https://…">
       </label>
       <label class="field">
-        <span>Tavsif / vazifa</span>
+        <span>Tavsif / vazifa <span style="font-weight:400; color:var(--gray);">(rasm shu yerga, 🖼️ tugmasi orqali qo‘shilsa, sahifaning o‘zida ko‘rinadi)</span></span>
         <div class="rte-toolbar" data-rte-toolbar="topicDescription"></div>
         <div class="rte-editor" id="topicDescription" contenteditable="true" data-placeholder="Mavzu haqida, o‘quvchi bajarishi kerak bo‘lgan vazifa…"></div>
       </label>
@@ -745,6 +745,28 @@ function initRichTextEditors(){
 }
 initRichTextEditors();
 
+function insertImageAtCursor(editor, url){
+  editor.focus();
+  const sel = window.getSelection();
+  let range;
+  if(sel.rangeCount > 0 && editor.contains(sel.anchorNode)){
+    range = sel.getRangeAt(0);
+  } else {
+    range = document.createRange();
+    range.selectNodeContents(editor);
+    range.collapse(false);
+  }
+  const img = document.createElement('img');
+  img.src = url;
+  img.alt = '';
+  range.deleteContents();
+  range.insertNode(img);
+  range.setStartAfter(img);
+  range.setEndAfter(img);
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
 document.addEventListener('mousedown', (e) => {
   // mousedown (not click) so the editor's selection isn't lost before the command runs
   const btn = e.target.closest('.rte-btn');
@@ -754,7 +776,7 @@ document.addEventListener('mousedown', (e) => {
   editor.focus();
   if(btn.dataset.rteCmd === 'insertImage'){
     const url = prompt('Rasm havolasini kiriting (https://...):');
-    if(url && url.trim()) document.execCommand('insertImage', false, url.trim());
+    if(url && url.trim()) insertImageAtCursor(editor, url.trim());
     return;
   }
   document.execCommand(btn.dataset.rteCmd, false, null);
