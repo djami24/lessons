@@ -292,8 +292,38 @@
           <input type="text" id="settingHomeAdminBtnText" placeholder="Admin kirish">
         </label>
         <label class="field">
+          <span>"Djami's Blog" tugmasi matni (tepadagi panel)</span>
+          <input type="text" id="settingBlogLinkText" placeholder="Djami's Blog">
+        </label>
+        <label class="field">
           <span>Footer matni</span>
           <input type="text" id="settingFooterCopyright" placeholder="© 2026 Djami Lessons. Barcha huquqlar himoyalangan.">
+        </label>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>✨ "Nega biz" bloklari</h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field"><span>1-blok sarlavhasi</span><input type="text" id="settingFeature1Title" placeholder="Sifatli kontent"></label>
+          <label class="field"><span>1-blok matni</span><input type="text" id="settingFeature1Text" placeholder="Zamonaviy va foydali o‘quv materiallar"></label>
+          <label class="field"><span>2-blok sarlavhasi</span><input type="text" id="settingFeature2Title" placeholder="Amaliy yondashuv"></label>
+          <label class="field"><span>2-blok matni</span><input type="text" id="settingFeature2Text" placeholder="Real hayotga mos mashqlar va testlar"></label>
+          <label class="field"><span>3-blok sarlavhasi</span><input type="text" id="settingFeature3Title" placeholder="Natijaga yo‘naltirilgan"></label>
+          <label class="field"><span>3-blok matni</span><input type="text" id="settingFeature3Text" placeholder="Darajangizni oshirish uchun eng yaxshi yo‘l"></label>
+          <label class="field"><span>4-blok sarlavhasi</span><input type="text" id="settingFeature4Title" placeholder="Ishonchli platforma"></label>
+          <label class="field"><span>4-blok matni</span><input type="text" id="settingFeature4Text" placeholder="Xavfsiz va qulay foydalanish"></label>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>📰 Blog va baholash bo‘limlari</h3>
+
+        <label class="field">
+          <span>Blog bo‘limi sarlavhasi</span>
+          <input type="text" id="settingBlogHeading" placeholder="Djami's Blog">
+        </label>
+        <label class="field">
+          <span>"Saytni baholang" yozuvi</span>
+          <input type="text" id="settingRatingLabel" placeholder="Saytni baholang">
         </label>
 
         <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
@@ -2397,7 +2427,20 @@ const DEFAULT_SITE_SETTINGS = {
   homeSub3: 'A1 dan C2 gacha barcha darajalar',
   homeStudentBtnText: 'Talaba profili',
   homeAdminBtnText: 'Admin kirish',
-  footerCopyright: '© 2026 Djami Lessons. Barcha huquqlar himoyalangan.'
+  blogLinkText: "Djami's Blog",
+  footerCopyright: '© 2026 Djami Lessons. Barcha huquqlar himoyalangan.',
+
+  feature1Title: 'Sifatli kontent',
+  feature1Text: 'Zamonaviy va foydali o‘quv materiallar',
+  feature2Title: 'Amaliy yondashuv',
+  feature2Text: 'Real hayotga mos mashqlar va testlar',
+  feature3Title: 'Natijaga yo‘naltirilgan',
+  feature3Text: 'Darajangizni oshirish uchun eng yaxshi yo‘l',
+  feature4Title: 'Ishonchli platforma',
+  feature4Text: 'Xavfsiz va qulay foydalanish',
+
+  blogHeading: "Djami's Blog",
+  ratingLabel: 'Saytni baholang'
 };
 
 function fillSiteSettingsForm(data){
@@ -2423,7 +2466,20 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingHomeSub3').value = data.homeSub3 || '';
   document.getElementById('settingHomeStudentBtnText').value = data.homeStudentBtnText || '';
   document.getElementById('settingHomeAdminBtnText').value = data.homeAdminBtnText || '';
+  document.getElementById('settingBlogLinkText').value = data.blogLinkText || '';
   document.getElementById('settingFooterCopyright').value = data.footerCopyright || '';
+
+  document.getElementById('settingFeature1Title').value = data.feature1Title || '';
+  document.getElementById('settingFeature1Text').value = data.feature1Text || '';
+  document.getElementById('settingFeature2Title').value = data.feature2Title || '';
+  document.getElementById('settingFeature2Text').value = data.feature2Text || '';
+  document.getElementById('settingFeature3Title').value = data.feature3Title || '';
+  document.getElementById('settingFeature3Text').value = data.feature3Text || '';
+  document.getElementById('settingFeature4Title').value = data.feature4Title || '';
+  document.getElementById('settingFeature4Text').value = data.feature4Text || '';
+
+  document.getElementById('settingBlogHeading').value = data.blogHeading || '';
+  document.getElementById('settingRatingLabel').value = data.ratingLabel || '';
 }
 
 async function loadSiteSettingsForm(){
@@ -2485,7 +2541,20 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     homeSub3: document.getElementById('settingHomeSub3').value.trim(),
     homeStudentBtnText: document.getElementById('settingHomeStudentBtnText').value.trim(),
     homeAdminBtnText: document.getElementById('settingHomeAdminBtnText').value.trim(),
-    footerCopyright: document.getElementById('settingFooterCopyright').value.trim()
+    blogLinkText: document.getElementById('settingBlogLinkText').value.trim(),
+    footerCopyright: document.getElementById('settingFooterCopyright').value.trim(),
+
+    feature1Title: document.getElementById('settingFeature1Title').value.trim(),
+    feature1Text: document.getElementById('settingFeature1Text').value.trim(),
+    feature2Title: document.getElementById('settingFeature2Title').value.trim(),
+    feature2Text: document.getElementById('settingFeature2Text').value.trim(),
+    feature3Title: document.getElementById('settingFeature3Title').value.trim(),
+    feature3Text: document.getElementById('settingFeature3Text').value.trim(),
+    feature4Title: document.getElementById('settingFeature4Title').value.trim(),
+    feature4Text: document.getElementById('settingFeature4Text').value.trim(),
+
+    blogHeading: document.getElementById('settingBlogHeading').value.trim(),
+    ratingLabel: document.getElementById('settingRatingLabel').value.trim()
   };
 
   try{
