@@ -799,6 +799,13 @@ function findWritingQuestion(questionId){
   return search(track.folders);
 }
 
+let essayTimer = { remaining: 0, total: 0, interval: null };
+
+function stopEssayTimer(){
+  clearInterval(essayTimer.interval);
+  essayTimer.interval = null;
+}
+
 function renderEssayStatusBlock(question){
   const mine = state.mySubmissions.filter(s => s.questionId === question.id).sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0));
   const latest = mine[0];
@@ -808,7 +815,7 @@ function renderEssayStatusBlock(question){
   if(latest){
     html += `
     <div style="margin-top:1.6em; padding:1.2em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
-      <p class="eyebrow" style="margin-bottom:.4em;">So‘nggi urinish — ${new Date(latest.submittedAt).toLocaleString('uz-UZ')}</p>
+      <p class="eyebrow" style="margin-bottom:.4em;">So'nggi urinish — ${new Date(latest.submittedAt).toLocaleString('uz-UZ')}</p>
       ${latest.status === 'graded'
         ? `<p class="status-pill" style="background:rgba(46,111,110,.15); color:var(--teal-deep); display:inline-block; margin-bottom:.6em;">Baholangan${latest.score ? ' · Ball: ' + escapeHtml(String(latest.score)) : ''}</p>
            ${latest.comment ? `<div class="rich-content" style="margin-top:.4em;"><strong>Admin izohi:</strong><p>${escapeHtml(latest.comment)}</p></div>` : ''}`
@@ -818,33 +825,46 @@ function renderEssayStatusBlock(question){
   }
 
   if(canSubmit){
+    const defMin = question.timerMinutes || 20;
     html += `
     <div style="margin-top:1.6em;">
-      <div style="padding:1em; border:1.5px solid var(--line); border-radius:var(--radius-s); margin-bottom:1em;">
-        <label style="display:flex; align-items:center; gap:.7em; cursor:pointer;">
-          <input type="checkbox" id="essayTimerToggle">
-          <span>⏱️ Taymerdan foydalanish (ixtiyoriy) — vaqt tugagach yozish joyi yopiladi.</span>
+
+      <!-- ===== TAYMER BLOKI ===== -->
+      <div style="padding:1em 1.2em; border:1.5px solid var(--line); border-radius:var(--radius-s); margin-bottom:1em; background:var(--paper-2);">
+        <label style="display:flex; align-items:center; gap:.7em; cursor:pointer; font-weight:500;">
+          <input type="checkbox" id="essayTimerToggle" style="width:16px;height:16px;cursor:pointer;">
+          ⏱️ Taymerdan foydalanish — xohlasangiz yoqing
         </label>
-        <div id="essayTimerControls" hidden style="margin-top:1em; display:flex; align-items:center; gap:1em; flex-wrap:wrap;">
-          <label style="display:flex; align-items:center; gap:.5em;">
-            <span>Daqiqa:</span>
-            <input type="number" id="essayTimerMinutes" min="1" step="1" value="${question.timerMinutes || 20}" style="width:70px;">
-          </label>
-          <div id="essayTimerDisplay" style="font-family:var(--font-mono); font-size:1.6rem; font-weight:700;">--:--</div>
-          <button type="button" class="btn btn-amber btn-sm" id="essayTimerStartBtn">Boshlash</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="essayTimerResetBtn">Qayta boshlash</button>
+        <div id="essayTimerControls" hidden style="margin-top:1.2em; display:flex; flex-wrap:wrap; align-items:center; gap:1em;">
+          <div style="display:flex; align-items:center; gap:.5em;">
+            <label for="essayTimerMinutes" style="font-size:.9rem; color:var(--gray);">Vaqt (daqiqa):</label>
+            <input type="number" id="essayTimerMinutes" min="1" step="1" value="${defMin}"
+              style="width:72px; padding:.35em .5em; border:1.5px solid var(--line); border-radius:var(--radius-s); font-size:.95rem; background:var(--paper);">
+          </div>
+          <div id="essayTimerDisplay" style="font-family:var(--font-mono); font-size:1.8rem; font-weight:700; min-width:5ch;">--:--</div>
+          <button type="button" class="btn btn-amber btn-sm" id="essayTimerStartBtn">▶ Boshlash</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="essayTimerPauseBtn" hidden>⏸ Pauza</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="essayTimerResetBtn">↺ Qayta</button>
         </div>
       </div>
 
+      <!-- ===== VAQT TUGADI XABARI (boshlang'ichda yashirin) ===== -->
+      <div id="essayTimeUpBox" hidden style="margin-bottom:1em; padding:1em 1.2em; border:2px solid var(--danger,#c0392b); border-radius:var(--radius-s); background:rgba(192,57,43,.07);">
+        <p style="font-weight:700; color:var(--danger,#c0392b); margin:0 0 .5em;">⏰ Vaqt tugadi!</p>
+        <p style="margin:0; font-size:.95rem;">Inshoyingizni adminga yuboring <strong>yoki</strong> qaytadan yozishni boshlang.</p>
+      </div>
+
+      <!-- ===== INSHO MAYDONI ===== -->
       <label class="field">
         <span>${latest ? 'Qayta yozish' : 'Inshoyingizni shu yerga yozing'}</span>
         <textarea id="writingEssayInput" rows="10" placeholder="Inshoyingizni shu yerga yozing…"></textarea>
       </label>
-      <p class="tag" id="essayTimeUpNotice" hidden style="background:rgba(217,142,63,.18); color:var(--amber-deep); margin-bottom:.8em;">⏰ Vaqt tugadi — yozish joyi yopildi. Yuboring yoki qaytadan yozing.</p>
+
       <p class="form-error" id="writingEssayError" role="alert" hidden></p>
+
       <div style="display:flex; gap:.7em; flex-wrap:wrap;">
-        <button type="button" class="btn btn-amber" id="submitEssayBtn">Adminga yuborish</button>
-        <button type="button" class="btn btn-ghost" id="essayRewriteBtn" hidden>Qaytadan yozish</button>
+        <button type="button" class="btn btn-amber" id="submitEssayBtn">📤 Adminga yuborish</button>
+        <button type="button" class="btn btn-ghost" id="essayRewriteBtn">🔄 Qaytadan yozish</button>
       </div>
     </div>`;
   }
@@ -852,21 +872,136 @@ function renderEssayStatusBlock(question){
 }
 
 function openWritingQuestionDetail(questionId){
+  stopEssayTimer();
   state.activeWritingQuestionId = questionId;
   const question = findWritingQuestion(questionId);
   const box = document.getElementById('writingQuestionBox');
   box.innerHTML = `
     <h1>${escapeHtml(question.title || 'Nomsiz savol')}</h1>
     ${question.text ? `<div class="rich-content" style="margin-top:.8em;">${question.text}</div>` : ''}
-    ${question.timerMinutes ? `<p class="tag" style="margin-top:.8em; display:inline-block;">⏱️ Tavsiya etilgan vaqt: ${question.timerMinutes} daqiqa</p>` : ''}
     ${renderEssayStatusBlock(question)}
   `;
+
+  // ---- Taymer logikasi ----
+  const timerToggle = document.getElementById('essayTimerToggle');
+  if(timerToggle){
+    const controls   = document.getElementById('essayTimerControls');
+    const display    = document.getElementById('essayTimerDisplay');
+    const minInput   = document.getElementById('essayTimerMinutes');
+    const startBtn   = document.getElementById('essayTimerStartBtn');
+    const pauseBtn   = document.getElementById('essayTimerPauseBtn');
+    const resetBtn   = document.getElementById('essayTimerResetBtn');
+    const timeUpBox  = document.getElementById('essayTimeUpBox');
+    const essayArea  = document.getElementById('writingEssayInput');
+    const rewriteBtn = document.getElementById('essayRewriteBtn');
+
+    const fmtTime = (sec) =>
+      `${String(Math.floor(Math.max(sec,0)/60)).padStart(2,'0')}:${String(Math.max(sec,0)%60).padStart(2,'0')}`;
+
+    function getSeconds(){ return Math.max(1, Math.round(parseFloat(minInput.value)||20) * 60); }
+
+    function onTimeUp(){
+      stopEssayTimer();
+      display.textContent = '⏰ 00:00';
+      display.style.color = 'var(--danger,#c0392b)';
+      // Yozish maydonini o'qishga o'tkazamiz
+      essayArea.readOnly = true;
+      essayArea.style.opacity = '.6';
+      timeUpBox.hidden = false;
+      pauseBtn.hidden = true;
+      startBtn.hidden = false;
+      minInput.disabled = false;
+    }
+
+    function startInterval(){
+      essayTimer.interval = setInterval(() => {
+        essayTimer.remaining--;
+        display.textContent = fmtTime(essayTimer.remaining);
+        if(essayTimer.remaining <= 0) onTimeUp();
+      }, 1000);
+    }
+
+    timerToggle.addEventListener('change', (e) => {
+      controls.hidden = !e.target.checked;
+      if(!e.target.checked){
+        stopEssayTimer();
+        display.textContent = '--:--';
+        display.style.color = '';
+        essayArea.readOnly = false;
+        essayArea.style.opacity = '';
+        timeUpBox.hidden = true;
+        startBtn.hidden = false;
+        pauseBtn.hidden = true;
+        pauseBtn.textContent = '⏸ Pauza';
+        minInput.disabled = false;
+      }
+    });
+
+    startBtn.addEventListener('click', () => {
+      essayTimer.total = getSeconds();
+      essayTimer.remaining = essayTimer.total;
+      display.style.color = '';
+      display.textContent = fmtTime(essayTimer.remaining);
+      timeUpBox.hidden = true;
+      essayArea.readOnly = false;
+      essayArea.style.opacity = '';
+      minInput.disabled = true;
+      startBtn.hidden = true;
+      pauseBtn.hidden = false;
+      pauseBtn.textContent = '⏸ Pauza';
+      startInterval();
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      if(essayTimer.interval){
+        stopEssayTimer();
+        pauseBtn.textContent = '▶ Davom';
+      } else {
+        pauseBtn.textContent = '⏸ Pauza';
+        startInterval();
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      stopEssayTimer();
+      display.style.color = '';
+      essayArea.readOnly = false;
+      essayArea.style.opacity = '';
+      essayArea.value = '';
+      timeUpBox.hidden = true;
+      essayTimer.remaining = essayTimer.total || getSeconds();
+      display.textContent = fmtTime(essayTimer.remaining);
+      startBtn.hidden = false;
+      pauseBtn.hidden = true;
+      pauseBtn.textContent = '⏸ Pauza';
+      minInput.disabled = false;
+    });
+
+    rewriteBtn.addEventListener('click', () => {
+      stopEssayTimer();
+      display.style.color = '';
+      essayArea.readOnly = false;
+      essayArea.style.opacity = '';
+      essayArea.value = '';
+      timeUpBox.hidden = true;
+      display.textContent = '--:--';
+      startBtn.hidden = false;
+      pauseBtn.hidden = true;
+      pauseBtn.textContent = '⏸ Pauza';
+      minInput.disabled = false;
+      timerToggle.checked = false;
+      controls.hidden = true;
+    });
+  }
+
+  // ---- Yuborish ----
   const submitBtn = document.getElementById('submitEssayBtn');
   if(submitBtn){
     submitBtn.addEventListener('click', async () => {
       const text = document.getElementById('writingEssayInput').value.trim();
       const errorEl = document.getElementById('writingEssayError');
       if(!text){ errorEl.textContent = 'Iltimos, inshoyingizni yozing.'; errorEl.hidden = false; return; }
+      stopEssayTimer();
       submitBtn.disabled = true;
       submitBtn.textContent = 'Yuborilmoqda…';
       try{
@@ -894,13 +1029,14 @@ function openWritingQuestionDetail(questionId){
         });
         openWritingQuestionDetail(questionId);
       } catch(err){
-        errorEl.textContent = 'Yuborishda xatolik yuz berdi. Qayta urinib ko‘ring.';
+        errorEl.textContent = 'Yuborishda xatolik yuz berdi. Qayta urinib ko\'ring.';
         errorEl.hidden = false;
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Adminga yuborish';
+        submitBtn.textContent = '📤 Adminga yuborish';
       }
     });
   }
+
   switchView('writing-question');
 }
 
@@ -1016,121 +1152,60 @@ function stopSpeakingTimer(){
   speakingTimer.interval = null;
 }
 
-const formatTime = (sec) => `${String(Math.floor(Math.max(sec,0) / 60)).padStart(2, '0')}:${String(Math.max(sec,0) % 60).padStart(2, '0')}`;
-
 function openTopicDetail(topicId){
   stopSpeakingTimer();
   state.activeTopicId = topicId;
   const section = getCourse(state.activeCourseId).sections[state.activeSectionId];
   const topic = flattenLeaves(section.topics).find(t => t.id === topicId);
-  const isSpeaking = state.activeSectionId === 'speaking';
   const box = document.getElementById('topicDetailBox');
 
-  const defaultMinutes = topic.timerSeconds ? Math.round(topic.timerSeconds / 60 * 10) / 10 : 2;
-
+  const hasTimer = !!topic.timerSeconds;
   box.innerHTML = `
     <h1>${escapeHtml(topic.title || 'Nomsiz mavzu')}</h1>
     ${topic.description ? `<div class="rich-content" style="margin-top:.8em;">${topic.description}</div>` : ''}
-    ${topic.material ? `<div class="lesson-detail-links"><a href="${escapeHtml(topic.material)}" target="_blank" rel="noopener">📎 Materialni ko'rish</a></div>` : ''}
-    ${isSpeaking ? `
-    <div style="margin-top:1.6em; padding:1.2em; border:1.5px solid var(--line); border-radius:var(--radius-s); background:var(--paper-2);">
-      <label style="display:flex; align-items:center; gap:.7em; cursor:pointer; font-weight:500;">
-        <input type="checkbox" id="timerToggle" style="width:16px;height:16px;cursor:pointer;">
-        ⏱️ Taymerdan foydalanish — xohlasangiz yoqing
+    ${topic.material ? `<div class="lesson-detail-links"><a href="${escapeHtml(topic.material)}" target="_blank" rel="noopener">📎 Materialni ko‘rish</a></div>` : ''}
+    ${hasTimer ? `
+    <div style="margin-top:1.6em; padding:1.2em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
+      <label style="display:flex; align-items:center; gap:.7em; cursor:pointer;">
+        <input type="checkbox" id="timerToggle">
+        <span>⏱️ Taymerdan foydalanish (${Math.round(topic.timerSeconds / 60 * 10) / 10} daqiqa) — xohlasangiz yoqing, xohlasangiz taymersiz mashq qiling.</span>
       </label>
-      <div id="timerControls" hidden style="margin-top:1.2em; display:flex; flex-wrap:wrap; align-items:center; gap:1em;">
-        <div style="display:flex; align-items:center; gap:.5em;">
-          <label for="timerMinutesInput" style="font-size:.9rem; color:var(--gray);">Vaqt (daqiqa):</label>
-          <input type="number" id="timerMinutesInput" min="0.17" step="0.5" value="${defaultMinutes}"
-            style="width:72px; padding:.35em .5em; border:1.5px solid var(--line); border-radius:var(--radius-s); font-size:.95rem; background:var(--paper);">
-        </div>
-        <div id="timerDisplay" style="font-family:var(--font-mono); font-size:1.8rem; font-weight:700; min-width:5ch;">--:--</div>
-        <button type="button" class="btn btn-amber btn-sm" id="timerStartBtn">▶ Boshlash</button>
-        <button type="button" class="btn btn-ghost btn-sm" id="timerPauseBtn" hidden>⏸ Pauza</button>
-        <button type="button" class="btn btn-ghost btn-sm" id="timerResetBtn">↺ Qayta</button>
+      <div id="timerControls" hidden style="margin-top:1em; display:flex; align-items:center; gap:1em;">
+        <div id="timerDisplay" style="font-family:var(--font-mono); font-size:1.6rem; font-weight:700;">--:--</div>
+        <button type="button" class="btn btn-amber btn-sm" id="timerStartBtn">Boshlash</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="timerResetBtn">Qayta boshlash</button>
       </div>
     </div>` : ''}
   `;
 
-  if(isSpeaking){
+  if(hasTimer){
+    speakingTimer.total = topic.timerSeconds;
+    speakingTimer.remaining = topic.timerSeconds;
+    const formatTime = (sec) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
     const display = document.getElementById('timerDisplay');
-    const toggle = document.getElementById('timerToggle');
-    const controls = document.getElementById('timerControls');
-    const minutesInput = document.getElementById('timerMinutesInput');
-    const startBtn = document.getElementById('timerStartBtn');
-    const pauseBtn = document.getElementById('timerPauseBtn');
-    const resetBtn = document.getElementById('timerResetBtn');
+    display.textContent = formatTime(speakingTimer.remaining);
 
-    function getSeconds(){
-      const mins = parseFloat(minutesInput.value);
-      return (isNaN(mins) || mins < 0.17) ? 10 : Math.round(mins * 60);
-    }
-
-    toggle.addEventListener('change', (e) => {
-      controls.hidden = !e.target.checked;
-      if(!e.target.checked){
-        stopSpeakingTimer();
-        startBtn.hidden = false;
-        pauseBtn.hidden = true;
-        pauseBtn.textContent = '⏸ Pauza';
-        display.textContent = '--:--';
-        display.style.color = '';
-        minutesInput.disabled = false;
-      }
+    document.getElementById('timerToggle').addEventListener('change', (e) => {
+      document.getElementById('timerControls').hidden = !e.target.checked;
+      if(!e.target.checked){ stopSpeakingTimer(); speakingTimer.remaining = speakingTimer.total; display.textContent = formatTime(speakingTimer.remaining); }
     });
 
-    startBtn.addEventListener('click', () => {
-      speakingTimer.total = getSeconds();
-      speakingTimer.remaining = speakingTimer.total;
-      display.style.color = '';
-      display.textContent = formatTime(speakingTimer.remaining);
-      minutesInput.disabled = true;
-      startBtn.hidden = true;
-      pauseBtn.hidden = false;
+    document.getElementById('timerStartBtn').addEventListener('click', () => {
+      if(speakingTimer.interval) return;
       speakingTimer.interval = setInterval(() => {
         speakingTimer.remaining--;
-        display.textContent = formatTime(speakingTimer.remaining);
+        display.textContent = formatTime(Math.max(speakingTimer.remaining, 0));
         if(speakingTimer.remaining <= 0){
           stopSpeakingTimer();
-          display.textContent = '✅ Vaqt tugadi!';
-          display.style.color = 'var(--danger, #c0392b)';
-          pauseBtn.hidden = true;
-          startBtn.hidden = false;
-          minutesInput.disabled = false;
+          display.textContent = 'Vaqt tugadi';
         }
       }, 1000);
     });
 
-    pauseBtn.addEventListener('click', () => {
-      if(speakingTimer.interval){
-        stopSpeakingTimer();
-        pauseBtn.textContent = '▶ Davom';
-      } else {
-        pauseBtn.textContent = '⏸ Pauza';
-        speakingTimer.interval = setInterval(() => {
-          speakingTimer.remaining--;
-          display.textContent = formatTime(speakingTimer.remaining);
-          if(speakingTimer.remaining <= 0){
-            stopSpeakingTimer();
-            display.textContent = '✅ Vaqt tugadi!';
-            display.style.color = 'var(--danger, #c0392b)';
-            pauseBtn.hidden = true;
-            startBtn.hidden = false;
-            minutesInput.disabled = false;
-          }
-        }, 1000);
-      }
-    });
-
-    resetBtn.addEventListener('click', () => {
+    document.getElementById('timerResetBtn').addEventListener('click', () => {
       stopSpeakingTimer();
-      display.style.color = '';
-      speakingTimer.remaining = speakingTimer.total || getSeconds();
+      speakingTimer.remaining = speakingTimer.total;
       display.textContent = formatTime(speakingTimer.remaining);
-      startBtn.hidden = false;
-      pauseBtn.hidden = true;
-      pauseBtn.textContent = '⏸ Pauza';
-      minutesInput.disabled = false;
     });
   }
 
