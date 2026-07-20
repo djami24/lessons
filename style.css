@@ -468,9 +468,16 @@ table.data-table td .tag{ margin-right:.3em; }
 }
 .home-card:hover .home-card-arrow{ background: rgba(255,255,255,.32); transform: translateX(3px); }
 
+.home-cta-row{
+  display:flex; flex-wrap:wrap; justify-content:center; gap: 1em;
+}
 .home-student-btn{
-  font-size: 1.05rem; padding: 1em 2.6em; border-radius:999px;
+  font-size: 1rem; padding: .9em 2.1em; border-radius:999px;
   display:inline-flex; align-items:center; gap:.6em;
+}
+@media (max-width: 480px){
+  .home-cta-row{ flex-direction:column; align-items:stretch; width:100%; max-width:360px; }
+  .home-student-btn{ justify-content:center; }
 }
 
 .home-features-box{
