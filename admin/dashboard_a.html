@@ -726,6 +726,8 @@ const RTE_BUTTONS = [
   { cmd: 'insertUnorderedList', icon: '•', title: 'Belgili ro‘yxat' },
   { cmd: 'insertOrderedList', icon: '1.', title: 'Raqamli ro‘yxat' },
   { sep: true },
+  { cmd: 'insertImage', icon: '🖼️', title: 'Rasm qo‘shish (havola orqali)' },
+  { sep: true },
   { cmd: 'removeFormat', icon: '✕', title: 'Formatni tozalash' }
 ];
 
@@ -750,6 +752,11 @@ document.addEventListener('mousedown', (e) => {
   e.preventDefault();
   const editor = document.getElementById(btn.dataset.rteTarget);
   editor.focus();
+  if(btn.dataset.rteCmd === 'insertImage'){
+    const url = prompt('Rasm havolasini kiriting (https://...):');
+    if(url && url.trim()) document.execCommand('insertImage', false, url.trim());
+    return;
+  }
   document.execCommand(btn.dataset.rteCmd, false, null);
 });
 
