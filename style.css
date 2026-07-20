@@ -532,17 +532,22 @@ table.data-table td .tag{ margin-right:.3em; }
   display:grid; grid-template-columns: repeat(3, 1fr); gap: 1.4em; width:100%;
 }
 .home-blog-card{
-  display:flex; flex-direction:column; text-align:left; text-decoration:none; color: var(--ink);
+  display:flex; flex-direction:column; text-align:left; color: var(--ink);
   background: var(--paper); border: 1.5px solid var(--line); border-radius: var(--radius-l);
   overflow:hidden; box-shadow: var(--shadow-card);
   transition: transform .2s var(--ease), box-shadow .2s var(--ease);
 }
 .home-blog-card:hover{ transform: translateY(-5px); box-shadow: var(--shadow-pop); }
+.home-blog-card-link{ display:flex; flex-direction:column; text-decoration:none; color: inherit; }
 .home-blog-card-img{ width:100%; height:170px; object-fit:cover; background: var(--paper-2); }
 .home-blog-card-title{
   padding: 1.1em 1.3em 1.3em; font-weight:700; font-size:1rem; line-height:1.45; margin:0;
   display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
 }
+.home-blog-vote-box{
+  display:flex; gap:.6em; padding: 0 1.3em 1.2em;
+}
+.blog-vote-btn-sm{ padding:.4em .8em; font-size:.85rem; }
 
 @media (max-width: 900px){
   .home-blog-grid{ grid-template-columns: 1fr; max-width: 460px; }
