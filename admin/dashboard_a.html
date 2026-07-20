@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin panel — English Folder</title>
+<title>Admin panel — Djami Lessons</title>
 <link rel="stylesheet" href="../style.css">
 <style>.shake{animation: shakeX .4s;} @keyframes shakeX{ 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }</style>
 </head>
@@ -15,7 +15,7 @@
 
   <!-- SIDEBAR -->
   <aside class="admin-sidebar">
-    <a href="../index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
+    <a href="../index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>Djami Lessons</span></a>
     <ul class="admin-nav">
       <li><a href="#" class="active" id="navLevels">📚 Darslar (General English)</a></li>
       <li><a href="#" id="navIelts">🎧 IELTS</a></li>
@@ -234,7 +234,7 @@
 
         <label class="field">
           <span>Sayt nomi (brend)</span>
-          <input type="text" id="settingBrandName" placeholder="English Folder">
+          <input type="text" id="settingBrandName" placeholder="Djami Lessons">
         </label>
 
         <label class="field">
@@ -275,7 +275,7 @@
         </label>
         <label class="field">
           <span>Footer matni</span>
-          <input type="text" id="settingFooterCopyright" placeholder="© 2026 English Folder. Barcha huquqlar himoyalangan.">
+          <input type="text" id="settingFooterCopyright" placeholder="© 2026 Djami Lessons. Barcha huquqlar himoyalangan.">
         </label>
 
         <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
@@ -565,7 +565,7 @@
 <script src="../site-settings.js"></script>
 <script>
 /* ============================================================
-   English Folder — Admin dashboard logic (Firestore-backed)
+   Djami Lessons — Admin dashboard logic (Firestore-backed)
 
    Data model:
    levels/{beginner|elementary|pre-intermediate}  { name, order, lessons:[NODE...], locked, lockedMessage }
@@ -2223,7 +2223,7 @@ const DEFAULT_SITE_SETTINGS = {
   colorAccent: '#2E6F6E',
   colorBackground: '#FFFFFF',
   colorDark: '#14213D',
-  brandName: 'English Folder',
+  brandName: 'Djami Lessons',
   logoUrl: '',
 
   heroTitle: 'Ingliz tilini o‘rganishning zamonaviy platformasi',
@@ -2237,7 +2237,7 @@ const DEFAULT_SITE_SETTINGS = {
   homeSub3: 'A1 dan C2 gacha barcha darajalar',
   homeStudentBtnText: 'Talaba profili',
   homeAdminBtnText: 'Admin kirish',
-  footerCopyright: '© 2026 English Folder. Barcha huquqlar himoyalangan.'
+  footerCopyright: '© 2026 Djami Lessons. Barcha huquqlar himoyalangan.'
 };
 
 function fillSiteSettingsForm(data){
@@ -2311,7 +2311,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     colorAccent: document.getElementById('settingColorAccent').value,
     colorBackground: document.getElementById('settingColorBackground').value,
     colorDark: document.getElementById('settingColorDark').value,
-    brandName: document.getElementById('settingBrandName').value.trim() || 'English Folder',
+    brandName: document.getElementById('settingBrandName').value.trim() || 'Djami Lessons',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
 
     heroTitle: document.getElementById('settingHeroTitle').value.trim(),
