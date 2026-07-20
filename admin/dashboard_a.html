@@ -1094,13 +1094,6 @@ document.getElementById('writingItemsList').addEventListener('click', (e) => {
   const track = state.writingCourse.tracks[state.activeWritingTrackId];
   const items = getItemsAtPath(track.folders, state.writingPath);
 
-  const openFolderBtn = e.target.closest('[data-open-writing-folder-item]');
-  if(openFolderBtn){
-    state.writingPath.push(openFolderBtn.dataset.openWritingFolderItem);
-    renderWritingItemsList();
-    return;
-  }
-
   const renameFolderBtn = e.target.closest('[data-rename-writing-folder]');
   if(renameFolderBtn){
     const folder = items.find(n => n.id === renameFolderBtn.dataset.renameWritingFolder);
@@ -1155,6 +1148,13 @@ document.getElementById('writingItemsList').addEventListener('click', (e) => {
     if(idx < 0 || targetIdx < 0 || targetIdx >= items.length) return;
     [items[idx], items[targetIdx]] = [items[targetIdx], items[idx]];
     saveWritingTracks().then(() => renderWritingItemsList());
+    return;
+  }
+
+  const openFolderBtn = e.target.closest('[data-open-writing-folder-item]');
+  if(openFolderBtn){
+    state.writingPath.push(openFolderBtn.dataset.openWritingFolderItem);
+    renderWritingItemsList();
     return;
   }
 });
@@ -1344,13 +1344,6 @@ document.getElementById('courseTopicsList').addEventListener('click', (e) => {
   const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
   const items = getItemsAtPath(section.topics, state.topicPath);
 
-  const openFolderBtn = e.target.closest('[data-open-folder-item]');
-  if(openFolderBtn){
-    state.topicPath.push(openFolderBtn.dataset.openFolderItem);
-    renderCourseTopicsList();
-    return;
-  }
-
   const renameFolderBtn = e.target.closest('[data-rename-folder]');
   if(renameFolderBtn){
     const folder = items.find(n => n.id === renameFolderBtn.dataset.renameFolder);
@@ -1411,6 +1404,13 @@ document.getElementById('courseTopicsList').addEventListener('click', (e) => {
     [items[idx], items[targetIdx]] = [items[targetIdx], items[idx]];
     db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections })
       .then(() => renderCourseTopicsList());
+    return;
+  }
+
+  const openFolderBtn = e.target.closest('[data-open-folder-item]');
+  if(openFolderBtn){
+    state.topicPath.push(openFolderBtn.dataset.openFolderItem);
+    renderCourseTopicsList();
     return;
   }
 });
@@ -1676,13 +1676,6 @@ lessonList.addEventListener('click', (e) => {
   const data = getLevel(state.activeLevelId);
   const items = getItemsAtPath(data.lessons, state.lessonPath);
 
-  const openFolderBtn = e.target.closest('[data-open-folder-item]');
-  if(openFolderBtn){
-    state.lessonPath.push(openFolderBtn.dataset.openFolderItem);
-    renderLessonList();
-    return;
-  }
-
   const renameFolderBtn = e.target.closest('[data-rename-folder]');
   if(renameFolderBtn){
     const folder = items.find(n => n.id === renameFolderBtn.dataset.renameFolder);
@@ -1744,6 +1737,13 @@ lessonList.addEventListener('click', (e) => {
     [items[idx], items[targetIdx]] = [items[targetIdx], items[idx]];
     db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons })
       .then(() => renderLessonList());
+    return;
+  }
+
+  const openFolderBtn = e.target.closest('[data-open-folder-item]');
+  if(openFolderBtn){
+    state.lessonPath.push(openFolderBtn.dataset.openFolderItem);
+    renderLessonList();
     return;
   }
 });
