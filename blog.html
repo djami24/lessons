@@ -59,10 +59,99 @@
       wrap.innerHTML =
         (b.imageUrl ? '<img class="blog-post-img" src="' + escapeHtml(b.imageUrl) + '" alt="' + escapeHtml(b.title || '') + '">' : '') +
         '<h1 class="blog-post-title">' + escapeHtml(b.title || '') + '</h1>' +
-        '<div class="rich-content blog-post-content">' + (b.content || '') + '</div>';
+        '<div class="rich-content blog-post-content">' + (b.content || '') + '</div>' +
+        '<div class="blog-actions">' +
+          '<div class="blog-vote-box">' +
+            '<button type="button" class="blog-vote-btn" id="likeBtn">👍 <span id="likeCount">' + (b.likeCount || 0) + '</span></button>' +
+            '<button type="button" class="blog-vote-btn" id="dislikeBtn">👎 <span id="dislikeCount">' + (b.dislikeCount || 0) + '</span></button>' +
+          '</div>' +
+          '<div class="blog-share-box">' +
+            '<span class="blog-share-label">Ulashish:</span>' +
+            '<a class="blog-share-btn blog-share-fb" id="shareFacebook" href="#" target="_blank" rel="noopener">Facebook</a>' +
+            '<a class="blog-share-btn blog-share-tg" id="shareTelegram" href="#" target="_blank" rel="noopener">Telegram</a>' +
+            '<button type="button" class="blog-share-btn blog-share-copy" id="copyLinkBtn">🔗 Havolani nusxalash</button>' +
+          '</div>' +
+        '</div>';
+
+      setupActions(id, b);
     } catch (err) {
       showMessage('Blogni yuklashda xatolik yuz berdi.');
     }
+  }
+
+  /* ---- Like / dislike (one vote per browser, via localStorage) + share links ---- */
+  function setupActions(id, b) {
+    var VOTE_KEY = 'efBlogVote_' + id;
+    var likeBtn = document.getElementById('likeBtn');
+    var dislikeBtn = document.getElementById('dislikeBtn');
+    var likeCountEl = document.getElementById('likeCount');
+    var dislikeCountEl = document.getElementById('dislikeCount');
+
+    var likeCount = b.likeCount || 0;
+    var dislikeCount = b.dislikeCount || 0;
+
+    function applyVotedState(vote) {
+      likeBtn.disabled = true;
+      dislikeBtn.disabled = true;
+      if (vote === 'like') likeBtn.classList.add('is-active');
+      if (vote === 'dislike') dislikeBtn.classList.add('is-active');
+    }
+
+    var storedVote = null;
+    try { storedVote = localStorage.getItem(VOTE_KEY); } catch (e) {}
+    if (storedVote === 'like' || storedVote === 'dislike') applyVotedState(storedVote);
+
+    async function vote(type) {
+      if (likeBtn.disabled || dislikeBtn.disabled) return;
+      likeBtn.disabled = true;
+      dislikeBtn.disabled = true;
+      try {
+        var field = type === 'like' ? 'likeCount' : 'dislikeCount';
+        var update = {};
+        update[field] = firebase.firestore.FieldValue.increment(1);
+        await db.collection('blogs').doc(id).update(update);
+
+        if (type === 'like') { likeCount += 1; likeCountEl.textContent = likeCount; }
+        else { dislikeCount += 1; dislikeCountEl.textContent = dislikeCount; }
+
+        try { localStorage.setItem(VOTE_KEY, type); } catch (e) {}
+        applyVotedState(type);
+      } catch (err) {
+        likeBtn.disabled = false;
+        dislikeBtn.disabled = false;
+      }
+    }
+
+    likeBtn.addEventListener('click', function () { vote('like'); });
+    dislikeBtn.addEventListener('click', function () { vote('dislike'); });
+
+    var shareUrl = window.location.href;
+    var shareTitle = b.title || 'Djami Lessons';
+    document.getElementById('shareFacebook').href =
+      'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
+    document.getElementById('shareTelegram').href =
+      'https://t.me/share/url?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(shareTitle);
+
+    var copyBtn = document.getElementById('copyLinkBtn');
+    copyBtn.addEventListener('click', async function () {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+      } catch (e) {
+        var tmp = document.createElement('textarea');
+        tmp.value = shareUrl;
+        document.body.appendChild(tmp);
+        tmp.select();
+        try { document.execCommand('copy'); } catch (e2) {}
+        document.body.removeChild(tmp);
+      }
+      var original = copyBtn.textContent;
+      copyBtn.textContent = '✓ Nusxalandi';
+      copyBtn.classList.add('is-copied');
+      setTimeout(function () {
+        copyBtn.textContent = original;
+        copyBtn.classList.remove('is-copied');
+      }, 1800);
+    });
   }
 
   loadBlogPost();
