@@ -62,6 +62,7 @@
           <p id="lessonsLevelSub">0 ta dars</p>
         </div>
         <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+          <button class="btn btn-danger" id="deleteCurrentLessonFolder" hidden>🗑️ Bu papkani o‘chirish</button>
           <button class="btn btn-ghost" id="openAddLessonFolder">📁 Yangi papka</button>
           <button class="btn btn-amber" id="openAddLesson">+ Yangi dars qo‘shish</button>
         </div>
@@ -91,6 +92,7 @@
           <p id="courseTopicsSub">0 ta mavzu</p>
         </div>
         <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+          <button class="btn btn-danger" id="deleteCurrentTopicFolder" hidden>🗑️ Bu papkani o‘chirish</button>
           <button class="btn btn-ghost" id="openAddTopicFolder">📁 Yangi papka</button>
           <button class="btn btn-amber" id="openAddTopic">+ Yangi mavzu qo‘shish</button>
         </div>
@@ -119,6 +121,7 @@
           <p id="writingItemsSub">0 ta savol</p>
         </div>
         <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+          <button class="btn btn-danger" id="deleteCurrentWritingFolder" hidden>🗑️ Bu papkani o‘chirish</button>
           <button class="btn btn-ghost" id="openAddWritingFolder">📁 Yangi papka</button>
           <button class="btn btn-amber" id="openAddWritingQuestion">+ Yangi savol qo‘shish</button>
         </div>
@@ -1009,6 +1012,7 @@ function renderWritingItemsList(){
   const items = getItemsAtPath(track.folders, state.writingPath);
 
   renderBreadcrumb('writingBreadcrumb', `Writing — ${trackMeta.name}`, track.folders, state.writingPath, 'goto-writing-path');
+  document.getElementById('deleteCurrentWritingFolder').hidden = state.writingPath.length === 0;
 
   const stats = { questions: items.filter(it => it.type !== 'folder').length, folders: items.filter(it => it.type === 'folder').length };
   document.getElementById('writingItemsSub').textContent = `${stats.questions} ta savol${stats.folders ? ` · ${stats.folders} ta papka` : ''}`;
@@ -1079,6 +1083,20 @@ document.getElementById('openAddWritingFolder').addEventListener('click', () => 
   document.getElementById('addFolderForm').reset();
   document.getElementById('folderModalError').hidden = true;
   openModal('modalAddFolder');
+});
+
+document.getElementById('deleteCurrentWritingFolder').addEventListener('click', () => {
+  if(state.writingPath.length === 0) return;
+  const track = state.writingCourse.tracks[state.activeWritingTrackId];
+  const currentId = state.writingPath[state.writingPath.length - 1];
+  const parentItems = getItemsAtPath(track.folders, state.writingPath.slice(0, -1));
+  const folder = parentItems.find(n => n.id === currentId);
+  if(!folder) return;
+  if(confirm(`“${folder.title || 'Nomsiz papka'}” papkasini ichidagi hamma narsasi bilan o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
+    parentItems.splice(parentItems.indexOf(folder), 1);
+    state.writingPath.pop();
+    saveWritingTracks().then(() => { renderWritingItemsList(); showToast('Papka o‘chirildi.'); });
+  }
 });
 
 document.getElementById('openAddWritingQuestion').addEventListener('click', () => {
@@ -1246,6 +1264,7 @@ function renderCourseTopicsList(){
   const items = getItemsAtPath(section.topics, state.topicPath);
 
   renderBreadcrumb('topicBreadcrumb', `${course.name} — ${sectionMeta.name}`, section.topics, state.topicPath, 'goto-topic-path');
+  document.getElementById('deleteCurrentTopicFolder').hidden = state.topicPath.length === 0;
 
   const stats = { topics: items.filter(it => it.type !== 'folder').length, folders: items.filter(it => it.type === 'folder').length };
   document.getElementById('courseTopicsSub').textContent = `${stats.topics} ta mavzu${stats.folders ? ` · ${stats.folders} ta papka` : ''}`;
@@ -1317,6 +1336,21 @@ document.getElementById('openAddTopicFolder').addEventListener('click', () => {
   document.getElementById('addFolderForm').reset();
   document.getElementById('folderModalError').hidden = true;
   openModal('modalAddFolder');
+});
+
+document.getElementById('deleteCurrentTopicFolder').addEventListener('click', () => {
+  if(state.topicPath.length === 0) return;
+  const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
+  const currentId = state.topicPath[state.topicPath.length - 1];
+  const parentItems = getItemsAtPath(section.topics, state.topicPath.slice(0, -1));
+  const folder = parentItems.find(n => n.id === currentId);
+  if(!folder) return;
+  if(confirm(`“${folder.title || 'Nomsiz papka'}” papkasini ichidagi hamma narsasi bilan o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
+    parentItems.splice(parentItems.indexOf(folder), 1);
+    state.topicPath.pop();
+    db.collection('courses').doc(state.activeCourseId).update({ sections: state.courses[state.activeCourseId].sections })
+      .then(() => { renderCourseTopicsList(); showToast('Papka o‘chirildi.'); });
+  }
 });
 
 document.getElementById('backToCourseSections').addEventListener('click', (e) => {
@@ -1470,6 +1504,7 @@ function renderLessonList(){
   const items = getItemsAtPath(data.lessons, state.lessonPath);
 
   renderBreadcrumb('lessonBreadcrumb', lvl.name, data.lessons, state.lessonPath, 'goto-lesson-path');
+  document.getElementById('deleteCurrentLessonFolder').hidden = state.lessonPath.length === 0;
 
   const stats = { lessons: items.filter(it => it.type !== 'folder').length, folders: items.filter(it => it.type === 'folder').length };
   document.getElementById('lessonsLevelSub').textContent = `${stats.lessons} ta dars${stats.folders ? ` · ${stats.folders} ta papka` : ''}`;
@@ -1543,6 +1578,21 @@ document.getElementById('openAddLessonFolder').addEventListener('click', () => {
   document.getElementById('addFolderForm').reset();
   document.getElementById('folderModalError').hidden = true;
   openModal('modalAddFolder');
+});
+
+document.getElementById('deleteCurrentLessonFolder').addEventListener('click', () => {
+  if(state.lessonPath.length === 0) return;
+  const data = getLevel(state.activeLevelId);
+  const currentId = state.lessonPath[state.lessonPath.length - 1];
+  const parentItems = getItemsAtPath(data.lessons, state.lessonPath.slice(0, -1));
+  const folder = parentItems.find(n => n.id === currentId);
+  if(!folder) return;
+  if(confirm(`“${folder.title || 'Nomsiz papka'}” papkasini ichidagi hamma narsasi bilan o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.`)){
+    parentItems.splice(parentItems.indexOf(folder), 1);
+    state.lessonPath.pop();
+    db.collection('levels').doc(state.activeLevelId).update({ lessons: data.lessons })
+      .then(() => { renderLessonList(); showToast('Papka o‘chirildi.'); });
+  }
 });
 
 function closeLevel(){
