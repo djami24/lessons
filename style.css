@@ -567,6 +567,7 @@ table.data-table td .tag{ margin-right:.3em; }
   border: 1px solid var(--line); border-radius: 999px; padding: .5em 1.2em;
 }
 .home-admin-link:hover{ color: var(--ink); border-color: var(--gray); }
+.home-topbar-links{ display:flex; align-items:center; gap:.8em; }
 
 @media (max-width: 900px){
   .home-cards-grid{ grid-template-columns: 1fr; max-width: 460px; }
@@ -574,6 +575,8 @@ table.data-table td .tag{ margin-right:.3em; }
 }
 @media (max-width: 640px){
   .home-topbar{ padding: 1.2em 1.4em; }
+  .home-topbar-links{ gap:.5em; }
+  .home-admin-link{ padding:.5em .9em; font-size:.78rem; }
   .home-features-box{ grid-template-columns: 1fr; padding: 1.4em 1.6em; }
 }
 
