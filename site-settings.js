@@ -122,6 +122,16 @@
     setText('[data-site-nav-login]', data.navLoginLabel);
     setText('[data-site-nav-register]', data.navRegisterLabel);
 
+    // Homepage program cards (General English / IELTS / CEFR) + CTA buttons
+    setText('[data-site-home-label-1]', data.homeLabel1);
+    setText('[data-site-home-sub-1]', data.homeSub1);
+    setText('[data-site-home-label-2]', data.homeLabel2);
+    setText('[data-site-home-sub-2]', data.homeSub2);
+    setText('[data-site-home-label-3]', data.homeLabel3);
+    setText('[data-site-home-sub-3]', data.homeSub3);
+    setText('[data-site-home-student-btn]', data.homeStudentBtnText);
+    setText('[data-site-home-admin-btn]', data.homeAdminBtnText);
+
     // ---- Homepage-only fields (elements simply won't exist on other pages) ----
 
     // Hero

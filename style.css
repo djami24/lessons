@@ -245,13 +245,13 @@ footer a:hover{ color: var(--amber); }
 .admin-shell{ display:flex; min-height:100vh; }
 
 .admin-sidebar{
-  width: 260px; flex: none; background: var(--ink); color: rgba(0,0,128,.85);
+  width: 260px; flex: none; background: var(--ink); color: rgba(247,247,243,.85);
   display:flex; flex-direction:column; padding: 1.8em 1.4em; position: sticky; top:0; height:100vh;
 }
 .admin-sidebar .brand{ color: var(--paper); text-decoration:none; margin-bottom: 2.4em; font-size: 1.1rem; }
 .admin-nav{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.3em; flex:1; }
 .admin-nav a{
-  display:flex; align-items:center; gap:.7em; text-decoration:none; color: rgba(0,0,128,.7);
+  display:flex; align-items:center; gap:.7em; text-decoration:none; color: rgba(247,247,243,.7);
   padding:.75em .8em; border-radius: var(--radius-s); font-weight:600; font-size:.92rem;
   transition: background .15s, color .15s; cursor:pointer;
 }
@@ -390,33 +390,93 @@ table.data-table td .tag{ margin-right:.3em; }
 .brand-mark-custom{ background: none !important; }
 .brand-mark-custom::after{ content: none !important; }
 
-/* ============ Home page (single entry screen) ============ */
+/* ============ Home page (marketing entry screen) ============ */
 .home-body{
   min-height: 100vh; display:flex; flex-direction:column;
   background: var(--paper); color: var(--ink);
   transition: background .25s var(--ease), color .25s var(--ease);
+  position: relative; overflow-x: hidden;
 }
 [data-theme="dark"] .home-body{
   --paper-2: #1C2B4E; --paper-3: #253559; --line: #2C3D66; --gray: #9AA5C0;
   background: var(--dark-bg); color: var(--paper);
 }
-.home-topbar{ display:flex; align-items:center; justify-content:space-between; padding: 1.6em 2em; }
+.home-topbar{
+  display:flex; align-items:center; justify-content:space-between; padding: 1.4em 2em;
+  max-width: 1200px; width:100%; margin: 0 auto;
+}
 .theme-toggle{
-  display:inline-flex; align-items:center; gap:.5em; background: var(--paper-2); color: var(--ink);
-  border: 1.5px solid var(--line); border-radius: 999px; padding: .5em 1em; font-size:.85rem;
+  display:inline-flex; align-items:center; gap:.5em; background: var(--dark-bg); color: var(--paper);
+  border: none; border-radius: 999px; padding: .65em 1.3em; font-size:.85rem;
   font-weight:700; cursor:pointer; font-family: var(--font-body);
 }
-[data-theme="dark"] .theme-toggle{ background: var(--paper-2); color: var(--paper); border-color: var(--line); }
-.home-main{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap: 2.4em; text-align:center; padding: 2em 1.4em; }
-.home-labels{ display:flex; flex-wrap:wrap; justify-content:center; gap: .9em; }
-.home-label{
-  font-family: var(--font-display); font-weight:600; font-size: clamp(1.3rem, 3vw, 2rem);
-  padding: .5em 1.1em; border: 2px solid var(--line); border-radius: var(--radius-m);
-  color: var(--ink); background: var(--paper-2);
+[data-theme="dark"] .theme-toggle{ background: var(--paper-2); color: var(--paper); border: 1.5px solid var(--line); }
+
+.home-main{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+  gap: 2.6em; text-align:center; padding: 3.4em 1.4em 2em; max-width: 1200px; width:100%; margin:0 auto;
 }
-[data-theme="dark"] .home-label{ color: var(--paper); border-color: var(--line); background: var(--paper-2); }
-.home-student-btn{ font-size: 1.05rem; padding: 1em 2.4em; }
-.home-bottombar{ display:flex; justify-content:center; padding: 2em 1em 2.6em; }
+.home-hero-title{
+  font-family: var(--font-display); font-weight:700; line-height:1.15;
+  font-size: clamp(2rem, 5vw, 3.4rem); color: var(--ink); max-width: 900px;
+}
+[data-theme="dark"] .home-hero-title{ color: var(--paper); }
+.home-hero-title .accent{ color: var(--amber); }
+.home-hero-lead{
+  font-size: 1.15rem; color: var(--gray); max-width: 620px; line-height:1.6; margin-top:-1em;
+}
+
+.home-cards-grid{
+  display:grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 1.4em;
+  width:100%; max-width: 980px;
+}
+.home-card{
+  display:flex; flex-direction:column; align-items:flex-start; text-align:left;
+  padding: 2em 1.8em; border-radius: var(--radius-l); color: var(--white);
+  text-decoration:none; position:relative; overflow:hidden;
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease);
+  box-shadow: var(--shadow-card);
+}
+.home-card:hover{ transform: translateY(-5px); box-shadow: var(--shadow-pop); }
+.home-card-ge{ background: linear-gradient(160deg, #2C4FA0, var(--dark-bg)); }
+.home-card-ielts{ background: linear-gradient(160deg, #7B5FD9, #4B3591); }
+.home-card-cefr{ background: linear-gradient(160deg, var(--teal), var(--teal-deep)); }
+.home-card-icon{
+  width:52px; height:52px; border-radius: var(--radius-s); background: rgba(255,255,255,.18);
+  display:flex; align-items:center; justify-content:center; font-size:1.5rem; margin-bottom:1.2em;
+}
+.home-card-title{ font-family: var(--font-display); font-weight:700; font-size:1.4rem; margin-bottom:.4em; }
+.home-card-sub{ font-size:.92rem; opacity:.9; line-height:1.5; margin-bottom:1.6em; }
+.home-card-arrow{
+  width:38px; height:38px; border-radius:50%; background: rgba(255,255,255,.2);
+  display:flex; align-items:center; justify-content:center; font-size:1.1rem;
+  margin-top:auto; transition: background .2s var(--ease), transform .2s var(--ease);
+}
+.home-card:hover .home-card-arrow{ background: rgba(255,255,255,.32); transform: translateX(3px); }
+
+.home-student-btn{
+  font-size: 1.05rem; padding: 1em 2.6em; border-radius:999px;
+  display:inline-flex; align-items:center; gap:.6em;
+}
+
+.home-features-box{
+  width:100%; max-width: 1080px; background: var(--paper); border: 1.5px solid var(--line);
+  border-radius: var(--radius-l); box-shadow: var(--shadow-card);
+  display:grid; grid-template-columns: repeat(4, 1fr); gap: 1.6em;
+  padding: 1.8em 2em; margin-top: .6em;
+}
+[data-theme="dark"] .home-features-box{ background: var(--paper-2); }
+.home-feature{ display:flex; align-items:flex-start; gap:.8em; text-align:left; }
+.home-feature-icon{
+  flex: none; width:42px; height:42px; border-radius: var(--radius-s);
+  background: var(--paper-2); display:flex; align-items:center; justify-content:center; font-size:1.2rem;
+}
+[data-theme="dark"] .home-feature-icon{ background: var(--paper-3); }
+.home-feature-title{ font-weight:700; font-size:.92rem; margin-bottom:.2em; }
+.home-feature-text{ font-size:.82rem; color: var(--gray); line-height:1.4; }
+
+.home-bottombar{ display:flex; flex-direction:column; align-items:center; gap:.8em; padding: 2.6em 1em 2.4em; }
+.home-footer-note{ color: var(--gray); font-size:.82rem; }
 .home-admin-link{
   color: var(--gray); font-size:.85rem; text-decoration:none; font-family: var(--font-mono);
   border: 1px solid var(--line); border-radius: 999px; padding: .5em 1.2em;
@@ -424,10 +484,13 @@ table.data-table td .tag{ margin-right:.3em; }
 .home-admin-link:hover{ color: var(--ink); border-color: var(--gray); }
 [data-theme="dark"] .home-admin-link:hover{ color: var(--paper); }
 
+@media (max-width: 900px){
+  .home-cards-grid{ grid-template-columns: 1fr; max-width: 460px; }
+  .home-features-box{ grid-template-columns: repeat(2, 1fr); }
+}
 @media (max-width: 640px){
   .home-topbar{ padding: 1.2em 1.4em; }
-  .home-labels{ gap:.6em; }
-  .home-label{ font-size: 1.1rem; padding:.45em .85em; }
+  .home-features-box{ grid-template-columns: 1fr; padding: 1.4em 1.6em; }
 }
 
 /* ============ Level / course card grids (student + admin) ============ */
@@ -463,7 +526,7 @@ table.data-table td .tag{ margin-right:.3em; }
 }
 
 /* ============ Rich text content (rendered lesson/homework HTML) ============ */
-.rich-content{ font-size:1rem; line-height:1.7; color: var(--ink-soft); }
+.rich-content{ font-size:1rem; line-height:1.7; color: var(--ink-soft); overflow-wrap: anywhere; word-break: break-word; }
 .rich-content p{ margin: 0 0 .8em; }
 .rich-content p:last-child{ margin-bottom:0; }
 .rich-content strong, .rich-content b{ font-weight: 800; color: var(--ink); }
@@ -580,9 +643,4 @@ table.data-table td .tag{ margin-right:.3em; }
   .lesson-detail-box{ padding: 1.6em 1.4em; }
   .quiz-question{ padding: 1.3em 1.4em; }
   .payment-box{ padding: 1.8em 1.5em; }
-}
-/* Barcha savollar va dars matnlari shriftini o'zgartirish */
-.rich-content, .homework-content {
-  font-size: 18px !important; 
-  line-height: 1.6 !important;
 }
