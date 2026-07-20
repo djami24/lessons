@@ -354,10 +354,25 @@
         <div class="rte-toolbar" data-rte-toolbar="topicDescription"></div>
         <div class="rte-editor" id="topicDescription" contenteditable="true" data-placeholder="Mavzu haqida, o‘quvchi bajarishi kerak bo‘lgan vazifa…"></div>
       </label>
-      <label class="field" id="topicTimerField" hidden>
-        <span>⏱️ Taymer (daqiqada) <span style="font-weight:400; color:var(--gray);">— bo‘sh qoldirsangiz, taymersiz bo‘ladi. Talaba taymerdan foydalanish yoki foydalanmaslikni o‘zi tanlaydi.</span></span>
-        <input type="number" id="topicTimerMinutes" min="0" step="0.5" placeholder="Masalan: 2">
-      </label>
+      <div class="field" id="topicTimerField" hidden>
+        <span>⏱️ Taymer sozlamalari</span>
+        <div style="display:flex; align-items:center; gap:.8em; margin-top:.5em; margin-bottom:.7em;">
+          <label style="display:flex; align-items:center; gap:.45em; cursor:pointer; font-weight:400;">
+            <input type="checkbox" id="topicTimerEnabled" style="width:16px;height:16px;cursor:pointer;">
+            Taymerni yoqish
+          </label>
+        </div>
+        <div id="topicTimerOptions" hidden style="display:flex; flex-direction:column; gap:.6em; padding:.8em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s); background:var(--paper-2);">
+          <label class="field" style="margin:0;">
+            <span>Vaqt (daqiqada) <span style="font-weight:400; color:var(--gray);">— kamida 10 sekund (0.17 daqiqa)</span></span>
+            <input type="number" id="topicTimerMinutes" min="0.17" step="0.5" placeholder="Masalan: 2">
+          </label>
+          <label style="display:flex; align-items:center; gap:.45em; cursor:pointer; font-size:.92rem;">
+            <input type="checkbox" id="topicTimerFixed" style="width:16px;height:16px;cursor:pointer;">
+            <span><strong>Majburiy taymer</strong> — talaba vaqtni o'zgartira olmaydi <span style="color:var(--gray);">(belgilanmasa talaba o'z vaqtini kiritishi mumkin, min: 10 sek)</span></span>
+          </label>
+        </div>
+      </div>
       <p id="editTopicError" class="form-error" role="alert" hidden></p>
       <div class="modal-actions">
         <button type="button" class="btn btn-ghost" data-close-modal="modalEditTopic">Bekor qilish</button>
@@ -1345,7 +1360,7 @@ function renderCourseTopicsList(){
         <div class="lesson-meta">
           ${t.material ? '<span class="tag">📎 Material bor</span>' : ''}
           ${t.description ? '<span class="tag">📝 Tavsif bor</span>' : ''}
-          ${t.timerSeconds ? `<span class="tag">⏱️ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
+          ${t.timerSeconds >= 10 ? `<span class="tag">⏱️ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa${t.timerFixed ? ' 🔒 Majburiy' : ' (talaba o\'zgartira oladi)'}</span>` : ''}
         </div>
       </div>
     </div>`;
@@ -1393,12 +1408,26 @@ document.getElementById('backToCourseSections').addEventListener('click', (e) =>
 
 // ---------- Topic: add / edit / save / delete / move ----------
 
+// Helper: sync timer options panel visibility with checkbox
+function syncTopicTimerUI() {
+  const enabled = document.getElementById('topicTimerEnabled').checked;
+  document.getElementById('topicTimerOptions').hidden = !enabled;
+  if (!enabled) {
+    document.getElementById('topicTimerMinutes').value = '';
+    document.getElementById('topicTimerFixed').checked = false;
+  }
+}
+document.getElementById('topicTimerEnabled').addEventListener('change', syncTopicTimerUI);
+
 document.getElementById('openAddTopic').addEventListener('click', () => {
   state.activeTopicId = null;
   document.getElementById('topicModalTitle').textContent = 'Yangi mavzu';
   document.getElementById('editTopicForm').reset();
   document.getElementById('editTopicError').hidden = true;
   setRteValue('topicDescription', '');
+  document.getElementById('topicTimerEnabled').checked = false;
+  document.getElementById('topicTimerOptions').hidden = true;
+  document.getElementById('topicTimerFixed').checked = false;
   const isSpeaking = state.activeSectionId === 'speaking';
   document.getElementById('topicTimerField').hidden = !isSpeaking;
   openModal('modalEditTopic');
@@ -1442,7 +1471,11 @@ document.getElementById('courseTopicsList').addEventListener('click', (e) => {
     setRteValue('topicDescription', topic.description || '');
     const isSpeaking = state.activeSectionId === 'speaking';
     document.getElementById('topicTimerField').hidden = !isSpeaking;
-    document.getElementById('topicTimerMinutes').value = topic.timerSeconds ? (topic.timerSeconds / 60) : '';
+    const hasTimer = isSpeaking && topic.timerSeconds && topic.timerSeconds >= 10;
+    document.getElementById('topicTimerEnabled').checked = !!hasTimer;
+    document.getElementById('topicTimerOptions').hidden = !hasTimer;
+    document.getElementById('topicTimerMinutes').value = hasTimer ? (topic.timerSeconds / 60) : '';
+    document.getElementById('topicTimerFixed').checked = !!(topic.timerFixed);
     document.getElementById('editTopicError').hidden = true;
     openModal('modalEditTopic');
     return;
@@ -1486,14 +1519,25 @@ document.getElementById('editTopicForm').addEventListener('submit', async (e) =>
   if(!title){ errorEl.textContent = 'Mavzu nomini kiriting.'; errorEl.hidden = false; return; }
 
   const isSpeaking = state.activeSectionId === 'speaking';
+  const timerEnabled = isSpeaking && document.getElementById('topicTimerEnabled').checked;
   const timerMinutesRaw = document.getElementById('topicTimerMinutes').value;
-  const timerSeconds = (isSpeaking && timerMinutesRaw !== '') ? Math.round(parseFloat(timerMinutesRaw) * 60) : 0;
+  let timerSeconds = 0;
+  if (timerEnabled && timerMinutesRaw !== '') {
+    timerSeconds = Math.round(parseFloat(timerMinutesRaw) * 60);
+    if (timerSeconds < 10) {
+      errorEl.textContent = 'Taymer kamida 10 sekund (0.17 daqiqa) bo\'lishi kerak.';
+      errorEl.hidden = false;
+      return;
+    }
+  }
+  const timerFixed = timerEnabled && document.getElementById('topicTimerFixed').checked;
 
   const topicData = {
     title,
     material: document.getElementById('topicMaterial').value.trim(),
     description: getRteValue('topicDescription'),
-    timerSeconds
+    timerSeconds,
+    timerFixed
   };
 
   const section = state.courses[state.activeCourseId].sections[state.activeSectionId];
