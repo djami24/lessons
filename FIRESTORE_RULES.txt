@@ -66,6 +66,20 @@ service cloud.firestore {
     match /blogs/{blogId} {
       allow read: if true;
       allow write: if isAdmin();
+
+      // Public like / dislike buttons on blog.html: any visitor (signed in
+      // or not) may bump exactly ONE of likeCount/dislikeCount by exactly 1
+      // per request — nothing else on the post can change this way. The
+      // front end also remembers the vote in localStorage so the same
+      // browser doesn't vote twice, but that's a UX nicety, not security —
+      // this rule is what actually enforces "+1 to one counter, nothing more".
+      allow update: if !isAdmin() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount']) &&
+        request.resource.data.likeCount == resource.data.get('likeCount', 0) + 1;
+
+      allow update: if !isAdmin() &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dislikeCount']) &&
+        request.resource.data.dislikeCount == resource.data.get('dislikeCount', 0) + 1;
     }
 
     // General English: fixed level docs (beginner / elementary /
