@@ -66,10 +66,7 @@
             '<button type="button" class="blog-vote-btn" id="dislikeBtn">👎 <span id="dislikeCount">' + (b.dislikeCount || 0) + '</span></button>' +
           '</div>' +
           '<div class="blog-share-box">' +
-            '<span class="blog-share-label">Ulashish:</span>' +
-            '<a class="blog-share-btn blog-share-fb" id="shareFacebook" href="#" target="_blank" rel="noopener">Facebook</a>' +
-            '<a class="blog-share-btn blog-share-tg" id="shareTelegram" href="#" target="_blank" rel="noopener">Telegram</a>' +
-            '<button type="button" class="blog-share-btn blog-share-copy" id="copyLinkBtn">🔗 Havolani nusxalash</button>' +
+            '<button type="button" class="blog-share-btn" id="shareBtn">🔗 Ulashish</button>' +
           '</div>' +
         '</div>';
 
@@ -127,15 +124,13 @@
 
     var shareUrl = window.location.href;
     var shareTitle = b.title || 'Djami Lessons';
-    document.getElementById('shareFacebook').href =
-      'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(shareUrl);
-    document.getElementById('shareTelegram').href =
-      'https://t.me/share/url?url=' + encodeURIComponent(shareUrl) + '&text=' + encodeURIComponent(shareTitle);
 
-    var copyBtn = document.getElementById('copyLinkBtn');
-    copyBtn.addEventListener('click', async function () {
+    var shareBtn = document.getElementById('shareBtn');
+    var shareOriginalText = shareBtn.textContent;
+
+    function fallbackCopy() {
       try {
-        await navigator.clipboard.writeText(shareUrl);
+        navigator.clipboard.writeText(shareUrl);
       } catch (e) {
         var tmp = document.createElement('textarea');
         tmp.value = shareUrl;
@@ -144,13 +139,24 @@
         try { document.execCommand('copy'); } catch (e2) {}
         document.body.removeChild(tmp);
       }
-      var original = copyBtn.textContent;
-      copyBtn.textContent = '✓ Nusxalandi';
-      copyBtn.classList.add('is-copied');
+      shareBtn.textContent = '✓ Nusxalandi';
+      shareBtn.classList.add('is-copied');
       setTimeout(function () {
-        copyBtn.textContent = original;
-        copyBtn.classList.remove('is-copied');
+        shareBtn.textContent = shareOriginalText;
+        shareBtn.classList.remove('is-copied');
       }, 1800);
+    }
+
+    shareBtn.addEventListener('click', async function () {
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: shareTitle, url: shareUrl });
+          return;
+        } catch (e) {
+          return; // user cancelled the native share sheet
+        }
+      }
+      fallbackCopy();
     });
   }
 
