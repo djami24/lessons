@@ -131,6 +131,19 @@
     setText('[data-site-home-sub-3]', data.homeSub3);
     setText('[data-site-home-student-btn]', data.homeStudentBtnText);
     setText('[data-site-home-admin-btn]', data.homeAdminBtnText);
+    setText('[data-site-blog-link-text]', data.blogLinkText);
+    setText('[data-site-blog-heading]', data.blogHeading);
+    setText('[data-site-rating-label]', data.ratingLabel);
+
+    // Homepage "why us" feature grid (4 icon + title + text cards)
+    setText('[data-site-feature-1-title]', data.feature1Title);
+    setText('[data-site-feature-1-text]', data.feature1Text);
+    setText('[data-site-feature-2-title]', data.feature2Title);
+    setText('[data-site-feature-2-text]', data.feature2Text);
+    setText('[data-site-feature-3-title]', data.feature3Title);
+    setText('[data-site-feature-3-text]', data.feature3Text);
+    setText('[data-site-feature-4-title]', data.feature4Title);
+    setText('[data-site-feature-4-text]', data.feature4Text);
 
     // ---- Homepage-only fields (elements simply won't exist on other pages) ----
 
