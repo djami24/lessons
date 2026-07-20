@@ -240,10 +240,24 @@
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>🏠 Bosh sahifa yozuvlari</h3>
 
+        <label class="field">
+          <span>Sarlavhaning rangli qismi <span style="font-weight:400; color:var(--gray);">("Ingliz tilini o‘rganishning" so‘zidan keyin keladi)</span></span>
+          <input type="text" id="settingHeroTitle" placeholder="zamonaviy platformasi">
+        </label>
+        <label class="field">
+          <span>Sarlavha ostidagi tavsif</span>
+          <textarea id="settingHeroLead" rows="2" placeholder="General English, IELTS va CEFR kurslari bo‘yicha…"></textarea>
+        </label>
+
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
-          <label class="field"><span>1-yozuv</span><input type="text" id="settingHomeLabel1" placeholder="GENERAL ENGLISH"></label>
-          <label class="field"><span>2-yozuv</span><input type="text" id="settingHomeLabel2" placeholder="IELTS"></label>
-          <label class="field"><span>3-yozuv</span><input type="text" id="settingHomeLabel3" placeholder="CEFR"></label>
+          <label class="field"><span>1-karta nomi</span><input type="text" id="settingHomeLabel1" placeholder="GENERAL ENGLISH"></label>
+          <label class="field"><span>2-karta nomi</span><input type="text" id="settingHomeLabel2" placeholder="IELTS"></label>
+          <label class="field"><span>3-karta nomi</span><input type="text" id="settingHomeLabel3" placeholder="CEFR"></label>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
+          <label class="field"><span>1-karta tavsifi</span><input type="text" id="settingHomeSub1" placeholder="Boshlang‘ichdan ilg‘or darajagacha"></label>
+          <label class="field"><span>2-karta tavsifi</span><input type="text" id="settingHomeSub2" placeholder="Listening, Reading, Writing, Speaking"></label>
+          <label class="field"><span>3-karta tavsifi</span><input type="text" id="settingHomeSub3" placeholder="A1 dan C2 gacha barcha darajalar"></label>
         </div>
 
         <label class="field">
@@ -253,6 +267,10 @@
         <label class="field">
           <span>"Admin profili" tugmasi matni</span>
           <input type="text" id="settingHomeAdminBtnText" placeholder="Admin profili">
+        </label>
+        <label class="field">
+          <span>Footer matni</span>
+          <input type="text" id="settingFooterCopyright" placeholder="© 2026 English Folder. Barcha huquqlar himoyalangan.">
         </label>
 
         <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
@@ -494,7 +512,7 @@
 
     <div style="margin-bottom:1.2em;">
       <p class="eyebrow" style="margin-bottom:.4em;">Insho matni</p>
-      <div class="rich-content" id="gradeEssayText" style="padding:.9em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s); white-space:pre-wrap; word-break:break-word; overflow-wrap:break-word;"></div>
+      <div class="rich-content" id="gradeEssayText" style="padding:.9em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s); white-space:pre-wrap;"></div>
     </div>
 
     <form class="modal-form" id="gradeEssayForm">
@@ -2082,11 +2100,18 @@ const DEFAULT_SITE_SETTINGS = {
   brandName: 'English Folder',
   logoUrl: '',
 
+  heroTitle: 'zamonaviy platformasi',
+  heroLead: 'General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.',
+
   homeLabel1: 'GENERAL ENGLISH',
+  homeSub1: 'Boshlang‘ichdan ilg‘or darajagacha',
   homeLabel2: 'IELTS',
+  homeSub2: 'Listening, Reading, Writing, Speaking',
   homeLabel3: 'CEFR',
+  homeSub3: 'A1 dan C2 gacha barcha darajalar',
   homeStudentBtnText: 'Talaba profili',
-  homeAdminBtnText: 'Admin profili'
+  homeAdminBtnText: 'Admin profili',
+  footerCopyright: '© 2026 English Folder. Barcha huquqlar himoyalangan.'
 };
 
 function fillSiteSettingsForm(data){
@@ -2101,11 +2126,18 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingBrandName').value = data.brandName || '';
   document.getElementById('settingLogoUrl').value = data.logoUrl || '';
 
+  document.getElementById('settingHeroTitle').value = data.heroTitle || '';
+  document.getElementById('settingHeroLead').value = data.heroLead || '';
+
   document.getElementById('settingHomeLabel1').value = data.homeLabel1 || '';
+  document.getElementById('settingHomeSub1').value = data.homeSub1 || '';
   document.getElementById('settingHomeLabel2').value = data.homeLabel2 || '';
+  document.getElementById('settingHomeSub2').value = data.homeSub2 || '';
   document.getElementById('settingHomeLabel3').value = data.homeLabel3 || '';
+  document.getElementById('settingHomeSub3').value = data.homeSub3 || '';
   document.getElementById('settingHomeStudentBtnText').value = data.homeStudentBtnText || '';
   document.getElementById('settingHomeAdminBtnText').value = data.homeAdminBtnText || '';
+  document.getElementById('settingFooterCopyright').value = data.footerCopyright || '';
 }
 
 async function loadSiteSettingsForm(){
@@ -2145,11 +2177,18 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     brandName: document.getElementById('settingBrandName').value.trim() || 'English Folder',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
 
+    heroTitle: document.getElementById('settingHeroTitle').value.trim(),
+    heroLead: document.getElementById('settingHeroLead').value.trim(),
+
     homeLabel1: document.getElementById('settingHomeLabel1').value.trim(),
+    homeSub1: document.getElementById('settingHomeSub1').value.trim(),
     homeLabel2: document.getElementById('settingHomeLabel2').value.trim(),
+    homeSub2: document.getElementById('settingHomeSub2').value.trim(),
     homeLabel3: document.getElementById('settingHomeLabel3').value.trim(),
+    homeSub3: document.getElementById('settingHomeSub3').value.trim(),
     homeStudentBtnText: document.getElementById('settingHomeStudentBtnText').value.trim(),
-    homeAdminBtnText: document.getElementById('settingHomeAdminBtnText').value.trim()
+    homeAdminBtnText: document.getElementById('settingHomeAdminBtnText').value.trim(),
+    footerCopyright: document.getElementById('settingFooterCopyright').value.trim()
   };
 
   try{
