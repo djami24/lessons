@@ -90,6 +90,11 @@
       <p class="rating-thanks" id="ratingThanks" hidden></p>
     </div>
   </div>
+
+  <div class="home-blog-section" id="homeBlogSection" hidden>
+    <h2 class="home-blog-heading">Djami's Blog</h2>
+    <div class="home-blog-grid" id="homeBlogGrid"></div>
+  </div>
 </main>
 
 <div class="home-bottombar">
@@ -209,6 +214,46 @@
   }
 
   loadRating();
+})();
+
+/* ============================================================
+   Djami's Blog — homepage preview (latest 3 posts)
+   ------------------------------------------------------------
+   Reads the public "blogs" collection (admin panel writes here)
+   and links each card to blog.html?id=<docId> for the full read.
+   ============================================================ */
+(function () {
+  var sectionEl = document.getElementById('homeBlogSection');
+  var gridEl = document.getElementById('homeBlogGrid');
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+
+  async function loadBlogPreview() {
+    try {
+      var snap = await db.collection('blogs').orderBy('createdAt', 'desc').limit(3).get();
+      if (snap.empty) return; // section stays hidden if there's nothing to show yet
+
+      gridEl.innerHTML = snap.docs.map(function (doc) {
+        var b = doc.data();
+        var title = escapeHtml(b.title || '');
+        var img = escapeHtml(b.imageUrl || '');
+        return '<a class="home-blog-card" href="blog.html?id=' + doc.id + '">' +
+          '<img class="home-blog-card-img" src="' + img + '" alt="' + title + '">' +
+          '<p class="home-blog-card-title">' + title + '</p>' +
+          '</a>';
+      }).join('');
+
+      sectionEl.hidden = false;
+    } catch (err) {
+      // Collection may not exist yet, or rules aren't published — fail quietly.
+    }
+  }
+
+  loadBlogPreview();
 })();
 </script>
 </body>
