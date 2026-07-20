@@ -7,26 +7,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-<script>
-  // Apply saved theme before paint to avoid a flash of the wrong mode.
-  (function(){
-    var saved = localStorage.getItem('ef-theme');
-    if(saved === 'dark'){ document.documentElement.setAttribute('data-theme', 'dark'); }
-  })();
-</script>
 </head>
 <body class="home-body">
 
 <div class="home-topbar">
   <a href="index.html" class="brand"><span class="brand-mark" data-site-logo></span><span data-site-brand-name>English Folder</span></a>
-  <button class="theme-toggle" id="themeToggle" type="button">
-    <span id="themeToggleIcon">🌙</span>
-    <span id="themeToggleLabel">Tungi rejim</span>
-  </button>
+  <a href="admin/login.html" class="home-admin-link" data-site-home-admin-btn>Admin kirish</a>
 </div>
 
 <main class="home-main">
-  <h1 class="home-hero-title">Ingliz tilini o‘rganishning <span class="accent" data-site-hero-title>zamonaviy platformasi</span></h1>
+  <h1 class="home-hero-title" data-site-hero-title>Ingliz tilini o‘rganishning <span class="accent">zamonaviy platformasi</span></h1>
   <p class="home-hero-lead" data-site-hero-lead>General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
 
   <div class="home-cards-grid">
@@ -86,7 +76,6 @@
 
 <div class="home-bottombar">
   <p class="home-footer-note" data-site-footer-copyright>© 2026 English Folder. Barcha huquqlar himoyalangan.</p>
-  <a href="admin/login.html" class="home-admin-link" data-site-home-admin-btn>Admin profili</a>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
@@ -94,29 +83,5 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="site-settings.js"></script>
-<script>
-  const themeToggle = document.getElementById('themeToggle');
-  const themeIcon = document.getElementById('themeToggleIcon');
-  const themeLabel = document.getElementById('themeToggleLabel');
-
-  function reflectTheme(){
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    themeIcon.textContent = isDark ? '☀️' : '🌙';
-    themeLabel.textContent = isDark ? 'Kunduzgi rejim' : 'Tungi rejim';
-  }
-  reflectTheme();
-
-  themeToggle.addEventListener('click', () => {
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    if(isDark){
-      document.documentElement.removeAttribute('data-theme');
-      localStorage.setItem('ef-theme', 'light');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'dark');
-      localStorage.setItem('ef-theme', 'dark');
-    }
-    reflectTheme();
-  });
-</script>
 </body>
 </html>
