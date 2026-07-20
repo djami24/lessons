@@ -371,10 +371,10 @@
 <!-- ===== MODAL: Blog comments (moderation) ===== -->
 <div class="modal-overlay" id="modalBlogComments" hidden>
   <div class="modal-box" style="max-width:600px;">
-    <h3 id="commentsModalTitle">Kommentlar</h3>
-    <p class="modal-sub">Har bir vizitor blog ostiga qoldirgan kommentlarni shu yerdan ko‘rasiz va kerak bo‘lsa o‘chirasiz.</p>
+    <h3 id="commentsModalTitle">Izohlar</h3>
+    <p class="modal-sub">Har bir tashrifchi blog ostiga qoldirgan izohlarni shu yerdan ko‘rasiz — kimligi bilan birga — va kerak bo‘lsa o‘chirasiz.</p>
     <div class="comment-admin-list" id="commentsAdminList"></div>
-    <p id="commentsAdminEmpty" style="color:var(--gray); font-size:.9rem;" hidden>Bu blogda hali kommentlar yo‘q.</p>
+    <p id="commentsAdminEmpty" style="color:var(--gray); font-size:.9rem;" hidden>Bu blogda hali izohlar yo‘q.</p>
     <div class="modal-actions">
       <button type="button" class="btn btn-ghost" data-close-modal="modalBlogComments">Yopish</button>
     </div>
@@ -2341,7 +2341,7 @@ function renderBlogsGrid(){
         <p class="blog-admin-card-title">${escapeHtml(b.title || 'Nomsiz blog')}</p>
         <div class="blog-admin-card-actions">
           <button type="button" class="btn btn-ghost btn-sm" data-edit-blog="${b.id}">Tahrirlash</button>
-          <button type="button" class="btn btn-ghost btn-sm" data-view-comments="${b.id}">💬 Kommentlar</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-view-comments="${b.id}">💬 Izohlar</button>
           <button type="button" class="btn btn-ghost btn-sm" data-delete-blog="${b.id}">O‘chirish</button>
         </div>
       </div>
@@ -2419,7 +2419,7 @@ function renderCommentsAdminList(docs){
 async function openCommentsModal(blogId){
   state.activeCommentsBlogId = blogId;
   const blog = state.blogs.find(b => b.id === blogId);
-  document.getElementById('commentsModalTitle').textContent = 'Kommentlar — ' + (blog ? blog.title : '');
+  document.getElementById('commentsModalTitle').textContent = 'Izohlar — ' + (blog ? blog.title : '');
   document.getElementById('commentsAdminList').innerHTML = '';
   document.getElementById('commentsAdminEmpty').hidden = true;
   openModal('modalBlogComments');
@@ -2434,15 +2434,15 @@ async function loadCommentsAdminList(blogId){
 document.getElementById('commentsAdminList').addEventListener('click', async (e) => {
   const delBtn = e.target.closest('[data-delete-comment]');
   if(!delBtn) return;
-  if(!confirm('Bu komment o‘chirilsinmi?')) return;
+  if(!confirm('Bu izoh o‘chirilsinmi?')) return;
   const commentId = delBtn.dataset.deleteComment;
   const blogId = state.activeCommentsBlogId;
   try{
     await db.collection('blogs').doc(blogId).collection('comments').doc(commentId).delete();
     await loadCommentsAdminList(blogId);
-    showToast('Komment o‘chirildi.');
+    showToast('Izoh o‘chirildi.');
   } catch(err){
-    showToast('Kommentni o‘chirishda xatolik yuz berdi.', true);
+    showToast('Izohni o‘chirishda xatolik yuz berdi.', true);
   }
 });
 
