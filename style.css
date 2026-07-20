@@ -729,3 +729,37 @@ table.data-table td .tag{ margin-right:.3em; }
   .quiz-question{ padding: 1.3em 1.4em; }
   .payment-box{ padding: 1.8em 1.5em; }
 }
+
+/* ===== Blog post — like/dislike + share ===== */
+.blog-actions{
+  margin-top: 2.2em; padding-top: 1.8em; border-top: 1.5px solid var(--line);
+  display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap: 1.4em;
+}
+.blog-vote-box{ display:flex; gap:.7em; }
+.blog-vote-btn{
+  display:flex; align-items:center; gap:.5em; padding:.6em 1.1em; border-radius:999px;
+  border:1.5px solid var(--line); background: var(--paper); color: var(--ink);
+  font-weight:700; font-size:.95rem; font-family: var(--font-body); cursor:pointer;
+  transition: transform .15s var(--ease), box-shadow .15s var(--ease), border-color .15s var(--ease), background-color .15s var(--ease), color .15s var(--ease);
+}
+.blog-vote-btn:hover:not(:disabled){ border-color: var(--teal); transform: translateY(-2px); }
+.blog-vote-btn.is-active{ background: var(--teal); border-color: var(--teal); color: var(--white); }
+.blog-vote-btn:disabled{ cursor:default; }
+.blog-vote-btn:disabled:not(.is-active){ opacity:.55; }
+
+.blog-share-box{ display:flex; align-items:center; gap:.6em; flex-wrap:wrap; }
+.blog-share-label{ font-size:.85rem; color: var(--gray); font-weight:700; }
+.blog-share-btn{
+  display:inline-flex; align-items:center; gap:.4em; padding:.55em 1.05em; border-radius:999px;
+  font-size:.85rem; font-weight:700; font-family: var(--font-body); text-decoration:none; border:none; cursor:pointer;
+  transition: transform .15s var(--ease), box-shadow .15s var(--ease);
+}
+.blog-share-btn:hover{ transform: translateY(-2px); box-shadow: var(--shadow-card); }
+.blog-share-fb{ background:#1877F2; color:#fff; }
+.blog-share-tg{ background:#26A5E4; color:#fff; }
+.blog-share-copy{ background: var(--paper-2); color: var(--ink); border:1.5px solid var(--line); }
+.blog-share-copy.is-copied{ background: var(--teal); color: var(--white); }
+
+@media (max-width: 560px){
+  .blog-actions{ flex-direction:column; align-items:flex-start; }
+}
