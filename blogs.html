@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Djami's Blog — Djami Lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="home-body">
+
+<div class="home-topbar">
+  <a href="index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+  <a href="index.html" class="home-admin-link">← Bosh sahifaga</a>
+</div>
+
+<main class="home-main">
+  <h1 class="home-blog-heading" style="font-size:2rem;">Djami's Blog</h1>
+  <div class="home-blog-grid" id="allBlogsGrid" style="width:100%; max-width:1080px;"></div>
+  <p class="blog-post-loading" id="allBlogsMessage">Yuklanmoqda…</p>
+</main>
+
+<div class="home-bottombar">
+  <p class="home-footer-note" data-site-footer-copyright>© 2026 Djami Lessons. Barcha huquqlar himoyalangan.</p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="site-settings.js"></script>
+<script>
+(function () {
+  var gridEl = document.getElementById('allBlogsGrid');
+  var messageEl = document.getElementById('allBlogsMessage');
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+
+  async function loadAllBlogs() {
+    try {
+      var snap = await db.collection('blogs').orderBy('createdAt', 'desc').get();
+      if (snap.empty) {
+        messageEl.textContent = 'Hozircha bloglar yo‘q.';
+        return;
+      }
+
+      gridEl.innerHTML = snap.docs.map(function (doc) {
+        var b = doc.data();
+        var title = escapeHtml(b.title || '');
+        var img = escapeHtml(b.imageUrl || '');
+        return '<a class="home-blog-card" href="blog.html?id=' + doc.id + '">' +
+          '<img class="home-blog-card-img" src="' + img + '" alt="' + title + '">' +
+          '<p class="home-blog-card-title">' + title + '</p>' +
+          '</a>';
+      }).join('');
+
+      messageEl.hidden = true;
+    } catch (err) {
+      console.error('Blogs list load failed:', err);
+      messageEl.textContent = 'Bloglarni yuklashda xatolik yuz berdi.';
+    }
+  }
+
+  loadAllBlogs();
+})();
+</script>
+</body>
+</html>
