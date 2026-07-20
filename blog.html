@@ -88,6 +88,7 @@
             '<button type="button" class="blog-vote-btn" id="dislikeBtn">👎 <span id="dislikeCount">' + (b.dislikeCount || 0) + '</span></button>' +
           '</div>' +
           '<div class="blog-share-box">' +
+            '<a class="blog-share-btn" id="telegramShareBtn" target="_blank" rel="noopener" href="https://t.me/share/url?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(b.title || '') + '">📨 Telegramda ulashish</a>' +
             '<button type="button" class="blog-share-btn" id="shareBtn">🔗 Ulashish</button>' +
           '</div>' +
         '</div>';
