@@ -191,6 +191,8 @@
         </div>
       </div>
 
+      <div class="stat-row" id="ratingStatRow" style="grid-template-columns: repeat(2,1fr); margin-bottom:1.8em;"></div>
+
       <form class="modal-form" id="siteSettingsForm" style="max-width:640px;">
 
         <h3 style="margin-top:0;">🎨 Ranglar</h3>
@@ -2267,10 +2269,21 @@ function fillSiteSettingsForm(data){
 async function loadSiteSettingsForm(){
   try{
     const doc = await db.collection('settings').doc('site').get();
-    fillSiteSettingsForm(doc.exists ? { ...DEFAULT_SITE_SETTINGS, ...doc.data() } : DEFAULT_SITE_SETTINGS);
+    const data = doc.exists ? doc.data() : {};
+    fillSiteSettingsForm(doc.exists ? { ...DEFAULT_SITE_SETTINGS, ...data } : DEFAULT_SITE_SETTINGS);
+    renderRatingStats(data.ratingSum || 0, data.ratingCount || 0);
   } catch(err){
     fillSiteSettingsForm(DEFAULT_SITE_SETTINGS);
+    renderRatingStats(0, 0);
   }
+}
+
+function renderRatingStats(sum, count){
+  const avg = count ? (sum / count).toFixed(1) : '—';
+  document.getElementById('ratingStatRow').innerHTML = `
+    <div class="stat-card"><strong>${avg}</strong><span>O‘rtacha baho (5 balldan)</span></div>
+    <div class="stat-card"><strong>${count}</strong><span>Jami baholar soni</span></div>
+  `;
 }
 
 ['settingColorPrimary', 'settingColorAccent', 'settingColorBackground', 'settingColorDark'].forEach(id => {
