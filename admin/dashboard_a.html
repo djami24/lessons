@@ -23,6 +23,7 @@
       <li><a href="#" id="navWriting">✍️ Writing</a></li>
       <li><a href="#" id="navEssays">📝 Insholar</a></li>
       <li><a href="#" id="navStudents">🎓 O‘quvchilar</a></li>
+      <li><a href="#" id="navBlogs">📰 Bloglar</a></li>
       <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
@@ -182,6 +183,23 @@
       </div>
     </section>
 
+    <!-- ===== BLOGS VIEW ===== -->
+    <section id="view-blogs" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>Djami's Blog</h1>
+          <p>Bosh sahifada ko‘rsatiladigan so‘nggi 3 ta blog shu yerdan boshqariladi — rasm havolasi va matnni kiriting.</p>
+        </div>
+        <button class="btn btn-amber" id="openAddBlog">+ Yangi blog qo‘shish</button>
+      </div>
+
+      <div class="blog-admin-grid" id="blogsGrid"></div>
+      <div id="blogsEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
+        <h3>Hali blog qo‘shilmagan</h3>
+        <p>“Yangi blog qo‘shish” tugmasini bosib birinchi yozuvingizni joylashtiring.</p>
+      </div>
+    </section>
+
     <!-- ===== SITE SETTINGS VIEW ===== -->
     <section id="view-site-settings" hidden>
       <div class="admin-header">
@@ -288,6 +306,36 @@
     </section>
 
   </main>
+</div>
+
+<!-- ===== MODAL: Add/Edit blog ===== -->
+<div class="modal-overlay" id="modalEditBlog" hidden>
+  <div class="modal-box" style="max-width:640px;">
+    <h3 id="blogModalTitle">Yangi blog</h3>
+    <p class="modal-sub">Sarlavha, rasm havolasi va matnni kiriting. Bosh sahifada eng so‘nggi 3 ta blog ko‘rinadi.</p>
+    <form class="modal-form" id="editBlogForm">
+      <label class="field">
+        <span>Sarlavha</span>
+        <input type="text" id="blogTitle" placeholder="Masalan: Ingliz tilida gaplashishni qanday mashq qilish kerak" required>
+      </label>
+      <label class="field">
+        <span>Rasm havolasi</span>
+        <input type="url" id="blogImageUrl" placeholder="https://…" required>
+      </label>
+      <label class="field">
+        <span>Blog matni</span>
+        <div class="rte-toolbar" data-rte-toolbar="blogContent"></div>
+        <div class="rte-editor" id="blogContent" contenteditable="true" data-placeholder="Blog matnini shu yerga yozing…"></div>
+      </label>
+
+      <p id="blogError" class="form-error" role="alert" hidden></p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close-modal="modalEditBlog">Bekor qilish</button>
+        <button type="submit" class="btn btn-amber" id="blogSubmit">Saqlash</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <!-- ===== MODAL: Add/Edit lesson (+ quiz builder) ===== -->
@@ -637,7 +685,9 @@ let state = {
   writingPath: [],        // array of folder ids — where we are inside the current track's folder tree
   essays: [],              // all writingSubmissions docs
   essaysFilter: 'pending',
-  activeEssayId: null
+  activeEssayId: null,
+  blogs: [],               // all blog posts, newest first
+  activeBlogId: null       // null = adding a new blog
 };
 
 // ---------- Folder tree helpers (shared by lessons and topics) ----------
@@ -717,8 +767,10 @@ auth.onAuthStateChanged(async (user) => {
   await loadWriting();
   await loadStudents();
   await loadEssays();
+  await loadBlogs();
   renderLevelsOverview();
   renderStudents();
+  renderBlogsGrid();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -1687,6 +1739,7 @@ function switchView(view){
   document.getElementById('view-writing-tracks').hidden = view !== 'writing-tracks';
   document.getElementById('view-writing-items').hidden = view !== 'writing-items';
   document.getElementById('view-essays').hidden = view !== 'essays';
+  document.getElementById('view-blogs').hidden = view !== 'blogs';
   document.getElementById('view-site-settings').hidden = view !== 'site-settings';
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
@@ -1694,6 +1747,7 @@ function switchView(view){
   document.getElementById('navWriting').classList.toggle('active', view === 'writing-tracks' || view === 'writing-items');
   document.getElementById('navEssays').classList.toggle('active', view === 'essays');
   document.getElementById('navStudents').classList.toggle('active', view === 'students');
+  document.getElementById('navBlogs').classList.toggle('active', view === 'blogs');
   document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
@@ -1709,6 +1763,11 @@ document.getElementById('navSiteSettings').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('site-settings');
   loadSiteSettingsForm();
+});
+document.getElementById('navBlogs').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('blogs');
+  renderBlogsGrid();
 });
 
 // ---------- Modal helpers ----------
@@ -2213,6 +2272,107 @@ document.getElementById('addStudentForm').addEventListener('submit', async (e) =
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'O‘quvchi qo‘shish';
+  }
+});
+
+// ---------- Blogs (Djami's Blog — shown on the public homepage) ----------
+
+async function loadBlogs(){
+  const snap = await db.collection('blogs').orderBy('createdAt', 'desc').get();
+  state.blogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+function renderBlogsGrid(){
+  const grid = document.getElementById('blogsGrid');
+  const empty = document.getElementById('blogsEmpty');
+  if(state.blogs.length === 0){
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  grid.innerHTML = state.blogs.map(b => `
+    <div class="blog-admin-card">
+      <img src="${escapeHtml(b.imageUrl || '')}" alt="" class="blog-admin-thumb" onerror="this.style.display='none'">
+      <div class="blog-admin-card-body">
+        <p class="blog-admin-card-title">${escapeHtml(b.title || 'Nomsiz blog')}</p>
+        <div class="blog-admin-card-actions">
+          <button type="button" class="btn btn-ghost btn-sm" data-edit-blog="${b.id}">Tahrirlash</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-delete-blog="${b.id}">O‘chirish</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function openBlogModal(blogId){
+  state.activeBlogId = blogId || null;
+  const blog = blogId ? state.blogs.find(b => b.id === blogId) : null;
+  document.getElementById('blogModalTitle').textContent = blog ? 'Blogni tahrirlash' : 'Yangi blog';
+  document.getElementById('blogTitle').value = blog ? blog.title || '' : '';
+  document.getElementById('blogImageUrl').value = blog ? blog.imageUrl || '' : '';
+  setRteValue('blogContent', blog ? blog.content || '' : '');
+  document.getElementById('blogError').hidden = true;
+  openModal('modalEditBlog');
+}
+
+document.getElementById('openAddBlog').addEventListener('click', () => openBlogModal(null));
+
+document.getElementById('blogsGrid').addEventListener('click', async (e) => {
+  const editBtn = e.target.closest('[data-edit-blog]');
+  if(editBtn){ openBlogModal(editBtn.dataset.editBlog); return; }
+
+  const delBtn = e.target.closest('[data-delete-blog]');
+  if(delBtn){
+    const id = delBtn.dataset.deleteBlog;
+    const blog = state.blogs.find(b => b.id === id);
+    if(!confirm(`“${blog ? blog.title : 'Bu blog'}” o‘chirilsinmi? Bu amalni ortga qaytarib bo‘lmaydi.`)) return;
+    await db.collection('blogs').doc(id).delete();
+    state.blogs = state.blogs.filter(b => b.id !== id);
+    renderBlogsGrid();
+    showToast('Blog o‘chirildi.');
+  }
+});
+
+document.getElementById('editBlogForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('blogError');
+  const submitBtn = document.getElementById('blogSubmit');
+  errorEl.hidden = true;
+
+  const title = document.getElementById('blogTitle').value.trim();
+  const imageUrl = document.getElementById('blogImageUrl').value.trim();
+  const content = getRteValue('blogContent');
+
+  if(!title || !imageUrl){
+    errorEl.textContent = 'Sarlavha va rasm havolasini kiriting.';
+    errorEl.hidden = false;
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saqlanmoqda…';
+
+  try{
+    if(state.activeBlogId){
+      await db.collection('blogs').doc(state.activeBlogId).update({ title, imageUrl, content });
+      const idx = state.blogs.findIndex(b => b.id === state.activeBlogId);
+      if(idx !== -1) state.blogs[idx] = { ...state.blogs[idx], title, imageUrl, content };
+    } else {
+      const docRef = await db.collection('blogs').add({
+        title, imageUrl, content,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      state.blogs.unshift({ id: docRef.id, title, imageUrl, content, createdAt: new Date() });
+    }
+    closeModal('modalEditBlog');
+    renderBlogsGrid();
+    showToast('Blog saqlandi.');
+  } catch(err){
+    errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
+    errorEl.hidden = false;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Saqlash';
   }
 });
 
