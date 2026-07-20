@@ -512,6 +512,7 @@ table.data-table td .tag{ margin-right:.3em; }
 
 /* ============ Rich text content (rendered lesson/homework HTML) ============ */
 .rich-content{ font-size:1rem; line-height:1.7; color: var(--ink-soft); overflow-wrap: anywhere; word-break: break-word; }
+.rich-content img, .rte-editor img{ max-width:100%; height:auto; border-radius: var(--radius-s); margin: .6em 0; display:block; }
 .rich-content p{ margin: 0 0 .8em; }
 .rich-content p:last-child{ margin-bottom:0; }
 .rich-content strong, .rich-content b{ font-weight: 800; color: var(--ink); }
