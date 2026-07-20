@@ -368,6 +368,19 @@
   </div>
 </div>
 
+<!-- ===== MODAL: Blog comments (moderation) ===== -->
+<div class="modal-overlay" id="modalBlogComments" hidden>
+  <div class="modal-box" style="max-width:600px;">
+    <h3 id="commentsModalTitle">Kommentlar</h3>
+    <p class="modal-sub">Har bir vizitor blog ostiga qoldirgan kommentlarni shu yerdan ko‘rasiz va kerak bo‘lsa o‘chirasiz.</p>
+    <div class="comment-admin-list" id="commentsAdminList"></div>
+    <p id="commentsAdminEmpty" style="color:var(--gray); font-size:.9rem;" hidden>Bu blogda hali kommentlar yo‘q.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" data-close-modal="modalBlogComments">Yopish</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MODAL: Add/Edit lesson (+ quiz builder) ===== -->
 <div class="modal-overlay" id="modalEditLesson" hidden>
   <div class="modal-box" style="max-width:640px;">
@@ -2328,6 +2341,7 @@ function renderBlogsGrid(){
         <p class="blog-admin-card-title">${escapeHtml(b.title || 'Nomsiz blog')}</p>
         <div class="blog-admin-card-actions">
           <button type="button" class="btn btn-ghost btn-sm" data-edit-blog="${b.id}">Tahrirlash</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-view-comments="${b.id}">💬 Kommentlar</button>
           <button type="button" class="btn btn-ghost btn-sm" data-delete-blog="${b.id}">O‘chirish</button>
         </div>
       </div>
@@ -2351,6 +2365,9 @@ document.getElementById('blogsGrid').addEventListener('click', async (e) => {
   const editBtn = e.target.closest('[data-edit-blog]');
   if(editBtn){ openBlogModal(editBtn.dataset.editBlog); return; }
 
+  const commentsBtn = e.target.closest('[data-view-comments]');
+  if(commentsBtn){ openCommentsModal(commentsBtn.dataset.viewComments); return; }
+
   const delBtn = e.target.closest('[data-delete-blog]');
   if(delBtn){
     const id = delBtn.dataset.deleteBlog;
@@ -2360,6 +2377,72 @@ document.getElementById('blogsGrid').addEventListener('click', async (e) => {
     state.blogs = state.blogs.filter(b => b.id !== id);
     renderBlogsGrid();
     showToast('Blog o‘chirildi.');
+  }
+});
+
+// ---------- Blog comments (moderation modal) ----------
+
+state.activeCommentsBlogId = null;
+
+function formatCommentDate(ts){
+  if(!ts || typeof ts.toDate !== 'function') return '';
+  const d = ts.toDate();
+  return d.toLocaleDateString('uz-UZ', { day:'numeric', month:'short', year:'numeric' }) +
+    ' · ' + d.toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' });
+}
+
+function renderCommentsAdminList(docs){
+  const listEl = document.getElementById('commentsAdminList');
+  const emptyEl = document.getElementById('commentsAdminEmpty');
+  if(docs.length === 0){
+    listEl.innerHTML = '';
+    emptyEl.hidden = false;
+    return;
+  }
+  emptyEl.hidden = true;
+  listEl.innerHTML = docs.map(doc => {
+    const c = doc.data();
+    return `
+      <div class="comment-admin-item">
+        <div class="comment-admin-item-body">
+          <div class="comment-admin-item-head">
+            <span class="comment-admin-author">${escapeHtml(c.name || 'Anonim')}</span>
+            <span class="comment-admin-date">${formatCommentDate(c.createdAt)}</span>
+          </div>
+          <p class="comment-admin-text">${escapeHtml(c.text || '')}</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" data-delete-comment="${doc.id}">O‘chirish</button>
+      </div>`;
+  }).join('');
+}
+
+async function openCommentsModal(blogId){
+  state.activeCommentsBlogId = blogId;
+  const blog = state.blogs.find(b => b.id === blogId);
+  document.getElementById('commentsModalTitle').textContent = 'Kommentlar — ' + (blog ? blog.title : '');
+  document.getElementById('commentsAdminList').innerHTML = '';
+  document.getElementById('commentsAdminEmpty').hidden = true;
+  openModal('modalBlogComments');
+  await loadCommentsAdminList(blogId);
+}
+
+async function loadCommentsAdminList(blogId){
+  const snap = await db.collection('blogs').doc(blogId).collection('comments').orderBy('createdAt', 'desc').get();
+  renderCommentsAdminList(snap.docs);
+}
+
+document.getElementById('commentsAdminList').addEventListener('click', async (e) => {
+  const delBtn = e.target.closest('[data-delete-comment]');
+  if(!delBtn) return;
+  if(!confirm('Bu komment o‘chirilsinmi?')) return;
+  const commentId = delBtn.dataset.deleteComment;
+  const blogId = state.activeCommentsBlogId;
+  try{
+    await db.collection('blogs').doc(blogId).collection('comments').doc(commentId).delete();
+    await loadCommentsAdminList(blogId);
+    showToast('Komment o‘chirildi.');
+  } catch(err){
+    showToast('Kommentni o‘chirishda xatolik yuz berdi.', true);
   }
 });
 
