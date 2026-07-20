@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mening kursim — Djami Lessons</title>
 <link rel="stylesheet" href="../style.css">
+<base target="_blank">
 </head>
 <body>
 
@@ -272,7 +273,65 @@
       </div>
     </section>
 
-  </main>
+  
+    <!-- ===== PLACEMENT TESTS LIST ===== -->
+    <section id="view-placement-tests" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>Darajani bilish testi</h1>
+          <p>Ingliz tilidagi darajangizni aniqlash uchun testni tanlang.</p>
+        </div>
+      </div>
+      <div class="placement-intro-box">
+        <p><strong>Test qanday ishlaydi?</strong></p>
+        <ul>
+          <li>Har bir testda bir nechta savollar bor.</li>
+          <li>Har bir savolga faqat bitta to'g'ri javob bor.</li>
+          <li>Testni yakunlagach, sizga CEFR darajangiz (A1, A2, B1, B2, C1, C2) ko'rsatiladi.</li>
+          <li>Bir xil testni qayta topshirishingiz mumkin.</li>
+        </ul>
+        <p style="margin:0; color:var(--gray); font-size:.9rem;">Testlarni admin tayyorlagan baho tizimi asosida baholanadi.</p>
+      </div>
+      <div class="placement-test-list" id="placementTestList"></div>
+      <div id="placementTestsEmpty" class="empty-state" style="display:none; margin-top:1.4em;">
+        <h3>Hali testlar yo'q</h3>
+        <p>Admin testlarni qo'shgach, shu yerda ko'rinadi.</p>
+      </div>
+    </section>
+
+    <!-- ===== PLACEMENT TEST TAKING ===== -->
+    <section id="view-placement-taking" hidden>
+      <a href="#" id="backToPlacementTests" class="back-link">← Testlarga qaytish</a>
+      <div class="quiz-box" style="max-width:720px;">
+        <h1 id="placementTakingTitle" style="margin-bottom:.3em;">Test</h1>
+        <p class="placement-progress-text" id="placementProgressText"></p>
+        <div class="placement-progress-bar"><div class="placement-progress-fill" id="placementProgressFill" style="width:0%"></div></div>
+        <div id="placementQuestions"></div>
+        <button type="button" class="btn btn-amber" id="submitPlacementBtn">Testni yakunlash</button>
+      </div>
+    </section>
+
+    <!-- ===== PLACEMENT TEST RESULT ===== -->
+    <section id="view-placement-result" hidden>
+      <a href="#" id="backToPlacementTestsFromResult" class="back-link">← Testlarga qaytish</a>
+      <div class="placement-result-box" id="placementResultBox"></div>
+    </section>
+
+    <!-- ===== PLACEMENT TEST HISTORY ===== -->
+    <section id="view-placement-history" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>Test natijalarim</h1>
+          <p>Oldin topshirgan testlaringiz natijalari.</p>
+        </div>
+      </div>
+      <div class="placement-history-list" id="placementHistoryList"></div>
+      <div id="placementHistoryEmpty" class="empty-state" style="display:none;">
+        <h3>Hali test topshirmagansiz</h3>
+        <p>"Darajani bilish testi" bo'limidan test tanlab topshiring.</p>
+      </div>
+    </section>
+</main>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
@@ -1471,6 +1530,294 @@ function renderQuizResult(scorePct, passed){
   document.getElementById('backToLessonsFromResultBtn').addEventListener('click', () => openLessonsView(state.lastQuizContext.levelId));
   switchView('quiz-result');
 }
+
+
+// ============================================================
+// PLACEMENT TEST (Darajani bilish testi) — Student logic
+// ============================================================
+
+let placementState = {
+  tests: [],           // available tests from Firestore
+  myResults: [],       // this student's results
+  activeTest: null,    // currently taking test
+  activeTestId: null,
+  currentQuestionIndex: 0,
+  answers: {}          // {questionIndex: optionIndex}
+};
+
+// ---------- Load data ----------
+
+async function loadPlacementTests(){
+  const snap = await db.collection('placementTests').where('isActive', '==', true).orderBy('createdAt', 'desc').get();
+  placementState.tests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function loadMyPlacementResults(){
+  if(!currentUid) return;
+  const snap = await db.collection('placementResults')
+    .where('studentId', '==', currentUid)
+    .orderBy('submittedAt', 'desc').get();
+  placementState.myResults = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+// ---------- Views ----------
+
+function openPlacementTestsView(){
+  document.getElementById('navCourses').classList.remove('active');
+  document.getElementById('navMyEssays').classList.remove('active');
+  document.getElementById('navPlacementTest').classList.add('active');
+
+  const list = document.getElementById('placementTestList');
+  const empty = document.getElementById('placementTestsEmpty');
+
+  if(placementState.tests.length === 0){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    list.innerHTML = placementState.tests.map(t => {
+      const myAttempts = placementState.myResults.filter(r => r.testId === t.id);
+      const bestResult = myAttempts.length > 0 ? myAttempts.reduce((best, r) => (r.score > best.score ? r : best), myAttempts[0]) : null;
+      return `
+      <div class="placement-test-card" data-start-test="${t.id}">
+        <div class="placement-test-icon">🧭</div>
+        <div class="placement-test-main">
+          <div class="placement-test-title">${escapeHtml(t.title || 'Nomsiz test')}</div>
+          <p class="placement-test-sub">${escapeHtml(t.description || '')}</p>
+          <div class="placement-test-meta">
+            <span class="tag">${(t.questions || []).length} ta savol</span>
+            ${bestResult ? `<span class="status-pill" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Eng yaxshi: ${bestResult.assignedLevel} (${bestResult.score}/${bestResult.totalQuestions})</span>` : '<span class="status-pill" style="background:var(--paper-2); color:var(--gray);">Hali topshirmagansiz</span>'}
+            ${myAttempts.length > 0 ? `<span class="tag">${myAttempts.length} ta urinish</span>` : ''}
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  switchView('placement-tests');
+}
+
+function openPlacementHistoryView(){
+  document.getElementById('navCourses').classList.remove('active');
+  document.getElementById('navMyEssays').classList.remove('active');
+  document.getElementById('navPlacementTest').classList.add('active');
+
+  const list = document.getElementById('placementHistoryList');
+  const empty = document.getElementById('placementHistoryEmpty');
+
+  if(placementState.myResults.length === 0){
+    list.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    list.innerHTML = placementState.myResults.map(r => {
+      const test = placementState.tests.find(t => t.id === r.testId);
+      return `
+      <div class="placement-history-item">
+        <div class="placement-history-icon">📝</div>
+        <div class="placement-history-main">
+          <div class="placement-history-title">${escapeHtml(test ? test.title : 'Nomsiz test')}</div>
+          <div class="placement-history-sub">${r.submittedAt ? new Date(r.submittedAt).toLocaleString('uz-UZ') : ''} · ${r.percentage}%</div>
+        </div>
+        <div class="placement-history-score">${r.assignedLevel} · ${r.score}/${r.totalQuestions}</div>
+      </div>`;
+    }).join('');
+  }
+  switchView('placement-history');
+}
+
+// ---------- Taking a test ----------
+
+function startPlacementTest(testId){
+  const test = placementState.tests.find(t => t.id === testId);
+  if(!test || !test.questions || test.questions.length === 0){
+    showToast('Bu testda hali savollar yo'q.', true);
+    return;
+  }
+  placementState.activeTest = test;
+  placementState.activeTestId = testId;
+  placementState.currentQuestionIndex = 0;
+  placementState.answers = {};
+
+  document.getElementById('placementTakingTitle').textContent = escapeHtml(test.title || 'Test');
+  renderPlacementQuestion();
+  switchView('placement-taking');
+}
+
+function renderPlacementQuestion(){
+  const test = placementState.activeTest;
+  const q = test.questions[placementState.currentQuestionIndex];
+  const total = test.questions.length;
+  const current = placementState.currentQuestionIndex + 1;
+
+  document.getElementById('placementProgressText').textContent = `Savol ${current} / ${total}`;
+  document.getElementById('placementProgressFill').style.width = `${(current / total) * 100}%`;
+
+  const container = document.getElementById('placementQuestions');
+  container.innerHTML = `
+    <div class="placement-question-box">
+      <div class="placement-question-title">${current}. ${escapeHtml(q.question)}</div>
+      ${q.options.map((opt, oi) => `
+        <label class="placement-option">
+          <input type="radio" name="placement-q-${placementState.currentQuestionIndex}" value="${oi}" ${placementState.answers[placementState.currentQuestionIndex] === oi ? 'checked' : ''}>
+          <span>${escapeHtml(opt)}</span>
+        </label>
+      `).join('')}
+    </div>
+    <div style="display:flex; justify-content:space-between; gap:1em; margin-top:1em;">
+      <button type="button" class="btn btn-ghost" id="placementPrevBtn" ${placementState.currentQuestionIndex === 0 ? 'disabled' : ''}>← Oldingi</button>
+      <button type="button" class="btn btn-amber" id="placementNextBtn">${current === total ? 'Yakunlash' : 'Keyingi →'}</button>
+    </div>
+  `;
+
+  // Event listeners for options
+  container.querySelectorAll('input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+      placementState.answers[placementState.currentQuestionIndex] = Number(e.target.value);
+    });
+  });
+
+  document.getElementById('placementPrevBtn').addEventListener('click', () => {
+    if(placementState.currentQuestionIndex > 0){
+      placementState.currentQuestionIndex--;
+      renderPlacementQuestion();
+    }
+  });
+
+  document.getElementById('placementNextBtn').addEventListener('click', () => {
+    if(placementState.answers[placementState.currentQuestionIndex] === undefined){
+      showToast('Iltimos, javob tanlang.', true);
+      return;
+    }
+    if(placementState.currentQuestionIndex < total - 1){
+      placementState.currentQuestionIndex++;
+      renderPlacementQuestion();
+    } else {
+      submitPlacementTest();
+    }
+  });
+}
+
+async function submitPlacementTest(){
+  const test = placementState.activeTest;
+  const questions = test.questions;
+  let correctCount = 0;
+
+  questions.forEach((q, qi) => {
+    if(placementState.answers[qi] === q.correctIndex) correctCount++;
+  });
+
+  const percentage = Math.round((correctCount / questions.length) * 100);
+
+  // Find assigned level from rubric
+  let assignedLevel = 'Noma'lum';
+  let assignedLabel = '';
+  const rubric = test.scoringRubric || [];
+  for(const row of rubric){
+    if(correctCount >= row.minScore && correctCount <= row.maxScore){
+      assignedLevel = row.level;
+      assignedLabel = row.label || '';
+      break;
+    }
+  }
+
+  // Save result
+  const resultData = {
+    studentId: currentUid,
+    studentName: state.student.name || '',
+    studentEmail: state.student.email || '',
+    testId: test.id,
+    testTitle: test.title || '',
+    score: correctCount,
+    totalQuestions: questions.length,
+    percentage: percentage,
+    assignedLevel: assignedLevel,
+    assignedLabel: assignedLabel,
+    answers: placementState.answers,
+    submittedAt: Date.now()
+  };
+
+  try{
+    await db.collection('placementResults').add(resultData);
+    placementState.myResults.unshift({ id: 'temp', ...resultData });
+    renderPlacementResult(correctCount, questions.length, percentage, assignedLevel, assignedLabel, test.title);
+  } catch(err){
+    showToast('Natijani saqlashda xatolik yuz berdi.', true);
+  }
+}
+
+function renderPlacementResult(score, total, percentage, level, label, testTitle){
+  const box = document.getElementById('placementResultBox');
+  box.innerHTML = `
+    <p class="eyebrow">Test natijasi</p>
+    <h2 style="margin:.5em 0;">${escapeHtml(testTitle || 'Test')}</h2>
+    <div class="placement-result-level">${escapeHtml(level)}</div>
+    ${label ? `<div class="placement-result-label">${escapeHtml(label)}</div>` : ''}
+    <div class="placement-result-stats">
+      <div class="placement-result-stat">
+        <strong>${score}/${total}</strong>
+        <span>To'g'ri javoblar</span>
+      </div>
+      <div class="placement-result-stat">
+        <strong>${percentage}%</strong>
+        <span>Foiz</span>
+      </div>
+    </div>
+    <p style="color:var(--gray); margin:1.2em 0;">
+      ${percentage >= 80 ? 'Ajoyib natija! Sizning darajangiz yuqori.' :
+        percentage >= 60 ? 'Yaxshi natija! Yana bir oz mashq qilsangiz, yanada yuqoriga ko'tarilasiz.' :
+        percentage >= 40 ? 'O'rtacha natija. Asosiy mavzularni qayta ko'rib chiqing.' :
+        'Yana mashq qilish kerak. Boshlang'ich mavzulardan boshlang.'}
+    </p>
+    <div style="display:flex; gap:1em; justify-content:center; flex-wrap:wrap; margin-top:1.5em;">
+      <button type="button" class="btn btn-amber" id="retakePlacementBtn">Qayta topshirish</button>
+      <button type="button" class="btn btn-ghost" id="placementGoHistoryBtn">Natijalarim</button>
+    </div>
+  `;
+
+  document.getElementById('retakePlacementBtn').addEventListener('click', () => {
+    startPlacementTest(placementState.activeTestId);
+  });
+  document.getElementById('placementGoHistoryBtn').addEventListener('click', () => {
+    openPlacementHistoryView();
+  });
+
+  switchView('placement-result');
+}
+
+// ---------- Event listeners ----------
+
+document.getElementById('navPlacementTest').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await loadPlacementTests();
+  await loadMyPlacementResults();
+  openPlacementTestsView();
+});
+
+document.getElementById('placementTestList').addEventListener('click', (e) => {
+  const card = e.target.closest('[data-start-test]');
+  if(card) startPlacementTest(card.dataset.startTest);
+});
+
+document.getElementById('backToPlacementTests').addEventListener('click', (e) => {
+  e.preventDefault();
+  openPlacementTestsView();
+});
+
+document.getElementById('backToPlacementTestsFromResult').addEventListener('click', (e) => {
+  e.preventDefault();
+  openPlacementTestsView();
+});
+
+// Update VIEWS array to include new views
+VIEWS.push('placement-tests', 'placement-taking', 'placement-result', 'placement-history');
+
+// Load placement data on init
+auth.onAuthStateChanged(async (user) => {
+  if(!user) return;
+  // ... existing code ...
+  await loadPlacementTests();
+  await loadMyPlacementResults();
+});
 </script>
 </body>
 </html>
