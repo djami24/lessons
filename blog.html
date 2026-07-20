@@ -148,7 +148,8 @@
     }
 
     shareBtn.addEventListener('click', async function () {
-      if (navigator.share) {
+      var isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile && navigator.share) {
         try {
           await navigator.share({ title: shareTitle, url: shareUrl });
           return;
