@@ -109,6 +109,8 @@ img{ max-width:100%; display:block; }
 .btn-ghost:hover{ border-color: var(--ink); }
 .btn-teal{ background: var(--teal); color: var(--white); }
 .btn-teal:hover{ background: var(--teal-deep); transform: translateY(-2px); }
+.btn-outline-teal{ background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
+.btn-outline-teal:hover{ background: var(--teal); color: var(--white); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
 .btn-danger{ background: transparent; color: var(--danger); border-color: var(--danger); }
 .btn-danger:hover{ background: var(--danger); color: var(--white); }
 .btn-sm{ padding: .55em 1em; font-size: .82rem; }
