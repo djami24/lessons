@@ -99,6 +99,10 @@
     if(data.colorDark){
       root.setProperty('--dark-bg', data.colorDark);
     }
+    if(data.buttonColor){
+      root.setProperty('--btn-color', data.buttonColor);
+      root.setProperty('--btn-color-deep', shade(data.buttonColor, -16));
+    }
 
     if(data.brandName){
       document.querySelectorAll('[data-site-brand-name]').forEach(el => {
