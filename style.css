@@ -583,10 +583,11 @@ table.data-table td .tag{ margin-right:.3em; }
 .home-bottombar{ display:flex; flex-direction:column; align-items:center; gap:.8em; padding: 2.6em 1em 2.4em; }
 .home-footer-note{ color: var(--gray); font-size:.82rem; }
 .home-admin-link{
-  color: var(--gray); font-size:.85rem; text-decoration:none; font-family: var(--font-mono);
-  border: 1px solid var(--line); border-radius: 999px; padding: .5em 1.2em;
+  color: var(--btn-color); font-size:.85rem; font-weight:700; text-decoration:none; font-family: var(--font-mono);
+  border: 1.5px solid var(--btn-color); border-radius: 999px; padding: .5em 1.2em;
+  transition: background-color .18s var(--ease), color .18s var(--ease), transform .18s var(--ease), box-shadow .18s var(--ease);
 }
-.home-admin-link:hover{ color: var(--ink); border-color: var(--gray); }
+.home-admin-link:hover{ background: var(--btn-color); color: var(--white); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
 .home-topbar-links{ display:flex; align-items:center; gap:.8em; }
 
 @media (max-width: 900px){
