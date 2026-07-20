@@ -22,6 +22,12 @@
   --white:      #FFFFFF;
   --danger:     #B3432B;
 
+  /* Unified button accent — admin-configurable from Sayt sozlamalari.
+     Every filled/outline .btn variant reads from these two, so changing
+     them from the settings form re-colors every button on the site. */
+  --btn-color:      var(--amber);
+  --btn-color-deep: var(--amber-deep);
+
   --font-display: 'Fraunces', Georgia, serif;
   --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
@@ -92,28 +98,28 @@ img{ max-width:100%; display:block; }
   font-family: var(--font-body);
   font-weight: 700;
   font-size: .95rem;
-  padding: .85em 1.5em;
-  border-radius: var(--radius-s);
+  padding: .75em 1.6em;
+  border-radius: 999px;
   border: 1.5px solid transparent;
   cursor: pointer;
   text-decoration: none;
-  transition: transform .18s var(--ease), box-shadow .18s var(--ease), background-color .18s var(--ease), border-color .18s var(--ease);
+  transition: transform .18s var(--ease), box-shadow .18s var(--ease), background-color .18s var(--ease), border-color .18s var(--ease), color .18s var(--ease);
   line-height: 1;
 }
 .btn:focus-visible{ outline: 3px solid var(--teal); outline-offset: 2px; }
-.btn-primary{ background: var(--ink); color: var(--paper); }
-.btn-primary:hover{ background: var(--ink-soft); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
-.btn-amber{ background: var(--amber); color: var(--ink); }
-.btn-amber:hover{ background: var(--amber-deep); color: var(--white); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+.btn-primary{ background: var(--btn-color); color: var(--white); border-color: var(--btn-color); }
+.btn-primary:hover{ background: var(--btn-color-deep); border-color: var(--btn-color-deep); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+.btn-amber{ background: var(--btn-color); color: var(--white); border-color: var(--btn-color); }
+.btn-amber:hover{ background: var(--btn-color-deep); border-color: var(--btn-color-deep); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+.btn-outline, .btn-outline-teal{ background: transparent; color: var(--btn-color); border-color: var(--btn-color); }
+.btn-outline:hover, .btn-outline-teal:hover{ background: var(--btn-color); color: var(--white); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
 .btn-ghost{ background: transparent; color: var(--ink); border-color: var(--line); }
 .btn-ghost:hover{ border-color: var(--ink); }
-.btn-teal{ background: var(--teal); color: var(--white); }
-.btn-teal:hover{ background: var(--teal-deep); transform: translateY(-2px); }
-.btn-outline-teal{ background: transparent; color: var(--teal); border: 1.5px solid var(--teal); }
-.btn-outline-teal:hover{ background: var(--teal); color: var(--white); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
+.btn-teal{ background: var(--btn-color); color: var(--white); border-color: var(--btn-color); }
+.btn-teal:hover{ background: var(--btn-color-deep); border-color: var(--btn-color-deep); transform: translateY(-2px); box-shadow: var(--shadow-pop); }
 .btn-danger{ background: transparent; color: var(--danger); border-color: var(--danger); }
 .btn-danger:hover{ background: var(--danger); color: var(--white); }
-.btn-sm{ padding: .55em 1em; font-size: .82rem; }
+.btn-sm{ padding: .55em 1.2em; font-size: .82rem; }
 .btn[disabled]{ opacity:.5; cursor: not-allowed; transform:none !important; }
 
 /* ---------- Nav ---------- */
