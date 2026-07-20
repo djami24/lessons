@@ -786,7 +786,8 @@ function getRteValue(id){
   const el = document.getElementById(id);
   if(!el) return '';
   const plain = el.textContent.replace(/\u200B/g, '').trim();
-  return plain === '' ? '' : el.innerHTML.trim();
+  const hasMedia = el.querySelector('img') !== null;
+  return (plain === '' && !hasMedia) ? '' : el.innerHTML.trim();
 }
 function setRteValue(id, html){
   const el = document.getElementById(id);
