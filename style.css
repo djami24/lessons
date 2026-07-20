@@ -769,10 +769,13 @@ table.data-table td .tag{ margin-right:.3em; }
   .blog-actions{ flex-direction:column; align-items:flex-start; }
 }
 
-/* ===== Blog post — comments ===== */
+/* ===== Blog post — izohlar (comments) ===== */
 .blog-comments-section{ margin-top: 2.4em; }
+.blog-comments-heading-row{
+  display:flex; align-items:center; justify-content:space-between; gap:1em; flex-wrap:wrap; margin-bottom: 1.2em;
+}
 .blog-comments-heading{
-  font-family: var(--font-display); font-weight:700; font-size:1.25rem; color: var(--ink); margin: 0 0 1.2em;
+  font-family: var(--font-display); font-weight:700; font-size:1.25rem; color: var(--ink); margin: 0;
 }
 .blog-comment-form{
   display:flex; flex-direction:column; gap:.8em; background: var(--white); border:1.5px solid var(--line);
@@ -795,6 +798,14 @@ table.data-table td .tag{ margin-right:.3em; }
 .blog-comment-author{ font-weight:700; font-size:.92rem; }
 .blog-comment-date{ font-size:.75rem; color: var(--gray); font-family: var(--font-mono); white-space:nowrap; }
 .blog-comment-text{ margin:0; font-size:.94rem; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+.blog-comment-text.is-clamped{
+  display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden;
+}
+.blog-comment-more{
+  background:none; border:none; padding:.4em 0 0; margin:0; color: var(--teal); font-weight:700;
+  font-size:.83rem; font-family: var(--font-body); cursor:pointer;
+}
+.blog-comment-more:hover{ text-decoration:underline; }
 .blog-comments-empty{ color: var(--gray); font-size:.9rem; }
 
 /* ===== Admin — comment moderation modal ===== */
