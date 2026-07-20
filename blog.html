@@ -21,19 +21,25 @@
   </div>
 
   <div class="blog-post-wrap blog-comments-section" id="blogCommentsSection" hidden>
-    <h2 class="blog-comments-heading">Kommentlar (<span id="commentCount">0</span>)</h2>
+    <div class="blog-comments-heading-row">
+      <h2 class="blog-comments-heading">Izohlar (<span id="commentCount">0</span>)</h2>
+      <button type="button" class="btn btn-amber btn-sm" id="commentToggleBtn">💬 Izoh qoldirish</button>
+    </div>
 
-    <form class="blog-comment-form" id="commentForm">
-      <input type="text" id="commentName" placeholder="Ismingiz" maxlength="60" required>
-      <textarea id="commentText" rows="3" placeholder="Fikringizni yozing…" maxlength="1000" required></textarea>
+    <form class="blog-comment-form" id="commentForm" hidden>
+      <input type="text" id="commentName" placeholder="Ismingiz (ixtiyoriy)" maxlength="60">
+      <textarea id="commentText" rows="3" placeholder="Izohingizni yozing…" maxlength="1000" required></textarea>
       <div class="blog-comment-form-row">
         <p class="blog-comment-error" id="commentError" hidden></p>
-        <button type="submit" class="btn btn-amber btn-sm" id="commentSubmit">Yuborish</button>
+        <div style="display:flex; gap:.7em;">
+          <button type="button" class="btn btn-ghost btn-sm" id="commentCancelBtn">Bekor qilish</button>
+          <button type="submit" class="btn btn-amber btn-sm" id="commentSubmit">Yuborish</button>
+        </div>
       </div>
     </form>
 
     <div class="blog-comment-list" id="commentList"></div>
-    <p class="blog-comments-empty" id="commentsEmpty" hidden>Hali kommentlar yo‘q — birinchi bo‘lib fikr bildiring!</p>
+    <p class="blog-comments-empty" id="commentsEmpty" hidden>Hali izohlar yo‘q — birinchi bo‘lib fikr bildiring!</p>
   </div>
 </main>
 
@@ -178,12 +184,20 @@
     });
   }
 
-  /* ---- Comments: any visitor may read and post; no login required ---- */
+  /* ---- Izohlar (comments): any visitor may read and post; no login required.
+     Name is optional — if left blank it's stored/shown as "Anonim". The form
+     itself stays tucked away behind an "Izoh qoldirish" button until the
+     reader wants to write something. Long comments collapse behind a
+     "Ko'proq o'qish" toggle so the list doesn't get overwhelming. ---- */
+  var COMMENT_CLAMP_LENGTH = 240;
+
   function setupComments(blogId) {
     var sectionEl = document.getElementById('blogCommentsSection');
     var listEl = document.getElementById('commentList');
     var emptyEl = document.getElementById('commentsEmpty');
     var countEl = document.getElementById('commentCount');
+    var toggleBtn = document.getElementById('commentToggleBtn');
+    var cancelBtn = document.getElementById('commentCancelBtn');
     var formEl = document.getElementById('commentForm');
     var nameEl = document.getElementById('commentName');
     var textEl = document.getElementById('commentText');
@@ -195,6 +209,19 @@
       var savedName = localStorage.getItem(NAME_KEY);
       if (savedName) nameEl.value = savedName;
     } catch (e) {}
+
+    function showForm() {
+      formEl.hidden = false;
+      toggleBtn.hidden = true;
+      textEl.focus();
+    }
+    function hideForm() {
+      formEl.hidden = true;
+      toggleBtn.hidden = false;
+      errorEl.hidden = true;
+    }
+    toggleBtn.addEventListener('click', showForm);
+    cancelBtn.addEventListener('click', hideForm);
 
     function formatDate(ts) {
       if (!ts || typeof ts.toDate !== 'function') return '';
@@ -213,15 +240,29 @@
       emptyEl.hidden = true;
       listEl.innerHTML = docs.map(function (doc) {
         var c = doc.data();
+        var text = c.text || '';
+        var isLong = text.length > COMMENT_CLAMP_LENGTH;
+        var textClass = 'blog-comment-text' + (isLong ? ' is-clamped' : '');
+        var moreBtn = isLong ? '<button type="button" class="blog-comment-more">Ko‘proq o‘qish</button>' : '';
         return '<div class="blog-comment-item">' +
           '<div class="blog-comment-item-head">' +
             '<span class="blog-comment-author">' + escapeHtml(c.name || 'Anonim') + '</span>' +
             '<span class="blog-comment-date">' + formatDate(c.createdAt) + '</span>' +
           '</div>' +
-          '<p class="blog-comment-text">' + escapeHtml(c.text || '') + '</p>' +
+          '<p class="' + textClass + '">' + escapeHtml(text) + '</p>' +
+          moreBtn +
         '</div>';
       }).join('');
     }
+
+    // Read more / show less — delegated so it keeps working after re-renders.
+    listEl.addEventListener('click', function (e) {
+      var btn = e.target.closest('.blog-comment-more');
+      if (!btn) return;
+      var textNode = btn.previousElementSibling;
+      var nowClamped = textNode.classList.toggle('is-clamped');
+      btn.textContent = nowClamped ? 'Ko‘proq o‘qish' : 'Yopish';
+    });
 
     async function loadComments() {
       try {
@@ -238,10 +279,11 @@
       e.preventDefault();
       errorEl.hidden = true;
 
-      var name = nameEl.value.trim();
+      var typedName = nameEl.value.trim();
+      var name = typedName || 'Anonim';
       var text = textEl.value.trim();
-      if (!name || !text) {
-        errorEl.textContent = 'Ism va komment matnini kiriting.';
+      if (!text) {
+        errorEl.textContent = 'Izoh matnini kiriting.';
         errorEl.hidden = false;
         return;
       }
@@ -250,7 +292,9 @@
       submitBtn.textContent = 'Yuborilmoqda…';
 
       try {
-        try { localStorage.setItem(NAME_KEY, name); } catch (e) {}
+        try {
+          if (typedName) localStorage.setItem(NAME_KEY, typedName);
+        } catch (e) {}
 
         await db.collection('blogs').doc(blogId).collection('comments').add({
           name: name,
@@ -259,9 +303,10 @@
         });
 
         textEl.value = '';
+        hideForm();
         await loadComments();
       } catch (err) {
-        errorEl.textContent = 'Kommentni yuborishda xatolik yuz berdi. Qayta urinib ko‘ring.';
+        errorEl.textContent = 'Izohni yuborishda xatolik yuz berdi. Qayta urinib ko‘ring.';
         errorEl.hidden = false;
       } finally {
         submitBtn.disabled = false;
