@@ -80,6 +80,26 @@ service cloud.firestore {
       allow update: if !isAdmin() &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dislikeCount']) &&
         request.resource.data.dislikeCount == resource.data.get('dislikeCount', 0) + 1;
+
+      // Comments on a blog post (blog.html): open to any visitor, signed in
+      // or not — no moderation queue, comments appear immediately. A
+      // comment is just { name, text, createdAt } and can never be edited
+      // after posting. Only an admin can delete one (spam/moderation),
+      // from the admin dashboard's "Kommentlar" view.
+      match /comments/{commentId} {
+        allow read: if true;
+
+        allow create: if request.resource.data.keys().hasOnly(['name', 'text', 'createdAt']) &&
+          request.resource.data.name is string &&
+          request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 60 &&
+          request.resource.data.text is string &&
+          request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000 &&
+          request.resource.data.createdAt == request.time;
+
+        allow update: if false;
+
+        allow delete: if isAdmin();
+      }
     }
 
     // General English: fixed level docs (beginner / elementary /
