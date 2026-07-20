@@ -72,6 +72,24 @@
       </div>
     </div>
   </div>
+
+  <div class="home-rating-box" id="siteRatingBox">
+    <div class="rating-summary">
+      <div class="rating-stars-display" id="ratingStarsDisplay" aria-hidden="true"></div>
+      <p class="rating-summary-text" id="ratingSummaryText">Baholar yuklanmoqda…</p>
+    </div>
+    <div class="rating-input">
+      <p class="rating-input-label">Saytni baholang</p>
+      <div class="rating-stars-input" id="ratingStarsInput">
+        <button type="button" class="rating-star-btn" data-value="1" aria-label="1 yulduz">★</button>
+        <button type="button" class="rating-star-btn" data-value="2" aria-label="2 yulduz">★</button>
+        <button type="button" class="rating-star-btn" data-value="3" aria-label="3 yulduz">★</button>
+        <button type="button" class="rating-star-btn" data-value="4" aria-label="4 yulduz">★</button>
+        <button type="button" class="rating-star-btn" data-value="5" aria-label="5 yulduz">★</button>
+      </div>
+      <p class="rating-thanks" id="ratingThanks" hidden></p>
+    </div>
+  </div>
 </main>
 
 <div class="home-bottombar">
@@ -83,5 +101,115 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="site-settings.js"></script>
+<script>
+/* ============================================================
+   Sayt baholash (site rating) widget
+   ------------------------------------------------------------
+   Aggregat ma'lumot settings/site hujjatida ikkita maydonda
+   saqlanadi: ratingSum (barcha baholar yig'indisi) va
+   ratingCount (baholar soni). O'rtacha = ratingSum / ratingCount.
+   Bu maydonlar Firestore Rules'da HAMMAGA (login qilmagan
+   mehmonlarga ham) faqat shu ikki maydonni oshirish (increment)
+   uchun ochiq bo'lishi kerak — pastdagi izohga qarang.
+   ============================================================ */
+(function () {
+  var STORAGE_KEY = 'efSiteRating_v1';
+
+  var starsDisplayEl = document.getElementById('ratingStarsDisplay');
+  var summaryTextEl = document.getElementById('ratingSummaryText');
+  var starsInputEl = document.getElementById('ratingStarsInput');
+  var starButtons = Array.prototype.slice.call(document.querySelectorAll('.rating-star-btn'));
+  var thanksEl = document.getElementById('ratingThanks');
+
+  var cachedSum = 0;
+  var cachedCount = 0;
+
+  function renderStarsDisplay(avg) {
+    var rounded = Math.round(avg * 2) / 2; // nearest half star
+    var html = '';
+    for (var i = 1; i <= 5; i++) {
+      if (rounded >= i) html += '<span class="star full">★</span>';
+      else if (rounded >= i - 0.5) html += '<span class="star half">★</span>';
+      else html += '<span class="star empty">★</span>';
+    }
+    starsDisplayEl.innerHTML = html;
+  }
+
+  function renderSummary() {
+    if (!cachedCount) {
+      summaryTextEl.textContent = 'Hali baho yo‘q — birinchi bo‘lib baholang!';
+      renderStarsDisplay(0);
+      return;
+    }
+    var avg = cachedSum / cachedCount;
+    renderStarsDisplay(avg);
+    summaryTextEl.textContent = avg.toFixed(1) + ' / 5 · ' + cachedCount + ' ta baho';
+  }
+
+  function markAsRated(value) {
+    starsInputEl.hidden = true;
+    thanksEl.hidden = false;
+    thanksEl.textContent = 'Siz ' + value + ' yulduz bilan baholadingiz. Rahmat! 🙌';
+  }
+
+  function getStoredRating() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function highlightUpTo(value) {
+    starButtons.forEach(function (b) {
+      b.classList.toggle('is-hovered', Number(b.dataset.value) <= value);
+    });
+  }
+
+  async function loadRating() {
+    try {
+      var doc = await db.collection('settings').doc('site').get();
+      var data = doc.exists ? doc.data() : {};
+      cachedSum = data.ratingSum || 0;
+      cachedCount = data.ratingCount || 0;
+      renderSummary();
+    } catch (err) {
+      summaryTextEl.textContent = '';
+    }
+  }
+
+  async function submitRating(value) {
+    starButtons.forEach(function (b) { b.disabled = true; });
+    try {
+      await db.collection('settings').doc('site').set({
+        ratingSum: firebase.firestore.FieldValue.increment(value),
+        ratingCount: firebase.firestore.FieldValue.increment(1)
+      }, { merge: true });
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ value: value, ratedAt: Date.now() }));
+      cachedSum += value;
+      cachedCount += 1;
+      renderSummary();
+      markAsRated(value);
+    } catch (err) {
+      starButtons.forEach(function (b) { b.disabled = false; });
+      alert('Bahoni saqlashda xatolik yuz berdi. Birozdan so‘ng qayta urinib ko‘ring.');
+    }
+  }
+
+  starButtons.forEach(function (btn) {
+    btn.addEventListener('mouseenter', function () { highlightUpTo(Number(btn.dataset.value)); });
+    btn.addEventListener('mouseleave', function () { highlightUpTo(0); });
+    btn.addEventListener('click', function () { submitRating(Number(btn.dataset.value)); });
+  });
+
+  var stored = getStoredRating();
+  if (stored && stored.value) {
+    markAsRated(stored.value);
+  }
+
+  loadRating();
+})();
+</script>
 </body>
 </html>
