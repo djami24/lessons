@@ -183,5 +183,38 @@ service cloud.firestore {
       // submission only while it's still ungraded.
       allow delete: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid && resource.data.status == 'pending');
     }
+
+    // Placement Tests (Darajani bilish testi) — admin creates/edits tests
+    // with questions and scoring rubric; any signed-in student can read
+    // active tests and submit their results.
+    match /placementTests/{testId} {
+      // Any signed-in user may read active tests; admin reads all.
+      allow read: if isSignedIn() && (resource.data.isActive == true || isAdmin());
+      allow write: if isAdmin();
+    }
+
+    // Placement Results — student submits their test answers and gets
+    // a CEFR level assigned based on the admin-defined scoring rubric.
+    // Document shape: { studentId, studentName, studentEmail, testId,
+    //   testTitle, score, totalQuestions, percentage, assignedLevel,
+    //   assignedLabel, answers, submittedAt }
+    match /placementResults/{resultId} {
+      // Student reads their own results; admin reads all.
+      allow read: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid);
+
+      // Student may only create a result for THEMSELVES, with honest data
+      // that matches the test they actually took.
+      allow create: if isSignedIn() &&
+        request.resource.data.studentId == request.auth.uid &&
+        request.resource.data.keys().hasOnly(['studentId','studentName','studentEmail','testId','testTitle','score','totalQuestions','percentage','assignedLevel','assignedLabel','answers','submittedAt']) &&
+        request.resource.data.score >= 0 &&
+        request.resource.data.score <= request.resource.data.totalQuestions &&
+        request.resource.data.percentage >= 0 &&
+        request.resource.data.percentage <= 100;
+
+      // Only admin can update/delete results (e.g. to fix a grading error).
+      allow update, delete: if isAdmin();
+    }
+
   }
 }
