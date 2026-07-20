@@ -1,5 +1,5 @@
 /* ============================================================
-   English Folder — Firebase config
+   Djami Lessons — Firebase config
    ------------------------------------------------------------
    1. https://console.firebase.google.com → "Add project"
    2. Project sozlamalari (⚙ Project settings) → "Your apps" →
