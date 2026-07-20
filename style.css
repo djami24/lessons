@@ -390,6 +390,17 @@ table.data-table td .tag{ margin-right:.3em; }
 .brand-mark-custom{ background: none !important; }
 .brand-mark-custom::after{ content: none !important; }
 
+/* Djami Lessons logo mark — the artwork is white-on-transparent, so it
+   sits inside a dark rounded chip (replacing the default amber icon)
+   to stay visible on both light and dark headers. */
+.brand-mark-logo{
+  background: var(--ink) !important;
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; padding: 4px; box-sizing: border-box;
+}
+.brand-mark-logo::after{ content:none !important; }
+.brand-mark-logo img{ width:100%; height:100%; object-fit:contain; display:block; }
+
 /* ============ Home page (marketing entry screen) ============ */
 .home-body{
   min-height: 100vh; display:flex; flex-direction:column;
