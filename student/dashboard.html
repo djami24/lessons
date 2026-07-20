@@ -1016,60 +1016,121 @@ function stopSpeakingTimer(){
   speakingTimer.interval = null;
 }
 
+const formatTime = (sec) => `${String(Math.floor(Math.max(sec,0) / 60)).padStart(2, '0')}:${String(Math.max(sec,0) % 60).padStart(2, '0')}`;
+
 function openTopicDetail(topicId){
   stopSpeakingTimer();
   state.activeTopicId = topicId;
   const section = getCourse(state.activeCourseId).sections[state.activeSectionId];
   const topic = flattenLeaves(section.topics).find(t => t.id === topicId);
+  const isSpeaking = state.activeSectionId === 'speaking';
   const box = document.getElementById('topicDetailBox');
 
-  const hasTimer = !!topic.timerSeconds;
+  const defaultMinutes = topic.timerSeconds ? Math.round(topic.timerSeconds / 60 * 10) / 10 : 2;
+
   box.innerHTML = `
     <h1>${escapeHtml(topic.title || 'Nomsiz mavzu')}</h1>
     ${topic.description ? `<div class="rich-content" style="margin-top:.8em;">${topic.description}</div>` : ''}
-    ${topic.material ? `<div class="lesson-detail-links"><a href="${escapeHtml(topic.material)}" target="_blank" rel="noopener">📎 Materialni ko‘rish</a></div>` : ''}
-    ${hasTimer ? `
-    <div style="margin-top:1.6em; padding:1.2em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
-      <label style="display:flex; align-items:center; gap:.7em; cursor:pointer;">
-        <input type="checkbox" id="timerToggle">
-        <span>⏱️ Taymerdan foydalanish (${Math.round(topic.timerSeconds / 60 * 10) / 10} daqiqa) — xohlasangiz yoqing, xohlasangiz taymersiz mashq qiling.</span>
+    ${topic.material ? `<div class="lesson-detail-links"><a href="${escapeHtml(topic.material)}" target="_blank" rel="noopener">📎 Materialni ko'rish</a></div>` : ''}
+    ${isSpeaking ? `
+    <div style="margin-top:1.6em; padding:1.2em; border:1.5px solid var(--line); border-radius:var(--radius-s); background:var(--paper-2);">
+      <label style="display:flex; align-items:center; gap:.7em; cursor:pointer; font-weight:500;">
+        <input type="checkbox" id="timerToggle" style="width:16px;height:16px;cursor:pointer;">
+        ⏱️ Taymerdan foydalanish — xohlasangiz yoqing
       </label>
-      <div id="timerControls" hidden style="margin-top:1em; display:flex; align-items:center; gap:1em;">
-        <div id="timerDisplay" style="font-family:var(--font-mono); font-size:1.6rem; font-weight:700;">--:--</div>
-        <button type="button" class="btn btn-amber btn-sm" id="timerStartBtn">Boshlash</button>
-        <button type="button" class="btn btn-ghost btn-sm" id="timerResetBtn">Qayta boshlash</button>
+      <div id="timerControls" hidden style="margin-top:1.2em; display:flex; flex-wrap:wrap; align-items:center; gap:1em;">
+        <div style="display:flex; align-items:center; gap:.5em;">
+          <label for="timerMinutesInput" style="font-size:.9rem; color:var(--gray);">Vaqt (daqiqa):</label>
+          <input type="number" id="timerMinutesInput" min="0.17" step="0.5" value="${defaultMinutes}"
+            style="width:72px; padding:.35em .5em; border:1.5px solid var(--line); border-radius:var(--radius-s); font-size:.95rem; background:var(--paper);">
+        </div>
+        <div id="timerDisplay" style="font-family:var(--font-mono); font-size:1.8rem; font-weight:700; min-width:5ch;">--:--</div>
+        <button type="button" class="btn btn-amber btn-sm" id="timerStartBtn">▶ Boshlash</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="timerPauseBtn" hidden>⏸ Pauza</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="timerResetBtn">↺ Qayta</button>
       </div>
     </div>` : ''}
   `;
 
-  if(hasTimer){
-    speakingTimer.total = topic.timerSeconds;
-    speakingTimer.remaining = topic.timerSeconds;
-    const formatTime = (sec) => `${String(Math.floor(sec / 60)).padStart(2, '0')}:${String(sec % 60).padStart(2, '0')}`;
+  if(isSpeaking){
     const display = document.getElementById('timerDisplay');
-    display.textContent = formatTime(speakingTimer.remaining);
+    const toggle = document.getElementById('timerToggle');
+    const controls = document.getElementById('timerControls');
+    const minutesInput = document.getElementById('timerMinutesInput');
+    const startBtn = document.getElementById('timerStartBtn');
+    const pauseBtn = document.getElementById('timerPauseBtn');
+    const resetBtn = document.getElementById('timerResetBtn');
 
-    document.getElementById('timerToggle').addEventListener('change', (e) => {
-      document.getElementById('timerControls').hidden = !e.target.checked;
-      if(!e.target.checked){ stopSpeakingTimer(); speakingTimer.remaining = speakingTimer.total; display.textContent = formatTime(speakingTimer.remaining); }
+    function getSeconds(){
+      const mins = parseFloat(minutesInput.value);
+      return (isNaN(mins) || mins < 0.17) ? 10 : Math.round(mins * 60);
+    }
+
+    toggle.addEventListener('change', (e) => {
+      controls.hidden = !e.target.checked;
+      if(!e.target.checked){
+        stopSpeakingTimer();
+        startBtn.hidden = false;
+        pauseBtn.hidden = true;
+        pauseBtn.textContent = '⏸ Pauza';
+        display.textContent = '--:--';
+        display.style.color = '';
+        minutesInput.disabled = false;
+      }
     });
 
-    document.getElementById('timerStartBtn').addEventListener('click', () => {
-      if(speakingTimer.interval) return;
+    startBtn.addEventListener('click', () => {
+      speakingTimer.total = getSeconds();
+      speakingTimer.remaining = speakingTimer.total;
+      display.style.color = '';
+      display.textContent = formatTime(speakingTimer.remaining);
+      minutesInput.disabled = true;
+      startBtn.hidden = true;
+      pauseBtn.hidden = false;
       speakingTimer.interval = setInterval(() => {
         speakingTimer.remaining--;
-        display.textContent = formatTime(Math.max(speakingTimer.remaining, 0));
+        display.textContent = formatTime(speakingTimer.remaining);
         if(speakingTimer.remaining <= 0){
           stopSpeakingTimer();
-          display.textContent = 'Vaqt tugadi';
+          display.textContent = '✅ Vaqt tugadi!';
+          display.style.color = 'var(--danger, #c0392b)';
+          pauseBtn.hidden = true;
+          startBtn.hidden = false;
+          minutesInput.disabled = false;
         }
       }, 1000);
     });
 
-    document.getElementById('timerResetBtn').addEventListener('click', () => {
+    pauseBtn.addEventListener('click', () => {
+      if(speakingTimer.interval){
+        stopSpeakingTimer();
+        pauseBtn.textContent = '▶ Davom';
+      } else {
+        pauseBtn.textContent = '⏸ Pauza';
+        speakingTimer.interval = setInterval(() => {
+          speakingTimer.remaining--;
+          display.textContent = formatTime(speakingTimer.remaining);
+          if(speakingTimer.remaining <= 0){
+            stopSpeakingTimer();
+            display.textContent = '✅ Vaqt tugadi!';
+            display.style.color = 'var(--danger, #c0392b)';
+            pauseBtn.hidden = true;
+            startBtn.hidden = false;
+            minutesInput.disabled = false;
+          }
+        }, 1000);
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
       stopSpeakingTimer();
-      speakingTimer.remaining = speakingTimer.total;
+      display.style.color = '';
+      speakingTimer.remaining = speakingTimer.total || getSeconds();
       display.textContent = formatTime(speakingTimer.remaining);
+      startBtn.hidden = false;
+      pauseBtn.hidden = true;
+      pauseBtn.textContent = '⏸ Pauza';
+      minutesInput.disabled = false;
     });
   }
 
