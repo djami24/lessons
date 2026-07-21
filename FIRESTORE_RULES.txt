@@ -121,6 +121,15 @@ service cloud.firestore {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
+
+    // Placement test ("Darajani bilish testi") — single doc placementTest/main
+    // holding { questions:[{question,options,correctIndex}], levels:[{min,max,label}] }.
+    // Admin manages questions and the score→level scale; any signed-in
+    // student may read it to take the test. Same read/write shape as `levels`.
+    match /placementTest/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
  
     // Student accounts — document ID = the student's Firebase Auth UID.
     match /students/{studentId} {
@@ -137,7 +146,10 @@ service cloud.firestore {
       // Admin can change anything (approve/revoke payment for General
       // English, IELTS, or CEFR; edit; delete).
       // A student may only:
-      //   - update their own quiz progress, and
+      //   - update their own quiz progress,
+      //   - save their own placement-test result (placementResult — score,
+      //     total, level, takenAt; no validation needed, it's just a
+      //     self-reported summary the student and admin can both see), and
       //   - flip their OWN paymentStatus / coursePayments.ielts /
       //     coursePayments.cefr to 'pending' (e.g. after clicking "To'lov
       //     qildim") — they can NEVER set any of these to 'approved'
@@ -145,7 +157,7 @@ service cloud.firestore {
       allow update: if isAdmin() || (
         isSignedIn() && request.auth.uid == studentId &&
         request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['progress','paymentStatus','paymentRequestedAt','coursePayments','coursePaymentRequestedAt']) &&
+          .hasOnly(['progress','paymentStatus','paymentRequestedAt','coursePayments','coursePaymentRequestedAt','placementResult']) &&
         request.resource.data.paymentStatus in ['pending', resource.data.paymentStatus] &&
         validCoursePaymentsUpdate() &&
         validCoursePaymentsUpdateCefr() &&
@@ -183,38 +195,5 @@ service cloud.firestore {
       // submission only while it's still ungraded.
       allow delete: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid && resource.data.status == 'pending');
     }
-
-    // Placement Tests (Darajani bilish testi) — admin creates/edits tests
-    // with questions and scoring rubric; any signed-in student can read
-    // active tests and submit their results.
-    match /placementTests/{testId} {
-      // Any signed-in user may read active tests; admin reads all.
-      allow read: if isSignedIn() && (resource.data.isActive == true || isAdmin());
-      allow write: if isAdmin();
-    }
-
-    // Placement Results — student submits their test answers and gets
-    // a CEFR level assigned based on the admin-defined scoring rubric.
-    // Document shape: { studentId, studentName, studentEmail, testId,
-    //   testTitle, score, totalQuestions, percentage, assignedLevel,
-    //   assignedLabel, answers, submittedAt }
-    match /placementResults/{resultId} {
-      // Student reads their own results; admin reads all.
-      allow read: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid);
-
-      // Student may only create a result for THEMSELVES, with honest data
-      // that matches the test they actually took.
-      allow create: if isSignedIn() &&
-        request.resource.data.studentId == request.auth.uid &&
-        request.resource.data.keys().hasOnly(['studentId','studentName','studentEmail','testId','testTitle','score','totalQuestions','percentage','assignedLevel','assignedLabel','answers','submittedAt']) &&
-        request.resource.data.score >= 0 &&
-        request.resource.data.score <= request.resource.data.totalQuestions &&
-        request.resource.data.percentage >= 0 &&
-        request.resource.data.percentage <= 100;
-
-      // Only admin can update/delete results (e.g. to fix a grading error).
-      allow update, delete: if isAdmin();
-    }
-
   }
 }
