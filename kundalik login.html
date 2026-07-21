@@ -189,22 +189,13 @@
   <p class="switch">Hisobingiz yo'qmi? <a href="student/register.html">Ro'yxatdan o'ting</a></p>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script>
-/* === Firebase config — Natijalar.html dagi bilan bir xil === */
-const firebaseConfig = {
-  apiKey: "AIzaSyCOaqLaZ3GFhednIjIjO-TylWbULmyW8DA",
-  authDomain: "test-results-e7431.firebaseapp.com",
-  projectId: "test-results-e7431",
-  storageBucket: "test-results-e7431.firebasestorage.app",
-  messagingSenderId: "507789683076",
-  appId: "1:507789683076:web:69796322dacac312ff55d1"
-};
-if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+// auth and db come from firebase-config.js (same Firebase project as
+// register.html / dashboard.html, so accounts match up).
 
 // Already logged in? Go to kundalik.html
 auth.onAuthStateChanged(user => {
@@ -216,7 +207,7 @@ document.getElementById('pwToggle').addEventListener('click', () => {
   const btn = document.getElementById('pwToggle');
   const show = inp.type === 'password';
   inp.type = show ? 'text' : 'password';
-  btn.textContent = show ? 'Yashir' : 'Ko'rsat';
+  btn.textContent = show ? 'Yashir' : "Ko'rsat";
 });
 
 document.getElementById('loginBtn').addEventListener('click', async () => {
