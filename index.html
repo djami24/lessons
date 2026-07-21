@@ -15,43 +15,71 @@
 </head>
 <body class="home-body">
 
-<div class="home-topbar">
+<header class="home-topbar">
   <a href="index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+
+  <nav class="home-nav-links" id="homeNavLinks">
+    <a href="index.html" class="is-current">Bosh sahifa</a>
+    <a href="#courses">Kurslar</a>
+    <a href="blogs.html" data-site-blog-link-text>Djami's Blog</a>
+    <a href="natijalar.html">Natijalar</a>
+  </nav>
+
   <div class="home-topbar-links">
-    <a href="blogs.html" class="home-admin-link" data-site-blog-link-text>Djami's Blog</a>
     <a href="admin/login.html" class="home-admin-link" data-site-home-admin-btn>Admin kirish</a>
+    <a href="student/login.html" class="btn btn-primary home-nav-cta">Boshlash</a>
+    <button type="button" class="home-nav-toggle" id="homeNavToggle" aria-label="Menyu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </div>
-</div>
+</header>
 
 <main class="home-main">
-  <h1 class="home-hero-title" data-site-hero-title>Ingliz tilini o‘rganishning <span class="accent">zamonaviy platformasi</span></h1>
-  <p class="home-hero-lead" data-site-hero-lead>General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
 
-  <div class="home-cards-grid">
-    <a href="student/login.html" class="home-card home-card-ge">
-      <span class="home-card-icon">📖</span>
-      <span class="home-card-title" data-site-home-label-1>GENERAL ENGLISH</span>
-      <span class="home-card-sub" data-site-home-sub-1>Boshlang‘ichdan ilg‘or darajagacha</span>
-      <span class="home-card-arrow">→</span>
-    </a>
-    <a href="student/login.html" class="home-card home-card-ielts">
-      <span class="home-card-icon">🎧</span>
-      <span class="home-card-title" data-site-home-label-2>IELTS</span>
-      <span class="home-card-sub" data-site-home-sub-2>Listening, Reading, Writing, Speaking</span>
-      <span class="home-card-arrow">→</span>
-    </a>
-    <a href="student/login.html" class="home-card home-card-cefr">
-      <span class="home-card-icon">📊</span>
-      <span class="home-card-title" data-site-home-label-3>CEFR</span>
-      <span class="home-card-sub" data-site-home-sub-3>A1 dan C2 gacha barcha darajalar</span>
-      <span class="home-card-arrow">→</span>
-    </a>
-  </div>
+  <section class="hero-section">
+    <div class="hero-copy">
+      <span class="eyebrow">Djami Lessons'ga xush kelibsiz</span>
+      <h1 class="home-hero-title" data-site-hero-title>Ingliz tilini o‘rganishning <span class="accent">zamonaviy platformasi</span></h1>
+      <p class="home-hero-lead" data-site-hero-lead>General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
 
-  <div class="home-cta-row">
-    <a href="student/login.html" class="btn btn-outline-teal home-student-btn"><span data-site-home-student-btn>Talaba profili</span></a>
-    <a href="natijalar.html" class="btn btn-teal home-student-btn"><span>Talaba test natijalari</span></a>
-  </div>
+      <div class="home-cta-row">
+        <a href="student/login.html" class="btn btn-outline-teal home-student-btn"><span data-site-home-student-btn>Talaba profili</span></a>
+        <a href="natijalar.html" class="btn btn-teal home-student-btn"><span>Talaba test natijalari</span></a>
+      </div>
+
+      <div class="hero-mini-row">
+        <span class="hero-avatars" aria-hidden="true"><span>🎓</span><span>📘</span><span>✨</span></span>
+        <span class="hero-mini-text"><strong>5,000+</strong><small>faol talabalar</small></span>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-visual-panel">
+        <span class="hero-visual-mark">📖</span>
+      </div>
+      <div class="hero-float-card hero-float-top">
+        <span class="hero-avatars hero-avatars-sm"><span>🧑‍🎓</span><span>👩‍🎓</span><span>🧑‍🏫</span></span>
+        <div>
+          <strong>5,000+</strong>
+          <small>Baxtli talabalar</small>
+        </div>
+      </div>
+      <div class="hero-float-card hero-float-stack">
+        <div class="hero-float-item">
+          <span class="hero-float-icon blue">🎓</span>
+          <div><span class="hero-float-title">Malakali o‘qituvchilar</span><span class="hero-float-sub">6+ yillik tajriba</span></div>
+        </div>
+        <div class="hero-float-item">
+          <span class="hero-float-icon amber">📘</span>
+          <div><span class="hero-float-title">Zamonaviy materiallar</span><span class="hero-float-sub">Doimiy yangilanadi</span></div>
+        </div>
+        <div class="hero-float-item">
+          <span class="hero-float-icon teal">📈</span>
+          <div><span class="hero-float-title">Isbotlangan natija</span><span class="hero-float-sub">Samarali metodika</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <div class="home-features-box">
     <div class="home-feature">
@@ -83,6 +111,54 @@
       </div>
     </div>
   </div>
+
+  <section class="courses-section" id="courses">
+    <div class="courses-heading-wrap">
+      <span class="eyebrow courses-eyebrow">Yo‘nalishlar</span>
+      <h2 class="courses-heading">Ommabop kurslarimiz</h2>
+    </div>
+    <div class="home-cards-grid">
+      <a href="student/login.html" class="home-card home-card-ge">
+        <span class="home-card-icon">📖</span>
+        <span class="home-card-title" data-site-home-label-1>GENERAL ENGLISH</span>
+        <span class="home-card-sub" data-site-home-sub-1>Boshlang‘ichdan ilg‘or darajagacha</span>
+        <span class="home-card-arrow">→</span>
+      </a>
+      <a href="student/login.html" class="home-card home-card-ielts">
+        <span class="home-card-icon">🎧</span>
+        <span class="home-card-title" data-site-home-label-2>IELTS</span>
+        <span class="home-card-sub" data-site-home-sub-2>Listening, Reading, Writing, Speaking</span>
+        <span class="home-card-arrow">→</span>
+      </a>
+      <a href="student/login.html" class="home-card home-card-cefr">
+        <span class="home-card-icon">📊</span>
+        <span class="home-card-title" data-site-home-label-3>CEFR</span>
+        <span class="home-card-sub" data-site-home-sub-3>A1 dan C2 gacha barcha darajalar</span>
+        <span class="home-card-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="stats-bar">
+    <div class="stats-bar-inner">
+      <div class="stat-item">
+        <span class="stat-icon">👥</span>
+        <div><strong>5,000+</strong><span>Baxtli talabalar</span></div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-icon">🎓</span>
+        <div><strong>50+</strong><span>Mutaxassis o‘qituvchilar</span></div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-icon">📚</span>
+        <div><strong>200+</strong><span>Interaktiv darslar</span></div>
+      </div>
+      <div class="stat-item">
+        <span class="stat-icon">🏆</span>
+        <div><strong>6+</strong><span>Yillik tajriba</span></div>
+      </div>
+    </div>
+  </section>
 
   <div class="home-blog-section" id="homeBlogSection" hidden>
     <h2 class="home-blog-heading" data-site-blog-heading>Djami's Blog</h2>
@@ -316,6 +392,25 @@
   }
 
   loadBlogPreview();
+})();
+
+/* Mobile nav toggle */
+(function () {
+  var toggleBtn = document.getElementById('homeNavToggle');
+  var navLinks = document.getElementById('homeNavLinks');
+  if (!toggleBtn || !navLinks) return;
+  toggleBtn.addEventListener('click', function () {
+    var isOpen = navLinks.classList.toggle('is-open');
+    toggleBtn.classList.toggle('is-open', isOpen);
+    toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  navLinks.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      navLinks.classList.remove('is-open');
+      toggleBtn.classList.remove('is-open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+    });
+  });
 })();
 </script>
 </body>
