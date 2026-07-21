@@ -350,7 +350,7 @@ function formatDate(ts){
 auth.onAuthStateChanged(user => {
   document.getElementById('authLoading').style.display = 'none';
   if(!user){
-    window.location.href = 'kundalik-login.html';
+    window.location.href = 'kundalik_login.html';
     return;
   }
   document.getElementById('appShell').style.display = '';
@@ -360,7 +360,7 @@ auth.onAuthStateChanged(user => {
 
 document.getElementById('logoutBtn').addEventListener('click', async () => {
   await auth.signOut();
-  window.location.href = 'kundalik-login.html';
+  window.location.href = 'kundalik_login.html';
 });
 
 document.getElementById('backToGroups').addEventListener('click', () => {

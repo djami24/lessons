@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kundalik — Kirish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=IBM+Plex+Mono:wght@500;600&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg: #121826;
+    --bg-2: #0d121c;
+    --panel: #1c2536;
+    --panel-2: #212d40;
+    --line: #2e3b52;
+    --ink: #eef1f0;
+    --ink-dim: #93a0b5;
+    --brass: #c9a227;
+    --brass-dim: #8a7325;
+    --pass: #5fae95;
+    --shadow: 0 24px 50px -25px rgba(0,0,0,0.65);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;min-height:100vh;}
+  body{
+    background: radial-gradient(ellipse at top, #182236 0%, var(--bg) 55%, var(--bg-2) 100%);
+    color: var(--ink);
+    font-family: 'PT Serif', Georgia, serif;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100vh;
+    padding: 24px 16px;
+  }
+
+  .back-link{
+    position:fixed; top:18px; left:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12.5px; font-weight:600;
+    background: var(--panel);
+    border:1px solid var(--line);
+    color: var(--ink-dim);
+    padding:9px 16px;
+    border-radius:999px;
+    text-decoration:none;
+    transition: all 0.2s;
+  }
+  .back-link:hover{ color:var(--ink); border-color:var(--brass-dim); }
+
+  .brand{
+    text-align:center;
+    margin-bottom:32px;
+  }
+  .brand h1{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:clamp(22px,5vw,32px);
+    margin:0 0 6px;
+    color: var(--brass);
+    letter-spacing:-0.01em;
+  }
+  .brand p{
+    color:var(--ink-dim);
+    font-size:14px;
+    margin:0;
+  }
+
+  .card{
+    background: var(--panel);
+    border:1px solid var(--line);
+    border-radius:16px;
+    box-shadow: var(--shadow);
+    padding:36px 32px;
+    width:100%;
+    max-width:400px;
+  }
+
+  .card h2{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:18px;
+    margin:0 0 6px;
+  }
+  .card .sub{
+    color:var(--ink-dim);
+    font-size:13px;
+    margin:0 0 26px;
+  }
+
+  .field{
+    display:flex; flex-direction:column; gap:6px;
+    margin-bottom:16px;
+  }
+  .field span{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-dim);
+    letter-spacing:0.04em;
+  }
+  input{
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:8px;
+    color:var(--ink);
+    font-family:'PT Serif', Georgia, serif;
+    font-size:15px;
+    padding:12px 14px;
+    outline:none;
+    width:100%;
+    transition:border-color 0.2s;
+  }
+  input:focus{ border-color:var(--brass-dim); }
+  input::placeholder{ color:#5c6a80; }
+
+  .pw-row{ position:relative; }
+  .pw-row input{ padding-right:90px; }
+  .pw-toggle{
+    position:absolute; right:10px; top:50%; transform:translateY(-50%);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px; font-weight:600;
+    background:transparent; border:none; color:var(--brass);
+    cursor:pointer; padding:4px 6px;
+  }
+
+  .error{
+    background: rgba(193,90,68,0.15);
+    border:1px solid rgba(193,90,68,0.4);
+    color:#e58a78;
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:13px;
+    margin-bottom:16px;
+    display:none;
+  }
+
+  .btn{
+    width:100%;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    font-size:14px;
+    background:var(--brass);
+    color:#241c05;
+    border:none;
+    border-radius:8px;
+    padding:14px;
+    cursor:pointer;
+    transition:filter 0.15s;
+    margin-top:4px;
+  }
+  .btn:hover{ filter:brightness(1.08); }
+  .btn:disabled{ opacity:0.5; cursor:not-allowed; }
+
+  .switch{
+    text-align:center;
+    margin-top:20px;
+    font-size:13px;
+    color:var(--ink-dim);
+  }
+  .switch a{ color:var(--brass); text-decoration:none; }
+  .switch a:hover{ text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<a href="Natijalar.html" class="back-link">← Natijalar</a>
+
+<div class="brand">
+  <h1>📅 Kundalik</h1>
+  <p>Uy vazifalarini ko'rish uchun kiring</p>
+</div>
+
+<div class="card">
+  <h2>Talaba kirishi</h2>
+  <p class="sub">Email va parolingizni kiriting.</p>
+
+  <div class="error" id="loginError"></div>
+
+  <div class="field">
+    <span>EMAIL</span>
+    <input type="email" id="loginEmail" placeholder="email@example.com" autocomplete="username">
+  </div>
+  <div class="field">
+    <span>PAROL</span>
+    <div class="pw-row">
+      <input type="password" id="loginPassword" placeholder="Parolingiz" autocomplete="current-password">
+      <button type="button" class="pw-toggle" id="pwToggle">Ko'rsat</button>
+    </div>
+  </div>
+
+  <button class="btn" id="loginBtn">Kirish</button>
+
+  <p class="switch">Hisobingiz yo'qmi? <a href="student/register.html">Ro'yxatdan o'ting</a></p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+/* === Firebase config — Natijalar.html dagi bilan bir xil === */
+const firebaseConfig = {
+  apiKey: "AIzaSyCOaqLaZ3GFhednIjIjO-TylWbULmyW8DA",
+  authDomain: "test-results-e7431.firebaseapp.com",
+  projectId: "test-results-e7431",
+  storageBucket: "test-results-e7431.firebasestorage.app",
+  messagingSenderId: "507789683076",
+  appId: "1:507789683076:web:69796322dacac312ff55d1"
+};
+if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Already logged in? Go to kundalik.html
+auth.onAuthStateChanged(user => {
+  if(user) window.location.href = 'kundalik.html';
+});
+
+document.getElementById('pwToggle').addEventListener('click', () => {
+  const inp = document.getElementById('loginPassword');
+  const btn = document.getElementById('pwToggle');
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  btn.textContent = show ? 'Yashir' : "Ko'rsat";
+});
+
+document.getElementById('loginBtn').addEventListener('click', async () => {
+  const errorEl = document.getElementById('loginError');
+  const btn = document.getElementById('loginBtn');
+  errorEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Tekshirilmoqda…';
+
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if(!email || !password){
+    errorEl.textContent = 'Email va parolni kiriting.';
+    errorEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Kirish';
+    return;
+  }
+
+  try{
+    await auth.signInWithEmailAndPassword(email, password);
+    window.location.href = 'kundalik.html';
+  } catch(err){
+    errorEl.textContent = 'Email yoki parol noto\'g\'ri.';
+    errorEl.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Kirish';
+  }
+});
+</script>
+</body>
+</html>
