@@ -401,9 +401,9 @@ table.data-table td .tag{ margin-right:.3em; }
 
 @media (max-width: 900px){
   .admin-shell{ flex-direction:column; }
-  .admin-sidebar{ width:100%; height:auto; position:relative; flex-direction:row; align-items:center; padding:1em 1.2em; }
-  .admin-sidebar .brand{ margin:0; }
-  .admin-nav{ flex-direction:row; }
+  .admin-sidebar{ width:100%; height:auto; position:relative; flex-direction:row; align-items:center; padding:1em 1.2em; flex-wrap:wrap; row-gap:.6em; }
+  .admin-sidebar .brand{ margin:0; width:100%; }
+  .admin-nav{ flex-direction:row; flex-wrap:wrap; flex:none; width:100%; gap:.5em; }
   .admin-user{ display:none; }
   .admin-main{ padding: 1.6em 1.2em 4em; }
   .stat-row{ grid-template-columns: repeat(2,1fr); }
