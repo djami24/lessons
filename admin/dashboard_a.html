@@ -306,8 +306,33 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>🏠 Bosh sahifa yozuvlari</h3>
+        <h3>🧭 Yuqori panel (barcha sahifalarda)</h3>
 
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
+          <label class="field"><span>"Bosh sahifa" havolasi</span><input type="text" id="settingNavHomeLabel" placeholder="Bosh sahifa"></label>
+          <label class="field"><span>"Kurslar" havolasi</span><input type="text" id="settingNavCoursesLabel" placeholder="Kurslar"></label>
+          <label class="field"><span>"Natijalar" havolasi</span><input type="text" id="settingNavResultsLabel" placeholder="Natijalar"></label>
+        </div>
+        <label class="field">
+          <span>"Djami's Blog" tugmasi matni (tepadagi panel)</span>
+          <input type="text" id="settingBlogLinkText" placeholder="Djami's Blog">
+        </label>
+        <label class="field">
+          <span>"Admin profili" tugmasi matni</span>
+          <input type="text" id="settingHomeAdminBtnText" placeholder="Admin kirish">
+        </label>
+        <label class="field">
+          <span>"Boshlash" tugmasi matni (o‘ng tomondagi asosiy tugma)</span>
+          <input type="text" id="settingNavCtaText" placeholder="Boshlash">
+        </label>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>🏠 Bosh sahifa — Hero qismi</h3>
+
+        <label class="field">
+          <span>Eyebrow matni (sarlavha ustidagi kichik yozuv)</span>
+          <input type="text" id="settingHeroEyebrow" placeholder="Djami Lessons'ga xush kelibsiz">
+        </label>
         <label class="field">
           <span>Sarlavha matni <span style="font-weight:400; color:var(--gray);">(to‘liq matn — o‘zgartirsangiz standart rangli urg‘u ko‘rinishi yo‘qoladi)</span></span>
           <input type="text" id="settingHeroTitle" placeholder="Ingliz tilini o‘rganishning zamonaviy platformasi">
@@ -315,6 +340,30 @@
         <label class="field">
           <span>Sarlavha ostidagi tavsif</span>
           <textarea id="settingHeroLead" rows="2" placeholder="General English, IELTS va CEFR kurslari bo‘yicha…"></textarea>
+        </label>
+        <label class="field">
+          <span>"Talaba profili" tugmasi matni</span>
+          <input type="text" id="settingHomeStudentBtnText" placeholder="Talaba profili">
+        </label>
+        <label class="field">
+          <span>"Talaba test natijalari" tugmasi matni</span>
+          <input type="text" id="settingHeroResultsBtnText" placeholder="Talaba test natijalari">
+        </label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field"><span>Kichik statistika raqami</span><input type="text" id="settingHeroMiniNumber" placeholder="5,000+"></label>
+          <label class="field"><span>Kichik statistika yozuvi</span><input type="text" id="settingHeroMiniLabel" placeholder="faol talabalar"></label>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>📖 Kurslar bo‘limi</h3>
+
+        <label class="field">
+          <span>Bo‘lim eyebrow matni</span>
+          <input type="text" id="settingCoursesEyebrow" placeholder="Yo‘nalishlar">
+        </label>
+        <label class="field">
+          <span>Bo‘lim sarlavhasi</span>
+          <input type="text" id="settingCoursesHeading" placeholder="Ommabop kurslarimiz">
         </label>
 
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
@@ -328,18 +377,23 @@
           <label class="field"><span>3-karta tavsifi</span><input type="text" id="settingHomeSub3" placeholder="A1 dan C2 gacha barcha darajalar"></label>
         </div>
 
-        <label class="field">
-          <span>"Talaba profili" tugmasi matni</span>
-          <input type="text" id="settingHomeStudentBtnText" placeholder="Talaba profili">
-        </label>
-        <label class="field">
-          <span>"Admin profili" tugmasi matni</span>
-          <input type="text" id="settingHomeAdminBtnText" placeholder="Admin kirish">
-        </label>
-        <label class="field">
-          <span>"Djami's Blog" tugmasi matni (tepadagi panel)</span>
-          <input type="text" id="settingBlogLinkText" placeholder="Djami's Blog">
-        </label>
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>📊 Statistika paneli</h3>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field"><span>1-band raqami</span><input type="text" id="settingStat1Number" placeholder="5,000+"></label>
+          <label class="field"><span>1-band yozuvi</span><input type="text" id="settingStat1Label" placeholder="Baxtli talabalar"></label>
+          <label class="field"><span>2-band raqami</span><input type="text" id="settingStat2Number" placeholder="50+"></label>
+          <label class="field"><span>2-band yozuvi</span><input type="text" id="settingStat2Label" placeholder="Mutaxassis o‘qituvchilar"></label>
+          <label class="field"><span>3-band raqami</span><input type="text" id="settingStat3Number" placeholder="200+"></label>
+          <label class="field"><span>3-band yozuvi</span><input type="text" id="settingStat3Label" placeholder="Interaktiv darslar"></label>
+          <label class="field"><span>4-band raqami</span><input type="text" id="settingStat4Number" placeholder="6+"></label>
+          <label class="field"><span>4-band yozuvi</span><input type="text" id="settingStat4Label" placeholder="Yillik tajriba"></label>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>⚓ Footer</h3>
+
         <label class="field">
           <span>Footer matni</span>
           <input type="text" id="settingFooterCopyright" placeholder="© 2026 Djami Lessons. Barcha huquqlar himoyalangan.">
@@ -2709,9 +2763,20 @@ const DEFAULT_SITE_SETTINGS = {
   brandName: 'Djami Lessons',
   logoUrl: '',
 
+  navHomeLabel: 'Bosh sahifa',
+  navCoursesLabel: 'Kurslar',
+  navResultsLabel: 'Natijalar',
+  navCtaText: 'Boshlash',
+
+  heroEyebrow: "Djami Lessons'ga xush kelibsiz",
   heroTitle: 'Ingliz tilini o‘rganishning zamonaviy platformasi',
   heroLead: 'General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.',
+  heroResultsBtnText: 'Talaba test natijalari',
+  heroMiniNumber: '5,000+',
+  heroMiniLabel: 'faol talabalar',
 
+  coursesEyebrow: 'Yo‘nalishlar',
+  coursesHeading: 'Ommabop kurslarimiz',
   homeLabel1: 'GENERAL ENGLISH',
   homeSub1: 'Boshlang‘ichdan ilg‘or darajagacha',
   homeLabel2: 'IELTS',
@@ -2721,6 +2786,16 @@ const DEFAULT_SITE_SETTINGS = {
   homeStudentBtnText: 'Talaba profili',
   homeAdminBtnText: 'Admin kirish',
   blogLinkText: "Djami's Blog",
+
+  stat1Number: '5,000+',
+  stat1Label: 'Baxtli talabalar',
+  stat2Number: '50+',
+  stat2Label: 'Mutaxassis o‘qituvchilar',
+  stat3Number: '200+',
+  stat3Label: 'Interaktiv darslar',
+  stat4Number: '6+',
+  stat4Label: 'Yillik tajriba',
+
   footerCopyright: '© 2026 Djami Lessons. Barcha huquqlar himoyalangan.',
 
   feature1Title: 'Sifatli kontent',
@@ -2750,18 +2825,39 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingBrandName').value = data.brandName || '';
   document.getElementById('settingLogoUrl').value = data.logoUrl || '';
 
+  document.getElementById('settingNavHomeLabel').value = data.navHomeLabel || '';
+  document.getElementById('settingNavCoursesLabel').value = data.navCoursesLabel || '';
+  document.getElementById('settingNavResultsLabel').value = data.navResultsLabel || '';
+  document.getElementById('settingNavCtaText').value = data.navCtaText || '';
+  document.getElementById('settingBlogLinkText').value = data.blogLinkText || '';
+  document.getElementById('settingHomeAdminBtnText').value = data.homeAdminBtnText || '';
+
+  document.getElementById('settingHeroEyebrow').value = data.heroEyebrow || '';
   document.getElementById('settingHeroTitle').value = data.heroTitle || '';
   document.getElementById('settingHeroLead').value = data.heroLead || '';
+  document.getElementById('settingHomeStudentBtnText').value = data.homeStudentBtnText || '';
+  document.getElementById('settingHeroResultsBtnText').value = data.heroResultsBtnText || '';
+  document.getElementById('settingHeroMiniNumber').value = data.heroMiniNumber || '';
+  document.getElementById('settingHeroMiniLabel').value = data.heroMiniLabel || '';
 
+  document.getElementById('settingCoursesEyebrow').value = data.coursesEyebrow || '';
+  document.getElementById('settingCoursesHeading').value = data.coursesHeading || '';
   document.getElementById('settingHomeLabel1').value = data.homeLabel1 || '';
   document.getElementById('settingHomeSub1').value = data.homeSub1 || '';
   document.getElementById('settingHomeLabel2').value = data.homeLabel2 || '';
   document.getElementById('settingHomeSub2').value = data.homeSub2 || '';
   document.getElementById('settingHomeLabel3').value = data.homeLabel3 || '';
   document.getElementById('settingHomeSub3').value = data.homeSub3 || '';
-  document.getElementById('settingHomeStudentBtnText').value = data.homeStudentBtnText || '';
-  document.getElementById('settingHomeAdminBtnText').value = data.homeAdminBtnText || '';
-  document.getElementById('settingBlogLinkText').value = data.blogLinkText || '';
+
+  document.getElementById('settingStat1Number').value = data.stat1Number || '';
+  document.getElementById('settingStat1Label').value = data.stat1Label || '';
+  document.getElementById('settingStat2Number').value = data.stat2Number || '';
+  document.getElementById('settingStat2Label').value = data.stat2Label || '';
+  document.getElementById('settingStat3Number').value = data.stat3Number || '';
+  document.getElementById('settingStat3Label').value = data.stat3Label || '';
+  document.getElementById('settingStat4Number').value = data.stat4Number || '';
+  document.getElementById('settingStat4Label').value = data.stat4Label || '';
+
   document.getElementById('settingFooterCopyright').value = data.footerCopyright || '';
 
   document.getElementById('settingFeature1Title').value = data.feature1Title || '';
@@ -2826,18 +2922,39 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     brandName: document.getElementById('settingBrandName').value.trim() || 'Djami Lessons',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
 
+    navHomeLabel: document.getElementById('settingNavHomeLabel').value.trim(),
+    navCoursesLabel: document.getElementById('settingNavCoursesLabel').value.trim(),
+    navResultsLabel: document.getElementById('settingNavResultsLabel').value.trim(),
+    navCtaText: document.getElementById('settingNavCtaText').value.trim(),
+    blogLinkText: document.getElementById('settingBlogLinkText').value.trim(),
+    homeAdminBtnText: document.getElementById('settingHomeAdminBtnText').value.trim(),
+
+    heroEyebrow: document.getElementById('settingHeroEyebrow').value.trim(),
     heroTitle: document.getElementById('settingHeroTitle').value.trim(),
     heroLead: document.getElementById('settingHeroLead').value.trim(),
+    homeStudentBtnText: document.getElementById('settingHomeStudentBtnText').value.trim(),
+    heroResultsBtnText: document.getElementById('settingHeroResultsBtnText').value.trim(),
+    heroMiniNumber: document.getElementById('settingHeroMiniNumber').value.trim(),
+    heroMiniLabel: document.getElementById('settingHeroMiniLabel').value.trim(),
 
+    coursesEyebrow: document.getElementById('settingCoursesEyebrow').value.trim(),
+    coursesHeading: document.getElementById('settingCoursesHeading').value.trim(),
     homeLabel1: document.getElementById('settingHomeLabel1').value.trim(),
     homeSub1: document.getElementById('settingHomeSub1').value.trim(),
     homeLabel2: document.getElementById('settingHomeLabel2').value.trim(),
     homeSub2: document.getElementById('settingHomeSub2').value.trim(),
     homeLabel3: document.getElementById('settingHomeLabel3').value.trim(),
     homeSub3: document.getElementById('settingHomeSub3').value.trim(),
-    homeStudentBtnText: document.getElementById('settingHomeStudentBtnText').value.trim(),
-    homeAdminBtnText: document.getElementById('settingHomeAdminBtnText').value.trim(),
-    blogLinkText: document.getElementById('settingBlogLinkText').value.trim(),
+
+    stat1Number: document.getElementById('settingStat1Number').value.trim(),
+    stat1Label: document.getElementById('settingStat1Label').value.trim(),
+    stat2Number: document.getElementById('settingStat2Number').value.trim(),
+    stat2Label: document.getElementById('settingStat2Label').value.trim(),
+    stat3Number: document.getElementById('settingStat3Number').value.trim(),
+    stat3Label: document.getElementById('settingStat3Label').value.trim(),
+    stat4Number: document.getElementById('settingStat4Number').value.trim(),
+    stat4Label: document.getElementById('settingStat4Label').value.trim(),
+
     footerCopyright: document.getElementById('settingFooterCopyright').value.trim(),
 
     feature1Title: document.getElementById('settingFeature1Title').value.trim(),
