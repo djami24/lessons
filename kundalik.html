@@ -321,21 +321,13 @@
   </div>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 <script>
-const firebaseConfig = {
-  apiKey: "AIzaSyCOaqLaZ3GFhednIjIjO-TylWbULmyW8DA",
-  authDomain: "test-results-e7431.firebaseapp.com",
-  projectId: "test-results-e7431",
-  storageBucket: "test-results-e7431.firebasestorage.app",
-  messagingSenderId: "507789683076",
-  appId: "1:507789683076:web:69796322dacac312ff55d1"
-};
-if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+// auth and db come from firebase-config.js (same Firebase project as
+// register.html / dashboard.html, so accounts match up).
 
 function escHtml(s){
   return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
