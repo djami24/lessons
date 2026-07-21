@@ -526,10 +526,6 @@ table.data-table td .tag{ margin-right:.3em; }
   background: radial-gradient(circle, rgba(255,255,255,.14), transparent 70%);
   border-radius:50%;
 }
-.hero-visual-panel::after{
-  content:""; position:absolute; left:8%; right:8%; bottom:8%; top:60%;
-  border: 1.5px solid rgba(255,255,255,.18); border-radius: var(--radius-m);
-}
 .hero-visual-mark{
   font-size: 5.5rem; filter: drop-shadow(0 14px 26px rgba(0,0,0,.3)); position:relative; z-index:1;
 }
