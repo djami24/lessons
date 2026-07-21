@@ -378,20 +378,6 @@
         </div>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>📊 Statistika paneli</h3>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
-          <label class="field"><span>1-band raqami</span><input type="text" id="settingStat1Number" placeholder="5,000+"></label>
-          <label class="field"><span>1-band yozuvi</span><input type="text" id="settingStat1Label" placeholder="Baxtli talabalar"></label>
-          <label class="field"><span>2-band raqami</span><input type="text" id="settingStat2Number" placeholder="50+"></label>
-          <label class="field"><span>2-band yozuvi</span><input type="text" id="settingStat2Label" placeholder="Mutaxassis o‘qituvchilar"></label>
-          <label class="field"><span>3-band raqami</span><input type="text" id="settingStat3Number" placeholder="200+"></label>
-          <label class="field"><span>3-band yozuvi</span><input type="text" id="settingStat3Label" placeholder="Interaktiv darslar"></label>
-          <label class="field"><span>4-band raqami</span><input type="text" id="settingStat4Number" placeholder="6+"></label>
-          <label class="field"><span>4-band yozuvi</span><input type="text" id="settingStat4Label" placeholder="Yillik tajriba"></label>
-        </div>
-
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>⚓ Footer</h3>
 
         <label class="field">
@@ -2787,15 +2773,6 @@ const DEFAULT_SITE_SETTINGS = {
   homeAdminBtnText: 'Admin kirish',
   blogLinkText: "Djami's Blog",
 
-  stat1Number: '5,000+',
-  stat1Label: 'Baxtli talabalar',
-  stat2Number: '50+',
-  stat2Label: 'Mutaxassis o‘qituvchilar',
-  stat3Number: '200+',
-  stat3Label: 'Interaktiv darslar',
-  stat4Number: '6+',
-  stat4Label: 'Yillik tajriba',
-
   footerCopyright: '© 2026 Djami Lessons. Barcha huquqlar himoyalangan.',
 
   feature1Title: 'Sifatli kontent',
@@ -2848,15 +2825,6 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingHomeSub2').value = data.homeSub2 || '';
   document.getElementById('settingHomeLabel3').value = data.homeLabel3 || '';
   document.getElementById('settingHomeSub3').value = data.homeSub3 || '';
-
-  document.getElementById('settingStat1Number').value = data.stat1Number || '';
-  document.getElementById('settingStat1Label').value = data.stat1Label || '';
-  document.getElementById('settingStat2Number').value = data.stat2Number || '';
-  document.getElementById('settingStat2Label').value = data.stat2Label || '';
-  document.getElementById('settingStat3Number').value = data.stat3Number || '';
-  document.getElementById('settingStat3Label').value = data.stat3Label || '';
-  document.getElementById('settingStat4Number').value = data.stat4Number || '';
-  document.getElementById('settingStat4Label').value = data.stat4Label || '';
 
   document.getElementById('settingFooterCopyright').value = data.footerCopyright || '';
 
@@ -2945,15 +2913,6 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     homeSub2: document.getElementById('settingHomeSub2').value.trim(),
     homeLabel3: document.getElementById('settingHomeLabel3').value.trim(),
     homeSub3: document.getElementById('settingHomeSub3').value.trim(),
-
-    stat1Number: document.getElementById('settingStat1Number').value.trim(),
-    stat1Label: document.getElementById('settingStat1Label').value.trim(),
-    stat2Number: document.getElementById('settingStat2Number').value.trim(),
-    stat2Label: document.getElementById('settingStat2Label').value.trim(),
-    stat3Number: document.getElementById('settingStat3Number').value.trim(),
-    stat3Label: document.getElementById('settingStat3Label').value.trim(),
-    stat4Number: document.getElementById('settingStat4Number').value.trim(),
-    stat4Label: document.getElementById('settingStat4Label').value.trim(),
 
     footerCopyright: document.getElementById('settingFooterCopyright').value.trim(),
 
