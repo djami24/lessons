@@ -272,6 +272,32 @@
       </div>
     </section>
 
+    <!-- ===== PLACEMENT TEST (Darajani bilish testi) ===== -->
+    <section id="view-placement-test" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>Darajani bilish testi</h1>
+          <p>Savollarga javob bering — nechta to‘g‘ri javob berganingizga qarab darajangiz ko‘rsatiladi.</p>
+        </div>
+      </div>
+
+      <div id="placementIntroBox">
+        <div class="placement-intro-box">
+          <p id="placementIntroText">Bu testda bir nechta savol beriladi. Yakunida natijangizga qarab darajangiz ko‘rsatiladi.</p>
+          <div id="placementPrevResultBox"></div>
+          <button type="button" class="btn btn-amber" id="startPlacementTestBtn" style="margin-top:1.2em;">Testni boshlash</button>
+        </div>
+      </div>
+
+      <div class="quiz-box" id="placementQuizBox" hidden>
+        <p class="quiz-progress" id="placementQuizProgress"></p>
+        <div id="placementQuizQuestions"></div>
+        <button type="button" class="btn btn-amber" id="submitPlacementTestBtn">Yakunlash</button>
+      </div>
+
+      <div class="quiz-result-box" id="placementResultBox" hidden></div>
+    </section>
+
   </main>
 </div>
 
@@ -328,7 +354,8 @@ let state = {
   activeWritingTrackId: null,
   writingPath: [],          // array of folder ids — where we are inside the current track's folder tree
   activeWritingQuestionId: null,
-  mySubmissions: []          // this student's own writingSubmissions docs
+  mySubmissions: [],         // this student's own writingSubmissions docs
+  placementTestConfig: null  // { questions:[{question,options,correctIndex}], levels:[{min,max,label}] } — loaded lazily
 };
 
 function escapeHtml(str){
@@ -505,7 +532,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays'];
+const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -555,6 +582,7 @@ function renderCoursesOverview(){
   switchView('courses');
   document.getElementById('navCourses').classList.add('active');
   document.getElementById('navMyEssays').classList.remove('active');
+  document.getElementById('navPlacementTest').classList.remove('active');
 }
 
 document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
@@ -573,6 +601,10 @@ document.getElementById('navMyEssays').addEventListener('click', async (e) => {
   e.preventDefault();
   await loadMySubmissions();
   renderMyEssays();
+});
+document.getElementById('navPlacementTest').addEventListener('click', async (e) => {
+  e.preventDefault();
+  await openPlacementTestView();
 });
 
 function openCourseEntry(courseId){
@@ -1027,6 +1059,7 @@ function openWritingQuestionDetail(questionId){
 function renderMyEssays(){
   document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.add('active');
+  document.getElementById('navPlacementTest').classList.remove('active');
   const list = document.getElementById('myEssaysList');
   const empty = document.getElementById('myEssaysEmpty');
   if(state.mySubmissions.length === 0){
@@ -1470,6 +1503,144 @@ function renderQuizResult(scorePct, passed){
   if(retryBtn) retryBtn.addEventListener('click', () => openQuiz(state.lastQuizContext.levelId, state.lastQuizContext.lessonId));
   document.getElementById('backToLessonsFromResultBtn').addEventListener('click', () => openLessonsView(state.lastQuizContext.levelId));
   switchView('quiz-result');
+}
+
+// ---------- Placement test (Darajani bilish testi) ----------
+// Config lives in placementTest/main (admin-managed): { questions:[{question,options:[4],correctIndex}], levels:[{min,max,label}] }
+// The student's own last result is saved on their own student doc as `placementResult: {score,total,level,takenAt}`.
+
+async function openPlacementTestView(){
+  document.getElementById('navCourses').classList.remove('active');
+  document.getElementById('navMyEssays').classList.remove('active');
+  document.getElementById('navPlacementTest').classList.add('active');
+
+  if(!state.placementTestConfig){
+    try{
+      const doc = await db.collection('placementTest').doc('main').get();
+      const data = doc.exists ? doc.data() : {};
+      state.placementTestConfig = {
+        questions: Array.isArray(data.questions) ? data.questions : [],
+        levels: Array.isArray(data.levels) ? data.levels : []
+      };
+    } catch(err){
+      state.placementTestConfig = { questions: [], levels: [] };
+    }
+  }
+
+  renderPlacementIntro();
+  document.getElementById('placementIntroBox').hidden = false;
+  document.getElementById('placementQuizBox').hidden = true;
+  document.getElementById('placementResultBox').hidden = true;
+  switchView('placement-test');
+}
+
+function renderPlacementIntro(){
+  const introText = document.getElementById('placementIntroText');
+  const startBtn = document.getElementById('startPlacementTestBtn');
+  const prevBox = document.getElementById('placementPrevResultBox');
+
+  const prev = state.student.placementResult;
+  prevBox.innerHTML = prev
+    ? `<div class="placement-prev-result">
+         <span class="placement-level-name">${escapeHtml(prev.level || 'Aniqlanmadi')}</span>
+         <span class="placement-score-line">Oxirgi natija: ${prev.score}/${prev.total} to‘g‘ri${prev.takenAt ? ' · ' + new Date(prev.takenAt).toLocaleDateString('uz-UZ') : ''}</span>
+       </div>`
+    : '';
+
+  if(state.placementTestConfig.questions.length === 0){
+    introText.textContent = 'Hozircha test tayyorlanmagan. Iltimos, keyinroq qayta urinib ko‘ring.';
+    startBtn.hidden = true;
+  } else {
+    introText.textContent = prev
+      ? 'Xohlasangiz, testni qayta topshirib, natijangizni yangilashingiz mumkin.'
+      : 'Bu testda bir nechta savol beriladi. Yakunida natijangizga qarab darajangiz ko‘rsatiladi.';
+    startBtn.textContent = prev ? 'Qayta topshirish' : 'Testni boshlash';
+    startBtn.hidden = false;
+  }
+}
+
+document.getElementById('startPlacementTestBtn').addEventListener('click', () => {
+  const questions = state.placementTestConfig.questions;
+  document.getElementById('placementQuizQuestions').innerHTML = questions.map((q, qi) => `
+    <div class="quiz-question">
+      <div class="quiz-question-title">${qi + 1}. ${escapeHtml(q.question)}</div>
+      ${q.options.map((opt, oi) => `
+        <label class="quiz-option">
+          <input type="radio" name="placement-q-${qi}" value="${oi}">
+          <span>${escapeHtml(opt)}</span>
+        </label>`).join('')}
+    </div>`).join('');
+  updatePlacementProgress();
+  document.getElementById('placementIntroBox').hidden = true;
+  document.getElementById('placementResultBox').hidden = true;
+  document.getElementById('placementQuizBox').hidden = false;
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+});
+
+function updatePlacementProgress(){
+  const questions = state.placementTestConfig.questions;
+  const answered = questions.filter((q, qi) => document.querySelector(`input[name="placement-q-${qi}"]:checked`)).length;
+  document.getElementById('placementQuizProgress').textContent = `${answered} / ${questions.length} savolga javob berildi`;
+}
+
+document.getElementById('placementQuizQuestions').addEventListener('change', (e) => {
+  if(e.target.matches('input[type="radio"]')) updatePlacementProgress();
+});
+
+function levelForScore(correct, levels){
+  const match = levels.find(l => correct >= l.min && correct <= l.max);
+  return match ? match.label : 'Aniqlanmadi';
+}
+
+document.getElementById('submitPlacementTestBtn').addEventListener('click', async () => {
+  const questions = state.placementTestConfig.questions;
+  let answered = 0, correct = 0;
+  questions.forEach((q, qi) => {
+    const checked = document.querySelector(`input[name="placement-q-${qi}"]:checked`);
+    if(checked){
+      answered++;
+      if(Number(checked.value) === q.correctIndex) correct++;
+    }
+  });
+
+  if(answered < questions.length){
+    alert('Iltimos, barcha savollarga javob bering.');
+    return;
+  }
+
+  const level = levelForScore(correct, state.placementTestConfig.levels);
+  const result = { score: correct, total: questions.length, level, takenAt: Date.now() };
+
+  const submitBtn = document.getElementById('submitPlacementTestBtn');
+  submitBtn.disabled = true;
+  try{
+    await db.collection('students').doc(currentUid).update({ placementResult: result });
+    state.student.placementResult = result;
+  } catch(err){
+    // saqlashda xatolik bo'lsa ham natijani hozircha ekranda ko'rsatamiz
+  }
+  submitBtn.disabled = false;
+
+  renderPlacementResult(result);
+});
+
+function renderPlacementResult(result){
+  document.getElementById('placementResultBox').innerHTML = `
+    <p class="eyebrow">Natijangiz</p>
+    <div class="quiz-result-score quiz-result-pass">${result.score}/${result.total}</div>
+    <p>To‘g‘ri javoblar soniga ko‘ra darajangiz: <strong>${escapeHtml(result.level)}</strong></p>
+    <div class="quiz-result-actions">
+      <button type="button" class="btn btn-amber" id="retryPlacementTestBtn">Qayta topshirish</button>
+      <button type="button" class="btn btn-ghost" id="backToCoursesFromPlacementBtn">Kurslarga qaytish</button>
+    </div>
+  `;
+  document.getElementById('retryPlacementTestBtn').addEventListener('click', () => {
+    document.getElementById('startPlacementTestBtn').click();
+  });
+  document.getElementById('backToCoursesFromPlacementBtn').addEventListener('click', () => renderCoursesOverview());
+  document.getElementById('placementQuizBox').hidden = true;
+  document.getElementById('placementResultBox').hidden = false;
+  window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 </script>
 </body>
