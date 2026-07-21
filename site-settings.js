@@ -113,15 +113,6 @@
     setText('[data-site-home-label-3]', data.homeLabel3);
     setText('[data-site-home-sub-3]', data.homeSub3);
 
-    // Stats bar (4 items)
-    setText('[data-site-stat-1-number]', data.stat1Number);
-    setText('[data-site-stat-1-label]', data.stat1Label);
-    setText('[data-site-stat-2-number]', data.stat2Number);
-    setText('[data-site-stat-2-label]', data.stat2Label);
-    setText('[data-site-stat-3-number]', data.stat3Number);
-    setText('[data-site-stat-3-label]', data.stat3Label);
-    setText('[data-site-stat-4-number]', data.stat4Number);
-    setText('[data-site-stat-4-label]', data.stat4Label);
 
     // Blog + rating
     setText('[data-site-blog-heading]', data.blogHeading);
