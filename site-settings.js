@@ -32,6 +32,14 @@
     document.querySelectorAll(selector).forEach(el => { el.textContent = value; });
   }
 
+  function renderHeroImage(url){
+    if(!url) return;
+    const safeUrl = url.replace(/"/g, '&quot;');
+    document.querySelectorAll('[data-site-hero-visual]').forEach(el => {
+      el.innerHTML = `<img src="${safeUrl}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+    });
+  }
+
   function applySettings(data){
     if(!data) return;
     const root = document.documentElement.style;
@@ -92,6 +100,7 @@
     setText('[data-site-hero-results-btn]', data.heroResultsBtnText);
     setText('[data-site-hero-mini-number]', data.heroMiniNumber);
     setText('[data-site-hero-mini-label]', data.heroMiniLabel);
+    renderHeroImage(data.heroImageUrl);
 
     // "Nega biz" feature grid (4 icon + title + text cards)
     setText('[data-site-feature-1-title]', data.feature1Title);
