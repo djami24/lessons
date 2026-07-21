@@ -24,6 +24,7 @@
       <li><a href="#" id="navEssays">📝 Insholar</a></li>
       <li><a href="#" id="navStudents">🎓 O‘quvchilar</a></li>
       <li><a href="#" id="navBlogs">📰 Bloglar</a></li>
+      <li><a href="#" id="navPlacementTest">🧭 Daraja testi</a></li>
       <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
@@ -197,6 +198,42 @@
       <div id="blogsEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
         <h3>Hali blog qo‘shilmagan</h3>
         <p>“Yangi blog qo‘shish” tugmasini bosib birinchi yozuvingizni joylashtiring.</p>
+      </div>
+    </section>
+
+    <!-- ===== PLACEMENT TEST VIEW ===== -->
+    <section id="view-placement-test" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>Darajani bilish testi</h1>
+          <p>Talaba "Darajani bilish testi" bo‘limida shu savollarga javob beradi, so‘ng pastda belgilagan baholash tizimi bo‘yicha o‘z darajasini ko‘radi.</p>
+        </div>
+      </div>
+
+      <div class="admin-header" style="margin-bottom:1em;">
+        <div>
+          <h2 style="margin:0 0 .2em;">Savollar</h2>
+          <p style="margin:0;">Har bir savolga 4 ta variant kiriting va nuqta (radio) bilan to‘g‘ri javobni belgilang.</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="addPlacementQuestionBtn">+ Savol qo‘shish</button>
+      </div>
+      <div id="placementQuizEditor"></div>
+
+      <hr style="border:none; border-top:1px solid var(--line); margin:2.4em 0;">
+
+      <div class="admin-header" style="margin-bottom:1em;">
+        <div>
+          <h2 style="margin:0 0 .2em;">Baholash tizimi</h2>
+          <p style="margin:0;">Nechta savolga to‘g‘ri javob berilsa, qaysi daraja beriladi — oralig‘ini shu yerda belgilang. Masalan: 20 dan 25 tagacha to‘g‘ri = B1 Elementary.</p>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="addPlacementLevelBtn">+ Daraja qatori qo‘shish</button>
+      </div>
+      <div id="placementLevelsEditor"></div>
+      <p id="placementLevelsEmpty" class="quiz-empty" hidden>Hali daraja oralig‘i qo‘shilmagan.</p>
+
+      <div class="save-bar">
+        <button type="button" class="btn btn-amber" id="savePlacementTestBtn">Saqlash</button>
+        <span class="save-status" id="placementSaveStatus"></span>
       </div>
     </section>
 
@@ -725,6 +762,8 @@ let state = {
   activeSectionId: null,
   activeTopicId: null,
   quizDraft: [],
+  placementQuestions: [],   // [{question, options:[4], correctIndex}]
+  placementLevels: [],      // [{min, max, label}]
   detailStudentId: null,
   lockTarget: null,      // {type:'level', levelId} | {type:'section', courseId, sectionId}
   lessonPath: [],        // array of folder ids — where we are inside the current level's lesson tree
@@ -1791,6 +1830,7 @@ function switchView(view){
   document.getElementById('view-writing-items').hidden = view !== 'writing-items';
   document.getElementById('view-essays').hidden = view !== 'essays';
   document.getElementById('view-blogs').hidden = view !== 'blogs';
+  document.getElementById('view-placement-test').hidden = view !== 'placement-test';
   document.getElementById('view-site-settings').hidden = view !== 'site-settings';
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
@@ -1799,6 +1839,7 @@ function switchView(view){
   document.getElementById('navEssays').classList.toggle('active', view === 'essays');
   document.getElementById('navStudents').classList.toggle('active', view === 'students');
   document.getElementById('navBlogs').classList.toggle('active', view === 'blogs');
+  document.getElementById('navPlacementTest').classList.toggle('active', view === 'placement-test');
   document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
@@ -1819,6 +1860,11 @@ document.getElementById('navBlogs').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('blogs');
   renderBlogsGrid();
+});
+document.getElementById('navPlacementTest').addEventListener('click', async (e) => {
+  e.preventDefault();
+  switchView('placement-test');
+  await loadPlacementTest();
 });
 
 // ---------- Modal helpers ----------
@@ -2494,6 +2540,161 @@ document.getElementById('editBlogForm').addEventListener('submit', async (e) => 
   } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = 'Saqlash';
+  }
+});
+
+// ---------- Placement test ("Darajani bilish testi") ----------
+// Stored as a single doc placementTest/main: { questions:[{question,options:[4],correctIndex}], levels:[{min,max,label}] }
+
+async function loadPlacementTest(){
+  try{
+    const doc = await db.collection('placementTest').doc('main').get();
+    const data = doc.exists ? doc.data() : {};
+    state.placementQuestions = Array.isArray(data.questions) ? data.questions : [];
+    state.placementLevels = Array.isArray(data.levels) ? data.levels : [];
+  } catch(err){
+    state.placementQuestions = [];
+    state.placementLevels = [];
+  }
+  renderPlacementQuestionsEditor();
+  renderPlacementLevelsEditor();
+  document.getElementById('placementSaveStatus').textContent = '';
+}
+
+const placementQuizEditor = document.getElementById('placementQuizEditor');
+
+function renderPlacementQuestionsEditor(){
+  if(state.placementQuestions.length === 0){
+    placementQuizEditor.innerHTML = `<p class="quiz-empty">Hali savol qo‘shilmagan.</p>`;
+    return;
+  }
+  placementQuizEditor.innerHTML = state.placementQuestions.map((q, qi) => `
+    <div class="quiz-question-block" data-qindex="${qi}" style="margin-bottom:.9em;">
+      <div class="quiz-question-head">
+        <span class="quiz-question-num">Savol №${qi + 1}</span>
+        <button type="button" class="btn btn-ghost btn-sm" data-remove-placement-question="${qi}">O‘chirish</button>
+      </div>
+      <input type="text" class="quiz-q-text" data-pqfield="question" placeholder="Savol matni" value="${escapeHtml(q.question || '')}">
+      <div class="quiz-options">
+        ${(q.options || ['', '', '', '']).map((opt, oi) => `
+          <div class="quiz-option-row">
+            <input type="radio" name="placement-correct-${qi}" data-pqfield="correct" value="${oi}" ${q.correctIndex === oi ? 'checked' : ''}>
+            <input type="text" data-pqfield="option-${oi}" placeholder="Variant ${String.fromCharCode(65 + oi)}" value="${escapeHtml(opt)}">
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function syncPlacementQuestionsFromDOM(){
+  document.querySelectorAll('#placementQuizEditor .quiz-question-block').forEach(block => {
+    const qi = Number(block.dataset.qindex);
+    if(!state.placementQuestions[qi]) return;
+    state.placementQuestions[qi].question = block.querySelector('[data-pqfield="question"]').value.trim();
+    state.placementQuestions[qi].options = [0, 1, 2, 3].map(oi => block.querySelector(`[data-pqfield="option-${oi}"]`).value.trim());
+    const checked = block.querySelector('[data-pqfield="correct"]:checked');
+    state.placementQuestions[qi].correctIndex = checked ? Number(checked.value) : 0;
+  });
+}
+
+document.getElementById('addPlacementQuestionBtn').addEventListener('click', () => {
+  syncPlacementQuestionsFromDOM();
+  state.placementQuestions.push({ question: '', options: ['', '', '', ''], correctIndex: 0 });
+  renderPlacementQuestionsEditor();
+});
+
+placementQuizEditor.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-remove-placement-question]');
+  if(!btn) return;
+  syncPlacementQuestionsFromDOM();
+  state.placementQuestions.splice(Number(btn.dataset.removePlacementQuestion), 1);
+  renderPlacementQuestionsEditor();
+});
+
+const placementLevelsEditor = document.getElementById('placementLevelsEditor');
+
+function renderPlacementLevelsEditor(){
+  const emptyEl = document.getElementById('placementLevelsEmpty');
+  if(state.placementLevels.length === 0){
+    placementLevelsEditor.innerHTML = '';
+    emptyEl.hidden = false;
+    return;
+  }
+  emptyEl.hidden = true;
+  placementLevelsEditor.innerHTML = state.placementLevels.map((lvl, li) => `
+    <div class="placement-level-row" data-lindex="${li}">
+      <input type="number" min="0" data-lfield="min" placeholder="Min" value="${lvl.min !== undefined ? lvl.min : ''}">
+      <span class="placement-level-sep">dan</span>
+      <input type="number" min="0" data-lfield="max" placeholder="Max" value="${lvl.max !== undefined ? lvl.max : ''}">
+      <span class="placement-level-sep">tagacha to‘g‘ri →</span>
+      <input type="text" data-lfield="label" placeholder="Daraja nomi (masalan: B1 Elementary)" value="${escapeHtml(lvl.label || '')}">
+      <button type="button" class="btn btn-ghost btn-sm" data-remove-placement-level="${li}">O‘chirish</button>
+    </div>`).join('');
+}
+
+function syncPlacementLevelsFromDOM(){
+  document.querySelectorAll('#placementLevelsEditor .placement-level-row').forEach(row => {
+    const li = Number(row.dataset.lindex);
+    if(!state.placementLevels[li]) return;
+    state.placementLevels[li].min = Number(row.querySelector('[data-lfield="min"]').value) || 0;
+    state.placementLevels[li].max = Number(row.querySelector('[data-lfield="max"]').value) || 0;
+    state.placementLevels[li].label = row.querySelector('[data-lfield="label"]').value.trim();
+  });
+}
+
+document.getElementById('addPlacementLevelBtn').addEventListener('click', () => {
+  syncPlacementLevelsFromDOM();
+  state.placementLevels.push({ min: 0, max: 0, label: '' });
+  renderPlacementLevelsEditor();
+});
+
+placementLevelsEditor.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-remove-placement-level]');
+  if(!btn) return;
+  syncPlacementLevelsFromDOM();
+  state.placementLevels.splice(Number(btn.dataset.removePlacementLevel), 1);
+  renderPlacementLevelsEditor();
+});
+
+document.getElementById('savePlacementTestBtn').addEventListener('click', async () => {
+  syncPlacementQuestionsFromDOM();
+  syncPlacementLevelsFromDOM();
+
+  const statusEl = document.getElementById('placementSaveStatus');
+  const cleanedQuestions = state.placementQuestions
+    .filter(q => q.question.trim() !== '')
+    .map(q => ({ question: q.question.trim(), options: q.options.map(o => o.trim()), correctIndex: q.correctIndex }));
+
+  for(const q of cleanedQuestions){
+    if(q.options.some(o => o === '')){
+      showToast('Har bir savolning barcha 4 ta varianti to‘ldirilishi kerak.', true);
+      return;
+    }
+  }
+
+  const cleanedLevels = state.placementLevels.filter(l => l.label.trim() !== '');
+  for(const l of cleanedLevels){
+    if(l.min > l.max){
+      showToast('Har bir daraja qatorida Min qiymat Max dan katta bo‘lmasligi kerak.', true);
+      return;
+    }
+  }
+
+  const saveBtn = document.getElementById('savePlacementTestBtn');
+  saveBtn.disabled = true;
+  statusEl.textContent = 'Saqlanmoqda…';
+  try{
+    await db.collection('placementTest').doc('main').set({ questions: cleanedQuestions, levels: cleanedLevels }, { merge: true });
+    state.placementQuestions = cleanedQuestions;
+    state.placementLevels = cleanedLevels;
+    renderPlacementQuestionsEditor();
+    renderPlacementLevelsEditor();
+    statusEl.textContent = 'Saqlandi ✓';
+  } catch(err){
+    statusEl.textContent = '';
+    showToast('Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.', true);
+  } finally {
+    saveBtn.disabled = false;
+    setTimeout(() => { statusEl.textContent = ''; }, 3000);
   }
 });
 
