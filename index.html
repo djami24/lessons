@@ -1,144 +1,396 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Djami Lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+  <meta property="og:title" content="Ingliz tilini o'rganayotgan bo'lsangiz, shu 5 ta odatni bugundan boshlang">
+<meta property="og:description" content="Ingliz tilini samarali o'rganishga yordam beradigan 5 ta muhim odat.">
+<meta property="og:image" content="https://djamilessons.netlify.app/images/blog-cover.jpg">
+<meta property="og:url" content="https://djamilessons.netlify.app/blog.html?id=fqNvvZH67B2R5fXPtn3D">
+<meta property="og:type" content="article">
+</head>
+<body class="home-body">
+
+<header class="home-topbar">
+  <a href="index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+
+  <nav class="home-nav-links" id="homeNavLinks">
+    <a href="index.html" class="is-current" data-site-nav-home>Bosh sahifa</a>
+    <a href="#courses" data-site-nav-courses>Kurslar</a>
+    <a href="blogs.html" data-site-blog-link-text>Djami's Blog</a>
+    <a href="natijalar.html" data-site-nav-results>Natijalar</a>
+  </nav>
+
+  <div class="home-topbar-links">
+    <a href="admin/login.html" class="home-admin-link" data-site-home-admin-btn>Admin kirish</a>
+    <a href="student/login.html" class="btn btn-primary home-nav-cta" data-site-nav-cta>Boshlash</a>
+    <button type="button" class="home-nav-toggle" id="homeNavToggle" aria-label="Menyu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<main class="home-main">
+
+  <section class="hero-section">
+    <div class="hero-copy">
+      <span class="eyebrow" data-site-hero-eyebrow>Djami Lessons'ga xush kelibsiz</span>
+      <h1 class="home-hero-title" data-site-hero-title>Ingliz tilini o‘rganishning <span class="accent">zamonaviy platformasi</span></h1>
+      <p class="home-hero-lead" data-site-hero-lead>General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
+
+      <div class="home-cta-row">
+        <a href="student/login.html" class="btn btn-outline-teal home-student-btn"><span data-site-home-student-btn>Talaba profili</span></a>
+        <a href="natijalar.html" class="btn btn-teal home-student-btn"><span data-site-hero-results-btn>Talaba test natijalari</span></a>
+      </div>
+
+      <div class="hero-mini-row">
+        <span class="hero-avatars" aria-hidden="true"><span>🎓</span><span>📘</span><span>✨</span></span>
+        <span class="hero-mini-text"><strong data-site-hero-mini-number>5,000+</strong><small data-site-hero-mini-label>faol talabalar</small></span>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="hero-visual-panel" data-site-hero-visual>
+        <span class="hero-visual-mark">📖</span>
+      </div>
+      <div class="hero-float-card hero-float-top">
+        <span class="hero-avatars hero-avatars-sm"><span>🧑‍🎓</span><span>👩‍🎓</span><span>🧑‍🏫</span></span>
+        <div>
+          <strong>5,000+</strong>
+          <small>Baxtli talabalar</small>
+        </div>
+      </div>
+      <div class="hero-float-card hero-float-stack">
+        <div class="hero-float-item">
+          <span class="hero-float-icon blue">🎓</span>
+          <div><span class="hero-float-title">Malakali o‘qituvchilar</span><span class="hero-float-sub">6+ yillik tajriba</span></div>
+        </div>
+        <div class="hero-float-item">
+          <span class="hero-float-icon amber">📘</span>
+          <div><span class="hero-float-title">Zamonaviy materiallar</span><span class="hero-float-sub">Doimiy yangilanadi</span></div>
+        </div>
+        <div class="hero-float-item">
+          <span class="hero-float-icon teal">📈</span>
+          <div><span class="hero-float-title">Isbotlangan natija</span><span class="hero-float-sub">Samarali metodika</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="home-features-box">
+    <div class="home-feature">
+      <span class="home-feature-icon">🎓</span>
+      <div>
+        <p class="home-feature-title" data-site-feature-1-title>Sifatli kontent</p>
+        <p class="home-feature-text" data-site-feature-1-text>Zamonaviy va foydali o‘quv materiallar</p>
+      </div>
+    </div>
+    <div class="home-feature">
+      <span class="home-feature-icon">🎯</span>
+      <div>
+        <p class="home-feature-title" data-site-feature-2-title>Amaliy yondashuv</p>
+        <p class="home-feature-text" data-site-feature-2-text>Real hayotga mos mashqlar va testlar</p>
+      </div>
+    </div>
+    <div class="home-feature">
+      <span class="home-feature-icon">📈</span>
+      <div>
+        <p class="home-feature-title" data-site-feature-3-title>Natijaga yo‘naltirilgan</p>
+        <p class="home-feature-text" data-site-feature-3-text>Darajangizni oshirish uchun eng yaxshi yo‘l</p>
+      </div>
+    </div>
+    <div class="home-feature">
+      <span class="home-feature-icon">🛡️</span>
+      <div>
+        <p class="home-feature-title" data-site-feature-4-title>Ishonchli platforma</p>
+        <p class="home-feature-text" data-site-feature-4-text>Xavfsiz va qulay foydalanish</p>
+      </div>
+    </div>
+  </div>
+
+  <section class="courses-section" id="courses">
+    <div class="courses-heading-wrap">
+      <span class="eyebrow courses-eyebrow" data-site-courses-eyebrow>Yo‘nalishlar</span>
+      <h2 class="courses-heading" data-site-courses-heading>Ommabop kurslarimiz</h2>
+    </div>
+    <div class="home-cards-grid">
+      <a href="student/login.html" class="home-card home-card-ge">
+        <span class="home-card-icon">📖</span>
+        <span class="home-card-title" data-site-home-label-1>GENERAL ENGLISH</span>
+        <span class="home-card-sub" data-site-home-sub-1>Boshlang‘ichdan ilg‘or darajagacha</span>
+        <span class="home-card-arrow">→</span>
+      </a>
+      <a href="student/login.html" class="home-card home-card-ielts">
+        <span class="home-card-icon">🎧</span>
+        <span class="home-card-title" data-site-home-label-2>IELTS</span>
+        <span class="home-card-sub" data-site-home-sub-2>Listening, Reading, Writing, Speaking</span>
+        <span class="home-card-arrow">→</span>
+      </a>
+      <a href="student/login.html" class="home-card home-card-cefr">
+        <span class="home-card-icon">📊</span>
+        <span class="home-card-title" data-site-home-label-3>CEFR</span>
+        <span class="home-card-sub" data-site-home-sub-3>A1 dan C2 gacha barcha darajalar</span>
+        <span class="home-card-arrow">→</span>
+      </a>
+    </div>
+  </section>
+
+  <div class="home-blog-section" id="homeBlogSection" hidden>
+    <h2 class="home-blog-heading" data-site-blog-heading>Djami's Blog</h2>
+    <div class="home-blog-grid" id="homeBlogGrid"></div>
+  </div>
+
+  <div class="home-rating-box" id="siteRatingBox">
+    <div class="rating-summary">
+      <div class="rating-stars-display" id="ratingStarsDisplay" aria-hidden="true"></div>
+      <p class="rating-summary-text" id="ratingSummaryText">Baholar yuklanmoqda…</p>
+    </div>
+    <div class="rating-input">
+      <p class="rating-input-label" data-site-rating-label>Saytni baholang</p>
+      <div class="rating-stars-input" id="ratingStarsInput">
+        <button type="button" class="rating-star-btn" data-value="1" aria-label="1 yulduz">★</button>
+        <button type="button" class="rating-star-btn" data-value="2" aria-label="2 yulduz">★</button>
+        <button type="button" class="rating-star-btn" data-value="3" aria-label="3 yulduz">★</button>
+        <button type="button" class="rating-star-btn" data-value="4" aria-label="4 yulduz">★</button>
+        <button type="button" class="rating-star-btn" data-value="5" aria-label="5 yulduz">★</button>
+      </div>
+      <p class="rating-thanks" id="ratingThanks" hidden></p>
+    </div>
+  </div>
+</main>
+
+<div class="home-bottombar">
+  <p class="home-footer-note" data-site-footer-copyright>© 2026 Djami Lessons. Barcha huquqlar himoyalangan.</p>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script src="site-settings.js"></script>
+<script>
 /* ============================================================
-   English Folder — Global site settings loader
-   Reads settings/site from Firestore (public read, admin write —
-   see FIRESTORE_RULES.txt) and applies it to whichever page loads
-   this script: brand colors, brand name, logo, nav labels — and,
-   on the homepage only, every section of text (hero, courses,
-   feature grid, stats bar, blog, rating, footer).
-   Include AFTER firebase-config.js on every page that should react
-   to admin-configured branding.
+   Sayt baholash (site rating) widget
+   ------------------------------------------------------------
+   Aggregat ma'lumot settings/site hujjatida ikkita maydonda
+   saqlanadi: ratingSum (barcha baholar yig'indisi) va
+   ratingCount (baholar soni). O'rtacha = ratingSum / ratingCount.
+   Bu maydonlar Firestore Rules'da HAMMAGA (login qilmagan
+   mehmonlarga ham) faqat shu ikki maydonni oshirish (increment)
+   uchun ochiq bo'lishi kerak — pastdagi izohga qarang.
    ============================================================ */
-(function(){
+(function () {
+  var STORAGE_KEY = 'efSiteRating_v1';
 
-  function shade(hex, percent){
-    if(!hex) return hex;
-    hex = hex.replace('#', '');
-    if(hex.length === 3) hex = hex.split('').map(c => c + c).join('');
-    if(hex.length !== 6) return '#' + hex;
-    const num = parseInt(hex, 16);
-    const amt = Math.round(2.55 * percent);
-    let r = (num >> 16) + amt;
-    let g = ((num >> 8) & 0x00FF) + amt;
-    let b = (num & 0x0000FF) + amt;
-    r = Math.max(0, Math.min(255, r));
-    g = Math.max(0, Math.min(255, g));
-    b = Math.max(0, Math.min(255, b));
-    return '#' + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1).toUpperCase();
+  var starsDisplayEl = document.getElementById('ratingStarsDisplay');
+  var summaryTextEl = document.getElementById('ratingSummaryText');
+  var starsInputEl = document.getElementById('ratingStarsInput');
+  var starButtons = Array.prototype.slice.call(document.querySelectorAll('.rating-star-btn'));
+  var thanksEl = document.getElementById('ratingThanks');
+
+  var cachedSum = 0;
+  var cachedCount = 0;
+
+  function renderStarsDisplay(avg) {
+    var rounded = Math.round(avg * 2) / 2; // nearest half star
+    var html = '';
+    for (var i = 1; i <= 5; i++) {
+      if (rounded >= i) html += '<span class="star full">★</span>';
+      else if (rounded >= i - 0.5) html += '<span class="star half">★</span>';
+      else html += '<span class="star empty">★</span>';
+    }
+    starsDisplayEl.innerHTML = html;
   }
 
-  // Set textContent on every element matching a [data-site-x] selector, only if value is non-empty.
-  function setText(selector, value){
-    if(value === undefined || value === null || value === '') return;
-    document.querySelectorAll(selector).forEach(el => { el.textContent = value; });
+  function renderSummary() {
+    if (!cachedCount) {
+      summaryTextEl.textContent = 'Hali baho yo‘q — birinchi bo‘lib baholang!';
+      renderStarsDisplay(0);
+      return;
+    }
+    var avg = cachedSum / cachedCount;
+    renderStarsDisplay(avg);
+    summaryTextEl.textContent = avg.toFixed(1) + ' / 5 · ' + cachedCount + ' ta baho';
   }
 
-  function renderHeroImage(url){
-    if(!url) return;
-    const safeUrl = url.replace(/"/g, '&quot;');
-    document.querySelectorAll('[data-site-hero-visual]').forEach(el => {
-      el.innerHTML = `<img src="${safeUrl}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+  function markAsRated(value) {
+    starsInputEl.hidden = true;
+    thanksEl.hidden = false;
+    thanksEl.textContent = 'Siz ' + value + ' yulduz bilan baholadingiz. Rahmat! 🙌';
+  }
+
+  function getStoredRating() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY));
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function highlightUpTo(value) {
+    starButtons.forEach(function (b) {
+      b.classList.toggle('is-hovered', Number(b.dataset.value) <= value);
     });
   }
 
-  function applySettings(data){
-    if(!data) return;
-    const root = document.documentElement.style;
-
-    // ---- Colors ----
-    if(data.colorPrimary){
-      root.setProperty('--amber', data.colorPrimary);
-      root.setProperty('--amber-deep', shade(data.colorPrimary, -16));
+  async function loadRating() {
+    try {
+      var doc = await db.collection('settings').doc('site').get();
+      var data = doc.exists ? doc.data() : {};
+      cachedSum = data.ratingSum || 0;
+      cachedCount = data.ratingCount || 0;
+      renderSummary();
+    } catch (err) {
+      summaryTextEl.textContent = '';
     }
-    if(data.colorAccent){
-      root.setProperty('--teal', data.colorAccent);
-      root.setProperty('--teal-deep', shade(data.colorAccent, -16));
-    }
-    if(data.colorBackground){
-      root.setProperty('--paper', data.colorBackground);
-    }
-    if(data.colorDark){
-      root.setProperty('--dark-bg', data.colorDark);
-    }
-    if(data.buttonColor){
-      root.setProperty('--btn-color', data.buttonColor);
-      root.setProperty('--btn-color-deep', shade(data.buttonColor, -16));
-    }
-
-    // ---- Brand ----
-    if(data.brandName){
-      document.querySelectorAll('[data-site-brand-name]').forEach(el => {
-        el.textContent = data.brandName;
-      });
-      document.title = document.title.replace(/Djami Lessons/g, data.brandName);
-    }
-
-    if(data.logoUrl){
-      document.querySelectorAll('[data-site-logo]').forEach(el => {
-        el.classList.add('brand-mark-custom');
-        el.innerHTML = `<img src="${data.logoUrl.replace(/"/g, '&quot;')}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px;display:block;">`;
-      });
-    }
-
-    // ---- Top nav (present on every page) ----
-    setText('[data-site-nav-home]', data.navHomeLabel);
-    setText('[data-site-nav-courses]', data.navCoursesLabel);
-    setText('[data-site-nav-results]', data.navResultsLabel);
-    setText('[data-site-nav-cta]', data.navCtaText);
-    setText('[data-site-blog-link-text]', data.blogLinkText);
-    setText('[data-site-home-admin-btn]', data.homeAdminBtnText);
-
-    // ---- Footer (present on every page) ----
-    setText('[data-site-footer-copyright]', data.footerCopyright);
-
-    // ---- Homepage-only fields (elements simply won't exist on other pages) ----
-
-    // Hero
-    setText('[data-site-hero-eyebrow]', data.heroEyebrow);
-    setText('[data-site-hero-title]', data.heroTitle);
-    setText('[data-site-hero-lead]', data.heroLead);
-    setText('[data-site-home-student-btn]', data.homeStudentBtnText);
-    setText('[data-site-hero-results-btn]', data.heroResultsBtnText);
-    setText('[data-site-hero-mini-number]', data.heroMiniNumber);
-    setText('[data-site-hero-mini-label]', data.heroMiniLabel);
-    renderHeroImage(data.heroImageUrl);
-
-    // "Nega biz" feature grid (4 icon + title + text cards)
-    setText('[data-site-feature-1-title]', data.feature1Title);
-    setText('[data-site-feature-1-text]', data.feature1Text);
-    setText('[data-site-feature-2-title]', data.feature2Title);
-    setText('[data-site-feature-2-text]', data.feature2Text);
-    setText('[data-site-feature-3-title]', data.feature3Title);
-    setText('[data-site-feature-3-text]', data.feature3Text);
-    setText('[data-site-feature-4-title]', data.feature4Title);
-    setText('[data-site-feature-4-text]', data.feature4Text);
-
-    // Courses section (General English / IELTS / CEFR cards)
-    setText('[data-site-courses-eyebrow]', data.coursesEyebrow);
-    setText('[data-site-courses-heading]', data.coursesHeading);
-    setText('[data-site-home-label-1]', data.homeLabel1);
-    setText('[data-site-home-sub-1]', data.homeSub1);
-    setText('[data-site-home-label-2]', data.homeLabel2);
-    setText('[data-site-home-sub-2]', data.homeSub2);
-    setText('[data-site-home-label-3]', data.homeLabel3);
-    setText('[data-site-home-sub-3]', data.homeSub3);
-
-
-    // Blog + rating
-    setText('[data-site-blog-heading]', data.blogHeading);
-    setText('[data-site-rating-label]', data.ratingLabel);
   }
 
-  function init(){
-    // Wait for firebase-config.js to have set up the global `db`.
-    if(typeof db === 'undefined'){ setTimeout(init, 50); return; }
-    db.collection('settings').doc('site').get()
-      .then(doc => { if(doc.exists) applySettings(doc.data()); })
-      .catch(() => { /* settings doc not created yet, or offline — keep defaults */ });
+  async function submitRating(value) {
+    starButtons.forEach(function (b) { b.disabled = true; });
+    try {
+      await db.collection('settings').doc('site').set({
+        ratingSum: firebase.firestore.FieldValue.increment(value),
+        ratingCount: firebase.firestore.FieldValue.increment(1)
+      }, { merge: true });
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ value: value, ratedAt: Date.now() }));
+      cachedSum += value;
+      cachedCount += 1;
+      renderSummary();
+      markAsRated(value);
+    } catch (err) {
+      starButtons.forEach(function (b) { b.disabled = false; });
+      alert('Bahoni saqlashda xatolik yuz berdi. Birozdan so‘ng qayta urinib ko‘ring.');
+    }
   }
 
-  if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  starButtons.forEach(function (btn) {
+    btn.addEventListener('mouseenter', function () { highlightUpTo(Number(btn.dataset.value)); });
+    btn.addEventListener('mouseleave', function () { highlightUpTo(0); });
+    btn.addEventListener('click', function () { submitRating(Number(btn.dataset.value)); });
+  });
+
+  var stored = getStoredRating();
+  if (stored && stored.value) {
+    markAsRated(stored.value);
   }
+
+  loadRating();
 })();
+
+/* ============================================================
+   Djami's Blog — homepage preview (latest 3 posts)
+   ------------------------------------------------------------
+   Reads the public "blogs" collection (admin panel writes here)
+   and links each card to blog.html?id=<docId> for the full read.
+   ============================================================ */
+(function () {
+  var sectionEl = document.getElementById('homeBlogSection');
+  var gridEl = document.getElementById('homeBlogGrid');
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+
+  async function loadBlogPreview() {
+    try {
+      var snap = await db.collection('blogs').orderBy('createdAt', 'desc').limit(3).get();
+      if (snap.empty) return; // section stays hidden if there's nothing to show yet
+
+      gridEl.innerHTML = snap.docs.map(function (doc) {
+        var b = doc.data();
+        var id = doc.id;
+        var title = escapeHtml(b.title || '');
+        var img = escapeHtml(b.imageUrl || '');
+        return '<div class="home-blog-card" data-blog-id="' + id + '">' +
+          '<a class="home-blog-card-link" href="blog.html?id=' + id + '">' +
+            '<img class="home-blog-card-img" src="' + img + '" alt="' + title + '">' +
+            '<p class="home-blog-card-title">' + title + '</p>' +
+          '</a>' +
+          '<div class="home-blog-vote-box">' +
+            '<button type="button" class="blog-vote-btn blog-vote-btn-sm" data-vote="like" data-blog-id="' + id + '">👍 <span class="vote-count">' + (b.likeCount || 0) + '</span></button>' +
+            '<button type="button" class="blog-vote-btn blog-vote-btn-sm" data-vote="dislike" data-blog-id="' + id + '">👎 <span class="vote-count">' + (b.dislikeCount || 0) + '</span></button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      sectionEl.hidden = false;
+      setupHomeBlogVotes();
+    } catch (err) {
+      // Collection may not exist yet, or rules aren't published — fail quietly on screen,
+      // but log the real reason to the console so it can be diagnosed.
+      console.error('Blog preview load failed:', err);
+    }
+  }
+
+  function setupHomeBlogVotes() {
+    var buttons = Array.prototype.slice.call(gridEl.querySelectorAll('.blog-vote-btn'));
+
+    buttons.forEach(function (btn) {
+      var blogId = btn.getAttribute('data-blog-id');
+      var storedVote = null;
+      try { storedVote = localStorage.getItem('efBlogVote_' + blogId); } catch (e) {}
+      if (storedVote) {
+        var pair = gridEl.querySelectorAll('.blog-vote-btn[data-blog-id="' + blogId + '"]');
+        pair.forEach(function (b) {
+          b.disabled = true;
+          if (b.getAttribute('data-vote') === storedVote) b.classList.add('is-active');
+        });
+      }
+    });
+
+    gridEl.addEventListener('click', async function (e) {
+      var btn = e.target.closest('.blog-vote-btn');
+      if (!btn || btn.disabled) return;
+
+      var blogId = btn.getAttribute('data-blog-id');
+      var type = btn.getAttribute('data-vote');
+      var pair = Array.prototype.slice.call(gridEl.querySelectorAll('.blog-vote-btn[data-blog-id="' + blogId + '"]'));
+      pair.forEach(function (b) { b.disabled = true; });
+
+      try {
+        var field = type === 'like' ? 'likeCount' : 'dislikeCount';
+        var update = {};
+        update[field] = firebase.firestore.FieldValue.increment(1);
+        await db.collection('blogs').doc(blogId).update(update);
+
+        var countEl = btn.querySelector('.vote-count');
+        countEl.textContent = (Number(countEl.textContent) || 0) + 1;
+        btn.classList.add('is-active');
+        try { localStorage.setItem('efBlogVote_' + blogId, type); } catch (e) {}
+      } catch (err) {
+        pair.forEach(function (b) { b.disabled = false; });
+      }
+    });
+  }
+
+  loadBlogPreview();
+})();
+
+/* Mobile nav toggle */
+(function () {
+  var toggleBtn = document.getElementById('homeNavToggle');
+  var navLinks = document.getElementById('homeNavLinks');
+  if (!toggleBtn || !navLinks) return;
+  toggleBtn.addEventListener('click', function () {
+    var isOpen = navLinks.classList.toggle('is-open');
+    toggleBtn.classList.toggle('is-open', isOpen);
+    toggleBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+  navLinks.querySelectorAll('a').forEach(function (a) {
+    a.addEventListener('click', function () {
+      navLinks.classList.remove('is-open');
+      toggleBtn.classList.remove('is-open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+    });
+  });
+})();
+</script>
+</body>
+</html>
