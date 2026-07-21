@@ -699,6 +699,38 @@ table.data-table td .tag{ margin-right:.3em; }
 }
 .quiz-empty{ color: var(--gray); font-size:.88rem; padding: 1em 0; }
 
+/* ===== Placement test admin editor ===== */
+.save-bar{ display:flex; align-items:center; gap:1em; margin-top:1.6em; }
+.save-status{ font-size:.85rem; color: var(--gray); font-family: var(--font-mono); }
+.placement-level-row{
+  display:flex; align-items:center; gap:.7em; flex-wrap:wrap;
+  background: var(--white); border:1.5px solid var(--line); border-radius: var(--radius-m);
+  padding:.8em 1em; margin-bottom:.7em;
+}
+.placement-level-sep{ color: var(--gray); font-family: var(--font-mono); font-size:.78rem; white-space:nowrap; }
+.placement-level-row input[type="number"]{
+  width:72px; padding:.6em .5em; text-align:center; border-radius: var(--radius-s); border:1.5px solid var(--line);
+  font-family: var(--font-body); background: var(--paper);
+}
+.placement-level-row input[type="text"]{
+  flex:1; min-width:180px; padding:.6em .8em; border-radius: var(--radius-s); border:1.5px solid var(--line);
+  font-family: var(--font-body); background: var(--paper);
+}
+
+/* Student-facing placement test */
+.placement-intro-box{
+  background: var(--white); border:1.5px solid var(--line); border-radius: var(--radius-m);
+  padding: 2.2em 2.4em; text-align:center; max-width:620px; margin:0 auto;
+}
+.placement-prev-result{
+  display:inline-flex; flex-direction:column; align-items:center; gap:.3em;
+  background: var(--paper-2); border-radius: var(--radius-m); padding: 1em 1.6em; margin-top: 1.4em;
+}
+.placement-prev-result .placement-level-name{
+  font-family: var(--font-display); font-weight:700; font-size:1.3rem; color: var(--teal-deep);
+}
+.placement-prev-result .placement-score-line{ font-size:.85rem; color: var(--gray); font-family: var(--font-mono); }
+
 /* ============ Quiz taking (student) ============ */
 .quiz-box{ max-width: 720px; }
 .quiz-progress{
