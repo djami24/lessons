@@ -19,15 +19,15 @@
   <a href="index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
 
   <nav class="home-nav-links" id="homeNavLinks">
-    <a href="index.html" class="is-current">Bosh sahifa</a>
-    <a href="#courses">Kurslar</a>
+    <a href="index.html" class="is-current" data-site-nav-home>Bosh sahifa</a>
+    <a href="#courses" data-site-nav-courses>Kurslar</a>
     <a href="blogs.html" data-site-blog-link-text>Djami's Blog</a>
-    <a href="natijalar.html">Natijalar</a>
+    <a href="natijalar.html" data-site-nav-results>Natijalar</a>
   </nav>
 
   <div class="home-topbar-links">
     <a href="admin/login.html" class="home-admin-link" data-site-home-admin-btn>Admin kirish</a>
-    <a href="student/login.html" class="btn btn-primary home-nav-cta">Boshlash</a>
+    <a href="student/login.html" class="btn btn-primary home-nav-cta" data-site-nav-cta>Boshlash</a>
     <button type="button" class="home-nav-toggle" id="homeNavToggle" aria-label="Menyu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -38,18 +38,18 @@
 
   <section class="hero-section">
     <div class="hero-copy">
-      <span class="eyebrow">Djami Lessons'ga xush kelibsiz</span>
+      <span class="eyebrow" data-site-hero-eyebrow>Djami Lessons'ga xush kelibsiz</span>
       <h1 class="home-hero-title" data-site-hero-title>Ingliz tilini o‘rganishning <span class="accent">zamonaviy platformasi</span></h1>
       <p class="home-hero-lead" data-site-hero-lead>General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
 
       <div class="home-cta-row">
         <a href="student/login.html" class="btn btn-outline-teal home-student-btn"><span data-site-home-student-btn>Talaba profili</span></a>
-        <a href="natijalar.html" class="btn btn-teal home-student-btn"><span>Talaba test natijalari</span></a>
+        <a href="natijalar.html" class="btn btn-teal home-student-btn"><span data-site-hero-results-btn>Talaba test natijalari</span></a>
       </div>
 
       <div class="hero-mini-row">
         <span class="hero-avatars" aria-hidden="true"><span>🎓</span><span>📘</span><span>✨</span></span>
-        <span class="hero-mini-text"><strong>5,000+</strong><small>faol talabalar</small></span>
+        <span class="hero-mini-text"><strong data-site-hero-mini-number>5,000+</strong><small data-site-hero-mini-label>faol talabalar</small></span>
       </div>
     </div>
 
@@ -114,8 +114,8 @@
 
   <section class="courses-section" id="courses">
     <div class="courses-heading-wrap">
-      <span class="eyebrow courses-eyebrow">Yo‘nalishlar</span>
-      <h2 class="courses-heading">Ommabop kurslarimiz</h2>
+      <span class="eyebrow courses-eyebrow" data-site-courses-eyebrow>Yo‘nalishlar</span>
+      <h2 class="courses-heading" data-site-courses-heading>Ommabop kurslarimiz</h2>
     </div>
     <div class="home-cards-grid">
       <a href="student/login.html" class="home-card home-card-ge">
@@ -143,19 +143,19 @@
     <div class="stats-bar-inner">
       <div class="stat-item">
         <span class="stat-icon">👥</span>
-        <div><strong>5,000+</strong><span>Baxtli talabalar</span></div>
+        <div><strong data-site-stat-1-number>5,000+</strong><span data-site-stat-1-label>Baxtli talabalar</span></div>
       </div>
       <div class="stat-item">
         <span class="stat-icon">🎓</span>
-        <div><strong>50+</strong><span>Mutaxassis o‘qituvchilar</span></div>
+        <div><strong data-site-stat-2-number>50+</strong><span data-site-stat-2-label>Mutaxassis o‘qituvchilar</span></div>
       </div>
       <div class="stat-item">
         <span class="stat-icon">📚</span>
-        <div><strong>200+</strong><span>Interaktiv darslar</span></div>
+        <div><strong data-site-stat-3-number>200+</strong><span data-site-stat-3-label>Interaktiv darslar</span></div>
       </div>
       <div class="stat-item">
         <span class="stat-icon">🏆</span>
-        <div><strong>6+</strong><span>Yillik tajriba</span></div>
+        <div><strong data-site-stat-4-number>6+</strong><span data-site-stat-4-label>Yillik tajriba</span></div>
       </div>
     </div>
   </section>
