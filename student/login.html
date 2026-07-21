@@ -10,12 +10,21 @@
 </head>
 <body class="auth-body">
 
-<a href="../index.html" class="brand auth-brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+<div class="auth-wrap auth-wrap-split">
+  <div class="auth-split">
 
-<div class="auth-wrap">
-  <div class="folder auth-folder" style="--tab-color:#2E6F6E">
-    <div class="folder-tab"></div>
-    <div class="folder-body auth-card">
+    <div class="auth-split-left">
+      <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+
+      <div class="auth-split-hero">
+        <h2>Hey There!</h2>
+        <p>Yana ko‘rishganimizdan xursandmiz. Talaba profilingizga kirishga bir qadam qoldi.</p>
+      </div>
+
+      <p class="auth-split-foot">Hisobingiz yo‘qmi? <a href="register.html">Ro‘yxatdan o‘ting</a></p>
+    </div>
+
+    <div class="auth-split-right">
       <h1 class="auth-title">Talaba profiliga kirish</h1>
       <p class="auth-sub">Email va parolingizni kiriting.</p>
 
@@ -32,13 +41,18 @@
           </div>
         </label>
 
+        <div class="auth-remember-row">
+          <label><input type="checkbox" id="keepLoggedIn" checked> Meni eslab qol</label>
+          <a href="#" class="auth-forgot" id="forgotPasswordLink">Parolni unutdingizmi?</a>
+        </div>
+
         <p class="form-error" id="loginError" role="alert" hidden></p>
+        <p class="form-notice" id="loginNotice" role="status" hidden></p>
 
         <button type="submit" class="btn btn-amber auth-submit" id="loginSubmit">Kirish</button>
       </form>
-
-      <p class="auth-switch">Hisobingiz yo‘qmi? <a href="register.html">Ro‘yxatdan o‘ting</a></p>
     </div>
+
   </div>
 </div>
 
@@ -67,15 +81,23 @@ auth.onAuthStateChanged(async (user) => {
 document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const errorEl = document.getElementById('loginError');
+  const noticeEl = document.getElementById('loginNotice');
   const submitBtn = document.getElementById('loginSubmit');
   errorEl.hidden = true;
+  noticeEl.hidden = true;
   submitBtn.disabled = true;
   submitBtn.textContent = 'Tekshirilmoqda…';
 
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
+  const keepLoggedIn = document.getElementById('keepLoggedIn').checked;
 
   try{
+    // "Meni eslab qol" belgilansa, sessiya brauzer yopilgandan keyin ham
+    // saqlanadi; belgilanmasa, faqat shu tab/sessiya davomida amal qiladi.
+    await auth.setPersistence(
+      keepLoggedIn ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION
+    );
     const cred = await auth.signInWithEmailAndPassword(email, password);
     const studentDoc = await db.collection('students').doc(cred.user.uid).get();
     if(!studentDoc.exists){
@@ -92,6 +114,30 @@ document.getElementById('studentLoginForm').addEventListener('submit', async (e)
     errorEl.hidden = false;
     submitBtn.disabled = false;
     submitBtn.textContent = 'Kirish';
+  }
+});
+
+document.getElementById('forgotPasswordLink').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('loginError');
+  const noticeEl = document.getElementById('loginNotice');
+  errorEl.hidden = true;
+  noticeEl.hidden = true;
+
+  const email = document.getElementById('loginEmail').value.trim();
+  if(!email){
+    errorEl.textContent = 'Parolni tiklash uchun avval email manzilingizni kiriting.';
+    errorEl.hidden = false;
+    return;
+  }
+
+  try{
+    await auth.sendPasswordResetEmail(email);
+    noticeEl.textContent = 'Parolni tiklash havolasi ' + email + ' manziliga yuborildi.';
+    noticeEl.hidden = false;
+  } catch(err){
+    errorEl.textContent = 'Havolani yuborib bo‘lmadi. Email manzilni tekshirib, qayta urinib ko‘ring.';
+    errorEl.hidden = false;
   }
 });
 </script>
