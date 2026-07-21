@@ -2267,6 +2267,18 @@ const COURSE_PAYMENT_ROWS = [
   { key: 'writing', label: 'Writing (Insho)', statusElId: 'studentDetailStatusWriting', btnId: 'togglePaymentBtnWriting', getStatus: s => (s.coursePayments && s.coursePayments.writing) || 'none', firestoreField: 'coursePayments.writing' }
 ];
 
+function formatStudentCreatedAt(ts){
+  if(!ts) return '—';
+  // Self-registered students (register.html) store createdAt as a
+  // Firestore Timestamp (has .toDate()); students created by the admin
+  // store it as a plain ms number (Date.now()). Handle both — passing a
+  // Timestamp object straight into `new Date(...)` silently produces
+  // "Invalid Date".
+  const d = typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
+  if(isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('uz-UZ');
+}
+
 function renderStudents(){
   const tbody = document.getElementById('studentsTableBody');
   const empty = document.getElementById('studentsEmpty');
@@ -2283,7 +2295,7 @@ function renderStudents(){
       <td style="display:flex; flex-direction:column; gap:.3em;">
         ${COURSE_PAYMENT_ROWS.map(row => `<span>${row.label}: ${STATUS_LABELS[row.getStatus(s)] || STATUS_LABELS.none}</span>`).join('')}
       </td>
-      <td>${s.createdAt ? new Date(s.createdAt).toLocaleDateString('uz-UZ') : '—'}</td>
+      <td>${formatStudentCreatedAt(s.createdAt)}</td>
       <td><button class="btn btn-ghost btn-sm" data-student-detail="${s.id}">Ko‘rish</button></td>
     </tr>
   `).join('');
