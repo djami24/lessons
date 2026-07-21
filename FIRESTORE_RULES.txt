@@ -195,5 +195,18 @@ service cloud.firestore {
       // submission only while it's still ungraded.
       allow delete: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid && resource.data.status == 'pending');
     }
+
+    // Kundalik (homework diary) — admin creates groups and daily homework;
+    // any authenticated user (student) may read.
+    match /kundalik/{groupId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+
+      match /vazifalari/{hwId} {
+        allow read: if isSignedIn();
+        allow write: if isAdmin();
+      }
+    }
+
   }
 }
