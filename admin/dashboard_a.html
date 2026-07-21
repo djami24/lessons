@@ -353,6 +353,10 @@
           <label class="field"><span>Kichik statistika raqami</span><input type="text" id="settingHeroMiniNumber" placeholder="5,000+"></label>
           <label class="field"><span>Kichik statistika yozuvi</span><input type="text" id="settingHeroMiniLabel" placeholder="faol talabalar"></label>
         </div>
+        <label class="field">
+          <span>Hero rasmi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy — rasmni boshqa saytga (masalan, Imgur) yuklab, shu yerga havolasini qo‘ying. Bo‘sh qoldirsangiz, ko‘k panel + kitob belgisi ko‘rinadi)</span></span>
+          <input type="url" id="settingHeroImageUrl" placeholder="https://…">
+        </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>📖 Kurslar bo‘limi</h3>
@@ -2760,6 +2764,7 @@ const DEFAULT_SITE_SETTINGS = {
   heroResultsBtnText: 'Talaba test natijalari',
   heroMiniNumber: '5,000+',
   heroMiniLabel: 'faol talabalar',
+  heroImageUrl: '',
 
   coursesEyebrow: 'Yo‘nalishlar',
   coursesHeading: 'Ommabop kurslarimiz',
@@ -2816,6 +2821,7 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingHeroResultsBtnText').value = data.heroResultsBtnText || '';
   document.getElementById('settingHeroMiniNumber').value = data.heroMiniNumber || '';
   document.getElementById('settingHeroMiniLabel').value = data.heroMiniLabel || '';
+  document.getElementById('settingHeroImageUrl').value = data.heroImageUrl || '';
 
   document.getElementById('settingCoursesEyebrow').value = data.coursesEyebrow || '';
   document.getElementById('settingCoursesHeading').value = data.coursesHeading || '';
@@ -2904,6 +2910,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     heroResultsBtnText: document.getElementById('settingHeroResultsBtnText').value.trim(),
     heroMiniNumber: document.getElementById('settingHeroMiniNumber').value.trim(),
     heroMiniLabel: document.getElementById('settingHeroMiniLabel').value.trim(),
+    heroImageUrl: document.getElementById('settingHeroImageUrl').value.trim(),
 
     coursesEyebrow: document.getElementById('settingCoursesEyebrow').value.trim(),
     coursesHeading: document.getElementById('settingCoursesHeading').value.trim(),
