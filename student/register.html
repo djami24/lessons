@@ -38,6 +38,10 @@
           <input type="email" id="regEmail" required autocomplete="username">
         </label>
         <label class="field">
+          <span>Telefon raqam</span>
+          <input type="tel" id="regPhone" placeholder="+998 90 123 45 67" required autocomplete="tel">
+        </label>
+        <label class="field">
           <span>Parol</span>
           <div class="password-field">
             <input type="password" id="regPassword" required autocomplete="new-password" minlength="6">
@@ -79,6 +83,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
 
   const name = document.getElementById('regName').value.trim();
   const email = document.getElementById('regEmail').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
   const password = document.getElementById('regPassword').value;
 
   try{
@@ -86,6 +91,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     await db.collection('students').doc(cred.user.uid).set({
       name: name,
       email: email,
+      phone: phone,
       paymentStatus: 'none',
       progress: {},
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
