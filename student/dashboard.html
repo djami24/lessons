@@ -52,6 +52,10 @@
         <h3 class="latest-hw-title" id="latestHwTitle"></h3>
         <p class="latest-hw-preview" id="latestHwPreview"></p>
         <a href="../kundalik.html" class="btn btn-amber btn-sm">Batafsil ko‘rish</a>
+        <div class="hw-status-row" id="latestHwStatusRow">
+          <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
+          <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
+        </div>
       </div>
 
       <div class="home-menu-grid" id="homeMenuGrid">
@@ -688,6 +692,22 @@ function renderHomeView(){
 // Re-fetched every time the home view renders, so a newly added homework
 // from the admin panel shows up the next time the student opens/returns
 // to this page.
+// Strips HTML tags for a plain-text preview, but first turns block-level
+// tag boundaries (</p>, </li>, <br>, ...) into real line breaks so the
+// preview reads line-by-line instead of every word running together
+// (which happened before because the tags were just deleted with nothing
+// put in their place).
+function htmlToLinePreview(html, maxLen){
+  const withBreaks = String(html || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .trim();
+  return withBreaks.length > maxLen ? withBreaks.slice(0, maxLen).trim() + '…' : withBreaks;
+}
+
 async function loadLatestHomework(){
   const box = document.getElementById('latestHwBox');
   const group = state.student.kundalikGroup;
@@ -696,17 +716,47 @@ async function loadLatestHomework(){
     const snap = await db.collection('kundalik').doc(group)
       .collection('vazifalari').orderBy('sana', 'desc').limit(1).get();
     if(snap.empty){ box.hidden = true; return; }
+    const hwId = snap.docs[0].id;
     const d = snap.docs[0].data();
     const ts = d.sana;
     const date = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
     document.getElementById('latestHwDate').textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
     document.getElementById('latestHwTitle').textContent = d.sarlavha || 'Uy vazifasi';
-    document.getElementById('latestHwPreview').textContent = (d.matn || '').replace(/<[^>]*>/g, '').substring(0, 160);
+    document.getElementById('latestHwPreview').textContent = htmlToLinePreview(d.matn, 160);
+    setupHwStatusButtons(hwId);
     box.hidden = false;
   } catch(err){
     console.error('Latest homework load failed:', err);
     box.hidden = true;
   }
+}
+
+// Optional "did you do it?" self-check — purely cosmetic and stored only
+// in this browser (same idea as the blog like/dislike buttons). Nothing
+// is required: a student can click either button, switch between them,
+// or ignore them completely.
+function setupHwStatusButtons(hwId){
+  const row = document.getElementById('latestHwStatusRow');
+  const key = 'efHwStatus_' + hwId;
+  let saved = null;
+  try { saved = localStorage.getItem(key); } catch(e) {}
+
+  const buttons = row.querySelectorAll('.hw-status-btn');
+  function applyState(status){
+    buttons.forEach(b => b.classList.toggle('is-active', b.dataset.status === status));
+  }
+  applyState(saved);
+
+  buttons.forEach(btn => {
+    btn.onclick = () => {
+      const status = btn.classList.contains('is-active') ? null : btn.dataset.status;
+      try {
+        if(status) localStorage.setItem(key, status);
+        else localStorage.removeItem(key);
+      } catch(e) {}
+      applyState(status);
+    };
+  });
 }
 
 document.getElementById('backToHomeFromCourses').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
