@@ -216,9 +216,9 @@
           <h2 style="margin:0 0 .2em;">Savollar</h2>
           <p style="margin:0;">Har bir savolga 4 ta variant kiriting va nuqta (radio) bilan to‘g‘ri javobni belgilang.</p>
         </div>
-        <button type="button" class="btn btn-ghost btn-sm" id="addPlacementQuestionBtn">+ Savol qo‘shish</button>
       </div>
       <div id="placementQuizEditor"></div>
+      <button type="button" class="btn btn-ghost btn-sm" id="addPlacementQuestionBtn" style="align-self:flex-start; margin-top:1em;">+ Savol qo‘shish</button>
 
       <hr style="border:none; border-top:1px solid var(--line); margin:2.4em 0;">
 
@@ -2741,6 +2741,12 @@ document.getElementById('addPlacementQuestionBtn').addEventListener('click', () 
   syncPlacementQuestionsFromDOM();
   state.placementQuestions.push({ question: '', options: ['', '', '', ''], correctIndex: 0 });
   renderPlacementQuestionsEditor();
+  const blocks = placementQuizEditor.querySelectorAll('.quiz-question-block');
+  const lastBlock = blocks[blocks.length - 1];
+  if(lastBlock){
+    lastBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    lastBlock.querySelector('[data-pqfield="question"]')?.focus();
+  }
 });
 
 placementQuizEditor.addEventListener('click', (e) => {
@@ -2762,13 +2768,14 @@ function renderPlacementLevelsEditor(){
   }
   emptyEl.hidden = true;
   placementLevelsEditor.innerHTML = state.placementLevels.map((lvl, li) => `
-    <div class="placement-level-row" data-lindex="${li}">
+    <div class="placement-level-row" data-lindex="${li}" style="flex-wrap:wrap; align-items:flex-start;">
       <input type="number" min="0" data-lfield="min" placeholder="Min" value="${lvl.min !== undefined ? lvl.min : ''}">
       <span class="placement-level-sep">dan</span>
       <input type="number" min="0" data-lfield="max" placeholder="Max" value="${lvl.max !== undefined ? lvl.max : ''}">
       <span class="placement-level-sep">tagacha to‘g‘ri →</span>
       <input type="text" data-lfield="label" placeholder="Daraja nomi (masalan: B1 Elementary)" value="${escapeHtml(lvl.label || '')}">
       <button type="button" class="btn btn-ghost btn-sm" data-remove-placement-level="${li}">O‘chirish</button>
+      <textarea data-lfield="comment" placeholder="Bu darajaga izoh (talaba natija bilan birga shu izohni ko‘radi)…" rows="2" style="width:100%; margin-top:.5em; font-family:inherit; font-size:.9rem; padding:.6em .7em; border-radius:var(--radius-s); border:1.5px solid var(--line);">${escapeHtml(lvl.comment || '')}</textarea>
     </div>`).join('');
 }
 
@@ -2779,12 +2786,13 @@ function syncPlacementLevelsFromDOM(){
     state.placementLevels[li].min = Number(row.querySelector('[data-lfield="min"]').value) || 0;
     state.placementLevels[li].max = Number(row.querySelector('[data-lfield="max"]').value) || 0;
     state.placementLevels[li].label = row.querySelector('[data-lfield="label"]').value.trim();
+    state.placementLevels[li].comment = row.querySelector('[data-lfield="comment"]').value.trim();
   });
 }
 
 document.getElementById('addPlacementLevelBtn').addEventListener('click', () => {
   syncPlacementLevelsFromDOM();
-  state.placementLevels.push({ min: 0, max: 0, label: '' });
+  state.placementLevels.push({ min: 0, max: 0, label: '', comment: '' });
   renderPlacementLevelsEditor();
 });
 
