@@ -2971,7 +2971,7 @@ function renderCertificatesEditor(){
   }
   certificatesEditor.innerHTML = state.certificateImages.map((url, i) => `
     <div class="certificate-row" data-cindex="${i}" style="display:flex; align-items:center; gap:.7em; margin-bottom:.6em;">
-      <img src="${escapeHtml(url)}" alt="" style="width:44px; height:44px; object-fit:cover; border-radius:6px; border:1.5px solid var(--line); background:var(--paper-2); flex-shrink:0;" onerror="this.style.visibility='hidden'">
+      <img src="${escapeHtml(url)}" alt="" style="width:36px; height:48px; object-fit:cover; border-radius:6px; border:1.5px solid var(--line); background:var(--paper-2); flex-shrink:0;" onerror="this.style.visibility='hidden'">
       <input type="url" data-cfield="url" placeholder="https://…" value="${escapeHtml(url)}" style="flex:1; padding:.6em .8em; border-radius:var(--radius-s); border:1.5px solid var(--line); font-family:var(--font-body);">
       <button type="button" class="btn btn-ghost btn-sm" data-remove-certificate="${i}">O‘chirish</button>
     </div>`).join('');
