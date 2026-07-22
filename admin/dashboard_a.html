@@ -359,6 +359,12 @@
           <input type="url" id="settingHeroImageUrl" placeholder="https://…">
         </label>
 
+        <label class="field">
+          <span>O‘quvchilar sertifikatlari <span style="font-weight:400; color:var(--gray);">(bir nechta rasm havolasini qo‘shing — bosh sahifada shu joyda avtomatik almashinib turadi va Hero rasmi o‘rniga shular ko‘rsatiladi. Bo‘sh qoldirsangiz, Hero rasmi yoki standart belgi ko‘rinadi)</span></span>
+        </label>
+        <div id="certificatesEditor"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="addCertificateBtn" style="align-self:flex-start; margin-top:.4em;">+ Sertifikat rasmi qo‘shish</button>
+
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>📖 Kurslar bo‘limi</h3>
 
@@ -886,6 +892,7 @@ let state = {
   quizDraft: [],
   placementQuestions: [],   // [{question, options:[4], correctIndex}]
   placementLevels: [],      // [{min, max, label}]
+  certificateImages: [],    // [urlString, ...] — homepage certificate carousel
   detailStudentId: null,
   lockTarget: null,      // {type:'level', levelId} | {type:'section', courseId, sectionId}
   lessonPath: [],        // array of folder ids — where we are inside the current level's lesson tree
@@ -2870,6 +2877,7 @@ const DEFAULT_SITE_SETTINGS = {
   heroMiniNumber: '5,000+',
   heroMiniLabel: 'faol talabalar',
   heroImageUrl: '',
+  certificateImages: [],
 
   coursesEyebrow: 'Yo‘nalishlar',
   coursesHeading: 'Ommabop kurslarimiz',
@@ -2927,6 +2935,8 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingHeroMiniNumber').value = data.heroMiniNumber || '';
   document.getElementById('settingHeroMiniLabel').value = data.heroMiniLabel || '';
   document.getElementById('settingHeroImageUrl').value = data.heroImageUrl || '';
+  state.certificateImages = Array.isArray(data.certificateImages) ? [...data.certificateImages] : [];
+  renderCertificatesEditor();
 
   document.getElementById('settingCoursesEyebrow').value = data.coursesEyebrow || '';
   document.getElementById('settingCoursesHeading').value = data.coursesHeading || '';
@@ -2951,6 +2961,51 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingBlogHeading').value = data.blogHeading || '';
   document.getElementById('settingRatingLabel').value = data.ratingLabel || '';
 }
+
+const certificatesEditor = document.getElementById('certificatesEditor');
+
+function renderCertificatesEditor(){
+  if(state.certificateImages.length === 0){
+    certificatesEditor.innerHTML = `<p class="quiz-empty">Hali sertifikat rasmi qo‘shilmagan.</p>`;
+    return;
+  }
+  certificatesEditor.innerHTML = state.certificateImages.map((url, i) => `
+    <div class="certificate-row" data-cindex="${i}" style="display:flex; align-items:center; gap:.7em; margin-bottom:.6em;">
+      <img src="${escapeHtml(url)}" alt="" style="width:44px; height:44px; object-fit:cover; border-radius:6px; border:1.5px solid var(--line); background:var(--paper-2); flex-shrink:0;" onerror="this.style.visibility='hidden'">
+      <input type="url" data-cfield="url" placeholder="https://…" value="${escapeHtml(url)}" style="flex:1; padding:.6em .8em; border-radius:var(--radius-s); border:1.5px solid var(--line); font-family:var(--font-body);">
+      <button type="button" class="btn btn-ghost btn-sm" data-remove-certificate="${i}">O‘chirish</button>
+    </div>`).join('');
+}
+
+function syncCertificatesFromDOM(){
+  document.querySelectorAll('#certificatesEditor .certificate-row').forEach(row => {
+    const i = Number(row.dataset.cindex);
+    if(state.certificateImages[i] === undefined) return;
+    state.certificateImages[i] = row.querySelector('[data-cfield="url"]').value.trim();
+  });
+}
+
+document.getElementById('addCertificateBtn').addEventListener('click', () => {
+  syncCertificatesFromDOM();
+  state.certificateImages.push('');
+  renderCertificatesEditor();
+});
+
+certificatesEditor.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-remove-certificate]');
+  if(!btn) return;
+  syncCertificatesFromDOM();
+  state.certificateImages.splice(Number(btn.dataset.removeCertificate), 1);
+  renderCertificatesEditor();
+});
+
+certificatesEditor.addEventListener('input', (e) => {
+  if(!e.target.matches('[data-cfield="url"]')) return;
+  const row = e.target.closest('.certificate-row');
+  const img = row.querySelector('img');
+  img.style.visibility = '';
+  img.src = e.target.value.trim();
+});
 
 async function loadSiteSettingsForm(){
   try{
@@ -2992,6 +3047,9 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
   submitBtn.disabled = true;
   submitBtn.textContent = 'Saqlanmoqda…';
 
+  syncCertificatesFromDOM();
+  const cleanedCertificates = state.certificateImages.map(u => u.trim()).filter(u => u !== '');
+
   const data = {
     colorPrimary: document.getElementById('settingColorPrimary').value,
     colorAccent: document.getElementById('settingColorAccent').value,
@@ -3016,6 +3074,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     heroMiniNumber: document.getElementById('settingHeroMiniNumber').value.trim(),
     heroMiniLabel: document.getElementById('settingHeroMiniLabel').value.trim(),
     heroImageUrl: document.getElementById('settingHeroImageUrl').value.trim(),
+    certificateImages: cleanedCertificates,
 
     coursesEyebrow: document.getElementById('settingCoursesEyebrow').value.trim(),
     coursesHeading: document.getElementById('settingCoursesHeading').value.trim(),
@@ -3043,6 +3102,8 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
 
   try{
     await db.collection('settings').doc('site').set(data, { merge: true });
+    state.certificateImages = cleanedCertificates;
+    renderCertificatesEditor();
     showToast('Sayt sozlamalari saqlandi.');
   } catch(err){
     errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
