@@ -16,11 +16,6 @@
   <aside class="admin-sidebar">
     <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
     <ul class="admin-nav">
-      <li><a href="#" class="active" id="navCourses">📚 Kurslarim</a></li>
-      <li><a href="#" id="navMyEssays">✍️ Insholarim</a></li>
-      <li><a href="../kundalik.html">🏠 Homework</a></li>
-      <li><a href="../natijalar.html">📊 Test Natijalar</a></li>
-      <li><a href="#" id="navPlacementTest">🧭 Darajani bilish testi</a></li>
       <li><a href="#" id="navProfile">👤 Profil</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
@@ -40,7 +35,71 @@
   <main class="admin-main">
 
     <!-- ===== COURSES OVERVIEW ===== -->
+    <!-- ===== HOME (default landing page) ===== -->
+    <section id="view-home">
+      <div class="admin-header">
+        <div>
+          <h1 id="homeGreeting">Xush kelibsiz!</h1>
+          <p>Kerakli bo‘limni tanlang.</p>
+        </div>
+      </div>
+
+      <div class="latest-hw-box" id="latestHwBox" hidden>
+        <div class="latest-hw-head">
+          <span class="latest-hw-eyebrow">🆕 So‘nggi uy vazifasi</span>
+          <span class="latest-hw-date" id="latestHwDate"></span>
+        </div>
+        <h3 class="latest-hw-title" id="latestHwTitle"></h3>
+        <p class="latest-hw-preview" id="latestHwPreview"></p>
+        <a href="../kundalik.html" class="btn btn-amber btn-sm">Batafsil ko‘rish</a>
+      </div>
+
+      <div class="level-grid" id="homeMenuGrid">
+        <a href="../kundalik.html" class="folder level-card">
+          <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
+          <div class="folder-body">
+            <span class="tag">Kundalik</span>
+            <h3 class="level-title">Homework</h3>
+            <p class="level-sub">Guruhingizga berilgan uy vazifalarini ko‘ring</p>
+          </div>
+        </a>
+        <a href="../natijalar.html" class="folder level-card">
+          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
+          <div class="folder-body">
+            <span class="tag">Statistika</span>
+            <h3 class="level-title">Test natijalar</h3>
+            <p class="level-sub">Yechgan testlaringiz va natijalaringiz</p>
+          </div>
+        </a>
+        <a href="#" class="folder level-card" id="navPlacementTest">
+          <div class="folder-tab" style="--tab-color:#253559"></div>
+          <div class="folder-body">
+            <span class="tag">Test</span>
+            <h3 class="level-title">Darajani bilish testi</h3>
+            <p class="level-sub">Ingliz tili darajangizni aniqlang</p>
+          </div>
+        </a>
+        <a href="#" class="folder level-card" id="navCourses">
+          <div class="folder-tab" style="--tab-color:#A63A50"></div>
+          <div class="folder-body">
+            <span class="tag">Kurslar</span>
+            <h3 class="level-title">Kurslarim</h3>
+            <p class="level-sub">General English, IELTS, CEFR, Writing</p>
+          </div>
+        </a>
+        <a href="#" class="folder level-card" id="navMyEssays">
+          <div class="folder-tab" style="--tab-color:#5B6472"></div>
+          <div class="folder-body">
+            <span class="tag">Writing</span>
+            <h3 class="level-title">Insholarim</h3>
+            <p class="level-sub">Yuborgan insholaringiz va baholar</p>
+          </div>
+        </a>
+      </div>
+    </section>
+
     <section id="view-courses">
+      <a href="#" id="backToHomeFromCourses" class="back-link">← Bosh sahifaga</a>
       <div class="admin-header">
         <div>
           <h1>Kurslarim</h1>
@@ -289,6 +348,7 @@
 
     <!-- ===== MY ESSAYS ===== -->
     <section id="view-my-essays" hidden>
+      <a href="#" id="backToHomeFromEssays" class="back-link">← Bosh sahifaga</a>
       <div class="admin-header">
         <div>
           <h1>Insholarim</h1>
@@ -304,6 +364,7 @@
 
     <!-- ===== PLACEMENT TEST (Darajani bilish testi) ===== -->
     <section id="view-placement-test" hidden>
+      <a href="#" id="backToHomeFromPlacement" class="back-link">← Bosh sahifaga</a>
       <div class="admin-header">
         <div>
           <h1>Darajani bilish testi</h1>
@@ -330,6 +391,7 @@
 
     <!-- ===== PROFILE (student's own profile) ===== -->
     <section id="view-profile" hidden>
+      <a href="#" id="backToHomeFromProfile" class="back-link">← Bosh sahifaga</a>
       <div class="admin-header">
         <div>
           <h1>Mening profilim</h1>
@@ -458,7 +520,7 @@ auth.onAuthStateChanged(async (user) => {
   await loadCourses();
   await loadWriting();
   await loadMySubmissions();
-  renderCoursesOverview();
+  renderHomeView();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -605,11 +667,52 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile'];
+const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
+
+// ---------- Home (default landing page) ----------
+
+function renderHomeView(){
+  const firstName = state.student.name ? state.student.name.split(' ')[0] : 'talaba';
+  document.getElementById('homeGreeting').textContent = 'Xush kelibsiz, ' + firstName + '!';
+  switchView('home');
+  document.getElementById('navProfile').classList.remove('active');
+  loadLatestHomework();
+}
+
+// Shows the most recent homework from the student's own kundalikGroup
+// (same source data as kundalik.html) right at the top of the home page.
+// Re-fetched every time the home view renders, so a newly added homework
+// from the admin panel shows up the next time the student opens/returns
+// to this page.
+async function loadLatestHomework(){
+  const box = document.getElementById('latestHwBox');
+  const group = state.student.kundalikGroup;
+  if(!group){ box.hidden = true; return; }
+  try{
+    const snap = await db.collection('kundalik').doc(group)
+      .collection('vazifalari').orderBy('sana', 'desc').limit(1).get();
+    if(snap.empty){ box.hidden = true; return; }
+    const d = snap.docs[0].data();
+    const ts = d.sana;
+    const date = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
+    document.getElementById('latestHwDate').textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
+    document.getElementById('latestHwTitle').textContent = d.sarlavha || 'Uy vazifasi';
+    document.getElementById('latestHwPreview').textContent = (d.matn || '').replace(/<[^>]*>/g, '').substring(0, 160);
+    box.hidden = false;
+  } catch(err){
+    console.error('Latest homework load failed:', err);
+    box.hidden = true;
+  }
+}
+
+document.getElementById('backToHomeFromCourses').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
+document.getElementById('backToHomeFromEssays').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
+document.getElementById('backToHomeFromPlacement').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
+document.getElementById('backToHomeFromProfile').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 
 // ---------- Courses overview ----------
 
