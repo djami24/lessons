@@ -589,7 +589,7 @@ table.data-table td .tag{ margin-right:.3em; }
 
 .hero-visual{ position:relative; display:flex; align-items:center; justify-content:center; min-height: 380px; }
 .hero-visual-panel{
-  width: 100%; max-width: 400px; aspect-ratio: 1 / 1.05; border-radius: var(--radius-l);
+  width: 100%; max-width: 400px; aspect-ratio: 3 / 4; border-radius: var(--radius-l);
   background: linear-gradient(155deg, #3457AC, var(--dark-bg));
   box-shadow: var(--shadow-pop); position:relative; overflow:hidden;
   display:flex; align-items:center; justify-content:center;
