@@ -180,14 +180,7 @@
         <span id="studentSearchCount" style="color:var(--gray); font-size:.85rem; white-space:nowrap;"></span>
       </div>
 
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead>
-            <tr><th>Ism</th><th>Email (login)</th><th>Telefon</th><th>To‘lov holati</th><th>Qo‘shilgan sana</th><th></th></tr>
-          </thead>
-          <tbody id="studentsTableBody"></tbody>
-        </table>
-      </div>
+      <div class="student-list" id="studentsList"></div>
       <div id="studentsEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
         <h3>Hali o‘quvchi qo‘shilmagan</h3>
         <p>“Yangi o‘quvchi qo‘shish” tugmasini bosib birinchi hisobni yarating, yoki o‘quvchilar mustaqil ro‘yxatdan o‘tishini kuting.</p>
@@ -2310,8 +2303,16 @@ function formatStudentCreatedAt(ts){
   return d.toLocaleDateString('uz-UZ');
 }
 
+const COURSE_CHIP_LABELS = { ge: 'GE', ielts: 'IELTS', cefr: 'CEFR', writing: 'Insho' };
+
+function initials(name){
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if(parts.length === 0) return '?';
+  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+}
+
 function renderStudents(){
-  const tbody = document.getElementById('studentsTableBody');
+  const listEl = document.getElementById('studentsList');
   const empty = document.getElementById('studentsEmpty');
   const noMatch = document.getElementById('studentsNoMatch');
   const countEl = document.getElementById('studentSearchCount');
@@ -2319,7 +2320,7 @@ function renderStudents(){
   const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
 
   if(state.students.length === 0){
-    tbody.innerHTML = '';
+    listEl.innerHTML = '';
     empty.style.display = 'block';
     noMatch.style.display = 'none';
     if(countEl) countEl.textContent = '';
@@ -2339,25 +2340,43 @@ function renderStudents(){
   }
 
   if(filtered.length === 0){
-    tbody.innerHTML = '';
+    listEl.innerHTML = '';
     noMatch.style.display = 'block';
     return;
   }
   noMatch.style.display = 'none';
 
-  tbody.innerHTML = filtered.map(s => `
-    <tr>
-      <td>${escapeHtml(s.name)}</td>
-      <td>${escapeHtml(s.email)}</td>
-      <td>${s.phone ? `<a href="tel:${escapeHtml(s.phone)}" style="color:inherit; text-decoration:none;">${escapeHtml(s.phone)}</a>` : '<span style="color:var(--gray);">—</span>'}</td>
-      <td style="display:flex; flex-direction:column; gap:.3em;">
-        ${COURSE_PAYMENT_ROWS.map(row => `<span>${row.label}: ${STATUS_LABELS[row.getStatus(s)] || STATUS_LABELS.none}</span>`).join('')}
-      </td>
-      <td>${formatStudentCreatedAt(s.createdAt)}</td>
-      <td><button class="btn btn-ghost btn-sm" data-student-detail="${s.id}">Ko‘rish</button></td>
-    </tr>
+  listEl.innerHTML = filtered.map(s => `
+    <div class="student-row" data-student-detail="${s.id}">
+      <div class="student-row-avatar">${initials(s.name)}</div>
+      <div class="student-row-main">
+        <div class="student-row-name">${escapeHtml(s.name)}</div>
+        <div class="student-row-sub">${escapeHtml(s.email)}${s.phone ? ' · ' + escapeHtml(s.phone) : ''}</div>
+      </div>
+      <div class="student-row-chips">
+        ${COURSE_PAYMENT_ROWS.map(row => {
+          const status = row.getStatus(s);
+          return `<span class="course-chip course-chip-${status}" title="${row.label}: ${status === 'approved' ? 'Tasdiqlangan' : status === 'pending' ? 'Kutilmoqda' : 'To‘lov yo‘q'}">${COURSE_CHIP_LABELS[row.key]}</span>`;
+        }).join('')}
+      </div>
+      <div class="student-row-date">${formatStudentCreatedAt(s.createdAt)}</div>
+      <div class="student-row-arrow">›</div>
+    </div>
   `).join('');
 }
+
+document.getElementById('studentsList').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-student-detail]');
+  if(!row) return;
+  const student = state.students.find(s => s.id === row.dataset.studentDetail);
+  if(!student) return;
+  state.detailStudentId = student.id;
+  document.getElementById('studentDetailName').textContent = student.name;
+  document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
+  document.getElementById('studentDetailPhoneInput').value = student.phone || '';
+  refreshStudentDetailModal(student);
+  openModal('modalStudentDetail');
+});
 
 document.getElementById('studentSearchInput').addEventListener('input', () => {
   renderStudents();
@@ -2382,19 +2401,6 @@ function refreshStudentDetailModal(student){
     }
   });
 }
-
-document.getElementById('studentsTableBody').addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-student-detail]');
-  if(!btn) return;
-  const student = state.students.find(s => s.id === btn.dataset.studentDetail);
-  if(!student) return;
-  state.detailStudentId = student.id;
-  document.getElementById('studentDetailName').textContent = student.name;
-  document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
-  document.getElementById('studentDetailPhoneInput').value = student.phone || '';
-  refreshStudentDetailModal(student);
-  openModal('modalStudentDetail');
-});
 
 document.getElementById('saveStudentPhoneBtn').addEventListener('click', async () => {
   const student = state.students.find(s => s.id === state.detailStudentId);
