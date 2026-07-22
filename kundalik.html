@@ -169,6 +169,13 @@
     font-weight:600; font-size:13px;
     padding:10px 16px;
     letter-spacing:0.03em;
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+  }
+  .hw-check{
+    background:#08221a; color:var(--pass);
+    font-size:11px; font-weight:700;
+    padding:3px 9px; border-radius:999px;
+    white-space:nowrap;
   }
   .hw-card-body{
     padding:16px;
@@ -288,7 +295,7 @@
     <div id="viewGroups">
       <div class="page-head">
         <h1>Guruhlar</h1>
-        <p>Uy vazifalarini ko'rish uchun guruhingizni tanlang</p>
+        <p>Uy vazifalarini ko'rish uchun guruhingizni tanlang. Diqqat: guruhni faqat bir marta tanlaysiz, keyin uni o'zgartira olmaysiz.</p>
       </div>
       <p class="groups-heading">GURUHLAR</p>
       <div id="groupsGrid" class="groups-grid">
@@ -339,7 +346,9 @@ function formatDate(ts){
   return d.toLocaleDateString('uz-UZ',{day:'numeric',month:'long',year:'numeric'});
 }
 
-auth.onAuthStateChanged(user => {
+let currentUid = null;
+
+auth.onAuthStateChanged(async user => {
   document.getElementById('authLoading').style.display = 'none';
   if(!user){
     window.location.href = 'student/login.html';
@@ -347,8 +356,40 @@ auth.onAuthStateChanged(user => {
   }
   document.getElementById('appShell').style.display = '';
   document.getElementById('userChip').textContent = user.email;
-  loadGroups();
+  currentUid = user.uid;
+  await initGroupFlow();
 });
+
+// A student picks their Kundalik group exactly once. After that, we skip
+// the groups list entirely and go straight to their own group's homework —
+// other groups are never shown to them again.
+async function initGroupFlow(){
+  try{
+    const studentDoc = await db.collection('students').doc(currentUid).get();
+    const kundalikGroup = studentDoc.exists ? studentDoc.data().kundalikGroup : null;
+    if(kundalikGroup){
+      document.getElementById('backToGroups').style.display = 'none';
+      openGroup(kundalikGroup);
+      return;
+    }
+  } catch(err){
+    console.error(err);
+  }
+  loadGroups();
+}
+
+// Saves the student's chosen group permanently, then opens it.
+async function chooseGroup(groupId){
+  try{
+    await db.collection('students').doc(currentUid).update({ kundalikGroup: groupId });
+  } catch(err){
+    console.error(err);
+    alert('Guruhni saqlab bo\'lmadi. Internet aloqasini tekshirib, qayta urinib ko\'ring.');
+    return;
+  }
+  document.getElementById('backToGroups').style.display = 'none';
+  openGroup(groupId);
+}
 
 document.getElementById('backToGroups').addEventListener('click', () => {
   showView('groups');
@@ -387,7 +428,7 @@ async function loadGroups(){
       </div>
     `).join('');
     grid.querySelectorAll('.group-card').forEach(card => {
-      card.addEventListener('click', () => openGroup(card.dataset.gid));
+      card.addEventListener('click', () => chooseGroup(card.dataset.gid));
     });
   } catch(err){
     grid.innerHTML = '<div class="empty"><div class="icon">⚠️</div>Yuklab bo\'lmadi.</div>';
@@ -414,6 +455,7 @@ async function openGroup(groupId){
     }
 
     countLabel.textContent = `UY VAZIFALARI (${snap.docs.length})`;
+    const now = new Date();
     grid.innerHTML = snap.docs.map(doc => {
       const d = doc.data();
       const dateStr = formatDate(d.sana);
@@ -421,9 +463,11 @@ async function openGroup(groupId){
       const preview = escHtml(
         (d.matn || '').replace(/<[^>]*>/g,'').substring(0, 120)
       );
+      const dueDate = d.sana ? (typeof d.sana.toDate === 'function' ? d.sana.toDate() : new Date(d.sana)) : null;
+      const isPast = dueDate ? dueDate < now : false;
       return `
         <div class="hw-card" data-id="${doc.id}" data-gid="${escHtml(groupId)}">
-          <div class="hw-card-date">📅 ${dateStr}</div>
+          <div class="hw-card-date">📅 ${dateStr}${isPast ? ' <span class="hw-check" title="Muddati o\'tgan — tekshirilgan">✓ Tekshirilgan</span>' : ''}</div>
           <div class="hw-card-body">
             <p class="hw-card-title">${title}</p>
             <p class="hw-card-preview">${preview}</p>
