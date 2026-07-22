@@ -1200,3 +1200,166 @@ table.data-table td .tag{ margin-right:.3em; }
 .comment-admin-author{ font-weight:700; font-size:.88rem; }
 .comment-admin-date{ font-size:.72rem; color: var(--gray); font-family: var(--font-mono); }
 .comment-admin-text{ font-size:.88rem; line-height:1.45; white-space:pre-wrap; word-break:break-word; margin:0; }
+
+/* =========================================================
+   Admin panel — blue dashboard theme
+   Scoped entirely to body.admin-theme (used only on
+   dashboard_a.html) so nothing else on the site — including
+   the student dashboard, which shares the same .admin-shell/
+   .admin-nav/.stat-card/.level-card markup — is affected.
+   Pure re-skin: no selector here changes structure, only look.
+   ========================================================= */
+body.admin-theme{
+  --adm-bg:        #F3F6FC;
+  --adm-navy:       #0E1836;
+  --adm-navy-2:     #0A1228;
+  --adm-blue:       #2F6FED;
+  --adm-blue-deep:  #1E54C4;
+  --adm-purple:     #7C5CFC;
+  --adm-green:      #1FAE7A;
+  --adm-orange:     #F0923D;
+  --adm-ink:        #101B3D;
+  --adm-gray:       #8892A6;
+  --adm-line:       #E7EBF4;
+  background: var(--adm-bg);
+}
+
+/* ---- Sidebar ---- */
+body.admin-theme .admin-sidebar{
+  background: linear-gradient(180deg, var(--adm-navy), var(--adm-navy-2));
+  width: 272px; padding: 1.8em 1.3em;
+}
+body.admin-theme .admin-sidebar .brand{
+  display:flex; align-items:center; gap:.7em; margin-bottom: 2.2em; padding: 0 .3em;
+}
+body.admin-theme .admin-nav a{
+  border-radius: 12px; padding: .8em 1em; font-size: .89rem; color: rgba(255,255,255,.62);
+}
+body.admin-theme .admin-nav a:hover{ background: rgba(255,255,255,.07); color: #fff; }
+body.admin-theme .admin-nav a.active{
+  background: var(--adm-blue); color: #fff;
+  box-shadow: 0 8px 18px -8px rgba(47,111,237,.65);
+}
+body.admin-theme .admin-user{
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09);
+  border-radius: 14px; padding: .8em 1em; justify-content:flex-start; gap:.7em;
+}
+body.admin-theme .admin-user::before{
+  content: "🧑‍💼"; flex: none; width: 34px; height: 34px; border-radius: 50%;
+  background: var(--adm-blue); display:flex; align-items:center; justify-content:center;
+  font-size: .95rem;
+}
+body.admin-theme .admin-user-name{ font-size: .78rem; word-break: break-all; }
+body.admin-theme .admin-user-role{ color: rgba(255,255,255,.45); }
+body.admin-theme .logout-btn{
+  margin-left: auto; flex: none; border-radius: 8px; border-color: rgba(255,255,255,.18);
+}
+body.admin-theme .logout-btn:hover{ border-color: #E8604A; color: #E8604A; }
+
+/* ---- Main area ---- */
+body.admin-theme .admin-main{ background: var(--adm-bg); }
+body.admin-theme .admin-header h1{ color: var(--adm-ink); }
+body.admin-theme .admin-header p{ color: var(--adm-gray); }
+
+/* ---- Buttons re-skinned blue ---- */
+body.admin-theme .btn-amber, body.admin-theme .btn-primary, body.admin-theme .btn-teal{
+  background: var(--adm-blue); border-color: var(--adm-blue);
+}
+body.admin-theme .btn-amber:hover, body.admin-theme .btn-primary:hover, body.admin-theme .btn-teal:hover{
+  background: var(--adm-blue-deep); border-color: var(--adm-blue-deep);
+}
+body.admin-theme .btn-outline, body.admin-theme .btn-outline-teal{
+  color: var(--adm-blue); border-color: var(--adm-blue);
+}
+body.admin-theme .btn-outline:hover, body.admin-theme .btn-outline-teal:hover{
+  background: var(--adm-blue); color: #fff;
+}
+body.admin-theme .btn-ghost:hover{ border-color: var(--adm-blue); color: var(--adm-blue); }
+body.admin-theme .btn:focus-visible{ outline-color: var(--adm-blue); }
+
+/* ---- Stat cards (icon + number) ---- */
+body.admin-theme .stat-card{
+  position: relative; background: #fff; border: 1px solid var(--adm-line);
+  border-radius: 18px; padding: 1.5em 1.4em 1.5em 5.6em;
+  box-shadow: 0 10px 26px -18px rgba(16,27,61,.35);
+}
+body.admin-theme .stat-card::before{
+  content: "📘"; position: absolute; left: 1.3em; top: 50%; transform: translateY(-50%);
+  width: 52px; height: 52px; border-radius: 50%; font-size: 1.35rem;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(47,111,237,.12); color: var(--adm-blue);
+}
+body.admin-theme .stat-card:nth-child(2)::before{ content:"📝"; background: rgba(124,92,252,.12); color: var(--adm-purple); }
+body.admin-theme .stat-card:nth-child(3)::before{ content:"👥"; background: rgba(31,174,122,.12); color: var(--adm-green); }
+body.admin-theme .stat-card:nth-child(4)::before{ content:"🔒"; background: rgba(240,146,61,.14); color: var(--adm-orange); }
+body.admin-theme .stat-card strong{ color: var(--adm-ink); font-size: 1.85rem; }
+body.admin-theme .stat-card span{ color: var(--adm-gray); font-weight: 600; }
+
+/* ---- Level / course / writing-track cards ---- */
+body.admin-theme .level-card{ margin-top: 8px; }
+body.admin-theme .level-card .folder-tab{
+  position: absolute; top: 0; left: 0; right: 0; width: 100%; height: 6px;
+  clip-path: none; border-radius: var(--radius-m) var(--radius-m) 0 0;
+  background: var(--adm-blue);
+}
+body.admin-theme .level-card:nth-of-type(4n+2) .folder-tab{ background: var(--adm-purple); }
+body.admin-theme .level-card:nth-of-type(4n+3) .folder-tab{ background: var(--adm-green); }
+body.admin-theme .level-card:nth-of-type(4n+4) .folder-tab{ background: var(--adm-orange); }
+body.admin-theme .level-card:has(.badge-soon) .folder-tab{ background: #A6AFC2; }
+body.admin-theme .level-card .folder-body{
+  border-radius: var(--radius-m); border-color: var(--adm-line); padding-top: 1.9em;
+}
+body.admin-theme .level-card .folder-body::before{
+  content: "📘"; display:flex; align-items:center; justify-content:center;
+  width: 50px; height: 50px; border-radius: 50%; font-size: 1.3rem; margin-bottom: .8em;
+  background: rgba(47,111,237,.12); color: var(--adm-blue);
+}
+body.admin-theme .level-card:nth-of-type(4n+2) .folder-body::before{ content:"🎓"; background: rgba(124,92,252,.12); color: var(--adm-purple); }
+body.admin-theme .level-card:nth-of-type(4n+3) .folder-body::before{ content:"📈"; background: rgba(31,174,122,.12); color: var(--adm-green); }
+body.admin-theme .level-card:nth-of-type(4n+4) .folder-body::before{ content:"🏅"; background: rgba(240,146,61,.14); color: var(--adm-orange); }
+body.admin-theme .level-card:has(.badge-soon) .folder-body::before{ content:"🔒"; background: rgba(166,175,194,.18); color: #7C8698; }
+body.admin-theme .level-title, body.admin-theme .course-title{ color: var(--adm-ink); }
+body.admin-theme [data-toggle-lock]{
+  width: 100%; justify-content:center; margin-top: 1em;
+  background: var(--adm-blue); color:#fff; border-color: var(--adm-blue);
+  border-radius: 10px; font-weight: 700;
+}
+body.admin-theme [data-toggle-lock]::before{ content:"🔒 "; }
+body.admin-theme [data-toggle-lock]:hover{ background: var(--adm-blue-deep); border-color: var(--adm-blue-deep); color:#fff; }
+
+/* ---- Tables, rows, chips ---- */
+body.admin-theme table.data-table th{ background: var(--adm-bg); color: var(--adm-gray); }
+body.admin-theme .table-wrap, body.admin-theme .lesson-row, body.admin-theme .blog-admin-card,
+body.admin-theme .student-row{ border-color: var(--adm-line); border-radius: 16px; }
+body.admin-theme .student-row:hover{ border-color: var(--adm-blue); box-shadow: 0 6px 16px -10px rgba(47,111,237,.35); }
+body.admin-theme .student-row-avatar{ background: rgba(47,111,237,.12); color: var(--adm-blue); }
+body.admin-theme .course-chip-approved{ background: rgba(31,174,122,.15); color: #128A5C; }
+body.admin-theme .course-chip-pending{ background: rgba(240,146,61,.18); color: #C96F1F; }
+body.admin-theme .student-row:hover .student-row-arrow{ color: var(--adm-blue); }
+body.admin-theme .folder-row{ border-color: rgba(47,111,237,.25); background: rgba(47,111,237,.045); }
+body.admin-theme .folder-row:hover{ border-color: var(--adm-blue); }
+body.admin-theme .folder-row .lesson-index{ color: var(--adm-blue-deep); }
+body.admin-theme .lesson-index{ color: var(--adm-blue-deep); }
+body.admin-theme .lesson-links a{ color: var(--adm-blue-deep); }
+body.admin-theme .breadcrumb-trail a:hover{ color: var(--adm-blue-deep); }
+body.admin-theme .back-link:hover{ color: var(--adm-blue-deep); }
+body.admin-theme .status-otildi{ background: rgba(47,111,237,.12); color: var(--adm-blue-deep); }
+body.admin-theme .status-tayyor{ background: rgba(240,146,61,.16); color: #C96F1F; }
+
+/* ---- Inputs / focus ---- */
+body.admin-theme input:focus-visible, body.admin-theme textarea:focus-visible,
+body.admin-theme select:focus-visible, body.admin-theme .folder-search:focus{
+  border-color: var(--adm-blue); box-shadow: 0 0 0 3px rgba(47,111,237,.15);
+}
+body.admin-theme .field input:focus, body.admin-theme .field textarea:focus, body.admin-theme .field select:focus{
+  border-color: var(--adm-blue); box-shadow: 0 0 0 3px rgba(47,111,237,.15);
+}
+
+/* ---- Toast / modal accents ---- */
+body.admin-theme .toast{ background: var(--adm-ink); }
+body.admin-theme .modal-box{ border-radius: 18px; }
+
+@media (max-width: 900px){
+  body.admin-theme .stat-card{ padding-left: 4.6em; }
+  body.admin-theme .stat-card::before{ width:44px; height:44px; font-size:1.1rem; left:1em; }
+}
