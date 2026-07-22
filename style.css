@@ -1390,3 +1390,25 @@ body.admin-theme .emoji-picker-btn:hover{ border-color: var(--adm-blue); }
 body.admin-theme .field input:focus-visible, body.admin-theme .field textarea:focus-visible{
   border-color: var(--adm-blue);
 }
+
+/* ---- Student home page: "latest homework" highlight box ---- */
+body.admin-theme .latest-hw-box{
+  background: linear-gradient(155deg, var(--adm-blue), var(--adm-blue-deep));
+  color: #fff; border-radius: 18px; padding: 1.6em 1.8em;
+  margin-bottom: 2em; box-shadow: 0 14px 30px -16px rgba(47,111,237,.55);
+}
+body.admin-theme .latest-hw-head{
+  display:flex; align-items:center; justify-content:space-between; gap:1em; flex-wrap:wrap;
+  margin-bottom:.6em;
+}
+body.admin-theme .latest-hw-eyebrow{
+  font-family: var(--font-mono); font-size:.72rem; letter-spacing:.06em; text-transform:uppercase;
+  background: rgba(255,255,255,.16); padding:.35em .8em; border-radius:999px;
+}
+body.admin-theme .latest-hw-date{ font-size:.8rem; color: rgba(255,255,255,.75); font-family: var(--font-mono); }
+body.admin-theme .latest-hw-title{ margin:.2em 0 .35em; color:#fff; font-size:1.3rem; }
+body.admin-theme .latest-hw-preview{ color: rgba(255,255,255,.85); margin:0 0 1.1em; font-size:.92rem; }
+body.admin-theme .latest-hw-box .btn-amber{
+  background:#fff; color: var(--adm-blue-deep); border-color:#fff;
+}
+body.admin-theme .latest-hw-box .btn-amber:hover{ background: rgba(255,255,255,.9); }
