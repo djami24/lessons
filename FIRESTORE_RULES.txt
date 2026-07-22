@@ -28,6 +28,14 @@ service cloud.firestore {
       return courseStatus(request.resource.data, 'writing') == courseStatus(resource.data, 'writing') ||
              courseStatus(request.resource.data, 'writing') == 'pending';
     }
+    // Kundalik (Homework) group: a student picks their group exactly once on
+    // their first visit to kundalik.html. After that it's locked — they may
+    // never switch to a different group themselves (only re-save the same
+    // value, which is a harmless no-op).
+    function validKundalikGroupUpdate() {
+      return resource.data.get('kundalikGroup', null) == null ||
+             request.resource.data.kundalikGroup == resource.data.kundalikGroup;
+    }
  
     // Admin accounts — document ID = the admin's Firebase Auth UID.
     // Create these manually in the Firestore console (see setup guide).
@@ -149,7 +157,9 @@ service cloud.firestore {
       //   - update their own quiz progress,
       //   - save their own placement-test result (placementResult — score,
       //     total, level, takenAt; no validation needed, it's just a
-      //     self-reported summary the student and admin can both see), and
+      //     self-reported summary the student and admin can both see),
+      //   - pick their Kundalik (Homework) group once (kundalikGroup — locked
+      //     after the first choice, see validKundalikGroupUpdate()), and
       //   - flip their OWN paymentStatus / coursePayments.ielts /
       //     coursePayments.cefr to 'pending' (e.g. after clicking "To'lov
       //     qildim") — they can NEVER set any of these to 'approved'
@@ -157,11 +167,12 @@ service cloud.firestore {
       allow update: if isAdmin() || (
         isSignedIn() && request.auth.uid == studentId &&
         request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['progress','paymentStatus','paymentRequestedAt','coursePayments','coursePaymentRequestedAt','placementResult']) &&
+          .hasOnly(['progress','paymentStatus','paymentRequestedAt','coursePayments','coursePaymentRequestedAt','placementResult','kundalikGroup']) &&
         request.resource.data.paymentStatus in ['pending', resource.data.paymentStatus] &&
         validCoursePaymentsUpdate() &&
         validCoursePaymentsUpdateCefr() &&
-        validCoursePaymentsUpdateWriting()
+        validCoursePaymentsUpdateWriting() &&
+        validKundalikGroupUpdate()
       );
  
       allow delete: if isAdmin();
