@@ -350,6 +350,33 @@ footer a:hover{ color: var(--amber); }
 }
 .logout-btn:hover{ border-color: var(--danger); color: var(--danger); }
 
+.sidebar-avatar{
+  flex: none; width:38px; height:38px; border-radius:50%;
+  background: rgba(217,142,63,.16); border: 1.5px solid rgba(217,142,63,.35);
+  display:flex; align-items:center; justify-content:center; font-size:1.2rem;
+}
+
+/* ---- Student profile page ---- */
+.profile-card{
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-m);
+  padding: 1.8em 2em; max-width: 640px;
+}
+.profile-avatar-row{ display:flex; align-items:center; gap:1.3em; }
+.profile-avatar-big{
+  flex:none; width:76px; height:76px; border-radius:50%;
+  background: var(--paper-2); border: 1.5px solid var(--line);
+  display:flex; align-items:center; justify-content:center; font-size:2.4rem;
+}
+.emoji-picker-grid{
+  margin-top:1.2em; padding:1em; background: var(--paper-2); border-radius: var(--radius-s);
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr)); gap:.4em;
+}
+.emoji-picker-btn{
+  background: var(--white); border: 1.5px solid var(--line); border-radius: var(--radius-s);
+  font-size:1.3rem; padding:.4em 0; cursor:pointer; transition: all .15s var(--ease);
+}
+.emoji-picker-btn:hover{ border-color: var(--teal); transform: translateY(-1px); }
+
 .admin-main{ flex:1; padding: 2.6em 3em 5em; max-width: 1180px; }
 .admin-header{ display:flex; align-items:flex-end; justify-content:space-between; gap: 2em; flex-wrap:wrap; margin-bottom: 2em; }
 .admin-header h1{ font-size: 2rem; margin-bottom:.2em; }
