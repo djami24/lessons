@@ -171,10 +171,19 @@
         <button class="btn btn-amber" id="openAddStudent">+ Yangi o‘quvchi qo‘shish</button>
       </div>
 
+      <div style="display:flex; align-items:center; gap:1em; margin-bottom:1.2em; flex-wrap:wrap;">
+        <div style="position:relative; flex:1; min-width:240px; max-width:420px;">
+          <input type="text" id="studentSearchInput" placeholder="Ism, email yoki telefon bo‘yicha qidirish…"
+            style="width:100%; padding:.75em 1em .75em 2.4em; border-radius:var(--radius-s); border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:.95rem;">
+          <span style="position:absolute; left:.85em; top:50%; transform:translateY(-50%); opacity:.55;">🔍</span>
+        </div>
+        <span id="studentSearchCount" style="color:var(--gray); font-size:.85rem; white-space:nowrap;"></span>
+      </div>
+
       <div class="table-wrap">
         <table class="data-table">
           <thead>
-            <tr><th>Ism</th><th>Email (login)</th><th>To‘lov holati</th><th>Qo‘shilgan sana</th><th></th></tr>
+            <tr><th>Ism</th><th>Email (login)</th><th>Telefon</th><th>To‘lov holati</th><th>Qo‘shilgan sana</th><th></th></tr>
           </thead>
           <tbody id="studentsTableBody"></tbody>
         </table>
@@ -182,6 +191,10 @@
       <div id="studentsEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
         <h3>Hali o‘quvchi qo‘shilmagan</h3>
         <p>“Yangi o‘quvchi qo‘shish” tugmasini bosib birinchi hisobni yarating, yoki o‘quvchilar mustaqil ro‘yxatdan o‘tishini kuting.</p>
+      </div>
+      <div id="studentsNoMatch" class="empty-state" style="margin-top:1.4em; display:none;">
+        <h3>Hech narsa topilmadi</h3>
+        <p>Qidiruvga mos o‘quvchi yo‘q. Boshqa ism, email yoki telefon raqami bilan qidirib ko‘ring.</p>
       </div>
     </section>
 
@@ -681,6 +694,10 @@
         <input type="email" id="newStudentEmail" placeholder="madina@example.com" required>
       </label>
       <label class="field">
+        <span>Telefon raqam (ixtiyoriy)</span>
+        <input type="tel" id="newStudentPhone" placeholder="+998 90 123 45 67">
+      </label>
+      <label class="field">
         <span>Boshlang‘ich parol</span>
         <input type="text" id="newStudentPassword" placeholder="Kamida 6 belgi" required minlength="6">
       </label>
@@ -698,6 +715,13 @@
   <div class="modal-box">
     <h3 id="studentDetailName">O‘quvchi</h3>
     <p class="modal-sub" id="studentDetailEmail"></p>
+
+    <div style="display:flex; align-items:center; gap:.6em; margin:.2em 0 1.4em; flex-wrap:wrap;">
+      <span style="color:var(--gray); font-size:.85rem;">📞</span>
+      <input type="tel" id="studentDetailPhoneInput" placeholder="Telefon raqam kiritilmagan"
+        style="flex:1; min-width:180px; padding:.5em .8em; border-radius:var(--radius-s); border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:.9rem;">
+      <button type="button" class="btn btn-ghost btn-sm" id="saveStudentPhoneBtn">Saqlash</button>
+    </div>
 
     <div style="display:flex; flex-direction:column; gap:1em; margin-bottom:1.6em;">
       <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.8em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
@@ -2289,16 +2313,43 @@ function formatStudentCreatedAt(ts){
 function renderStudents(){
   const tbody = document.getElementById('studentsTableBody');
   const empty = document.getElementById('studentsEmpty');
+  const noMatch = document.getElementById('studentsNoMatch');
+  const countEl = document.getElementById('studentSearchCount');
+  const searchInput = document.getElementById('studentSearchInput');
+  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+
   if(state.students.length === 0){
     tbody.innerHTML = '';
     empty.style.display = 'block';
+    noMatch.style.display = 'none';
+    if(countEl) countEl.textContent = '';
     return;
   }
   empty.style.display = 'none';
-  tbody.innerHTML = state.students.map(s => `
+
+  const filtered = query
+    ? state.students.filter(s => {
+        const haystack = [s.name, s.email, s.phone].filter(Boolean).join(' ').toLowerCase();
+        return haystack.includes(query);
+      })
+    : state.students;
+
+  if(countEl){
+    countEl.textContent = query ? `${filtered.length} / ${state.students.length} o‘quvchi topildi` : `${state.students.length} ta o‘quvchi`;
+  }
+
+  if(filtered.length === 0){
+    tbody.innerHTML = '';
+    noMatch.style.display = 'block';
+    return;
+  }
+  noMatch.style.display = 'none';
+
+  tbody.innerHTML = filtered.map(s => `
     <tr>
       <td>${escapeHtml(s.name)}</td>
       <td>${escapeHtml(s.email)}</td>
+      <td>${s.phone ? `<a href="tel:${escapeHtml(s.phone)}" style="color:inherit; text-decoration:none;">${escapeHtml(s.phone)}</a>` : '<span style="color:var(--gray);">—</span>'}</td>
       <td style="display:flex; flex-direction:column; gap:.3em;">
         ${COURSE_PAYMENT_ROWS.map(row => `<span>${row.label}: ${STATUS_LABELS[row.getStatus(s)] || STATUS_LABELS.none}</span>`).join('')}
       </td>
@@ -2307,6 +2358,10 @@ function renderStudents(){
     </tr>
   `).join('');
 }
+
+document.getElementById('studentSearchInput').addEventListener('input', () => {
+  renderStudents();
+});
 
 function refreshStudentDetailModal(student){
   const statusText = {
@@ -2336,8 +2391,29 @@ document.getElementById('studentsTableBody').addEventListener('click', (e) => {
   state.detailStudentId = student.id;
   document.getElementById('studentDetailName').textContent = student.name;
   document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
+  document.getElementById('studentDetailPhoneInput').value = student.phone || '';
   refreshStudentDetailModal(student);
   openModal('modalStudentDetail');
+});
+
+document.getElementById('saveStudentPhoneBtn').addEventListener('click', async () => {
+  const student = state.students.find(s => s.id === state.detailStudentId);
+  if(!student) return;
+  const phone = document.getElementById('studentDetailPhoneInput').value.trim();
+  const btn = document.getElementById('saveStudentPhoneBtn');
+  btn.disabled = true;
+  btn.textContent = 'Saqlanmoqda…';
+  try{
+    await db.collection('students').doc(student.id).update({ phone });
+    student.phone = phone;
+    renderStudents();
+    showToast('Telefon raqam saqlandi.');
+  } catch(err){
+    showToast('Telefon raqamni saqlab bo‘lmadi.', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Saqlash';
+  }
 });
 
 COURSE_PAYMENT_ROWS.forEach(row => {
@@ -2485,6 +2561,7 @@ document.getElementById('addStudentForm').addEventListener('submit', async (e) =
   e.preventDefault();
   const name = document.getElementById('newStudentName').value.trim();
   const email = document.getElementById('newStudentEmail').value.trim();
+  const phone = document.getElementById('newStudentPhone').value.trim();
   const password = document.getElementById('newStudentPassword').value;
   const errorEl = document.getElementById('addStudentError');
   const submitBtn = document.getElementById('addStudentSubmit');
@@ -2500,7 +2577,7 @@ document.getElementById('addStudentForm').addEventListener('submit', async (e) =
     const uid = cred.user.uid;
     await secondaryAuth.signOut();
 
-    const studentData = { name, email, paymentStatus: 'none', progress: {}, createdAt: Date.now() };
+    const studentData = { name, email, phone: phone || '', paymentStatus: 'none', progress: {}, createdAt: Date.now() };
     await db.collection('students').doc(uid).set(studentData);
     state.students.unshift({ id: uid, ...studentData });
 
