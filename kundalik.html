@@ -191,7 +191,22 @@
     -webkit-line-clamp:2;
     -webkit-box-orient:vertical;
     overflow:hidden;
+    white-space:pre-line;
   }
+
+  /* Optional "did you do it?" self-check buttons — purely a per-browser
+     reminder, nothing required, a student can click either or neither. */
+  .hw-status-row{
+    display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;
+  }
+  .hw-status-btn{
+    font-family:'PT Sans', sans-serif; font-size:13px; font-weight:700; cursor:pointer;
+    border-radius:999px; padding:9px 18px; border:1.5px solid var(--line);
+    background:var(--panel-2); color:var(--ink); transition:all 0.2s;
+  }
+  .hw-status-btn:hover{ border-color:var(--brass-dim); }
+  .hw-status-btn.is-active{ background:var(--brass); color:#fff; border-color:var(--brass); }
+  .hw-status-btn.is-active[data-status="undone"]{ background:#8a4a2f; border-color:#8a4a2f; color:#fff; }
 
   /* ---- Modal ---- */
   .modal-bg{
@@ -325,6 +340,10 @@
     <p class="modal-date" id="modalDate"></p>
     <h2 class="modal-title" id="modalTitle"></h2>
     <div class="modal-content" id="modalContent"></div>
+    <div class="hw-status-row" id="modalStatusRow">
+      <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
+      <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
+    </div>
   </div>
 </div>
 
@@ -344,6 +363,20 @@ function formatDate(ts){
   if(!ts) return '';
   const d = typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
   return d.toLocaleDateString('uz-UZ',{day:'numeric',month:'long',year:'numeric'});
+}
+
+// Strips HTML tags for a plain-text preview, turning block-level tag
+// boundaries into real line breaks first so words from separate
+// paragraphs/list items don't get glued together.
+function htmlToLinePreview(html, maxLen){
+  const withBreaks = String(html || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, '\n')
+    .replace(/<[^>]*>/g, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]+\n/g, '\n')
+    .trim();
+  return withBreaks.length > maxLen ? withBreaks.slice(0, maxLen).trim() + '…' : withBreaks;
 }
 
 let currentUid = null;
@@ -460,9 +493,7 @@ async function openGroup(groupId){
       const d = doc.data();
       const dateStr = formatDate(d.sana);
       const title = escHtml(d.sarlavha || 'Uy vazifasi');
-      const preview = escHtml(
-        (d.matn || '').replace(/<[^>]*>/g,'').substring(0, 120)
-      );
+      const preview = escHtml(htmlToLinePreview(d.matn, 120));
       const dueDate = d.sana ? (typeof d.sana.toDate === 'function' ? d.sana.toDate() : new Date(d.sana)) : null;
       const isPast = dueDate ? dueDate < now : false;
       return `
@@ -497,7 +528,35 @@ function openHwModal(docId, groupId){
   document.getElementById('modalTitle').textContent = d.sarlavha || 'Uy vazifasi';
   // d.matn may contain rich HTML from the admin panel
   document.getElementById('modalContent').innerHTML = d.matn || '';
+  setupHwStatusButtons(docId);
   document.getElementById('hwModal').hidden = false;
+}
+
+// Optional "did you do it?" self-check — purely cosmetic, remembered only
+// in this browser (localStorage), never sent anywhere. A student may
+// click either button, switch between them, or leave both unclicked.
+function setupHwStatusButtons(hwId){
+  const row = document.getElementById('modalStatusRow');
+  const key = 'efHwStatus_' + hwId;
+  let saved = null;
+  try { saved = localStorage.getItem(key); } catch(e) {}
+
+  const buttons = row.querySelectorAll('.hw-status-btn');
+  function applyState(status){
+    buttons.forEach(b => b.classList.toggle('is-active', b.dataset.status === status));
+  }
+  applyState(saved);
+
+  buttons.forEach(btn => {
+    btn.onclick = () => {
+      const status = btn.classList.contains('is-active') ? null : btn.dataset.status;
+      try {
+        if(status) localStorage.setItem(key, status);
+        else localStorage.removeItem(key);
+      } catch(e) {}
+      applyState(status);
+    };
+  });
 }
 </script>
 </body>
