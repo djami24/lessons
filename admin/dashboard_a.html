@@ -313,6 +313,14 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>💳 To‘lov ma’lumotlari</h3>
+        <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">O‘quvchi kurs sotib olganda, to‘lov sahifasida shu karta raqami va egasi ismi ko‘rsatiladi.</p>
+        <div style="display:grid; grid-template-columns:2fr 1fr; gap:1em;">
+          <label class="field"><span>Karta raqami</span><input type="text" id="settingCardNumber" placeholder="8600 1234 5678 9012"></label>
+          <label class="field"><span>Karta egasi</span><input type="text" id="settingCardHolderName" placeholder="F. ISM"></label>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>🧭 Yuqori panel (barcha sahifalarda)</h3>
 
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
@@ -2948,6 +2956,9 @@ const DEFAULT_SITE_SETTINGS = {
   brandName: 'Djami Lessons',
   logoUrl: '',
 
+  cardNumber: '5614 6818 5667 8473',
+  cardHolderName: 'Abduraxmon',
+
   navHomeLabel: 'Bosh sahifa',
   navCoursesLabel: 'Kurslar',
   navResultsLabel: 'Natijalar',
@@ -3002,6 +3013,9 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingButtonColorLabel').textContent = data.buttonColor;
   document.getElementById('settingBrandName').value = data.brandName || '';
   document.getElementById('settingLogoUrl').value = data.logoUrl || '';
+
+  document.getElementById('settingCardNumber').value = data.cardNumber || '';
+  document.getElementById('settingCardHolderName').value = data.cardHolderName || '';
 
   document.getElementById('settingNavHomeLabel').value = data.navHomeLabel || '';
   document.getElementById('settingNavCoursesLabel').value = data.navCoursesLabel || '';
@@ -3141,6 +3155,9 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     buttonColor: document.getElementById('settingButtonColor').value,
     brandName: document.getElementById('settingBrandName').value.trim() || 'Djami Lessons',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
+
+    cardNumber: document.getElementById('settingCardNumber').value.trim(),
+    cardHolderName: document.getElementById('settingCardHolderName').value.trim(),
 
     navHomeLabel: document.getElementById('settingNavHomeLabel').value.trim(),
     navCoursesLabel: document.getElementById('settingNavCoursesLabel').value.trim(),
