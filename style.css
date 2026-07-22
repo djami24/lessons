@@ -1412,3 +1412,53 @@ body.admin-theme .latest-hw-box .btn-amber{
   background:#fff; color: var(--adm-blue-deep); border-color:#fff;
 }
 body.admin-theme .latest-hw-box .btn-amber:hover{ background: rgba(255,255,255,.9); }
+
+/* ---- Student home page: menu cards (Homework / Test natijalar /
+   Darajani bilish testi / Kurslarim / Insholarim) ---- */
+body.admin-theme .home-menu-grid{
+  display:grid; grid-template-columns: repeat(auto-fill, minmax(230px,1fr));
+  gap: 1.3em; margin-top: .4em;
+}
+body.admin-theme .home-menu-card{
+  display:flex; flex-direction:column; text-decoration:none; cursor:pointer;
+  background:#fff; border:1px solid var(--adm-line); border-radius: 20px;
+  padding: 1.5em 1.5em 1.6em; box-shadow: 0 10px 26px -20px rgba(16,27,61,.35);
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s var(--ease);
+}
+body.admin-theme .home-menu-card:hover{
+  transform: translateY(-5px); border-color: transparent;
+  box-shadow: 0 18px 34px -16px rgba(16,27,61,.28);
+}
+body.admin-theme .home-menu-top{
+  display:flex; align-items:center; justify-content:space-between; margin-bottom: 1.1em;
+}
+body.admin-theme .home-menu-icon{
+  width: 52px; height: 52px; border-radius: 15px; font-size: 1.5rem;
+  display:flex; align-items:center; justify-content:center; flex:none;
+}
+body.admin-theme .home-menu-icon-blue{   background: rgba(47,111,237,.12); color: var(--adm-blue); }
+body.admin-theme .home-menu-icon-orange{ background: rgba(240,146,61,.14); color: var(--adm-orange); }
+body.admin-theme .home-menu-icon-purple{ background: rgba(124,92,252,.14); color: var(--adm-purple); }
+body.admin-theme .home-menu-icon-green{  background: rgba(31,174,122,.14); color: var(--adm-green); }
+body.admin-theme .home-menu-icon-teal{   background: rgba(20,156,140,.14); color: #149C8C; }
+body.admin-theme .home-menu-arrow{
+  width: 30px; height: 30px; border-radius: 50%; flex:none;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--adm-bg); color: var(--adm-gray); font-size: 1rem;
+  transition: all .2s var(--ease);
+}
+body.admin-theme .home-menu-card:hover .home-menu-arrow{
+  background: var(--adm-blue); color:#fff; transform: translateX(3px);
+}
+body.admin-theme .home-menu-title{
+  margin: 0 0 .35em; font-size: 1.12rem; color: var(--adm-ink);
+}
+body.admin-theme .home-menu-desc{
+  margin:0; font-size: .85rem; color: var(--adm-gray); line-height:1.5;
+}
+
+@media (max-width: 640px){
+  body.admin-theme .home-menu-grid{ grid-template-columns: 1fr 1fr; gap:.9em; }
+  body.admin-theme .home-menu-card{ padding: 1.2em 1.2em 1.3em; border-radius:16px; }
+  body.admin-theme .home-menu-icon{ width:44px; height:44px; font-size:1.25rem; border-radius:12px; }
+}
