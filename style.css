@@ -1362,6 +1362,24 @@ body.admin-theme .modal-box{ border-radius: 18px; }
 @media (max-width: 900px){
   body.admin-theme .stat-card{ padding-left: 4.6em; }
   body.admin-theme .stat-card::before{ width:44px; height:44px; font-size:1.1rem; left:1em; }
+
+  /* The unconditional "width:272px; padding:1.8em 1.3em" sidebar rule above
+     has higher CSS specificity than the plain ".admin-sidebar" mobile rule,
+     so without this override it wins even on phones and the sidebar stays
+     stuck at a fixed 272px column instead of collapsing into the full-width
+     mobile bar — that's the broken/cut-off top area on phones. Re-apply the
+     mobile sizing here, scoped to admin-theme, so it actually takes over. */
+  body.admin-theme .admin-sidebar{
+    width:100%; padding:.9em 1.1em; height:auto; position:relative;
+  }
+  body.admin-theme .admin-sidebar .brand{ margin-bottom:0; }
+
+  /* admin-user (avatar + logout) was fully hidden on mobile (display:none),
+     which meant there was no way to log out from a phone. Show it as a
+     compact row instead of hiding it. */
+  body.admin-theme .admin-user{
+    display:flex; width:100%; margin-top:.4em; padding:.7em .9em;
+  }
 }
 
 /* ---- Student dashboard specifics (dashboard.html shares body.admin-theme
@@ -1407,11 +1425,39 @@ body.admin-theme .latest-hw-eyebrow{
 }
 body.admin-theme .latest-hw-date{ font-size:.8rem; color: rgba(255,255,255,.75); font-family: var(--font-mono); }
 body.admin-theme .latest-hw-title{ margin:.2em 0 .35em; color:#fff; font-size:1.3rem; }
-body.admin-theme .latest-hw-preview{ color: rgba(255,255,255,.85); margin:0 0 1.1em; font-size:.92rem; }
+body.admin-theme .latest-hw-preview{
+  color: rgba(255,255,255,.85); margin:0 0 1.1em; font-size:.92rem;
+  white-space: pre-line; /* keep the line breaks inserted by loadLatestHomework() */
+}
 body.admin-theme .latest-hw-box .btn-amber{
   background:#fff; color: var(--adm-blue-deep); border-color:#fff;
 }
 body.admin-theme .latest-hw-box .btn-amber:hover{ background: rgba(255,255,255,.9); }
+
+/* ---- Optional "did you do the homework?" status buttons ----
+   Purely a self-reported, client-side toggle (same "remember in this
+   browser" pattern already used for blog likes) — nothing is required,
+   nothing is sent anywhere, a student can leave both unselected. */
+.hw-status-row{ display:flex; gap:.6em; flex-wrap:wrap; margin-top:1em; }
+.hw-status-btn{
+  font-family: var(--font-body); font-size:.85rem; font-weight:700; cursor:pointer;
+  border-radius: 999px; padding:.55em 1.1em; border:1.5px solid rgba(255,255,255,.45);
+  background: rgba(255,255,255,.08); color:#fff; transition: all .15s var(--ease);
+}
+.hw-status-btn:hover{ background: rgba(255,255,255,.18); }
+.hw-status-btn.is-active{ background:#fff; color: var(--adm-blue-deep); border-color:#fff; }
+.hw-status-btn.is-active[data-status="undone"]{ background:#FFE3D6; color:#A63A1F; border-color:#FFE3D6; }
+
+/* Same buttons, used on the plain-white kundalik.html modal (not inside
+   the blue admin-theme card), so give them a light-surface variant too. */
+.hw-status-btn-light{
+  font-family: var(--font-body); font-size:.85rem; font-weight:700; cursor:pointer;
+  border-radius: 999px; padding:.55em 1.1em; border:1.5px solid var(--line);
+  background: var(--paper-2); color: var(--ink); transition: all .15s var(--ease);
+}
+.hw-status-btn-light:hover{ border-color: var(--teal); }
+.hw-status-btn-light.is-active{ background: var(--teal); color:#fff; border-color: var(--teal); }
+.hw-status-btn-light.is-active[data-status="undone"]{ background:#E8604A; border-color:#E8604A; color:#fff; }
 
 /* ---- Student home page: menu cards (Homework / Test natijalar /
    Darajani bilish testi / Kurslarim / Insholarim) ---- */
