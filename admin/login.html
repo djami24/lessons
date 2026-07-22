@@ -10,35 +10,39 @@
 </head>
 <body class="auth-body">
 
-<a href="../index.html" class="brand auth-brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+<div class="auth-split-wrap">
+  <div class="auth-split-left">
+    <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
 
-<div class="auth-wrap">
-  <div class="folder auth-folder" style="--tab-color:#14213D">
-    <div class="folder-tab"></div>
-    <div class="folder-body auth-card">
-      <h1 class="auth-title">Admin panelga kirish</h1>
-      <p class="auth-sub">Faqat administratorlar uchun mo‘ljallangan.</p>
-
-      <form class="auth-form" id="adminLoginForm">
-        <label class="field">
-          <span>Email</span>
-          <input type="email" id="loginEmail" required autocomplete="username">
-        </label>
-        <label class="field">
-          <span>Parol</span>
-          <div class="password-field">
-            <input type="password" id="loginPassword" required autocomplete="current-password">
-            <button type="button" class="pw-toggle" id="pwToggle">Ko‘rsatish</button>
-          </div>
-        </label>
-
-        <p class="form-error" id="loginError" role="alert" hidden></p>
-
-        <button type="submit" class="btn btn-amber auth-submit" id="loginSubmit">Kirish</button>
-      </form>
-
-      <p class="auth-hint">Admin Panel.</p>
+    <div class="auth-split-hero">
+      <h2>Hey There!</h2>
+      <p>Boshqaruv panelingizga kirish uchun tizimga kiring.</p>
     </div>
+
+    <p class="auth-split-switch">Faqat administratorlar uchun.</p>
+  </div>
+
+  <div class="auth-split-right">
+    <h1 class="auth-title">Admin panelga kirish</h1>
+    <p class="auth-sub">Faqat administratorlar uchun mo‘ljallangan.</p>
+
+    <form class="auth-form" id="adminLoginForm">
+      <label class="field">
+        <span>Email</span>
+        <input type="email" id="loginEmail" required autocomplete="username">
+      </label>
+      <label class="field">
+        <span>Parol</span>
+        <div class="password-field">
+          <input type="password" id="loginPassword" required autocomplete="current-password">
+          <button type="button" class="pw-toggle" id="pwToggle">Ko‘rsatish</button>
+        </div>
+      </label>
+
+      <p class="form-error" id="loginError" role="alert" hidden></p>
+
+      <button type="submit" class="btn btn-amber auth-submit" id="loginSubmit">Kirish</button>
+    </form>
   </div>
 </div>
 
