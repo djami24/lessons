@@ -471,6 +471,41 @@ table.data-table th{ font-family: var(--font-mono); font-size:.72rem; text-trans
 table.data-table tr:last-child td{ border-bottom:none; }
 table.data-table td .tag{ margin-right:.3em; }
 
+/* Students list (admin panel) — compact scannable rows instead of a wide table */
+.student-list{ display:flex; flex-direction:column; gap:.6em; }
+.student-row{
+  display:flex; align-items:center; gap:1em;
+  background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-m);
+  padding: .85em 1.2em; cursor:pointer; transition: all .15s var(--ease);
+}
+.student-row:hover{ border-color: var(--teal); box-shadow: 0 4px 14px rgba(20,33,61,.06); transform: translateY(-1px); }
+.student-row-avatar{
+  flex:none; width:42px; height:42px; border-radius:50%;
+  background: rgba(46,111,110,.1); color: var(--teal-deep);
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--font-mono); font-weight:700; font-size:.85rem;
+}
+.student-row-main{ flex:1; min-width:0; }
+.student-row-name{ font-weight:700; font-size:.95rem; }
+.student-row-sub{
+  font-size:.8rem; color: var(--gray); margin-top:.15em;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.student-row-chips{ display:flex; gap:.35em; flex:none; }
+.course-chip{
+  font-family: var(--font-mono); font-size:.68rem; font-weight:700;
+  padding:.3em .5em; border-radius: 999px; letter-spacing:.02em;
+  background: var(--paper-2); color: var(--gray);
+}
+.course-chip-approved{ background: rgba(46,111,110,.15); color: var(--teal-deep); }
+.course-chip-pending{ background: rgba(217,142,63,.18); color: var(--amber-deep); }
+.student-row-date{ flex:none; width:84px; text-align:right; font-size:.75rem; color: var(--gray); }
+.student-row-arrow{ flex:none; font-size:1.3rem; color: var(--line); }
+.student-row:hover .student-row-arrow{ color: var(--teal); }
+@media (max-width: 700px){
+  .student-row-chips, .student-row-date{ display:none; }
+}
+
 /* Modal */
 .modal-overlay{
   position: fixed; inset:0; background: rgba(20,33,61,.5); backdrop-filter: blur(2px);
