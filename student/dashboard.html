@@ -21,12 +21,16 @@
       <li><a href="../kundalik.html">🏠 Homework</a></li>
       <li><a href="../natijalar.html">📊 Test Natijalar</a></li>
       <li><a href="#" id="navPlacementTest">🧭 Darajani bilish testi</a></li>
+      <li><a href="#" id="navProfile">👤 Profil</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
-      <div>
-        <div class="admin-user-name" id="sidebarUsername">o‘quvchi</div>
-        <div class="admin-user-role">O‘quvchi</div>
+      <div style="display:flex; align-items:center; gap:.7em;">
+        <span class="sidebar-avatar" id="sidebarAvatar">🙂</span>
+        <div>
+          <div class="admin-user-name" id="sidebarUsername">o‘quvchi</div>
+          <div class="admin-user-role">O‘quvchi</div>
+        </div>
       </div>
       <button class="logout-btn" id="logoutBtn">Chiqish</button>
     </div>
@@ -300,6 +304,48 @@
       <div class="quiz-result-box" id="placementResultBox" hidden></div>
     </section>
 
+    <!-- ===== PROFILE (student's own profile) ===== -->
+    <section id="view-profile" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>Mening profilim</h1>
+          <p>Ism, telefon raqam va profil belgingizni shu yerdan o‘zgartirasiz.</p>
+        </div>
+      </div>
+
+      <div class="profile-card">
+        <div class="profile-avatar-row">
+          <div class="profile-avatar-big" id="profileAvatarBig">🙂</div>
+          <div>
+            <button type="button" class="btn btn-ghost btn-sm" id="toggleEmojiPickerBtn">Belgini o‘zgartirish</button>
+            <p style="margin:.5em 0 0; color:var(--gray); font-size:.85rem;">Profil rasmi o‘rniga emoji tanlang.</p>
+          </div>
+        </div>
+
+        <div class="emoji-picker-grid" id="emojiPickerGrid" hidden></div>
+
+        <form class="modal-form" id="profileForm" style="margin-top:1.8em; max-width:460px;">
+          <label class="field">
+            <span>Ism familiya</span>
+            <input type="text" id="profileName" required maxlength="80">
+          </label>
+          <label class="field">
+            <span>Telefon raqam</span>
+            <input type="tel" id="profilePhone" placeholder="+998 90 123 45 67" maxlength="30">
+          </label>
+          <label class="field">
+            <span>Email (login)</span>
+            <input type="email" id="profileEmail" disabled style="opacity:.65; cursor:not-allowed;">
+          </label>
+          <p class="form-error" id="profileError" role="alert" hidden></p>
+          <p class="form-notice" id="profileNotice" role="status" hidden></p>
+          <div class="modal-actions" style="justify-content:flex-start;">
+            <button type="submit" class="btn btn-amber" id="profileSaveBtn">Saqlash</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -380,6 +426,7 @@ auth.onAuthStateChanged(async (user) => {
   state.student.coursePayments = state.student.coursePayments || {};
 
   document.getElementById('sidebarUsername').textContent = state.student.name || state.student.email;
+  document.getElementById('sidebarAvatar').textContent = state.student.avatarEmoji || '🙂';
   document.getElementById('loadingScreen').hidden = true;
   document.getElementById('appShell').hidden = false;
 
@@ -534,7 +581,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test'];
+const VIEWS = ['courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -585,6 +632,7 @@ function renderCoursesOverview(){
   document.getElementById('navCourses').classList.add('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.remove('active');
+  document.getElementById('navProfile').classList.remove('active');
 }
 
 document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
@@ -607,6 +655,10 @@ document.getElementById('navMyEssays').addEventListener('click', async (e) => {
 document.getElementById('navPlacementTest').addEventListener('click', async (e) => {
   e.preventDefault();
   await openPlacementTestView();
+});
+document.getElementById('navProfile').addEventListener('click', (e) => {
+  e.preventDefault();
+  renderProfile();
 });
 
 function openCourseEntry(courseId){
@@ -1062,6 +1114,7 @@ function renderMyEssays(){
   document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.add('active');
   document.getElementById('navPlacementTest').classList.remove('active');
+  document.getElementById('navProfile').classList.remove('active');
   const list = document.getElementById('myEssaysList');
   const empty = document.getElementById('myEssaysEmpty');
   if(state.mySubmissions.length === 0){
@@ -1515,6 +1568,7 @@ async function openPlacementTestView(){
   document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.add('active');
+  document.getElementById('navProfile').classList.remove('active');
 
   if(!state.placementTestConfig){
     try{
@@ -1651,6 +1705,88 @@ function renderPlacementResult(result){
   document.getElementById('placementResultBox').hidden = false;
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
+
+// ---------- Profile (name, phone, emoji avatar) ----------
+
+const AVATAR_EMOJIS = [
+  '🙂','😀','😎','🤓','🥳','🤩','😇','🧑‍🎓','👩‍🎓','🧑‍💻','👩‍💻',
+  '🦁','🐯','🐼','🐨','🦊','🐻','🐰','🐸','🐵','🦉','🦄','🐢',
+  '🌟','🔥','⚡','🌈','🍀','🌻','🍎','⚽','🏆','🎯','📚','✏️','🚀','🎨','🎧','☕'
+];
+
+function renderProfile(){
+  document.getElementById('navCourses').classList.remove('active');
+  document.getElementById('navMyEssays').classList.remove('active');
+  document.getElementById('navPlacementTest').classList.remove('active');
+  document.getElementById('navProfile').classList.add('active');
+
+  document.getElementById('profileName').value = state.student.name || '';
+  document.getElementById('profilePhone').value = state.student.phone || '';
+  document.getElementById('profileEmail').value = state.student.email || '';
+  document.getElementById('profileAvatarBig').textContent = state.student.avatarEmoji || '🙂';
+  document.getElementById('profileError').hidden = true;
+  document.getElementById('profileNotice').hidden = true;
+  document.getElementById('emojiPickerGrid').hidden = true;
+
+  switchView('profile');
+}
+
+const emojiGrid = document.getElementById('emojiPickerGrid');
+emojiGrid.innerHTML = AVATAR_EMOJIS.map(e => `<button type="button" class="emoji-picker-btn" data-emoji="${e}">${e}</button>`).join('');
+
+document.getElementById('toggleEmojiPickerBtn').addEventListener('click', () => {
+  emojiGrid.hidden = !emojiGrid.hidden;
+});
+
+emojiGrid.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.emoji-picker-btn');
+  if(!btn) return;
+  const emoji = btn.dataset.emoji;
+  document.getElementById('profileAvatarBig').textContent = emoji;
+  document.getElementById('sidebarAvatar').textContent = emoji;
+  emojiGrid.hidden = true;
+  try{
+    await db.collection('students').doc(currentUid).update({ avatarEmoji: emoji });
+    state.student.avatarEmoji = emoji;
+  } catch(err){
+    document.getElementById('profileError').textContent = 'Belgini saqlab bo‘lmadi. Qayta urinib ko‘ring.';
+    document.getElementById('profileError').hidden = false;
+  }
+});
+
+document.getElementById('profileForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('profileError');
+  const noticeEl = document.getElementById('profileNotice');
+  const saveBtn = document.getElementById('profileSaveBtn');
+  errorEl.hidden = true;
+  noticeEl.hidden = true;
+
+  const name = document.getElementById('profileName').value.trim();
+  const phone = document.getElementById('profilePhone').value.trim();
+  if(!name){
+    errorEl.textContent = 'Ism kiritish shart.';
+    errorEl.hidden = false;
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saqlanmoqda…';
+  try{
+    await db.collection('students').doc(currentUid).update({ name, phone });
+    state.student.name = name;
+    state.student.phone = phone;
+    document.getElementById('sidebarUsername').textContent = name;
+    noticeEl.textContent = 'Profil yangilandi.';
+    noticeEl.hidden = false;
+  } catch(err){
+    errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
+    errorEl.hidden = false;
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Saqlash';
+  }
+});
 </script>
 </body>
 </html>
