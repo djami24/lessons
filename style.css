@@ -1363,3 +1363,30 @@ body.admin-theme .modal-box{ border-radius: 18px; }
   body.admin-theme .stat-card{ padding-left: 4.6em; }
   body.admin-theme .stat-card::before{ width:44px; height:44px; font-size:1.1rem; left:1em; }
 }
+
+/* ---- Student dashboard specifics (dashboard.html shares body.admin-theme
+   with the admin panel, but already renders its own real avatar emoji and
+   uses .is-locked instead of a "🔒 Qulflangan" badge — handle both. ---- */
+body.admin-theme .admin-user:has(.sidebar-avatar)::before{ content: none; }
+body.admin-theme .sidebar-avatar{
+  background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.2); color: #fff;
+}
+body.admin-theme .level-card.is-locked .folder-tab{ background: #A6AFC2 !important; }
+body.admin-theme .level-card.is-locked .folder-body::before{
+  content: "🔒" !important; background: rgba(166,175,194,.18) !important; color: #7C8698 !important;
+}
+body.admin-theme .level-card.is-locked .level-title{ color: var(--adm-gray); }
+
+/* ---- Student "Mening profilim" page ---- */
+body.admin-theme .profile-card{
+  background: #fff; border: 1px solid var(--adm-line); border-radius: 18px;
+  padding: 2em 2.2em; box-shadow: 0 10px 26px -18px rgba(16,27,61,.35);
+}
+body.admin-theme .profile-avatar-big{
+  background: rgba(47,111,237,.12); border: 1.5px solid rgba(47,111,237,.25);
+}
+body.admin-theme .emoji-picker-grid{ background: var(--adm-bg); }
+body.admin-theme .emoji-picker-btn:hover{ border-color: var(--adm-blue); }
+body.admin-theme .field input:focus-visible, body.admin-theme .field textarea:focus-visible{
+  border-color: var(--adm-blue);
+}
