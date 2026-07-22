@@ -40,6 +40,36 @@
     });
   }
 
+  // Rotating certificate gallery — shown instead of a single hero image
+  // when the admin has added one or more certificate URLs. Cross-fades
+  // through the list automatically; no controls needed.
+  function renderCertificateCarousel(urls){
+    if(!Array.isArray(urls) || urls.length === 0) return;
+    const safeUrls = urls.map(u => String(u).replace(/"/g, '&quot;'));
+    document.querySelectorAll('[data-site-hero-visual]').forEach(el => {
+      el.innerHTML =
+        `<div class="cert-carousel">` +
+        safeUrls.map((u, i) => `<img src="${u}" alt="" class="cert-carousel-slide${i === 0 ? ' is-active' : ''}">`).join('') +
+        (safeUrls.length > 1
+          ? `<div class="cert-carousel-dots">${safeUrls.map((_, i) => `<span class="cert-carousel-dot${i === 0 ? ' is-active' : ''}"></span>`).join('')}</div>`
+          : '') +
+        `</div>`;
+
+      if(safeUrls.length > 1){
+        const slides = el.querySelectorAll('.cert-carousel-slide');
+        const dots = el.querySelectorAll('.cert-carousel-dot');
+        let idx = 0;
+        setInterval(() => {
+          slides[idx].classList.remove('is-active');
+          dots[idx].classList.remove('is-active');
+          idx = (idx + 1) % slides.length;
+          slides[idx].classList.add('is-active');
+          dots[idx].classList.add('is-active');
+        }, 3500);
+      }
+    });
+  }
+
   function applySettings(data){
     if(!data) return;
     const root = document.documentElement.style;
@@ -100,7 +130,11 @@
     setText('[data-site-hero-results-btn]', data.heroResultsBtnText);
     setText('[data-site-hero-mini-number]', data.heroMiniNumber);
     setText('[data-site-hero-mini-label]', data.heroMiniLabel);
-    renderHeroImage(data.heroImageUrl);
+    if(Array.isArray(data.certificateImages) && data.certificateImages.length > 0){
+      renderCertificateCarousel(data.certificateImages);
+    } else {
+      renderHeroImage(data.heroImageUrl);
+    }
 
     // "Nega biz" feature grid (4 icon + title + text cards)
     setText('[data-site-feature-1-title]', data.feature1Title);
