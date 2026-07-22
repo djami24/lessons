@@ -1546,6 +1546,7 @@ function renderPlacementIntro(){
     ? `<div class="placement-prev-result">
          <span class="placement-level-name">${escapeHtml(prev.level || 'Aniqlanmadi')}</span>
          <span class="placement-score-line">Oxirgi natija: ${prev.score}/${prev.total} to‘g‘ri${prev.takenAt ? ' · ' + new Date(prev.takenAt).toLocaleDateString('uz-UZ') : ''}</span>
+         ${prev.levelComment ? `<div class="placement-level-comment">${escapeHtml(prev.levelComment)}</div>` : ''}
        </div>`
     : '';
 
@@ -1590,8 +1591,7 @@ document.getElementById('placementQuizQuestions').addEventListener('change', (e)
 });
 
 function levelForScore(correct, levels){
-  const match = levels.find(l => correct >= l.min && correct <= l.max);
-  return match ? match.label : 'Aniqlanmadi';
+  return levels.find(l => correct >= l.min && correct <= l.max) || null;
 }
 
 document.getElementById('submitPlacementTestBtn').addEventListener('click', async () => {
@@ -1610,8 +1610,14 @@ document.getElementById('submitPlacementTestBtn').addEventListener('click', asyn
     return;
   }
 
-  const level = levelForScore(correct, state.placementTestConfig.levels);
-  const result = { score: correct, total: questions.length, level, takenAt: Date.now() };
+  const matchedLevel = levelForScore(correct, state.placementTestConfig.levels);
+  const result = {
+    score: correct,
+    total: questions.length,
+    level: matchedLevel ? matchedLevel.label : 'Aniqlanmadi',
+    levelComment: matchedLevel && matchedLevel.comment ? matchedLevel.comment : '',
+    takenAt: Date.now()
+  };
 
   const submitBtn = document.getElementById('submitPlacementTestBtn');
   submitBtn.disabled = true;
@@ -1631,6 +1637,7 @@ function renderPlacementResult(result){
     <p class="eyebrow">Natijangiz</p>
     <div class="quiz-result-score quiz-result-pass">${result.score}/${result.total}</div>
     <p>To‘g‘ri javoblar soniga ko‘ra darajangiz: <strong>${escapeHtml(result.level)}</strong></p>
+    ${result.levelComment ? `<div class="placement-level-comment">${escapeHtml(result.levelComment)}</div>` : ''}
     <div class="quiz-result-actions">
       <button type="button" class="btn btn-amber" id="retryPlacementTestBtn">Qayta topshirish</button>
       <button type="button" class="btn btn-ghost" id="backToCoursesFromPlacementBtn">Kurslarga qaytish</button>
