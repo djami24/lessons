@@ -163,29 +163,75 @@
 
     <!-- ===== STUDENTS VIEW ===== -->
     <section id="view-students" hidden>
-      <div class="admin-header">
+      <style>
+        .stu-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1em;flex-wrap:wrap;margin-bottom:1.4em;}
+        .stu-header h1{margin:0 0 .2em;font-size:1.55rem;}
+        .stu-header p{margin:0;color:var(--gray);font-size:.88rem;}
+        .stu-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:.7em;margin-bottom:1.3em;}
+        .stu-stat{background:var(--paper-2,#f7f7f5);border:1.5px solid var(--line);border-radius:12px;padding:.85em 1em;}
+        .stu-stat-num{font-size:1.7rem;font-weight:800;line-height:1;margin-bottom:.2em;}
+        .stu-stat-lbl{font-size:.74rem;color:var(--gray);text-transform:uppercase;letter-spacing:.05em;}
+        .stu-stat.s-pending .stu-stat-num{color:var(--amber-deep,#b47d2a);}
+        .stu-stat.s-approved .stu-stat-num{color:var(--teal-deep,#1e5756);}
+        .stu-toolbar{display:flex;gap:.6em;flex-wrap:wrap;align-items:center;margin-bottom:1em;}
+        .stu-search{flex:1;min-width:180px;max-width:300px;padding:.58em .9em;border:1.5px solid var(--line);border-radius:8px;font-size:.9rem;background:var(--paper,#fff);color:var(--ink);}
+        .stu-search:focus{outline:none;border-color:var(--amber,#d98e3f);}
+        .stu-filter-btns{display:flex;gap:.35em;flex-wrap:wrap;}
+        .stu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:.85em;}
+        .stu-card{background:var(--paper,#fff);border:1.5px solid var(--line);border-radius:14px;padding:1em 1.1em;display:flex;flex-direction:column;gap:.65em;transition:box-shadow .15s,border-color .15s;}
+        .stu-card:hover{box-shadow:0 4px 18px rgba(0,0,0,.09);}
+        .stu-card.has-pending{border-color:rgba(217,142,63,.6);}
+        .stu-card-top{display:flex;align-items:center;gap:.7em;}
+        .stu-avatar{width:38px;height:38px;border-radius:50%;background:var(--amber,#d98e3f);color:#fff;font-weight:800;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;text-transform:uppercase;}
+        .stu-card-info{flex:1;min-width:0;}
+        .stu-card-name{font-weight:700;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .stu-card-email{font-size:.77rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.1em;}
+        .stu-card-date{font-size:.73rem;color:var(--gray);white-space:nowrap;}
+        .stu-courses{display:flex;flex-wrap:wrap;gap:.3em;}
+        .stu-badge{font-size:.7rem;font-weight:600;padding:.22em .55em;border-radius:999px;border:1.5px solid var(--line);}
+        .stu-badge.b-none{color:var(--gray);border-color:var(--line);}
+        .stu-badge.b-pending{background:rgba(217,142,63,.13);color:var(--amber-deep,#b47d2a);border-color:rgba(217,142,63,.4);}
+        .stu-badge.b-approved{background:rgba(46,111,110,.12);color:var(--teal-deep,#1e5756);border-color:rgba(46,111,110,.35);}
+        .stu-card-actions{display:flex;gap:.4em;}
+        .stu-card-actions .btn{flex:1;text-align:center;font-size:.8rem;padding:.45em .5em;}
+        .stu-empty-state{text-align:center;padding:3em 1em;color:var(--gray);grid-column:1/-1;}
+        .stu-empty-state .icon{font-size:2.4rem;margin-bottom:.5em;}
+        .stu-count-label{font-size:.82rem;color:var(--gray);margin-bottom:.7em;}
+      </style>
+
+      <div class="stu-header">
         <div>
-          <h1>O‘quvchilar</h1>
-          <p>To‘lov skrinshotini Telegram’da (t.me/djamiteacher) ko‘rib bo‘lgach, shu yerda tasdiqlang — kurs shundan keyin ochiladi.</p>
+          <h1>O’quvchilar</h1>
+          <p>To’lov skrinshotini Telegram’da ko’rib bo’lgach, shu yerda tasdiqlang.</p>
         </div>
-        <button class="btn btn-amber" id="openAddStudent">+ Yangi o‘quvchi qo‘shish</button>
+        <button class="btn btn-amber" id="openAddStudent">+ Yangi o’quvchi</button>
       </div>
 
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead>
-            <tr><th>Ism</th><th>Email (login)</th><th>To‘lov holati</th><th>Qo‘shilgan sana</th><th></th></tr>
-          </thead>
-          <tbody id="studentsTableBody"></tbody>
-        </table>
+      <div class="stu-stats">
+        <div class="stu-stat"><div class="stu-stat-num" id="stuStatTotal">—</div><div class="stu-stat-lbl">Jami</div></div>
+        <div class="stu-stat s-pending"><div class="stu-stat-num" id="stuStatPending">—</div><div class="stu-stat-lbl">Kutilmoqda</div></div>
+        <div class="stu-stat s-approved"><div class="stu-stat-num" id="stuStatApproved">—</div><div class="stu-stat-lbl">Tasdiqlangan</div></div>
+        <div class="stu-stat"><div class="stu-stat-num" id="stuStatNone">—</div><div class="stu-stat-lbl">To’lovsiz</div></div>
       </div>
-      <div id="studentsEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
-        <h3>Hali o‘quvchi qo‘shilmagan</h3>
-        <p>“Yangi o‘quvchi qo‘shish” tugmasini bosib birinchi hisobni yarating, yoki o‘quvchilar mustaqil ro‘yxatdan o‘tishini kuting.</p>
+
+      <div class="stu-toolbar">
+        <input class="stu-search" id="stuSearch" type="search" placeholder="Ism yoki email..." autocomplete="off">
+        <div class="stu-filter-btns">
+          <button class="btn btn-amber btn-sm" data-stu-filter="all">Hammasi</button>
+          <button class="btn btn-ghost btn-sm" data-stu-filter="pending">Kutilmoqda</button>
+          <button class="btn btn-ghost btn-sm" data-stu-filter="approved">Tasdiqlangan</button>
+          <button class="btn btn-ghost btn-sm" data-stu-filter="none">To’lovsiz</button>
+        </div>
       </div>
+
+      <div class="stu-count-label" id="stuCountLabel"></div>
+      <div class="stu-grid" id="studentsGrid"></div>
+
+      <table style="display:none"><tbody id="studentsTableBody"></tbody></table>
+      <div id="studentsEmpty" style="display:none;"></div>
     </section>
 
-    <!-- ===== BLOGS VIEW ===== -->
+        <!-- ===== BLOGS VIEW ===== -->
     <section id="view-blogs" hidden>
       <div class="admin-header">
         <div>
@@ -216,9 +262,9 @@
           <h2 style="margin:0 0 .2em;">Savollar</h2>
           <p style="margin:0;">Har bir savolga 4 ta variant kiriting va nuqta (radio) bilan to‘g‘ri javobni belgilang.</p>
         </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="addPlacementQuestionBtn">+ Savol qo‘shish</button>
       </div>
       <div id="placementQuizEditor"></div>
-      <button type="button" class="btn btn-ghost btn-sm" id="addPlacementQuestionBtn" style="align-self:flex-start; margin-top:1em;">+ Savol qo‘shish</button>
 
       <hr style="border:none; border-top:1px solid var(--line); margin:2.4em 0;">
 
@@ -358,12 +404,6 @@
           <span>Hero rasmi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy — rasmni boshqa saytga (masalan, Imgur) yuklab, shu yerga havolasini qo‘ying. Bo‘sh qoldirsangiz, ko‘k panel + kitob belgisi ko‘rinadi)</span></span>
           <input type="url" id="settingHeroImageUrl" placeholder="https://…">
         </label>
-
-        <label class="field">
-          <span>O‘quvchilar sertifikatlari <span style="font-weight:400; color:var(--gray);">(bir nechta rasm havolasini qo‘shing — bosh sahifada shu joyda avtomatik almashinib turadi va Hero rasmi o‘rniga shular ko‘rsatiladi. Bo‘sh qoldirsangiz, Hero rasmi yoki standart belgi ko‘rinadi)</span></span>
-        </label>
-        <div id="certificatesEditor"></div>
-        <button type="button" class="btn btn-ghost btn-sm" id="addCertificateBtn" style="align-self:flex-start; margin-top:.4em;">+ Sertifikat rasmi qo‘shish</button>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>📖 Kurslar bo‘limi</h3>
@@ -892,7 +932,6 @@ let state = {
   quizDraft: [],
   placementQuestions: [],   // [{question, options:[4], correctIndex}]
   placementLevels: [],      // [{min, max, label}]
-  certificateImages: [],    // [urlString, ...] — homepage certificate carousel
   detailStudentId: null,
   lockTarget: null,      // {type:'level', levelId} | {type:'section', courseId, sectionId}
   lessonPath: [],        // array of folder ids — where we are inside the current level's lesson tree
@@ -2287,26 +2326,125 @@ function formatStudentCreatedAt(ts){
 }
 
 function renderStudents(){
-  const tbody = document.getElementById('studentsTableBody');
-  const empty = document.getElementById('studentsEmpty');
-  if(state.students.length === 0){
-    tbody.innerHTML = '';
-    empty.style.display = 'block';
+  const total = state.students.length;
+  const pending = state.students.filter(s => hasPending(s)).length;
+  const approved = state.students.filter(s => hasApproved(s)).length;
+  document.getElementById('stuStatTotal').textContent = total;
+  document.getElementById('stuStatPending').textContent = pending;
+  document.getElementById('stuStatApproved').textContent = approved;
+  document.getElementById('stuStatNone').textContent = total - pending - approved + (state.students.filter(s => hasPending(s) && hasApproved(s)).length);
+  renderStudentsGrid();
+}
+
+function hasPending(s){
+  return s.paymentStatus === 'pending' ||
+    (s.coursePayments && Object.values(s.coursePayments).includes('pending'));
+}
+function hasApproved(s){
+  return s.paymentStatus === 'approved' ||
+    (s.coursePayments && Object.values(s.coursePayments).includes('approved'));
+}
+
+let _stuFilter = 'all';
+let _stuSearch = '';
+
+document.querySelectorAll('[data-stu-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    _stuFilter = btn.dataset.stuFilter;
+    document.querySelectorAll('[data-stu-filter]').forEach(b => {
+      b.className = b.dataset.stuFilter === _stuFilter ? 'btn btn-amber btn-sm' : 'btn btn-ghost btn-sm';
+    });
+    renderStudentsGrid();
+  });
+});
+
+document.getElementById('stuSearch').addEventListener('input', (e) => {
+  _stuSearch = e.target.value.toLowerCase().trim();
+  renderStudentsGrid();
+});
+
+const BADGE_CFG = [
+  { label: 'GE', getStatus: s => s.paymentStatus || 'none' },
+  { label: 'IELTS', getStatus: s => (s.coursePayments && s.coursePayments.ielts) || 'none' },
+  { label: 'CEFR', getStatus: s => (s.coursePayments && s.coursePayments.cefr) || 'none' },
+  { label: 'Writing', getStatus: s => (s.coursePayments && s.coursePayments.writing) || 'none' }
+];
+
+function renderStudentsGrid(){
+  const grid = document.getElementById('studentsGrid');
+  const countEl = document.getElementById('stuCountLabel');
+  let filtered = state.students;
+  if(_stuSearch){
+    filtered = filtered.filter(s =>
+      (s.name || '').toLowerCase().includes(_stuSearch) ||
+      (s.email || '').toLowerCase().includes(_stuSearch)
+    );
+  }
+  if(_stuFilter === 'pending') filtered = filtered.filter(s => hasPending(s));
+  else if(_stuFilter === 'approved') filtered = filtered.filter(s => hasApproved(s));
+  else if(_stuFilter === 'none') filtered = filtered.filter(s => !hasPending(s) && !hasApproved(s));
+
+  countEl.textContent = filtered.length + ' ta o\u2019quvchi';
+
+  if(filtered.length === 0){
+    grid.innerHTML = '<div class="stu-empty-state"><div class="icon">\u{1F393}</div><p>' +
+      (state.students.length === 0 ? 'Hali o\u2019quvchi qo\u2019shilmagan.' : 'Bunday o\u2019quvchi topilmadi.') +
+      '</p></div>';
     return;
   }
-  empty.style.display = 'none';
-  tbody.innerHTML = state.students.map(s => `
-    <tr>
-      <td>${escapeHtml(s.name)}</td>
-      <td>${escapeHtml(s.email)}</td>
-      <td style="display:flex; flex-direction:column; gap:.3em;">
-        ${COURSE_PAYMENT_ROWS.map(row => `<span>${row.label}: ${STATUS_LABELS[row.getStatus(s)] || STATUS_LABELS.none}</span>`).join('')}
-      </td>
-      <td>${formatStudentCreatedAt(s.createdAt)}</td>
-      <td><button class="btn btn-ghost btn-sm" data-student-detail="${s.id}">Ko‘rish</button></td>
-    </tr>
-  `).join('');
+
+  grid.innerHTML = filtered.map(s => {
+    const initials = (s.name || s.email || '?').charAt(0).toUpperCase();
+    const isPending = hasPending(s);
+    const dateStr = formatStudentCreatedAt(s.createdAt);
+    const badges = BADGE_CFG.map(c => {
+      const st = c.getStatus(s);
+      const cls = st === 'none' ? 'b-none' : (st === 'pending' ? 'b-pending' : 'b-approved');
+      const icon = st === 'approved' ? '\u2713 ' : (st === 'pending' ? '\u29D6 ' : '');
+      return '<span class="stu-badge ' + cls + '">' + icon + c.label + '</span>';
+    }).join('');
+    return '<div class="stu-card' + (isPending ? ' has-pending' : '') + '" data-stu-id="' + s.id + '">' +
+      '<div class="stu-card-top">' +
+        '<div class="stu-avatar">' + escapeHtml(initials) + '</div>' +
+        '<div class="stu-card-info">' +
+          '<div class="stu-card-name">' + escapeHtml(s.name || '\u2014') + '</div>' +
+          '<div class="stu-card-email">' + escapeHtml(s.email || '') + '</div>' +
+        '</div>' +
+        '<div class="stu-card-date">' + escapeHtml(dateStr) + '</div>' +
+      '</div>' +
+      '<div class="stu-courses">' + badges + '</div>' +
+      '<div class="stu-card-actions">' +
+        '<button class="btn btn-ghost btn-sm" data-student-detail="' + s.id + '">Ko\u2019rish</button>' +
+        (isPending ? '<button class="btn btn-amber btn-sm" data-student-quick-approve="' + s.id + '">\u2192 Tasdiqlash</button>' : '') +
+      '</div>' +
+    '</div>';
+  }).join('');
 }
+
+document.getElementById('studentsGrid').addEventListener('click', (e) => {
+  const detailBtn = e.target.closest('[data-student-detail]');
+  if(detailBtn){
+    const student = state.students.find(s => s.id === detailBtn.dataset.studentDetail);
+    if(!student) return;
+    state.detailStudentId = student.id;
+    document.getElementById('studentDetailName').textContent = student.name;
+    document.getElementById('studentDetailEmail').textContent = 'Login: ' + student.email;
+    refreshStudentDetailModal(student);
+    openModal('modalStudentDetail');
+    return;
+  }
+  const quickBtn = e.target.closest('[data-student-quick-approve]');
+  if(quickBtn){
+    const student = state.students.find(s => s.id === quickBtn.dataset.studentQuickApprove);
+    if(!student) return;
+    state.detailStudentId = student.id;
+    document.getElementById('studentDetailName').textContent = student.name;
+    document.getElementById('studentDetailEmail').textContent = 'Login: ' + student.email;
+    refreshStudentDetailModal(student);
+    openModal('modalStudentDetail');
+  }
+});
+
 
 function refreshStudentDetailModal(student){
   const statusText = {
@@ -2748,12 +2886,6 @@ document.getElementById('addPlacementQuestionBtn').addEventListener('click', () 
   syncPlacementQuestionsFromDOM();
   state.placementQuestions.push({ question: '', options: ['', '', '', ''], correctIndex: 0 });
   renderPlacementQuestionsEditor();
-  const blocks = placementQuizEditor.querySelectorAll('.quiz-question-block');
-  const lastBlock = blocks[blocks.length - 1];
-  if(lastBlock){
-    lastBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    lastBlock.querySelector('[data-pqfield="question"]')?.focus();
-  }
 });
 
 placementQuizEditor.addEventListener('click', (e) => {
@@ -2775,14 +2907,13 @@ function renderPlacementLevelsEditor(){
   }
   emptyEl.hidden = true;
   placementLevelsEditor.innerHTML = state.placementLevels.map((lvl, li) => `
-    <div class="placement-level-row" data-lindex="${li}" style="flex-wrap:wrap; align-items:flex-start;">
+    <div class="placement-level-row" data-lindex="${li}">
       <input type="number" min="0" data-lfield="min" placeholder="Min" value="${lvl.min !== undefined ? lvl.min : ''}">
       <span class="placement-level-sep">dan</span>
       <input type="number" min="0" data-lfield="max" placeholder="Max" value="${lvl.max !== undefined ? lvl.max : ''}">
       <span class="placement-level-sep">tagacha to‘g‘ri →</span>
       <input type="text" data-lfield="label" placeholder="Daraja nomi (masalan: B1 Elementary)" value="${escapeHtml(lvl.label || '')}">
       <button type="button" class="btn btn-ghost btn-sm" data-remove-placement-level="${li}">O‘chirish</button>
-      <textarea data-lfield="comment" placeholder="Bu darajaga izoh (talaba natija bilan birga shu izohni ko‘radi)…" rows="2" style="width:100%; margin-top:.5em; font-family:inherit; font-size:.9rem; padding:.6em .7em; border-radius:var(--radius-s); border:1.5px solid var(--line);">${escapeHtml(lvl.comment || '')}</textarea>
     </div>`).join('');
 }
 
@@ -2793,13 +2924,12 @@ function syncPlacementLevelsFromDOM(){
     state.placementLevels[li].min = Number(row.querySelector('[data-lfield="min"]').value) || 0;
     state.placementLevels[li].max = Number(row.querySelector('[data-lfield="max"]').value) || 0;
     state.placementLevels[li].label = row.querySelector('[data-lfield="label"]').value.trim();
-    state.placementLevels[li].comment = row.querySelector('[data-lfield="comment"]').value.trim();
   });
 }
 
 document.getElementById('addPlacementLevelBtn').addEventListener('click', () => {
   syncPlacementLevelsFromDOM();
-  state.placementLevels.push({ min: 0, max: 0, label: '', comment: '' });
+  state.placementLevels.push({ min: 0, max: 0, label: '' });
   renderPlacementLevelsEditor();
 });
 
@@ -2877,7 +3007,6 @@ const DEFAULT_SITE_SETTINGS = {
   heroMiniNumber: '5,000+',
   heroMiniLabel: 'faol talabalar',
   heroImageUrl: '',
-  certificateImages: [],
 
   coursesEyebrow: 'Yo‘nalishlar',
   coursesHeading: 'Ommabop kurslarimiz',
@@ -2935,8 +3064,6 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingHeroMiniNumber').value = data.heroMiniNumber || '';
   document.getElementById('settingHeroMiniLabel').value = data.heroMiniLabel || '';
   document.getElementById('settingHeroImageUrl').value = data.heroImageUrl || '';
-  state.certificateImages = Array.isArray(data.certificateImages) ? [...data.certificateImages] : [];
-  renderCertificatesEditor();
 
   document.getElementById('settingCoursesEyebrow').value = data.coursesEyebrow || '';
   document.getElementById('settingCoursesHeading').value = data.coursesHeading || '';
@@ -2961,51 +3088,6 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingBlogHeading').value = data.blogHeading || '';
   document.getElementById('settingRatingLabel').value = data.ratingLabel || '';
 }
-
-const certificatesEditor = document.getElementById('certificatesEditor');
-
-function renderCertificatesEditor(){
-  if(state.certificateImages.length === 0){
-    certificatesEditor.innerHTML = `<p class="quiz-empty">Hali sertifikat rasmi qo‘shilmagan.</p>`;
-    return;
-  }
-  certificatesEditor.innerHTML = state.certificateImages.map((url, i) => `
-    <div class="certificate-row" data-cindex="${i}" style="display:flex; align-items:center; gap:.7em; margin-bottom:.6em;">
-      <img src="${escapeHtml(url)}" alt="" style="width:36px; height:48px; object-fit:cover; border-radius:6px; border:1.5px solid var(--line); background:var(--paper-2); flex-shrink:0;" onerror="this.style.visibility='hidden'">
-      <input type="url" data-cfield="url" placeholder="https://…" value="${escapeHtml(url)}" style="flex:1; padding:.6em .8em; border-radius:var(--radius-s); border:1.5px solid var(--line); font-family:var(--font-body);">
-      <button type="button" class="btn btn-ghost btn-sm" data-remove-certificate="${i}">O‘chirish</button>
-    </div>`).join('');
-}
-
-function syncCertificatesFromDOM(){
-  document.querySelectorAll('#certificatesEditor .certificate-row').forEach(row => {
-    const i = Number(row.dataset.cindex);
-    if(state.certificateImages[i] === undefined) return;
-    state.certificateImages[i] = row.querySelector('[data-cfield="url"]').value.trim();
-  });
-}
-
-document.getElementById('addCertificateBtn').addEventListener('click', () => {
-  syncCertificatesFromDOM();
-  state.certificateImages.push('');
-  renderCertificatesEditor();
-});
-
-certificatesEditor.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-remove-certificate]');
-  if(!btn) return;
-  syncCertificatesFromDOM();
-  state.certificateImages.splice(Number(btn.dataset.removeCertificate), 1);
-  renderCertificatesEditor();
-});
-
-certificatesEditor.addEventListener('input', (e) => {
-  if(!e.target.matches('[data-cfield="url"]')) return;
-  const row = e.target.closest('.certificate-row');
-  const img = row.querySelector('img');
-  img.style.visibility = '';
-  img.src = e.target.value.trim();
-});
 
 async function loadSiteSettingsForm(){
   try{
@@ -3047,9 +3129,6 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
   submitBtn.disabled = true;
   submitBtn.textContent = 'Saqlanmoqda…';
 
-  syncCertificatesFromDOM();
-  const cleanedCertificates = state.certificateImages.map(u => u.trim()).filter(u => u !== '');
-
   const data = {
     colorPrimary: document.getElementById('settingColorPrimary').value,
     colorAccent: document.getElementById('settingColorAccent').value,
@@ -3074,7 +3153,6 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     heroMiniNumber: document.getElementById('settingHeroMiniNumber').value.trim(),
     heroMiniLabel: document.getElementById('settingHeroMiniLabel').value.trim(),
     heroImageUrl: document.getElementById('settingHeroImageUrl').value.trim(),
-    certificateImages: cleanedCertificates,
 
     coursesEyebrow: document.getElementById('settingCoursesEyebrow').value.trim(),
     coursesHeading: document.getElementById('settingCoursesHeading').value.trim(),
@@ -3102,8 +3180,6 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
 
   try{
     await db.collection('settings').doc('site').set(data, { merge: true });
-    state.certificateImages = cleanedCertificates;
-    renderCertificatesEditor();
     showToast('Sayt sozlamalari saqlandi.');
   } catch(err){
     errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
