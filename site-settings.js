@@ -2,9 +2,9 @@
    English Folder — Global site settings loader
    Reads settings/site from Firestore (public read, admin write —
    see FIRESTORE_RULES.txt) and applies it to whichever page loads
-   this script: brand colors, brand name, logo, nav labels — and,
-   on the homepage only, every section of text (hero, courses,
-   feature grid, stats bar, blog, rating, footer).
+   this script: brand colors, brand name, logo, nav labels, payment
+   card details — and, on the homepage only, every section of text
+   (hero, courses, feature grid, stats bar, blog, rating, footer).
    Include AFTER firebase-config.js on every page that should react
    to admin-configured branding.
    ============================================================ */
@@ -116,6 +116,10 @@
     setText('[data-site-nav-cta]', data.navCtaText);
     setText('[data-site-blog-link-text]', data.blogLinkText);
     setText('[data-site-home-admin-btn]', data.homeAdminBtnText);
+
+    // ---- Payment card (shown on the student dashboard's payment pages) ----
+    setText('[data-site-card-number]', data.cardNumber);
+    setText('[data-site-card-holder]', data.cardHolderName);
 
     // ---- Footer (present on every page) ----
     setText('[data-site-footer-copyright]', data.footerCopyright);
