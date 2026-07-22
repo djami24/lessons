@@ -1089,6 +1089,19 @@ table.data-table td .tag{ margin-right:.3em; }
 .payment-price{ font-family: var(--font-display); font-size: 2.7rem; font-weight: 700; color: var(--amber-deep); margin: .2em 0 .7em; }
 .payment-steps{ padding-left: 1.3em; color: var(--ink-soft); margin: 1.2em 0; }
 .payment-steps li{ margin-bottom: .55em; }
+.payment-card-box{
+  background: var(--paper-2); border: 1.5px dashed var(--teal); border-radius: var(--radius-m);
+  padding: 1.2em 1.4em; margin: 0 0 1.4em;
+}
+.payment-card-label{
+  margin:0 0 .5em; font-family: var(--font-mono); font-size:.72rem; text-transform:uppercase;
+  letter-spacing:.06em; color: var(--gray);
+}
+.payment-card-number-row{ display:flex; align-items:center; gap:1em; flex-wrap:wrap; }
+.payment-card-number{
+  font-family: var(--font-mono); font-size:1.3rem; font-weight:700; letter-spacing:.03em; color: var(--teal-deep);
+}
+.payment-card-holder{ margin:.5em 0 0; color: var(--ink-soft); font-weight:600; }
 .payment-tg-link{
   display:inline-flex; align-items:center; gap:.5em; font-weight: 700; color: var(--white);
   background: #229ED9; padding: .8em 1.3em; border-radius: var(--radius-s); text-decoration:none;
