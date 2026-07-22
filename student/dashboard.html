@@ -97,11 +97,19 @@
         <div class="payment-price">50 000 so‘m</div>
         <p>Kurs to‘liq ochilgach, Beginner darajasidan boshlab barcha darslar, uy vazifalari va testlarga ega bo‘lasiz.</p>
         <ol class="payment-steps">
-          <li>50 000 so‘mni ko‘rsatilgan hisobga o‘tkazing.</li>
+          <li>50 000 so‘mni quyidagi kartaga o‘tkazing.</li>
           <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
           <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
           <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
         </ol>
+        <div class="payment-card-box">
+          <p class="payment-card-label">To‘lov uchun karta</p>
+          <div class="payment-card-number-row">
+            <span class="payment-card-number" data-site-card-number>5614 6818 5667 8473</span>
+            <button type="button" class="btn btn-ghost btn-sm copy-card-btn">Nusxalash</button>
+          </div>
+          <p class="payment-card-holder" data-site-card-holder>Abduraxmon</p>
+        </div>
         <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
 
         <div id="paymentActionArea" style="margin-top:1.6em;"></div>
@@ -152,11 +160,19 @@
         <div class="payment-price" id="coursePaymentPrice">60 000 so‘m</div>
         <p>Kurs to‘liq ochilgach, Listening, Reading va Speaking bo‘limlaridagi barcha mavzularga ega bo‘lasiz.</p>
         <ol class="payment-steps">
-          <li id="coursePaymentStep1">60 000 so‘mni ko‘rsatilgan hisobga o‘tkazing.</li>
+          <li id="coursePaymentStep1">60 000 so‘mni quyidagi kartaga o‘tkazing.</li>
           <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
           <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
           <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
         </ol>
+        <div class="payment-card-box">
+          <p class="payment-card-label">To‘lov uchun karta</p>
+          <div class="payment-card-number-row">
+            <span class="payment-card-number" data-site-card-number>5614 6818 5667 8473</span>
+            <button type="button" class="btn btn-ghost btn-sm copy-card-btn">Nusxalash</button>
+          </div>
+          <p class="payment-card-holder" data-site-card-holder>Abduraxmon</p>
+        </div>
         <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
         <div id="coursePaymentActionArea" style="margin-top:1.6em;"></div>
       </div>
@@ -222,11 +238,19 @@
         <div class="payment-price" id="writingPaymentPrice">50 000 so‘m</div>
         <p>To‘lov tasdiqlangach, CEFR va IELTS insho savollariga ega bo‘lasiz — istalgan savolni tanlab insho yozib, adminga yuborasiz. Admin ball qo‘yib, izoh yozib qaytaradi.</p>
         <ol class="payment-steps">
-          <li id="writingPaymentStep1">50 000 so‘mni ko‘rsatilgan hisobga o‘tkazing.</li>
+          <li id="writingPaymentStep1">50 000 so‘mni quyidagi kartaga o‘tkazing.</li>
           <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
           <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
           <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
         </ol>
+        <div class="payment-card-box">
+          <p class="payment-card-label">To‘lov uchun karta</p>
+          <div class="payment-card-number-row">
+            <span class="payment-card-number" data-site-card-number>5614 6818 5667 8473</span>
+            <button type="button" class="btn btn-ghost btn-sm copy-card-btn">Nusxalash</button>
+          </div>
+          <p class="payment-card-holder" data-site-card-holder>Abduraxmon</p>
+        </div>
         <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
         <div id="writingPaymentActionArea" style="margin-top:1.6em;"></div>
       </div>
@@ -1707,6 +1731,34 @@ function renderPlacementResult(result){
 }
 
 // ---------- Profile (name, phone, emoji avatar) ----------
+
+// ---------- Payment card: copy number to clipboard ----------
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.copy-card-btn');
+  if(!btn) return;
+  const box = btn.closest('.payment-card-box');
+  const numberEl = box ? box.querySelector('.payment-card-number') : null;
+  const number = numberEl ? numberEl.textContent.trim() : '';
+  if(!number) return;
+
+  const showCopied = () => {
+    const original = btn.textContent;
+    btn.textContent = '✓ Nusxalandi';
+    setTimeout(() => { btn.textContent = original; }, 1800);
+  };
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(number).then(showCopied).catch(() => {});
+  } else {
+    const tmp = document.createElement('textarea');
+    tmp.value = number;
+    document.body.appendChild(tmp);
+    tmp.select();
+    try { document.execCommand('copy'); showCopied(); } catch(err){}
+    document.body.removeChild(tmp);
+  }
+});
 
 const AVATAR_EMOJIS = [
   '🙂','😀','😎','🤓','🥳','🤩','😇','🧑‍🎓','👩‍🎓','🧑‍💻','👩‍💻',
