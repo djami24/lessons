@@ -1677,13 +1677,48 @@ body.admin-theme .chat-textarea{ background:var(--adm-bg); border-color:var(--ad
 /* Admin chats — student list item hover */
 .chat-student-item div:hover{ background:var(--adm-hover, #f1f5f9); }
 
-/* Hero visual achievements label */
-.hero-visual-achievements-label{
-  font-family:'Manrope', sans-serif;
-  font-weight:800; font-size:1rem;
-  color:#fff;
-  background: var(--amber, #D98E3F);
-  display:inline-block; padding:.35em .9em;
-  border-radius:30px; margin-bottom:.6em;
-  letter-spacing:.02em; box-shadow:0 2px 8px rgba(0,0,0,.12);
+/* Hero achievements overlay — sits at the TOP of the certificate panel */
+.hero-achievements-overlay{
+  position:absolute; top:0; left:0; right:0; z-index:3;
+  font-family:'Manrope', sans-serif; font-weight:800; font-size:.95rem;
+  color:#fff; background:var(--amber, #D98E3F);
+  text-align:center; padding:.5em 1em;
+  letter-spacing:.03em;
+  box-shadow: 0 2px 10px rgba(0,0,0,.18);
+}
+
+/* Top-right notification + chat icon buttons (student dashboard) */
+.student-topbar-icons{
+  position: fixed;
+  top: 14px;
+  right: 18px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: .5em;
+}
+.topbar-icon-btn{
+  position: relative;
+  background: var(--surface, #fff);
+  border: 1.5px solid var(--line, #e5e7eb);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  font-size: 1.15rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  transition: box-shadow .15s, border-color .15s;
+}
+.topbar-icon-btn:hover{ border-color: var(--teal, #2E6F6E); box-shadow: 0 4px 14px rgba(0,0,0,.13); }
+.topbar-icon-btn .notif-badge{
+  position: absolute;
+  top: -4px; right: -4px;
+  min-width: 17px; height: 17px;
+  font-size: .68rem;
+  padding: 0 3px;
+}
+body.admin-theme .topbar-icon-btn{
+  background: var(--adm-bg, #1e293b);
+  border-color: var(--adm-line, #334155);
+  color: #fff;
 }
