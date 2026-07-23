@@ -260,6 +260,8 @@ service cloud.firestore {
       // Chat metadata (lastMessage, unreadByTeacher, unreadByStudent, etc.)
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
       allow create, update: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
+      // Only admin can delete a whole chat document
+      allow delete: if isAdmin();
 
       match /messages/{msgId} {
         allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
@@ -275,6 +277,7 @@ service cloud.firestore {
           request.resource.data.senderRole == 'teacher';
 
         allow update: if false;
+        // Only admin can delete messages (students cannot delete)
         allow delete: if isAdmin();
       }
     }
