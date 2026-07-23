@@ -44,17 +44,32 @@
         </div>
       </div>
 
-      <div class="latest-hw-box" id="latestHwBox" hidden>
-        <div class="latest-hw-head">
-          <span class="latest-hw-eyebrow">🆕 So‘nggi uy vazifasi</span>
-          <span class="latest-hw-date" id="latestHwDate"></span>
+      <div class="home-top-boxes" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.2em; align-items:start;">
+        <div class="latest-hw-box" id="latestHwBox" hidden>
+          <div class="latest-hw-head">
+            <span class="latest-hw-eyebrow">🆕 So‘nggi uy vazifasi</span>
+            <span class="latest-hw-date" id="latestHwDate"></span>
+          </div>
+          <h3 class="latest-hw-title" id="latestHwTitle"></h3>
+          <p class="latest-hw-preview" id="latestHwPreview"></p>
+          <a href="../kundalik.html" class="btn btn-amber btn-sm">Batafsil ko‘rish</a>
+          <div class="hw-status-row" id="latestHwStatusRow">
+            <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
+            <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
+          </div>
         </div>
-        <h3 class="latest-hw-title" id="latestHwTitle"></h3>
-        <p class="latest-hw-preview" id="latestHwPreview"></p>
-        <a href="../kundalik.html" class="btn btn-amber btn-sm">Batafsil ko‘rish</a>
-        <div class="hw-status-row" id="latestHwStatusRow">
-          <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
-          <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
+
+        <div class="latest-hw-box" id="latestTestBox" hidden>
+          <div class="latest-hw-head">
+            <span class="latest-hw-eyebrow">🏆 So‘nggi test natijasi</span>
+            <span class="latest-hw-date" id="latestTestDate"></span>
+          </div>
+          <h3 class="latest-hw-title" id="latestTestTitle"></h3>
+          <p class="latest-hw-preview" id="latestTestLevel"></p>
+          <div class="quiz-result-score" id="latestTestScore" style="font-size:1.6rem; display:inline-block; margin:.2em 0 .8em;"></div>
+          <div>
+            <a href="#" class="btn btn-amber btn-sm" id="latestTestLink">Darsni ko‘rish</a>
+          </div>
         </div>
       </div>
 
@@ -671,9 +686,15 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
   const bestScore = (prev.bestScore == null) ? scorePct : Math.max(prev.bestScore, scorePct == null ? 0 : scorePct);
   const newPassed = prev.passed || passed;
   const path = `progress.${levelId}.${lessonId}`;
-  await db.collection('students').doc(currentUid).update({ [path]: { passed: newPassed, bestScore } });
+  // lastAttemptAt is only set when an actual quiz was submitted (scorePct
+  // is not null) so the "latest test result" box on the home page reflects
+  // real test attempts, not lessons that were simply marked done without a quiz.
+  const record = { passed: newPassed, bestScore };
+  if(scorePct != null) record.lastAttemptAt = Date.now();
+  else if(prev.lastAttemptAt != null) record.lastAttemptAt = prev.lastAttemptAt;
+  await db.collection('students').doc(currentUid).update({ [path]: record });
   state.student.progress[levelId] = state.student.progress[levelId] || {};
-  state.student.progress[levelId][lessonId] = { passed: newPassed, bestScore };
+  state.student.progress[levelId][lessonId] = record;
 }
 
 // ---------- View switching ----------
@@ -692,6 +713,7 @@ function renderHomeView(){
   switchView('home');
   document.getElementById('navProfile').classList.remove('active');
   loadLatestHomework();
+  loadLatestTestResult();
 }
 
 // Shows the most recent homework from the student's own kundalikGroup
@@ -737,6 +759,54 @@ async function loadLatestHomework(){
     box.hidden = true;
   }
 }
+
+// Shows the student's most recent quiz result (across all General English
+// lessons) right next to the latest-homework box on the home page. Looks
+// through state.student.progress for the entry with the newest
+// lastAttemptAt timestamp — that field is only set when a real quiz was
+// submitted (see saveProgress), so lessons marked done without a quiz are
+// ignored here.
+function loadLatestTestResult(){
+  const box = document.getElementById('latestTestBox');
+  const progressByLevel = state.student.progress || {};
+  let best = null;
+
+  Object.keys(progressByLevel).forEach((levelId) => {
+    const lessonsProgress = progressByLevel[levelId] || {};
+    Object.keys(lessonsProgress).forEach((lessonId) => {
+      const p = lessonsProgress[lessonId];
+      if(p && p.lastAttemptAt != null && (!best || p.lastAttemptAt > best.lastAttemptAt)){
+        best = { levelId, lessonId, passed: p.passed, bestScore: p.bestScore, lastAttemptAt: p.lastAttemptAt };
+      }
+    });
+  });
+
+  if(!best){ box.hidden = true; return; }
+
+  const lvl = LEVELS.find(l => l.id === best.levelId);
+  const levelData = getLevel(best.levelId);
+  const lesson = levelData ? flattenLeaves(levelData.lessons).find(l => l.id === best.lessonId) : null;
+  const score = best.bestScore != null ? best.bestScore : 0;
+
+  document.getElementById('latestTestDate').textContent = new Date(best.lastAttemptAt).toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' });
+  document.getElementById('latestTestTitle').textContent = lesson && lesson.title ? lesson.title : 'Test';
+  document.getElementById('latestTestLevel').textContent = lvl ? lvl.name : '';
+
+  const scoreEl = document.getElementById('latestTestScore');
+  scoreEl.textContent = score + '%';
+  scoreEl.classList.remove('quiz-result-pass', 'quiz-result-fail');
+  scoreEl.classList.add(best.passed ? 'quiz-result-pass' : 'quiz-result-fail');
+
+  box.dataset.levelId = best.levelId;
+  box.hidden = false;
+}
+
+document.getElementById('latestTestLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  const box = document.getElementById('latestTestBox');
+  const levelId = box.dataset.levelId;
+  if(levelId) openLessonsView(levelId);
+});
 
 // Optional "did you do it?" self-check — purely cosmetic and stored only
 // in this browser (same idea as the blog like/dislike buttons). Nothing
