@@ -318,6 +318,20 @@
       </div>
     </div>
 
+    <!-- INDIVIDUAL NAME PROMPT VIEW -->
+    <div id="viewNamePrompt" style="display:none;">
+      <div class="page-head">
+        <h1>Ismingizni kiriting</h1>
+        <p>Uy vazifalar faylingizga kirish uchun ismingizni kiriting. Diqqat: buni faqat bir marta kiritasiz, keyin o'zgartira olmaysiz.</p>
+      </div>
+      <form id="individualNameForm" style="display:flex; gap:10px; flex-wrap:wrap; max-width:480px;">
+        <input type="text" id="individualNameInput" placeholder="Ism familiya" required autocomplete="name"
+          style="flex:1; min-width:220px; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:12px 14px; font-family:'PT Sans',sans-serif; font-size:14px;">
+        <button type="submit" class="btn-ghost" id="individualNameSubmit" style="background:var(--brass); color:#fff; border-color:var(--brass);">Tasdiqlash</button>
+      </form>
+      <p class="empty" id="individualNameError" style="margin-top:16px; display:none;"></p>
+    </div>
+
     <!-- HOMEWORK VIEW -->
     <div id="viewHomework" style="display:none;">
       <button class="back-btn" id="backToGroups">← Guruhlar</button>
@@ -399,10 +413,15 @@ auth.onAuthStateChanged(async user => {
 async function initGroupFlow(){
   try{
     const studentDoc = await db.collection('students').doc(currentUid).get();
-    const kundalikGroup = studentDoc.exists ? studentDoc.data().kundalikGroup : null;
+    const data = studentDoc.exists ? studentDoc.data() : {};
+    const kundalikGroup = data.kundalikGroup || null;
     if(kundalikGroup){
       document.getElementById('backToGroups').style.display = 'none';
       openGroup(kundalikGroup);
+      return;
+    }
+    if(data.studentType === 'individual'){
+      showView('name-prompt');
       return;
     }
   } catch(err){
@@ -410,6 +429,39 @@ async function initGroupFlow(){
   }
   loadGroups();
 }
+
+// Same id-generation rule the admin panel uses when creating a Kundalik
+// group/folder from a typed name, so a student's typed name lines up with
+// whatever folder the admin already prepared for them.
+function slugifyName(str){
+  return String(str || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') || ('g' + Date.now());
+}
+
+document.getElementById('individualNameForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errEl = document.getElementById('individualNameError');
+  errEl.style.display = 'none';
+  const input = document.getElementById('individualNameInput');
+  const typedName = input.value.trim();
+  if(!typedName) return;
+
+  const groupId = slugifyName(typedName);
+  const submitBtn = document.getElementById('individualNameSubmit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Saqlanmoqda…';
+  try{
+    await db.collection('students').doc(currentUid).update({ kundalikGroup: groupId });
+  } catch(err){
+    console.error(err);
+    errEl.textContent = 'Saqlab bo\'lmadi. Internet aloqasini tekshirib, qayta urinib ko\'ring.';
+    errEl.style.display = 'block';
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Tasdiqlash';
+    return;
+  }
+  document.getElementById('backToGroups').style.display = 'none';
+  openGroup(groupId, typedName);
+});
 
 // Saves the student's chosen group permanently, then opens it.
 async function chooseGroup(groupId){
@@ -439,6 +491,7 @@ document.getElementById('hwModal').addEventListener('click', e => {
 function showView(name){
   document.getElementById('viewGroups').style.display = name === 'groups' ? '' : 'none';
   document.getElementById('viewHomework').style.display = name === 'homework' ? '' : 'none';
+  document.getElementById('viewNamePrompt').style.display = name === 'name-prompt' ? '' : 'none';
 }
 
 /* ---- Groups ---- */
@@ -470,9 +523,9 @@ async function loadGroups(){
 }
 
 /* ---- Homework list ---- */
-async function openGroup(groupId){
+async function openGroup(groupId, displayName){
   showView('homework');
-  document.getElementById('hwGroupName').textContent = groupId;
+  document.getElementById('hwGroupName').textContent = displayName || groupId;
   const grid = document.getElementById('hwGrid');
   const countLabel = document.getElementById('hwCountLabel');
   grid.innerHTML = '<div class="loading">Yuklanmoqda…</div>';
