@@ -42,6 +42,8 @@
     <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
     <ul class="admin-nav">
       <li><a href="#" id="navProfile">👤 Profil</a></li>
+      <li><a href="#" id="navNotifications" style="display:flex;align-items:center;gap:.5em;position:relative;">🔔 Bildirishnomalar<span id="notifBadge" class="notif-badge" hidden>0</span></a></li>
+      <li><a href="#" id="navChat">💬 O‘qituvchi bilan chat</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -489,6 +491,42 @@
       </div>
     </section>
 
+
+    <!-- ===== NOTIFICATIONS VIEW ===== -->
+    <section id="view-notifications" hidden>
+      <a href="#" id="backToHomeFromNotif" class="back-link">← Bosh sahifaga</a>
+      <div class="admin-header">
+        <div>
+          <h1>🔔 Bildirishnomalar</h1>
+          <p>Admindan kelgan xabarlar.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="markAllReadBtn">Hammasini o‘qilgan deb belgilash</button>
+      </div>
+      <div id="notifList" style="display:flex;flex-direction:column;gap:.8em;max-width:700px;">
+        <p style="color:var(--gray);" id="notifEmpty">Bildirishnomalar yo‘q.</p>
+      </div>
+    </section>
+
+    <!-- ===== CHAT VIEW ===== -->
+    <section id="view-chat" hidden>
+      <a href="#" id="backToHomeFromChat" class="back-link">← Bosh sahifaga</a>
+      <div class="admin-header">
+        <div>
+          <h1>💬 O‘qituvchi bilan chat</h1>
+          <p>Savollaringizni o‘qituvchiga yozing.</p>
+        </div>
+      </div>
+      <div class="chat-box" id="chatBox">
+        <div class="chat-messages" id="chatMessages">
+          <p style="color:var(--gray);text-align:center;padding:2em 0;" id="chatEmpty">Hali xabarlar yo‘q. Birinchi xabarni yuboring!</p>
+        </div>
+        <div class="chat-input-row">
+          <textarea id="chatInput" class="chat-textarea" placeholder="Xabar yozing..." rows="2" maxlength="1000"></textarea>
+          <button class="btn btn-amber" id="chatSendBtn">Yuborish</button>
+        </div>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -585,6 +623,7 @@ auth.onAuthStateChanged(async (user) => {
   await loadWriting();
   await loadMySubmissions();
   renderHomeView();
+  startNotifListener();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -731,7 +770,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile'];
+const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -2237,6 +2276,200 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     saveBtn.textContent = 'Saqlash';
   }
 });
+
+// ===== NOTIFICATIONS =====
+
+async function loadNotifications(){
+  const snap = await db.collection('notifications')
+    .orderBy('createdAt', 'desc')
+    .limit(30)
+    .get();
+
+  const listEl = document.getElementById('notifList');
+  const emptyEl = document.getElementById('notifEmpty');
+  const badge = document.getElementById('notifBadge');
+
+  if(snap.empty){
+    emptyEl.hidden = false;
+    badge.hidden = true;
+    return;
+  }
+
+  emptyEl.hidden = true;
+  let unread = 0;
+  const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+
+  listEl.innerHTML = '';
+  snap.docs.forEach(doc => {
+    const d = doc.data();
+    const isRead = readSet.includes(doc.id);
+    if(!isRead) unread++;
+    const div = document.createElement('div');
+    div.className = 'notif-card' + (isRead ? ' notif-read' : '');
+    div.dataset.notifId = doc.id;
+    const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
+    div.innerHTML = `<div class="notif-card-head"><span class="notif-card-title">${escapeHtml(d.title || 'Xabar')}</span><span class="notif-card-date">${date}</span></div><p class="notif-card-body">${escapeHtml(d.body || '')}</p>`;
+    div.addEventListener('click', () => markNotifRead(doc.id));
+    listEl.appendChild(div);
+  });
+
+  if(unread > 0){
+    badge.textContent = unread;
+    badge.hidden = false;
+  } else {
+    badge.hidden = true;
+  }
+}
+
+function markNotifRead(id){
+  const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+  if(!readSet.includes(id)){
+    readSet.push(id);
+    localStorage.setItem('efReadNotifs_' + currentUid, JSON.stringify(readSet));
+  }
+  const card = document.querySelector(`.notif-card[data-notif-id="${id}"]`);
+  if(card) card.classList.add('notif-read');
+  refreshNotifBadge();
+}
+
+function refreshNotifBadge(){
+  const cards = document.querySelectorAll('.notif-card:not(.notif-read)');
+  const badge = document.getElementById('notifBadge');
+  if(cards.length > 0){
+    badge.textContent = cards.length;
+    badge.hidden = false;
+  } else {
+    badge.hidden = true;
+  }
+}
+
+document.getElementById('navNotifications').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('notifications');
+  loadNotifications();
+});
+
+document.getElementById('backToHomeFromNotif').addEventListener('click', (e) => {
+  e.preventDefault();
+  renderHomeView();
+});
+
+document.getElementById('markAllReadBtn').addEventListener('click', () => {
+  const snap = document.querySelectorAll('.notif-card');
+  const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+  snap.forEach(card => {
+    const id = card.dataset.notifId;
+    if(!readSet.includes(id)) readSet.push(id);
+    card.classList.add('notif-read');
+  });
+  localStorage.setItem('efReadNotifs_' + currentUid, JSON.stringify(readSet));
+  document.getElementById('notifBadge').hidden = true;
+});
+
+// Check for new notifications on load (real-time listener)
+function startNotifListener(){
+  db.collection('notifications')
+    .orderBy('createdAt', 'desc')
+    .limit(30)
+    .onSnapshot(snap => {
+      const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+      let unread = 0;
+      snap.docs.forEach(doc => {
+        if(!readSet.includes(doc.id)) unread++;
+      });
+      const badge = document.getElementById('notifBadge');
+      if(unread > 0){
+        badge.textContent = unread;
+        badge.hidden = false;
+      } else {
+        badge.hidden = true;
+      }
+    });
+}
+
+// ===== CHAT WITH TEACHER =====
+
+let chatUnsubscribe = null;
+
+function renderChatMessage(d, id){
+  const isStudent = d.senderRole === 'student';
+  const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
+  return `<div class="chat-msg ${isStudent ? 'chat-msg-student' : 'chat-msg-teacher'}">
+    <div class="chat-msg-bubble">${escapeHtml(d.text || '')}</div>
+    <div class="chat-msg-meta">${isStudent ? 'Siz' : 'O‘qituvchi'} · ${date}</div>
+  </div>`;
+}
+
+function loadChat(){
+  const messagesEl = document.getElementById('chatMessages');
+  const emptyEl = document.getElementById('chatEmpty');
+
+  if(chatUnsubscribe) chatUnsubscribe();
+
+  chatUnsubscribe = db.collection('chats').doc(currentUid)
+    .collection('messages')
+    .orderBy('createdAt', 'asc')
+    .onSnapshot(snap => {
+      if(snap.empty){
+        emptyEl.hidden = false;
+        messagesEl.innerHTML = '';
+        messagesEl.appendChild(emptyEl);
+        return;
+      }
+      emptyEl.hidden = true;
+      messagesEl.innerHTML = snap.docs.map(doc => renderChatMessage(doc.data(), doc.id)).join('');
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+}
+
+document.getElementById('navChat').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('chat');
+  loadChat();
+});
+
+document.getElementById('backToHomeFromChat').addEventListener('click', (e) => {
+  e.preventDefault();
+  if(chatUnsubscribe){ chatUnsubscribe(); chatUnsubscribe = null; }
+  renderHomeView();
+});
+
+document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
+document.getElementById('chatInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendChatMessage(); }
+});
+
+async function sendChatMessage(){
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  input.disabled = true;
+
+  try{
+    await db.collection('chats').doc(currentUid).collection('messages').add({
+      text: text,
+      senderRole: 'student',
+      senderName: state.student.name || 'Talaba',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    // Update chat metadata for admin to see
+    await db.collection('chats').doc(currentUid).set({
+      studentId: currentUid,
+      studentName: state.student.name || 'Talaba',
+      lastMessage: text,
+      lastAt: firebase.firestore.FieldValue.serverTimestamp(),
+      unreadByTeacher: firebase.firestore.FieldValue.increment(1)
+    }, { merge: true });
+  } catch(err){
+    alert('Xabar yuborishda xatolik yuz berdi.');
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+}
+
+
 </script>
 </body>
 </html>
