@@ -168,15 +168,39 @@
 
   const SETTINGS_CACHE_KEY = 'efSiteSettingsCache';
 
+  // ---- Welcome loading overlay (#siteLoadingOverlay, if present on the
+  // page) — kept up for a short minimum time so "Xush kelibsiz!" is
+  // actually readable, and hidden as soon as branding is ready. If a
+  // cached copy of the settings exists that happens almost instantly; on
+  // a visitor's very first-ever visit (no cache yet) it stays up until
+  // the real Firestore fetch below finishes, with a safety-net timeout so
+  // it never gets stuck if the network is slow or offline. ----
+  const OVERLAY_SHOWN_AT = Date.now();
+  const MIN_OVERLAY_MS = 500;
+  let overlayHidden = false;
+  function hideLoadingOverlay(){
+    if(overlayHidden) return;
+    overlayHidden = true;
+    const overlay = document.getElementById('siteLoadingOverlay');
+    if(!overlay) return;
+    const wait = Math.max(0, MIN_OVERLAY_MS - (Date.now() - OVERLAY_SHOWN_AT));
+    setTimeout(() => {
+      overlay.classList.add('is-hidden');
+      setTimeout(() => overlay.remove(), 400);
+    }, wait);
+  }
+
   // Applies whatever settings we saved from the last successful Firestore
   // fetch, instantly, with no network wait — this is what removes the
   // few seconds of "default" colors/text flashing before the real branding
-  // shows up. Called once, right when the page is ready.
+  // shows up. Called once, right when the page is ready. Returns true if
+  // a cached copy was found and applied.
   function applyCachedSettings(){
     try{
       const cached = localStorage.getItem(SETTINGS_CACHE_KEY);
-      if(cached) applySettings(JSON.parse(cached));
+      if(cached){ applySettings(JSON.parse(cached)); return true; }
     } catch(e){ /* corrupt cache or storage unavailable — just skip it */ }
+    return false;
   }
 
   function init(){
@@ -184,18 +208,26 @@
     if(typeof db === 'undefined'){ setTimeout(init, 50); return; }
     db.collection('settings').doc('site').get()
       .then(doc => {
-        if(!doc.exists) return;
-        const data = doc.data();
-        applySettings(data);
-        try{ localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(data)); } catch(e){ /* storage full/unavailable — not critical */ }
+        if(doc.exists){
+          const data = doc.data();
+          applySettings(data);
+          try{ localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(data)); } catch(e){ /* storage full/unavailable — not critical */ }
+        }
+        hideLoadingOverlay();
       })
-      .catch(() => { /* settings doc not created yet, or offline — keep defaults */ });
+      .catch(() => { hideLoadingOverlay(); /* settings doc not created yet, or offline — keep defaults */ });
+  }
+
+  function boot(){
+    const hadCache = applyCachedSettings();
+    init();
+    if(hadCache) hideLoadingOverlay();
+    setTimeout(hideLoadingOverlay, 4000); // safety net — never leave the overlay stuck up
   }
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', () => { applyCachedSettings(); init(); });
+    document.addEventListener('DOMContentLoaded', boot);
   } else {
-    applyCachedSettings();
-    init();
+    boot();
   }
 })();
