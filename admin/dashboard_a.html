@@ -28,6 +28,8 @@
       <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
       <li><a href="#" id="navKundalik">📅 Kundalik</a></li>
       <li><a href="#" id="navGradebook">📊 Test natijalar</a></li>
+      <li><a href="#" id="navBroadcast">📢 Xabar yuborish</a></li>
+      <li><a href="#" id="navChats">💬 Chatlar</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -559,6 +561,59 @@
         <div style="display:flex; align-items:center; gap:12px; margin-top:18px;">
           <button class="btn btn-amber" id="gbSaveBtn">Saqlash</button>
           <span id="gbSaveStatus" style="font-size:.85rem; color:var(--gray);"></span>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- ===== BROADCAST (send notification to all) ===== -->
+    <section id="view-broadcast" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>📢 Xabar yuborish</h1>
+          <p>Barcha talabalar profilidagi bildirishnomalar bo‘limiga xabar yuboring.</p>
+        </div>
+      </div>
+      <div class="table-wrap" style="padding:20px; max-width:600px;">
+        <label class="field">
+          <span>Sarlavha</span>
+          <input type="text" id="broadcastTitle" placeholder="Masalan: Sinov vaqti o‘zgardi" maxlength="100">
+        </label>
+        <label class="field" style="margin-top:1em;">
+          <span>Xabar matni</span>
+          <textarea id="broadcastBody" rows="4" placeholder="Xabar matnini yozing..." maxlength="1000" style="width:100%;font-family:inherit;padding:.8em 1em;border-radius:var(--radius-s);border:1.5px solid var(--line);resize:vertical;"></textarea>
+        </label>
+        <p id="broadcastStatus" style="margin:.6em 0 0;font-size:.9rem;color:var(--gray);"></p>
+        <div style="margin-top:1em;">
+          <button class="btn btn-amber" id="broadcastSendBtn">Yuborish</button>
+        </div>
+
+        <div style="margin-top:2em;">
+          <h3 style="margin:0 0 .8em;">Yuborilgan xabarlar</h3>
+          <div id="broadcastHistoryList" style="display:flex;flex-direction:column;gap:.6em;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CHATS (student-teacher) ===== -->
+    <section id="view-chats" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>💬 Chatlar</h1>
+          <p>Talabalarning savol va xabarlariga javob bering.</p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:280px 1fr;gap:1em;height:calc(100vh - 200px);min-height:400px;">
+        <div class="table-wrap" style="padding:0;overflow-y:auto;">
+          <div id="chatStudentList" style="display:flex;flex-direction:column;"></div>
+        </div>
+        <div class="table-wrap" style="padding:0;display:flex;flex-direction:column;" id="chatDetailPanel">
+          <div style="padding:1em 1.2em;border-bottom:1.5px solid var(--line);font-weight:700;" id="chatDetailName">Talabani tanlang</div>
+          <div class="chat-messages" id="adminChatMessages" style="flex:1;overflow-y:auto;padding:1em;"></div>
+          <div style="padding:.8em;border-top:1.5px solid var(--line);display:flex;gap:.6em;">
+            <textarea id="adminChatInput" class="chat-textarea" placeholder="Javob yozing..." rows="2" maxlength="1000" style="flex:1;"></textarea>
+            <button class="btn btn-amber" id="adminChatSendBtn">Yuborish</button>
+          </div>
         </div>
       </div>
     </section>
@@ -2084,6 +2139,10 @@ function switchView(view){
   document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
   document.getElementById('navKundalik').classList.toggle('active', view === 'kundalik');
   document.getElementById('navGradebook').classList.toggle('active', view === 'gradebook');
+  document.getElementById('view-broadcast').hidden = view !== 'broadcast';
+  document.getElementById('view-chats').hidden = view !== 'chats';
+  document.getElementById('navBroadcast').classList.toggle('active', view === 'broadcast');
+  document.getElementById('navChats').classList.toggle('active', view === 'chats');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
@@ -3736,6 +3795,171 @@ async function loadGbVisitStats(){
     lastEl.textContent = '\u2014';
   }
 }
+// ===== BROADCAST =====
+document.getElementById('navBroadcast').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('broadcast');
+  loadBroadcastHistory();
+});
+
+async function loadBroadcastHistory(){
+  const listEl = document.getElementById('broadcastHistoryList');
+  listEl.innerHTML = '<p style="color:var(--gray);">Yuklanmoqda…</p>';
+  try{
+    const snap = await db.collection('notifications').orderBy('createdAt','desc').limit(20).get();
+    if(snap.empty){ listEl.innerHTML = '<p style="color:var(--gray);">Hali xabar yuborilmagan.</p>'; return; }
+    listEl.innerHTML = snap.docs.map(doc => {
+      const d = doc.data();
+      const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
+      return `<div style="background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-s);padding:.8em 1em;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:.5em;flex-wrap:wrap;">
+          <strong>${escapeHtml(d.title||'')}</strong>
+          <span style="font-size:.8rem;color:var(--gray);">${date}</span>
+          <button class="btn btn-danger btn-sm" data-del-notif="${doc.id}" style="padding:.2em .6em;">O‘chirish</button>
+        </div>
+        <p style="margin:.4em 0 0;font-size:.9rem;color:var(--gray);">${escapeHtml(d.body||'')}</p>
+      </div>`;
+    }).join('');
+
+    listEl.querySelectorAll('[data-del-notif]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if(!confirm('Bu xabarni o‘chirishni tasdiqlaysizmi?')) return;
+        await db.collection('notifications').doc(btn.dataset.delNotif).delete();
+        loadBroadcastHistory();
+      });
+    });
+  } catch(err){
+    listEl.innerHTML = '<p style="color:red;">Yuklashda xatolik.</p>';
+  }
+}
+
+document.getElementById('broadcastSendBtn').addEventListener('click', async () => {
+  const title = document.getElementById('broadcastTitle').value.trim();
+  const body = document.getElementById('broadcastBody').value.trim();
+  const statusEl = document.getElementById('broadcastStatus');
+  if(!title || !body){ statusEl.textContent = 'Sarlavha va xabar matni to‘ldirilishi shart.'; return; }
+  const btn = document.getElementById('broadcastSendBtn');
+  btn.disabled = true;
+  statusEl.textContent = 'Yuborilmoqda…';
+  try{
+    await db.collection('notifications').add({
+      title: title,
+      body: body,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('broadcastTitle').value = '';
+    document.getElementById('broadcastBody').value = '';
+    statusEl.textContent = '✅ Xabar muvaffaqiyatli yuborildi!';
+    loadBroadcastHistory();
+  } catch(err){
+    statusEl.textContent = 'Xatolik: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ===== CHATS (admin side) =====
+let adminChatUnsub = null;
+let adminActiveChatId = null;
+
+document.getElementById('navChats').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('chats');
+  loadChatStudentList();
+});
+
+async function loadChatStudentList(){
+  const listEl = document.getElementById('chatStudentList');
+  listEl.innerHTML = '<p style="padding:1em;color:var(--gray);">Yuklanmoqda…</p>';
+  try{
+    const snap = await db.collection('chats').orderBy('lastAt','desc').get();
+    if(snap.empty){ listEl.innerHTML = '<p style="padding:1em;color:var(--gray);">Hali chatlar yo‘q.</p>'; return; }
+    listEl.innerHTML = '';
+    snap.docs.forEach(doc => {
+      const d = doc.data();
+      const div = document.createElement('div');
+      div.className = 'chat-student-item';
+      div.dataset.chatId = doc.id;
+      const unread = d.unreadByTeacher || 0;
+      div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:.9em 1em;border-bottom:1px solid var(--line);cursor:pointer;gap:.4em;">
+        <div>
+          <div style="font-weight:700;font-size:.95rem;">${escapeHtml(d.studentName||'Talaba')}</div>
+          <div style="font-size:.82rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">${escapeHtml(d.lastMessage||'')}</div>
+        </div>
+        ${unread > 0 ? `<span style="background:red;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;">${unread}</span>` : ''}
+      </div>`;
+      div.addEventListener('click', () => openAdminChat(doc.id, d.studentName || 'Talaba'));
+      listEl.appendChild(div);
+    });
+  } catch(err){
+    listEl.innerHTML = '<p style="padding:1em;color:red;">Xatolik.</p>';
+  }
+}
+
+function openAdminChat(chatId, studentName){
+  adminActiveChatId = chatId;
+  document.getElementById('chatDetailName').textContent = studentName;
+  document.querySelectorAll('.chat-student-item').forEach(el => {
+    el.style.background = el.dataset.chatId === chatId ? 'var(--amber-10, #fff8ed)' : '';
+  });
+
+  if(adminChatUnsub) adminChatUnsub();
+
+  const messagesEl = document.getElementById('adminChatMessages');
+  messagesEl.innerHTML = '';
+
+  adminChatUnsub = db.collection('chats').doc(chatId).collection('messages')
+    .orderBy('createdAt','asc')
+    .onSnapshot(snap => {
+      messagesEl.innerHTML = snap.docs.map(doc => {
+        const d = doc.data();
+        const isTeacher = d.senderRole === 'teacher';
+        const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
+        return `<div class="chat-msg ${isTeacher ? 'chat-msg-student' : 'chat-msg-teacher'}">
+          <div class="chat-msg-bubble">${escapeHtml(d.text||'')}</div>
+          <div class="chat-msg-meta">${isTeacher ? 'O‘qituvchi' : escapeHtml(d.senderName||'Talaba')} · ${date}</div>
+        </div>`;
+      }).join('');
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    });
+
+  // Mark as read
+  db.collection('chats').doc(chatId).update({ unreadByTeacher: 0 }).catch(()=>{});
+  loadChatStudentList();
+}
+
+document.getElementById('adminChatSendBtn').addEventListener('click', sendAdminChatMsg);
+document.getElementById('adminChatInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendAdminChatMsg(); }
+});
+
+async function sendAdminChatMsg(){
+  if(!adminActiveChatId) return;
+  const input = document.getElementById('adminChatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  input.disabled = true;
+  try{
+    await db.collection('chats').doc(adminActiveChatId).collection('messages').add({
+      text: text,
+      senderRole: 'teacher',
+      senderName: 'O‘qituvchi',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('chats').doc(adminActiveChatId).set({
+      lastMessage: text,
+      lastAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch(err){
+    alert('Xabar yuborishda xatolik.');
+  } finally {
+    input.disabled = false;
+    input.focus();
+  }
+}
+
+
 
 
 </script>
