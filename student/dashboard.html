@@ -802,6 +802,7 @@ async function fetchGbLookupData(){
 }
 
 async function renderGbResultBox(){
+  const box = document.getElementById('gbResultBox');
   const formEl = document.getElementById('gbNameForm');
   const viewEl = document.getElementById('gbResultView');
   const errorEl = document.getElementById('gbNameError');
@@ -827,6 +828,7 @@ async function renderGbResultBox(){
   }
 
   if(!savedName){
+    box.style.background = '';
     formEl.hidden = false;
     viewEl.hidden = true;
     return;
@@ -836,6 +838,7 @@ async function renderGbResultBox(){
   const match = data.students.find(s => normalizeGbName(s.name) === normalizeGbName(savedName));
 
   if(!match){
+    box.style.background = '';
     document.getElementById('gbNameInput').value = savedName;
     errorEl.textContent = `"${savedName}" ismi natijalar ro‘yxatidan topilmadi. Ism-familiyangizni tekshirib, qayta kiriting.`;
     errorEl.hidden = false;
@@ -865,12 +868,14 @@ async function renderGbResultBox(){
     scoreEl.classList.remove('quiz-result-pass', 'quiz-result-fail');
 
     const tier = getGbScoreTier(latestScore);
-    scoreEl.style.background = tier.color;
+    box.style.background = tier.cardBg; // the WHOLE card, not just the score badge
+    scoreEl.style.background = 'rgba(255,255,255,.2)';
     scoreEl.style.color = '#fff';
     msgEl.hidden = false;
     msgEl.textContent = tier.emoji + ' ' + tier.message;
-    msgEl.style.color = tier.color;
+    msgEl.style.color = '#fff'; // always white, regardless of card color
   } else {
+    box.style.background = '';
     document.getElementById('gbResultUnit').textContent = (match.group ? match.group + ' · ' : '') + 'Hali natija kiritilmagan.';
     scoreEl.hidden = true;
     scoreEl.textContent = '';
@@ -883,19 +888,20 @@ async function renderGbResultBox(){
   viewEl.hidden = false;
 }
 
-// Score → color + motivational message shown under the score:
+// Score → whole-card color + motivational message (message text is always
+// white so it stays readable no matter which tier color the card takes):
 //   0–65   : qizil (red)   — "Yaxshi o'qimayapsiz" 😞
 //   66–97  : zangor (cyan) — "Harakatni to'xtatmang" 💪
-//   98–100 : ko'k (blue)   — "A'lochi o'quvchi" 😄
+//   98–100 : ko'k (blue)   — "A'lochi o'quvchi" 😄 — the card's own default blue, unchanged
 function getGbScoreTier(score){
   const n = Number(score);
   if(n <= 65){
-    return { color: '#c0392b', message: 'Yaxshi o‘qimayapsiz', emoji: '😞' };
+    return { cardBg: '#c0392b', message: 'Yaxshi o‘qimayapsiz', emoji: '😞' };
   }
   if(n <= 97){
-    return { color: '#17a2b8', message: 'Harakatni to‘xtatmang', emoji: '💪' };
+    return { cardBg: '#1791ab', message: 'Harakatni to‘xtatmang', emoji: '💪' };
   }
-  return { color: '#154fb4', message: 'A’lochi o‘quvchi', emoji: '😄' };
+  return { cardBg: '', message: 'A’lochi o‘quvchi', emoji: '😄' };
 }
 
 document.getElementById('gbNameSubmitBtn').addEventListener('click', async () => {
