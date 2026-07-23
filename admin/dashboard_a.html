@@ -3949,7 +3949,8 @@ async function sendAdminChatMsg(){
     });
     await db.collection('chats').doc(adminActiveChatId).set({
       lastMessage: text,
-      lastAt: firebase.firestore.FieldValue.serverTimestamp()
+      lastAt: firebase.firestore.FieldValue.serverTimestamp(),
+      unreadByStudent: firebase.firestore.FieldValue.increment(1)
     }, { merge: true });
   } catch(err){
     alert('Xabar yuborishda xatolik.');
