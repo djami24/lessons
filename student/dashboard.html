@@ -5,6 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mening kursim — Djami Lessons</title>
 <link rel="stylesheet" href="../style.css">
+<style>
+  /* Keep the "Test natijasi" and "So'nggi uy vazifasi" cards aligned to
+     the same top edge, no matter which one is taller. */
+  #gbResultBox, #latestHwBox { align-self: start; }
+
+  /* The homework card's background was switched to white, but the
+     done/not-done buttons were designed for a colored card and used a
+     light/white label color — invisible on white. Force clearly visible
+     colors for both states here, scoped to this card only. */
+  #latestHwBox .hw-status-btn {
+    color: #374151 !important;
+    border-color: var(--line) !important;
+    background: #fff !important;
+  }
+  #latestHwBox .hw-status-btn.is-active[data-status="done"] {
+    color: #1e7e34 !important;
+    border-color: #1e7e34 !important;
+    background: #eaf7ee !important;
+  }
+  #latestHwBox .hw-status-btn.is-active[data-status="undone"] {
+    color: #a15c00 !important;
+    border-color: #a15c00 !important;
+    background: #fff6e6 !important;
+  }
+</style>
 </head>
 <body class="admin-theme">
 
