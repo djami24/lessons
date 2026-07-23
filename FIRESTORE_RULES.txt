@@ -276,7 +276,15 @@ service cloud.firestore {
         allow create: if isAdmin() &&
           request.resource.data.senderRole == 'teacher';
 
-        allow update: if false;
+        // Student may mark a teacher's message as read — powers the
+        // read-receipt ticks shown on the admin side (1 tick = sent,
+        // 2 ticks = read). Only the `read` field may change, only on
+        // messages the teacher sent, only within the student's own chat.
+        allow update: if isSignedIn() && request.auth.uid == studentId &&
+          resource.data.senderRole == 'teacher' &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) &&
+          request.resource.data.read == true;
+
         // Only admin can delete messages (students cannot delete)
         allow delete: if isAdmin();
       }
