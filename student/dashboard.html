@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../style.css">
 </head>
 <body class="admin-theme">
+<div id="siteLoadingOverlay"><div class="site-loading-inner"><div class="site-loading-spinner"></div><p class="site-loading-text">Xush kelibsiz!</p></div></div>
 
 <div id="loadingScreen" class="loading-screen">Yuklanmoqda…</div>
 
@@ -520,9 +521,11 @@ auth.onAuthStateChanged(async (user) => {
   document.getElementById('loadingScreen').hidden = true;
   document.getElementById('appShell').hidden = false;
 
-  // Individual students don't see Test natijalar on the home page.
+  // Individual students only see Homework, Kurslarim and Insholarim on the
+  // home page — no Test natijalar and no Darajani bilish testi.
   if(state.student.studentType === 'individual'){
     document.getElementById('navResultsCard').style.display = 'none';
+    document.getElementById('navPlacementTest').style.display = 'none';
   }
 
   await loadLevels();
