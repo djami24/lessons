@@ -1189,6 +1189,44 @@ table.data-table td .tag{ margin-right:.3em; }
 .blog-comment-more:hover{ text-decoration:underline; }
 .blog-comments-empty{ color: var(--gray); font-size:.9rem; }
 
+.blog-post-date{
+  font-family: var(--font-mono); font-size:.8rem; color: var(--gray); margin: -.6em 0 1.4em;
+}
+
+.blog-comment-votes{ display:flex; align-items:center; gap:1.1em; margin-top:.7em; }
+.comment-vote-btn{
+  display:flex; align-items:center; gap:.35em; padding:.15em .1em; border-radius: var(--radius-s);
+  border:none; background: transparent; color: var(--gray);
+  font-weight:700; font-size:.82rem; font-family: var(--font-body); cursor:pointer;
+  transition: color .15s var(--ease), transform .15s var(--ease);
+}
+.comment-vote-btn:hover:not(:disabled){ color: var(--teal); transform: translateY(-1px); }
+.comment-vote-btn.is-active{ color: var(--teal); }
+.comment-vote-btn:disabled{ cursor:default; }
+.comment-vote-btn:disabled:not(.is-active){ opacity:.55; }
+.comment-reply-btn{
+  border:none; background:transparent; padding:.15em .1em; margin-left:auto;
+  color: var(--gray); font-weight:700; font-size:.82rem; font-family: var(--font-body); cursor:pointer;
+  transition: color .15s var(--ease);
+}
+.comment-reply-btn:hover{ color: var(--teal); text-decoration:underline; }
+
+.blog-reply-form{
+  display:flex; flex-direction:column; gap:.6em; background: var(--paper); border:1.5px solid var(--line);
+  border-radius: var(--radius-s); padding: 1em 1.1em; margin-top: .9em;
+}
+.blog-reply-form input, .blog-reply-form textarea{
+  font-family: var(--font-body); padding:.6em .8em; border-radius: var(--radius-s); border: 1.5px solid var(--line);
+  background: var(--white); color: var(--ink); resize: vertical;
+}
+.blog-reply-form input:focus-visible, .blog-reply-form textarea:focus-visible{ outline: 2px solid var(--teal); outline-offset:1px; }
+
+.blog-comment-replies{
+  display:flex; flex-direction:column; gap:.9em; margin: .9em 0 0 1.6em;
+  padding-left: 1.1em; border-left: 2px solid var(--line);
+}
+.blog-comment-item.is-reply{ background: var(--paper); }
+
 /* ===== Admin — comment moderation modal ===== */
 .comment-admin-list{ display:flex; flex-direction:column; gap: .9em; max-height: 52vh; overflow-y:auto; }
 .comment-admin-item{
