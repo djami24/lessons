@@ -3868,6 +3868,29 @@ document.getElementById('navChats').addEventListener('click', (e) => {
   loadChatStudentList();
 });
 
+async function deleteChat(chatId, studentName){
+  if(!confirm(`"${studentName}" bilan bo‘lgan butun chat tarixi o‘chirilsinmi? Bu amalni bekor qilib bo‘lmaydi.`)) return;
+  try{
+    // Delete all messages in subcollection first
+    const msgsSnap = await db.collection('chats').doc(chatId).collection('messages').get();
+    const batch = db.batch();
+    msgsSnap.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    // Then delete the chat metadata doc
+    await db.collection('chats').doc(chatId).delete();
+    // If this was the open chat, clear the panel
+    if(adminActiveChatId === chatId){
+      adminActiveChatId = null;
+      if(adminChatUnsub){ adminChatUnsub(); adminChatUnsub = null; }
+      document.getElementById('chatDetailName').textContent = 'Talabani tanlang';
+      document.getElementById('adminChatMessages').innerHTML = '';
+    }
+    loadChatStudentList();
+  } catch(err){
+    alert('Chatni o‘chirishda xatolik: ' + err.message);
+  }
+}
+
 async function loadChatStudentList(){
   const listEl = document.getElementById('chatStudentList');
   listEl.innerHTML = '<p style="padding:1em;color:var(--gray);">Yuklanmoqda…</p>';
@@ -3881,14 +3904,21 @@ async function loadChatStudentList(){
       div.className = 'chat-student-item';
       div.dataset.chatId = doc.id;
       const unread = d.unreadByTeacher || 0;
-      div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:.9em 1em;border-bottom:1px solid var(--line);cursor:pointer;gap:.4em;">
-        <div>
-          <div style="font-weight:700;font-size:.95rem;">${escapeHtml(d.studentName||'Talaba')}</div>
-          <div style="font-size:.82rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">${escapeHtml(d.lastMessage||'')}</div>
+      div.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:.75em 1em;border-bottom:1px solid var(--adm-line);cursor:pointer;gap:.4em;">
+        <div style="flex:1;min-width:0;" class="chat-item-body">
+          <div style="font-weight:700;font-size:.92rem;">${escapeHtml(d.studentName||'Talaba')}</div>
+          <div style="font-size:.8rem;color:var(--adm-gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(d.lastMessage||'')}</div>
         </div>
-        ${unread > 0 ? `<span style="background:red;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;">${unread}</span>` : ''}
+        <div style="display:flex;align-items:center;gap:.3em;flex-shrink:0;">
+          ${unread > 0 ? `<span style="background:#e53e3e;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;">${unread}</span>` : ''}
+          <button class="btn btn-danger btn-sm del-chat-btn" data-del-chat="${doc.id}" data-student-name="${escapeHtml(d.studentName||'Talaba')}" title="Chatni o‘chirish" style="padding:.2em .5em;font-size:.78rem;opacity:.7;" onclick="event.stopPropagation()">🗑️</button>
+        </div>
       </div>`;
-      div.addEventListener('click', () => openAdminChat(doc.id, d.studentName || 'Talaba'));
+      div.querySelector('.chat-item-body').addEventListener('click', () => openAdminChat(doc.id, d.studentName || 'Talaba'));
+      div.querySelector('.del-chat-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        deleteChat(doc.id, d.studentName || 'Talaba');
+      });
       listEl.appendChild(div);
     });
   } catch(err){
