@@ -520,11 +520,9 @@ auth.onAuthStateChanged(async (user) => {
   document.getElementById('loadingScreen').hidden = true;
   document.getElementById('appShell').hidden = false;
 
-  // Individual students only see Homework, Kurslarim and Insholarim on the
-  // home page — no Test natijalar and no Darajani bilish testi.
+  // Individual students don't see Test natijalar on the home page.
   if(state.student.studentType === 'individual'){
     document.getElementById('navResultsCard').style.display = 'none';
-    document.getElementById('navPlacementTest').style.display = 'none';
   }
 
   await loadLevels();
