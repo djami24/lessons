@@ -1707,6 +1707,20 @@ body.admin-theme .chat-msg-teacher .chat-msg-bubble{ background:var(--adm-bg); b
 body.admin-theme .chat-input-row{ background:var(--adm-bg); border-color:var(--adm-line); }
 body.admin-theme .chat-textarea{ background:var(--adm-bg); border-color:var(--adm-line); color:var(--adm-ink); }
 
+/* Admin "Chatlar" view — the student-list + conversation panel was a fixed
+   280px / 1fr grid. On a phone that left almost no width for the message
+   textarea (it only got the leftover sliver after the 280px column), so
+   typing was effectively impossible. Stack it into one column instead. */
+@media (max-width: 760px){
+  .chat-grid{
+    grid-template-columns: 1fr !important;
+    height: auto !important; min-height: 0 !important;
+  }
+  .chat-grid-list{ max-height: 220px; }
+  .chat-grid-detail{ height: 62vh; min-height: 380px; }
+  .chat-textarea{ font-size: 16px; min-height: 44px; } /* 16px avoids iOS auto-zoom on focus */
+}
+
 /* Admin chats — student list item hover */
 .chat-student-item div:hover{ background:var(--adm-hover, #f1f5f9); }
 
