@@ -166,17 +166,36 @@
     setText('[data-site-rating-label]', data.ratingLabel);
   }
 
+  const SETTINGS_CACHE_KEY = 'efSiteSettingsCache';
+
+  // Applies whatever settings we saved from the last successful Firestore
+  // fetch, instantly, with no network wait — this is what removes the
+  // few seconds of "default" colors/text flashing before the real branding
+  // shows up. Called once, right when the page is ready.
+  function applyCachedSettings(){
+    try{
+      const cached = localStorage.getItem(SETTINGS_CACHE_KEY);
+      if(cached) applySettings(JSON.parse(cached));
+    } catch(e){ /* corrupt cache or storage unavailable — just skip it */ }
+  }
+
   function init(){
     // Wait for firebase-config.js to have set up the global `db`.
     if(typeof db === 'undefined'){ setTimeout(init, 50); return; }
     db.collection('settings').doc('site').get()
-      .then(doc => { if(doc.exists) applySettings(doc.data()); })
+      .then(doc => {
+        if(!doc.exists) return;
+        const data = doc.data();
+        applySettings(data);
+        try{ localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(data)); } catch(e){ /* storage full/unavailable — not critical */ }
+      })
       .catch(() => { /* settings doc not created yet, or offline — keep defaults */ });
   }
 
   if(document.readyState === 'loading'){
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', () => { applyCachedSettings(); init(); });
   } else {
+    applyCachedSettings();
     init();
   }
 })();
