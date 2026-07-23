@@ -4016,6 +4016,18 @@ function openAdminChat(chatId, studentName){
         </div>`;
       }).join('');
       messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      // Mark any student messages the admin can now see as read — this
+      // is what flips the student-side ticks from 1 (sent) to 2 (read).
+      const unreadStudentMsgs = snap.docs.filter(doc => {
+        const d = doc.data();
+        return d.senderRole === 'student' && d.read !== true;
+      });
+      if(unreadStudentMsgs.length > 0){
+        const batch = db.batch();
+        unreadStudentMsgs.forEach(doc => batch.update(doc.ref, { read: true }));
+        batch.commit().catch(()=>{});
+      }
     });
 
   // Mark as read
