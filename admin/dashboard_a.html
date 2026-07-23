@@ -602,6 +602,7 @@
           <h1>💬 Chatlar</h1>
           <p>Talabalarning savol va xabarlariga javob bering.</p>
         </div>
+        <button class="btn btn-amber" id="openNewChatBtn">+ Yangi xabar</button>
       </div>
       <div class="chat-grid" style="display:grid;grid-template-columns:280px 1fr;gap:1em;height:calc(100vh - 200px);min-height:400px;">
         <div class="chat-grid-list table-wrap" style="padding:0;overflow-y:auto;">
@@ -982,6 +983,23 @@
         </div>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- ===== MODAL: Start a new chat with a chosen student ===== -->
+<div class="modal-overlay" id="modalNewChat" hidden>
+  <div class="modal-box">
+    <h3>Yangi xabar yuborish</h3>
+    <p class="modal-sub">Xabar yubormoqchi bo‘lgan o‘quvchini tanlang.</p>
+    <div style="position:relative; margin-bottom:1em;">
+      <input type="text" id="newChatSearchInput" placeholder="Ism yoki email bo‘yicha qidirish…"
+        style="width:100%; padding:.75em 1em .75em 2.4em; border-radius:var(--radius-s); border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:.95rem;">
+      <span style="position:absolute; left:.85em; top:50%; transform:translateY(-50%); opacity:.55;">🔍</span>
+    </div>
+    <div id="newChatStudentList" style="max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:.5em;"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" data-close-modal="modalNewChat">Bekor qilish</button>
+    </div>
   </div>
 </div>
 
@@ -3867,6 +3885,43 @@ document.getElementById('navChats').addEventListener('click', (e) => {
   switchView('chats');
   loadChatStudentList();
 });
+
+document.getElementById('openNewChatBtn').addEventListener('click', () => {
+  document.getElementById('newChatSearchInput').value = '';
+  renderNewChatStudentList('');
+  openModal('modalNewChat');
+});
+
+document.getElementById('newChatSearchInput').addEventListener('input', (e) => {
+  renderNewChatStudentList(e.target.value.trim().toLowerCase());
+});
+
+function renderNewChatStudentList(filter){
+  const listEl = document.getElementById('newChatStudentList');
+  const filtered = state.students.filter(s => {
+    if(!filter) return true;
+    return (s.name||'').toLowerCase().includes(filter) || (s.email||'').toLowerCase().includes(filter);
+  });
+  if(filtered.length === 0){
+    listEl.innerHTML = '<p style="color:var(--gray);padding:.6em 0;">O‘quvchi topilmadi.</p>';
+    return;
+  }
+  listEl.innerHTML = filtered.map(s => `
+    <div class="new-chat-student-item" data-student-id="${s.id}" data-student-name="${escapeHtml(s.name||'Talaba')}"
+      style="display:flex; align-items:center; gap:.7em; padding:.6em .8em; border:1.5px solid var(--line); border-radius:var(--radius-s); cursor:pointer;">
+      <div style="flex:1; min-width:0;">
+        <div style="font-weight:700; font-size:.92rem;">${escapeHtml(s.name||'Talaba')}</div>
+        <div style="font-size:.8rem; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(s.email||'')}</div>
+      </div>
+    </div>
+  `).join('');
+  listEl.querySelectorAll('.new-chat-student-item').forEach(el => {
+    el.addEventListener('click', () => {
+      closeModal('modalNewChat');
+      openAdminChat(el.dataset.studentId, el.dataset.studentName);
+    });
+  });
+}
 
 async function deleteChat(chatId, studentName){
   if(!confirm(`"${studentName}" bilan bo‘lgan butun chat tarixi o‘chirilsinmi? Bu amalni bekor qilib bo‘lmaydi.`)) return;
