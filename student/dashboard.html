@@ -2421,9 +2421,15 @@ let chatUnsubscribe = null;
 function renderChatMessage(d, id){
   const isStudent = d.senderRole === 'student';
   const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
+  // Read-receipt ticks — only on the student's own messages: single tick
+  // = sent but not yet seen by the teacher, double (blue) tick = the
+  // teacher has opened this chat and seen it.
+  const ticks = isStudent
+    ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '✓✓' : '✓'}</span>`
+    : '';
   return `<div class="chat-msg ${isStudent ? 'chat-msg-student' : 'chat-msg-teacher'}">
     <div class="chat-msg-bubble">${escapeHtml(d.text || '')}</div>
-    <div class="chat-msg-meta">${isStudent ? 'Siz' : 'O‘qituvchi'} · ${date}</div>
+    <div class="chat-msg-meta">${isStudent ? 'Siz' : 'O‘qituvchi'} · ${date} ${ticks}</div>
   </div>`;
 }
 
@@ -2493,6 +2499,7 @@ async function sendChatMessage(){
       text: text,
       senderRole: 'student',
       senderName: state.student.name || 'Talaba',
+      read: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     // Update chat metadata for admin to see
