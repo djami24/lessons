@@ -603,11 +603,11 @@
           <p>Talabalarning savol va xabarlariga javob bering.</p>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:280px 1fr;gap:1em;height:calc(100vh - 200px);min-height:400px;">
-        <div class="table-wrap" style="padding:0;overflow-y:auto;">
+      <div class="chat-grid" style="display:grid;grid-template-columns:280px 1fr;gap:1em;height:calc(100vh - 200px);min-height:400px;">
+        <div class="chat-grid-list table-wrap" style="padding:0;overflow-y:auto;">
           <div id="chatStudentList" style="display:flex;flex-direction:column;"></div>
         </div>
-        <div class="table-wrap" style="padding:0;display:flex;flex-direction:column;" id="chatDetailPanel">
+        <div class="chat-grid-detail table-wrap" style="padding:0;display:flex;flex-direction:column;" id="chatDetailPanel">
           <div style="padding:1em 1.2em;border-bottom:1.5px solid var(--line);font-weight:700;" id="chatDetailName">Talabani tanlang</div>
           <div class="chat-messages" id="adminChatMessages" style="flex:1;overflow-y:auto;padding:1em;"></div>
           <div style="padding:.8em;border-top:1.5px solid var(--line);display:flex;gap:.6em;">
