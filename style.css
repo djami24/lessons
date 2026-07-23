@@ -334,7 +334,10 @@ footer a:hover{ color: var(--amber); }
 .admin-sidebar::-webkit-scrollbar-track{ background: transparent; }
 .admin-sidebar::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.15); border-radius:4px; }
 .admin-sidebar .brand{ color: var(--paper); text-decoration:none; margin-bottom: 2.4em; font-size: 1.1rem; }
-.admin-nav{ list-style:none; margin:0; padding:0 0 1em; display:flex; flex-direction:column; gap:.3em; flex:1; min-height:0; }
+.admin-nav{ list-style:none; margin:0; padding:0 0 1em; display:flex; flex-direction:column; gap:.3em; flex:1; min-height:0; overflow-y:auto; }
+.admin-nav::-webkit-scrollbar{ width: 4px; }
+.admin-nav::-webkit-scrollbar-track{ background: transparent; }
+.admin-nav::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.15); border-radius:4px; }
 .admin-nav a{
   display:flex; align-items:center; gap:.7em; text-decoration:none; color: rgba(247,247,243,.7);
   padding:.75em .8em; border-radius: var(--radius-s); font-weight:600; font-size:.92rem;
