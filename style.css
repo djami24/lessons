@@ -328,9 +328,13 @@ footer a:hover{ color: var(--amber); }
 .admin-sidebar{
   width: 260px; flex: none; background: var(--ink); color: rgba(247,247,243,.85);
   display:flex; flex-direction:column; padding: 1.8em 1.4em; position: sticky; top:0; height:100vh;
+  overflow-y: auto;
 }
+.admin-sidebar::-webkit-scrollbar{ width: 4px; }
+.admin-sidebar::-webkit-scrollbar-track{ background: transparent; }
+.admin-sidebar::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.15); border-radius:4px; }
 .admin-sidebar .brand{ color: var(--paper); text-decoration:none; margin-bottom: 2.4em; font-size: 1.1rem; }
-.admin-nav{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.3em; flex:1; }
+.admin-nav{ list-style:none; margin:0; padding:0 0 1em; display:flex; flex-direction:column; gap:.3em; flex:1; min-height:0; }
 .admin-nav a{
   display:flex; align-items:center; gap:.7em; text-decoration:none; color: rgba(247,247,243,.7);
   padding:.75em .8em; border-radius: var(--radius-s); font-weight:600; font-size:.92rem;
@@ -1291,7 +1295,11 @@ body.admin-theme{
 body.admin-theme .admin-sidebar{
   background: linear-gradient(180deg, var(--adm-navy), var(--adm-navy-2));
   width: 272px; padding: 1.8em 1.3em;
+  overflow-y: auto;
 }
+body.admin-theme .admin-sidebar::-webkit-scrollbar{ width: 4px; }
+body.admin-theme .admin-sidebar::-webkit-scrollbar-track{ background: transparent; }
+body.admin-theme .admin-sidebar::-webkit-scrollbar-thumb{ background: rgba(255,255,255,.18); border-radius:4px; }
 body.admin-theme .admin-sidebar .brand{
   display:flex; align-items:center; gap:.7em; margin-bottom: 2.2em; padding: 0 .3em;
 }
