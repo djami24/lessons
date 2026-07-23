@@ -219,5 +219,32 @@ service cloud.firestore {
       }
     }
 
+    // Test natijalar (gradebook) — public results-lookup page (natijalar.html)
+    // reads this with no sign-in required; only an admin (from the main
+    // admin panel's "Test natijalar" section) may edit it. Single doc,
+    // shape: { units: string[], students: [{id, name, group, scores}] }.
+    match /gradebook/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Visit counter for natijalar.html — any visitor may bump the count by
+    // exactly 1 and stamp lastVisit with the server time; nothing else.
+    // Only an admin can read the tally (shown in the "Test natijalar"
+    // admin section).
+    match /stats/{docId} {
+      allow read: if isAdmin();
+
+      allow create: if docId == 'visits' &&
+        request.resource.data.keys().hasOnly(['count', 'lastVisit']) &&
+        request.resource.data.count == 1 &&
+        request.resource.data.lastVisit == request.time;
+
+      allow update: if docId == 'visits' &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count', 'lastVisit']) &&
+        request.resource.data.count == resource.data.get('count', 0) + 1 &&
+        request.resource.data.lastVisit == request.time;
+    }
+
   }
 }
