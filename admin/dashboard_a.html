@@ -3879,6 +3879,7 @@ document.getElementById('broadcastSendBtn').addEventListener('click', async () =
 // ===== CHATS (admin side) =====
 let adminChatUnsub = null;
 let adminActiveChatId = null;
+let adminActiveChatName = null;
 
 document.getElementById('navChats').addEventListener('click', (e) => {
   e.preventDefault();
@@ -3982,8 +3983,11 @@ async function loadChatStudentList(){
 }
 
 function openAdminChat(chatId, studentName){
+  const knownStudent = state.students.find(s => s.id === chatId);
+  const resolvedName = (knownStudent && knownStudent.name) ? knownStudent.name : studentName;
   adminActiveChatId = chatId;
-  document.getElementById('chatDetailName').textContent = studentName;
+  adminActiveChatName = resolvedName;
+  document.getElementById('chatDetailName').textContent = resolvedName;
   document.querySelectorAll('.chat-student-item').forEach(el => {
     el.style.background = el.dataset.chatId === chatId ? 'var(--amber-10, #fff8ed)' : '';
   });
@@ -4033,6 +4037,7 @@ async function sendAdminChatMsg(){
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     await db.collection('chats').doc(adminActiveChatId).set({
+      studentName: adminActiveChatName,
       lastMessage: text,
       lastAt: firebase.firestore.FieldValue.serverTimestamp(),
       unreadByStudent: firebase.firestore.FieldValue.increment(1)
