@@ -62,6 +62,22 @@
     });
   }
 
+  function formatTimestamp(ts) {
+    if (!ts) return '';
+    var d = typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
+    if (isNaN(d.getTime())) return '';
+    return d.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' }) +
+      ' · ' + d.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function tsToMillis(ts) {
+    if (!ts) return 0;
+    if (typeof ts.toMillis === 'function') return ts.toMillis();
+    if (typeof ts.toDate === 'function') return ts.toDate().getTime();
+    var d = new Date(ts);
+    return isNaN(d.getTime()) ? 0 : d.getTime();
+  }
+
   function showMessage(text) {
     wrap.innerHTML = '<p class="blog-post-loading">' + escapeHtml(text) + '</p>';
   }
@@ -81,6 +97,7 @@
       wrap.innerHTML =
         (b.imageUrl ? '<img class="blog-post-img" src="' + escapeHtml(b.imageUrl) + '" alt="' + escapeHtml(b.title || '') + '">' : '') +
         '<h1 class="blog-post-title">' + escapeHtml(b.title || '') + '</h1>' +
+        (b.createdAt ? '<p class="blog-post-date">🕓 ' + formatTimestamp(b.createdAt) + '</p>' : '') +
         '<div class="rich-content blog-post-content">' + (b.content || '') + '</div>' +
         '<div class="blog-actions">' +
           '<div class="blog-vote-box">' +
@@ -225,10 +242,104 @@
     cancelBtn.addEventListener('click', hideForm);
 
     function formatDate(ts) {
-      if (!ts || typeof ts.toDate !== 'function') return '';
-      var d = ts.toDate();
-      return d.toLocaleDateString('uz-UZ', { day: 'numeric', month: 'short', year: 'numeric' }) +
-        ' · ' + d.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+      return formatTimestamp(ts);
+    }
+
+    // Groups the flat comments snapshot into top-level comments + their
+    // replies (replies always point at a top-level comment's id via
+    // parentId, so this only ever nests one level deep — a "reply to a
+    // reply" is just added to the same thread).
+    function buildThreads(docs) {
+      var byId = {};
+      docs.forEach(function (doc) { byId[doc.id] = { id: doc.id, data: doc.data(), replies: [] }; });
+      var top = [];
+      docs.forEach(function (doc) {
+        var node = byId[doc.id];
+        var pid = node.data.parentId;
+        if (pid && byId[pid]) { byId[pid].replies.push(node); }
+        else { top.push(node); }
+      });
+      top.sort(function (a, b) { return tsToMillis(b.data.createdAt) - tsToMillis(a.data.createdAt); });
+      top.forEach(function (node) {
+        node.replies.sort(function (a, b) { return tsToMillis(a.data.createdAt) - tsToMillis(b.data.createdAt); });
+      });
+      return top;
+    }
+
+    function renderVoteRow(node) {
+      var likeCount = node.data.likeCount || 0;
+      var dislikeCount = node.data.dislikeCount || 0;
+      return '<div class="blog-comment-votes" data-comment-id="' + node.id + '">' +
+        '<button type="button" class="comment-vote-btn" data-vote="like" data-id="' + node.id + '">👍 <span class="vote-count">' + likeCount + '</span></button>' +
+        '<button type="button" class="comment-vote-btn" data-vote="dislike" data-id="' + node.id + '">👎 <span class="vote-count">' + dislikeCount + '</span></button>' +
+        '<button type="button" class="comment-reply-btn" data-id="' + node.id + '">💬 Javob</button>' +
+        '</div>';
+    }
+
+    function renderReplyForm(node) {
+      return '<form class="blog-reply-form" id="replyForm-' + node.id + '" hidden>' +
+        '<input type="text" class="reply-name-input" placeholder="Ismingiz (ixtiyoriy)" maxlength="60">' +
+        '<textarea class="reply-text-input" rows="2" placeholder="Javobingizni yozing…" maxlength="1000" required></textarea>' +
+        '<div class="blog-comment-form-row">' +
+          '<p class="blog-comment-error" hidden></p>' +
+          '<div style="display:flex; gap:.7em;">' +
+            '<button type="button" class="btn btn-ghost btn-sm reply-cancel-btn">Bekor qilish</button>' +
+            '<button type="submit" class="btn btn-amber btn-sm">Yuborish</button>' +
+          '</div>' +
+        '</div>' +
+        '</form>';
+    }
+
+    function renderCommentItem(node, isReply) {
+      var text = node.data.text || '';
+      var isLong = text.length > COMMENT_CLAMP_LENGTH;
+      var textClass = 'blog-comment-text' + (isLong ? ' is-clamped' : '');
+      var moreBtn = isLong ? '<button type="button" class="blog-comment-more">Ko‘proq o‘qish</button>' : '';
+      return '<div class="blog-comment-item' + (isReply ? ' is-reply' : '') + '">' +
+        '<div class="blog-comment-item-head">' +
+          '<span class="blog-comment-author">' + escapeHtml(node.data.name || 'Anonim') + '</span>' +
+          '<span class="blog-comment-date">' + formatDate(node.data.createdAt) + '</span>' +
+        '</div>' +
+        '<p class="' + textClass + '">' + escapeHtml(text) + '</p>' +
+        moreBtn +
+        renderVoteRow(node) +
+        renderReplyForm(node) +
+        '</div>';
+    }
+
+    function renderThread(node) {
+      var html = renderCommentItem(node, false);
+      if (node.replies.length) {
+        html += '<div class="blog-comment-replies">' +
+          node.replies.map(function (r) { return renderCommentItem(r, true); }).join('') +
+          '</div>';
+      }
+      return html;
+    }
+
+    // Restores each comment/reply's like/dislike buttons to "already
+    // voted" state from localStorage, and prefills any reply name field
+    // with the visitor's saved name.
+    function applyStoredCommentState(docs) {
+      docs.forEach(function (doc) {
+        var container = listEl.querySelector('.blog-comment-votes[data-comment-id="' + doc.id + '"]');
+        if (!container) return;
+        var likeBtn = container.querySelector('[data-vote="like"]');
+        var dislikeBtn = container.querySelector('[data-vote="dislike"]');
+        var stored = null;
+        try { stored = localStorage.getItem('efCommentVote_' + doc.id); } catch (e) {}
+        if (stored === 'like' || stored === 'dislike') {
+          likeBtn.disabled = true;
+          dislikeBtn.disabled = true;
+          (stored === 'like' ? likeBtn : dislikeBtn).classList.add('is-active');
+        }
+      });
+      try {
+        var savedName = localStorage.getItem(NAME_KEY);
+        if (savedName) {
+          listEl.querySelectorAll('.reply-name-input').forEach(function (inp) { inp.value = savedName; });
+        }
+      } catch (e) {}
     }
 
     function renderComments(docs) {
@@ -239,30 +350,111 @@
         return;
       }
       emptyEl.hidden = true;
-      listEl.innerHTML = docs.map(function (doc) {
-        var c = doc.data();
-        var text = c.text || '';
-        var isLong = text.length > COMMENT_CLAMP_LENGTH;
-        var textClass = 'blog-comment-text' + (isLong ? ' is-clamped' : '');
-        var moreBtn = isLong ? '<button type="button" class="blog-comment-more">Ko‘proq o‘qish</button>' : '';
-        return '<div class="blog-comment-item">' +
-          '<div class="blog-comment-item-head">' +
-            '<span class="blog-comment-author">' + escapeHtml(c.name || 'Anonim') + '</span>' +
-            '<span class="blog-comment-date">' + formatDate(c.createdAt) + '</span>' +
-          '</div>' +
-          '<p class="' + textClass + '">' + escapeHtml(text) + '</p>' +
-          moreBtn +
-        '</div>';
-      }).join('');
+      var threads = buildThreads(docs);
+      listEl.innerHTML = threads.map(renderThread).join('');
+      applyStoredCommentState(docs);
     }
 
-    // Read more / show less — delegated so it keeps working after re-renders.
-    listEl.addEventListener('click', function (e) {
-      var btn = e.target.closest('.blog-comment-more');
-      if (!btn) return;
-      var textNode = btn.previousElementSibling;
-      var nowClamped = textNode.classList.toggle('is-clamped');
-      btn.textContent = nowClamped ? 'Ko‘proq o‘qish' : 'Yopish';
+
+    // Read more / show less, like/dislike voting, and reply toggle — all
+    // delegated so they keep working after re-renders.
+    listEl.addEventListener('click', async function (e) {
+      var moreBtn = e.target.closest('.blog-comment-more');
+      if (moreBtn) {
+        var textNode = moreBtn.previousElementSibling;
+        var nowClamped = textNode.classList.toggle('is-clamped');
+        moreBtn.textContent = nowClamped ? 'Ko‘proq o‘qish' : 'Yopish';
+        return;
+      }
+
+      var replyBtn = e.target.closest('.comment-reply-btn');
+      if (replyBtn) {
+        var form = document.getElementById('replyForm-' + replyBtn.dataset.id);
+        if (form) {
+          form.hidden = !form.hidden;
+          if (!form.hidden) form.querySelector('.reply-text-input').focus();
+        }
+        return;
+      }
+
+      var cancelBtn = e.target.closest('.reply-cancel-btn');
+      if (cancelBtn) {
+        var cancelForm = cancelBtn.closest('.blog-reply-form');
+        if (cancelForm) cancelForm.hidden = true;
+        return;
+      }
+
+      var voteBtn = e.target.closest('.comment-vote-btn');
+      if (voteBtn) {
+        var commentId = voteBtn.dataset.id;
+        var voteType = voteBtn.dataset.vote;
+        var votesRow = voteBtn.closest('.blog-comment-votes');
+        var likeBtn = votesRow.querySelector('[data-vote="like"]');
+        var dislikeBtn = votesRow.querySelector('[data-vote="dislike"]');
+        if (likeBtn.disabled || dislikeBtn.disabled) return;
+        likeBtn.disabled = true;
+        dislikeBtn.disabled = true;
+        try {
+          var field = voteType === 'like' ? 'likeCount' : 'dislikeCount';
+          var update = {};
+          update[field] = firebase.firestore.FieldValue.increment(1);
+          await db.collection('blogs').doc(blogId).collection('comments').doc(commentId).update(update);
+
+          var countSpan = voteBtn.querySelector('.vote-count');
+          countSpan.textContent = (parseInt(countSpan.textContent, 10) || 0) + 1;
+          try { localStorage.setItem('efCommentVote_' + commentId, voteType); } catch (e) {}
+          voteBtn.classList.add('is-active');
+        } catch (err) {
+          likeBtn.disabled = false;
+          dislikeBtn.disabled = false;
+        }
+      }
+    });
+
+    // Reply form submission — delegated since forms are created dynamically.
+    listEl.addEventListener('submit', async function (e) {
+      var form = e.target.closest('.blog-reply-form');
+      if (!form) return;
+      e.preventDefault();
+
+      var parentId = form.id.replace('replyForm-', '');
+      var replyNameEl = form.querySelector('.reply-name-input');
+      var replyTextEl = form.querySelector('.reply-text-input');
+      var replyErrorEl = form.querySelector('.blog-comment-error');
+      replyErrorEl.hidden = true;
+
+      var typedReplyName = replyNameEl.value.trim();
+      var replyName = typedReplyName || 'Anonim';
+      var replyText = replyTextEl.value.trim();
+      if (!replyText) {
+        replyErrorEl.textContent = 'Javob matnini kiriting.';
+        replyErrorEl.hidden = false;
+        return;
+      }
+
+      var replySubmitBtn = form.querySelector('button[type="submit"]');
+      replySubmitBtn.disabled = true;
+      replySubmitBtn.textContent = 'Yuborilmoqda…';
+
+      try {
+        try { if (typedReplyName) localStorage.setItem(NAME_KEY, typedReplyName); } catch (e) {}
+
+        await db.collection('blogs').doc(blogId).collection('comments').add({
+          name: replyName,
+          text: replyText,
+          parentId: parentId,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        replyTextEl.value = '';
+        await loadComments();
+      } catch (err) {
+        replyErrorEl.textContent = 'Javobni yuborishda xatolik yuz berdi. Qayta urinib ko‘ring.';
+        replyErrorEl.hidden = false;
+      } finally {
+        replySubmitBtn.disabled = false;
+        replySubmitBtn.textContent = 'Yuborish';
+      }
     });
 
     async function loadComments() {
