@@ -49,6 +49,18 @@
           </div>
         </label>
 
+        <label class="field">
+          <span>O‘qish turi</span>
+          <div class="student-type-choice" style="display:flex; gap:18px; padding:.4em 0;">
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
+              <input type="radio" name="regStudentType" value="guruh" checked> Guruhda
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer;">
+              <input type="radio" name="regStudentType" value="individual"> Individual
+            </label>
+          </div>
+        </label>
+
         <p class="form-error" id="registerError" role="alert" hidden></p>
 
         <button type="submit" class="btn btn-amber auth-submit" id="registerSubmit">Ro‘yxatdan o‘tish</button>
@@ -85,6 +97,8 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   const email = document.getElementById('regEmail').value.trim();
   const phone = document.getElementById('regPhone').value.trim();
   const password = document.getElementById('regPassword').value;
+  const studentTypeInput = document.querySelector('input[name="regStudentType"]:checked');
+  const studentType = studentTypeInput ? studentTypeInput.value : 'guruh';
 
   try{
     const cred = await auth.createUserWithEmailAndPassword(email, password);
@@ -92,6 +106,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
       name: name,
       email: email,
       phone: phone,
+      studentType: studentType,
       paymentStatus: 'none',
       progress: {},
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
