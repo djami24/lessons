@@ -4004,9 +4004,15 @@ function openAdminChat(chatId, studentName){
         const d = doc.data();
         const isTeacher = d.senderRole === 'teacher';
         const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
+        // Read-receipt ticks — only shown on the teacher's own messages:
+        // single tick = sent but not yet read by the student, double
+        // (blue) tick = the student has opened the chat and seen it.
+        const ticks = isTeacher
+          ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '✓✓' : '✓'}</span>`
+          : '';
         return `<div class="chat-msg ${isTeacher ? 'chat-msg-student' : 'chat-msg-teacher'}">
           <div class="chat-msg-bubble">${escapeHtml(d.text||'')}</div>
-          <div class="chat-msg-meta">${isTeacher ? 'O‘qituvchi' : escapeHtml(d.senderName||'Talaba')} · ${date}</div>
+          <div class="chat-msg-meta">${isTeacher ? 'O‘qituvchi' : escapeHtml(d.senderName||'Talaba')} · ${date} ${ticks}</div>
         </div>`;
       }).join('');
       messagesEl.scrollTop = messagesEl.scrollHeight;
@@ -4034,6 +4040,7 @@ async function sendAdminChatMsg(){
       text: text,
       senderRole: 'teacher',
       senderName: 'O‘qituvchi',
+      read: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     await db.collection('chats').doc(adminActiveChatId).set({
