@@ -1618,3 +1618,72 @@ body.admin-theme .gb-chip{ background: var(--adm-bg); border-color: var(--adm-li
 body.admin-theme .gb-group-folder{ background: var(--adm-bg); border-color: var(--adm-line); }
 body.admin-theme .gb-group-folder:hover{ border-color: var(--adm-blue); }
 body.admin-theme .gb-grades-table input:focus-visible{ border-color: var(--adm-blue); }
+
+/* ============================================================
+   NOTIFICATIONS + CHAT + ACHIEVEMENTS LABEL
+   ============================================================ */
+
+/* Notification badge on bell icon */
+.notif-badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  background: #e53e3e; color:#fff; border-radius:50%;
+  min-width:18px; height:18px; font-size:.72rem; font-weight:700;
+  padding:0 4px; line-height:1;
+}
+
+/* Notification card */
+.notif-card{
+  background:#fff; border:1.5px solid var(--line); border-radius:var(--radius-s);
+  padding:.9em 1.1em; cursor:pointer; transition: border-color .15s;
+}
+.notif-card:hover{ border-color: var(--teal); }
+.notif-card.notif-read{ opacity:.6; }
+.notif-card-head{ display:flex; justify-content:space-between; align-items:center; gap:.5em; flex-wrap:wrap; }
+.notif-card-title{ font-weight:700; }
+.notif-card-date{ font-size:.8rem; color:var(--gray); }
+.notif-card-body{ margin:.4em 0 0; color:var(--gray); font-size:.92rem; }
+
+body.admin-theme .notif-card{ background:var(--adm-bg); border-color:var(--adm-line); }
+
+/* Chat box (student side) */
+.chat-box{
+  display:flex; flex-direction:column;
+  border:1.5px solid var(--line); border-radius:var(--radius-s);
+  overflow:hidden; max-width:720px; height:520px;
+}
+.chat-messages{
+  flex:1; overflow-y:auto; padding:1.1em 1.2em;
+  display:flex; flex-direction:column; gap:.7em;
+  background:#f9fafb;
+}
+.chat-msg{ display:flex; flex-direction:column; max-width:76%; }
+.chat-msg-student{ align-self:flex-end; align-items:flex-end; }
+.chat-msg-teacher{ align-self:flex-start; align-items:flex-start; }
+.chat-msg-bubble{
+  padding:.55em .9em; border-radius:14px; font-size:.95rem; line-height:1.45;
+  word-break:break-word; white-space:pre-wrap;
+}
+.chat-msg-student .chat-msg-bubble{ background:var(--amber); color:#fff; border-bottom-right-radius:4px; }
+.chat-msg-teacher .chat-msg-bubble{ background:#fff; border:1.5px solid var(--line); border-bottom-left-radius:4px; }
+.chat-msg-meta{ font-size:.75rem; color:var(--gray); margin-top:.2em; }
+.chat-input-row{ display:flex; gap:.6em; padding:.8em; border-top:1.5px solid var(--line); background:#fff; }
+.chat-textarea{ flex:1; font-family:inherit; font-size:.95rem; padding:.6em .8em; border:1.5px solid var(--line); border-radius:var(--radius-s); resize:none; }
+.chat-textarea:focus{ outline:none; border-color:var(--teal); }
+
+body.admin-theme .chat-msg-teacher .chat-msg-bubble{ background:var(--adm-bg); border-color:var(--adm-line); }
+body.admin-theme .chat-input-row{ background:var(--adm-bg); border-color:var(--adm-line); }
+body.admin-theme .chat-textarea{ background:var(--adm-bg); border-color:var(--adm-line); color:var(--adm-ink); }
+
+/* Admin chats — student list item hover */
+.chat-student-item div:hover{ background:var(--adm-hover, #f1f5f9); }
+
+/* Hero visual achievements label */
+.hero-visual-achievements-label{
+  font-family:'Manrope', sans-serif;
+  font-weight:800; font-size:1rem;
+  color:#fff;
+  background: var(--amber, #D98E3F);
+  display:inline-block; padding:.35em .9em;
+  border-radius:30px; margin-bottom:.6em;
+  letter-spacing:.02em; box-shadow:0 2px 8px rgba(0,0,0,.12);
+}
