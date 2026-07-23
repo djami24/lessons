@@ -246,5 +246,39 @@ service cloud.firestore {
         request.resource.data.lastVisit == request.time;
     }
 
+    // Notifications (admin broadcasts to all students) — admin writes,
+    // any signed-in student may read. Only admin can delete.
+    match /notifications/{notifId} {
+      allow read: if isSignedIn() || true; // public read so even cached pages can show them
+      allow create, delete: if isAdmin();
+      allow update: if false;
+    }
+
+    // Student-teacher chat — each student has their own chat document
+    // (doc ID = student's UID), with a subcollection of messages.
+    match /chats/{studentId} {
+      // Chat metadata (lastMessage, unreadByTeacher, etc.)
+      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
+      allow write: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
+
+      match /messages/{msgId} {
+        allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
+
+        // Student can send their own messages
+        allow create: if isSignedIn() && request.auth.uid == studentId &&
+          request.resource.data.senderRole == 'student' &&
+          request.resource.data.text is string &&
+          request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000;
+
+        // Admin (teacher) can send messages from their side
+        allow create: if isAdmin() &&
+          request.resource.data.senderRole == 'teacher';
+
+        allow update: if false;
+        allow delete: if isAdmin();
+      }
+    }
+
+
   }
 }
