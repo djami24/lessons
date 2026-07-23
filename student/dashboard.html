@@ -67,7 +67,7 @@
           <h3 class="home-menu-title">Homework</h3>
           <p class="home-menu-desc">Guruhingizga berilgan uy vazifalarini ko‘ring</p>
         </a>
-        <a href="../natijalar.html" class="home-menu-card">
+        <a href="../natijalar.html" class="home-menu-card" id="navResultsCard">
           <div class="home-menu-top">
             <span class="home-menu-icon home-menu-icon-orange">📊</span>
             <span class="home-menu-arrow">→</span>
@@ -519,6 +519,13 @@ auth.onAuthStateChanged(async (user) => {
   document.getElementById('sidebarAvatar').textContent = state.student.avatarEmoji || '🙂';
   document.getElementById('loadingScreen').hidden = true;
   document.getElementById('appShell').hidden = false;
+
+  // Individual students only see Homework, Kurslarim and Insholarim on the
+  // home page — no Test natijalar and no Darajani bilish testi.
+  if(state.student.studentType === 'individual'){
+    document.getElementById('navResultsCard').style.display = 'none';
+    document.getElementById('navPlacementTest').style.display = 'none';
+  }
 
   await loadLevels();
   await loadCourses();
