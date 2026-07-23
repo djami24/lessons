@@ -2446,6 +2446,18 @@ function loadChat(){
       emptyEl.hidden = true;
       messagesEl.innerHTML = snap.docs.map(doc => renderChatMessage(doc.data(), doc.id)).join('');
       messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      // Mark any teacher messages the student can now see as read — this
+      // is what flips the admin-side ticks from 1 (sent) to 2 (read).
+      const unreadTeacherMsgs = snap.docs.filter(doc => {
+        const d = doc.data();
+        return d.senderRole === 'teacher' && d.read !== true;
+      });
+      if(unreadTeacherMsgs.length > 0){
+        const batch = db.batch();
+        unreadTeacherMsgs.forEach(doc => batch.update(doc.ref, { read: true }));
+        batch.commit().catch(()=>{});
+      }
     });
 }
 
