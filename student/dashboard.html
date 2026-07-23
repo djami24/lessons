@@ -62,7 +62,8 @@
           <div id="gbResultView" hidden>
             <h3 class="latest-hw-title" id="gbResultName"></h3>
             <p class="latest-hw-preview" id="gbResultUnit"></p>
-            <div class="quiz-result-score" id="gbResultScore" style="font-size:1.6rem; display:inline-block; margin:.2em 0 .8em;"></div>
+            <div class="quiz-result-score" id="gbResultScore" style="font-size:1.6rem; display:inline-block; padding:.15em .6em; border-radius:8px; margin:.2em 0 .4em;"></div>
+            <p id="gbResultMessage" hidden style="margin:0 0 .8em; font-weight:700; font-size:1.05rem;"></p>
             <div style="display:flex; gap:.6em; flex-wrap:wrap;">
               <a href="../natijalar.html" target="_blank" rel="noopener" class="btn btn-amber btn-sm">Barcha natijalar</a>
               <button type="button" class="btn btn-ghost btn-sm" id="gbChangeNameBtn">Ismni o‘zgartirish</button>
@@ -856,20 +857,45 @@ async function renderGbResultBox(){
 
   document.getElementById('gbResultName').textContent = match.name;
   const scoreEl = document.getElementById('gbResultScore');
+  const msgEl = document.getElementById('gbResultMessage');
   if(latestUnit){
     document.getElementById('gbResultUnit').textContent = latestUnit + (match.group ? ' · ' + match.group : '');
     scoreEl.hidden = false;
     scoreEl.textContent = latestScore + '/100';
     scoreEl.classList.remove('quiz-result-pass', 'quiz-result-fail');
-    scoreEl.classList.add(Number(latestScore) >= 60 ? 'quiz-result-pass' : 'quiz-result-fail');
+
+    const tier = getGbScoreTier(latestScore);
+    scoreEl.style.background = tier.color;
+    scoreEl.style.color = '#fff';
+    msgEl.hidden = false;
+    msgEl.textContent = tier.emoji + ' ' + tier.message;
+    msgEl.style.color = tier.color;
   } else {
     document.getElementById('gbResultUnit').textContent = (match.group ? match.group + ' · ' : '') + 'Hali natija kiritilmagan.';
     scoreEl.hidden = true;
     scoreEl.textContent = '';
+    scoreEl.style.background = '';
+    msgEl.hidden = true;
+    msgEl.textContent = '';
   }
 
   formEl.hidden = true;
   viewEl.hidden = false;
+}
+
+// Score → color + motivational message shown under the score:
+//   0–65   : qizil (red)   — "Yaxshi o'qimayapsiz" 😞
+//   66–97  : zangor (cyan) — "Harakatni to'xtatmang" 💪
+//   98–100 : ko'k (blue)   — "A'lochi o'quvchi" 😄
+function getGbScoreTier(score){
+  const n = Number(score);
+  if(n <= 65){
+    return { color: '#c0392b', message: 'Yaxshi o‘qimayapsiz', emoji: '😞' };
+  }
+  if(n <= 97){
+    return { color: '#17a2b8', message: 'Harakatni to‘xtatmang', emoji: '💪' };
+  }
+  return { color: '#154fb4', message: 'A’lochi o‘quvchi', emoji: '😄' };
 }
 
 document.getElementById('gbNameSubmitBtn').addEventListener('click', async () => {
