@@ -1227,6 +1227,31 @@ table.data-table td .tag{ margin-right:.3em; }
 }
 .blog-comment-item.is-reply{ background: var(--paper); }
 
+/* ===== Global loading overlay — shown briefly on every page load,
+   covers the page until the site's Firestore branding settings are
+   applied (either from cache almost instantly, or after the first
+   network fetch), so visitors never see default colors/text flash
+   before switching to the real branding. ===== */
+#siteLoadingOverlay{
+  position: fixed; inset: 0; z-index: 99999;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--paper, #faf6ef);
+  transition: opacity .35s ease;
+}
+#siteLoadingOverlay.is-hidden{ opacity: 0; pointer-events: none; }
+.site-loading-inner{ display:flex; flex-direction:column; align-items:center; gap:1.1em; }
+.site-loading-spinner{
+  width: 40px; height:40px; border-radius:50%;
+  border: 3.5px solid var(--line, #e4ddce);
+  border-top-color: var(--amber, #d98e3f);
+  animation: siteLoadingSpin .8s linear infinite;
+}
+.site-loading-text{
+  font-family: var(--font-display, Georgia, serif); font-weight:700; font-size:1.35rem;
+  color: var(--ink, #1c1c1c); letter-spacing:.01em; margin:0;
+}
+@keyframes siteLoadingSpin{ to{ transform: rotate(360deg); } }
+
 /* ===== Admin — comment moderation modal ===== */
 .comment-admin-list{ display:flex; flex-direction:column; gap: .9em; max-height: 52vh; overflow-y:auto; }
 .comment-admin-item{
