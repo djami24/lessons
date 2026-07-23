@@ -257,9 +257,9 @@ service cloud.firestore {
     // Student-teacher chat — each student has their own chat document
     // (doc ID = student's UID), with a subcollection of messages.
     match /chats/{studentId} {
-      // Chat metadata (lastMessage, unreadByTeacher, etc.)
+      // Chat metadata (lastMessage, unreadByTeacher, unreadByStudent, etc.)
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
-      allow write: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
+      allow create, update: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
 
       match /messages/{msgId} {
         allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
