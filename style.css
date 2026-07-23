@@ -1451,6 +1451,31 @@ body.admin-theme .modal-box{ border-radius: 18px; }
   body.admin-theme .admin-user{
     display:flex; width:100%; margin-top:.4em; padding:.7em .9em;
   }
+
+  /* "Xabar yuborish" (Broadcast) and "Chatlar" (Chats) — move them out of
+     the left-hand wrapping nav list on mobile and pin them as small
+     icon-only buttons at the top right, in line with the brand row,
+     instead of the left. Leave padding-right room on the brand so its
+     text never runs under them. */
+  body.admin-theme .admin-sidebar .brand{ padding-right: 5.6em; box-sizing: border-box; }
+
+  body.admin-theme #navBroadcast,
+  body.admin-theme #navChats{
+    position: absolute; top: .9em; z-index: 2;
+    width: 38px; height: 38px; padding: 0;
+    border-radius: 50%; display:flex; align-items:center; justify-content:center;
+    background: rgba(255,255,255,.08); font-size: 1.05rem;
+  }
+  body.admin-theme #navBroadcast{ right: 3.5em; }
+  body.admin-theme #navChats{ right: .9em; }
+  body.admin-theme #navBroadcast:hover, body.admin-theme #navChats:hover{
+    background: rgba(255,255,255,.16);
+  }
+  body.admin-theme #navBroadcast.active, body.admin-theme #navChats.active{
+    background: var(--adm-blue); box-shadow: 0 6px 14px -6px rgba(47,111,237,.65);
+  }
+  body.admin-theme #navBroadcast .nav-label,
+  body.admin-theme #navChats .nav-label{ display:none; }
 }
 
 /* ---- Student dashboard specifics (dashboard.html shares body.admin-theme
