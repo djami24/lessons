@@ -27,6 +27,7 @@
       <li><a href="#" id="navPlacementTest">🧭 Daraja testi</a></li>
       <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
       <li><a href="#" id="navKundalik">📅 Kundalik</a></li>
+      <li><a href="#" id="navGradebook">📊 Test natijalar</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -474,6 +475,90 @@
             <thead><tr><th>Sana</th><th>Sarlavha</th><th>Amallar</th></tr></thead>
             <tbody id="kundalikHwBody"></tbody>
           </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TEST NATIJALAR (gradebook) ===== -->
+    <section id="view-gradebook" hidden>
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+        <div>
+          <h1 style="margin:0 0 4px;">📊 Test natijalar</h1>
+          <p style="margin:0; color:var(--gray); font-size:14px;">Bu yerda kiritilgan natijalar <code>natijalar.html</code> ochiq sahifasida hammaga ko‘rinadi.</p>
+        </div>
+      </div>
+
+      <div class="gb-stats-row">
+        <div class="gb-stats-box">
+          <span class="gb-stats-label">Jami tashriflar</span>
+          <span class="gb-stats-value" id="gbVisitCount">—</span>
+        </div>
+        <div class="gb-stats-box">
+          <span class="gb-stats-label">Oxirgi tashrif</span>
+          <span class="gb-stats-value gb-stats-value-sm" id="gbLastVisit">—</span>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="padding:20px;">
+        <h2 style="margin:0 0 4px; font-size:1.1rem;">Unitlar</h2>
+        <p style="margin:0 0 14px; color:var(--gray); font-size:.88rem;">Har bir ustun bitta unit natijasini bildiradi.</p>
+        <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-bottom:14px;">
+          <input type="text" id="gbUnitInput" placeholder="Masalan: 1-unit" style="flex:1; min-width:180px;">
+          <button class="btn btn-amber btn-sm" id="gbAddUnitBtn">Qo‘shish</button>
+        </div>
+        <div class="gb-chip-list" id="gbUnitChips"></div>
+      </div>
+
+      <div class="table-wrap" style="padding:20px; margin-top:20px;">
+        <h2 style="margin:0 0 4px; font-size:1.1rem;">O‘quvchi qo‘shish</h2>
+        <p style="margin:0 0 14px; color:var(--gray); font-size:.88rem;">Guruhni qanday qo‘shishni tanlang: ro‘yxatdagi hammasiga bitta guruh, yoki faqat bitta ismga.</p>
+        <div style="display:flex; gap:1.4em; margin-bottom:14px; flex-wrap:wrap;">
+          <label style="display:flex; align-items:center; gap:.4em; font-weight:600; font-size:.9rem; cursor:pointer;">
+            <input type="radio" name="gbAddMode" id="gbAddModeAll" value="all" checked> Hammasiga qo‘shish
+          </label>
+          <label style="display:flex; align-items:center; gap:.4em; font-weight:600; font-size:.9rem; cursor:pointer;">
+            <input type="radio" name="gbAddMode" id="gbAddModeOne" value="one"> Bitta ismga qo‘shish
+          </label>
+        </div>
+
+        <div id="gbAddModeAllPanel">
+          <textarea id="gbBulkNamesInput" rows="5" placeholder="Malika Karimova&#10;Aziz Yusupov&#10;Sardor Rahimov&#10;…" style="width:100%; font-family:inherit; padding:.8em 1em; border-radius:var(--radius-s); border:1.5px solid var(--line); resize:vertical;"></textarea>
+          <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:12px;">
+            <input type="text" id="gbBulkGroupInput" placeholder="Guruh nomi (barchasiga)" style="flex:1; min-width:180px;">
+            <button class="btn btn-amber btn-sm" id="gbBulkAddBtn">Hammasini qo‘shish</button>
+          </div>
+        </div>
+
+        <div id="gbAddModeOnePanel" style="display:none;">
+          <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+            <input type="text" id="gbOneNameInput" placeholder="Ism familiya" style="flex:1; min-width:160px;">
+            <input type="text" id="gbOneGroupInput" placeholder="Guruh nomi" style="flex:1; min-width:160px;">
+            <button class="btn btn-amber btn-sm" id="gbOneAddBtn">Qo‘shish</button>
+          </div>
+        </div>
+
+        <p id="gbBulkHint" style="margin:10px 0 0; font-size:.85rem; color:var(--gray);"></p>
+      </div>
+
+      <div class="table-wrap" style="padding:20px; margin-top:20px;">
+        <h2 style="margin:0 0 4px; font-size:1.1rem;">Natijalarni kiritish</h2>
+        <p style="margin:0 0 14px; color:var(--gray); font-size:.88rem;" id="gbGradeSectionSub">Guruhni tanlang, so‘ng har bir katakka ballni yozing (0–100).</p>
+
+        <div class="gb-group-folders" id="gbGroupFoldersList"></div>
+
+        <div id="gbGroupTableWrap" style="display:none; margin-top:16px;">
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+            <button class="btn btn-ghost btn-sm" id="gbBackToGroupsBtn">← Guruhlar</button>
+            <span style="font-weight:700;" id="gbGroupTableTitle"></span>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="gb-grades-table" id="gbGradesTable"></table>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px; margin-top:18px;">
+          <button class="btn btn-amber" id="gbSaveBtn">Saqlash</button>
+          <span id="gbSaveStatus" style="font-size:.85rem; color:var(--gray);"></span>
         </div>
       </div>
     </section>
@@ -1987,6 +2072,7 @@ function switchView(view){
   document.getElementById('view-placement-test').hidden = view !== 'placement-test';
   document.getElementById('view-site-settings').hidden = view !== 'site-settings';
   document.getElementById('view-kundalik').hidden = view !== 'kundalik';
+  document.getElementById('view-gradebook').hidden = view !== 'gradebook';
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
   document.getElementById('navCefr').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'cefr');
@@ -1997,6 +2083,7 @@ function switchView(view){
   document.getElementById('navPlacementTest').classList.toggle('active', view === 'placement-test');
   document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
   document.getElementById('navKundalik').classList.toggle('active', view === 'kundalik');
+  document.getElementById('navGradebook').classList.toggle('active', view === 'gradebook');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
@@ -2026,6 +2113,11 @@ document.getElementById('navKundalik').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('kundalik');
   loadKundalikGroups();
+});
+document.getElementById('navGradebook').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('gradebook');
+  loadGradebook();
 });
 
 // ---------- Modal helpers ----------
@@ -3384,6 +3476,269 @@ async function deleteHwItem(hwId, title) {
   } catch (err) { alert('O\u02bcchirishda xatolik.'); }
 }
 
+// ---------- Test natijalar (gradebook) ----------
+// Ported from the old standalone natijalar.html admin panel, but now
+// backed by this project's own Firestore ("gradebook" doc) and gated by
+// the same admin login as the rest of this dashboard — no separate
+// password screen needed anymore.
+const GRADEBOOK_DOC = 'gradebook';
+let gbData = { units: [], students: [] };
+let gbLoaded = false;
+let gbSelectedGroup = null;
+
+async function loadGradebook(){
+  if(!gbLoaded){
+    try{
+      const snap = await db.collection('gradebook').doc(GRADEBOOK_DOC).get();
+      if(snap.exists){
+        const d = snap.data();
+        gbData.units = Array.isArray(d.units) ? d.units : [];
+        gbData.students = Array.isArray(d.students) ? d.students : [];
+      }
+    } catch(err){ console.error('Gradebook load failed:', err); }
+    gbLoaded = true;
+  }
+  renderGbUnitChips();
+  renderGbAdminGradeTable();
+  loadGbVisitStats();
+}
+
+async function saveGradebook(){
+  try{
+    await db.collection('gradebook').doc(GRADEBOOK_DOC).set({
+      units: gbData.units,
+      students: gbData.students
+    });
+    return true;
+  } catch(err){
+    console.error('Gradebook save failed:', err);
+    return false;
+  }
+}
+
+document.getElementById('gbSaveBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('gbSaveBtn');
+  const status = document.getElementById('gbSaveStatus');
+  btn.disabled = true;
+  status.textContent = 'Saqlanmoqda\u2026';
+  const ok = await saveGradebook();
+  status.textContent = ok ? 'Saqlandi \u2713' : "Xatolik yuz berdi, qayta urinib ko'ring.";
+  btn.disabled = false;
+  setTimeout(() => { status.textContent = ''; }, 2500);
+});
+
+// ---- Units ----
+document.getElementById('gbAddUnitBtn').addEventListener('click', async () => {
+  const input = document.getElementById('gbUnitInput');
+  const name = input.value.trim();
+  if(!name) return;
+  if(gbData.units.includes(name)){ input.value = ''; return; }
+  gbData.units.push(name);
+  input.value = '';
+  renderGbUnitChips();
+  renderGbAdminGradeTable();
+  await saveGradebook();
+});
+
+function renderGbUnitChips(){
+  const el = document.getElementById('gbUnitChips');
+  if(gbData.units.length === 0){
+    el.innerHTML = '<span style="color:var(--gray); font-size:.85rem;">Hali unit qo\u2018shilmagan.</span>';
+    return;
+  }
+  el.innerHTML = '';
+  gbData.units.forEach(unit => {
+    const chip = document.createElement('div');
+    chip.className = 'gb-chip';
+    chip.innerHTML = `<span>${escapeHtml(unit)}</span>`;
+    const del = document.createElement('button');
+    del.type = 'button';
+    del.textContent = '\u2715';
+    del.title = "O'chirish";
+    del.addEventListener('click', async () => {
+      if(!confirm(`"${unit}" unitini o'chirasizmi? Unga tegishli barcha ballar ham o'chadi.`)) return;
+      gbData.units = gbData.units.filter(u => u !== unit);
+      gbData.students.forEach(s => { if(s.scores) delete s.scores[unit]; });
+      renderGbUnitChips();
+      renderGbAdminGradeTable();
+      await saveGradebook();
+    });
+    chip.appendChild(del);
+    el.appendChild(chip);
+  });
+}
+
+// ---- Add students (bulk / single) ----
+const gbAddModeAll = document.getElementById('gbAddModeAll');
+const gbAddModeOne = document.getElementById('gbAddModeOne');
+function updateGbAddMode(){
+  const isAll = gbAddModeAll.checked;
+  document.getElementById('gbAddModeAllPanel').style.display = isAll ? 'block' : 'none';
+  document.getElementById('gbAddModeOnePanel').style.display = isAll ? 'none' : 'block';
+  document.getElementById('gbBulkHint').textContent = '';
+}
+gbAddModeAll.addEventListener('change', updateGbAddMode);
+gbAddModeOne.addEventListener('change', updateGbAddMode);
+
+document.getElementById('gbOneAddBtn').addEventListener('click', async () => {
+  const nameEl = document.getElementById('gbOneNameInput');
+  const groupEl = document.getElementById('gbOneGroupInput');
+  const hint = document.getElementById('gbBulkHint');
+  const name = nameEl.value.trim();
+  const group = groupEl.value.trim();
+  if(!name){ hint.textContent = 'Iltimos, ism-familiyani kiriting.'; return; }
+  if(!group){ hint.textContent = 'Iltimos, guruh nomini kiriting.'; return; }
+
+  const btn = document.getElementById('gbOneAddBtn');
+  btn.disabled = true;
+  hint.textContent = "Qo'shilmoqda\u2026";
+
+  gbData.students.push({ id: 's' + Date.now() + '_' + Math.floor(Math.random()*1000), name, group, scores: {} });
+  nameEl.value = ''; groupEl.value = '';
+  renderGbAdminGradeTable();
+  const ok = await saveGradebook();
+  hint.textContent = ok ? `"${name}" "${group}" guruhiga qo'shildi.` : "Saqlashda xatolik yuz berdi, qayta urinib ko'ring.";
+  btn.disabled = false;
+  setTimeout(() => { hint.textContent = ''; }, 4000);
+});
+
+document.getElementById('gbBulkAddBtn').addEventListener('click', async () => {
+  const groupEl = document.getElementById('gbBulkGroupInput');
+  const namesEl = document.getElementById('gbBulkNamesInput');
+  const hint = document.getElementById('gbBulkHint');
+  const group = groupEl.value.trim();
+  const names = namesEl.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
+  if(!group){ hint.textContent = 'Iltimos, guruh nomini kiriting.'; return; }
+  if(names.length === 0){ hint.textContent = 'Kamida bitta ism-familiya kiriting.'; return; }
+
+  const btn = document.getElementById('gbBulkAddBtn');
+  btn.disabled = true;
+  hint.textContent = "Qo'shilmoqda\u2026";
+
+  names.forEach((name, i) => {
+    gbData.students.push({ id: 's' + Date.now() + '_' + i + Math.floor(Math.random()*1000), name, group, scores: {} });
+  });
+  namesEl.value = ''; groupEl.value = '';
+  renderGbAdminGradeTable();
+  const ok = await saveGradebook();
+  hint.textContent = ok ? `${names.length} ta talaba "${group}" guruhiga qo'shildi.` : "Saqlashda xatolik yuz berdi, qayta urinib ko'ring.";
+  btn.disabled = false;
+  setTimeout(() => { hint.textContent = ''; }, 4000);
+});
+
+// ---- Grade table ----
+function getGbGroupList(){
+  const seen = [];
+  gbData.students.forEach(s => { if(!seen.includes(s.group)) seen.push(s.group); });
+  return seen.map(g => ({ name: g, count: gbData.students.filter(s => s.group === g).length }));
+}
+
+function renderGbAdminGradeTable(){
+  const groups = getGbGroupList();
+  if(gbSelectedGroup && !groups.find(g => g.name === gbSelectedGroup)){ gbSelectedGroup = null; }
+
+  const foldersEl = document.getElementById('gbGroupFoldersList');
+  if(groups.length === 0){
+    foldersEl.innerHTML = '<span style="color:var(--gray); font-size:.85rem;">Hali talaba qo\u2018shilmagan.</span>';
+  } else {
+    foldersEl.innerHTML = '';
+    groups.forEach(g => {
+      const folder = document.createElement('button');
+      folder.type = 'button';
+      folder.className = 'gb-group-folder';
+      folder.innerHTML = `<span>\ud83d\udcc1</span><span style="flex:1; text-align:left; font-weight:700;">${escapeHtml(g.name)}</span><span style="color:var(--gray); font-size:.8rem;">${g.count} talaba</span>`;
+      folder.addEventListener('click', () => { gbSelectedGroup = g.name; renderGbAdminGradeTable(); });
+      foldersEl.appendChild(folder);
+    });
+  }
+
+  const wrap = document.getElementById('gbGroupTableWrap');
+  const sub = document.getElementById('gbGradeSectionSub');
+  if(gbSelectedGroup){
+    wrap.style.display = 'block';
+    document.getElementById('gbGroupTableTitle').textContent = gbSelectedGroup;
+    sub.textContent = "Har bir katakka ballni yozing (0\u2013100), so'ng saqlang.";
+    renderGbGroupTable(gbSelectedGroup);
+  } else {
+    wrap.style.display = 'none';
+    sub.textContent = "Guruhni tanlang, so'ng har bir katakka ballni yozing (0\u2013100).";
+  }
+}
+
+document.getElementById('gbBackToGroupsBtn').addEventListener('click', () => {
+  gbSelectedGroup = null;
+  renderGbAdminGradeTable();
+});
+
+function renderGbGroupTable(group){
+  const table = document.getElementById('gbGradesTable');
+  const students = gbData.students.filter(s => s.group === group);
+  if(students.length === 0){
+    table.innerHTML = '<tr><td style="border:none; padding:16px; color:var(--gray);">Bu guruhda talaba yo\u2018q.</td></tr>';
+    return;
+  }
+  let thead = '<tr><th>Ism</th>';
+  gbData.units.forEach(u => { thead += `<th>${escapeHtml(u)}</th>`; });
+  thead += '<th></th></tr>';
+
+  let tbody = '';
+  students.forEach(s => {
+    tbody += `<tr><td style="font-weight:700; white-space:nowrap;">${escapeHtml(s.name)}</td>`;
+    gbData.units.forEach(u => {
+      const val = (s.scores && s.scores[u] !== undefined) ? s.scores[u] : '';
+      tbody += `<td><input type="number" min="0" max="100" data-student="${s.id}" data-unit="${escapeHtml(u)}" value="${val}"></td>`;
+    });
+    tbody += `<td><button type="button" class="btn btn-ghost btn-sm" data-del-student="${s.id}">O'chirish</button></td></tr>`;
+  });
+  table.innerHTML = '<thead>' + thead + '</thead><tbody>' + tbody + '</tbody>';
+
+  table.querySelectorAll('input[type="number"]').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const student = gbData.students.find(x => x.id === inp.dataset.student);
+      if(!student) return;
+      if(!student.scores) student.scores = {};
+      if(inp.value === ''){ delete student.scores[inp.dataset.unit]; }
+      else { student.scores[inp.dataset.unit] = Math.max(0, Math.min(100, Number(inp.value))); }
+    });
+  });
+
+  table.querySelectorAll('[data-del-student]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const student = gbData.students.find(x => x.id === btn.dataset.delStudent);
+      if(!student) return;
+      if(!confirm(`${student.name} o'chirilsinmi?`)) return;
+      gbData.students = gbData.students.filter(x => x.id !== student.id);
+      renderGbAdminGradeTable();
+      await saveGradebook();
+    });
+  });
+}
+
+// ---- Visit stats (read-only here; natijalar.html bumps the counter) ----
+async function loadGbVisitStats(){
+  const countEl = document.getElementById('gbVisitCount');
+  const lastEl = document.getElementById('gbLastVisit');
+  countEl.textContent = '\u2026';
+  lastEl.textContent = '\u2026';
+  try{
+    const snap = await db.collection('stats').doc('visits').get();
+    if(snap.exists){
+      const d = snap.data();
+      countEl.textContent = (d.count !== undefined) ? d.count : '0';
+      lastEl.textContent = (d.lastVisit && d.lastVisit.toDate) ? d.lastVisit.toDate().toLocaleString('uz-UZ') : '\u2014';
+    } else {
+      countEl.textContent = '0';
+      lastEl.textContent = '\u2014';
+    }
+  } catch(err){
+    countEl.textContent = 'Xato';
+    lastEl.textContent = '\u2014';
+  }
+}
+
+
 </script>
+
 </body>
 </html>
