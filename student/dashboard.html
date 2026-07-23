@@ -45,6 +45,31 @@
       </div>
 
       <div class="home-top-boxes" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.2em; align-items:start;">
+        <div class="latest-hw-box" id="gbResultBox">
+          <div class="latest-hw-head">
+            <span class="latest-hw-eyebrow">🏆 Test natijasi</span>
+          </div>
+
+          <div id="gbNameForm">
+            <p class="latest-hw-preview">Test natijangizni ko‘rish uchun ism-familiyangizni kiriting.</p>
+            <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:.6em;">
+              <input type="text" id="gbNameInput" placeholder="Ism familiya" style="flex:1; min-width:160px;">
+              <button type="button" class="btn btn-amber btn-sm" id="gbNameSubmitBtn">Ko‘rish</button>
+            </div>
+            <p class="form-error" id="gbNameError" role="alert" hidden style="margin-top:.6em;"></p>
+          </div>
+
+          <div id="gbResultView" hidden>
+            <h3 class="latest-hw-title" id="gbResultName"></h3>
+            <p class="latest-hw-preview" id="gbResultUnit"></p>
+            <div class="quiz-result-score" id="gbResultScore" style="font-size:1.6rem; display:inline-block; margin:.2em 0 .8em;"></div>
+            <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+              <a href="../natijalar.html" target="_blank" rel="noopener" class="btn btn-amber btn-sm">Barcha natijalar</a>
+              <button type="button" class="btn btn-ghost btn-sm" id="gbChangeNameBtn">Ismni o‘zgartirish</button>
+            </div>
+          </div>
+        </div>
+
         <div class="latest-hw-box" id="latestHwBox" hidden>
           <div class="latest-hw-head">
             <span class="latest-hw-eyebrow">🆕 So‘nggi uy vazifasi</span>
@@ -56,19 +81,6 @@
           <div class="hw-status-row" id="latestHwStatusRow">
             <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
             <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
-          </div>
-        </div>
-
-        <div class="latest-hw-box" id="latestTestBox" hidden>
-          <div class="latest-hw-head">
-            <span class="latest-hw-eyebrow">🏆 So‘nggi test natijasi</span>
-            <span class="latest-hw-date" id="latestTestDate"></span>
-          </div>
-          <h3 class="latest-hw-title" id="latestTestTitle"></h3>
-          <p class="latest-hw-preview" id="latestTestLevel"></p>
-          <div class="quiz-result-score" id="latestTestScore" style="font-size:1.6rem; display:inline-block; margin:.2em 0 .8em;"></div>
-          <div>
-            <a href="#" class="btn btn-amber btn-sm" id="latestTestLink">Darsni ko‘rish</a>
           </div>
         </div>
       </div>
@@ -686,15 +698,9 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
   const bestScore = (prev.bestScore == null) ? scorePct : Math.max(prev.bestScore, scorePct == null ? 0 : scorePct);
   const newPassed = prev.passed || passed;
   const path = `progress.${levelId}.${lessonId}`;
-  // lastAttemptAt is only set when an actual quiz was submitted (scorePct
-  // is not null) so the "latest test result" box on the home page reflects
-  // real test attempts, not lessons that were simply marked done without a quiz.
-  const record = { passed: newPassed, bestScore };
-  if(scorePct != null) record.lastAttemptAt = Date.now();
-  else if(prev.lastAttemptAt != null) record.lastAttemptAt = prev.lastAttemptAt;
-  await db.collection('students').doc(currentUid).update({ [path]: record });
+  await db.collection('students').doc(currentUid).update({ [path]: { passed: newPassed, bestScore } });
   state.student.progress[levelId] = state.student.progress[levelId] || {};
-  state.student.progress[levelId][lessonId] = record;
+  state.student.progress[levelId][lessonId] = { passed: newPassed, bestScore };
 }
 
 // ---------- View switching ----------
@@ -713,7 +719,7 @@ function renderHomeView(){
   switchView('home');
   document.getElementById('navProfile').classList.remove('active');
   loadLatestHomework();
-  loadLatestTestResult();
+  renderGbResultBox();
 }
 
 // Shows the most recent homework from the student's own kundalikGroup
@@ -760,52 +766,157 @@ async function loadLatestHomework(){
   }
 }
 
-// Shows the student's most recent quiz result (across all General English
-// lessons) right next to the latest-homework box on the home page. Looks
-// through state.student.progress for the entry with the newest
-// lastAttemptAt timestamp — that field is only set when a real quiz was
-// submitted (see saveProgress), so lessons marked done without a quiz are
-// ignored here.
-function loadLatestTestResult(){
-  const box = document.getElementById('latestTestBox');
-  const progressByLevel = state.student.progress || {};
-  let best = null;
+// Shows the student's own result from the admin-entered "gradebook"
+// (the same public data source as natijalar.html — collection
+// gradebook, doc "gradebook", shape { units: string[], students: [{name,
+// group, scores}] }). The student types their full name once; that name
+// is then saved on their OWN account (students/{uid}.gradebookName), so
+// their latest unit score follows them and shows up automatically next
+// to the homework box on any device they sign in on.
+const GB_NAME_STORAGE_KEY = 'efGradebookName'; // legacy, browser-only value from an earlier version — migrated below
+let gbLookupData = null; // cached { units, students } for this session
 
-  Object.keys(progressByLevel).forEach((levelId) => {
-    const lessonsProgress = progressByLevel[levelId] || {};
-    Object.keys(lessonsProgress).forEach((lessonId) => {
-      const p = lessonsProgress[lessonId];
-      if(p && p.lastAttemptAt != null && (!best || p.lastAttemptAt > best.lastAttemptAt)){
-        best = { levelId, lessonId, passed: p.passed, bestScore: p.bestScore, lastAttemptAt: p.lastAttemptAt };
-      }
-    });
-  });
-
-  if(!best){ box.hidden = true; return; }
-
-  const lvl = LEVELS.find(l => l.id === best.levelId);
-  const levelData = getLevel(best.levelId);
-  const lesson = levelData ? flattenLeaves(levelData.lessons).find(l => l.id === best.lessonId) : null;
-  const score = best.bestScore != null ? best.bestScore : 0;
-
-  document.getElementById('latestTestDate').textContent = new Date(best.lastAttemptAt).toLocaleDateString('uz-UZ', { day: 'numeric', month: 'long', year: 'numeric' });
-  document.getElementById('latestTestTitle').textContent = lesson && lesson.title ? lesson.title : 'Test';
-  document.getElementById('latestTestLevel').textContent = lvl ? lvl.name : '';
-
-  const scoreEl = document.getElementById('latestTestScore');
-  scoreEl.textContent = score + '%';
-  scoreEl.classList.remove('quiz-result-pass', 'quiz-result-fail');
-  scoreEl.classList.add(best.passed ? 'quiz-result-pass' : 'quiz-result-fail');
-
-  box.dataset.levelId = best.levelId;
-  box.hidden = false;
+function normalizeGbName(s){
+  return String(s || '')
+    .trim()
+    .replace(/\s+/g, ' ')
+    .toLowerCase()
+    .replace(/[ʻʼ’‘`]/g, "'");
 }
 
-document.getElementById('latestTestLink').addEventListener('click', (e) => {
-  e.preventDefault();
-  const box = document.getElementById('latestTestBox');
-  const levelId = box.dataset.levelId;
-  if(levelId) openLessonsView(levelId);
+async function fetchGbLookupData(){
+  if(gbLookupData) return gbLookupData;
+  try{
+    const snap = await db.collection('gradebook').doc('gradebook').get();
+    const d = snap.exists ? snap.data() : {};
+    gbLookupData = {
+      units: Array.isArray(d.units) ? d.units : [],
+      students: Array.isArray(d.students) ? d.students : []
+    };
+  } catch(err){
+    console.error('Gradebook lookup failed:', err);
+    gbLookupData = { units: [], students: [] };
+  }
+  return gbLookupData;
+}
+
+async function renderGbResultBox(){
+  const formEl = document.getElementById('gbNameForm');
+  const viewEl = document.getElementById('gbResultView');
+  const errorEl = document.getElementById('gbNameError');
+  errorEl.hidden = true;
+
+  let savedName = state.student.gradebookName || null;
+
+  // One-time migration: an earlier version of this page saved the name
+  // only in this browser's localStorage. If the account doesn't have it
+  // yet but this browser does, move it onto the account so it starts
+  // following the student across every device from now on.
+  if(!savedName){
+    let localName = null;
+    try { localName = localStorage.getItem(GB_NAME_STORAGE_KEY); } catch(e) {}
+    if(localName){
+      savedName = localName;
+      try{
+        await db.collection('students').doc(currentUid).update({ gradebookName: localName });
+        state.student.gradebookName = localName;
+      } catch(err){ /* if this fails, we'll just ask again — no harm done */ }
+      try { localStorage.removeItem(GB_NAME_STORAGE_KEY); } catch(e) {}
+    }
+  }
+
+  if(!savedName){
+    formEl.hidden = false;
+    viewEl.hidden = true;
+    return;
+  }
+
+  const data = await fetchGbLookupData();
+  const match = data.students.find(s => normalizeGbName(s.name) === normalizeGbName(savedName));
+
+  if(!match){
+    document.getElementById('gbNameInput').value = savedName;
+    errorEl.textContent = `"${savedName}" ismi natijalar ro‘yxatidan topilmadi. Ism-familiyangizni tekshirib, qayta kiriting.`;
+    errorEl.hidden = false;
+    formEl.hidden = false;
+    viewEl.hidden = true;
+    return;
+  }
+
+  let latestUnit = null, latestScore = null;
+  for(let i = data.units.length - 1; i >= 0; i--){
+    const unit = data.units[i];
+    const sc = match.scores ? match.scores[unit] : undefined;
+    if(sc !== undefined && sc !== null && sc !== ''){
+      latestUnit = unit;
+      latestScore = sc;
+      break;
+    }
+  }
+
+  document.getElementById('gbResultName').textContent = match.name;
+  const scoreEl = document.getElementById('gbResultScore');
+  if(latestUnit){
+    document.getElementById('gbResultUnit').textContent = latestUnit + (match.group ? ' · ' + match.group : '');
+    scoreEl.hidden = false;
+    scoreEl.textContent = latestScore + '/100';
+    scoreEl.classList.remove('quiz-result-pass', 'quiz-result-fail');
+    scoreEl.classList.add(Number(latestScore) >= 60 ? 'quiz-result-pass' : 'quiz-result-fail');
+  } else {
+    document.getElementById('gbResultUnit').textContent = (match.group ? match.group + ' · ' : '') + 'Hali natija kiritilmagan.';
+    scoreEl.hidden = true;
+    scoreEl.textContent = '';
+  }
+
+  formEl.hidden = true;
+  viewEl.hidden = false;
+}
+
+document.getElementById('gbNameSubmitBtn').addEventListener('click', async () => {
+  const input = document.getElementById('gbNameInput');
+  const errorEl = document.getElementById('gbNameError');
+  const btn = document.getElementById('gbNameSubmitBtn');
+  const name = input.value.trim();
+  if(!name){
+    errorEl.textContent = 'Iltimos, ism-familiyangizni kiriting.';
+    errorEl.hidden = false;
+    return;
+  }
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = 'Saqlanmoqda…';
+  try{
+    await db.collection('students').doc(currentUid).update({ gradebookName: name });
+    state.student.gradebookName = name;
+    await renderGbResultBox();
+  } catch(err){
+    errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
+    errorEl.hidden = false;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
+  }
+});
+
+document.getElementById('gbNameInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    document.getElementById('gbNameSubmitBtn').click();
+  }
+});
+
+document.getElementById('gbChangeNameBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('gbChangeNameBtn');
+  btn.disabled = true;
+  try{
+    await db.collection('students').doc(currentUid).update({ gradebookName: firebase.firestore.FieldValue.delete() });
+  } catch(err){ /* even if this fails, let them re-enter — it'll just resave next submit */ }
+  delete state.student.gradebookName;
+  btn.disabled = false;
+  document.getElementById('gbNameInput').value = '';
+  document.getElementById('gbNameError').hidden = true;
+  document.getElementById('gbNameForm').hidden = false;
+  document.getElementById('gbResultView').hidden = true;
 });
 
 // Optional "did you do it?" self-check — purely cosmetic and stored only
