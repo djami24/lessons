@@ -1693,6 +1693,13 @@ body.admin-theme .notif-card{ background:var(--adm-bg); border-color:var(--adm-l
   background:#f9fafb;
 }
 .chat-msg{ display:flex; flex-direction:column; max-width:76%; }
+.chat-msg-row{ display:flex; align-items:flex-end; gap:.5em; }
+.chat-msg-row.is-mine{ justify-content:flex-end; }
+.chat-msg-avatar{
+  flex:none; width:28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:.72rem; font-weight:700; color:#fff;
+}
 .chat-msg-student{ align-self:flex-end; align-items:flex-end; }
 .chat-msg-teacher{ align-self:flex-start; align-items:flex-start; }
 .chat-msg-bubble{
@@ -1704,13 +1711,111 @@ body.admin-theme .notif-card{ background:var(--adm-bg); border-color:var(--adm-l
 .chat-msg-meta{ font-size:.75rem; color:var(--gray); margin-top:.2em; display:flex; align-items:center; gap:.35em; }
 .chat-msg-ticks{ letter-spacing:-2px; font-size:.9em; color:var(--gray); }
 .chat-msg-ticks.is-read{ color:#34b7f1; }
-.chat-input-row{ display:flex; gap:.6em; padding:.8em; border-top:1.5px solid var(--line); background:#fff; }
+.chat-date-sep{ display:flex; justify-content:center; margin:.4em 0 1em; }
+.chat-date-sep span{
+  background:var(--paper-2); color:var(--gray); font-size:.75rem; font-weight:700;
+  padding:.4em 1em; border-radius:999px;
+}
+.chat-input-row{ display:flex; align-items:center; gap:.6em; padding:.8em; border-top:1.5px solid var(--line); background:#fff; }
 .chat-textarea{ flex:1; font-family:inherit; font-size:.95rem; padding:.6em .8em; border:1.5px solid var(--line); border-radius:var(--radius-s); resize:none; }
 .chat-textarea:focus{ outline:none; border-color:var(--teal); }
+.chat-send-btn{
+  flex:none; width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; font-size:1.15rem; line-height:1;
+  background:var(--amber); color:#fff; transition:transform .15s, background .15s, opacity .15s;
+}
+.chat-send-btn:hover{ transform:translateY(-1px); background:var(--amber-deep); }
+.chat-send-btn:disabled{ opacity:.5; cursor:default; transform:none; }
 
 body.admin-theme .chat-msg-teacher .chat-msg-bubble{ background:var(--adm-bg); border-color:var(--adm-line); }
+body.admin-theme .chat-msg-student .chat-msg-bubble{ background:var(--adm-blue); }
+body.admin-theme .chat-date-sep span{ background:var(--adm-bg); color:var(--adm-gray); }
 body.admin-theme .chat-input-row{ background:var(--adm-bg); border-color:var(--adm-line); }
-body.admin-theme .chat-textarea{ background:var(--adm-bg); border-color:var(--adm-line); color:var(--adm-ink); }
+body.admin-theme .chat-textarea{ background:#fff; border-color:var(--adm-line); color:var(--adm-ink); }
+body.admin-theme .chat-send-btn{ background:var(--adm-blue); }
+body.admin-theme .chat-send-btn:hover{ background:var(--adm-blue-deep); }
+
+/* ===== Xabarlar (admin chat inbox) — full re-design ===== */
+.chat-page-header{ align-items:center; }
+.chat-header-actions{ display:flex; align-items:center; gap:.8em; flex-wrap:wrap; }
+.chat-search-box{
+  display:flex; align-items:center; gap:.5em; background:var(--white);
+  border:1.5px solid var(--line); border-radius:999px; padding:.55em 1.1em;
+  min-width:220px;
+}
+.chat-search-box-icon{ color:var(--gray); font-size:.85rem; }
+.chat-search-box input{
+  border:none; outline:none; background:transparent; font-family:inherit;
+  font-size:.88rem; flex:1; min-width:0; color:var(--ink);
+}
+.chat-grid{
+  display:grid; grid-template-columns:300px 1fr; gap:1.2em;
+  height:calc(100vh - 220px); min-height:440px;
+}
+.chat-panel{
+  background:var(--white); border:1px solid var(--line); border-radius:var(--radius-l);
+  overflow:hidden; display:flex; flex-direction:column;
+  box-shadow:0 10px 26px -20px rgba(20,33,61,.25);
+}
+.chat-panel-list{ padding:0; }
+.chat-list-header{ padding:1em 1.2em .9em; border-bottom:1px solid var(--line); flex:none; }
+.chat-list-tab{
+  display:inline-flex; align-items:center; gap:.5em; font-weight:700; font-size:.85rem;
+  background:var(--paper-2); padding:.5em 1em; border-radius:999px; color:var(--ink);
+}
+.chat-list-count{ background:var(--white); border-radius:999px; padding:.05em .55em; font-size:.76rem; }
+.chat-list{ flex:1; overflow-y:auto; }
+.chat-student-item{ border-bottom:1px solid var(--line); }
+.chat-student-item:last-child{ border-bottom:none; }
+.chat-item-body{
+  display:flex; align-items:center; gap:.8em; padding:.85em 1.1em; cursor:pointer;
+  transition:background .15s;
+}
+.chat-item-body:hover{ background:var(--paper-2); }
+.chat-student-item.is-active .chat-item-body{ background:var(--paper-2); }
+.chat-item-avatar{
+  flex:none; width:42px; height:42px; border-radius:50%; display:flex;
+  align-items:center; justify-content:center; font-weight:700; font-size:1rem; color:#fff;
+}
+.chat-item-main{ flex:1; min-width:0; }
+.chat-item-top{ display:flex; align-items:baseline; justify-content:space-between; gap:.5em; }
+.chat-item-name{ font-weight:700; font-size:.92rem; }
+.chat-item-time{ flex:none; font-size:.72rem; color:var(--gray); }
+.chat-item-bottom{ display:flex; align-items:center; justify-content:space-between; gap:.5em; margin-top:.2em; }
+.chat-item-preview{ font-size:.82rem; color:var(--gray); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chat-item-unread{
+  flex:none; background:#E53E3E; color:#fff; border-radius:999px; min-width:20px; height:20px;
+  padding:0 .35em; display:flex; align-items:center; justify-content:center; font-size:.7rem; font-weight:700;
+}
+.chat-item-del{
+  flex:none; opacity:0; transition:opacity .15s; background:none; border:none; cursor:pointer;
+  font-size:.85rem; padding:.2em; line-height:1;
+}
+.chat-item-body:hover .chat-item-del{ opacity:.55; }
+.chat-item-del:hover{ opacity:1 !important; }
+.chat-panel-detail{ padding:0; }
+.chat-detail-header{
+  display:flex; align-items:center; gap:.8em; padding:1em 1.3em; border-bottom:1px solid var(--line); flex:none;
+}
+.chat-detail-avatar{
+  width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  font-weight:700; color:#fff; font-size:.9rem; flex:none; background:var(--gray);
+}
+.chat-detail-name{ font-weight:700; font-size:1rem; }
+.chat-detail-name.chat-detail-empty{ color:var(--gray); font-weight:600; }
+.chat-panel-detail .chat-messages{ flex:1; }
+.chat-panel-detail .chat-input-row{ flex:none; }
+
+body.admin-theme .chat-search-box{ border-color:var(--adm-line); }
+body.admin-theme .chat-search-box input{ color:var(--adm-ink); }
+body.admin-theme .chat-panel{ border-color:var(--adm-line); box-shadow:0 12px 30px -22px rgba(16,27,61,.3); }
+body.admin-theme .chat-list-header, body.admin-theme .chat-detail-header{ border-color:var(--adm-line); }
+body.admin-theme .chat-list-tab{ background:var(--adm-bg); color:var(--adm-ink); }
+body.admin-theme .chat-student-item{ border-color:var(--adm-line); }
+body.admin-theme .chat-item-body:hover,
+body.admin-theme .chat-student-item.is-active .chat-item-body{ background:var(--adm-bg); }
+body.admin-theme .chat-item-preview, body.admin-theme .chat-item-time{ color:var(--adm-gray); }
+body.admin-theme .chat-detail-name{ color:var(--adm-ink); }
 
 /* Admin "Chatlar" view — the student-list + conversation panel was a fixed
    280px / 1fr grid. On a phone that left almost no width for the message
@@ -1721,13 +1826,12 @@ body.admin-theme .chat-textarea{ background:var(--adm-bg); border-color:var(--ad
     grid-template-columns: 1fr !important;
     height: auto !important; min-height: 0 !important;
   }
-  .chat-grid-list{ max-height: 220px; }
-  .chat-grid-detail{ height: 62vh; min-height: 380px; }
+  .chat-panel-list{ max-height: 260px; }
+  .chat-panel-detail{ height: 62vh; min-height: 380px; }
   .chat-textarea{ font-size: 16px; min-height: 44px; } /* 16px avoids iOS auto-zoom on focus */
+  .chat-header-actions{ width:100%; }
+  .chat-search-box{ flex:1; min-width:0; }
 }
-
-/* Admin chats — student list item hover */
-.chat-student-item div:hover{ background:var(--adm-hover, #f1f5f9); }
 
 /* Hero achievements overlay — sits at the TOP of the certificate panel */
 .hero-achievements-overlay{
