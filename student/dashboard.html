@@ -520,19 +520,23 @@
     <!-- ===== CHAT VIEW ===== -->
     <section id="view-chat" hidden>
       <a href="#" id="backToHomeFromChat" class="back-link">← Bosh sahifaga</a>
-      <div class="admin-header">
+      <div class="admin-header chat-page-header">
         <div>
           <h1>💬 O‘qituvchi bilan chat</h1>
           <p>Savollaringizni o‘qituvchiga yozing.</p>
         </div>
       </div>
-      <div class="chat-box" id="chatBox">
+      <div class="chat-panel chat-panel-detail chat-panel-solo" id="chatBox">
+        <div class="chat-detail-header">
+          <div class="chat-detail-avatar chat-detail-avatar-teacher">🎓</div>
+          <div class="chat-detail-name">O‘qituvchi</div>
+        </div>
         <div class="chat-messages" id="chatMessages">
           <p style="color:var(--gray);text-align:center;padding:2em 0;" id="chatEmpty">Hali xabarlar yo‘q. Birinchi xabarni yuboring!</p>
         </div>
         <div class="chat-input-row">
-          <textarea id="chatInput" class="chat-textarea" placeholder="Xabar yozing..." rows="2" maxlength="1000"></textarea>
-          <button class="btn btn-amber" id="chatSendBtn">Yuborish</button>
+          <textarea id="chatInput" class="chat-textarea" placeholder="Xabar yozing..." rows="1" maxlength="1000"></textarea>
+          <button class="chat-send-btn" id="chatSendBtn" title="Yuborish">➤</button>
         </div>
       </div>
     </section>
@@ -2418,18 +2422,23 @@ function startChatUnreadListener(){
 
 let chatUnsubscribe = null;
 
-function renderChatMessage(d, id){
+function renderChatMessage(d){
   const isStudent = d.senderRole === 'student';
-  const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
+  const dateObj = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+  const time = dateObj ? dateObj.toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' }) : '';
   // Read-receipt ticks — only on the student's own messages: single tick
   // = sent but not yet seen by the teacher, double (blue) tick = the
   // teacher has opened this chat and seen it.
   const ticks = isStudent
     ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '✓✓' : '✓'}</span>`
     : '';
-  return `<div class="chat-msg ${isStudent ? 'chat-msg-student' : 'chat-msg-teacher'}">
-    <div class="chat-msg-bubble">${escapeHtml(d.text || '')}</div>
-    <div class="chat-msg-meta">${isStudent ? 'Siz' : 'O‘qituvchi'} · ${date} ${ticks}</div>
+  const avatarHtml = !isStudent ? `<div class="chat-msg-avatar" style="background:var(--teal);">🎓</div>` : '';
+  return `<div class="chat-msg-row${isStudent ? ' is-mine' : ''}">
+    ${avatarHtml}
+    <div class="chat-msg ${isStudent ? 'chat-msg-student' : 'chat-msg-teacher'}">
+      <div class="chat-msg-bubble">${escapeHtml(d.text || '')}</div>
+      <div class="chat-msg-meta">${time} ${ticks}</div>
+    </div>
   </div>`;
 }
 
@@ -2450,7 +2459,25 @@ function loadChat(){
         return;
       }
       emptyEl.hidden = true;
-      messagesEl.innerHTML = snap.docs.map(doc => renderChatMessage(doc.data(), doc.id)).join('');
+
+      // Build the message list with a date-separator pill inserted
+      // whenever the calendar day changes between two messages.
+      let lastDateKey = '';
+      const parts = [];
+      snap.docs.forEach(doc => {
+        const d = doc.data();
+        const dateObj = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+        if(dateObj){
+          const dateKey = dateObj.toDateString();
+          if(dateKey !== lastDateKey){
+            lastDateKey = dateKey;
+            const label = dateObj.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' });
+            parts.push(`<div class="chat-date-sep"><span>${label}</span></div>`);
+          }
+        }
+        parts.push(renderChatMessage(d));
+      });
+      messagesEl.innerHTML = parts.join('');
       messagesEl.scrollTop = messagesEl.scrollHeight;
 
       // Mark any teacher messages the student can now see as read — this
@@ -2489,10 +2516,12 @@ document.getElementById('chatInput').addEventListener('keydown', (e) => {
 
 async function sendChatMessage(){
   const input = document.getElementById('chatInput');
+  const sendBtn = document.getElementById('chatSendBtn');
   const text = input.value.trim();
   if(!text) return;
   input.value = '';
   input.disabled = true;
+  sendBtn.disabled = true;
 
   try{
     await db.collection('chats').doc(currentUid).collection('messages').add({
@@ -2515,6 +2544,7 @@ async function sendChatMessage(){
     alert('Xabar yuborishda xatolik yuz berdi.');
   } finally {
     input.disabled = false;
+    sendBtn.disabled = false;
     input.focus();
   }
 }
