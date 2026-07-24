@@ -114,9 +114,20 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     window.location.href = 'dashboard.html';
   } catch(err){
     let msg = 'Ro‘yxatdan o‘tishda xatolik yuz berdi. Qayta urinib ko‘ring.';
-    if(err && err.code === 'auth/email-already-in-use') msg = 'Bu email allaqachon ro‘yxatdan o‘tgan. Kirish sahifasidan foydalaning.';
-    if(err && err.code === 'auth/weak-password') msg = 'Parol juda oddiy — kamida 6 ta belgi kiriting.';
-    if(err && err.code === 'auth/invalid-email') msg = 'Email manzil noto‘g‘ri kiritildi.';
+    // Firebase normally maps these to err.code (e.g. 'auth/email-already-in-use'),
+    // but some SDK/network paths only surface the raw server message
+    // (e.g. 'EMAIL_EXISTS') without setting err.code — so we check both.
+    const code = (err && err.code) || '';
+    const raw = (err && err.message) || '';
+    if(code === 'auth/email-already-in-use' || raw.includes('EMAIL_EXISTS')){
+      msg = 'Bu email allaqachon ro‘yxatdan o‘tgan. Kirish sahifasidan foydalaning.';
+    } else if(code === 'auth/weak-password' || raw.includes('WEAK_PASSWORD')){
+      msg = 'Parol juda oddiy — kamida 6 ta belgi kiriting.';
+    } else if(code === 'auth/invalid-email' || raw.includes('INVALID_EMAIL')){
+      msg = 'Email manzil noto‘g‘ri kiritildi.';
+    } else if(code === 'auth/network-request-failed' || raw.includes('NETWORK')){
+      msg = 'Internet aloqasi bilan muammo. Ulanishni tekshirib, qayta urinib ko‘ring.';
+    }
     errorEl.textContent = msg;
     errorEl.hidden = false;
     submitBtn.disabled = false;
