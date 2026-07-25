@@ -123,28 +123,66 @@
     <div class="home-blog-grid" id="homeBlogGrid"></div>
   </div>
 
-  <div class="home-rating-box" id="siteRatingBox">
-    <div class="rating-summary">
-      <div class="rating-stars-display" id="ratingStarsDisplay" aria-hidden="true"></div>
-      <p class="rating-summary-text" id="ratingSummaryText">Baholar yuklanmoqda…</p>
-    </div>
-    <div class="rating-input">
-      <p class="rating-input-label" data-site-rating-label>Saytni baholang</p>
-      <div class="rating-stars-input" id="ratingStarsInput">
-        <button type="button" class="rating-star-btn" data-value="1" aria-label="1 yulduz">★</button>
-        <button type="button" class="rating-star-btn" data-value="2" aria-label="2 yulduz">★</button>
-        <button type="button" class="rating-star-btn" data-value="3" aria-label="3 yulduz">★</button>
-        <button type="button" class="rating-star-btn" data-value="4" aria-label="4 yulduz">★</button>
-        <button type="button" class="rating-star-btn" data-value="5" aria-label="5 yulduz">★</button>
-      </div>
-      <p class="rating-thanks" id="ratingThanks" hidden></p>
-    </div>
-  </div>
+
 </main>
 
-<div class="home-bottombar">
-  <p class="home-footer-note" data-site-footer-copyright>© 2026 Djami Lessons. Barcha huquqlar himoyalangan.</p>
-</div>
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div class="site-footer-top">
+      <div class="site-footer-brand">
+        <div class="site-footer-brand-row">
+          <img src="assets/logo.png" alt="Djami Lessons">
+          <span class="site-footer-brand-name" data-site-brand-name>Djami Lessons</span>
+        </div>
+        <p class="site-footer-tagline" data-site-hero-lead>Ingliz tilini o‘rganishning zamonaviy platformasi — General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
+      </div>
+
+      <div class="site-footer-cols">
+        <div class="site-footer-col">
+          <p class="site-footer-col-title">Havolalar</p>
+          <a href="index.html">Bosh sahifa</a>
+          <a href="index.html#courses">Kurslar</a>
+          <a href="blogs.html">Djami's Blog</a>
+        </div>
+        <div class="site-footer-col">
+          <p class="site-footer-col-title">Talabalar uchun</p>
+          <a href="student/register.html">Ro'yxatdan o'tish</a>
+          <a href="student/login.html">Talaba profili</a>
+        </div>
+        <div class="site-footer-col">
+          <p class="site-footer-col-title">Bog'lanish</p>
+          <a href="https://t.me/djamiteacher" target="_blank" rel="noopener">✈️ t.me/djamiteacher</a>
+          <a href="admin/login.html">Admin kirish</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer-rating-wrap">
+      <div class="home-rating-box" id="siteRatingBox">
+        <div class="rating-summary">
+          <div class="rating-stars-display" id="ratingStarsDisplay" aria-hidden="true"></div>
+          <p class="rating-summary-text" id="ratingSummaryText">Baholar yuklanmoqda…</p>
+        </div>
+        <div class="rating-input">
+          <p class="rating-input-label" data-site-rating-label>Saytni baholang</p>
+          <div class="rating-stars-input" id="ratingStarsInput">
+            <button type="button" class="rating-star-btn" data-value="1" aria-label="1 yulduz">★</button>
+            <button type="button" class="rating-star-btn" data-value="2" aria-label="2 yulduz">★</button>
+            <button type="button" class="rating-star-btn" data-value="3" aria-label="3 yulduz">★</button>
+            <button type="button" class="rating-star-btn" data-value="4" aria-label="4 yulduz">★</button>
+            <button type="button" class="rating-star-btn" data-value="5" aria-label="5 yulduz">★</button>
+          </div>
+          <p class="rating-thanks" id="ratingThanks" hidden></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="site-footer-bottom">
+      <p class="home-footer-note" data-site-footer-copyright>© 2026 Djami Lessons. Barcha huquqlar himoyalangan.</p>
+      <a href="admin/login.html">Admin panel</a>
+    </div>
+  </div>
+</footer>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
