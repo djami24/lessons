@@ -1921,7 +1921,7 @@ body.admin-theme .chat-detail-avatar-teacher{ background:var(--adm-blue); }
 /* Top-right notification + chat icon buttons (student dashboard) */
 .student-topbar-icons{
   position: fixed;
-  top: 14px;
+  top: calc(14px + env(safe-area-inset-top, 0px));
   right: 18px;
   z-index: 200;
   display: flex;
