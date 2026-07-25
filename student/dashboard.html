@@ -39,7 +39,7 @@
 
   <!-- SIDEBAR -->
   <aside class="admin-sidebar">
-    <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+    <a href="#" class="brand" id="logoHomeBtn"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
     <ul class="admin-nav">
       <li><a href="#" id="navProfile">👤 Profil</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
@@ -642,7 +642,7 @@ auth.onAuthStateChanged(async (user) => {
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
-  if(confirm('Tizimdan chiqmoqchimisiz?')) auth.signOut().then(() => window.location.href = 'login.html');
+  if(confirm('Tizimdan chiqmoqchimisiz?')) auth.signOut().then(() => window.location.href = '../index.html');
 });
 
 async function loadLevels(){
@@ -1082,6 +1082,7 @@ document.getElementById('backToHomeFromCourses').addEventListener('click', (e) =
 document.getElementById('backToHomeFromEssays').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromPlacement').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromProfile').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
+document.getElementById('logoHomeBtn').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 
 // ---------- Courses overview ----------
 
