@@ -869,13 +869,19 @@ async function fetchGbLookupData(){
   try{
     const snap = await db.collection('gradebook').doc('gradebook').get();
     const d = snap.exists ? snap.data() : {};
-    gbLookupData = {
-      units: Array.isArray(d.units) ? d.units : [],
-      students: Array.isArray(d.students) ? d.students : []
-    };
+    const students = Array.isArray(d.students) ? d.students : [];
+    let unitsByGroup = {};
+    if(d.unitsByGroup && typeof d.unitsByGroup === 'object' && !Array.isArray(d.unitsByGroup)){
+      unitsByGroup = d.unitsByGroup;
+    } else if(Array.isArray(d.units) && d.units.length){
+      // Old format: one shared units list for every group.
+      const groups = [...new Set(students.map(s => s.group))];
+      groups.forEach(g => { unitsByGroup[g] = [...d.units]; });
+    }
+    gbLookupData = { unitsByGroup, students };
   } catch(err){
     console.error('Gradebook lookup failed:', err);
-    gbLookupData = { units: [], students: [] };
+    gbLookupData = { unitsByGroup: {}, students: [] };
   }
   return gbLookupData;
 }
@@ -933,7 +939,8 @@ async function renderGbResultBox(){
   let latestUnit = null, latestScore = null, bestStamp = -1;
   let fallbackUnit = null, fallbackScore = null;
   const stamps = match.scoreTimestamps || {};
-  data.units.forEach(unit => {
+  const units = (data.unitsByGroup && data.unitsByGroup[match.group]) || [];
+  units.forEach(unit => {
     const sc = match.scores ? match.scores[unit] : undefined;
     if(sc === undefined || sc === null || sc === '') return;
     fallbackUnit = unit; // keeps advancing, so it ends on the last one in list order
