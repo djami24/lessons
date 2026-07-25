@@ -597,7 +597,7 @@
 const GRADEBOOK_DOC = 'gradebook';
 const PASS_THRESHOLD = 60;
 
-let data = { units: [], students: [] };
+let data = { unitsByGroup: {}, students: [] };
 let dataLoaded = false;
 
 const studentStage = document.getElementById('studentStage');
@@ -621,14 +621,27 @@ async function loadData(){
     const snap = await db.collection('gradebook').doc(GRADEBOOK_DOC).get();
     if(snap.exists){
       const d = snap.data();
-      data.units = Array.isArray(d.units) ? d.units : [];
       data.students = Array.isArray(d.students) ? d.students : [];
+      if(d.unitsByGroup && typeof d.unitsByGroup === 'object' && !Array.isArray(d.unitsByGroup)){
+        data.unitsByGroup = d.unitsByGroup;
+      } else {
+        // Old format: one shared units list for every group.
+        data.unitsByGroup = {};
+        if(Array.isArray(d.units) && d.units.length){
+          const groups = [...new Set(data.students.map(s => s.group))];
+          groups.forEach(g => { data.unitsByGroup[g] = [...d.units]; });
+        }
+      }
     }
   }catch(e){
-    data = { units: [], students: [] };
+    data = { unitsByGroup: {}, students: [] };
   }
 
   dataLoaded = true;
+}
+
+function getUnitsForGroup(group){
+  return (data.unitsByGroup && data.unitsByGroup[group]) || [];
 }
 
 /* ---------------- top-10 leaderboard (umumiy eng yaxshi o'quvchilar, 100 ball) ---------------- */
@@ -637,14 +650,14 @@ const leaderboardSub = document.getElementById('leaderboardSub');
 const leaderboardArea = document.getElementById('leaderboardArea');
 
 function renderLeaderboard(){
-  if(!data.units || data.units.length === 0 || !data.students || data.students.length === 0){
+  if(!data.students || data.students.length === 0){
     leaderboardStage.style.display = 'none';
     return;
   }
 
   const ranked = data.students.map(s => {
     let hundredCount = 0, sum = 0, count = 0;
-    data.units.forEach(u => {
+    getUnitsForGroup(s.group).forEach(u => {
       const raw = s.scores ? s.scores[u] : undefined;
       if(raw === undefined || raw === null || raw === '') return;
       const score = Number(raw);
@@ -744,7 +757,8 @@ function renderResultCard(student){
   head.innerHTML = `<span class="name">${escapeHtml(student.name)}</span><span class="group">${escapeHtml(student.group)}</span>`;
   card.appendChild(head);
 
-  if(data.units.length === 0){
+  const units = getUnitsForGroup(student.group);
+  if(units.length === 0){
     card.innerHTML += '<div class="empty">Hali unitlar qo\'shilmagan.</div>';
     return card;
   }
@@ -755,7 +769,7 @@ function renderResultCard(student){
   const tbody = document.createElement('tbody');
 
   let sum = 0, count = 0;
-  data.units.forEach(unit => {
+  units.forEach(unit => {
     const raw = student.scores ? student.scores[unit] : undefined;
     const hasScore = raw !== undefined && raw !== null && raw !== '';
     const score = hasScore ? Number(raw) : null;
