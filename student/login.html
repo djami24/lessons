@@ -71,12 +71,10 @@ document.getElementById('pwToggle').addEventListener('click', () => {
   btn.textContent = show ? 'Yashirish' : 'Ko‘rsatish';
 });
 
-// If already signed in as a student, skip straight to the dashboard.
-auth.onAuthStateChanged(async (user) => {
-  if(!user) return;
-  const studentDoc = await db.collection('students').doc(user.uid).get();
-  if(studentDoc.exists){ window.location.href = 'dashboard.html'; }
-});
+// Note: we intentionally do NOT auto-redirect to the dashboard just
+// because a cached session exists (e.g. from "Meni eslab qol" on a
+// previous visit). The login page always shows the form and requires
+// pressing "Kirish" — that's what actually signs the student in below.
 
 document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
