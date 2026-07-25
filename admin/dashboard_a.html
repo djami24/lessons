@@ -302,6 +302,14 @@
           </div>
         </div>
 
+        <div class="field">
+          <span>Footer foni rangi <span style="font-weight:400; color:var(--gray);">(sahifa pastidagi footer bo‘limining fon rangi)</span></span>
+          <div style="display:flex; align-items:center; gap:1em;">
+            <input type="color" id="settingFooterBgColor" value="#14213D" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
+            <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingFooterBgColorLabel">#14213D</span>
+          </div>
+        </div>
+
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>🏷️ Brend</h3>
 
@@ -407,6 +415,16 @@
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>⚓ Footer</h3>
+
+        <label class="field">
+          <span>Footer tavsifi <span style="font-weight:400; color:var(--gray);">(logotip ostidagi qisqa matn)</span></span>
+          <input type="text" id="settingFooterTagline" placeholder="General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.">
+        </label>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field"><span>Telefon raqami</span><input type="text" id="settingFooterPhone" placeholder="+998 90 550 67 07"></label>
+          <label class="field"><span>Telegram</span><input type="text" id="settingFooterTelegram" placeholder="djamiteacher"></label>
+        </div>
 
         <label class="field">
           <span>Footer matni</span>
@@ -3134,6 +3152,7 @@ const DEFAULT_SITE_SETTINGS = {
   colorAccent: '#2E6F6E',
   colorBackground: '#FFFFFF',
   colorDark: '#14213D',
+  footerBgColor: '#14213D',
   buttonColor: '#D98E3F',
   brandName: 'Djami Lessons',
   logoUrl: '',
@@ -3167,6 +3186,9 @@ const DEFAULT_SITE_SETTINGS = {
   homeAdminBtnText: 'Admin kirish',
   blogLinkText: "Djami's Blog",
 
+  footerTagline: 'General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.',
+  footerPhone: '+998 90 550 67 07',
+  footerTelegram: 'djamiteacher',
   footerCopyright: '© 2026 Djami Lessons. Barcha huquqlar himoyalangan.',
 
   feature1Title: 'Sifatli kontent',
@@ -3191,6 +3213,8 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingColorBackgroundLabel').textContent = data.colorBackground;
   document.getElementById('settingColorDark').value = data.colorDark;
   document.getElementById('settingColorDarkLabel').textContent = data.colorDark;
+  document.getElementById('settingFooterBgColor').value = data.footerBgColor || data.colorDark || '#14213D';
+  document.getElementById('settingFooterBgColorLabel').textContent = (data.footerBgColor || data.colorDark || '#14213D').toUpperCase();
   document.getElementById('settingButtonColor').value = data.buttonColor;
   document.getElementById('settingButtonColorLabel').textContent = data.buttonColor;
   document.getElementById('settingBrandName').value = data.brandName || '';
@@ -3226,6 +3250,9 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingHomeLabel3').value = data.homeLabel3 || '';
   document.getElementById('settingHomeSub3').value = data.homeSub3 || '';
 
+  document.getElementById('settingFooterTagline').value = data.footerTagline || '';
+  document.getElementById('settingFooterPhone').value = data.footerPhone || '';
+  document.getElementById('settingFooterTelegram').value = data.footerTelegram || '';
   document.getElementById('settingFooterCopyright').value = data.footerCopyright || '';
 
   document.getElementById('settingFeature1Title').value = data.feature1Title || '';
@@ -3306,7 +3333,7 @@ function renderRatingStats(sum, count){
   `;
 }
 
-['settingColorPrimary', 'settingColorAccent', 'settingColorBackground', 'settingColorDark', 'settingButtonColor'].forEach(id => {
+['settingColorPrimary', 'settingColorAccent', 'settingColorBackground', 'settingColorDark', 'settingButtonColor', 'settingFooterBgColor'].forEach(id => {
   document.getElementById(id).addEventListener('input', (e) => {
     document.getElementById(id + 'Label').textContent = e.target.value.toUpperCase();
   });
@@ -3334,6 +3361,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     colorAccent: document.getElementById('settingColorAccent').value,
     colorBackground: document.getElementById('settingColorBackground').value,
     colorDark: document.getElementById('settingColorDark').value,
+    footerBgColor: document.getElementById('settingFooterBgColor').value,
     buttonColor: document.getElementById('settingButtonColor').value,
     brandName: document.getElementById('settingBrandName').value.trim() || 'Djami Lessons',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
@@ -3367,6 +3395,9 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     homeLabel3: document.getElementById('settingHomeLabel3').value.trim(),
     homeSub3: document.getElementById('settingHomeSub3').value.trim(),
 
+    footerTagline: document.getElementById('settingFooterTagline').value.trim(),
+    footerPhone: document.getElementById('settingFooterPhone').value.trim(),
+    footerTelegram: document.getElementById('settingFooterTelegram').value.trim(),
     footerCopyright: document.getElementById('settingFooterCopyright').value.trim(),
 
     feature1Title: document.getElementById('settingFeature1Title').value.trim(),
