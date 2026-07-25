@@ -501,16 +501,6 @@
         </div>
       </div>
 
-      <div class="table-wrap" style="padding:20px;">
-        <h2 style="margin:0 0 4px; font-size:1.1rem;">Unitlar</h2>
-        <p style="margin:0 0 14px; color:var(--gray); font-size:.88rem;">Har bir ustun bitta unit natijasini bildiradi.</p>
-        <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-bottom:14px;">
-          <input type="text" id="gbUnitInput" placeholder="Masalan: 1-unit" style="flex:1; min-width:180px;">
-          <button class="btn btn-amber btn-sm" id="gbAddUnitBtn">Qo‘shish</button>
-        </div>
-        <div class="gb-chip-list" id="gbUnitChips"></div>
-      </div>
-
       <div class="table-wrap" style="padding:20px; margin-top:20px;">
         <h2 style="margin:0 0 4px; font-size:1.1rem;">O‘quvchi qo‘shish</h2>
         <p style="margin:0 0 14px; color:var(--gray); font-size:.88rem;">Guruhni qanday qo‘shishni tanlang: ro‘yxatdagi hammasiga bitta guruh, yoki faqat bitta ismga.</p>
@@ -553,6 +543,17 @@
             <button class="btn btn-ghost btn-sm" id="gbBackToGroupsBtn">← Guruhlar</button>
             <span style="font-weight:700;" id="gbGroupTableTitle"></span>
           </div>
+
+          <div style="margin-bottom:18px;">
+            <h3 style="margin:0 0 4px; font-size:1rem;">Unitlar</h3>
+            <p style="margin:0 0 10px; color:var(--gray); font-size:.85rem;">Bu unitlar faqat shu guruhga tegishli — boshqa guruhlarga ta’sir qilmaydi.</p>
+            <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-bottom:10px;">
+              <input type="text" id="gbUnitInput" placeholder="Masalan: 1-unit" style="flex:1; min-width:180px;">
+              <button class="btn btn-amber btn-sm" id="gbAddUnitBtn">Qo‘shish</button>
+            </div>
+            <div class="gb-chip-list" id="gbUnitChips"></div>
+          </div>
+
           <div style="overflow-x:auto;">
             <table class="gb-grades-table" id="gbGradesTable"></table>
           </div>
@@ -3571,9 +3572,13 @@ async function deleteHwItem(hwId, title) {
 // the same admin login as the rest of this dashboard — no separate
 // password screen needed anymore.
 const GRADEBOOK_DOC = 'gradebook';
-let gbData = { units: [], students: [] };
+let gbData = { unitsByGroup: {}, students: [] };
 let gbLoaded = false;
 let gbSelectedGroup = null;
+
+function getUnitsForGroup(group){
+  return (gbData.unitsByGroup && gbData.unitsByGroup[group]) || [];
+}
 
 async function loadGradebook(){
   if(!gbLoaded){
@@ -3581,13 +3586,23 @@ async function loadGradebook(){
       const snap = await db.collection('gradebook').doc(GRADEBOOK_DOC).get();
       if(snap.exists){
         const d = snap.data();
-        gbData.units = Array.isArray(d.units) ? d.units : [];
         gbData.students = Array.isArray(d.students) ? d.students : [];
+        if(d.unitsByGroup && typeof d.unitsByGroup === 'object' && !Array.isArray(d.unitsByGroup)){
+          gbData.unitsByGroup = d.unitsByGroup;
+        } else {
+          // Migrate from the old format where every group shared one
+          // "units" list — give each existing group its own copy so no
+          // data is lost, but from now on they're edited independently.
+          gbData.unitsByGroup = {};
+          if(Array.isArray(d.units) && d.units.length){
+            const groups = [...new Set(gbData.students.map(s => s.group))];
+            groups.forEach(g => { gbData.unitsByGroup[g] = [...d.units]; });
+          }
+        }
       }
     } catch(err){ console.error('Gradebook load failed:', err); }
     gbLoaded = true;
   }
-  renderGbUnitChips();
   renderGbAdminGradeTable();
   loadGbVisitStats();
 }
@@ -3595,7 +3610,7 @@ async function loadGradebook(){
 async function saveGradebook(){
   try{
     await db.collection('gradebook').doc(GRADEBOOK_DOC).set({
-      units: gbData.units,
+      unitsByGroup: gbData.unitsByGroup,
       students: gbData.students
     });
     return true;
@@ -3616,27 +3631,31 @@ document.getElementById('gbSaveBtn').addEventListener('click', async () => {
   setTimeout(() => { status.textContent = ''; }, 2500);
 });
 
-// ---- Units ----
+// ---- Units (per group) ----
 document.getElementById('gbAddUnitBtn').addEventListener('click', async () => {
   const input = document.getElementById('gbUnitInput');
   const name = input.value.trim();
-  if(!name) return;
-  if(gbData.units.includes(name)){ input.value = ''; return; }
-  gbData.units.push(name);
+  if(!name || !gbSelectedGroup) return;
+  const units = getUnitsForGroup(gbSelectedGroup);
+  if(units.includes(name)){ input.value = ''; return; }
+  if(!gbData.unitsByGroup[gbSelectedGroup]) gbData.unitsByGroup[gbSelectedGroup] = [];
+  gbData.unitsByGroup[gbSelectedGroup].push(name);
   input.value = '';
   renderGbUnitChips();
-  renderGbAdminGradeTable();
+  renderGbGroupTable(gbSelectedGroup);
   await saveGradebook();
 });
 
 function renderGbUnitChips(){
   const el = document.getElementById('gbUnitChips');
-  if(gbData.units.length === 0){
+  if(!gbSelectedGroup) return;
+  const units = getUnitsForGroup(gbSelectedGroup);
+  if(units.length === 0){
     el.innerHTML = '<span style="color:var(--gray); font-size:.85rem;">Hali unit qo\u2018shilmagan.</span>';
     return;
   }
   el.innerHTML = '';
-  gbData.units.forEach(unit => {
+  units.forEach(unit => {
     const chip = document.createElement('div');
     chip.className = 'gb-chip';
     chip.innerHTML = `<span>${escapeHtml(unit)}</span>`;
@@ -3645,11 +3664,15 @@ function renderGbUnitChips(){
     del.textContent = '\u2715';
     del.title = "O'chirish";
     del.addEventListener('click', async () => {
-      if(!confirm(`"${unit}" unitini o'chirasizmi? Unga tegishli barcha ballar ham o'chadi.`)) return;
-      gbData.units = gbData.units.filter(u => u !== unit);
-      gbData.students.forEach(s => { if(s.scores) delete s.scores[unit]; });
+      if(!confirm(`"${unit}" unitini "${gbSelectedGroup}" guruhidan o'chirasizmi? Unga tegishli barcha ballar ham o'chadi.`)) return;
+      gbData.unitsByGroup[gbSelectedGroup] = getUnitsForGroup(gbSelectedGroup).filter(u => u !== unit);
+      gbData.students.forEach(s => {
+        if(s.group !== gbSelectedGroup || !s.scores) return;
+        delete s.scores[unit];
+        if(s.scoreTimestamps) delete s.scoreTimestamps[unit];
+      });
       renderGbUnitChips();
-      renderGbAdminGradeTable();
+      renderGbGroupTable(gbSelectedGroup);
       await saveGradebook();
     });
     chip.appendChild(del);
@@ -3747,11 +3770,12 @@ function renderGbAdminGradeTable(){
   if(gbSelectedGroup){
     wrap.style.display = 'block';
     document.getElementById('gbGroupTableTitle').textContent = gbSelectedGroup;
-    sub.textContent = "Har bir katakka ballni yozing (0\u2013100), so'ng saqlang.";
+    sub.textContent = "Avval shu guruh uchun unitlarni qo'shing, so'ng har bir katakka ballni yozing (0–100).";
+    renderGbUnitChips();
     renderGbGroupTable(gbSelectedGroup);
   } else {
     wrap.style.display = 'none';
-    sub.textContent = "Guruhni tanlang, so'ng har bir katakka ballni yozing (0\u2013100).";
+    sub.textContent = "Guruhni tanlang, so'ng unitlarni qo'shib, ballarni kiriting.";
   }
 }
 
@@ -3763,18 +3787,23 @@ document.getElementById('gbBackToGroupsBtn').addEventListener('click', () => {
 function renderGbGroupTable(group){
   const table = document.getElementById('gbGradesTable');
   const students = gbData.students.filter(s => s.group === group);
+  const units = getUnitsForGroup(group);
   if(students.length === 0){
     table.innerHTML = '<tr><td style="border:none; padding:16px; color:var(--gray);">Bu guruhda talaba yo\u2018q.</td></tr>';
     return;
   }
+  if(units.length === 0){
+    table.innerHTML = '<tr><td style="border:none; padding:16px; color:var(--gray);">Bu guruh uchun hali unit qo\u2018shilmagan. Yuqoridan unit qo\u2018shing.</td></tr>';
+    return;
+  }
   let thead = '<tr><th>Ism</th>';
-  gbData.units.forEach(u => { thead += `<th>${escapeHtml(u)}</th>`; });
+  units.forEach(u => { thead += `<th>${escapeHtml(u)}</th>`; });
   thead += '<th></th></tr>';
 
   let tbody = '';
   students.forEach(s => {
     tbody += `<tr><td style="font-weight:700; white-space:nowrap;">${escapeHtml(s.name)}</td>`;
-    gbData.units.forEach(u => {
+    units.forEach(u => {
       const val = (s.scores && s.scores[u] !== undefined) ? s.scores[u] : '';
       tbody += `<td><input type="number" min="0" max="100" data-student="${s.id}" data-unit="${escapeHtml(u)}" value="${val}"></td>`;
     });
