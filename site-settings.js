@@ -106,6 +106,9 @@
     if(data.footerBgColor){
       root.setProperty('--footer-bg', data.footerBgColor);
     }
+    if(data.footerTextColor){
+      root.setProperty('--footer-text', data.footerTextColor);
+    }
     if(data.buttonColor){
       root.setProperty('--btn-color', data.buttonColor);
       root.setProperty('--btn-color-deep', shade(data.buttonColor, -16));
