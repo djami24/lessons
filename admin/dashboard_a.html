@@ -340,6 +340,14 @@
         </div>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>🎮 So‘z o‘yini</h3>
+        <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">Talaba profilining bosh sahifasidagi "So‘z o‘yini" bo‘limini vaqtincha yashirish uchun belgini olib tashlang.</p>
+        <div style="display:flex; align-items:center; gap:.7em; font-weight:700; font-size:.85rem;">
+          <input type="checkbox" id="settingWordGameEnabled" style="width:19px; height:19px; accent-color: var(--teal); flex:none; cursor:pointer;">
+          <label for="settingWordGameEnabled" style="cursor:pointer;">Talabalarga "So‘z o‘yini" bo‘limini ko‘rsatish</label>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>🧭 Yuqori panel (barcha sahifalarda)</h3>
 
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
@@ -3156,6 +3164,7 @@ document.getElementById('savePlacementTestBtn').addEventListener('click', async 
 // ---------- Site settings (colors, brand, logo, homepage text) ----------
 
 const DEFAULT_SITE_SETTINGS = {
+  wordGameEnabled: true,
   colorPrimary: '#D98E3F',
   colorAccent: '#2E6F6E',
   colorBackground: '#FFFFFF',
@@ -3233,6 +3242,8 @@ function fillSiteSettingsForm(data){
 
   document.getElementById('settingCardNumber').value = data.cardNumber || '';
   document.getElementById('settingCardHolderName').value = data.cardHolderName || '';
+
+  document.getElementById('settingWordGameEnabled').checked = data.wordGameEnabled !== false;
 
   document.getElementById('settingNavHomeLabel').value = data.navHomeLabel || '';
   document.getElementById('settingNavCoursesLabel').value = data.navCoursesLabel || '';
@@ -3380,6 +3391,8 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
 
     cardNumber: document.getElementById('settingCardNumber').value.trim(),
     cardHolderName: document.getElementById('settingCardHolderName').value.trim(),
+
+    wordGameEnabled: document.getElementById('settingWordGameEnabled').checked,
 
     navHomeLabel: document.getElementById('settingNavHomeLabel').value.trim(),
     navCoursesLabel: document.getElementById('settingNavCoursesLabel').value.trim(),
