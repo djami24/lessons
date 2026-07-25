@@ -29,7 +29,7 @@
       <li><a href="#" id="navKundalik">📅 Kundalik</a></li>
       <li><a href="#" id="navGradebook">📊 Test natijalar</a></li>
       <li><a href="#" id="navBroadcast"><span class="nav-icon-emoji">📢</span><span class="nav-label"> Xabar yuborish</span></a></li>
-      <li><a href="#" id="navChats"><span class="nav-icon-emoji">💬</span><span class="nav-label"> Chatlar</span></a></li>
+      <li><a href="#" id="navChats"><span class="nav-icon-emoji">💬</span><span class="nav-label"> Chatlar</span><span id="navChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -1220,6 +1220,7 @@ auth.onAuthStateChanged(async (user) => {
   renderLevelsOverview();
   renderStudents();
   renderBlogsGrid();
+  startAdminChatUnreadListener();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -4072,18 +4073,21 @@ async function deleteChat(chatId, studentName){
   }
 }
 
-async function loadChatStudentList(){
+let adminChatListUnsub = null;
+
+function loadChatStudentList(){
   const listEl = document.getElementById('chatStudentList');
   const countEl = document.getElementById('chatListCount');
   listEl.innerHTML = '<p style="padding:1em;color:var(--gray);">Yuklanmoqda…</p>';
-  try{
-    const snap = await db.collection('chats').orderBy('lastAt','desc').get();
-    adminChatDocs = snap.docs;
-    if(countEl) countEl.textContent = snap.size;
-    renderChatStudentList(adminChatDocs, document.getElementById('chatListSearchInput').value.trim().toLowerCase());
-  } catch(err){
-    listEl.innerHTML = '<p style="padding:1em;color:red;">Xatolik.</p>';
-  }
+  if(adminChatListUnsub) adminChatListUnsub();
+  adminChatListUnsub = db.collection('chats').orderBy('lastAt','desc')
+    .onSnapshot(snap => {
+      adminChatDocs = snap.docs;
+      if(countEl) countEl.textContent = snap.size;
+      renderChatStudentList(adminChatDocs, document.getElementById('chatListSearchInput').value.trim().toLowerCase());
+    }, err => {
+      listEl.innerHTML = '<p style="padding:1em;color:red;">Xatolik.</p>';
+    });
 }
 
 function renderChatStudentList(docs, filter){
@@ -4216,6 +4220,25 @@ document.getElementById('adminChatSendBtn').addEventListener('click', sendAdminC
 document.getElementById('adminChatInput').addEventListener('keydown', (e) => {
   if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendAdminChatMsg(); }
 });
+
+// Live badge on the "💬 Chatlar" sidebar link — turns on the moment a
+// student sends a message (their chat's unreadByTeacher goes above 0)
+// and turns off again the instant that chat is opened (openAdminChat
+// resets unreadByTeacher to 0), regardless of which page the admin is
+// currently viewing.
+function startAdminChatUnreadListener(){
+  db.collection('chats').where('unreadByTeacher', '>', 0)
+    .onSnapshot(snap => {
+      const badge = document.getElementById('navChatsBadge');
+      if(!badge) return;
+      if(snap.size > 0){
+        badge.textContent = snap.size;
+        badge.hidden = false;
+      } else {
+        badge.hidden = true;
+      }
+    });
+}
 
 async function sendAdminChatMsg(){
   if(!adminActiveChatId) return;
