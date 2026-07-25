@@ -266,6 +266,21 @@
       return top;
     }
 
+    var AVATAR_COLORS = ['#2E6F6E', '#D98E3F', '#B3432B', '#5B6472', '#1F4E4D', '#B96F26'];
+    function avatarColorFor(name) {
+      var str = String(name || '');
+      var hash = 0;
+      for (var i = 0; i < str.length; i++) { hash = (hash * 31 + str.charCodeAt(i)) >>> 0; }
+      return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+    }
+    function initialsFor(name) {
+      var n = String(name || '').trim();
+      if (!n) return '?';
+      var parts = n.split(/\s+/).filter(Boolean);
+      var letters = (parts[0] ? parts[0][0] : '') + (parts[1] ? parts[1][0] : '');
+      return (letters || n[0] || '?').toUpperCase();
+    }
+
     function renderVoteRow(node) {
       var likeCount = node.data.likeCount || 0;
       var dislikeCount = node.data.dislikeCount || 0;
@@ -295,15 +310,19 @@
       var isLong = text.length > COMMENT_CLAMP_LENGTH;
       var textClass = 'blog-comment-text' + (isLong ? ' is-clamped' : '');
       var moreBtn = isLong ? '<button type="button" class="blog-comment-more">Ko‘proq o‘qish</button>' : '';
+      var name = node.data.name || 'Anonim';
       return '<div class="blog-comment-item' + (isReply ? ' is-reply' : '') + '">' +
-        '<div class="blog-comment-item-head">' +
-          '<span class="blog-comment-author">' + escapeHtml(node.data.name || 'Anonim') + '</span>' +
-          '<span class="blog-comment-date">' + formatDate(node.data.createdAt) + '</span>' +
+        '<div class="blog-comment-avatar" style="background:' + avatarColorFor(name) + ';">' + escapeHtml(initialsFor(name)) + '</div>' +
+        '<div class="blog-comment-body">' +
+          '<div class="blog-comment-item-head">' +
+            '<span class="blog-comment-author">' + escapeHtml(name) + '</span>' +
+            '<span class="blog-comment-date">' + formatDate(node.data.createdAt) + '</span>' +
+          '</div>' +
+          '<p class="' + textClass + '">' + escapeHtml(text) + '</p>' +
+          moreBtn +
+          renderVoteRow(node) +
+          renderReplyForm(node) +
         '</div>' +
-        '<p class="' + textClass + '">' + escapeHtml(text) + '</p>' +
-        moreBtn +
-        renderVoteRow(node) +
-        renderReplyForm(node) +
         '</div>';
     }
 
