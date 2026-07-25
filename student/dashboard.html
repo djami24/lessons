@@ -232,23 +232,31 @@
     <!-- ===== PAYMENT GATE (General English, not approved yet) ===== -->
     <!-- ===== SO'Z O'YINI (vocabulary game) ===== -->
     <section id="view-word-game" hidden>
-      <a href="#" id="backToHomeFromWordGame" class="back-link">← Bosh sahifaga</a>
+      <a href="#" id="wgBackLink" class="back-link">← Bosh sahifaga</a>
 
-      <div id="wgIntroBox">
+      <!-- STEP 1: level select -->
+      <div id="wgLevelBox">
         <div class="admin-header">
           <div>
             <h1>🎮 So‘z o‘yini</h1>
-            <p>Ingliz tili so‘zini o‘qing va to‘g‘ri tarjimasini tanlang. Har bir o‘yin 10 ta savoldan iborat.</p>
+            <p>Darajangizni tanlang. Har darajada 5 ta o‘yin bor, har birida 20 tadan yangi so‘z.</p>
           </div>
         </div>
-        <div class="placement-intro-box">
-          <p id="wgBestScoreText" style="font-weight:700;"></p>
-          <div style="display:flex; gap:.8em; flex-wrap:wrap; margin-top:.6em;">
-            <button type="button" class="btn btn-amber" id="wgStartBtn">▶️ Boshlash</button>
-          </div>
-        </div>
+        <div class="home-menu-grid" id="wgLevelGrid"></div>
       </div>
 
+      <!-- STEP 2: game select (within the chosen level) -->
+      <div id="wgGameListBox" hidden>
+        <div class="admin-header">
+          <div>
+            <h1 id="wgLevelTitle"></h1>
+            <p>O‘ynamoqchi bo‘lgan o‘yinni tanlang.</p>
+          </div>
+        </div>
+        <div class="home-menu-grid" id="wgGameGrid"></div>
+      </div>
+
+      <!-- STEP 3: play -->
       <div class="quiz-box" id="wgPlayBox" hidden>
         <p class="quiz-progress" id="wgProgress"></p>
         <div class="latest-hw-box" style="text-align:center; padding:1.6em 1em;">
@@ -258,6 +266,7 @@
         <div class="quiz-options" id="wgOptions" style="margin-top:1.1em;"></div>
       </div>
 
+      <!-- STEP 4: result -->
       <div class="quiz-result-box" id="wgResultBox" hidden></div>
     </section>
 
@@ -2620,23 +2629,187 @@ async function sendChatMessage(){
 }
 
 // ===== SO'Z O'YINI (vocabulary game) =====
+// Levels -> 5 games each -> 20 unique English/Uzbek word pairs each
+// (100 unique words per level, no repeats within a level).
 
-const WG_WORDS = [
-  ['apple','olma'], ['book','kitob'], ['water','suv'], ['friend','do‘st'],
-  ['house','uy'], ['school','maktab'], ['teacher','o‘qituvchi'], ['student','talaba'],
-  ['happy','baxtli'], ['sad','xafa'], ['big','katta'], ['small','kichik'],
-  ['fast','tez'], ['slow','sekin'], ['beautiful','chiroyli'], ['strong','kuchli'],
-  ['weather','ob-havo'], ['morning','ertalab'], ['evening','kechqurun'], ['night','tun'],
-  ['family','oila'], ['mother','ona'], ['father','ota'], ['sister','opa-singil'],
-  ['brother','aka-uka'], ['work','ish'], ['money','pul'], ['time','vaqt'],
-  ['food','ovqat'], ['bread','non'], ['milk','sut'], ['tea','choy'],
-  ['city','shahar'], ['village','qishloq'], ['road','yo‘l'], ['car','mashina'],
-  ['travel','sayohat'], ['language','til'], ['question','savol'], ['answer','javob'],
-  ['idea','g‘oya'], ['dream','orzu'], ['future','kelajak'], ['past','o‘tmish'],
-  ['important','muhim'], ['difficult','qiyin'], ['easy','oson'], ['interesting','qiziqarli'],
-  ['color','rang'], ['light','yorug‘lik'], ['dark','qorong‘i'], ['week','hafta']
-];
+const WG_DATA = {
+  beginner: {
+    label: 'Beginner',
+    icon: '🌱',
+    color: '#2F6FED',
+    games: [
+      [ // Game 1 — Oila va odamlar
+        ['mother','ona'], ['father','ota'], ['sister','opa-singil'], ['brother','aka-uka'],
+        ['family','oila'], ['friend','do‘st'], ['boy','o‘g‘il bola'], ['girl','qiz bola'],
+        ['man','erkak'], ['woman','ayol'], ['child','bola'], ['baby','chaqaloq'],
+        ['name','ism'], ['teacher','o‘qituvchi'], ['student','talaba'], ['people','odamlar'],
+        ['husband','er'], ['wife','xotin'], ['son','o‘g‘il'], ['daughter','qiz']
+      ],
+      [ // Game 2 — Kundalik buyumlar
+        ['book','kitob'], ['pen','ruchka'], ['table','stol'], ['chair','stul'],
+        ['door','eshik'], ['window','deraza'], ['house','uy'], ['room','xona'],
+        ['bed','karavot'], ['phone','telefon'], ['key','kalit'], ['bag','sumka'],
+        ['clock','soat'], ['box','quti'], ['cup','piyola'], ['plate','likopcha'],
+        ['spoon','qoshiq'], ['fork','vilka'], ['knife','pichoq'], ['mirror','oyna']
+      ],
+      [ // Game 3 — Ovqat va ichimlik
+        ['apple','olma'], ['banana','banan'], ['bread','non'], ['water','suv'],
+        ['milk','sut'], ['tea','choy'], ['coffee','qahva'], ['rice','guruch'],
+        ['meat','go‘sht'], ['fish','baliq'], ['egg','tuxum'], ['cheese','pishloq'],
+        ['sugar','shakar'], ['salt','tuz'], ['soup','sho‘rva'], ['juice','sharbat'],
+        ['fruit','meva'], ['vegetable','sabzavot'], ['cake','tort'], ['chicken','tovuq']
+      ],
+      [ // Game 4 — Ranglar va tana a'zolari
+        ['red','qizil'], ['blue','ko‘k'], ['green','yashil'], ['yellow','sariq'],
+        ['black','qora'], ['white','oq'], ['orange','to‘q sariq'], ['pink','pushti'],
+        ['brown','jigarrang'], ['purple','binafsha'], ['head','bosh'], ['hand','qo‘l'],
+        ['eye','ko‘z'], ['ear','quloq'], ['nose','burun'], ['mouth','og‘iz'],
+        ['leg','oyoq'], ['foot','panja'], ['hair','soch'], ['finger','barmoq']
+      ],
+      [ // Game 5 — Oddiy fe'llar
+        ['go','bormoq'], ['come','kelmoq'], ['eat','yemoq'], ['drink','ichmoq'],
+        ['sleep','uxlamoq'], ['run','yugurmoq'], ['walk','yurmoq'], ['read','o‘qimoq'],
+        ['write','yozmoq'], ['speak','gapirmoq'], ['listen','eshitmoq'], ['look','qaramoq'],
+        ['play','o‘ynamoq'], ['work','ishlamoq'], ['study','o‘rganmoq'], ['sing','qo‘shiq aytmoq'],
+        ['dance','raqsga tushmoq'], ['swim','suzmoq'], ['cook','ovqat pishirmoq'], ['clean','tozalamoq']
+      ]
+    ]
+  },
 
+  elementary: {
+    label: 'Elementary',
+    icon: '📗',
+    color: '#1FAE7A',
+    games: [
+      [ // Game 1 — Kundalik hayot
+        ['breakfast','nonushta'], ['lunch','tushlik'], ['dinner','kechki ovqat'], ['morning','ertalab'],
+        ['afternoon','tushdan keyin'], ['evening','kechqurun'], ['alarm','budilnik'], ['schedule','jadval'],
+        ['weekend','dam olish kunlari'], ['holiday','bayram'], ['appointment','uchrashuv'], ['routine','kundalik tartib'],
+        ['shower','dush'], ['kitchen','oshxona'], ['garden','bog‘'], ['neighbor','qo‘shni'],
+        ['address','manzil'], ['message','xabar'], ['invitation','taklifnoma'], ['party','ziyofat']
+      ],
+      [ // Game 2 — Kasblar va joylar
+        ['doctor','shifokor'], ['engineer','muhandis'], ['driver','haydovchi'], ['farmer','dehqon'],
+        ['nurse','hamshira'], ['police','politsiya'], ['shop','do‘kon'], ['market','bozor'],
+        ['hospital','kasalxona'], ['airport','aeroport'], ['station','vokzal'], ['bank','bank'],
+        ['restaurant','restoran'], ['hotel','mehmonxona'], ['library','kutubxona'], ['museum','muzey'],
+        ['park','park'], ['church','cherkov'], ['mosque','masjid'], ['factory','zavod']
+      ],
+      [ // Game 3 — Sifatlar (his-tuyg'u va holat)
+        ['happy','baxtli'], ['sad','xafa'], ['angry','jahldor'], ['tired','charchagan'],
+        ['hungry','och'], ['thirsty','chanqagan'], ['bored','zerikkan'], ['excited','hayajonlangan'],
+        ['nervous','asabiylashgan'], ['proud','faxrlanuvchi'], ['worried','xavotirlangan'], ['surprised','hayron'],
+        ['confused','chalkashgan'], ['comfortable','qulay'], ['dangerous','xavfli'], ['expensive','qimmat'],
+        ['cheap','arzon'], ['crowded','gavjum'], ['quiet','jim'], ['noisy','shovqinli']
+      ],
+      [ // Game 4 — Ob-havo va tabiat
+        ['sun','quyosh'], ['moon','oy'], ['star','yulduz'], ['sky','osmon'],
+        ['cloud','bulut'], ['rain','yomg‘ir'], ['snow','qor'], ['wind','shamol'],
+        ['storm','bo‘ron'], ['season','fasl'], ['spring','bahor'], ['summer','yoz'],
+        ['autumn','kuz'], ['winter','qish'], ['mountain','tog‘'], ['river','daryo'],
+        ['sea','dengiz'], ['forest','o‘rmon'], ['desert','cho‘l'], ['island','orol']
+      ],
+      [ // Game 5 — Xarid va pul
+        ['price','narx'], ['discount','chegirma'], ['receipt','chek'], ['customer','mijoz'],
+        ['seller','sotuvchi'], ['wallet','hamyon'], ['coin','tanga'], ['cash','naqd pul'],
+        ['size','o‘lcham'], ['quality','sifat'], ['brand','brend'], ['store','do‘kon'],
+        ['mall','savdo markazi'], ['bargain','arzon xarid'], ['sale','sotuv'], ['item','buyum'],
+        ['bill','hisob'], ['change','qaytim'], ['budget','byudjet'], ['shopping','xarid qilish']
+      ]
+    ]
+  },
+
+  preint: {
+    label: 'Pre-Intermediate',
+    icon: '📘',
+    color: '#7C5CFC',
+    games: [
+      [ // Game 1 — His-tuyg'u va munosabatlar
+        ['relationship','munosabat'], ['trust','ishonch'], ['honest','halol'], ['jealous','hasadgo‘y'],
+        ['lonely','yolg‘iz'], ['sympathy','hamdardlik'], ['gratitude','minnatdorchilik'], ['forgive','kechirmoq'],
+        ['argument','bahs'], ['compromise','murosaga kelish'], ['apologize','uzr so‘ramoq'], ['comfort','taskin'],
+        ['support','qo‘llab-quvvatlash'], ['encourage','rag‘batlantirmoq'], ['disappoint','ko‘nglini qoldirmoq'], ['embarrass','xijolat qilmoq'],
+        ['regret','afsuslanmoq'], ['admire','qoyil qolmoq'], ['respect','hurmat qilmoq'], ['appreciate','qadrlamoq']
+      ],
+      [ // Game 2 — Sayohat va transport
+        ['journey','sayohat'], ['destination','borish joyi'], ['luggage','yuk'], ['passport','pasport'],
+        ['visa','viza'], ['itinerary','sayohat rejasi'], ['delay','kechikish'], ['boarding','bortga chiqish'],
+        ['departure','jo‘nash'], ['arrival','kelish'], ['customs','bojxona'], ['tourist','sayyoh'],
+        ['accommodation','turar joy'], ['reservation','band qilish'], ['transfer','ko‘chirish'], ['route','marshrut'],
+        ['ticket','chipta'], ['platform','platforma'], ['terminal','terminal'], ['voyage','dengiz sayohati']
+      ],
+      [ // Game 3 — Texnologiya
+        ['device','qurilma'], ['software','dastur'], ['application','ilova'], ['download','yuklab olish'],
+        ['upload','yuklash'], ['password','parol'], ['network','tarmoq'], ['internet','internet'],
+        ['browser','brauzer'], ['screen','ekran'], ['keyboard','klaviatura'], ['battery','batareya'],
+        ['charger','zaryadlovchi'], ['wireless','simsiz'], ['update','yangilash'], ['storage','xotira'],
+        ['virus','virus'], ['backup','zaxira nusxa'], ['website','veb-sayt'], ['connection','ulanish']
+      ],
+      [ // Game 4 — Salomatlik
+        ['symptom','alomat'], ['illness','kasallik'], ['treatment','davolash'], ['medicine','dori'],
+        ['injury','jarohat'], ['recovery','sog‘ayish'], ['exercise','mashq'], ['diet','parhez'],
+        ['nutrition','oziqlanish'], ['surgery','operatsiya'], ['prescription','retsept'], ['therapy','terapiya'],
+        ['allergy','allergiya'], ['infection','infeksiya'], ['vaccine','vaksina'], ['pulse','puls'],
+        ['fever','isitma'], ['diagnosis','tashxis'], ['checkup','tibbiy ko‘rik'], ['hospital','kasalxona']
+      ],
+      [ // Game 5 — Atrof-muhit va jamiyat
+        ['pollution','ifloslanish'], ['recycling','qayta ishlash'], ['climate','iqlim'], ['community','hamjamiyat'],
+        ['poverty','qashshoqlik'], ['population','aholi'], ['government','hukumat'], ['election','saylov'],
+        ['tradition','an’ana'], ['culture','madaniyat'], ['generation','avlod'], ['immigration','ko‘chib kelish'],
+        ['opportunity','imkoniyat'], ['education','ta’lim'], ['unemployment','ishsizlik'], ['charity','xayriya'],
+        ['volunteer','ko‘ngilli'], ['equality','tenglik'], ['diversity','xilma-xillik'], ['awareness','xabardorlik']
+      ]
+    ]
+  },
+
+  ielts: {
+    label: 'IELTS',
+    icon: '🎓',
+    color: '#F0923D',
+    games: [
+      [ // Game 1 — Akademik fe'llar
+        ['analyze','tahlil qilmoq'], ['evaluate','baholamoq'], ['indicate','ko‘rsatmoq'], ['demonstrate','namoyish etmoq'],
+        ['emphasize','urg‘u bermoq'], ['illustrate','misol bilan tushuntirmoq'], ['contribute','hissa qo‘shmoq'], ['establish','tashkil etmoq'],
+        ['acquire','egallamoq'], ['achieve','erishmoq'], ['assume','taxmin qilmoq'], ['determine','aniqlamoq'],
+        ['examine','tekshirmoq'], ['identify','tanimoq'], ['implement','amalga oshirmoq'], ['interpret','talqin qilmoq'],
+        ['justify','asoslamoq'], ['maintain','saqlab turmoq'], ['obtain','qo‘lga kiritmoq'], ['perceive','idrok etmoq']
+      ],
+      [ // Game 2 — Akademik otlar
+        ['hypothesis','gipoteza'], ['methodology','metodologiya'], ['evidence','dalil'], ['criterion','mezon'],
+        ['phenomenon','hodisa'], ['statistic','statistika'], ['correlation','o‘zaro bog‘liqlik'], ['variable','o‘zgaruvchi'],
+        ['framework','asos'], ['perspective','nuqtai nazar'], ['assumption','faraz'], ['implication','yashirin ma’no'],
+        ['conclusion','xulosa'], ['argument','fikr-mulohaza'], ['consequence','oqibat'], ['significance','ahamiyat'],
+        ['tendency','moyillik'], ['proportion','nisbat'], ['factor','omil'], ['aspect','jihat']
+      ],
+      [ // Game 3 — Rasmiy sifatlar
+        ['significant','muhim'], ['substantial','salmoqli'], ['considerable','sezilarli'], ['inevitable','muqarrar'],
+        ['controversial','bahsli'], ['ambiguous','noaniq'], ['comprehensive','keng qamrovli'], ['consistent','izchil'],
+        ['sufficient','yetarli'], ['plausible','ishonarli'], ['arbitrary','asossiz'], ['coherent','mantiqiy bog‘liq'],
+        ['explicit','ochiq-oydin'], ['implicit','yashirin'], ['feasible','amalga oshirish mumkin'], ['rigorous','qat’iy'],
+        ['subjective','subyektiv'], ['objective','obyektiv'], ['prevalent','keng tarqalgan'], ['redundant','ortiqcha']
+      ],
+      [ // Game 4 — Iqtisodiyot va jamiyat
+        ['economy','iqtisodiyot'], ['inflation','inflatsiya'], ['investment','investitsiya'], ['revenue','daromad'],
+        ['taxation','soliqqa tortish'], ['unemployment','ishsizlik'], ['infrastructure','infratuzilma'], ['globalization','globallashuv'],
+        ['sustainability','barqarorlik'], ['welfare','farovonlik'], ['regulation','tartibga solish'], ['subsidy','subsidiya'],
+        ['deficit','kamomad'], ['competitive','raqobatbardosh'], ['monopoly','monopoliya'], ['consumption','iste’mol'],
+        ['productivity','unumdorlik'], ['workforce','ishchi kuchi'], ['enterprise','korxona'], ['trade','savdo']
+      ],
+      [ // Game 5 — Atrof-muhit va fan
+        ['ecosystem','ekotizim'], ['biodiversity','biologik xilma-xillik'], ['renewable','qayta tiklanuvchi'], ['emission','gaz chiqindisi'],
+        ['deforestation','o‘rmonlarni yo‘q qilish'], ['conservation','muhofaza qilish'], ['extinction','yo‘q bo‘lib ketish'], ['drought','qurg‘oqchilik'],
+        ['contamination','ifloslanish'], ['degradation','yemirilish'], ['mitigation','yumshatish'], ['ecological','ekologik'],
+        ['agricultural','qishloq xo‘jaligiga oid'], ['irrigation','sug‘orish'], ['genetic','genetik'], ['organism','organizm'],
+        ['habitat','yashash muhiti'], ['pesticide','pestitsid'], ['greenhouse','issiqxona'], ['atmosphere','atmosfera']
+      ]
+    ]
+  }
+};
+
+const WG_LEVEL_ORDER = ['beginner', 'elementary', 'preint', 'ielts'];
+
+let wgCurrentLevel = null;
+let wgCurrentGameIndex = null;
 let wgQuestions = [];
 let wgIndex = 0;
 let wgScore = 0;
@@ -2651,38 +2824,105 @@ function wgShuffle(arr){
   return a;
 }
 
-function wgBestScoreKey(){
-  return 'efWordGameBest_' + currentUid;
+function wgScoreKey(levelId, gameIndex){
+  return 'efWordGameBest_' + currentUid + '_' + levelId + '_' + gameIndex;
 }
 
-function wgShowIntro(){
-  document.getElementById('wgIntroBox').hidden = false;
+function wgHideAllBoxes(){
+  document.getElementById('wgLevelBox').hidden = true;
+  document.getElementById('wgGameListBox').hidden = true;
   document.getElementById('wgPlayBox').hidden = true;
   document.getElementById('wgResultBox').hidden = true;
-  const best = localStorage.getItem(wgBestScoreKey());
-  document.getElementById('wgBestScoreText').textContent = best
-    ? ('🏆 Eng yaxshi natijangiz: ' + best + ' / 10')
-    : 'Hali o‘ynamagansiz — birinchi urinishni sinab ko‘ring!';
 }
 
-function wgStart(){
-  wgQuestions = wgShuffle(WG_WORDS).slice(0, 10);
+// ---- STEP 1: level select ----
+
+function wgShowLevels(){
+  wgHideAllBoxes();
+  document.getElementById('wgLevelBox').hidden = false;
+  wgCurrentLevel = null;
+  wgCurrentGameIndex = null;
+
+  const grid = document.getElementById('wgLevelGrid');
+  grid.innerHTML = '';
+  WG_LEVEL_ORDER.forEach(levelId => {
+    const level = WG_DATA[levelId];
+    const card = document.createElement('a');
+    card.href = '#';
+    card.className = 'home-menu-card';
+    card.innerHTML = `
+      <div class="home-menu-top">
+        <span class="home-menu-icon" style="background:${level.color}22; color:${level.color};">${level.icon}</span>
+        <span class="home-menu-arrow">→</span>
+      </div>
+      <h3 class="home-menu-title">${level.label}</h3>
+      <p class="home-menu-desc">5 ta o‘yin · har birida 20 ta so‘z</p>
+    `;
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      wgShowGames(levelId);
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ---- STEP 2: game select (within a level) ----
+
+function wgShowGames(levelId){
+  wgHideAllBoxes();
+  document.getElementById('wgGameListBox').hidden = false;
+  wgCurrentLevel = levelId;
+  wgCurrentGameIndex = null;
+
+  const level = WG_DATA[levelId];
+  document.getElementById('wgLevelTitle').textContent = level.icon + ' ' + level.label;
+
+  const grid = document.getElementById('wgGameGrid');
+  grid.innerHTML = '';
+  level.games.forEach((words, i) => {
+    const best = localStorage.getItem(wgScoreKey(levelId, i));
+    const card = document.createElement('a');
+    card.href = '#';
+    card.className = 'home-menu-card';
+    card.innerHTML = `
+      <div class="home-menu-top">
+        <span class="home-menu-icon" style="background:${level.color}22; color:${level.color};">${i + 1}</span>
+        <span class="home-menu-arrow">→</span>
+      </div>
+      <h3 class="home-menu-title">O‘yin ${i + 1}</h3>
+      <p class="home-menu-desc">${best ? ('🏆 Eng yaxshi natija: ' + best + ' / ' + words.length) : (words.length + ' ta so‘z')}</p>
+    `;
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      wgStart(levelId, i);
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ---- STEP 3: play ----
+
+function wgStart(levelId, gameIndex){
+  wgHideAllBoxes();
+  document.getElementById('wgPlayBox').hidden = false;
+
+  wgCurrentLevel = levelId;
+  wgCurrentGameIndex = gameIndex;
+  wgQuestions = wgShuffle(WG_DATA[levelId].games[gameIndex]);
   wgIndex = 0;
   wgScore = 0;
-  document.getElementById('wgIntroBox').hidden = true;
-  document.getElementById('wgResultBox').hidden = true;
-  document.getElementById('wgPlayBox').hidden = false;
   wgRenderQuestion();
 }
 
 function wgRenderQuestion(){
   wgAnswered = false;
+  const allWords = WG_DATA[wgCurrentLevel].games[wgCurrentGameIndex];
   const [word, correct] = wgQuestions[wgIndex];
   document.getElementById('wgProgress').textContent =
     'Savol ' + (wgIndex + 1) + ' / ' + wgQuestions.length + '   ·   Ball: ' + wgScore;
   document.getElementById('wgWord').textContent = word;
 
-  const others = wgShuffle(WG_WORDS.filter(w => w[1] !== correct)).slice(0, 3).map(w => w[1]);
+  const others = wgShuffle(allWords.filter(w => w[1] !== correct)).slice(0, 3).map(w => w[1]);
   const options = wgShuffle([correct, ...others]);
 
   const box = document.getElementById('wgOptions');
@@ -2721,46 +2961,78 @@ function wgSelectAnswer(btn, chosen, correct){
   }, 900);
 }
 
+// ---- STEP 4: result ----
+
 function wgShowResult(){
   document.getElementById('wgPlayBox').hidden = true;
   const box = document.getElementById('wgResultBox');
   box.hidden = false;
 
-  const key = wgBestScoreKey();
+  const key = wgScoreKey(wgCurrentLevel, wgCurrentGameIndex);
   const prevBest = parseInt(localStorage.getItem(key) || '0', 10);
   const isNewBest = wgScore > prevBest;
   if(isNewBest) localStorage.setItem(key, String(wgScore));
 
+  const pct = wgScore / wgQuestions.length;
   let msg = '';
-  if(wgScore >= 9) msg = 'Zo‘r natija! 🎉';
-  else if(wgScore >= 6) msg = 'Yaxshi natija! 👍';
+  if(pct >= 0.9) msg = 'Zo‘r natija! 🎉';
+  else if(pct >= 0.6) msg = 'Yaxshi natija! 👍';
   else msg = 'Yana urinib ko‘ring — mashq qilaversangiz yaxshilanadi.';
 
+  const level = WG_DATA[wgCurrentLevel];
+  const hasNextGame = wgCurrentGameIndex < level.games.length - 1;
+
   box.innerHTML =
-    '<p class="eyebrow">Natija</p>' +
+    '<p class="eyebrow">Natija — ' + level.label + ' · O‘yin ' + (wgCurrentGameIndex + 1) + '</p>' +
     '<div class="quiz-result-score" style="font-size:2rem; display:inline-block; padding:.2em .7em; border-radius:10px; margin:.3em 0 .5em; background:rgba(46,111,110,.1); color:var(--teal-deep);">' + wgScore + ' / ' + wgQuestions.length + '</div>' +
     '<p style="font-weight:700; font-size:1.05rem;">' + msg + (isNewBest ? ' 🏆 Yangi rekord!' : '') + '</p>' +
     '<div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:1em;">' +
-      '<button type="button" class="btn btn-amber" id="wgPlayAgainBtn">🔁 Yana o‘ynash</button>' +
-      '<button type="button" class="btn btn-ghost" id="wgBackHomeBtn">← Bosh sahifaga</button>' +
+      '<button type="button" class="btn btn-amber" id="wgRetryBtn">🔁 Qayta o‘ynash</button>' +
+      (hasNextGame ? '<button type="button" class="btn btn-amber" id="wgNextGameBtn">➡️ Keyingi o‘yin</button>' : '') +
+      '<button type="button" class="btn btn-ghost" id="wgBackToGamesBtn">← O‘yinlar ro‘yxati</button>' +
     '</div>';
 
-  document.getElementById('wgPlayAgainBtn').addEventListener('click', wgStart);
-  document.getElementById('wgBackHomeBtn').addEventListener('click', renderHomeView);
+  document.getElementById('wgRetryBtn').addEventListener('click', () => wgStart(wgCurrentLevel, wgCurrentGameIndex));
+  if(hasNextGame){
+    document.getElementById('wgNextGameBtn').addEventListener('click', () => wgStart(wgCurrentLevel, wgCurrentGameIndex + 1));
+  }
+  document.getElementById('wgBackToGamesBtn').addEventListener('click', () => wgShowGames(wgCurrentLevel));
 }
+
+// ---- Navigation into / out of the game, and the shared back link ----
 
 document.getElementById('navWordGame').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('word-game');
-  wgShowIntro();
+  wgShowLevels();
 });
 
-document.getElementById('backToHomeFromWordGame').addEventListener('click', (e) => {
+document.getElementById('wgBackLink').addEventListener('click', (e) => {
   e.preventDefault();
-  renderHomeView();
+  const onGames = !document.getElementById('wgGameListBox').hidden;
+  const onPlay = !document.getElementById('wgPlayBox').hidden;
+  if(onPlay){
+    wgShowGames(wgCurrentLevel);
+  } else if(onGames){
+    wgShowLevels();
+  } else {
+    renderHomeView();
+  }
 });
 
-document.getElementById('wgStartBtn').addEventListener('click', wgStart);
+// Admin can temporarily hide the "So'z o'yini" card from the site settings
+// panel — checked once on load and applied to the home menu card.
+async function wgApplyVisibilitySetting(){
+  try{
+    const doc = await db.collection('settings').doc('site').get();
+    const enabled = doc.exists ? (doc.data().wordGameEnabled !== false) : true;
+    document.getElementById('navWordGame').style.display = enabled ? '' : 'none';
+  } catch(err){
+    // Firestore unreachable — leave the card visible rather than hide a
+    // working feature because of a transient network error.
+  }
+}
+wgApplyVisibilitySetting();
 
 </script>
 </body>
