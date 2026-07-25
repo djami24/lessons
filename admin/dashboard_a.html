@@ -310,6 +310,14 @@
           </div>
         </div>
 
+        <div class="field">
+          <span>Footer so‘zlari rangi <span style="font-weight:400; color:var(--gray);">(footerdagi matn va havolalar rangi)</span></span>
+          <div style="display:flex; align-items:center; gap:1em;">
+            <input type="color" id="settingFooterTextColor" value="#F7F7F3" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
+            <span style="font-family:var(--font-mono); font-size:.85rem; color:var(--gray);" id="settingFooterTextColorLabel">#F7F7F3</span>
+          </div>
+        </div>
+
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>🏷️ Brend</h3>
 
@@ -3153,6 +3161,7 @@ const DEFAULT_SITE_SETTINGS = {
   colorBackground: '#FFFFFF',
   colorDark: '#14213D',
   footerBgColor: '#14213D',
+  footerTextColor: '#F7F7F3',
   buttonColor: '#D98E3F',
   brandName: 'Djami Lessons',
   logoUrl: '',
@@ -3215,6 +3224,8 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingColorDarkLabel').textContent = data.colorDark;
   document.getElementById('settingFooterBgColor').value = data.footerBgColor || data.colorDark || '#14213D';
   document.getElementById('settingFooterBgColorLabel').textContent = (data.footerBgColor || data.colorDark || '#14213D').toUpperCase();
+  document.getElementById('settingFooterTextColor').value = data.footerTextColor || '#F7F7F3';
+  document.getElementById('settingFooterTextColorLabel').textContent = (data.footerTextColor || '#F7F7F3').toUpperCase();
   document.getElementById('settingButtonColor').value = data.buttonColor;
   document.getElementById('settingButtonColorLabel').textContent = data.buttonColor;
   document.getElementById('settingBrandName').value = data.brandName || '';
@@ -3333,7 +3344,7 @@ function renderRatingStats(sum, count){
   `;
 }
 
-['settingColorPrimary', 'settingColorAccent', 'settingColorBackground', 'settingColorDark', 'settingButtonColor', 'settingFooterBgColor'].forEach(id => {
+['settingColorPrimary', 'settingColorAccent', 'settingColorBackground', 'settingColorDark', 'settingButtonColor', 'settingFooterBgColor', 'settingFooterTextColor'].forEach(id => {
   document.getElementById(id).addEventListener('input', (e) => {
     document.getElementById(id + 'Label').textContent = e.target.value.toUpperCase();
   });
@@ -3362,6 +3373,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     colorBackground: document.getElementById('settingColorBackground').value,
     colorDark: document.getElementById('settingColorDark').value,
     footerBgColor: document.getElementById('settingFooterBgColor').value,
+    footerTextColor: document.getElementById('settingFooterTextColor').value,
     buttonColor: document.getElementById('settingButtonColor').value,
     brandName: document.getElementById('settingBrandName').value.trim() || 'Djami Lessons',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
