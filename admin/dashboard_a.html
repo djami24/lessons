@@ -3787,8 +3787,17 @@ function renderGbGroupTable(group){
       const student = gbData.students.find(x => x.id === inp.dataset.student);
       if(!student) return;
       if(!student.scores) student.scores = {};
-      if(inp.value === ''){ delete student.scores[inp.dataset.unit]; }
-      else { student.scores[inp.dataset.unit] = Math.max(0, Math.min(100, Number(inp.value))); }
+      if(!student.scoreTimestamps) student.scoreTimestamps = {};
+      if(inp.value === ''){
+        delete student.scores[inp.dataset.unit];
+        delete student.scoreTimestamps[inp.dataset.unit];
+      } else {
+        student.scores[inp.dataset.unit] = Math.max(0, Math.min(100, Number(inp.value)));
+        // Stamp the moment this score was entered/edited, so the student's
+        // profile page can show whichever unit was most recently graded —
+        // not just whichever unit happens to be last in the units list.
+        student.scoreTimestamps[inp.dataset.unit] = Date.now();
+      }
     });
   });
 
