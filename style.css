@@ -10,6 +10,7 @@
   --ink:        #14213D;
   --ink-soft:   #253559;
   --dark-bg:    #14213D;
+  --footer-bg:  var(--dark-bg);
   --paper:      #FFFFFF;
   --paper-2:    #F4F5F7;
   --paper-3:    #E9EAED;
@@ -909,13 +910,13 @@ table.data-table td .tag{ margin-right:.3em; }
    SITE FOOTER — brand / links / contact / rating, shared across
    the public pages (index, blog, blogs).
    ============================================================ */
-.site-footer{ background: var(--dark-bg); color: rgba(247,247,243,.75); margin-top: 5em; padding: 3.6em 1.5em 0; }
+.site-footer{ background: var(--footer-bg); color: rgba(247,247,243,.75); margin-top: 5em; padding: 3.6em 1.5em 0; }
 .site-footer-inner{ max-width: 1080px; margin: 0 auto; display:flex; flex-direction:column; gap: 2.6em; }
 .site-footer-top{ display:flex; flex-wrap:wrap; justify-content:space-between; gap: 2.6em 3.5em; }
 
 .site-footer-brand{ display:flex; flex-direction:column; gap:.9em; max-width: 320px; }
 .site-footer-brand-row{ display:flex; align-items:center; gap:.6em; }
-.site-footer-brand-row img{ width:32px; height:32px; border-radius:8px; object-fit:cover; }
+.site-footer-brand-row .brand-mark-logo{ background: transparent !important; padding: 0; }
 .site-footer-brand-name{ font-family: var(--font-display); font-weight:700; font-size:1.15rem; color: var(--paper); }
 .site-footer-tagline{ font-size:.88rem; line-height:1.65; margin:0; color: rgba(247,247,243,.6); }
 
@@ -924,16 +925,34 @@ table.data-table td .tag{ margin-right:.3em; }
 .site-footer-col a{ display:block; color: rgba(247,247,243,.72); text-decoration:none; font-size:.9rem; margin-bottom:.75em; transition: color .15s var(--ease); }
 .site-footer-col a:hover{ color: var(--amber); }
 
-.site-footer-rating-wrap{ display:flex; justify-content:center; }
-.site-footer-rating-wrap .home-rating-box{ margin-top:0; }
+.site-footer-rating-wrap{ display:flex; justify-content:flex-start; }
+.site-footer-rating-wrap .home-rating-box{
+  background: none; border: none; box-shadow: none; padding: 0; margin-top: 0;
+  max-width: 340px; align-items: flex-start; text-align: left; gap: .7em;
+}
+.site-footer-rating-wrap .rating-summary{ align-items:flex-start; }
+.site-footer-rating-wrap .rating-stars-display{ font-size: 1.15rem; }
+.site-footer-rating-wrap .rating-summary-text{ color: rgba(247,247,243,.55); font-size:.82rem; }
+.site-footer-rating-wrap .rating-input{
+  align-items:flex-start; border-top-color: rgba(247,247,243,.16); padding-top:.8em; gap:.5em;
+}
+.site-footer-rating-wrap .rating-input-label{ color: var(--paper); font-size:.85rem; }
+.site-footer-rating-wrap .rating-stars-input{ gap:.15em; }
+.site-footer-rating-wrap .rating-star-btn{ font-size: 1.4rem; color: rgba(247,247,243,.28); }
+.site-footer-rating-wrap .rating-star-btn:hover, .site-footer-rating-wrap .rating-star-btn.is-hovered{ color: var(--amber); }
+.site-footer-rating-wrap .rating-thanks{ color: var(--amber); font-size:.82rem; }
 
 .site-footer-bottom{
   border-top: 1px solid rgba(247,247,243,.14); padding: 1.5em 0 2.2em;
-  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.8em;
+  display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:.8em;
   font-size:.82rem; color: rgba(247,247,243,.5);
 }
 .site-footer-bottom a{ color: rgba(247,247,243,.6); text-decoration:none; font-family: var(--font-mono); }
 .site-footer-bottom a:hover{ color: var(--amber); }
+
+@media (max-width: 640px){
+  .site-footer-rating-wrap .home-rating-box{ padding:0; }
+}
 
 @media (max-width: 700px){
   .site-footer-top{ flex-direction:column; gap: 2.2em; }

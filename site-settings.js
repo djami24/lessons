@@ -70,6 +70,20 @@
     });
   }
 
+  // Updates both the visible text and the href of a footer contact link
+  // (phone / telegram), since these carry real link targets, not just text.
+  // Keeps whatever leading icon/emoji is already in the markup.
+  function applyFooterContact(selector, value, hrefBuilder){
+    if(!value) return;
+    document.querySelectorAll(selector).forEach(el => {
+      const iconMatch = el.textContent.match(/^(\S+\s)/);
+      const icon = iconMatch ? iconMatch[1] : '';
+      el.textContent = icon + value;
+      const href = hrefBuilder(value);
+      if(href) el.setAttribute('href', href);
+    });
+  }
+
   function applySettings(data){
     if(!data) return;
     const root = document.documentElement.style;
@@ -88,6 +102,9 @@
     }
     if(data.colorDark){
       root.setProperty('--dark-bg', data.colorDark);
+    }
+    if(data.footerBgColor){
+      root.setProperty('--footer-bg', data.footerBgColor);
     }
     if(data.buttonColor){
       root.setProperty('--btn-color', data.buttonColor);
@@ -123,6 +140,9 @@
 
     // ---- Footer (present on every page) ----
     setText('[data-site-footer-copyright]', data.footerCopyright);
+    setText('[data-site-footer-tagline]', data.footerTagline);
+    applyFooterContact('[data-site-footer-phone]', data.footerPhone, v => 'tel:+' + v.replace(/\D/g, ''));
+    applyFooterContact('[data-site-footer-telegram]', data.footerTelegram, v => 'https://t.me/' + v.replace(/^@|^https?:\/\/t\.me\//i, ''));
 
     // ---- Homepage-only fields (elements simply won't exist on other pages) ----
 
