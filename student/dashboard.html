@@ -29,6 +29,16 @@
     border-color: #a15c00 !important;
     background: #fff6e6 !important;
   }
+
+  /* Word game: pink menu icon + answer button feedback states */
+  body.admin-theme .home-menu-icon-pink { background: rgba(230,57,143,.13); color: #E6398F; }
+  .wg-option { width:100%; text-align:left; padding:.85em 1.1em; margin-bottom:.6em; border-radius:12px;
+    border:1.5px solid var(--line); background:#fff; font-size:1rem; cursor:pointer; transition:.15s; }
+  .wg-option:last-child{ margin-bottom:0; }
+  .wg-option:hover:not(:disabled){ border-color: var(--teal); background: rgba(46,111,110,.05); }
+  .wg-option:disabled{ cursor:default; }
+  .wg-option.wg-correct{ border-color:#1e7e34 !important; background:#eaf7ee !important; color:#1e7e34; font-weight:700; }
+  .wg-option.wg-wrong{ border-color:#c0392b !important; background:#fdeceb !important; color:#c0392b; font-weight:700; }
 </style>
 </head>
 <body class="admin-theme">
@@ -164,6 +174,14 @@
           <h3 class="home-menu-title">Insholarim</h3>
           <p class="home-menu-desc">Yuborgan insholaringiz va baholar</p>
         </a>
+        <a href="#" class="home-menu-card" id="navWordGame">
+          <div class="home-menu-top">
+            <span class="home-menu-icon home-menu-icon-pink">🎮</span>
+            <span class="home-menu-arrow">→</span>
+          </div>
+          <h3 class="home-menu-title">So‘z o‘yini</h3>
+          <p class="home-menu-desc">O‘ynab turib yangi so‘zlarni yodlang</p>
+        </a>
       </div>
     </section>
 
@@ -212,6 +230,37 @@
     </section>
 
     <!-- ===== PAYMENT GATE (General English, not approved yet) ===== -->
+    <!-- ===== SO'Z O'YINI (vocabulary game) ===== -->
+    <section id="view-word-game" hidden>
+      <a href="#" id="backToHomeFromWordGame" class="back-link">← Bosh sahifaga</a>
+
+      <div id="wgIntroBox">
+        <div class="admin-header">
+          <div>
+            <h1>🎮 So‘z o‘yini</h1>
+            <p>Ingliz tili so‘zini o‘qing va to‘g‘ri tarjimasini tanlang. Har bir o‘yin 10 ta savoldan iborat.</p>
+          </div>
+        </div>
+        <div class="placement-intro-box">
+          <p id="wgBestScoreText" style="font-weight:700;"></p>
+          <div style="display:flex; gap:.8em; flex-wrap:wrap; margin-top:.6em;">
+            <button type="button" class="btn btn-amber" id="wgStartBtn">▶️ Boshlash</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="quiz-box" id="wgPlayBox" hidden>
+        <p class="quiz-progress" id="wgProgress"></p>
+        <div class="latest-hw-box" style="text-align:center; padding:1.6em 1em;">
+          <span class="latest-hw-eyebrow">Bu so‘zning tarjimasi qaysi?</span>
+          <h1 id="wgWord" style="margin:.3em 0 .1em; font-size:2.1rem; color:var(--teal-deep);"></h1>
+        </div>
+        <div class="quiz-options" id="wgOptions" style="margin-top:1.1em;"></div>
+      </div>
+
+      <div class="quiz-result-box" id="wgResultBox" hidden></div>
+    </section>
+
     <section id="view-payment" hidden>
       <a href="#" id="backToCoursesFromPayment" class="back-link">← Kurslarga qaytish</a>
       <div class="admin-header">
@@ -785,7 +834,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat'];
+const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game'];
 function switchView(view){
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -2570,6 +2619,148 @@ async function sendChatMessage(){
   }
 }
 
+// ===== SO'Z O'YINI (vocabulary game) =====
+
+const WG_WORDS = [
+  ['apple','olma'], ['book','kitob'], ['water','suv'], ['friend','do‘st'],
+  ['house','uy'], ['school','maktab'], ['teacher','o‘qituvchi'], ['student','talaba'],
+  ['happy','baxtli'], ['sad','xafa'], ['big','katta'], ['small','kichik'],
+  ['fast','tez'], ['slow','sekin'], ['beautiful','chiroyli'], ['strong','kuchli'],
+  ['weather','ob-havo'], ['morning','ertalab'], ['evening','kechqurun'], ['night','tun'],
+  ['family','oila'], ['mother','ona'], ['father','ota'], ['sister','opa-singil'],
+  ['brother','aka-uka'], ['work','ish'], ['money','pul'], ['time','vaqt'],
+  ['food','ovqat'], ['bread','non'], ['milk','sut'], ['tea','choy'],
+  ['city','shahar'], ['village','qishloq'], ['road','yo‘l'], ['car','mashina'],
+  ['travel','sayohat'], ['language','til'], ['question','savol'], ['answer','javob'],
+  ['idea','g‘oya'], ['dream','orzu'], ['future','kelajak'], ['past','o‘tmish'],
+  ['important','muhim'], ['difficult','qiyin'], ['easy','oson'], ['interesting','qiziqarli'],
+  ['color','rang'], ['light','yorug‘lik'], ['dark','qorong‘i'], ['week','hafta']
+];
+
+let wgQuestions = [];
+let wgIndex = 0;
+let wgScore = 0;
+let wgAnswered = false;
+
+function wgShuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function wgBestScoreKey(){
+  return 'efWordGameBest_' + currentUid;
+}
+
+function wgShowIntro(){
+  document.getElementById('wgIntroBox').hidden = false;
+  document.getElementById('wgPlayBox').hidden = true;
+  document.getElementById('wgResultBox').hidden = true;
+  const best = localStorage.getItem(wgBestScoreKey());
+  document.getElementById('wgBestScoreText').textContent = best
+    ? ('🏆 Eng yaxshi natijangiz: ' + best + ' / 10')
+    : 'Hali o‘ynamagansiz — birinchi urinishni sinab ko‘ring!';
+}
+
+function wgStart(){
+  wgQuestions = wgShuffle(WG_WORDS).slice(0, 10);
+  wgIndex = 0;
+  wgScore = 0;
+  document.getElementById('wgIntroBox').hidden = true;
+  document.getElementById('wgResultBox').hidden = true;
+  document.getElementById('wgPlayBox').hidden = false;
+  wgRenderQuestion();
+}
+
+function wgRenderQuestion(){
+  wgAnswered = false;
+  const [word, correct] = wgQuestions[wgIndex];
+  document.getElementById('wgProgress').textContent =
+    'Savol ' + (wgIndex + 1) + ' / ' + wgQuestions.length + '   ·   Ball: ' + wgScore;
+  document.getElementById('wgWord').textContent = word;
+
+  const others = wgShuffle(WG_WORDS.filter(w => w[1] !== correct)).slice(0, 3).map(w => w[1]);
+  const options = wgShuffle([correct, ...others]);
+
+  const box = document.getElementById('wgOptions');
+  box.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'wg-option';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => wgSelectAnswer(btn, opt, correct));
+    box.appendChild(btn);
+  });
+}
+
+function wgSelectAnswer(btn, chosen, correct){
+  if(wgAnswered) return;
+  wgAnswered = true;
+  const allBtns = document.querySelectorAll('#wgOptions .wg-option');
+  allBtns.forEach(b => { b.disabled = true; });
+
+  if(chosen === correct){
+    wgScore++;
+    btn.classList.add('wg-correct');
+  } else {
+    btn.classList.add('wg-wrong');
+    allBtns.forEach(b => { if(b.textContent === correct) b.classList.add('wg-correct'); });
+  }
+
+  setTimeout(() => {
+    wgIndex++;
+    if(wgIndex < wgQuestions.length){
+      wgRenderQuestion();
+    } else {
+      wgShowResult();
+    }
+  }, 900);
+}
+
+function wgShowResult(){
+  document.getElementById('wgPlayBox').hidden = true;
+  const box = document.getElementById('wgResultBox');
+  box.hidden = false;
+
+  const key = wgBestScoreKey();
+  const prevBest = parseInt(localStorage.getItem(key) || '0', 10);
+  const isNewBest = wgScore > prevBest;
+  if(isNewBest) localStorage.setItem(key, String(wgScore));
+
+  let msg = '';
+  if(wgScore >= 9) msg = 'Zo‘r natija! 🎉';
+  else if(wgScore >= 6) msg = 'Yaxshi natija! 👍';
+  else msg = 'Yana urinib ko‘ring — mashq qilaversangiz yaxshilanadi.';
+
+  box.innerHTML =
+    '<p class="eyebrow">Natija</p>' +
+    '<div class="quiz-result-score" style="font-size:2rem; display:inline-block; padding:.2em .7em; border-radius:10px; margin:.3em 0 .5em; background:rgba(46,111,110,.1); color:var(--teal-deep);">' + wgScore + ' / ' + wgQuestions.length + '</div>' +
+    '<p style="font-weight:700; font-size:1.05rem;">' + msg + (isNewBest ? ' 🏆 Yangi rekord!' : '') + '</p>' +
+    '<div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:1em;">' +
+      '<button type="button" class="btn btn-amber" id="wgPlayAgainBtn">🔁 Yana o‘ynash</button>' +
+      '<button type="button" class="btn btn-ghost" id="wgBackHomeBtn">← Bosh sahifaga</button>' +
+    '</div>';
+
+  document.getElementById('wgPlayAgainBtn').addEventListener('click', wgStart);
+  document.getElementById('wgBackHomeBtn').addEventListener('click', renderHomeView);
+}
+
+document.getElementById('navWordGame').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('word-game');
+  wgShowIntro();
+});
+
+document.getElementById('backToHomeFromWordGame').addEventListener('click', (e) => {
+  e.preventDefault();
+  renderHomeView();
+});
+
+document.getElementById('wgStartBtn').addEventListener('click', wgStart);
 
 </script>
 </body>
