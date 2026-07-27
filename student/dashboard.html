@@ -98,6 +98,46 @@
       </div>
 
       <div class="home-top-boxes" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.2em; align-items:start;">
+        <div class="latest-hw-box" id="progressBox" style="background:#fff; border:1.5px solid var(--line);">
+          <div class="latest-hw-head">
+            <span class="latest-hw-eyebrow" style="color:var(--teal-deep);">📈 O‘quv jarayoni</span>
+            <span class="latest-hw-date" id="progressDate" style="color:var(--gray);"></span>
+          </div>
+
+          <div id="progressIdForm">
+            <p class="latest-hw-preview">O‘quv jarayoningizni ko‘rish uchun administrator bergan ID’ni kiriting.</p>
+            <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:.6em;">
+              <input type="text" id="progressIdInput" placeholder="ID" style="flex:1; min-width:160px;">
+              <button type="button" class="btn btn-amber btn-sm" id="progressIdSubmitBtn">Ko‘rish</button>
+            </div>
+            <p class="form-error" id="progressIdError" role="alert" hidden style="margin-top:.6em;"></p>
+          </div>
+
+          <div id="progressView" hidden>
+            <h3 class="latest-hw-title" id="progressStudentNameVal" style="color:#1b2733;"></h3>
+            <div style="display:flex; flex-direction:column; gap:.5em; margin-top:.4em;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
+                <span style="color:var(--gray); font-size:.9rem;">Davomat</span>
+                <span id="progressAttendedVal" style="font-weight:700;">—</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
+                <span style="color:var(--gray); font-size:.9rem;">Uy vazifa</span>
+                <span id="progressHwVal" style="font-weight:700;">—</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
+                <span style="color:var(--gray); font-size:.9rem;">Kunlik baho</span>
+                <span id="progressGradeVal" style="font-weight:700;">—</span>
+              </div>
+              <div id="progressMissingWrap" hidden style="margin-top:.2em;">
+                <span style="color:var(--gray); font-size:.9rem;">Bajarilmagan uy vazifalar</span>
+                <div id="progressMissingList" style="margin-top:.3em; display:flex; flex-direction:column; gap:.2em;"></div>
+              </div>
+              <p class="latest-hw-preview" id="progressNoteVal" style="color:var(--gray); margin:.2em 0 0;"></p>
+            </div>
+            <button type="button" class="btn btn-ghost btn-sm" id="progressChangeIdBtn" style="margin-top:.8em;">ID’ni o‘zgartirish</button>
+          </div>
+        </div>
+
         <div class="latest-hw-box" id="gbResultBox">
           <div class="latest-hw-head">
             <span class="latest-hw-eyebrow">🏆 Test natijasi</span>
@@ -135,42 +175,6 @@
           <div class="hw-status-row" id="latestHwStatusRow">
             <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
             <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
-          </div>
-        </div>
-
-        <div class="latest-hw-box" id="progressBox" style="background:#fff; border:1.5px solid var(--line);">
-          <div class="latest-hw-head">
-            <span class="latest-hw-eyebrow" style="color:var(--teal-deep);">📈 O‘quv jarayoni</span>
-            <span class="latest-hw-date" id="progressDate" style="color:var(--gray);"></span>
-          </div>
-
-          <div id="progressIdForm">
-            <p class="latest-hw-preview">O‘quv jarayoningizni ko‘rish uchun administrator bergan ID’ni kiriting.</p>
-            <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:.6em;">
-              <input type="text" id="progressIdInput" placeholder="ID" style="flex:1; min-width:160px;">
-              <button type="button" class="btn btn-amber btn-sm" id="progressIdSubmitBtn">Ko‘rish</button>
-            </div>
-            <p class="form-error" id="progressIdError" role="alert" hidden style="margin-top:.6em;"></p>
-          </div>
-
-          <div id="progressView" hidden>
-            <h3 class="latest-hw-title" id="progressStudentNameVal" style="color:#1b2733;"></h3>
-            <div style="display:flex; flex-direction:column; gap:.5em; margin-top:.4em;">
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
-                <span style="color:var(--gray); font-size:.9rem;">Davomat</span>
-                <span id="progressAttendedVal" style="font-weight:700;">—</span>
-              </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
-                <span style="color:var(--gray); font-size:.9rem;">Uy vazifa</span>
-                <span id="progressHwVal" style="font-weight:700;">—</span>
-              </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
-                <span style="color:var(--gray); font-size:.9rem;">Kunlik baho</span>
-                <span id="progressGradeVal" style="font-weight:700;">—</span>
-              </div>
-              <p class="latest-hw-preview" id="progressNoteVal" style="color:var(--gray); margin:.2em 0 0;"></p>
-            </div>
-            <button type="button" class="btn btn-ghost btn-sm" id="progressChangeIdBtn" style="margin-top:.8em;">ID’ni o‘zgartirish</button>
           </div>
         </div>
       </div>
@@ -901,7 +905,8 @@ async function renderProgressBox(){
       dateEl.textContent = '';
       attendedEl.textContent = '—'; attendedEl.style.color = '';
       hwEl.textContent = '—'; hwEl.style.color = '';
-      gradeEl.textContent = '—'; gradeEl.style.color = '';
+      gradeEl.textContent = 'Baho olmadi'; gradeEl.style.color = '#c0392b';
+      document.getElementById('progressMissingWrap').hidden = true;
       noteEl.textContent = '';
     } else {
       const d = snap.docs[0].data();
@@ -910,8 +915,9 @@ async function renderProgressBox(){
 
       // Entries store attended/homeworkDone as the string 'yes'/'no' (or
       // '' when unset) rather than booleans — normalize both just in case.
-      const attended = (d.attended === true || d.attended === 'yes') ? 'yes' : (d.attended === false || d.attended === 'no') ? 'no' : '';
+      const attended = (d.attended === true || d.attended === 'yes') ? 'yes' : (d.attended === false || d.attended === 'no') ? 'no' : (d.attended === 'late' ? 'late' : '');
       if(attended === 'yes'){ attendedEl.textContent = '✅ Keldi'; attendedEl.style.color = '#1e7e34'; }
+      else if(attended === 'late'){ attendedEl.textContent = '⏰ Kech qoldi'; attendedEl.style.color = '#a15c00'; }
       else if(attended === 'no'){ attendedEl.textContent = '🚫 Kelmadi'; attendedEl.style.color = '#c0392b'; }
       else { attendedEl.textContent = '—'; attendedEl.style.color = ''; }
 
@@ -921,13 +927,29 @@ async function renderProgressBox(){
       else if(hwDone === 'partial'){ hwEl.textContent = `🔶 ${d.homeworkPercent || 0}% bajardi`; hwEl.style.color = '#a15c00'; }
       else { hwEl.textContent = '—'; hwEl.style.color = ''; }
 
-      gradeEl.textContent = d.grade ? `${d.grade}/5` : '—';
-      gradeEl.style.color = d.grade ? 'var(--teal-deep)' : '';
-      let noteText = d.note || '';
+      gradeEl.textContent = d.grade ? `${d.grade}/5` : 'Baho olmadi';
+      gradeEl.style.color = d.grade ? 'var(--teal-deep)' : '#c0392b';
+
+      const missingWrap = document.getElementById('progressMissingWrap');
+      const missingList = document.getElementById('progressMissingList');
+      missingList.innerHTML = '';
       if(hwDone === 'partial' && d.homeworkMissing){
-        noteText = `📌 Bajarilmagan Uy vazifalar: ${d.homeworkMissing}` + (noteText ? ' — ' + noteText : '');
+        // Split on commas / semicolons / newlines so each missing homework
+        // item is shown on its own line with a red ✗ in front of it.
+        const items = String(d.homeworkMissing).split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+        items.forEach(item => {
+          const row = document.createElement('div');
+          row.style.color = '#c0392b';
+          row.style.fontWeight = '600';
+          row.textContent = '✗ ' + item;
+          missingList.appendChild(row);
+        });
+        missingWrap.hidden = items.length === 0;
+      } else {
+        missingWrap.hidden = true;
       }
-      noteEl.textContent = noteText;
+
+      noteEl.textContent = d.note || '';
     }
 
     formEl.hidden = true;
