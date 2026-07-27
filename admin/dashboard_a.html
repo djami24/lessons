@@ -5,7 +5,67 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin panel — Djami Lessons</title>
 <link rel="stylesheet" href="../style.css">
-<style>.shake{animation: shakeX .4s;} @keyframes shakeX{ 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }</style>
+<style>.shake{animation: shakeX .4s;} @keyframes shakeX{ 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }
+
+/* ====== O'QUV JARAYONI — Modern UI ====== */
+.oj-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1em;flex-wrap:wrap;margin-bottom:28px;}
+.oj-header h1{margin:0 0 4px;font-size:1.5rem;}
+.oj-header p{margin:0;color:var(--gray);font-size:.9rem;}
+
+.oj-groups-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;}
+.oj-group-card{background:var(--paper);border:1.5px solid var(--line);border-radius:16px;padding:22px 20px;display:flex;flex-direction:column;gap:12px;transition:box-shadow .2s,transform .15s;cursor:pointer;position:relative;}
+.oj-group-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.1);transform:translateY(-2px);}
+.oj-group-card-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--teal,#2e6f6e),var(--amber-deep,#c08a2e));display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.oj-group-card-name{font-weight:700;font-size:1.05rem;margin:0;}
+.oj-group-card-meta{font-size:.82rem;color:var(--gray);}
+.oj-group-card-del{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;opacity:0;font-size:.85rem;color:#e74c3c;transition:opacity .2s;}
+.oj-group-card:hover .oj-group-card-del{opacity:1;}
+
+.oj-students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
+.oj-student-card{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:18px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:box-shadow .2s,transform .15s;position:relative;}
+.oj-student-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px);}
+.oj-student-card-avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#3fbfbf);color:#fff;font-size:1.1rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.oj-student-card-name{font-weight:600;font-size:.95rem;line-height:1.3;}
+.oj-student-card-del{position:absolute;top:8px;right:8px;background:none;border:none;cursor:pointer;opacity:0;font-size:.8rem;color:#e74c3c;transition:opacity .2s;}
+.oj-student-card:hover .oj-student-card-del{opacity:1;}
+
+.oj-student-badge{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;}
+.oj-student-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#3fbfbf);color:#fff;font-weight:700;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+.oj-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px;margin-bottom:24px;}
+.oj-stat-card{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;text-align:center;}
+.oj-stat-val{font-size:1.6rem;font-weight:800;color:var(--ink);}
+.oj-stat-label{font-size:.78rem;color:var(--gray);margin-top:4px;}
+
+.oj-form-card{background:var(--paper);border:1.5px solid var(--line);border-radius:16px;padding:22px 24px;margin-bottom:28px;}
+.oj-form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.oj-label{display:flex;flex-direction:column;gap:6px;font-size:.85rem;font-weight:600;color:var(--gray);}
+.oj-input,.oj-select,.oj-textarea{padding:.7em .9em;border:1.5px solid var(--line);border-radius:10px;background:var(--surface,#f8f9fa);color:var(--ink);font-family:var(--font-body);font-size:.9rem;transition:border-color .2s;}
+.oj-input:focus,.oj-select:focus,.oj-textarea:focus{outline:none;border-color:var(--teal,#2e6f6e);}
+.oj-textarea{resize:vertical;min-height:68px;}
+
+.oj-entries-list{display:flex;flex-direction:column;gap:10px;}
+.oj-entry-card{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:auto 1fr 1fr 1fr auto;align-items:center;gap:14px;transition:box-shadow .2s;}
+.oj-entry-card:hover{box-shadow:0 2px 12px rgba(0,0,0,.07);}
+.oj-entry-date{font-weight:700;font-size:.9rem;white-space:nowrap;}
+.oj-entry-note{font-size:.82rem;color:var(--gray);grid-column:1/-1;padding-top:4px;border-top:1px solid var(--line);}
+.oj-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:.78rem;font-weight:600;}
+.oj-badge-yes{background:rgba(46,111,110,.12);color:#2e6f6e;}
+.oj-badge-no{background:rgba(192,57,43,.1);color:#c0392b;}
+.oj-badge-pending{background:rgba(200,200,200,.2);color:var(--gray);}
+.oj-grade-pill{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;font-weight:800;font-size:.95rem;background:linear-gradient(135deg,var(--amber,#e6a817),var(--amber-deep,#c08a2e));color:#fff;}
+.oj-entry-actions{display:flex;gap:6px;}
+
+.oj-empty{text-align:center;padding:48px 24px;color:var(--gray);}
+.oj-empty-icon{font-size:3rem;margin-bottom:12px;}
+.oj-empty h3{margin:0 0 6px;font-size:1.1rem;color:var(--ink);}
+.oj-empty p{margin:0;font-size:.88rem;}
+
+@media(max-width:640px){
+  .oj-entry-card{grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;}
+  .oj-entry-date{grid-column:1/-1;}
+}
+</style>
 </head>
 <body class="admin-theme">
 
@@ -27,6 +87,7 @@
       <li><a href="#" id="navPlacementTest">🧭 Daraja testi</a></li>
       <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
       <li><a href="#" id="navKundalik">📅 Kundalik</a></li>
+      <li><a href="#" id="navOquvJarayoni">📖 O'quv jarayoni</a></li>
       <li><a href="#" id="navGradebook">📊 Test natijalar</a></li>
       <li><a href="#" id="navBroadcast"><span class="nav-icon-emoji">📢</span><span class="nav-label"> Xabar yuborish</span></a></li>
       <li><a href="#" id="navChats"><span class="nav-icon-emoji">💬</span><span class="nav-label"> Chatlar</span><span id="navChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
@@ -204,7 +265,7 @@
         </div>
       </div>
 
-      <form id="progressEntryForm" class="modal-form" style="max-width:640px; padding:1.2em 1.4em; border:1.5px solid var(--line); border-radius:var(--radius-s); margin-bottom:1.6em; display:flex; flex-direction:column; gap:1em;">
+      <form id="progressEntryForm" class="oj-form-card" style="max-width:760px; margin-bottom:1.6em;">
         <input type="hidden" id="progressEntryEditingId" value="">
         <div style="display:flex; gap:1em; flex-wrap:wrap;">
           <label style="flex:1; min-width:160px;">Sana
@@ -741,7 +802,166 @@
       </div>
     </section>
 
+    <!-- ===== O'QUV JARAYONI: Groups list ===== -->
+    <section id="view-oquv-groups" hidden>
+      <div class="oj-header">
+        <div>
+          <h1>📖 O'quv jarayoni</h1>
+          <p>Guruh yarating, ichiga talabalar qo'shing va har bir talabaning kunlik jarayonini kuzating.</p>
+        </div>
+        <button class="btn btn-primary" id="openAddOquvGroup">+ Guruh qo'shish</button>
+      </div>
+      <div id="ojGroupsGrid" class="oj-groups-grid"></div>
+      <div id="ojGroupsEmpty" class="oj-empty" style="display:none;">
+        <div class="oj-empty-icon">📂</div>
+        <h3>Hali guruh yo'q</h3>
+        <p>Birinchi guruhni yaratib, talabalar qo'shing.</p>
+      </div>
+    </section>
+
+    <!-- ===== O'QUV JARAYONI: Students in a group ===== -->
+    <section id="view-oquv-students" hidden>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
+        <button class="btn btn-ghost btn-sm" id="ojBackToGroups">← Guruhlar</button>
+        <div>
+          <h1 style="margin:0; font-size:1.4rem;" id="ojGroupTitle">Guruh</h1>
+          <p style="margin:0; color:var(--gray); font-size:.85rem;" id="ojGroupSub">0 talaba</p>
+        </div>
+        <button class="btn btn-primary" id="openAddOquvStudent" style="margin-left:auto;">+ Talaba qo'shish</button>
+      </div>
+      <div id="ojStudentsGrid" class="oj-students-grid"></div>
+      <div id="ojStudentsEmpty" class="oj-empty" style="display:none;">
+        <div class="oj-empty-icon">🎓</div>
+        <h3>Hali talaba yo'q</h3>
+        <p>Bu guruhga talaba qo'shing.</p>
+      </div>
+    </section>
+
+    <!-- ===== O'QUV JARAYONI: Student progress ===== -->
+    <section id="view-oquv-progress" hidden>
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:28px; flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" id="ojBackToStudents">← Talabalar</button>
+        <div class="oj-student-badge">
+          <div class="oj-student-avatar" id="ojProgressAvatar">A</div>
+          <div>
+            <div style="font-weight:700; font-size:1.1rem;" id="ojProgressName">Talaba</div>
+            <div style="font-size:.8rem; color:var(--gray);" id="ojProgressGroup">Guruh</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="oj-stats-row" id="ojStatsRow">
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojStatAttend">—</div>
+          <div class="oj-stat-label">Davomat</div>
+        </div>
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojStatHw">—</div>
+          <div class="oj-stat-label">Uy vazifa</div>
+        </div>
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojStatAvgGrade">—</div>
+          <div class="oj-stat-label">O'rt. baho</div>
+        </div>
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojStatTotal">0</div>
+          <div class="oj-stat-label">Jami yozuv</div>
+        </div>
+      </div>
+
+      <!-- Entry form - modern design -->
+      <div class="oj-form-card">
+        <h3 style="margin:0 0 18px; font-size:1rem; font-weight:600;">Yangi yozuv qo'shish</h3>
+        <input type="hidden" id="ojEntryEditingId" value="">
+        <div class="oj-form-grid">
+          <label class="oj-label">
+            <span>📅 Sana</span>
+            <input type="date" id="ojDateInput" required class="oj-input">
+          </label>
+          <label class="oj-label">
+            <span>👤 Davomat</span>
+            <select id="ojAttendedInput" class="oj-select">
+              <option value="">— Belgilanmagan</option>
+              <option value="yes">✅ Keldi</option>
+              <option value="no">🚫 Kelmadi</option>
+            </select>
+          </label>
+          <label class="oj-label">
+            <span>📝 Uy vazifa</span>
+            <select id="ojHomeworkInput" class="oj-select">
+              <option value="">— Belgilanmagan</option>
+              <option value="yes">✅ Qildi</option>
+              <option value="no">🕓 Qilmadi</option>
+            </select>
+          </label>
+          <label class="oj-label">
+            <span>⭐ Baho</span>
+            <select id="ojGradeInput" class="oj-select">
+              <option value="">— Yo'q</option>
+              <option value="5">⭐⭐⭐⭐⭐ 5</option>
+              <option value="4">⭐⭐⭐⭐ 4</option>
+              <option value="3">⭐⭐⭐ 3</option>
+              <option value="2">⭐⭐ 2</option>
+              <option value="1">⭐ 1</option>
+            </select>
+          </label>
+          <label class="oj-label" style="grid-column:1/-1;">
+            <span>💬 Izoh (ixtiyoriy)</span>
+            <textarea id="ojNoteInput" rows="2" class="oj-textarea" placeholder="Masalan: darsda faol ishtirok etdi…"></textarea>
+          </label>
+        </div>
+        <div style="display:flex; gap:.8em; align-items:center; margin-top:14px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="ojSaveBtn">💾 Saqlash</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="ojCancelEditBtn" hidden>✕ Bekor qilish</button>
+          <span class="save-status" id="ojSaveStatus"></span>
+        </div>
+      </div>
+
+      <!-- Entries timeline -->
+      <div id="ojEntriesList" class="oj-entries-list"></div>
+      <div id="ojEntriesEmpty" class="oj-empty" style="display:none; margin-top:24px;">
+        <div class="oj-empty-icon">📋</div>
+        <h3>Hali yozuv yo'q</h3>
+        <p>Yuqoridagi forma orqali birinchi yozuvni qo'shing.</p>
+      </div>
+    </section>
+
   </main>
+</div>
+
+<!-- ===== MODAL: Add O'quv Jarayoni Group ===== -->
+<div class="modal-overlay" id="modalAddOquvGroup" hidden>
+  <div class="modal-box" style="max-width:420px;">
+    <h2 class="modal-title">Yangi guruh</h2>
+    <div class="modal-form">
+      <label>Guruh nomi
+        <input type="text" id="ojGroupNameInput" placeholder="Masalan: Monday Group, A1 guruh…">
+      </label>
+      <p class="form-error" id="ojGroupError" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="ojGroupSaveBtn">Yaratish</button>
+        <button class="btn btn-ghost" onclick="closeModal('modalAddOquvGroup')">Bekor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Add O'quv Jarayoni Student ===== -->
+<div class="modal-overlay" id="modalAddOquvStudent" hidden>
+  <div class="modal-box" style="max-width:420px;">
+    <h2 class="modal-title">Guruhga talaba qo'shish</h2>
+    <div class="modal-form">
+      <label>Talaba ismi (to'liq)
+        <input type="text" id="ojStudentNameInput" placeholder="Masalan: Bekzod Toshmatov">
+      </label>
+      <p class="form-error" id="ojStudentError" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="ojStudentSaveBtn">Qo'shish</button>
+        <button class="btn btn-ghost" onclick="closeModal('modalAddOquvStudent')">Bekor</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ===== MODAL: Kundalik group ===== -->
@@ -2275,6 +2495,9 @@ function switchView(view){
   document.getElementById('view-site-settings').hidden = view !== 'site-settings';
   document.getElementById('view-kundalik').hidden = view !== 'kundalik';
   document.getElementById('view-student-progress').hidden = view !== 'student-progress';
+  document.getElementById('view-oquv-groups').hidden = view !== 'oquv-groups';
+  document.getElementById('view-oquv-students').hidden = view !== 'oquv-students';
+  document.getElementById('view-oquv-progress').hidden = view !== 'oquv-progress';
   document.getElementById('view-gradebook').hidden = view !== 'gradebook';
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
@@ -2286,6 +2509,7 @@ function switchView(view){
   document.getElementById('navPlacementTest').classList.toggle('active', view === 'placement-test');
   document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
   document.getElementById('navKundalik').classList.toggle('active', view === 'kundalik');
+  document.getElementById('navOquvJarayoni').classList.toggle('active', view === 'oquv-groups' || view === 'oquv-students' || view === 'oquv-progress');
   document.getElementById('navGradebook').classList.toggle('active', view === 'gradebook');
   document.getElementById('view-broadcast').hidden = view !== 'broadcast';
   document.getElementById('view-chats').hidden = view !== 'chats';
@@ -3867,6 +4091,295 @@ async function deleteHwItem(hwId, title) {
     loadKundalikHw(_kundalikActiveGroup);
   } catch (err) { alert('O\u02bcchirishda xatolik.'); }
 }
+
+// ============================================================
+// O'QUV JARAYONI — Groups → Students → Progress
+// Firestore structure:
+//   oquv_groups/{groupId}        { name, createdAt }
+//   oquv_groups/{groupId}/students/{studentId}  { name, createdAt }
+//   oquv_progress/{studentId}/entries/{dateId}  { date, attended, homeworkDone, grade, note }
+// ============================================================
+
+let _ojActiveGroupId = null;
+let _ojActiveGroupName = '';
+let _ojActiveStudentId = null;
+let _ojActiveStudentName = '';
+let _ojProgressEntries = [];
+let _ojEditingEntryId = null;
+
+// ----- Nav -----
+document.getElementById('navOquvJarayoni').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('oquv-groups');
+  loadOjGroups();
+});
+
+document.getElementById('ojBackToGroups').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('oquv-groups');
+  loadOjGroups();
+});
+
+document.getElementById('ojBackToStudents').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('oquv-students');
+  loadOjStudents(_ojActiveGroupId, _ojActiveGroupName);
+});
+
+// ----- Groups -----
+async function loadOjGroups() {
+  const grid = document.getElementById('ojGroupsGrid');
+  const empty = document.getElementById('ojGroupsEmpty');
+  grid.innerHTML = '<p style="color:var(--gray); padding:8px;">Yuklanmoqda…</p>';
+  try {
+    const snap = await db.collection('oquv_groups').orderBy('name').get();
+    grid.innerHTML = '';
+    if (snap.empty) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    snap.docs.forEach(doc => {
+      const g = doc.data();
+      const card = document.createElement('div');
+      card.className = 'oj-group-card';
+      card.innerHTML = `
+        <div class="oj-group-card-icon">👥</div>
+        <div>
+          <div class="oj-group-card-name">${escHtml(g.name)}</div>
+          <div class="oj-group-card-meta">Guruh</div>
+        </div>
+        <button class="oj-group-card-del" title="O'chirish" data-gid="${doc.id}">🗑</button>`;
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.oj-group-card-del')) return;
+        loadOjStudents(doc.id, g.name);
+      });
+      card.querySelector('.oj-group-card-del').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (!confirm(`"${g.name}" guruhini o'chirmoqchimisiz?`)) return;
+        await db.collection('oquv_groups').doc(doc.id).delete();
+        loadOjGroups();
+      });
+      grid.appendChild(card);
+    });
+  } catch(err) { grid.innerHTML = '<p style="color:red;">Xatolik yuz berdi.</p>'; }
+}
+
+document.getElementById('openAddOquvGroup').addEventListener('click', () => {
+  document.getElementById('ojGroupNameInput').value = '';
+  document.getElementById('ojGroupError').hidden = true;
+  openModal('modalAddOquvGroup');
+  setTimeout(() => document.getElementById('ojGroupNameInput').focus(), 80);
+});
+
+document.getElementById('ojGroupSaveBtn').addEventListener('click', async () => {
+  const name = document.getElementById('ojGroupNameInput').value.trim();
+  const err = document.getElementById('ojGroupError');
+  if (!name) { err.textContent = 'Guruh nomi kiritilmagan.'; err.hidden = false; return; }
+  err.hidden = true;
+  try {
+    await db.collection('oquv_groups').add({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    closeModal('modalAddOquvGroup');
+    loadOjGroups();
+  } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
+});
+
+// ----- Students -----
+async function loadOjStudents(groupId, groupName) {
+  _ojActiveGroupId = groupId;
+  _ojActiveGroupName = groupName;
+  document.getElementById('ojGroupTitle').textContent = '👥 ' + groupName;
+  switchView('oquv-students');
+  const grid = document.getElementById('ojStudentsGrid');
+  const empty = document.getElementById('ojStudentsEmpty');
+  grid.innerHTML = '<p style="color:var(--gray); padding:8px;">Yuklanmoqda…</p>';
+  try {
+    const snap = await db.collection('oquv_groups').doc(groupId).collection('students').orderBy('name').get();
+    grid.innerHTML = '';
+    document.getElementById('ojGroupSub').textContent = snap.size + ' talaba';
+    if (snap.empty) { empty.style.display = 'block'; return; }
+    empty.style.display = 'none';
+    snap.docs.forEach(doc => {
+      const s = doc.data();
+      const initials = s.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+      const card = document.createElement('div');
+      card.className = 'oj-student-card';
+      card.innerHTML = `
+        <div class="oj-student-card-avatar">${initials}</div>
+        <div class="oj-student-card-name">${escHtml(s.name)}</div>
+        <button class="oj-student-card-del" title="O'chirish" data-sid="${doc.id}">✕</button>`;
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.oj-student-card-del')) return;
+        openOjProgress(doc.id, s.name);
+      });
+      card.querySelector('.oj-student-card-del').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (!confirm(`"${s.name}"ni o'chirmoqchimisiz?`)) return;
+        await db.collection('oquv_groups').doc(groupId).collection('students').doc(doc.id).delete();
+        loadOjStudents(groupId, groupName);
+      });
+      grid.appendChild(card);
+    });
+  } catch(err) { grid.innerHTML = '<p style="color:red;">Xatolik yuz berdi.</p>'; }
+}
+
+document.getElementById('openAddOquvStudent').addEventListener('click', () => {
+  document.getElementById('ojStudentNameInput').value = '';
+  document.getElementById('ojStudentError').hidden = true;
+  openModal('modalAddOquvStudent');
+  setTimeout(() => document.getElementById('ojStudentNameInput').focus(), 80);
+});
+
+document.getElementById('ojStudentSaveBtn').addEventListener('click', async () => {
+  const name = document.getElementById('ojStudentNameInput').value.trim();
+  const err = document.getElementById('ojStudentError');
+  if (!name) { err.textContent = 'Ism kiritilmagan.'; err.hidden = false; return; }
+  err.hidden = true;
+  try {
+    await db.collection('oquv_groups').doc(_ojActiveGroupId).collection('students')
+      .add({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    closeModal('modalAddOquvStudent');
+    loadOjStudents(_ojActiveGroupId, _ojActiveGroupName);
+  } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
+});
+
+// ----- Progress -----
+function openOjProgress(studentId, studentName) {
+  _ojActiveStudentId = studentId;
+  _ojActiveStudentName = studentName;
+  const initials = studentName.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('ojProgressAvatar').textContent = initials;
+  document.getElementById('ojProgressName').textContent = studentName;
+  document.getElementById('ojProgressGroup').textContent = _ojActiveGroupName;
+  // Set today's date
+  document.getElementById('ojDateInput').value = new Date().toISOString().slice(0,10);
+  document.getElementById('ojAttendedInput').value = '';
+  document.getElementById('ojHomeworkInput').value = '';
+  document.getElementById('ojGradeInput').value = '';
+  document.getElementById('ojNoteInput').value = '';
+  document.getElementById('ojEntryEditingId').value = '';
+  document.getElementById('ojCancelEditBtn').hidden = true;
+  switchView('oquv-progress');
+  loadOjProgressEntries();
+}
+
+async function loadOjProgressEntries() {
+  const list = document.getElementById('ojEntriesList');
+  const empty = document.getElementById('ojEntriesEmpty');
+  list.innerHTML = '<p style="color:var(--gray); padding:8px;">Yuklanmoqda…</p>';
+  try {
+    const snap = await db.collection('oquv_progress').doc(_ojActiveStudentId)
+      .collection('entries').orderBy('date', 'desc').get();
+    _ojProgressEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderOjEntries();
+  } catch(err) { list.innerHTML = '<p style="color:red;">Xatolik.</p>'; }
+}
+
+function renderOjEntries() {
+  const list = document.getElementById('ojEntriesList');
+  const empty = document.getElementById('ojEntriesEmpty');
+  // Stats
+  const total = _ojProgressEntries.length;
+  const attended = _ojProgressEntries.filter(e => e.attended === true || e.attended === 'yes').length;
+  const hw = _ojProgressEntries.filter(e => e.homeworkDone === true || e.homeworkDone === 'yes').length;
+  const graded = _ojProgressEntries.filter(e => e.grade);
+  const avgGrade = graded.length ? (graded.reduce((s,e)=>s+Number(e.grade),0)/graded.length).toFixed(1) : '—';
+  document.getElementById('ojStatAttend').textContent = total ? Math.round(attended/total*100)+'%' : '—';
+  document.getElementById('ojStatHw').textContent = total ? Math.round(hw/total*100)+'%' : '—';
+  document.getElementById('ojStatAvgGrade').textContent = avgGrade;
+  document.getElementById('ojStatTotal').textContent = total;
+
+  if (!total) { list.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  list.innerHTML = '';
+  _ojProgressEntries.forEach(entry => {
+    const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : entry.attended === false || entry.attended === 'no' ? 'no' : '';
+    const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : entry.homeworkDone === false || entry.homeworkDone === 'no' ? 'no' : '';
+    const attendBadge = attendVal === 'yes' ? '<span class="oj-badge oj-badge-yes">✅ Keldi</span>' : attendVal === 'no' ? '<span class="oj-badge oj-badge-no">🚫 Kelmadi</span>' : '<span class="oj-badge oj-badge-pending">—</span>';
+    const hwBadge = hwVal === 'yes' ? '<span class="oj-badge oj-badge-yes">✅ Qildi</span>' : hwVal === 'no' ? '<span class="oj-badge oj-badge-no">🕓 Qilmadi</span>' : '<span class="oj-badge oj-badge-pending">—</span>';
+    const gradePill = entry.grade ? `<span class="oj-grade-pill">${entry.grade}</span>` : '<span style="color:var(--gray); font-size:.85rem;">—</span>';
+    const card = document.createElement('div');
+    card.className = 'oj-entry-card';
+    card.style.gridTemplateColumns = 'auto 1fr 1fr auto auto';
+    card.innerHTML = `
+      <div class="oj-entry-date">📅 ${entry.date}</div>
+      <div>${attendBadge}</div>
+      <div>${hwBadge}</div>
+      <div>${gradePill}</div>
+      <div class="oj-entry-actions">
+        <button class="btn btn-ghost btn-sm" data-eid="${entry.id}" data-action="edit">✏️</button>
+        <button class="btn btn-danger btn-sm" data-eid="${entry.id}" data-action="del">🗑</button>
+      </div>
+      ${entry.note ? `<div class="oj-entry-note">💬 ${escHtml(entry.note)}</div>` : ''}`;
+    list.appendChild(card);
+  });
+
+  list.querySelectorAll('[data-action="edit"]').forEach(btn => {
+    btn.addEventListener('click', () => ojStartEdit(btn.dataset.eid));
+  });
+  list.querySelectorAll('[data-action="del"]').forEach(btn => {
+    btn.addEventListener('click', () => ojDeleteEntry(btn.dataset.eid));
+  });
+}
+
+function ojStartEdit(entryId) {
+  const entry = _ojProgressEntries.find(e => e.id === entryId);
+  if (!entry) return;
+  document.getElementById('ojEntryEditingId').value = entryId;
+  document.getElementById('ojDateInput').value = entry.date;
+  const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : entry.attended === false || entry.attended === 'no' ? 'no' : '';
+  const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : entry.homeworkDone === false || entry.homeworkDone === 'no' ? 'no' : '';
+  document.getElementById('ojAttendedInput').value = attendVal;
+  document.getElementById('ojHomeworkInput').value = hwVal;
+  document.getElementById('ojGradeInput').value = entry.grade || '';
+  document.getElementById('ojNoteInput').value = entry.note || '';
+  document.getElementById('ojCancelEditBtn').hidden = false;
+  document.querySelector('.oj-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+document.getElementById('ojCancelEditBtn').addEventListener('click', () => {
+  document.getElementById('ojEntryEditingId').value = '';
+  document.getElementById('ojDateInput').value = new Date().toISOString().slice(0,10);
+  document.getElementById('ojAttendedInput').value = '';
+  document.getElementById('ojHomeworkInput').value = '';
+  document.getElementById('ojGradeInput').value = '';
+  document.getElementById('ojNoteInput').value = '';
+  document.getElementById('ojCancelEditBtn').hidden = true;
+});
+
+document.getElementById('ojSaveBtn').addEventListener('click', async () => {
+  const date = document.getElementById('ojDateInput').value;
+  const attended = document.getElementById('ojAttendedInput').value;
+  const homeworkDone = document.getElementById('ojHomeworkInput').value;
+  const grade = document.getElementById('ojGradeInput').value;
+  const note = document.getElementById('ojNoteInput').value.trim();
+  const status = document.getElementById('ojSaveStatus');
+  const editingId = document.getElementById('ojEntryEditingId').value;
+  if (!date) { status.textContent = '⚠ Sanani kiriting'; return; }
+  status.textContent = 'Saqlanmoqda…';
+  try {
+    const docId = editingId || date;
+    await db.collection('oquv_progress').doc(_ojActiveStudentId)
+      .collection('entries').doc(docId).set({ date, attended, homeworkDone, grade, note });
+    status.textContent = '✅ Saqlandi!';
+    document.getElementById('ojEntryEditingId').value = '';
+    document.getElementById('ojAttendedInput').value = '';
+    document.getElementById('ojHomeworkInput').value = '';
+    document.getElementById('ojGradeInput').value = '';
+    document.getElementById('ojNoteInput').value = '';
+    document.getElementById('ojCancelEditBtn').hidden = true;
+    setTimeout(() => status.textContent = '', 2500);
+    loadOjProgressEntries();
+  } catch(err) { status.textContent = '❌ Xatolik'; }
+});
+
+async function ojDeleteEntry(entryId) {
+  if (!confirm('Bu yozuvni o'chirmoqchimisiz?')) return;
+  try {
+    await db.collection('oquv_progress').doc(_ojActiveStudentId)
+      .collection('entries').doc(entryId).delete();
+    loadOjProgressEntries();
+  } catch(err) { alert('O'chirishda xatolik.'); }
+}
+
+function escHtml(s){ return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
 
 // ---------- Test natijalar (gradebook) ----------
 // Ported from the old standalone natijalar.html admin panel, but now
