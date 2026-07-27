@@ -915,14 +915,19 @@ async function renderProgressBox(){
       else if(attended === 'no'){ attendedEl.textContent = '🚫 Kelmadi'; attendedEl.style.color = '#c0392b'; }
       else { attendedEl.textContent = '—'; attendedEl.style.color = ''; }
 
-      const hwDone = (d.homeworkDone === true || d.homeworkDone === 'yes') ? 'yes' : (d.homeworkDone === false || d.homeworkDone === 'no') ? 'no' : '';
+      const hwDone = (d.homeworkDone === true || d.homeworkDone === 'yes') ? 'yes' : (d.homeworkDone === false || d.homeworkDone === 'no') ? 'no' : (d.homeworkDone === 'partial' ? 'partial' : '');
       if(hwDone === 'yes'){ hwEl.textContent = '✅ Qildi'; hwEl.style.color = '#1e7e34'; }
       else if(hwDone === 'no'){ hwEl.textContent = '🕓 Qilmadi'; hwEl.style.color = '#a15c00'; }
+      else if(hwDone === 'partial'){ hwEl.textContent = `🔶 ${d.homeworkPercent || 0}% bajardi`; hwEl.style.color = '#a15c00'; }
       else { hwEl.textContent = '—'; hwEl.style.color = ''; }
 
       gradeEl.textContent = d.grade ? `${d.grade}/5` : '—';
       gradeEl.style.color = d.grade ? 'var(--teal-deep)' : '';
-      noteEl.textContent = d.note || '';
+      let noteText = d.note || '';
+      if(hwDone === 'partial' && d.homeworkMissing){
+        noteText = `📌 Bajarilmagan: ${d.homeworkMissing}` + (noteText ? ' — ' + noteText : '');
+      }
+      noteEl.textContent = noteText;
     }
 
     formEl.hidden = true;
