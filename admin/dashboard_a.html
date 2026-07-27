@@ -848,6 +848,11 @@
             <div style="font-size:.8rem; color:var(--gray);" id="ojProgressGroup">Guruh</div>
           </div>
         </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:.8rem; color:var(--gray);">Talaba ID:</span>
+          <code id="ojProgressIdVal" style="background:var(--surface,#f4f4f4); padding:4px 9px; border-radius:6px; font-weight:700;"></code>
+          <button type="button" class="btn btn-ghost btn-sm" id="ojCopyIdBtn">Nusxalash</button>
+        </div>
       </div>
 
       <!-- Stats row -->
@@ -968,6 +973,10 @@
         <label>Talaba ismi (to'liq)
           <input type="text" id="ojStudentNameInput" placeholder="Masalan: Bekzod Toshmatov">
         </label>
+        <label style="margin-top:10px;">Talaba ID (ixtiyoriy)
+          <input type="text" id="ojStudentIdInput" placeholder="Masalan: ali01 (bo'sh qoldirsangiz avtomatik yaratiladi)" maxlength="40">
+        </label>
+        <p style="font-size:.78rem; color:var(--gray); margin:4px 0 0;">Talaba shu ID orqali o'z bosh sahifasidagi "O'quv jarayoni" kartochkasiga natijalarini chiqaradi. ID’ni talabaga bering.</p>
       </div>
 
       <!-- Bulk mode -->
@@ -4226,7 +4235,10 @@ async function loadOjStudents(groupId, groupName) {
       card.className = 'oj-student-card';
       card.innerHTML = `
         <div class="oj-student-card-avatar">${initials}</div>
-        <div class="oj-student-card-name">${escHtml(s.name)}</div>
+        <div style="flex:1; min-width:0; padding-top:16px;">
+          <div class="oj-student-card-name" style="padding-top:0;">${escHtml(s.name)}</div>
+          <div style="font-size:.75rem; color:var(--gray); font-family:monospace;">ID: ${doc.id}</div>
+        </div>
         <button class="oj-student-card-del" title="O'chirish" data-sid="${doc.id}">✕</button>`;
       card.addEventListener('click', (e) => {
         if (e.target.closest('.oj-student-card-del')) return;
@@ -4236,11 +4248,41 @@ async function loadOjStudents(groupId, groupName) {
         e.stopPropagation();
         if (!confirm(`"${s.name}"ni o'chirmoqchimisiz?`)) return;
         await db.collection('oquv_groups').doc(groupId).collection('students').doc(doc.id).delete();
+        try {
+          const entriesSnap = await db.collection('oquv_progress').doc(doc.id).collection('entries').get();
+          const batch = db.batch();
+          entriesSnap.docs.forEach(ed => batch.delete(ed.ref));
+          batch.delete(db.collection('oquv_progress').doc(doc.id));
+          await batch.commit();
+        } catch(cleanupErr) { console.error('Progress cleanup failed:', cleanupErr); }
         loadOjStudents(groupId, groupName);
       });
       grid.appendChild(card);
     });
   } catch(err) { grid.innerHTML = '<p style="color:red;">Xatolik yuz berdi.</p>'; }
+}
+
+// A student's ID doubles as the Firestore doc ID for both
+// oquv_groups/{g}/students/{id} and oquv_progress/{id} — this is what the
+// student types into the "O'quv jarayoni" card on their own home page, so
+// it must be unique across ALL groups (checked against oquv_progress,
+// which is the single shared namespace both use).
+const OJ_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no O/0, I/1 — avoids mixups
+function genOjCode(){
+  let out = '';
+  for(let i = 0; i < 6; i++) out += OJ_CODE_ALPHABET[Math.floor(Math.random() * OJ_CODE_ALPHABET.length)];
+  return out;
+}
+async function ojCodeTaken(id){
+  const doc = await db.collection('oquv_progress').doc(id).get();
+  return doc.exists;
+}
+async function ojGenUniqueCode(){
+  for(let i = 0; i < 8; i++){
+    const code = genOjCode();
+    if(!(await ojCodeTaken(code))) return code;
+  }
+  throw new Error('Could not generate a unique code');
 }
 
 let _ojAddMode = 'one';
@@ -4257,6 +4299,7 @@ function ojSetMode(mode) {
 
 document.getElementById('openAddOquvStudent').addEventListener('click', () => {
   document.getElementById('ojStudentNameInput').value = '';
+  document.getElementById('ojStudentIdInput').value = '';
   document.getElementById('ojBulkNamesInput').value = '';
   document.getElementById('ojBulkCount').textContent = '0 ta ism';
   document.getElementById('ojStudentError').hidden = true;
@@ -4284,11 +4327,32 @@ document.getElementById('ojStudentSaveBtn').addEventListener('click', async () =
   if (_ojAddMode === 'one') {
     const name = document.getElementById('ojStudentNameInput').value.trim();
     if (!name) { err.textContent = 'Ism kiritilmagan.'; err.hidden = false; return; }
+    let customId = document.getElementById('ojStudentIdInput').value.trim();
+    if (customId && !/^[A-Za-z0-9_-]+$/.test(customId)) {
+      err.textContent = 'ID faqat harf, raqam, "-" va "_" belgilaridan iborat bo\u02bclishi kerak.';
+      err.hidden = false;
+      return;
+    }
+    const btn = document.getElementById('ojStudentSaveBtn');
+    btn.disabled = true;
     try {
-      await col.add({ name, createdAt: ts });
+      let id = customId;
+      if (id) {
+        if (await ojCodeTaken(id)) {
+          err.textContent = `"${id}" ID band — boshqa ID tanlang yoki maydonni bo\u02bcsh qoldiring.`;
+          err.hidden = false;
+          btn.disabled = false;
+          return;
+        }
+      } else {
+        id = await ojGenUniqueCode();
+      }
+      await col.doc(id).set({ name, createdAt: ts });
+      await db.collection('oquv_progress').doc(id).set({ name, group: _ojActiveGroupName, createdAt: ts }, { merge: true });
       closeModal('modalAddOquvStudent');
       loadOjStudents(_ojActiveGroupId, _ojActiveGroupName);
     } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
+    btn.disabled = false;
 
   } else {
     const names = document.getElementById('ojBulkNamesInput').value
@@ -4298,11 +4362,20 @@ document.getElementById('ojStudentSaveBtn').addEventListener('click', async () =
     btn.disabled = true;
     btn.textContent = 'Saqlanmoqda\u2026';
     try {
+      // Bulk-added students always get an auto-generated ID (no UI to type
+      // 20 custom ones) — codes are checked one at a time before batching
+      // since Firestore batches can't read. usedCodes also guards against
+      // two names in the same batch landing on the same fresh code, since
+      // none of them exist server-side yet to be caught by ojCodeTaken.
+      const usedCodes = new Set();
       const batch = db.batch();
-      names.forEach(name => {
-        const ref = col.doc();
-        batch.set(ref, { name, createdAt: ts });
-      });
+      for (const name of names) {
+        let id;
+        do { id = await ojGenUniqueCode(); } while (usedCodes.has(id));
+        usedCodes.add(id);
+        batch.set(col.doc(id), { name, createdAt: ts });
+        batch.set(db.collection('oquv_progress').doc(id), { name, group: _ojActiveGroupName, createdAt: ts }, { merge: true });
+      }
       await batch.commit();
       closeModal('modalAddOquvStudent');
       loadOjStudents(_ojActiveGroupId, _ojActiveGroupName);
@@ -4320,6 +4393,7 @@ function openOjProgress(studentId, studentName) {
   document.getElementById('ojProgressAvatar').textContent = initials;
   document.getElementById('ojProgressName').textContent = studentName;
   document.getElementById('ojProgressGroup').textContent = _ojActiveGroupName;
+  document.getElementById('ojProgressIdVal').textContent = studentId;
   // Set today's date
   document.getElementById('ojDateInput').value = new Date().toISOString().slice(0,10);
   document.getElementById('ojAttendedInput').value = '';
@@ -4450,6 +4524,27 @@ async function ojDeleteEntry(entryId) {
     loadOjProgressEntries();
   } catch(err) { alert("O\u02bcchirishda xatolik."); }
 }
+
+document.getElementById('ojCopyIdBtn').addEventListener('click', () => {
+  const btn = document.getElementById('ojCopyIdBtn');
+  const id = document.getElementById('ojProgressIdVal').textContent.trim();
+  if (!id) return;
+  const showCopied = () => {
+    const original = btn.textContent;
+    btn.textContent = '✓ Nusxalandi';
+    setTimeout(() => { btn.textContent = original; }, 1800);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(id).then(showCopied).catch(() => {});
+  } else {
+    const tmp = document.createElement('textarea');
+    tmp.value = id;
+    document.body.appendChild(tmp);
+    tmp.select();
+    try { document.execCommand('copy'); showCopied(); } catch(err){}
+    document.body.removeChild(tmp);
+  }
+});
 
 function escHtml(s){ return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
 
