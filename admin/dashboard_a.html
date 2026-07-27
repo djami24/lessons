@@ -3240,7 +3240,7 @@ document.getElementById('gradeEssayForm').addEventListener('submit', async (e) =
 document.getElementById('deleteEssayBtn').addEventListener('click', async () => {
   const essay = state.essays.find(s => s.id === state.activeEssayId);
   if(!essay) return;
-  if(confirm('Bu inshoni o‘chirmoqchimisiz? Bu amalni bekor qilib bo‘lmaydi.')){
+  if(confirm("Bu inshoni oʼchirmoqchimisiz? Bu amalni bekor qilib boʼlmaydi.")){
     await db.collection('writingSubmissions').doc(essay.id).delete();
     state.essays = state.essays.filter(s => s.id !== essay.id);
     closeModal('modalGradeEssay');
@@ -3413,7 +3413,7 @@ async function loadCommentsAdminList(blogId){
 document.getElementById('commentsAdminList').addEventListener('click', async (e) => {
   const delBtn = e.target.closest('[data-delete-comment]');
   if(!delBtn) return;
-  if(!confirm('Bu izoh o‘chirilsinmi?')) return;
+  if(!confirm("Bu izoh oʼchirilsinmi?")) return;
   const commentId = delBtn.dataset.deleteComment;
   const blogId = state.activeCommentsBlogId;
   try{
@@ -3832,7 +3832,7 @@ function renderRatingStats(sum, count){
 });
 
 document.getElementById('siteSettingsReset').addEventListener('click', () => {
-  if(confirm('Sayt sozlamalarini standart holatga qaytarmoqchimisiz? (Saqlash tugmasini bosmaguningizcha o‘zgarish qo‘llanmaydi.)')){
+  if(confirm("Sayt sozlamalarini standart holatga qaytarmoqchimisiz? (Saqlash tugmasini bosmaguningizcha oʼzgarish qoʼllanmaydi.)")){
     fillSiteSettingsForm(DEFAULT_SITE_SETTINGS);
   }
 });
@@ -4371,12 +4371,12 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
 });
 
 async function ojDeleteEntry(entryId) {
-  if (!confirm('Bu yozuvni o'chirmoqchimisiz?')) return;
+  if (!confirm("Bu yozuvni o\u02bcchirmoqchimisiz?")) return;
   try {
     await db.collection('oquv_progress').doc(_ojActiveStudentId)
       .collection('entries').doc(entryId).delete();
     loadOjProgressEntries();
-  } catch(err) { alert('O'chirishda xatolik.'); }
+  } catch(err) { alert("O\u02bcchirishda xatolik."); }
 }
 
 function escHtml(s){ return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
@@ -4706,7 +4706,7 @@ async function loadBroadcastHistory(){
 
     listEl.querySelectorAll('[data-del-notif]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        if(!confirm('Bu xabarni o‘chirishni tasdiqlaysizmi?')) return;
+        if(!confirm("Bu xabarni oʼchirishni tasdiqlaysizmi?")) return;
         await db.collection('notifications').doc(btn.dataset.delNotif).delete();
         loadBroadcastHistory();
       });
@@ -4827,7 +4827,7 @@ async function deleteChat(chatId, studentName){
     }
     loadChatStudentList();
   } catch(err){
-    alert('Chatni o‘chirishda xatolik: ' + err.message);
+    alert("Chatni oʼchirishda xatolik: " + err.message);
   }
 }
 
