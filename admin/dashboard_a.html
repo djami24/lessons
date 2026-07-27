@@ -20,6 +20,14 @@
 .oj-group-card-meta{font-size:.82rem;color:var(--gray);}
 .oj-group-card-del{position:absolute;top:12px;right:12px;background:none;border:none;cursor:pointer;opacity:0;font-size:.85rem;color:#e74c3c;transition:opacity .2s;}
 .oj-group-card:hover .oj-group-card-del{opacity:1;}
+.oj-group-card-edit{position:absolute;top:12px;right:38px;background:none;border:none;cursor:pointer;opacity:0;font-size:.85rem;transition:opacity .2s;}
+.oj-group-card:hover .oj-group-card-edit{opacity:1;}
+.oj-group-card-days{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px;}
+.oj-day-chip{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(46,111,110,.12);color:var(--teal,#2e6f6e);}
+.oj-days-picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+.oj-days-picker label{display:flex;align-items:center;gap:5px;font-size:.82rem;font-weight:600;background:var(--surface,#f8f9fa);border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer;}
+.oj-days-preset-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2px;}
+.oj-schedule-banner{background:rgba(217,142,63,.12);border:1.5px solid rgba(217,142,63,.35);color:var(--amber-deep,#c08a2e);border-radius:10px;padding:10px 14px;font-size:.85rem;font-weight:600;margin:-6px 0 16px;}
 
 .oj-students-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;}
 .oj-student-card{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:18px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:box-shadow .2s,transform .15s;position:relative;}
@@ -853,10 +861,12 @@
         <div>
           <h1 style="margin:0; font-size:1.4rem;" id="ojGroupTitle">Guruh</h1>
           <p style="margin:0; color:var(--gray); font-size:.85rem;" id="ojGroupSub">0 talaba</p>
+          <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupDaysLine"></p>
         </div>
         <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn" style="margin-left:auto;">📋 Hammasini nusxalash</button>
         <button class="btn btn-primary" id="openAddOquvStudent">+ Talaba qo'shish</button>
       </div>
+      <div id="ojScheduleBanner" class="oj-schedule-banner" hidden></div>
       <p style="color:var(--gray); font-size:.85rem; margin:-10px 0 16px;">Ro'yxatda <strong id="ojTodayLabel"></strong> uchun davomat, uy vazifa va bahoni belgilang. To'liq tarixni ko'rish yoki tahrirlash uchun talaba ismiga bosing.</p>
       <div id="ojStudentsGrid" class="oj-students-list"></div>
       <div id="ojStudentsEmpty" class="oj-empty" style="display:none;">
@@ -1010,10 +1020,26 @@
 <!-- ===== MODAL: Add O'quv Jarayoni Group ===== -->
 <div class="modal-overlay" id="modalAddOquvGroup" hidden>
   <div class="modal-box" style="max-width:420px;">
-    <h2 class="modal-title">Yangi guruh</h2>
+    <h2 class="modal-title" id="ojGroupModalTitle">Yangi guruh</h2>
     <div class="modal-form">
+      <input type="hidden" id="ojGroupEditingId" value="">
       <label>Guruh nomi
         <input type="text" id="ojGroupNameInput" placeholder="Masalan: Monday Group, A1 guruh…">
+      </label>
+      <label>Dars kunlari
+        <div class="oj-days-preset-row">
+          <button type="button" class="btn btn-ghost btn-sm" id="ojGroupPresetMWF">Dush · Chor · Juma</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="ojGroupPresetTTS">Sesh · Pay · Shan</button>
+        </div>
+        <div class="oj-days-picker" id="ojGroupDaysPicker">
+          <label><input type="checkbox" value="mon"> Dush</label>
+          <label><input type="checkbox" value="tue"> Sesh</label>
+          <label><input type="checkbox" value="wed"> Chor</label>
+          <label><input type="checkbox" value="thu"> Pay</label>
+          <label><input type="checkbox" value="fri"> Juma</label>
+          <label><input type="checkbox" value="sat"> Shan</label>
+          <label><input type="checkbox" value="sun"> Yak</label>
+        </div>
       </label>
       <p class="form-error" id="ojGroupError" role="alert" hidden></p>
       <div class="modal-actions">
@@ -4206,6 +4232,7 @@ async function deleteHwItem(hwId, title) {
 
 let _ojActiveGroupId = null;
 let _ojActiveGroupName = '';
+let _ojActiveGroupDays = [];
 let _ojActiveGroupStudents = []; // [{id, name}] for the currently open group — used by "copy all"
 let _ojActiveStudentId = null;
 let _ojActiveStudentName = '';
@@ -4232,6 +4259,27 @@ document.getElementById('ojBackToStudents').addEventListener('click', (e) => {
 });
 
 // ----- Groups -----
+const OJ_DAY_LABELS = { mon: 'Dush', tue: 'Sesh', wed: 'Chor', thu: 'Pay', fri: 'Juma', sat: 'Shan', sun: 'Yak' };
+const OJ_DAY_ORDER = ['mon','tue','wed','thu','fri','sat','sun'];
+// JS Date#getDay(): 0=Sun..6=Sat — map to our 'mon'..'sun' keys.
+const OJ_JSDAY_TO_KEY = ['sun','mon','tue','wed','thu','fri','sat'];
+
+function ojDaysToLabel(days){
+  if (!days || !days.length) return '';
+  return OJ_DAY_ORDER.filter(d => days.includes(d)).map(d => OJ_DAY_LABELS[d]).join(', ');
+}
+
+function ojGetCheckedDays(){
+  return Array.from(document.querySelectorAll('#ojGroupDaysPicker input[type=checkbox]:checked')).map(cb => cb.value);
+}
+function ojSetCheckedDays(days){
+  const set = new Set(days || []);
+  document.querySelectorAll('#ojGroupDaysPicker input[type=checkbox]').forEach(cb => { cb.checked = set.has(cb.value); });
+}
+
+document.getElementById('ojGroupPresetMWF').addEventListener('click', () => ojSetCheckedDays(['mon','wed','fri']));
+document.getElementById('ojGroupPresetTTS').addEventListener('click', () => ojSetCheckedDays(['tue','thu','sat']));
+
 async function loadOjGroups() {
   const grid = document.getElementById('ojGroupsGrid');
   const empty = document.getElementById('ojGroupsEmpty');
@@ -4243,6 +4291,7 @@ async function loadOjGroups() {
     empty.style.display = 'none';
     snap.docs.forEach(doc => {
       const g = doc.data();
+      const daysLabel = ojDaysToLabel(g.days);
       const card = document.createElement('div');
       card.className = 'oj-group-card';
       card.innerHTML = `
@@ -4250,11 +4299,23 @@ async function loadOjGroups() {
         <div>
           <div class="oj-group-card-name">${escHtml(g.name)}</div>
           <div class="oj-group-card-meta">Guruh</div>
+          ${daysLabel ? `<div class="oj-group-card-days">${OJ_DAY_ORDER.filter(d => (g.days||[]).includes(d)).map(d => `<span class="oj-day-chip">${OJ_DAY_LABELS[d]}</span>`).join('')}</div>` : ''}
         </div>
+        <button class="oj-group-card-edit" title="Tahrirlash" data-gid="${doc.id}">✏️</button>
         <button class="oj-group-card-del" title="O'chirish" data-gid="${doc.id}">🗑</button>`;
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.oj-group-card-del')) return;
-        loadOjStudents(doc.id, g.name);
+        if (e.target.closest('.oj-group-card-del') || e.target.closest('.oj-group-card-edit')) return;
+        loadOjStudents(doc.id, g.name, g.days || []);
+      });
+      card.querySelector('.oj-group-card-edit').addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.getElementById('ojGroupModalTitle').textContent = 'Guruhni tahrirlash';
+        document.getElementById('ojGroupEditingId').value = doc.id;
+        document.getElementById('ojGroupNameInput').value = g.name || '';
+        ojSetCheckedDays(g.days || []);
+        document.getElementById('ojGroupError').hidden = true;
+        document.getElementById('ojGroupSaveBtn').textContent = 'Saqlash';
+        openModal('modalAddOquvGroup');
       });
       card.querySelector('.oj-group-card-del').addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -4268,8 +4329,12 @@ async function loadOjGroups() {
 }
 
 document.getElementById('openAddOquvGroup').addEventListener('click', () => {
+  document.getElementById('ojGroupModalTitle').textContent = 'Yangi guruh';
+  document.getElementById('ojGroupEditingId').value = '';
   document.getElementById('ojGroupNameInput').value = '';
+  ojSetCheckedDays([]);
   document.getElementById('ojGroupError').hidden = true;
+  document.getElementById('ojGroupSaveBtn').textContent = 'Yaratish';
   openModal('modalAddOquvGroup');
   setTimeout(() => document.getElementById('ojGroupNameInput').focus(), 80);
 });
@@ -4277,21 +4342,29 @@ document.getElementById('openAddOquvGroup').addEventListener('click', () => {
 document.getElementById('ojGroupSaveBtn').addEventListener('click', async () => {
   const name = document.getElementById('ojGroupNameInput').value.trim();
   const err = document.getElementById('ojGroupError');
+  const editingId = document.getElementById('ojGroupEditingId').value;
+  const days = ojGetCheckedDays();
   if (!name) { err.textContent = 'Guruh nomi kiritilmagan.'; err.hidden = false; return; }
   err.hidden = true;
   try {
-    await db.collection('oquv_groups').add({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    if (editingId) {
+      await db.collection('oquv_groups').doc(editingId).set({ name, days }, { merge: true });
+    } else {
+      await db.collection('oquv_groups').add({ name, days, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    }
     closeModal('modalAddOquvGroup');
     loadOjGroups();
   } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
 });
 
+
 // ----- Students -----
 function ojTodayStr(){ return new Date().toISOString().slice(0,10); }
 
-async function loadOjStudents(groupId, groupName) {
+async function loadOjStudents(groupId, groupName, days) {
   _ojActiveGroupId = groupId;
   _ojActiveGroupName = groupName;
+  if (days !== undefined) _ojActiveGroupDays = days || [];
   document.getElementById('ojGroupTitle').textContent = '👥 ' + groupName;
   switchView('oquv-students');
   const grid = document.getElementById('ojStudentsGrid');
@@ -4300,6 +4373,20 @@ async function loadOjStudents(groupId, groupName) {
   const today = ojTodayStr();
   document.getElementById('ojTodayLabel').textContent =
     new Date(today + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' });
+
+  const daysLine = document.getElementById('ojGroupDaysLine');
+  const daysLabel = ojDaysToLabel(_ojActiveGroupDays);
+  daysLine.textContent = daysLabel ? `📅 Dars kunlari: ${daysLabel}` : '';
+
+  const banner = document.getElementById('ojScheduleBanner');
+  const todayKey = OJ_JSDAY_TO_KEY[new Date(today + 'T00:00:00').getDay()];
+  if (_ojActiveGroupDays.length && !_ojActiveGroupDays.includes(todayKey)) {
+    banner.hidden = false;
+    banner.textContent = `⚠ Bugun (${OJ_DAY_LABELS[todayKey]}) — bu guruhning odatdagi dars kuni emas (${daysLabel}). Baribir belgilashingiz mumkin.`;
+  } else {
+    banner.hidden = true;
+  }
+
   try {
     const snap = await db.collection('oquv_groups').doc(groupId).collection('students').orderBy('name').get();
     grid.innerHTML = '';
