@@ -138,25 +138,39 @@
           </div>
         </div>
 
-        <div class="latest-hw-box" id="progressBox" hidden style="background:#fff; border:1.5px solid var(--line);">
+        <div class="latest-hw-box" id="progressBox" style="background:#fff; border:1.5px solid var(--line);">
           <div class="latest-hw-head">
             <span class="latest-hw-eyebrow" style="color:var(--teal-deep);">📈 O‘quv jarayoni</span>
             <span class="latest-hw-date" id="progressDate" style="color:var(--gray);"></span>
           </div>
-          <div style="display:flex; flex-direction:column; gap:.5em; margin-top:.4em;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
-              <span style="color:var(--gray); font-size:.9rem;">Davomat</span>
-              <span id="progressAttendedVal" style="font-weight:700;">—</span>
+
+          <div id="progressIdForm">
+            <p class="latest-hw-preview">O‘quv jarayoningizni ko‘rish uchun administrator bergan ID’ni kiriting.</p>
+            <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:.6em;">
+              <input type="text" id="progressIdInput" placeholder="ID" style="flex:1; min-width:160px;">
+              <button type="button" class="btn btn-amber btn-sm" id="progressIdSubmitBtn">Ko‘rish</button>
             </div>
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
-              <span style="color:var(--gray); font-size:.9rem;">Uy vazifa</span>
-              <span id="progressHwVal" style="font-weight:700;">—</span>
+            <p class="form-error" id="progressIdError" role="alert" hidden style="margin-top:.6em;"></p>
+          </div>
+
+          <div id="progressView" hidden>
+            <h3 class="latest-hw-title" id="progressStudentNameVal" style="color:#1b2733;"></h3>
+            <div style="display:flex; flex-direction:column; gap:.5em; margin-top:.4em;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
+                <span style="color:var(--gray); font-size:.9rem;">Davomat</span>
+                <span id="progressAttendedVal" style="font-weight:700;">—</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
+                <span style="color:var(--gray); font-size:.9rem;">Uy vazifa</span>
+                <span id="progressHwVal" style="font-weight:700;">—</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
+                <span style="color:var(--gray); font-size:.9rem;">Kunlik baho</span>
+                <span id="progressGradeVal" style="font-weight:700;">—</span>
+              </div>
+              <p class="latest-hw-preview" id="progressNoteVal" style="color:var(--gray); margin:.2em 0 0;"></p>
             </div>
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
-              <span style="color:var(--gray); font-size:.9rem;">Kunlik baho</span>
-              <span id="progressGradeVal" style="font-weight:700;">—</span>
-            </div>
-            <p class="latest-hw-preview" id="progressNoteVal" style="color:var(--gray); margin:.2em 0 0;"></p>
+            <button type="button" class="btn btn-ghost btn-sm" id="progressChangeIdBtn" style="margin-top:.8em;">ID’ni o‘zgartirish</button>
           </div>
         </div>
       </div>
@@ -836,40 +850,130 @@ function renderHomeView(){
   document.getElementById('navProfile').classList.remove('active');
   loadLatestHomework();
   renderGbResultBox();
-  loadStudentProgress();
+  renderProgressBox();
 }
 
-// Shows the most recent teacher-entered diary entry (attendance / homework
-// done / daily grade) from progress/{uid}/entries — filled in by the admin
-// on that student's "O‘quv jarayoni" page. Read-only here; the student
-// cannot edit it themselves.
-async function loadStudentProgress(){
-  const box = document.getElementById('progressBox');
+// Shows the student's own attendance/homework/grade diary from the admin
+// panel's "O'quv jarayoni" section (oquv_groups → students → oquv_progress).
+// That data isn't tied to the student's Firebase Auth uid — it's tied to
+// an ID the admin assigns per student in that section — so the student
+// types that ID here once. The ID is then saved on their OWN account
+// (students/{uid}.oquvProgressCode) so it follows them across devices,
+// the same pattern used for the "Test natijasi" (gradebook) card above.
+async function renderProgressBox(){
+  const formEl = document.getElementById('progressIdForm');
+  const viewEl = document.getElementById('progressView');
+  const errorEl = document.getElementById('progressIdError');
+  errorEl.hidden = true;
+
+  const savedCode = state.student.oquvProgressCode || null;
+
+  if(!savedCode){
+    formEl.hidden = false;
+    viewEl.hidden = true;
+    return;
+  }
+
   try{
-    const snap = await db.collection('progress').doc(currentUid)
-      .collection('entries').orderBy('date', 'desc').limit(1).get();
-    if(snap.empty){ box.hidden = true; return; }
-    const d = snap.docs[0].data();
-    const date = d.date ? new Date(d.date + 'T00:00:00') : null;
-    document.getElementById('progressDate').textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
+    const doc = await db.collection('oquv_progress').doc(savedCode).get();
+    if(!doc.exists){
+      document.getElementById('progressIdInput').value = savedCode;
+      errorEl.textContent = `"${savedCode}" ID topilmadi. ID’ni tekshirib, qayta kiriting.`;
+      errorEl.hidden = false;
+      formEl.hidden = false;
+      viewEl.hidden = true;
+      return;
+    }
+
+    const info = doc.data();
+    document.getElementById('progressStudentNameVal').textContent = info.name || '';
+
+    const dateEl = document.getElementById('progressDate');
     const attendedEl = document.getElementById('progressAttendedVal');
-    if(d.attended === true){ attendedEl.textContent = '✅ Keldi'; attendedEl.style.color = '#1e7e34'; }
-    else if(d.attended === false){ attendedEl.textContent = '🚫 Kelmadi'; attendedEl.style.color = '#c0392b'; }
-    else { attendedEl.textContent = '—'; attendedEl.style.color = ''; }
     const hwEl = document.getElementById('progressHwVal');
-    if(d.homeworkDone === true){ hwEl.textContent = '✅ Qildi'; hwEl.style.color = '#1e7e34'; }
-    else if(d.homeworkDone === false){ hwEl.textContent = '🕓 Qilmadi'; hwEl.style.color = '#a15c00'; }
-    else { hwEl.textContent = '—'; hwEl.style.color = ''; }
     const gradeEl = document.getElementById('progressGradeVal');
-    gradeEl.textContent = d.grade ? `${d.grade}/5` : '—';
-    gradeEl.style.color = d.grade ? 'var(--teal-deep)' : '';
-    document.getElementById('progressNoteVal').textContent = d.note || '';
-    box.hidden = false;
+    const noteEl = document.getElementById('progressNoteVal');
+
+    const snap = await db.collection('oquv_progress').doc(savedCode)
+      .collection('entries').orderBy('date', 'desc').limit(1).get();
+
+    if(snap.empty){
+      dateEl.textContent = '';
+      attendedEl.textContent = '—'; attendedEl.style.color = '';
+      hwEl.textContent = '—'; hwEl.style.color = '';
+      gradeEl.textContent = '—'; gradeEl.style.color = '';
+      noteEl.textContent = '';
+    } else {
+      const d = snap.docs[0].data();
+      const date = d.date ? new Date(d.date + 'T00:00:00') : null;
+      dateEl.textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
+
+      // Entries store attended/homeworkDone as the string 'yes'/'no' (or
+      // '' when unset) rather than booleans — normalize both just in case.
+      const attended = (d.attended === true || d.attended === 'yes') ? 'yes' : (d.attended === false || d.attended === 'no') ? 'no' : '';
+      if(attended === 'yes'){ attendedEl.textContent = '✅ Keldi'; attendedEl.style.color = '#1e7e34'; }
+      else if(attended === 'no'){ attendedEl.textContent = '🚫 Kelmadi'; attendedEl.style.color = '#c0392b'; }
+      else { attendedEl.textContent = '—'; attendedEl.style.color = ''; }
+
+      const hwDone = (d.homeworkDone === true || d.homeworkDone === 'yes') ? 'yes' : (d.homeworkDone === false || d.homeworkDone === 'no') ? 'no' : '';
+      if(hwDone === 'yes'){ hwEl.textContent = '✅ Qildi'; hwEl.style.color = '#1e7e34'; }
+      else if(hwDone === 'no'){ hwEl.textContent = '🕓 Qilmadi'; hwEl.style.color = '#a15c00'; }
+      else { hwEl.textContent = '—'; hwEl.style.color = ''; }
+
+      gradeEl.textContent = d.grade ? `${d.grade}/5` : '—';
+      gradeEl.style.color = d.grade ? 'var(--teal-deep)' : '';
+      noteEl.textContent = d.note || '';
+    }
+
+    formEl.hidden = true;
+    viewEl.hidden = false;
   } catch(err){
-    console.error('Student progress load failed:', err);
-    box.hidden = true;
+    console.error('Progress lookup failed:', err);
+    formEl.hidden = false;
+    viewEl.hidden = true;
   }
 }
+
+document.getElementById('progressIdSubmitBtn').addEventListener('click', async () => {
+  const input = document.getElementById('progressIdInput');
+  const code = input.value.trim();
+  const errorEl = document.getElementById('progressIdError');
+  const btn = document.getElementById('progressIdSubmitBtn');
+  errorEl.hidden = true;
+  if(!code){ errorEl.textContent = 'ID kiriting.'; errorEl.hidden = false; return; }
+  btn.disabled = true;
+  try{
+    await db.collection('students').doc(currentUid).update({ oquvProgressCode: code });
+    state.student.oquvProgressCode = code;
+    await renderProgressBox();
+  } catch(err){
+    console.error('Progress code save failed:', err);
+    errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
+    errorEl.hidden = false;
+  }
+  btn.disabled = false;
+});
+
+document.getElementById('progressIdInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    document.getElementById('progressIdSubmitBtn').click();
+  }
+});
+
+document.getElementById('progressChangeIdBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('progressChangeIdBtn');
+  btn.disabled = true;
+  try{
+    await db.collection('students').doc(currentUid).update({ oquvProgressCode: firebase.firestore.FieldValue.delete() });
+  } catch(err){ /* if this fails, we'll just ask again — no harm done */ }
+  delete state.student.oquvProgressCode;
+  document.getElementById('progressIdInput').value = '';
+  document.getElementById('progressIdError').hidden = true;
+  document.getElementById('progressView').hidden = true;
+  document.getElementById('progressIdForm').hidden = false;
+  btn.disabled = false;
+});
 
 // Shows the most recent homework from the student's own kundalikGroup
 // (same source data as kundalik.html) right at the top of the home page.
