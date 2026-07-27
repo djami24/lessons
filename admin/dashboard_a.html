@@ -949,12 +949,35 @@
 
 <!-- ===== MODAL: Add O'quv Jarayoni Student ===== -->
 <div class="modal-overlay" id="modalAddOquvStudent" hidden>
-  <div class="modal-box" style="max-width:420px;">
+  <div class="modal-box" style="max-width:480px;">
     <h2 class="modal-title">Guruhga talaba qo'shish</h2>
     <div class="modal-form">
-      <label>Talaba ismi (to'liq)
-        <input type="text" id="ojStudentNameInput" placeholder="Masalan: Bekzod Toshmatov">
-      </label>
+
+      <!-- Mode toggle -->
+      <div style="display:flex; gap:0; border:1.5px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:16px;">
+        <button id="ojModeOne" class="oj-mode-btn oj-mode-active" onclick="ojSetMode('one')" type="button" style="flex:1; padding:9px; font-size:.88rem; font-weight:600; border:none; cursor:pointer; background:var(--teal,#2e6f6e); color:#fff; transition:background .2s;">
+          1 ta talaba
+        </button>
+        <button id="ojModeBulk" class="oj-mode-btn" onclick="ojSetMode('bulk')" type="button" style="flex:1; padding:9px; font-size:.88rem; font-weight:600; border:none; cursor:pointer; background:var(--surface,#f4f4f4); color:var(--gray); transition:background .2s;">
+          Ko'p talaba (max 20)
+        </button>
+      </div>
+
+      <!-- Single mode -->
+      <div id="ojPanelOne">
+        <label>Talaba ismi (to'liq)
+          <input type="text" id="ojStudentNameInput" placeholder="Masalan: Bekzod Toshmatov">
+        </label>
+      </div>
+
+      <!-- Bulk mode -->
+      <div id="ojPanelBulk" style="display:none;">
+        <label>Har bir qatorga bitta ism yozing (max 20 ta)
+          <textarea id="ojBulkNamesInput" rows="8" style="width:100%; font-family:inherit; padding:.75em 1em; border-radius:10px; border:1.5px solid var(--line); resize:vertical; font-size:.9rem; line-height:1.6;" placeholder="Bekzod Toshmatov&#10;Malika Karimova&#10;Sardor Rahimov&#10;..."></textarea>
+        </label>
+        <div id="ojBulkCount" style="font-size:.8rem; color:var(--gray); margin-top:4px; text-align:right;">0 ta ism</div>
+      </div>
+
       <p class="form-error" id="ojStudentError" role="alert" hidden></p>
       <div class="modal-actions">
         <button class="btn btn-primary" id="ojStudentSaveBtn">Qo'shish</button>
@@ -4220,24 +4243,73 @@ async function loadOjStudents(groupId, groupName) {
   } catch(err) { grid.innerHTML = '<p style="color:red;">Xatolik yuz berdi.</p>'; }
 }
 
+let _ojAddMode = 'one';
+
+function ojSetMode(mode) {
+  _ojAddMode = mode;
+  document.getElementById('ojPanelOne').style.display = mode === 'one' ? '' : 'none';
+  document.getElementById('ojPanelBulk').style.display = mode === 'bulk' ? '' : 'none';
+  document.getElementById('ojModeOne').style.background = mode === 'one' ? 'var(--teal,#2e6f6e)' : 'var(--surface,#f4f4f4)';
+  document.getElementById('ojModeOne').style.color = mode === 'one' ? '#fff' : 'var(--gray)';
+  document.getElementById('ojModeBulk').style.background = mode === 'bulk' ? 'var(--teal,#2e6f6e)' : 'var(--surface,#f4f4f4)';
+  document.getElementById('ojModeBulk').style.color = mode === 'bulk' ? '#fff' : 'var(--gray)';
+}
+
 document.getElementById('openAddOquvStudent').addEventListener('click', () => {
   document.getElementById('ojStudentNameInput').value = '';
+  document.getElementById('ojBulkNamesInput').value = '';
+  document.getElementById('ojBulkCount').textContent = '0 ta ism';
   document.getElementById('ojStudentError').hidden = true;
+  ojSetMode('one');
   openModal('modalAddOquvStudent');
   setTimeout(() => document.getElementById('ojStudentNameInput').focus(), 80);
 });
 
+document.getElementById('ojBulkNamesInput').addEventListener('input', () => {
+  const lines = document.getElementById('ojBulkNamesInput').value
+    .split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  const count = Math.min(lines.length, 20);
+  const el = document.getElementById('ojBulkCount');
+  el.textContent = count + ' ta ism';
+  el.style.color = lines.length > 20 ? '#e74c3c' : 'var(--gray)';
+  if (lines.length > 20) el.textContent += ' (faqat birinchi 20 ta qo\u02bcshiladi)';
+});
+
 document.getElementById('ojStudentSaveBtn').addEventListener('click', async () => {
-  const name = document.getElementById('ojStudentNameInput').value.trim();
   const err = document.getElementById('ojStudentError');
-  if (!name) { err.textContent = 'Ism kiritilmagan.'; err.hidden = false; return; }
   err.hidden = true;
-  try {
-    await db.collection('oquv_groups').doc(_ojActiveGroupId).collection('students')
-      .add({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-    closeModal('modalAddOquvStudent');
-    loadOjStudents(_ojActiveGroupId, _ojActiveGroupName);
-  } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
+  const col = db.collection('oquv_groups').doc(_ojActiveGroupId).collection('students');
+  const ts = firebase.firestore.FieldValue.serverTimestamp();
+
+  if (_ojAddMode === 'one') {
+    const name = document.getElementById('ojStudentNameInput').value.trim();
+    if (!name) { err.textContent = 'Ism kiritilmagan.'; err.hidden = false; return; }
+    try {
+      await col.add({ name, createdAt: ts });
+      closeModal('modalAddOquvStudent');
+      loadOjStudents(_ojActiveGroupId, _ojActiveGroupName);
+    } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
+
+  } else {
+    const names = document.getElementById('ojBulkNamesInput').value
+      .split('\n').map(l => l.trim()).filter(l => l.length > 0).slice(0, 20);
+    if (!names.length) { err.textContent = 'Hech bo\u02bcm ism kiritilmagan.'; err.hidden = false; return; }
+    const btn = document.getElementById('ojStudentSaveBtn');
+    btn.disabled = true;
+    btn.textContent = 'Saqlanmoqda\u2026';
+    try {
+      const batch = db.batch();
+      names.forEach(name => {
+        const ref = col.doc();
+        batch.set(ref, { name, createdAt: ts });
+      });
+      await batch.commit();
+      closeModal('modalAddOquvStudent');
+      loadOjStudents(_ojActiveGroupId, _ojActiveGroupName);
+    } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
+    btn.disabled = false;
+    btn.textContent = "Qo\u02bcshish";
+  }
 });
 
 // ----- Progress -----
