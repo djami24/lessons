@@ -8,13 +8,9 @@ service cloud.firestore {
       return isSignedIn() &&
         exists(/databases/$(database)/documents/admins/$(request.auth.uid));
     }
-    // Reads a nested course-payment status safely, defaulting to 'none'
-    // when the student doc (or the coursePayments map) doesn't have it yet.
     function courseStatus(data, courseId) {
       return data.get('coursePayments', {}).get(courseId, 'none');
     }
-    // A student may move any course's payment status to 'pending', or leave
-    // it unchanged — but never jump straight to 'approved' themselves.
     function validCoursePaymentsUpdate() {
       return courseStatus(request.resource.data, 'ielts') == courseStatus(resource.data, 'ielts') ||
              courseStatus(request.resource.data, 'ielts') == 'pending';
@@ -23,64 +19,40 @@ service cloud.firestore {
       return courseStatus(request.resource.data, 'cefr') == courseStatus(resource.data, 'cefr') ||
              courseStatus(request.resource.data, 'cefr') == 'pending';
     }
-    // Writing (insho) — separate paid add-on, same self-service-to-'pending'-only rule.
     function validCoursePaymentsUpdateWriting() {
       return courseStatus(request.resource.data, 'writing') == courseStatus(resource.data, 'writing') ||
              courseStatus(request.resource.data, 'writing') == 'pending';
     }
-    // Kundalik (Homework) group: a student picks their group exactly once on
-    // their first visit to kundalik.html. After that it's locked — they may
-    // never switch to a different group themselves (only re-save the same
-    // value, which is a harmless no-op).
     function validKundalikGroupUpdate() {
       return resource.data.get('kundalikGroup', null) == null ||
              request.resource.data.kundalikGroup == resource.data.kundalikGroup;
     }
- 
-    // Admin accounts — document ID = the admin's Firebase Auth UID.
-    // Create these manually in the Firestore console (see setup guide).
+
     match /admins/{adminId} {
       allow read: if isSignedIn() && request.auth.uid == adminId;
-      allow write: if false; // only editable from the Firebase console
+      allow write: if false;
     }
- 
-    // Site settings (colors, brand name, logo, homepage text) — editable
-    // by the admin from the dashboard. Publicly readable because the
-    // marketing homepage (index.html) has no signed-in user.
+
     match /settings/{docId} {
       allow read: if true;
       allow write: if isAdmin();
 
-      // Homepage "rate the site" widget: any visitor (signed in or not)
-      // may cast exactly one vote per request, worth 1-5 points, by
-      // bumping ratingSum/ratingCount on settings/site — nothing else.
-      // Covers the very first vote (doc doesn't exist yet)...
       allow create: if !isAdmin() && docId == 'site' &&
         request.resource.data.keys().hasOnly(['ratingSum', 'ratingCount']) &&
         request.resource.data.ratingCount == 1 &&
         request.resource.data.ratingSum >= 1 && request.resource.data.ratingSum <= 5;
 
-      // ...and every vote after that (doc already exists).
       allow update: if !isAdmin() && docId == 'site' &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['ratingSum', 'ratingCount']) &&
         request.resource.data.ratingCount == resource.data.get('ratingCount', 0) + 1 &&
         request.resource.data.ratingSum >= resource.data.get('ratingSum', 0) + 1 &&
         request.resource.data.ratingSum <= resource.data.get('ratingSum', 0) + 5;
     }
- 
-    // Blog posts ("Djami's Blog") — admin writes them from the dashboard;
-    // publicly readable since the homepage preview and blog.html detail
-    // page both run with no signed-in user.
+
     match /blogs/{blogId} {
       allow read: if true;
       allow write: if isAdmin();
 
-      // Public like / dislike buttons on blog.html: any visitor (signed in
-      // or not) may bump exactly ONE of likeCount/dislikeCount by exactly 1
-      // per request — nothing else on the post can change this way. The
-      // front end also remembers the vote in localStorage so the same
-      // browser doesn't vote twice, but that's a UX nicety, not security —
-      // this rule is what actually enforces "+1 to one counter, nothing more".
       allow update: if !isAdmin() &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount']) &&
         request.resource.data.likeCount == resource.data.get('likeCount', 0) + 1;
@@ -89,11 +61,6 @@ service cloud.firestore {
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dislikeCount']) &&
         request.resource.data.dislikeCount == resource.data.get('dislikeCount', 0) + 1;
 
-      // Comments on a blog post (blog.html): open to any visitor, signed in
-      // or not — no moderation queue, comments appear immediately. A
-      // comment is just { name, text, createdAt } and can never be edited
-      // after posting. Only an admin can delete one (spam/moderation),
-      // from the admin dashboard's "Kommentlar" view.
       match /comments/{commentId} {
         allow read: if true;
 
@@ -104,66 +71,41 @@ service cloud.firestore {
           request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000 &&
           request.resource.data.createdAt == request.time;
 
-        allow update: if false;
+        allow update: if !isAdmin() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likeCount']) &&
+          request.resource.data.likeCount == resource.data.get('likeCount', 0) + 1;
+
+        allow update: if !isAdmin() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['dislikeCount']) &&
+          request.resource.data.dislikeCount == resource.data.get('dislikeCount', 0) + 1;
 
         allow delete: if isAdmin();
       }
     }
 
-    // General English: fixed level docs (beginner / elementary /
-    // pre-intermediate / intermediate), each holding an embedded `lessons`
-    // array (topic, homework, quiz questions) and an optional admin lock
-    // (locked, lockedMessage). Any signed-in user may read — needed to show
-    // locked previews to unpaid students and to fetch quiz questions.
-    // Only admins may create/edit/delete lessons or toggle the lock.
     match /levels/{levelId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
- 
-    // IELTS / CEFR: fixed course docs (ielts / cefr), each holding an
-    // embedded `sections` map (listening / reading / speaking), and each
-    // section holding its own `topics` array plus an optional admin lock.
-    // Same read/write shape as `levels`.
+
     match /courses/{courseId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
-    // Placement test ("Darajani bilish testi") — single doc placementTest/main
-    // holding { questions:[{question,options,correctIndex}], levels:[{min,max,label}] }.
-    // Admin manages questions and the score→level scale; any signed-in
-    // student may read it to take the test. Same read/write shape as `levels`.
     match /placementTest/{docId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
     }
- 
-    // Student accounts — document ID = the student's Firebase Auth UID.
+
     match /students/{studentId} {
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
- 
-      // A signed-in user may create ONLY their own document, always unpaid
-      // and with empty progress (course access + progress are never
-      // self-assigned at creation time).
+
       allow create: if isSignedIn() && request.auth.uid == studentId &&
         request.resource.data.paymentStatus == 'none' &&
         request.resource.data.progress == {} &&
         request.resource.data.keys().hasOnly(['name','email','phone','studentType','paymentStatus','progress','createdAt']);
- 
-      // Admin can change anything (approve/revoke payment for General
-      // English, IELTS, or CEFR; edit; delete).
-      // A student may only:
-      //   - update their own quiz progress,
-      //   - save their own placement-test result (placementResult — score,
-      //     total, level, takenAt; no validation needed, it's just a
-      //     self-reported summary the student and admin can both see),
-      //   - pick their Kundalik (Homework) group once (kundalikGroup — locked
-      //     after the first choice, see validKundalikGroupUpdate()), and
-      //   - flip their OWN paymentStatus / coursePayments.ielts /
-      //     coursePayments.cefr to 'pending' (e.g. after clicking "To'lov
-      //     qildim") — they can NEVER set any of these to 'approved'
-      //     themselves; only an admin can grant course access.
+
       allow update: if isAdmin() || (
         isSignedIn() && request.auth.uid == studentId &&
         request.resource.data.diff(resource.data).affectedKeys()
@@ -174,22 +116,13 @@ service cloud.firestore {
         validCoursePaymentsUpdateWriting() &&
         validKundalikGroupUpdate()
       );
- 
+
       allow delete: if isAdmin();
     }
 
-    // Writing (insho) submissions — a student picks a question (under
-    // courses/writing) and submits an essay; only an admin may grade it.
-    // Document shape: { studentId, studentName, trackId, trackName,
-    //   questionId, questionTitle, questionText, essayText, status:
-    //   'pending'|'graded', score, comment, submittedAt, gradedAt }
     match /writingSubmissions/{submissionId} {
-      // A student may read only their own submissions; admin reads all.
       allow read: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid);
 
-      // A student may submit an essay for THEMSELVES only, always starting
-      // out ungraded (no score/comment yet) — and only if their Writing
-      // course access has been approved by an admin.
       allow create: if isSignedIn() &&
         request.resource.data.studentId == request.auth.uid &&
         request.resource.data.status == 'pending' &&
@@ -198,17 +131,12 @@ service cloud.firestore {
         get(/databases/$(database)/documents/students/$(request.auth.uid)).data
           .get('coursePayments', {}).get('writing', 'none') == 'approved';
 
-      // Only an admin can grade (set status/score/comment/gradedAt).
       allow update: if isAdmin() &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','score','comment','gradedAt']);
 
-      // Admin can delete any submission; a student may withdraw their own
-      // submission only while it's still ungraded.
       allow delete: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid && resource.data.status == 'pending');
     }
 
-    // Kundalik (homework diary) — admin creates groups and daily homework;
-    // any authenticated user (student) may read.
     match /kundalik/{groupId} {
       allow read: if isSignedIn();
       allow write: if isAdmin();
@@ -219,19 +147,11 @@ service cloud.firestore {
       }
     }
 
-    // Test natijalar (gradebook) — public results-lookup page (natijalar.html)
-    // reads this with no sign-in required; only an admin (from the main
-    // admin panel's "Test natijalar" section) may edit it. Single doc,
-    // shape: { units: string[], students: [{id, name, group, scores}] }.
     match /gradebook/{docId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // Visit counter for natijalar.html — any visitor may bump the count by
-    // exactly 1 and stamp lastVisit with the server time; nothing else.
-    // Only an admin can read the tally (shown in the "Test natijalar"
-    // admin section).
     match /stats/{docId} {
       allow read: if isAdmin();
 
@@ -246,41 +166,72 @@ service cloud.firestore {
         request.resource.data.lastVisit == request.time;
     }
 
-    // Notifications (admin broadcasts to all students) — admin writes,
-    // any signed-in student may read. Only admin can delete.
     match /notifications/{notifId} {
-      allow read: if isSignedIn() || true; // public read so even cached pages can show them
+      allow read: if isSignedIn() || true;
       allow create, delete: if isAdmin();
       allow update: if false;
     }
 
-    // Student-teacher chat — each student has their own chat document
-    // (doc ID = student's UID), with a subcollection of messages.
+    // O'quv jarayoni (eski progress kolleksiyasi) — admin yozadi,
+    // o'quvchi faqat o'zini o'qiydi.
+    match /progress/{studentId} {
+      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
+      allow write: if isAdmin();
+
+      match /entries/{entryId} {
+        allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
+        allow write: if isAdmin();
+      }
+    }
+
+    // O'quv jarayoni — guruhlar va talabalar (admin tomonidan boshqariladi).
+    // Struktura:
+    //   oquv_groups/{groupId}                     { name, createdAt }
+    //   oquv_groups/{groupId}/students/{studentId} { name, createdAt }
+    // Faqat admin yozadi va o'chiradi. O'quvchilar o'qimaydi
+    // (bu admin paneli uchun — student dashboardiga kerak emas).
+    match /oquv_groups/{groupId} {
+      allow read, write: if isAdmin();
+
+      match /students/{studentId} {
+        allow read, write: if isAdmin();
+      }
+    }
+
+    // O'quv jarayoni — talabaning kunlik yozuvlari (davomat, uy vazifa, baho).
+    // Struktura:
+    //   oquv_progress/{studentDocId}/entries/{dateId}
+    //   { date, attended, homeworkDone, grade, note }
+    // Admin barcha yozuvlarni yozadi va o'chiradi.
+    // O'quvchi faqat o'z yozuvlarini ko'ra oladi (student dashboard uchun).
+    // studentDocId — bu admin panelida saqlanadigan ichki ID
+    // (Firebase Auth UID emas, oquv_groups/students hujjat IDsi),
+    // shuning uchun o'quvchiga read berish uchun alohida qoida yo'q —
+    // faqat admin o'qiydi va yozadi.
+    match /oquv_progress/{studentDocId} {
+      allow read, write: if isAdmin();
+
+      match /entries/{entryId} {
+        allow read, write: if isAdmin();
+      }
+    }
+
     match /chats/{studentId} {
-      // Chat metadata (lastMessage, unreadByTeacher, unreadByStudent, etc.)
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
       allow create, update: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
-      // Only admin can delete a whole chat document
       allow delete: if isAdmin();
 
       match /messages/{msgId} {
         allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
 
-        // Student can send their own messages
         allow create: if isSignedIn() && request.auth.uid == studentId &&
           request.resource.data.senderRole == 'student' &&
           request.resource.data.text is string &&
           request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000;
 
-        // Admin (teacher) can send messages from their side
         allow create: if isAdmin() &&
           request.resource.data.senderRole == 'teacher';
 
-        // Student may mark a teacher's message as read, and admin may mark
-        // a student's message as read — powers the read-receipt ticks on
-        // both sides (1 tick = sent, 2 ticks = read). A student may only
-        // touch the `read` field, only on messages the teacher sent,
-        // only within their own chat; admin can mark any message read.
         allow update: if isAdmin() || (
           isSignedIn() && request.auth.uid == studentId &&
           resource.data.senderRole == 'teacher' &&
@@ -288,11 +239,9 @@ service cloud.firestore {
           request.resource.data.read == true
         );
 
-        // Only admin can delete messages (students cannot delete)
         allow delete: if isAdmin();
       }
     }
-
 
   }
 }
