@@ -109,7 +109,7 @@ service cloud.firestore {
       allow update: if isAdmin() || (
         isSignedIn() && request.auth.uid == studentId &&
         request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['progress','paymentStatus','paymentRequestedAt','coursePayments','coursePaymentRequestedAt','placementResult','kundalikGroup']) &&
+          .hasOnly(['progress','paymentStatus','paymentRequestedAt','coursePayments','coursePaymentRequestedAt','placementResult','kundalikGroup','gradebookName','oquvProgressCode']) &&
         request.resource.data.paymentStatus in ['pending', resource.data.paymentStatus] &&
         validCoursePaymentsUpdate() &&
         validCoursePaymentsUpdateCefr() &&
@@ -200,19 +200,22 @@ service cloud.firestore {
 
     // O'quv jarayoni — talabaning kunlik yozuvlari (davomat, uy vazifa, baho).
     // Struktura:
+    //   oquv_progress/{studentDocId}                     { name, group, createdAt }
     //   oquv_progress/{studentDocId}/entries/{dateId}
     //   { date, attended, homeworkDone, grade, note }
     // Admin barcha yozuvlarni yozadi va o'chiradi.
-    // O'quvchi faqat o'z yozuvlarini ko'ra oladi (student dashboard uchun).
-    // studentDocId — bu admin panelida saqlanadigan ichki ID
-    // (Firebase Auth UID emas, oquv_groups/students hujjat IDsi),
-    // shuning uchun o'quvchiga read berish uchun alohida qoida yo'q —
-    // faqat admin o'qiydi va yozadi.
+    // studentDocId — bu admin panelda talabaga berilgan ID (admin tanlagan
+    // yoki avtomatik yaratilgan kod, oquv_groups/students hujjat IDsi bilan
+    // bir xil). Talaba shu ID’ni o'z bosh sahifasidagi "O'quv jarayoni"
+    // kartochkasiga kiritib, natijalarini ko'radi — xuddi gradebook kabi,
+    // o'qish hammaga ochiq (write faqat admin uchun).
     match /oquv_progress/{studentDocId} {
-      allow read, write: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
 
       match /entries/{entryId} {
-        allow read, write: if isAdmin();
+        allow read: if true;
+        allow write: if isAdmin();
       }
     }
 
