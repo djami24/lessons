@@ -61,6 +61,26 @@
 .oj-empty h3{margin:0 0 6px;font-size:1.1rem;color:var(--ink);}
 .oj-empty p{margin:0;font-size:.88rem;}
 
+.oj-students-list{display:flex;flex-direction:column;gap:10px;}
+.oj-student-row{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;transition:box-shadow .2s;}
+.oj-student-row:hover{box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.oj-row-identity{display:flex;align-items:center;gap:12px;cursor:pointer;flex:1 1 200px;min-width:180px;}
+.oj-row-name{font-weight:600;font-size:.95rem;}
+.oj-row-id{font-size:.75rem;color:var(--gray);font-family:monospace;display:flex;align-items:center;gap:6px;margin-top:2px;}
+.oj-row-controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex:2 1 420px;}
+.oj-toggle-group{display:flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;flex-shrink:0;}
+.oj-toggle-btn{padding:6px 10px;font-size:.78rem;font-weight:600;border:none;background:var(--surface,#f8f9fa);color:var(--gray);cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;}
+.oj-toggle-btn.active-yes{background:rgba(46,111,110,.14);color:#2e6f6e;}
+.oj-toggle-btn.active-no{background:rgba(192,57,43,.12);color:#c0392b;}
+.oj-row-grade{padding:.4em .5em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);flex-shrink:0;}
+.oj-row-note{flex:1 1 140px;min-width:120px;padding:.4em .7em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);}
+.oj-row-save{font-size:.85rem;font-weight:700;min-width:16px;text-align:center;color:#2e6f6e;flex-shrink:0;}
+.oj-row-del{background:rgba(231,76,60,.08);border:1.5px solid rgba(231,76,60,.25);border-radius:6px;cursor:pointer;font-size:.8rem;color:#e74c3c;padding:4px 9px;flex-shrink:0;}
+@media (max-width:640px){
+  .oj-row-identity{flex:1 1 100%;}
+  .oj-row-controls{flex:1 1 100%;}
+}
+
 @media(max-width:640px){
   .oj-entry-card{grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;}
   .oj-entry-date{grid-column:1/-1;}
@@ -830,7 +850,8 @@
         <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn" style="margin-left:auto;">📋 Hammasini nusxalash</button>
         <button class="btn btn-primary" id="openAddOquvStudent">+ Talaba qo'shish</button>
       </div>
-      <div id="ojStudentsGrid" class="oj-students-grid"></div>
+      <p style="color:var(--gray); font-size:.85rem; margin:-10px 0 16px;">Ro'yxatda <strong id="ojTodayLabel"></strong> uchun davomat, uy vazifa va bahoni belgilang. To'liq tarixni ko'rish yoki tahrirlash uchun talaba ismiga bosing.</p>
+      <div id="ojStudentsGrid" class="oj-students-list"></div>
       <div id="ojStudentsEmpty" class="oj-empty" style="display:none;">
         <div class="oj-empty-icon">🎓</div>
         <h3>Hali talaba yo'q</h3>
@@ -4216,6 +4237,8 @@ document.getElementById('ojGroupSaveBtn').addEventListener('click', async () => 
 });
 
 // ----- Students -----
+function ojTodayStr(){ return new Date().toISOString().slice(0,10); }
+
 async function loadOjStudents(groupId, groupName) {
   _ojActiveGroupId = groupId;
   _ojActiveGroupName = groupName;
@@ -4224,6 +4247,9 @@ async function loadOjStudents(groupId, groupName) {
   const grid = document.getElementById('ojStudentsGrid');
   const empty = document.getElementById('ojStudentsEmpty');
   grid.innerHTML = '<p style="color:var(--gray); padding:8px;">Yuklanmoqda…</p>';
+  const today = ojTodayStr();
+  document.getElementById('ojTodayLabel').textContent =
+    new Date(today + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' });
   try {
     const snap = await db.collection('oquv_groups').doc(groupId).collection('students').orderBy('name').get();
     grid.innerHTML = '';
@@ -4231,48 +4257,122 @@ async function loadOjStudents(groupId, groupName) {
     _ojActiveGroupStudents = snap.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
     if (snap.empty) { empty.style.display = 'block'; return; }
     empty.style.display = 'none';
-    snap.docs.forEach(doc => {
+
+    // Load today's entry (if any) for every student in parallel, so the
+    // quick-mark row opens already showing what was saved earlier today
+    // instead of blank controls.
+    const todayEntries = await Promise.all(snap.docs.map(doc =>
+      db.collection('oquv_progress').doc(doc.id).collection('entries').doc(today).get()
+        .then(d => d.exists ? d.data() : {})
+        .catch(() => ({}))
+    ));
+
+    snap.docs.forEach((doc, i) => {
       const s = doc.data();
+      const sid = doc.id;
+      const entry = todayEntries[i];
       const initials = s.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-      const card = document.createElement('div');
-      card.className = 'oj-student-card';
-      card.innerHTML = `
-        <div class="oj-student-card-avatar">${initials}</div>
-        <div style="flex:1; min-width:0; padding-top:16px;">
-          <div class="oj-student-card-name" style="padding-top:0;">${escHtml(s.name)}</div>
-          <div style="font-size:.75rem; color:var(--gray); font-family:monospace; display:flex; align-items:center; gap:6px;">
-            <span>ID: ${doc.id}</span>
-            <button type="button" class="oj-copy-id-btn" data-copy-id="${doc.id}" title="ID nusxalash" style="border:none; background:none; cursor:pointer; padding:0; font-size:.85rem; line-height:1;">📋</button>
+      const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : (entry.attended === false || entry.attended === 'no') ? 'no' : '';
+      const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : (entry.homeworkDone === false || entry.homeworkDone === 'no') ? 'no' : '';
+      const gradeVal = entry.grade || '';
+
+      const row = document.createElement('div');
+      row.className = 'oj-student-row';
+      row.innerHTML = `
+        <div class="oj-row-identity" data-open>
+          <div class="oj-student-card-avatar" style="width:40px; height:40px; font-size:1rem;">${initials}</div>
+          <div>
+            <div class="oj-row-name">${escHtml(s.name)}</div>
+            <div class="oj-row-id">
+              <span>ID: ${sid}</span>
+              <button type="button" class="oj-copy-id-btn" title="ID nusxalash" style="border:none; background:none; cursor:pointer; padding:0; font-size:.8rem; line-height:1;">📋</button>
+            </div>
           </div>
         </div>
-        <button class="oj-student-card-del" title="O'chirish" data-sid="${doc.id}">✕</button>`;
-      card.addEventListener('click', (e) => {
-        if (e.target.closest('.oj-student-card-del') || e.target.closest('.oj-copy-id-btn')) return;
-        openOjProgress(doc.id, s.name);
-      });
-      card.querySelector('.oj-copy-id-btn').addEventListener('click', (e) => {
+        <div class="oj-row-controls">
+          <div class="oj-toggle-group" data-field="attended">
+            <button type="button" class="oj-toggle-btn ${attendVal === 'yes' ? 'active-yes' : ''}" data-val="yes">✅ Keldi</button>
+            <button type="button" class="oj-toggle-btn ${attendVal === 'no' ? 'active-no' : ''}" data-val="no">🚫 Ketdi</button>
+          </div>
+          <div class="oj-toggle-group" data-field="homeworkDone">
+            <button type="button" class="oj-toggle-btn ${hwVal === 'yes' ? 'active-yes' : ''}" data-val="yes">✅ UV qildi</button>
+            <button type="button" class="oj-toggle-btn ${hwVal === 'no' ? 'active-no' : ''}" data-val="no">🕓 Qilmadi</button>
+          </div>
+          <select class="oj-row-grade" data-field="grade">
+            <option value="">Baho</option>
+            <option value="5" ${gradeVal == '5' ? 'selected' : ''}>⭐5</option>
+            <option value="4" ${gradeVal == '4' ? 'selected' : ''}>⭐4</option>
+            <option value="3" ${gradeVal == '3' ? 'selected' : ''}>⭐3</option>
+            <option value="2" ${gradeVal == '2' ? 'selected' : ''}>⭐2</option>
+            <option value="1" ${gradeVal == '1' ? 'selected' : ''}>⭐1</option>
+          </select>
+          <input type="text" class="oj-row-note" data-field="note" placeholder="Izoh…">
+          <span class="oj-row-save"></span>
+        </div>
+        <button class="oj-row-del" title="O'chirish">✕</button>`;
+      row.querySelector('.oj-row-note').value = entry.note || '';
+
+      row.querySelector('[data-open]').addEventListener('click', () => openOjProgress(sid, s.name));
+
+      row.querySelector('.oj-copy-id-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         const btn = e.currentTarget;
-        copyTextToClipboard(doc.id, () => {
+        copyTextToClipboard(sid, () => {
           const original = btn.textContent;
           btn.textContent = '✓';
           setTimeout(() => { btn.textContent = original; }, 1400);
         });
       });
-      card.querySelector('.oj-student-card-del').addEventListener('click', async (e) => {
+
+      const saveIndicator = row.querySelector('.oj-row-save');
+      function flashSaved(){ saveIndicator.textContent = '✓'; setTimeout(() => { saveIndicator.textContent = ''; }, 1400); }
+      function flashError(){ saveIndicator.textContent = '⚠'; setTimeout(() => { saveIndicator.textContent = ''; }, 2200); }
+
+      async function ojQuickSave(fields){
+        try {
+          await db.collection('oquv_progress').doc(sid).collection('entries').doc(today)
+            .set(Object.assign({ date: today }, fields), { merge: true });
+          flashSaved();
+        } catch(err) { console.error('Quick save failed:', err); flashError(); }
+      }
+
+      row.querySelectorAll('.oj-toggle-group').forEach(group => {
+        group.querySelectorAll('.oj-toggle-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const field = group.dataset.field;
+            const wasActive = btn.classList.contains('active-yes') || btn.classList.contains('active-no');
+            group.querySelectorAll('.oj-toggle-btn').forEach(b => b.classList.remove('active-yes', 'active-no'));
+            if (!wasActive) btn.classList.add(btn.dataset.val === 'yes' ? 'active-yes' : 'active-no');
+            ojQuickSave({ [field]: wasActive ? '' : btn.dataset.val });
+          });
+        });
+      });
+
+      const gradeSelect = row.querySelector('.oj-row-grade');
+      gradeSelect.addEventListener('click', (e) => e.stopPropagation());
+      gradeSelect.addEventListener('change', () => ojQuickSave({ grade: gradeSelect.value }));
+
+      const noteInput = row.querySelector('.oj-row-note');
+      noteInput.addEventListener('click', (e) => e.stopPropagation());
+      noteInput.addEventListener('blur', () => ojQuickSave({ note: noteInput.value.trim() }));
+      noteInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); noteInput.blur(); } });
+
+      row.querySelector('.oj-row-del').addEventListener('click', async (e) => {
         e.stopPropagation();
         if (!confirm(`"${s.name}"ni o'chirmoqchimisiz?`)) return;
-        await db.collection('oquv_groups').doc(groupId).collection('students').doc(doc.id).delete();
+        await db.collection('oquv_groups').doc(groupId).collection('students').doc(sid).delete();
         try {
-          const entriesSnap = await db.collection('oquv_progress').doc(doc.id).collection('entries').get();
+          const entriesSnap = await db.collection('oquv_progress').doc(sid).collection('entries').get();
           const batch = db.batch();
           entriesSnap.docs.forEach(ed => batch.delete(ed.ref));
-          batch.delete(db.collection('oquv_progress').doc(doc.id));
+          batch.delete(db.collection('oquv_progress').doc(sid));
           await batch.commit();
         } catch(cleanupErr) { console.error('Progress cleanup failed:', cleanupErr); }
         loadOjStudents(groupId, groupName);
       });
-      grid.appendChild(card);
+
+      grid.appendChild(row);
     });
   } catch(err) { grid.innerHTML = '<p style="color:red;">Xatolik yuz berdi.</p>'; }
 }
