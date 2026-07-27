@@ -194,6 +194,81 @@
       </div>
     </section>
 
+    <!-- ===== STUDENT PROGRESS (davomat / uy vazifa / kunlik baho) ===== -->
+    <section id="view-student-progress" hidden>
+      <a href="#" id="backToStudentsFromProgress" class="back-link">← O‘quvchilarga qaytish</a>
+      <div class="admin-header">
+        <div>
+          <h1 id="progressStudentName">O‘quvchi</h1>
+          <p>Har kuni davomat, uy vazifa holati va kunlik bahoni shu yerdan belgilang — o‘quvchi buni o‘z bosh sahifasida ko‘radi.</p>
+        </div>
+      </div>
+
+      <form id="progressEntryForm" class="modal-form" style="max-width:640px; padding:1.2em 1.4em; border:1.5px solid var(--line); border-radius:var(--radius-s); margin-bottom:1.6em; display:flex; flex-direction:column; gap:1em;">
+        <input type="hidden" id="progressEntryEditingId" value="">
+        <div style="display:flex; gap:1em; flex-wrap:wrap;">
+          <label style="flex:1; min-width:160px;">Sana
+            <input type="date" id="progressDateInput" required>
+          </label>
+        </div>
+        <div style="display:flex; gap:1em; flex-wrap:wrap;">
+          <label style="flex:1; min-width:160px;">Davomat
+            <select id="progressAttendedInput">
+              <option value="">— Belgilanmagan</option>
+              <option value="yes">✅ Keldi</option>
+              <option value="no">🚫 Kelmadi</option>
+            </select>
+          </label>
+          <label style="flex:1; min-width:160px;">Uy vazifa
+            <select id="progressHomeworkInput">
+              <option value="">— Belgilanmagan</option>
+              <option value="yes">✅ Qildi</option>
+              <option value="no">🕓 Qilmadi</option>
+            </select>
+          </label>
+          <label style="flex:1; min-width:160px;">Kunlik baho
+            <select id="progressGradeInput">
+              <option value="">— Yo‘q</option>
+              <option value="5">5</option>
+              <option value="4">4</option>
+              <option value="3">3</option>
+              <option value="2">2</option>
+              <option value="1">1</option>
+            </select>
+          </label>
+        </div>
+        <label>Izoh (ixtiyoriy)
+          <textarea id="progressNoteInput" rows="2" placeholder="Masalan: darsda faol ishtirok etdi"></textarea>
+        </label>
+        <p class="form-error" id="progressEntryError" role="alert" hidden></p>
+        <div style="display:flex; gap:.8em; align-items:center;">
+          <button type="submit" class="btn btn-amber" id="progressSaveBtn">Saqlash</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="progressCancelEditBtn" hidden>Bekor qilish</button>
+          <span class="save-status" id="progressSaveStatus"></span>
+        </div>
+      </form>
+
+      <div class="table-wrap">
+        <table class="data-table" id="progressEntriesTable">
+          <thead>
+            <tr>
+              <th>Sana</th>
+              <th>Davomat</th>
+              <th>Uy vazifa</th>
+              <th>Baho</th>
+              <th>Izoh</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="progressEntriesBody"></tbody>
+        </table>
+      </div>
+      <div id="progressEntriesEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
+        <h3>Hali yozuv yo‘q</h3>
+        <p>Yuqoridagi forma orqali bu o‘quvchi uchun birinchi kunlik yozuvni qo‘shing.</p>
+      </div>
+    </section>
+
     <!-- ===== BLOGS VIEW ===== -->
     <section id="view-blogs" hidden>
       <div class="admin-header">
@@ -943,6 +1018,10 @@
       </div>
     </div>
 
+    <div class="modal-actions" style="justify-content:space-between; margin-bottom:.8em;">
+      <button type="button" class="btn btn-amber btn-sm" id="openStudentProgressBtn">📈 O‘quv jarayoni</button>
+    </div>
+
     <div class="modal-actions" style="justify-content:space-between;">
       <button type="button" class="btn btn-danger btn-sm" id="deleteStudentBtn">O‘quvchini o‘chirish</button>
       <button type="button" class="btn btn-ghost" data-close-modal="modalStudentDetail">Yopish</button>
@@ -1066,6 +1145,8 @@
    courses/{ielts|cefr}  { name, price, sections:{listening|reading|speaking:{locked,lockedMessage,topics:[NODE...]}} }
    students/{uid}       { name, email, paymentStatus:'none'|'pending'|'approved', progress:{levelId:{lessonId:{passed,bestScore}}}, createdAt }
    admins/{uid}          { email }   (managed via console)
+   progress/{uid}/entries/{dateId}  { date:'YYYY-MM-DD', attended:true|false|null, homeworkDone:true|false|null, grade:1-5|null, note, updatedAt }
+     — teacher's per-student daily diary (attendance / homework done / daily grade), doc ID = the date so re-saving the same day edits it in place.
 
    NODE (tree item inside `lessons` / `topics` — folders can nest to any depth):
      folder: {id, type:'folder', title, children:[NODE...]}
@@ -2193,13 +2274,14 @@ function switchView(view){
   document.getElementById('view-placement-test').hidden = view !== 'placement-test';
   document.getElementById('view-site-settings').hidden = view !== 'site-settings';
   document.getElementById('view-kundalik').hidden = view !== 'kundalik';
+  document.getElementById('view-student-progress').hidden = view !== 'student-progress';
   document.getElementById('view-gradebook').hidden = view !== 'gradebook';
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
   document.getElementById('navCefr').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'cefr');
   document.getElementById('navWriting').classList.toggle('active', view === 'writing-tracks' || view === 'writing-items');
   document.getElementById('navEssays').classList.toggle('active', view === 'essays');
-  document.getElementById('navStudents').classList.toggle('active', view === 'students');
+  document.getElementById('navStudents').classList.toggle('active', view === 'students' || view === 'student-progress');
   document.getElementById('navBlogs').classList.toggle('active', view === 'blogs');
   document.getElementById('navPlacementTest').classList.toggle('active', view === 'placement-test');
   document.getElementById('navSiteSettings').classList.toggle('active', view === 'site-settings');
@@ -2677,6 +2759,169 @@ document.getElementById('deleteStudentBtn').addEventListener('click', async () =
     closeModal('modalStudentDetail');
     renderStudents();
     showToast('O‘quvchi o‘chirildi.');
+  }
+});
+
+// ---------- Student progress (davomat / uy vazifa / kunlik baho) ----------
+// Per-student daily diary the teacher fills in. Stored at
+// progress/{studentUid}/entries/{dateId}, doc ID = the date string itself
+// ('YYYY-MM-DD'), so picking an already-used date in the form loads and
+// edits that day's entry instead of creating a duplicate.
+
+state.progressStudentId = null;
+state.progressEntries = []; // [{id, date, attended, homeworkDone, grade, note}]
+
+document.getElementById('openStudentProgressBtn').addEventListener('click', async () => {
+  const student = state.students.find(s => s.id === state.detailStudentId);
+  if(!student) return;
+  closeModal('modalStudentDetail');
+  await openStudentProgress(student);
+});
+
+async function openStudentProgress(student){
+  state.progressStudentId = student.id;
+  document.getElementById('progressStudentName').textContent = `📈 ${student.name} — o‘quv jarayoni`;
+  resetProgressForm();
+  switchView('student-progress');
+  await loadProgressEntries();
+}
+
+document.getElementById('backToStudentsFromProgress').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('students');
+});
+
+async function loadProgressEntries(){
+  const tbody = document.getElementById('progressEntriesBody');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--gray);">Yuklanmoqda…</td></tr>';
+  try{
+    const snap = await db.collection('progress').doc(state.progressStudentId)
+      .collection('entries').orderBy('date', 'desc').get();
+    state.progressEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(err){
+    console.error('Progress entries load failed:', err);
+    state.progressEntries = [];
+  }
+  renderProgressEntries();
+}
+
+const ATTEND_LABEL = { yes: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">✅ Keldi</span>', no: '<span class="tag" style="background:rgba(192,57,43,.12); color:#c0392b;">🚫 Kelmadi</span>' };
+const HW_LABEL = { yes: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">✅ Qildi</span>', no: '<span class="tag" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">🕓 Qilmadi</span>' };
+
+function progressBoolToKey(v){ return v === true ? 'yes' : v === false ? 'no' : ''; }
+
+function renderProgressEntries(){
+  const tbody = document.getElementById('progressEntriesBody');
+  const empty = document.getElementById('progressEntriesEmpty');
+  if(state.progressEntries.length === 0){
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  tbody.innerHTML = state.progressEntries.map(entry => {
+    const dateLabel = entry.date ? new Date(entry.date + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : entry.id;
+    const attendKey = progressBoolToKey(entry.attended);
+    const hwKey = progressBoolToKey(entry.homeworkDone);
+    return `
+      <tr>
+        <td>${dateLabel}</td>
+        <td>${ATTEND_LABEL[attendKey] || '—'}</td>
+        <td>${HW_LABEL[hwKey] || '—'}</td>
+        <td>${entry.grade ? `<strong>${entry.grade}</strong>/5` : '—'}</td>
+        <td style="max-width:220px; white-space:pre-wrap;">${escapeHtml(entry.note || '')}</td>
+        <td style="white-space:nowrap;">
+          <button type="button" class="btn btn-ghost btn-sm" data-edit-progress="${entry.id}">Tahrirlash</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-delete-progress="${entry.id}" style="color:#c0392b;">O‘chirish</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function resetProgressForm(){
+  document.getElementById('progressEntryEditingId').value = '';
+  document.getElementById('progressDateInput').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('progressAttendedInput').value = '';
+  document.getElementById('progressHomeworkInput').value = '';
+  document.getElementById('progressGradeInput').value = '';
+  document.getElementById('progressNoteInput').value = '';
+  document.getElementById('progressEntryError').hidden = true;
+  document.getElementById('progressCancelEditBtn').hidden = true;
+  document.getElementById('progressSaveBtn').textContent = 'Saqlash';
+}
+
+document.getElementById('progressEntriesBody').addEventListener('click', (e) => {
+  const editBtn = e.target.closest('[data-edit-progress]');
+  if(editBtn){
+    const entry = state.progressEntries.find(en => en.id === editBtn.dataset.editProgress);
+    if(!entry) return;
+    document.getElementById('progressEntryEditingId').value = entry.id;
+    document.getElementById('progressDateInput').value = entry.date || entry.id;
+    document.getElementById('progressAttendedInput').value = progressBoolToKey(entry.attended);
+    document.getElementById('progressHomeworkInput').value = progressBoolToKey(entry.homeworkDone);
+    document.getElementById('progressGradeInput').value = entry.grade || '';
+    document.getElementById('progressNoteInput').value = entry.note || '';
+    document.getElementById('progressCancelEditBtn').hidden = false;
+    document.getElementById('progressSaveBtn').textContent = 'Yangilash';
+    document.getElementById('progressEntryForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  const delBtn = e.target.closest('[data-delete-progress]');
+  if(delBtn){
+    const entry = state.progressEntries.find(en => en.id === delBtn.dataset.deleteProgress);
+    if(!entry) return;
+    if(confirm(`${entry.date} kunidagi yozuvni o‘chirmoqchimisiz?`)){
+      db.collection('progress').doc(state.progressStudentId).collection('entries').doc(entry.id).delete()
+        .then(() => {
+          state.progressEntries = state.progressEntries.filter(en => en.id !== entry.id);
+          renderProgressEntries();
+          showToast('Yozuv o‘chirildi.');
+        })
+        .catch(err => { console.error(err); showToast('Xatolik yuz berdi.'); });
+    }
+  }
+});
+
+document.getElementById('progressCancelEditBtn').addEventListener('click', resetProgressForm);
+
+document.getElementById('progressEntryForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('progressEntryError');
+  errorEl.hidden = true;
+  const dateStr = document.getElementById('progressDateInput').value;
+  if(!dateStr){
+    errorEl.textContent = 'Sanani tanlang.';
+    errorEl.hidden = false;
+    return;
+  }
+  const attendedRaw = document.getElementById('progressAttendedInput').value;
+  const hwRaw = document.getElementById('progressHomeworkInput').value;
+  const gradeRaw = document.getElementById('progressGradeInput').value;
+  const entryData = {
+    date: dateStr,
+    attended: attendedRaw === '' ? null : attendedRaw === 'yes',
+    homeworkDone: hwRaw === '' ? null : hwRaw === 'yes',
+    grade: gradeRaw ? Number(gradeRaw) : null,
+    note: document.getElementById('progressNoteInput').value.trim(),
+    updatedAt: Date.now()
+  };
+  const saveBtn = document.getElementById('progressSaveBtn');
+  saveBtn.disabled = true;
+  try{
+    // Doc ID = the date itself, so re-saving the same date edits it in
+    // place (whether it was opened via "Tahrirlash" or just re-typed).
+    await db.collection('progress').doc(state.progressStudentId)
+      .collection('entries').doc(dateStr).set(entryData);
+    resetProgressForm();
+    await loadProgressEntries();
+    showToast('Saqlandi.');
+  } catch(err){
+    console.error('Progress save failed:', err);
+    errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
+    errorEl.hidden = false;
+  } finally {
+    saveBtn.disabled = false;
   }
 });
 
