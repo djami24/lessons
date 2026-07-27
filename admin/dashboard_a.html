@@ -74,6 +74,9 @@
 .oj-toggle-btn.active-yes{background:rgba(46,111,110,.14);color:#2e6f6e;}
 .oj-toggle-btn.active-no{background:rgba(192,57,43,.12);color:#c0392b;}
 .oj-toggle-btn.active-partial{background:rgba(217,142,63,.18);color:var(--amber-deep,#c08a2e);}
+.oj-toggle-btn.active-late{background:rgba(217,142,63,.18);color:var(--amber-deep,#c08a2e);}
+.oj-month-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
+.oj-month-stats-title{font-size:.85rem;font-weight:700;color:var(--gray);margin:0 0 10px;}
 .oj-row-grade{padding:.4em .5em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);flex-shrink:0;}
 .oj-hw-partial{display:flex;align-items:center;gap:6px;flex:1 1 220px;}
 .oj-hw-percent{width:58px;flex-shrink:0;padding:.4em .5em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);}
@@ -901,6 +904,39 @@
         </div>
       </div>
 
+      <!-- Weekly / monthly stats -->
+      <p class="oj-month-stats-title">📅 Oxirgi 7 kun</p>
+      <div class="oj-stats-row oj-month-stats-row">
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojWeekStatHw">—</div>
+          <div class="oj-stat-label">Uy vazifa %</div>
+        </div>
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojWeekStatMissed">0</div>
+          <div class="oj-stat-label">Qoldirilgan dars</div>
+        </div>
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojWeekStatLate">0</div>
+          <div class="oj-stat-label">Kech qolgan</div>
+        </div>
+      </div>
+
+      <p class="oj-month-stats-title">🗓️ Oxirgi 30 kun</p>
+      <div class="oj-stats-row oj-month-stats-row">
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojMonthStatHw">—</div>
+          <div class="oj-stat-label">Uy vazifa %</div>
+        </div>
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojMonthStatMissed">0</div>
+          <div class="oj-stat-label">Qoldirilgan dars</div>
+        </div>
+        <div class="oj-stat-card">
+          <div class="oj-stat-val" id="ojMonthStatLate">0</div>
+          <div class="oj-stat-label">Kech qolgan</div>
+        </div>
+      </div>
+
       <!-- Entry form - modern design -->
       <div class="oj-form-card">
         <h3 style="margin:0 0 18px; font-size:1rem; font-weight:600;">Yangi yozuv qo'shish</h3>
@@ -915,6 +951,7 @@
             <select id="ojAttendedInput" class="oj-select">
               <option value="">— Belgilanmagan</option>
               <option value="yes">✅ Keldi</option>
+              <option value="late">⏰ Kech qoldi</option>
               <option value="no">🚫 Kelmadi</option>
             </select>
           </label>
@@ -4285,7 +4322,7 @@ async function loadOjStudents(groupId, groupName) {
       const sid = doc.id;
       const entry = todayEntries[i];
       const initials = s.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-      const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : (entry.attended === false || entry.attended === 'no') ? 'no' : '';
+      const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : (entry.attended === false || entry.attended === 'no') ? 'no' : (entry.attended === 'late' ? 'late' : '');
       const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : (entry.homeworkDone === false || entry.homeworkDone === 'no') ? 'no' : (entry.homeworkDone === 'partial' ? 'partial' : '');
       const gradeVal = entry.grade || '';
 
@@ -4305,6 +4342,7 @@ async function loadOjStudents(groupId, groupName) {
         <div class="oj-row-controls">
           <div class="oj-toggle-group" data-field="attended">
             <button type="button" class="oj-toggle-btn ${attendVal === 'yes' ? 'active-yes' : ''}" data-val="yes">✅ Keldi</button>
+            <button type="button" class="oj-toggle-btn ${attendVal === 'late' ? 'active-late' : ''}" data-val="late">⏰ Kech qoldi</button>
             <button type="button" class="oj-toggle-btn ${attendVal === 'no' ? 'active-no' : ''}" data-val="no">🚫 Ketdi</button>
           </div>
           <div class="oj-toggle-group" data-field="homeworkDone">
@@ -4363,10 +4401,10 @@ async function loadOjStudents(groupId, groupName) {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const field = group.dataset.field;
-            const wasActive = btn.classList.contains('active-yes') || btn.classList.contains('active-no') || btn.classList.contains('active-partial');
-            group.querySelectorAll('.oj-toggle-btn').forEach(b => b.classList.remove('active-yes', 'active-no', 'active-partial'));
+            const wasActive = btn.classList.contains('active-yes') || btn.classList.contains('active-no') || btn.classList.contains('active-late') || btn.classList.contains('active-partial');
+            group.querySelectorAll('.oj-toggle-btn').forEach(b => b.classList.remove('active-yes', 'active-no', 'active-late', 'active-partial'));
             const newVal = wasActive ? '' : btn.dataset.val;
-            if (!wasActive) btn.classList.add(newVal === 'yes' ? 'active-yes' : newVal === 'no' ? 'active-no' : 'active-partial');
+            if (!wasActive) btn.classList.add(newVal === 'yes' ? 'active-yes' : newVal === 'no' ? 'active-no' : newVal === 'late' ? 'active-late' : 'active-partial');
             if (field === 'homeworkDone') {
               if (newVal === 'partial') {
                 hwPartialBox.hidden = false;
@@ -4593,13 +4631,16 @@ function renderOjEntries() {
   document.getElementById('ojStatAvgGrade').textContent = avgGrade;
   document.getElementById('ojStatTotal').textContent = total;
 
+  ojRenderPeriodStats(7, 'ojWeekStatHw', 'ojWeekStatMissed', 'ojWeekStatLate');
+  ojRenderPeriodStats(30, 'ojMonthStatHw', 'ojMonthStatMissed', 'ojMonthStatLate');
+
   if (!total) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
   list.innerHTML = '';
   _ojProgressEntries.forEach(entry => {
-    const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : entry.attended === false || entry.attended === 'no' ? 'no' : '';
+    const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : entry.attended === false || entry.attended === 'no' ? 'no' : entry.attended === 'late' ? 'late' : '';
     const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : entry.homeworkDone === false || entry.homeworkDone === 'no' ? 'no' : entry.homeworkDone === 'partial' ? 'partial' : '';
-    const attendBadge = attendVal === 'yes' ? '<span class="oj-badge oj-badge-yes">✅ Keldi</span>' : attendVal === 'no' ? '<span class="oj-badge oj-badge-no">🚫 Kelmadi</span>' : '<span class="oj-badge oj-badge-pending">—</span>';
+    const attendBadge = attendVal === 'yes' ? '<span class="oj-badge oj-badge-yes">✅ Keldi</span>' : attendVal === 'late' ? '<span class="oj-badge oj-badge-partial">⏰ Kech qoldi</span>' : attendVal === 'no' ? '<span class="oj-badge oj-badge-no">🚫 Kelmadi</span>' : '<span class="oj-badge oj-badge-pending">—</span>';
     const hwBadge = hwVal === 'yes' ? '<span class="oj-badge oj-badge-yes">✅ Qildi</span>' : hwVal === 'no' ? '<span class="oj-badge oj-badge-no">🕓 Qilmadi</span>' : hwVal === 'partial' ? `<span class="oj-badge oj-badge-partial">🔶 ${entry.homeworkPercent || 0}% qildi</span>` : '<span class="oj-badge oj-badge-pending">—</span>';
     const gradePill = entry.grade ? `<span class="oj-grade-pill">${entry.grade}</span>` : '<span style="color:var(--gray); font-size:.85rem;">—</span>';
     const card = document.createElement('div');
@@ -4627,12 +4668,41 @@ function renderOjEntries() {
   });
 }
 
+// Computes a student's homework %, missed-lesson count, and late count
+// over the last `days` days (based on entry.date, using today's date as
+// the end of the window) and writes them into the given element ids.
+function ojRenderPeriodStats(days, hwElId, missedElId, lateElId) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - (days - 1));
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+
+  const periodEntries = _ojProgressEntries.filter(e => e.date && e.date >= cutoffStr);
+
+  const hwScored = periodEntries
+    .map(e => {
+      const hwVal = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === false || e.homeworkDone === 'no' ? 'no' : e.homeworkDone === 'partial' ? 'partial' : '';
+      if (hwVal === 'yes') return 100;
+      if (hwVal === 'no') return 0;
+      if (hwVal === 'partial') return Number(e.homeworkPercent) || 0;
+      return null;
+    })
+    .filter(v => v !== null);
+  const hwPercent = hwScored.length ? Math.round(hwScored.reduce((s, v) => s + v, 0) / hwScored.length) : null;
+
+  const missedCount = periodEntries.filter(e => e.attended === false || e.attended === 'no').length;
+  const lateCount = periodEntries.filter(e => e.attended === 'late').length;
+
+  document.getElementById(hwElId).textContent = hwPercent === null ? '—' : hwPercent + '%';
+  document.getElementById(missedElId).textContent = missedCount;
+  document.getElementById(lateElId).textContent = lateCount;
+}
+
 function ojStartEdit(entryId) {
   const entry = _ojProgressEntries.find(e => e.id === entryId);
   if (!entry) return;
   document.getElementById('ojEntryEditingId').value = entryId;
   document.getElementById('ojDateInput').value = entry.date;
-  const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : entry.attended === false || entry.attended === 'no' ? 'no' : '';
+  const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : entry.attended === false || entry.attended === 'no' ? 'no' : entry.attended === 'late' ? 'late' : '';
   const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : entry.homeworkDone === false || entry.homeworkDone === 'no' ? 'no' : '';
   document.getElementById('ojAttendedInput').value = attendVal;
   document.getElementById('ojHomeworkInput').value = hwVal;
