@@ -827,7 +827,8 @@
           <h1 style="margin:0; font-size:1.4rem;" id="ojGroupTitle">Guruh</h1>
           <p style="margin:0; color:var(--gray); font-size:.85rem;" id="ojGroupSub">0 talaba</p>
         </div>
-        <button class="btn btn-primary" id="openAddOquvStudent" style="margin-left:auto;">+ Talaba qo'shish</button>
+        <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn" style="margin-left:auto;">📋 Hammasini nusxalash</button>
+        <button class="btn btn-primary" id="openAddOquvStudent">+ Talaba qo'shish</button>
       </div>
       <div id="ojStudentsGrid" class="oj-students-grid"></div>
       <div id="ojStudentsEmpty" class="oj-empty" style="display:none;">
@@ -4134,6 +4135,7 @@ async function deleteHwItem(hwId, title) {
 
 let _ojActiveGroupId = null;
 let _ojActiveGroupName = '';
+let _ojActiveGroupStudents = []; // [{id, name}] for the currently open group — used by "copy all"
 let _ojActiveStudentId = null;
 let _ojActiveStudentName = '';
 let _ojProgressEntries = [];
@@ -4226,6 +4228,7 @@ async function loadOjStudents(groupId, groupName) {
     const snap = await db.collection('oquv_groups').doc(groupId).collection('students').orderBy('name').get();
     grid.innerHTML = '';
     document.getElementById('ojGroupSub').textContent = snap.size + ' talaba';
+    _ojActiveGroupStudents = snap.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
     if (snap.empty) { empty.style.display = 'block'; return; }
     empty.style.display = 'none';
     snap.docs.forEach(doc => {
@@ -4237,12 +4240,24 @@ async function loadOjStudents(groupId, groupName) {
         <div class="oj-student-card-avatar">${initials}</div>
         <div style="flex:1; min-width:0; padding-top:16px;">
           <div class="oj-student-card-name" style="padding-top:0;">${escHtml(s.name)}</div>
-          <div style="font-size:.75rem; color:var(--gray); font-family:monospace;">ID: ${doc.id}</div>
+          <div style="font-size:.75rem; color:var(--gray); font-family:monospace; display:flex; align-items:center; gap:6px;">
+            <span>ID: ${doc.id}</span>
+            <button type="button" class="oj-copy-id-btn" data-copy-id="${doc.id}" title="ID nusxalash" style="border:none; background:none; cursor:pointer; padding:0; font-size:.85rem; line-height:1;">📋</button>
+          </div>
         </div>
         <button class="oj-student-card-del" title="O'chirish" data-sid="${doc.id}">✕</button>`;
       card.addEventListener('click', (e) => {
-        if (e.target.closest('.oj-student-card-del')) return;
+        if (e.target.closest('.oj-student-card-del') || e.target.closest('.oj-copy-id-btn')) return;
         openOjProgress(doc.id, s.name);
+      });
+      card.querySelector('.oj-copy-id-btn').addEventListener('click', (e) => {
+        e.stopPropagation();
+        const btn = e.currentTarget;
+        copyTextToClipboard(doc.id, () => {
+          const original = btn.textContent;
+          btn.textContent = '✓';
+          setTimeout(() => { btn.textContent = original; }, 1400);
+        });
       });
       card.querySelector('.oj-student-card-del').addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -4525,25 +4540,44 @@ async function ojDeleteEntry(entryId) {
   } catch(err) { alert("O\u02bcchirishda xatolik."); }
 }
 
+// Shared clipboard helper — copies text and runs onCopied() as feedback
+// (falls back to a hidden textarea + execCommand on older browsers).
+function copyTextToClipboard(text, onCopied){
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(onCopied).catch(() => {});
+  } else {
+    const tmp = document.createElement('textarea');
+    tmp.value = text;
+    document.body.appendChild(tmp);
+    tmp.select();
+    try { document.execCommand('copy'); onCopied(); } catch(err){}
+    document.body.removeChild(tmp);
+  }
+}
+
 document.getElementById('ojCopyIdBtn').addEventListener('click', () => {
   const btn = document.getElementById('ojCopyIdBtn');
   const id = document.getElementById('ojProgressIdVal').textContent.trim();
   if (!id) return;
-  const showCopied = () => {
+  copyTextToClipboard(id, () => {
     const original = btn.textContent;
     btn.textContent = '✓ Nusxalandi';
     setTimeout(() => { btn.textContent = original; }, 1800);
-  };
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(id).then(showCopied).catch(() => {});
-  } else {
-    const tmp = document.createElement('textarea');
-    tmp.value = id;
-    document.body.appendChild(tmp);
-    tmp.select();
-    try { document.execCommand('copy'); showCopied(); } catch(err){}
-    document.body.removeChild(tmp);
-  }
+  });
+});
+
+// Copies every student's "Ism Familiya — ID" (one per line) for the group
+// currently open on screen, so the admin can paste the whole list at once
+// (e.g. into a message to the group).
+document.getElementById('ojCopyAllIdsBtn').addEventListener('click', () => {
+  const btn = document.getElementById('ojCopyAllIdsBtn');
+  if (!_ojActiveGroupStudents.length) return;
+  const text = _ojActiveGroupStudents.map(s => `${s.name} — ${s.id}`).join('\n');
+  copyTextToClipboard(text, () => {
+    const original = btn.textContent;
+    btn.textContent = '✓ Nusxalandi';
+    setTimeout(() => { btn.textContent = original; }, 1800);
+  });
 });
 
 function escHtml(s){ return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
