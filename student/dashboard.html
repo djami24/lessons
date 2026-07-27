@@ -137,6 +137,28 @@
             <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
           </div>
         </div>
+
+        <div class="latest-hw-box" id="progressBox" hidden style="background:#fff; border:1.5px solid var(--line);">
+          <div class="latest-hw-head">
+            <span class="latest-hw-eyebrow" style="color:var(--teal-deep);">📈 O‘quv jarayoni</span>
+            <span class="latest-hw-date" id="progressDate" style="color:var(--gray);"></span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:.5em; margin-top:.4em;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
+              <span style="color:var(--gray); font-size:.9rem;">Davomat</span>
+              <span id="progressAttendedVal" style="font-weight:700;">—</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
+              <span style="color:var(--gray); font-size:.9rem;">Uy vazifa</span>
+              <span id="progressHwVal" style="font-weight:700;">—</span>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
+              <span style="color:var(--gray); font-size:.9rem;">Kunlik baho</span>
+              <span id="progressGradeVal" style="font-weight:700;">—</span>
+            </div>
+            <p class="latest-hw-preview" id="progressNoteVal" style="color:var(--gray); margin:.2em 0 0;"></p>
+          </div>
+        </div>
       </div>
 
     </section>
@@ -814,6 +836,39 @@ function renderHomeView(){
   document.getElementById('navProfile').classList.remove('active');
   loadLatestHomework();
   renderGbResultBox();
+  loadStudentProgress();
+}
+
+// Shows the most recent teacher-entered diary entry (attendance / homework
+// done / daily grade) from progress/{uid}/entries — filled in by the admin
+// on that student's "O‘quv jarayoni" page. Read-only here; the student
+// cannot edit it themselves.
+async function loadStudentProgress(){
+  const box = document.getElementById('progressBox');
+  try{
+    const snap = await db.collection('progress').doc(currentUid)
+      .collection('entries').orderBy('date', 'desc').limit(1).get();
+    if(snap.empty){ box.hidden = true; return; }
+    const d = snap.docs[0].data();
+    const date = d.date ? new Date(d.date + 'T00:00:00') : null;
+    document.getElementById('progressDate').textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
+    const attendedEl = document.getElementById('progressAttendedVal');
+    if(d.attended === true){ attendedEl.textContent = '✅ Keldi'; attendedEl.style.color = '#1e7e34'; }
+    else if(d.attended === false){ attendedEl.textContent = '🚫 Kelmadi'; attendedEl.style.color = '#c0392b'; }
+    else { attendedEl.textContent = '—'; attendedEl.style.color = ''; }
+    const hwEl = document.getElementById('progressHwVal');
+    if(d.homeworkDone === true){ hwEl.textContent = '✅ Qildi'; hwEl.style.color = '#1e7e34'; }
+    else if(d.homeworkDone === false){ hwEl.textContent = '🕓 Qilmadi'; hwEl.style.color = '#a15c00'; }
+    else { hwEl.textContent = '—'; hwEl.style.color = ''; }
+    const gradeEl = document.getElementById('progressGradeVal');
+    gradeEl.textContent = d.grade ? `${d.grade}/5` : '—';
+    gradeEl.style.color = d.grade ? 'var(--teal-deep)' : '';
+    document.getElementById('progressNoteVal').textContent = d.note || '';
+    box.hidden = false;
+  } catch(err){
+    console.error('Student progress load failed:', err);
+    box.hidden = true;
+  }
 }
 
 // Shows the most recent homework from the student's own kundalikGroup
