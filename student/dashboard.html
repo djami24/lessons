@@ -248,18 +248,11 @@
 
   /* Mobile sidebar collapse — the nav list was taking up huge vertical
      space on phones (see admin-sidebar's row-wrap layout at <=900px).
-     A hamburger toggle now hides/shows it instead of always expanding. */
+     A hamburger toggle (placed next to the theme toggle, top-right) now
+     hides/shows it instead of always expanding. */
   #sidebarMenuToggle{ display:none; }
-  .sidebar-top-row{ display:flex; align-items:center; width:100%; }
   @media (max-width: 900px){
-    .admin-sidebar{ align-items:flex-start; }
-    .sidebar-top-row{ justify-content:space-between; }
-    #sidebarMenuToggle{
-      display:flex; align-items:center; justify-content:center;
-      width:38px; height:38px; border-radius:10px; flex:none;
-      border:1.5px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06);
-      color:#fff; font-size:1.1rem; cursor:pointer;
-    }
+    #sidebarMenuToggle{ display:flex; }
     .admin-nav{
       flex-basis:100%; max-height:0; overflow:hidden; opacity:0;
       transition:max-height .25s ease, opacity .2s ease; margin:0;
@@ -276,10 +269,7 @@
 
   <!-- SIDEBAR -->
   <aside class="admin-sidebar" id="adminSidebar">
-    <div class="sidebar-top-row">
-      <a href="#" class="brand" id="logoHomeBtn"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
-      <button type="button" id="sidebarMenuToggle" title="Menyu">☰</button>
-    </div>
+    <a href="#" class="brand" id="logoHomeBtn"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
     <ul class="admin-nav">
       <li><a href="#" id="navProfile">👤 Profil</a></li>
       <li><a href="../kundalik.html">📅 Homework</a></li>
@@ -305,8 +295,9 @@
   <!-- MAIN -->
   <main class="admin-main">
 
-    <!-- TOP RIGHT ICONS: Theme toggle + Notifications + Chat -->
+    <!-- TOP RIGHT ICONS: Menu (mobile) + Theme toggle + Notifications + Chat -->
     <div class="student-topbar-icons">
+      <button type="button" class="topbar-icon-btn" id="sidebarMenuToggle" title="Menyu">☰</button>
       <button type="button" class="topbar-icon-btn" id="themeToggleBtn" title="Kunduzgi/tungi rejim">
         <span id="themeToggleIcon">☀️</span>
       </button>
