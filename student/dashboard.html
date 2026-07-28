@@ -40,6 +40,13 @@
   .wg-option.wg-correct{ border-color:#1e7e34 !important; background:#eaf7ee !important; color:#1e7e34; font-weight:700; }
   .wg-option.wg-wrong{ border-color:#c0392b !important; background:#fdeceb !important; color:#c0392b; font-weight:700; }
 
+  /* Night mode is the default for this page — darken the whole page
+     (not just the #view-home card) so there's no light-colored margin
+     left showing around it. Light mode (toggled) reverts to the normal
+     site-wide light theme via body.light-mode below. */
+  body.admin-theme:not(.light-mode){ background:#0d0e12; }
+  body.admin-theme:not(.light-mode) .admin-main{ background:#0d0e12; }
+
   /* ===== Student home page — dark redesign ===== */
   #view-home{
     background: linear-gradient(180deg,#121317 0%,#17181d 100%);
