@@ -42,7 +42,7 @@
 
   /* ===== Student home page — dark redesign ===== */
   #view-home{
-    background: linear-gradient(180deg,#0a0e1c 0%,#0d1130 100%);
+    background: linear-gradient(180deg,#121317 0%,#17181d 100%);
     border-radius: 24px;
     padding: clamp(20px,3vw,34px) clamp(16px,3vw,30px) 30px;
     color:#f3f5fb;
@@ -54,7 +54,7 @@
   #view-home .home-header-rule{ width:42px; height:4px; border-radius:3px; background:linear-gradient(90deg,#5b8cff,#2a4fd6); border:none; }
 
   #view-home .hd-card{
-    background:#111730; border:1px solid rgba(255,255,255,.08); border-radius:18px;
+    background:#1c1d23; border:1px solid rgba(255,255,255,.08); border-radius:18px;
     padding:20px 20px 22px; display:flex; flex-direction:column;
     box-shadow:0 10px 30px rgba(0,0,0,.25);
   }
@@ -71,7 +71,7 @@
   #view-home .hd-date{ font-size:.78rem; color:#78809a; margin-left:auto; }
   #view-home .hd-card .latest-hw-title{ color:#fff; font-size:1.25rem; margin:0 0 10px; }
   #view-home .hd-card input[type="text"]{
-    background:#0c1024; border:1.5px solid rgba(255,255,255,.12); color:#f3f5fb; border-radius:10px;
+    background:#16171c; border:1.5px solid rgba(255,255,255,.12); color:#f3f5fb; border-radius:10px;
   }
   #view-home .hd-card input[type="text"]::placeholder{ color:#5c6480; }
   #view-home .hd-card .latest-hw-preview{ color:#8890a6; }
@@ -138,15 +138,67 @@
 
   /* Quick info bar */
   #view-home .home-quick-bar{
-    margin-top:22px; background:#111730; border:1px solid rgba(255,255,255,.08); border-radius:18px;
+    margin-top:22px; background:#1c1d23; border:1px solid rgba(255,255,255,.08); border-radius:18px;
     padding:18px 20px 20px;
   }
   #view-home .home-quick-title{ display:flex; align-items:center; gap:.5em; color:#fff; font-weight:700; font-size:.95rem; margin:0 0 14px; }
   #view-home .home-quick-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; }
-  #view-home .home-quick-tile{ display:flex; align-items:center; gap:.7em; background:#0c1024; border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px 14px; }
+  #view-home .home-quick-tile{ display:flex; align-items:center; gap:.7em; background:#16171c; border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px 14px; }
   #view-home .home-quick-icon{ width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex:none; }
   #view-home .home-quick-label{ color:#8890a6; font-size:.74rem; margin-bottom:2px; }
   #view-home .home-quick-val{ color:#f3f5fb; font-weight:700; font-size:.9rem; }
+
+  /* ===== Kunduzgi (yorug‘) rejim — #view-home ni oq/och fonga o‘giradi ===== */
+  body.light-mode #view-home{
+    background:#f5f7fb; color:#12172b;
+  }
+  body.light-mode #view-home .admin-header h1{ color:#12172b; }
+  body.light-mode #view-home .home-greet-name{ color:#2f6fed; }
+  body.light-mode #view-home .admin-header p{ color:#6b7280; }
+
+  body.light-mode #view-home .hd-card{
+    background:#fff; border:1px solid #e7e9f2; box-shadow:0 8px 22px rgba(15,23,42,.05);
+  }
+  body.light-mode #view-home .hd-eyebrow-blue{ color:#2f6fed; }
+  body.light-mode #view-home .hd-eyebrow-green{ color:#0f9d67; }
+  body.light-mode #view-home .hd-date{ color:#8b93a7; }
+  body.light-mode #view-home .hd-card .latest-hw-title{ color:#12172b; }
+  body.light-mode #view-home .hd-card input[type="text"]{
+    background:#f5f6fa; border:1.5px solid #e2e5ee; color:#12172b;
+  }
+  body.light-mode #view-home .hd-card input[type="text"]::placeholder{ color:#9aa1b5; }
+  body.light-mode #view-home .hd-card .latest-hw-preview{ color:#6b7280; }
+  body.light-mode #view-home .hd-row{ border-bottom:1px solid rgba(15,23,42,.07); }
+  body.light-mode #view-home .hd-row-label{ color:#6b7280; }
+  body.light-mode #view-home .hd-row-val{ color:#12172b; }
+  body.light-mode #view-home #progressMissingWrap{ border-top:1px solid rgba(15,23,42,.07); }
+  body.light-mode #view-home #progressMissingWrap > span{ color:#6b7280 !important; }
+  body.light-mode #view-home #progressMissingList div{ color:#d92d2d !important; }
+  body.light-mode #view-home #progressNoteVal{ background:rgba(15,23,42,.035); }
+
+  body.light-mode #view-home .hd-pill-btn{ border:1.5px solid rgba(15,23,42,.14); color:#12172b; }
+  body.light-mode #view-home .hd-pill-btn:hover{ border-color:rgba(15,23,42,.3); }
+
+  body.light-mode #view-home #latestHwBox .hd-check-row{ color:#374151; }
+  body.light-mode #view-home #latestHwBox > a.btn{ color:#0f9d67; }
+  body.light-mode #view-home #latestHwBox .hw-status-btn{
+    background:transparent !important; border-color:rgba(15,23,42,.16) !important; color:#374151 !important;
+  }
+  body.light-mode #view-home #latestHwBox .hw-status-btn.is-active[data-status="done"]{
+    background:#1eae6c !important; border-color:#1eae6c !important; color:#fff !important;
+  }
+  body.light-mode #view-home #latestHwBox .hw-status-btn.is-active[data-status="undone"]{
+    background:rgba(15,23,42,.06) !important; border-color:rgba(15,23,42,.22) !important; color:#12172b !important;
+  }
+
+  body.light-mode #view-home .home-quick-bar{ background:#fff; border:1px solid #e7e9f2; }
+  body.light-mode #view-home .home-quick-title{ color:#12172b; }
+  body.light-mode #view-home .home-quick-tile{ background:#f4f6fb; border:1px solid rgba(15,23,42,.05); }
+  body.light-mode #view-home .home-quick-label{ color:#6b7280; }
+  body.light-mode #view-home .home-quick-val{ color:#12172b; }
+
+  /* Theme toggle button */
+  #themeToggleBtn{ font-size:1.05rem; }
 </style>
 </head>
 <body class="admin-theme">
@@ -183,8 +235,11 @@
   <!-- MAIN -->
   <main class="admin-main">
 
-    <!-- TOP RIGHT ICONS: Notifications + Chat -->
+    <!-- TOP RIGHT ICONS: Theme toggle + Notifications + Chat -->
     <div class="student-topbar-icons">
+      <button type="button" class="topbar-icon-btn" id="themeToggleBtn" title="Kunduzgi/tungi rejim">
+        <span id="themeToggleIcon">☀️</span>
+      </button>
       <button type="button" class="topbar-icon-btn" id="navNotifications" title="Bildirishnomalar">
         🔔
         <span id="notifBadge" class="notif-badge" hidden>0</span>
@@ -2789,6 +2844,23 @@ function refreshNotifBadge(){
     badge.hidden = true;
   }
 }
+
+// Kunduzgi/tungi rejim — tanlov localStorage'da saqlanadi va sahifa
+// ochilishida darhol qo'llaniladi (yorqin miltillashning oldini olish uchun).
+function applyTheme(mode){
+  document.body.classList.toggle('light-mode', mode === 'light');
+  const icon = document.getElementById('themeToggleIcon');
+  if(icon) icon.textContent = mode === 'light' ? '🌙' : '☀️';
+}
+(function initTheme(){
+  const saved = localStorage.getItem('djamiHomeTheme') || 'dark';
+  applyTheme(saved);
+})();
+document.getElementById('themeToggleBtn').addEventListener('click', () => {
+  const next = document.body.classList.contains('light-mode') ? 'dark' : 'light';
+  localStorage.setItem('djamiHomeTheme', next);
+  applyTheme(next);
+});
 
 document.getElementById('navNotifications').addEventListener('click', (e) => {
   e.preventDefault();
