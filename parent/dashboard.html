@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ota-Ona panel — Djami Lessons</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+/* ============================================================
+   OTA-ONA DASHBOARD — Djami Lessons
+   ============================================================ */
+
+/* ----- Base layout ----- */
+.parent-body { background: #f4f6fc; min-height: 100vh; font-family: var(--font-body,'Manrope',sans-serif); }
+
+#loadingScreen {
+  position: fixed; inset: 0;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 14px; z-index: 999;
+}
+.loading-spinner {
+  width: 44px; height: 44px;
+  border: 4px solid #e5e7eb;
+  border-top-color: #2e6f6e;
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ----- Sidebar ----- */
+.parent-sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 220px;
+  background: linear-gradient(180deg, #101B3D 0%, #0d1530 100%);
+  padding: 22px 0 20px;
+  display: flex; flex-direction: column;
+  z-index: 100;
+  transition: transform .3s;
+}
+.parent-sidebar .sidebar-brand {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 20px 22px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+  text-decoration: none;
+}
+.parent-sidebar .sidebar-brand img { width: 34px; border-radius: 8px; }
+.parent-sidebar .sidebar-brand span { color: #fff; font-size: .95rem; font-weight: 800; }
+
+.sidebar-nav { flex: 1; padding: 14px 0; overflow-y: auto; }
+.sidebar-nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 20px;
+  color: rgba(255,255,255,.65);
+  text-decoration: none;
+  font-size: .88rem;
+  font-weight: 600;
+  border-radius: 0;
+  transition: color .2s, background .2s;
+  cursor: pointer;
+  border: none; background: none; width: 100%; text-align: left;
+}
+.sidebar-nav a:hover { color: #fff; background: rgba(255,255,255,.07); }
+.sidebar-nav a.active { color: #fff; background: rgba(46,111,110,.35); border-right: 3px solid #2e6f6e; }
+.sidebar-nav a .nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+
+.sidebar-footer {
+  padding: 14px 20px 0;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+.sidebar-user { font-size: .78rem; color: rgba(255,255,255,.5); margin-bottom: 10px; }
+.sidebar-user strong { display: block; color: rgba(255,255,255,.85); font-size: .85rem; }
+.btn-logout {
+  width: 100%; padding: .6em 1em;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 10px;
+  color: rgba(255,255,255,.7);
+  font-size: .82rem; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: background .2s;
+}
+.btn-logout:hover { background: rgba(255,255,255,.14); }
+
+/* ----- Mobile top bar ----- */
+.mobile-topbar {
+  display: none;
+  position: fixed; top: 0; left: 0; right: 0;
+  background: #101B3D;
+  padding: 12px 16px;
+  align-items: center; gap: 12px;
+  z-index: 101;
+}
+.mobile-topbar .brand-logo { width: 28px; border-radius: 6px; }
+.mobile-topbar .brand-name { color: #fff; font-size: .9rem; font-weight: 800; flex: 1; }
+.hamburger {
+  background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; gap: 4px; padding: 4px;
+}
+.hamburger span { display: block; width: 22px; height: 2px; background: #fff; border-radius: 2px; transition: .3s; }
+.hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 99; }
+
+/* ----- Main content ----- */
+.parent-main {
+  margin-left: 220px;
+  min-height: 100vh;
+  padding: 28px 28px 40px;
+}
+.page-title {
+  font-size: 1.4rem; font-weight: 800; color: #101B3D; margin: 0 0 4px;
+}
+.page-sub { font-size: .88rem; color: #6b7280; margin: 0 0 24px; }
+
+/* ----- Views ----- */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ----- Stat cards ----- */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.stat-icon {
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem;
+}
+.stat-icon-teal { background: rgba(46,111,110,.1); }
+.stat-icon-blue { background: rgba(47,111,237,.1); }
+.stat-icon-orange { background: rgba(240,146,61,.12); }
+.stat-icon-green { background: rgba(56,161,105,.1); }
+.stat-num { font-size: 1.8rem; font-weight: 800; color: #101B3D; line-height: 1; }
+.stat-label { font-size: .78rem; color: #6b7280; font-weight: 600; }
+
+/* ----- Child info card ----- */
+.child-card {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 22px 24px;
+  margin-bottom: 22px;
+  display: flex; align-items: center; gap: 18px;
+  flex-wrap: wrap;
+}
+.child-avatar {
+  width: 62px; height: 62px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2f6fed, #2e6f6e);
+  color: #fff;
+  font-size: 1.4rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.child-info { flex: 1; }
+.child-name { font-size: 1.2rem; font-weight: 800; color: #101B3D; margin-bottom: 4px; }
+.child-id { font-size: .8rem; color: #9ca3af; font-family: monospace; }
+.child-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.child-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: .78rem; font-weight: 700;
+  background: rgba(46,111,110,.09);
+  color: #2e6f6e;
+}
+.child-badge-blue { background: rgba(47,111,237,.1); color: #2f6fed; }
+.child-badge-orange { background: rgba(240,146,61,.12); color: #b96b0a; }
+.child-badge-active { background: rgba(56,161,105,.1); color: #276749; }
+
+/* ----- Progress rows ----- */
+.section-card {
+  background: #fff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+}
+.section-card-title {
+  font-size: 1rem; font-weight: 800; color: #101B3D;
+  margin: 0 0 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ----- Progress rows ----- */
+.progress-row {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: .88rem;
+}
+.progress-row:last-child { border-bottom: none; }
+.progress-label { color: #6b7280; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.progress-val { font-weight: 700; color: #101B3D; }
+.val-green { color: #276749; }
+.val-red { color: #c53030; }
+.val-orange { color: #b96b0a; }
+
+/* ----- Units grid ----- */
+.units-grid { display: flex; flex-direction: column; gap: 8px; }
+.unit-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #f9fafb;
+  border: 1.5px solid #f3f4f6;
+}
+.unit-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.unit-dot-done { background: #38a169; }
+.unit-dot-current { background: #2f6fed; }
+.unit-dot-pending { background: #d1d5db; }
+.unit-name { flex: 1; font-size: .88rem; font-weight: 700; color: #101B3D; }
+.unit-status { font-size: .78rem; font-weight: 700; }
+.unit-status-done { color: #38a169; }
+.unit-status-current { color: #2f6fed; }
+.unit-status-pending { color: #9ca3af; }
+
+/* ----- Test results ----- */
+.test-result-grid {
+  display: flex; flex-direction: column; gap: 10px;
+}
+.test-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #f9fafb;
+  border: 1.5px solid #f3f4f6;
+}
+.test-skill-name { flex: 1; font-size: .88rem; font-weight: 700; color: #101B3D; }
+.test-bar-wrap { flex: 2; }
+.test-bar-bg { background: #e5e7eb; border-radius: 10px; height: 8px; position: relative; }
+.test-bar-fill { background: linear-gradient(90deg, #2e6f6e, #34d399); border-radius: 10px; height: 8px; transition: width .6s; }
+.test-score { font-size: .88rem; font-weight: 800; color: #101B3D; min-width: 36px; text-align: right; }
+
+/* ----- Attendance chart ----- */
+.davomat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 10px;
+}
+.davomat-mini {
+  border-radius: 12px;
+  padding: 10px 8px;
+  text-align: center;
+  background: #f9fafb;
+  border: 1.5px solid #f3f4f6;
+}
+.davomat-mini .dm-date { font-size: .72rem; color: #9ca3af; font-weight: 600; margin-bottom: 4px; }
+.davomat-mini .dm-icon { font-size: 1.1rem; }
+.davomat-mini.dm-came { border-color: rgba(56,161,105,.3); background: rgba(56,161,105,.06); }
+.davomat-mini.dm-late { border-color: rgba(240,146,61,.3); background: rgba(240,146,61,.06); }
+.davomat-mini.dm-miss { border-color: rgba(229,62,62,.3); background: rgba(229,62,62,.06); }
+
+/* ----- Chat ----- */
+.chat-header-bar {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f3f4f6;
+}
+.chat-teacher-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2e6f6e, #1a5453);
+  color: #fff;
+  font-weight: 800; font-size: .95rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+.chat-online-dot {
+  position: absolute; bottom: 1px; right: 1px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #38a169;
+  border: 2px solid #fff;
+}
+.chat-teacher-name { font-weight: 800; font-size: .95rem; color: #101B3D; }
+.chat-teacher-role { font-size: .75rem; color: #9ca3af; }
+.chat-messages {
+  min-height: 300px; max-height: 400px;
+  overflow-y: auto;
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.chat-msg { display: flex; flex-direction: column; max-width: 75%; }
+.chat-msg-right { align-self: flex-end; align-items: flex-end; }
+.chat-msg-left { align-self: flex-start; }
+.chat-bubble {
+  padding: .65em 1em;
+  border-radius: 16px;
+  font-size: .88rem;
+  line-height: 1.5;
+}
+.chat-bubble-right {
+  background: linear-gradient(135deg, #2e6f6e, #1a5453);
+  color: #fff;
+  border-bottom-right-radius: 4px;
+}
+.chat-bubble-left {
+  background: #f3f4f6;
+  color: #101B3D;
+  border-bottom-left-radius: 4px;
+}
+.chat-time { font-size: .7rem; color: #9ca3af; margin-top: 3px; }
+.chat-input-bar {
+  display: flex; align-items: flex-end; gap: 10px;
+  padding: 14px 18px;
+  border-top: 1px solid #f3f4f6;
+}
+.chat-input-bar textarea {
+  flex: 1;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 14px;
+  padding: .7em 1em;
+  font-size: .9rem;
+  font-family: inherit;
+  resize: none;
+  max-height: 100px;
+  transition: border-color .2s;
+}
+.chat-input-bar textarea:focus { outline: none; border-color: #2e6f6e; }
+.chat-send-btn {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, #2e6f6e, #1a5453);
+  border: none; border-radius: 50%;
+  color: #fff; font-size: 1rem;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; transition: opacity .2s;
+}
+.chat-send-btn:disabled { opacity: .5; }
+.chat-empty { text-align: center; padding: 40px 20px; color: #9ca3af; font-size: .88rem; }
+
+/* ----- O'qituvchi haqida ----- */
+.teacher-profile-card {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 28px 24px 24px; text-align: center;
+}
+.teacher-avatar-big {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2e6f6e, #1a5453);
+  color: #fff;
+  font-size: 2rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+.teacher-name-big { font-size: 1.25rem; font-weight: 800; color: #101B3D; margin-bottom: 4px; }
+.teacher-info-rows { width: 100%; margin-top: 18px; }
+.teacher-info-row {
+  display: flex; justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: .87rem;
+}
+.teacher-info-row:last-child { border-bottom: none; }
+.teacher-info-label { color: #9ca3af; font-weight: 600; }
+.teacher-info-val { color: #101B3D; font-weight: 700; text-align: right; }
+.btn-contact-teacher {
+  width: 100%; margin-top: 20px;
+  padding: .85em 1em;
+  background: linear-gradient(135deg, #2e6f6e, #1a5453);
+  color: #fff; border: none; border-radius: 14px;
+  font-size: .95rem; font-weight: 800; font-family: inherit;
+  cursor: pointer; transition: opacity .2s;
+}
+.btn-contact-teacher:hover { opacity: .9; }
+
+/* ----- Grade badge ----- */
+.grade-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  font-weight: 800; font-size: 1.1rem;
+  background: linear-gradient(135deg, #e6a817, #c08a2e);
+  color: #fff;
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 768px) {
+  .mobile-topbar { display: flex; }
+  .parent-sidebar {
+    transform: translateX(-100%);
+    top: 0;
+  }
+  .parent-sidebar.open { transform: translateX(0); }
+  .sidebar-overlay.open { display: block; }
+  .parent-main { margin-left: 0; padding: 80px 16px 32px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .child-card { flex-direction: column; text-align: center; }
+  .child-info { text-align: center; }
+  .davomat-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ----- Notification badge ----- */
+.nav-badge {
+  background: #e53e3e;
+  color: #fff;
+  border-radius: 20px;
+  font-size: .68rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  min-width: 18px;
+  text-align: center;
+}
+</style>
+</head>
+<body class="parent-body">
+
+<!-- Loading screen -->
+<div id="loadingScreen">
+  <div class="loading-spinner"></div>
+  <p style="color:#6b7280; font-size:.9rem; font-family:'Manrope',sans-serif;">Yuklanmoqda…</p>
+</div>
+
+<!-- Mobile topbar -->
+<div class="mobile-topbar" id="mobileTopbar">
+  <img src="../assets/logo.png" class="brand-logo" alt="Logo">
+  <span class="brand-name" data-site-brand-name>Djami Lessons</span>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Menyu">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<aside class="parent-sidebar" id="parentSidebar">
+  <a href="../index.html" class="sidebar-brand">
+    <img src="../assets/logo.png" alt="Logo">
+    <span data-site-brand-name>Djami Lessons</span>
+  </a>
+
+  <nav class="sidebar-nav">
+    <a href="#" data-view="home" class="active"><span class="nav-icon">🏠</span> Bosh sahifa</a>
+    <a href="#" data-view="farzand"><span class="nav-icon">👦</span> Farzandim</a>
+    <a href="#" data-view="oquv"><span class="nav-icon">📚</span> O'quv jarayoni</a>
+    <a href="#" data-view="test"><span class="nav-icon">📊</span> Test natijalari</a>
+    <a href="#" data-view="vazifalari"><span class="nav-icon">📝</span> Uy vazifalari</a>
+    <a href="#" data-view="davomat"><span class="nav-icon">📅</span> Davomat</a>
+    <a href="#" data-view="chat"><span class="nav-icon">💬</span> O'qituvchiga yozish <span class="nav-badge" id="chatNavBadge" hidden>!</span></a>
+    <a href="#" data-view="teacher"><span class="nav-icon">👨‍🏫</span> O'qituvchi haqida</a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-user">
+      <strong id="sidebarParentName">Yuklanmoqda…</strong>
+      Ota-Ona
+    </div>
+    <button class="btn-logout" id="logoutBtn">Chiqish</button>
+  </div>
+</aside>
+
+<!-- Main content -->
+<main class="parent-main" id="appShell" hidden>
+
+  <!-- ====== VIEW: BOSH SAHIFA ====== -->
+  <div class="view active" id="view-home">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:6px;">
+      <div>
+        <h1 class="page-title">Assalomu alaykum, <span id="parentGreetName">Ota-Ona</span>! 👋</h1>
+        <p class="page-sub">Farzandingiz ta'lim jarayoni haqida ma'lumotlar</p>
+      </div>
+      <div style="font-size:.82rem; color:#9ca3af;" id="todayDateEl"></div>
+    </div>
+
+    <!-- Child card -->
+    <div class="child-card" id="childCardHome">
+      <div class="child-avatar" id="childAvatarHome">--</div>
+      <div class="child-info">
+        <div class="child-name" id="childNameHome">Yuklanmoqda…</div>
+        <div class="child-id">ID: <span id="childIdHome">—</span></div>
+        <div class="child-badges">
+          <span class="child-badge" id="childCourseBadge">📖 —</span>
+          <span class="child-badge child-badge-blue" id="childGroupBadge">👥 —</span>
+          <span class="child-badge child-badge-orange" id="childTeacherBadge">👨‍🏫 —</span>
+          <span class="child-badge child-badge-active" id="childStatusBadge">✅ Faol</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-teal">📅</div>
+        <div class="stat-num" id="statDavomat">—</div>
+        <div class="stat-label">Davomat %</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-blue">📝</div>
+        <div class="stat-num" id="statHomework">—</div>
+        <div class="stat-label">Uy vazifalari %</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-green">🏆</div>
+        <div class="stat-num" id="statTestScore">—</div>
+        <div class="stat-label">Umumiy reyting</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-orange">⭐</div>
+        <div class="stat-num" id="statGrade">—</div>
+        <div class="stat-label">O'rtacha baho</div>
+      </div>
+    </div>
+
+    <!-- Recent progress -->
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:20px;" class="home-two-col">
+      <div class="section-card">
+        <div class="section-card-title">📋 O'quv jarayoni</div>
+        <div id="homeProgressRows">
+          <div class="progress-row"><span class="progress-label">So'nggi dars</span><span class="progress-val" id="homeLastLesson">—</span></div>
+          <div class="progress-row"><span class="progress-label">Davomat</span><span class="progress-val" id="homeAttended">—</span></div>
+          <div class="progress-row"><span class="progress-label">Uy vazifasi</span><span class="progress-val" id="homeHw">—</span></div>
+          <div class="progress-row"><span class="progress-label">Baho</span><span class="progress-val" id="homeGrade">—</span></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-title">🧪 Test natijalari</div>
+        <div id="homeTestRows">
+          <div class="progress-row"><span class="progress-label">Listening</span><span class="progress-val" id="homeTestListen">—</span></div>
+          <div class="progress-row"><span class="progress-label">Reading</span><span class="progress-val" id="homeTestRead">—</span></div>
+          <div class="progress-row"><span class="progress-label">Grammar</span><span class="progress-val" id="homeTestGram">—</span></div>
+          <div class="progress-row"><span class="progress-label">Vocabulary</span><span class="progress-val" id="homeTestVocab">—</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teacher comment -->
+    <div class="section-card" id="teacherCommentCard" hidden>
+      <div class="section-card-title">💬 O'qituvchi izohi</div>
+      <div id="teacherCommentText" style="font-size:.9rem; color:#374151; line-height:1.7;"></div>
+      <div id="teacherCommentDate" style="font-size:.78rem; color:#9ca3af; margin-top:10px;"></div>
+    </div>
+
+    <style>
+      @media(max-width:640px){
+        .home-two-col { grid-template-columns: 1fr !important; }
+      }
+    </style>
+  </div>
+
+  <!-- ====== VIEW: FARZANDIM ====== -->
+  <div class="view" id="view-farzand">
+    <h1 class="page-title">Farzandim</h1>
+    <p class="page-sub">Farzandingiz to'liq profili</p>
+    <div class="section-card">
+      <div style="display:flex; align-items:center; gap:20px; flex-wrap:wrap; padding:8px 0 20px;">
+        <div class="child-avatar" id="childAvatarFull" style="width:72px;height:72px;font-size:1.7rem;">--</div>
+        <div>
+          <div class="child-name" id="childNameFull">—</div>
+          <div class="child-id" style="margin-top:4px;">ID: <span id="childIdFull">—</span></div>
+        </div>
+      </div>
+      <div id="childProfileRows">
+        <div class="progress-row"><span class="progress-label">Kurs</span><span class="progress-val" id="cpCourse">—</span></div>
+        <div class="progress-row"><span class="progress-label">Guruh</span><span class="progress-val" id="cpGroup">—</span></div>
+        <div class="progress-row"><span class="progress-label">O'qituvchi</span><span class="progress-val" id="cpTeacher">—</span></div>
+        <div class="progress-row"><span class="progress-label">Dars kuni</span><span class="progress-val" id="cpDays">—</span></div>
+        <div class="progress-row"><span class="progress-label">Dars vaqti</span><span class="progress-val" id="cpTime">—</span></div>
+        <div class="progress-row"><span class="progress-label">To'lov holati</span><span class="progress-val" id="cpPayment">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== VIEW: O'QUV JARAYONI ====== -->
+  <div class="view" id="view-oquv">
+    <h1 class="page-title">O'quv jarayoni</h1>
+    <p class="page-sub">Farzandingizning darslar bo'yicha taraqiyoti</p>
+
+    <div class="section-card" style="margin-bottom:18px;">
+      <div class="section-card-title">📅 So'nggi yozuvlar</div>
+      <div id="oquvEntriesList">
+        <p style="color:#9ca3af; font-size:.88rem; text-align:center; padding:20px;">Yuklanmoqda…</p>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-title">📚 Kurslar jarayoni</div>
+      <div class="units-grid" id="unitsGrid">
+        <p style="color:#9ca3af; font-size:.88rem; text-align:center; padding:20px;">Yuklanmoqda…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== VIEW: TEST NATIJALARI ====== -->
+  <div class="view" id="view-test">
+    <h1 class="page-title">Test natijalari</h1>
+    <p class="page-sub">Farzandingizning test ko'rsatkichlari</p>
+
+    <div class="section-card" style="margin-bottom:18px;">
+      <div class="section-card-title">🏆 Umumiy natijalar</div>
+      <div class="test-result-grid" id="testResultGrid">
+        <p style="color:#9ca3af; font-size:.88rem; text-align:center; padding:20px;">Yuklanmoqda…</p>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-title">📊 Daraja bo'yicha</div>
+      <div id="testByUnitGrid">
+        <p style="color:#9ca3af; font-size:.88rem; text-align:center; padding:20px;">Ma'lumot yo'q.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== VIEW: UY VAZIFALARI ====== -->
+  <div class="view" id="view-vazifalari">
+    <h1 class="page-title">Uy vazifalari</h1>
+    <p class="page-sub">Uy vazifalarining holati</p>
+
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-green">✅</div>
+        <div class="stat-num" id="hwStatDone">—</div>
+        <div class="stat-label">Bajargan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-orange">🔶</div>
+        <div class="stat-num" id="hwStatPartial">—</div>
+        <div class="stat-label">Qisman</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(229,62,62,.1);">❌</div>
+        <div class="stat-num" id="hwStatMiss">—</div>
+        <div class="stat-label">Bajarmagan</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-title">📝 So'nggi vazifalar</div>
+      <div id="hwEntriesList">
+        <p style="color:#9ca3af; font-size:.88rem; text-align:center; padding:20px;">Yuklanmoqda…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== VIEW: DAVOMAT ====== -->
+  <div class="view" id="view-davomat">
+    <h1 class="page-title">Davomat</h1>
+    <p class="page-sub">Farzandingiz darslarga qatnashishi</p>
+
+    <div class="stat-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:22px;">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-green">✅</div>
+        <div class="stat-num" id="davomatKeldi">—</div>
+        <div class="stat-label">Keldi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon stat-icon-orange">⏰</div>
+        <div class="stat-num" id="davomatKech">—</div>
+        <div class="stat-label">Kech qoldi</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(229,62,62,.1);">🚫</div>
+        <div class="stat-num" id="davomatKelmadi">—</div>
+        <div class="stat-label">Kelmadi</div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-card-title">📅 Darslar tarixi</div>
+      <div class="davomat-grid" id="davomatGrid">
+        <p style="color:#9ca3af; font-size:.88rem; text-align:center; padding:20px; grid-column:1/-1;">Yuklanmoqda…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== VIEW: CHAT ====== -->
+  <div class="view" id="view-chat">
+    <h1 class="page-title">O'qituvchiga yozish</h1>
+    <p class="page-sub">O'qituvchi bilan to'g'ridan-to'g'ri muloqot</p>
+
+    <div class="section-card" style="padding: 0; overflow: hidden;">
+      <div class="chat-header-bar">
+        <div class="chat-teacher-avatar" id="chatTeacherAvatar">
+          AB
+          <div class="chat-online-dot"></div>
+        </div>
+        <div>
+          <div class="chat-teacher-name" id="chatTeacherName">O'qituvchi</div>
+          <div class="chat-teacher-role">Ingliz tili o'qituvchisi</div>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-empty">Yuklanmoqda…</div>
+      </div>
+
+      <div class="chat-input-bar">
+        <textarea id="chatInput" rows="1" placeholder="Xabar yozing…" maxlength="1000"></textarea>
+        <button class="chat-send-btn" id="chatSendBtn" title="Yuborish">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== VIEW: O'QITUVCHI HAQIDA ====== -->
+  <div class="view" id="view-teacher">
+    <h1 class="page-title">O'qituvchi haqida</h1>
+    <p class="page-sub">Farzandingizning o'qituvchisi</p>
+
+    <div class="section-card">
+      <div class="teacher-profile-card">
+        <div class="teacher-avatar-big" id="teacherAvatarBig">AB</div>
+        <div class="teacher-name-big" id="teacherNameBig">Abdurahim</div>
+        <div style="font-size:.85rem; color:#6b7280;">Ingliz tili o'qituvchisi</div>
+
+        <div class="teacher-info-rows">
+          <div class="teacher-info-row">
+            <span class="teacher-info-label">To'liq ism</span>
+            <span class="teacher-info-val" id="tiFullName">—</span>
+          </div>
+          <div class="teacher-info-row">
+            <span class="teacher-info-label">Lavozim</span>
+            <span class="teacher-info-val" id="tiPosition">Ingliz tili o'qituvchisi</span>
+          </div>
+          <div class="teacher-info-row">
+            <span class="teacher-info-label">Mutaxassislik</span>
+            <span class="teacher-info-val" id="tiSpec">IELTS, General English</span>
+          </div>
+          <div class="teacher-info-row">
+            <span class="teacher-info-label">Staj</span>
+            <span class="teacher-info-val" id="tiExp">—</span>
+          </div>
+          <div class="teacher-info-row">
+            <span class="teacher-info-label">Telefon</span>
+            <span class="teacher-info-val" id="tiPhone">—</span>
+          </div>
+          <div class="teacher-info-row">
+            <span class="teacher-info-label">Email</span>
+            <span class="teacher-info-val" id="tiEmail">—</span>
+          </div>
+        </div>
+
+        <button class="btn-contact-teacher" id="goToChatFromTeacher">
+          ✉️ Xabar yozish
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main><!-- /parent-main -->
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../site-settings.js"></script>
+<script>
+/* ============================================================
+   OTA-ONA DASHBOARD — Djami Lessons
+   ============================================================
+   Firestore o'qiydigan kolleksiyalar:
+   - parents/{uid}           ota-ona profili + childId
+   - oquv_progress/{childId} farzand progress ma'lumotlari
+   - oquv_progress/{childId}/entries  daily yozuvlar (davomat, baho, hw)
+   - oquv_groups             guruh jadval ma'lumotlari
+   - gradebook/gradebook     test natijalari
+   - students/{childUid}     talaba Firestore profili (agar bog'langan bo'lsa)
+   - chats/{childUid}        chat o'qituvchi bilan (farzand IDsi orqali)
+   - chats/{childUid}/messages  xabarlar
+   Ota-ona o'zi YOZMAYDI students kolleksiyasiga.
+   Chat uchun farzandning student UID si kerak — oquv_progress'dan topiladi.
+   ============================================================ */
+
+let parentData = null;   // parents/{uid} data
+let childProgress = null; // oquv_progress/{childId} data
+let childEntries = [];   // oquv_progress/{childId}/entries docs
+let gradebookData = null;
+let chatUnsubscribe = null;
+let childStudentUid = null; // students collection uid for chat
+
+function escHtml(str){
+  return String(str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+// ===== Auth gate =====
+auth.onAuthStateChanged(async (user) => {
+  if (!user) { window.location.href = 'login.html'; return; }
+
+  const parentDoc = await db.collection('parents').doc(user.uid).get();
+  if (!parentDoc.exists) {
+    await auth.signOut();
+    window.location.href = 'login.html';
+    return;
+  }
+
+  parentData = parentDoc.data();
+
+  // Today's date
+  const now = new Date();
+  document.getElementById('todayDateEl').textContent =
+    now.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric', weekday:'long' });
+
+  // Parent name greeting
+  const pName = parentData.ism || parentData.name || 'Ota-Ona';
+  document.getElementById('parentGreetName').textContent = pName + ' opa';
+  document.getElementById('sidebarParentName').textContent = `${parentData.ism || ''} ${parentData.familiya || ''}`.trim() || pName;
+
+  document.getElementById('loadingScreen').hidden = true;
+  document.getElementById('appShell').hidden = false;
+
+  // Load all data
+  await loadChildData();
+  await loadGradebook();
+  startChatUnreadListener();
+});
+
+// ===== Load child oquv_progress =====
+async function loadChildData(){
+  const childId = parentData.childId;
+  if (!childId) {
+    showNoChildError();
+    return;
+  }
+
+  try {
+    const doc = await db.collection('oquv_progress').doc(childId).get();
+    if (!doc.exists) { showNoChildError(); return; }
+
+    childProgress = doc.data();
+    const childName = childProgress.name || 'O\'quvchi';
+    const childGroup = childProgress.group || '—';
+    const childCourse = childProgress.course || childProgress.kurs || 'General English';
+    const childTeacher = childProgress.teacher || 'Abdurahim';
+
+    // Fill home page child card
+    const initials = childName.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    document.getElementById('childAvatarHome').textContent = initials;
+    document.getElementById('childNameHome').textContent = childName;
+    document.getElementById('childIdHome').textContent = childId;
+    document.getElementById('childCourseBadge').textContent = '📖 ' + childCourse;
+    document.getElementById('childGroupBadge').textContent = '👥 ' + childGroup;
+    document.getElementById('childTeacherBadge').textContent = '👨‍🏫 ' + childTeacher;
+
+    // Fill farzandim page
+    document.getElementById('childAvatarFull').textContent = initials;
+    document.getElementById('childNameFull').textContent = childName;
+    document.getElementById('childIdFull').textContent = childId;
+    document.getElementById('cpCourse').textContent = childCourse;
+    document.getElementById('cpGroup').textContent = childGroup;
+    document.getElementById('cpTeacher').textContent = childTeacher;
+
+    // Teacher page
+    document.getElementById('teacherAvatarBig').textContent = childTeacher.charAt(0).toUpperCase();
+    document.getElementById('teacherNameBig').textContent = childTeacher;
+    document.getElementById('tiFullName').textContent = childTeacher;
+    document.getElementById('chatTeacherAvatar').textContent = childTeacher.charAt(0).toUpperCase();
+    document.getElementById('chatTeacherName').textContent = childTeacher;
+
+    // Load group schedule info
+    if (childGroup && childGroup !== '—') {
+      loadGroupInfo(childGroup);
+    }
+
+    // Load daily entries
+    await loadEntries(childId);
+
+    // Try to find student UID for chat (search students collection by oquvProgressCode = childId)
+    loadChildStudentUid(childId, childName);
+
+  } catch(err){
+    console.error('Child data load error:', err);
+  }
+}
+
+async function loadGroupInfo(groupName){
+  try {
+    const gSnap = await db.collection('oquv_groups').where('name', '==', groupName).limit(1).get();
+    if (!gSnap.empty) {
+      const g = gSnap.docs[0].data();
+      const days = Array.isArray(g.days) ? g.days.join(', ') : (g.days || '—');
+      document.getElementById('cpDays').textContent = days;
+      document.getElementById('cpTime').textContent = g.time || '—';
+    }
+  } catch(e){}
+}
+
+async function loadChildStudentUid(childId, childName){
+  try {
+    // Students save their progress code in students/{uid}.oquvProgressCode
+    const snap = await db.collection('students').where('oquvProgressCode','==',childId).limit(1).get();
+    if (!snap.empty) {
+      childStudentUid = snap.docs[0].id;
+      const sData = snap.docs[0].data();
+      // payment status
+      const ps = sData.paymentStatus || 'none';
+      const psLabels = { none: '💳 To\'lov yo\'q', pending: '⏳ Kutilmoqda', approved: '✅ Tasdiqlangan' };
+      document.getElementById('cpPayment').textContent = psLabels[ps] || ps;
+      // Load chat listener
+      startChatMessagesListener();
+    }
+  } catch(e){}
+}
+
+// ===== Load all entries (daily records) =====
+async function loadEntries(childId){
+  try {
+    const snap = await db.collection('oquv_progress').doc(childId)
+      .collection('entries').orderBy('date', 'desc').limit(30).get();
+
+    childEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    computeStatsFromEntries();
+    renderOquvEntries();
+    renderDavomatView();
+    renderHwView();
+    fillHomeProgressFromLatest();
+  } catch(err){
+    console.error('Entries load error:', err);
+  }
+}
+
+function computeStatsFromEntries(){
+  const total = childEntries.length;
+  if (total === 0) return;
+
+  let keldi = 0, kech = 0, kelmadi = 0;
+  let hwDone = 0, hwPartial = 0, hwMiss = 0;
+  let gradeSum = 0, gradeCount = 0;
+
+  childEntries.forEach(d => {
+    const att = normalize(d.attended);
+    if (att === 'yes') keldi++;
+    else if (att === 'late') kech++;
+    else if (att === 'no') kelmadi++;
+
+    const hw = normalize(d.homeworkDone);
+    if (hw === 'yes') hwDone++;
+    else if (hw === 'partial') hwPartial++;
+    else if (hw === 'no') hwMiss++;
+
+    if (d.grade) { gradeSum += Number(d.grade); gradeCount++; }
+  });
+
+  const davPct = total > 0 ? Math.round(((keldi + kech) / total) * 100) : 0;
+  const hwPct = total > 0 ? Math.round((hwDone / total) * 100) : 0;
+  const avgGrade = gradeCount > 0 ? (gradeSum / gradeCount).toFixed(1) : '—';
+
+  document.getElementById('statDavomat').textContent = davPct + '%';
+  document.getElementById('statHomework').textContent = hwPct + '%';
+  document.getElementById('statGrade').textContent = avgGrade !== '—' ? avgGrade + '/5' : '—';
+
+  document.getElementById('davomatKeldi').textContent = keldi;
+  document.getElementById('davomatKech').textContent = kech;
+  document.getElementById('davomatKelmadi').textContent = kelmadi;
+
+  document.getElementById('hwStatDone').textContent = hwDone + (total ? ` (${Math.round(hwDone/total*100)}%)` : '');
+  document.getElementById('hwStatPartial').textContent = hwPartial + (total ? ` (${Math.round(hwPartial/total*100)}%)` : '');
+  document.getElementById('hwStatMiss').textContent = hwMiss + (total ? ` (${Math.round(hwMiss/total*100)}%)` : '');
+}
+
+function normalize(val){
+  if (val === true || val === 'yes') return 'yes';
+  if (val === false || val === 'no') return 'no';
+  if (val === 'late') return 'late';
+  if (val === 'partial') return 'partial';
+  return '';
+}
+
+function fillHomeProgressFromLatest(){
+  if (childEntries.length === 0) return;
+  const d = childEntries[0]; // most recent
+  const date = d.date ? new Date(d.date + 'T00:00:00') : null;
+  document.getElementById('homeLastLesson').textContent = date
+    ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long' })
+    : '—';
+
+  const att = normalize(d.attended);
+  const attEl = document.getElementById('homeAttended');
+  if (att === 'yes') { attEl.textContent = '✅ Keldi'; attEl.className = 'progress-val val-green'; }
+  else if (att === 'late') { attEl.textContent = '⏰ Kech qoldi'; attEl.className = 'progress-val val-orange'; }
+  else if (att === 'no') { attEl.textContent = '🚫 Kelmadi'; attEl.className = 'progress-val val-red'; }
+  else { attEl.textContent = '—'; attEl.className = 'progress-val'; }
+
+  const hw = normalize(d.homeworkDone);
+  const hwEl = document.getElementById('homeHw');
+  if (hw === 'yes') { hwEl.textContent = '✅ Qildi'; hwEl.className = 'progress-val val-green'; }
+  else if (hw === 'no') { hwEl.textContent = '❌ Qilmadi'; hwEl.className = 'progress-val val-red'; }
+  else if (hw === 'partial') { hwEl.textContent = `🔶 ${d.homeworkPercent||0}% bajardi`; hwEl.className = 'progress-val val-orange'; }
+  else { hwEl.textContent = '—'; hwEl.className = 'progress-val'; }
+
+  const gradeEl = document.getElementById('homeGrade');
+  gradeEl.textContent = d.grade ? `${d.grade}/5` : '—';
+
+  // Teacher note on home page
+  if (d.note) {
+    document.getElementById('teacherCommentText').textContent = d.note;
+    document.getElementById('teacherCommentDate').textContent = `Sana: ${d.date || ''} · O'qituvchi: ${childProgress?.teacher || 'Abdurahim'}`;
+    document.getElementById('teacherCommentCard').hidden = false;
+  }
+}
+
+// ===== Render O'quv jarayoni entries =====
+function renderOquvEntries(){
+  const el = document.getElementById('oquvEntriesList');
+  if (childEntries.length === 0) {
+    el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:20px;">Yozuvlar topilmadi.</p>';
+    return;
+  }
+  el.innerHTML = childEntries.slice(0, 10).map(d => {
+    const att = normalize(d.attended);
+    const hw = normalize(d.homeworkDone);
+    const attLabel = att === 'yes' ? '✅ Keldi' : att === 'late' ? '⏰ Kech' : att === 'no' ? '🚫 Kelmadi' : '—';
+    const attColor = att === 'yes' ? '#276749' : att === 'late' ? '#b96b0a' : att === 'no' ? '#c53030' : '#9ca3af';
+    const hwLabel = hw === 'yes' ? '✅ Qildi' : hw === 'partial' ? `🔶 ${d.homeworkPercent||0}%` : hw === 'no' ? '❌ Qilmadi' : '—';
+    const hwColor = hw === 'yes' ? '#276749' : hw === 'partial' ? '#b96b0a' : hw === 'no' ? '#c53030' : '#9ca3af';
+    const dateStr = d.date ? new Date(d.date+'T00:00:00').toLocaleDateString('uz-UZ',{day:'numeric',month:'short'}) : '—';
+    return `<div class="progress-row" style="flex-wrap:wrap; gap:6px;">
+      <span class="progress-label" style="min-width:80px;">${escHtml(dateStr)}</span>
+      <span style="font-size:.82rem;font-weight:700;color:${attColor};min-width:90px;">${attLabel}</span>
+      <span style="font-size:.82rem;font-weight:700;color:${hwColor};flex:1;">${hwLabel}</span>
+      ${d.grade ? `<span class="grade-badge" style="width:32px;height:32px;font-size:.9rem;">${d.grade}</span>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ===== Render Davomat =====
+function renderDavomatView(){
+  const grid = document.getElementById('davomatGrid');
+  if (childEntries.length === 0) {
+    grid.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:20px;grid-column:1/-1;">Yozuvlar topilmadi.</p>';
+    return;
+  }
+  grid.innerHTML = childEntries.slice(0, 20).map(d => {
+    const att = normalize(d.attended);
+    const dateStr = d.date ? new Date(d.date+'T00:00:00').toLocaleDateString('uz-UZ',{day:'numeric',month:'short'}) : '—';
+    let cls = '', icon = '—';
+    if (att === 'yes') { cls = 'dm-came'; icon = '✅'; }
+    else if (att === 'late') { cls = 'dm-late'; icon = '⏰'; }
+    else if (att === 'no') { cls = 'dm-miss'; icon = '🚫'; }
+    return `<div class="davomat-mini ${cls}">
+      <div class="dm-date">${escHtml(dateStr)}</div>
+      <div class="dm-icon">${icon}</div>
+    </div>`;
+  }).join('');
+}
+
+// ===== Render Uy Vazifalari =====
+function renderHwView(){
+  const el = document.getElementById('hwEntriesList');
+  if (childEntries.length === 0) {
+    el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:20px;">Yozuvlar topilmadi.</p>';
+    return;
+  }
+  el.innerHTML = childEntries.slice(0, 15).map(d => {
+    const hw = normalize(d.homeworkDone);
+    const hwLabel = hw === 'yes' ? '✅ Bajardi' : hw === 'partial' ? `🔶 ${d.homeworkPercent||0}% bajardi` : hw === 'no' ? '❌ Bajarmadi' : '—';
+    const hwColor = hw === 'yes' ? '#276749' : hw === 'partial' ? '#b96b0a' : hw === 'no' ? '#c53030' : '#9ca3af';
+    const dateStr = d.date ? new Date(d.date+'T00:00:00').toLocaleDateString('uz-UZ',{day:'numeric',month:'long'}) : '—';
+    const missing = (hw === 'partial' && d.homeworkMissing) ? `<div style="font-size:.78rem;color:#c53030;margin-top:3px;">⚠️ ${escHtml(d.homeworkMissing)}</div>` : '';
+    return `<div class="progress-row" style="flex-direction:column; align-items:flex-start; gap:4px;">
+      <div style="display:flex;justify-content:space-between;width:100%;">
+        <span class="progress-label">${escHtml(dateStr)}</span>
+        <span style="font-size:.85rem;font-weight:700;color:${hwColor};">${hwLabel}</span>
+      </div>
+      ${missing}
+      ${d.note ? `<div style="font-size:.78rem;color:#6b7280;">📝 ${escHtml(d.note)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ===== Load Gradebook for test results =====
+async function loadGradebook(){
+  try {
+    const snap = await db.collection('gradebook').doc('gradebook').get();
+    if (!snap.exists) return;
+    const d = snap.data();
+    gradebookData = d;
+
+    // find child in gradebook by name match
+    const childName = childProgress?.name || '';
+    if (!childName) return;
+
+    const normalize_ = s => String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
+    const students = Array.isArray(d.students) ? d.students : [];
+    const found = students.find(s => normalize_(s.name) === normalize_(childName));
+
+    if (!found) {
+      document.getElementById('statTestScore').textContent = '—';
+      return;
+    }
+
+    const group = found.group || '';
+    let units = [];
+    if (d.unitsByGroup && d.unitsByGroup[group]) {
+      units = d.unitsByGroup[group];
+    } else if (Array.isArray(d.units)) {
+      units = d.units;
+    }
+
+    const scores = found.scores || {};
+
+    // Compute average
+    const scoreVals = Object.values(scores).filter(v => v !== null && v !== undefined && v !== '');
+    const avg = scoreVals.length ? Math.round(scoreVals.reduce((a,b)=>a+Number(b),0)/scoreVals.length) : null;
+    document.getElementById('statTestScore').textContent = avg !== null ? avg + '%' : '—';
+
+    // Fill home test rows (Listening, Reading, Grammar, Vocabulary if exist by unit label)
+    const skillMap = { listening:'homeTestListen', reading:'homeTestRead', grammar:'homeTestGram', vocabulary:'homeTestVocab' };
+    const latestUnit = units[units.length - 1];
+    if (latestUnit && scores[latestUnit] !== undefined) {
+      const s = scores[latestUnit];
+      // Fill all as same score for now (gradebook stores per-unit total score)
+      document.getElementById('homeTestListen').textContent = s !== null && s !== '' ? s + '%' : '—';
+      document.getElementById('homeTestRead').textContent = s !== null && s !== '' ? s + '%' : '—';
+      document.getElementById('homeTestGram').textContent = s !== null && s !== '' ? s + '%' : '—';
+      document.getElementById('homeTestVocab').textContent = s !== null && s !== '' ? s + '%' : '—';
+    }
+
+    // Render test result view
+    renderTestView(units, scores, avg);
+    renderUnitsGrid(units, scores);
+
+  } catch(err){
+    console.error('Gradebook load error:', err);
+  }
+}
+
+function renderTestView(units, scores, avg){
+  const grid = document.getElementById('testResultGrid');
+  if (!units.length) {
+    grid.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:20px;">Test natijalari topilmadi.</p>';
+    return;
+  }
+  grid.innerHTML = units.slice(-6).reverse().map(unit => {
+    const score = scores[unit];
+    const pct = score !== null && score !== undefined && score !== '' ? Number(score) : null;
+    return `<div class="test-row">
+      <span class="test-skill-name">${escHtml(unit)}</span>
+      <div class="test-bar-wrap">
+        <div class="test-bar-bg">
+          <div class="test-bar-fill" style="width:${pct !== null ? pct : 0}%"></div>
+        </div>
+      </div>
+      <span class="test-score">${pct !== null ? pct + '%' : '—'}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderUnitsGrid(units, scores){
+  const el = document.getElementById('testByUnitGrid');
+  if (!units.length) { el.innerHTML = '<p style="color:#9ca3af;text-align:center;padding:20px;">Ma\'lumot yo\'q.</p>'; return; }
+  el.innerHTML = units.map(unit => {
+    const score = scores[unit];
+    const pct = score !== null && score !== undefined && score !== '' ? Number(score) : null;
+    return `<div class="progress-row">
+      <span class="progress-label">${escHtml(unit)}</span>
+      <span class="progress-val ${pct !== null ? (pct >= 60 ? 'val-green' : 'val-red') : ''}">${pct !== null ? pct + '%' : '—'}</span>
+    </div>`;
+  }).join('');
+  document.getElementById('unitsGrid').innerHTML = units.map((unit, i) => {
+    const score = scores[unit];
+    const pct = score !== null && score !== undefined && score !== '' ? Number(score) : null;
+    const lastIdx = units.length - 1;
+    const cls = i < lastIdx ? 'unit-dot-done' : (i === lastIdx ? 'unit-dot-current' : 'unit-dot-pending');
+    const statusCls = i < lastIdx ? 'unit-status-done' : (i === lastIdx ? 'unit-status-current' : 'unit-status-pending');
+    const statusLabel = i < lastIdx ? 'Tugallangan' : (i === lastIdx ? 'Davom etmoqda' : 'Kutilmoqda');
+    return `<div class="unit-row">
+      <div class="unit-dot ${cls}"></div>
+      <span class="unit-name">${escHtml(unit)}</span>
+      ${pct !== null ? `<span style="font-size:.8rem;font-weight:700;color:#6b7280;">${pct}%</span>` : ''}
+      <span class="unit-status ${statusCls}">${statusLabel}</span>
+    </div>`;
+  }).join('');
+}
+
+// ===== Chat =====
+function startChatMessagesListener(){
+  if (!childStudentUid) return;
+  if (chatUnsubscribe) chatUnsubscribe();
+
+  // Listen for unread badge
+  db.collection('chats').doc(childStudentUid).onSnapshot(doc => {
+    const data = doc.exists ? doc.data() : {};
+    // Show badge if admin sent messages unread by parent
+    const unread = data.unreadByParent || 0;
+    const badge = document.getElementById('chatNavBadge');
+    badge.hidden = unread === 0;
+    if (unread > 0) badge.textContent = unread;
+  });
+}
+
+function loadChatMessages(){
+  if (!childStudentUid) {
+    document.getElementById('chatMessages').innerHTML =
+      '<div class="chat-empty">Farzandingiz tizimda hali chat bilan bog\'lanmagan. Avval talaba tizimiga kirib, progress ID sini kiriting.</div>';
+    return;
+  }
+  if (chatUnsubscribe) chatUnsubscribe();
+
+  // Mark parent as read
+  db.collection('chats').doc(childStudentUid).update({ unreadByParent: 0 }).catch(()=>{});
+
+  const el = document.getElementById('chatMessages');
+  el.innerHTML = '<div class="chat-empty">Yuklanmoqda…</div>';
+
+  chatUnsubscribe = db.collection('chats').doc(childStudentUid)
+    .collection('messages')
+    .orderBy('createdAt', 'asc')
+    .limit(60)
+    .onSnapshot(snap => {
+      if (snap.empty) {
+        el.innerHTML = '<div class="chat-empty">Hozircha xabarlar yo\'q. Birinchi xabarni yozing!</div>';
+        return;
+      }
+      el.innerHTML = snap.docs.map(doc => {
+        const m = doc.data();
+        const isParent = m.senderRole === 'parent';
+        const isStudent = m.senderRole === 'student';
+        const isTeacher = m.senderRole === 'teacher' || m.senderRole === 'admin';
+        const isRight = isParent || isStudent;
+        const ts = m.createdAt ? (typeof m.createdAt.toDate === 'function' ? m.createdAt.toDate() : new Date(m.createdAt)) : null;
+        const timeStr = ts ? ts.toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' }) : '';
+        const senderLabel = isTeacher ? (childProgress?.teacher || 'O\'qituvchi') : isStudent ? 'Farzandingiz' : 'Siz';
+        return `<div class="chat-msg ${isRight ? 'chat-msg-right' : 'chat-msg-left'}">
+          <div class="chat-bubble ${isRight ? 'chat-bubble-right' : 'chat-bubble-left'}">${escHtml(m.text)}</div>
+          <div class="chat-time">${isRight?'':'<strong>'+escHtml(senderLabel)+'</strong> · '}${timeStr}</div>
+        </div>`;
+      }).join('');
+      el.scrollTop = el.scrollHeight;
+    });
+}
+
+async function sendChatMessage(){
+  if (!childStudentUid) return;
+  const inp = document.getElementById('chatInput');
+  const btn = document.getElementById('chatSendBtn');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = ''; inp.disabled = true; btn.disabled = true;
+
+  try {
+    const pName = `${parentData.ism||''} ${parentData.familiya||''}`.trim() || 'Ota-Ona';
+    await db.collection('chats').doc(childStudentUid).collection('messages').add({
+      text, senderRole: 'parent', senderName: pName,
+      read: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('chats').doc(childStudentUid).set({
+      lastMessage: text,
+      lastAt: firebase.firestore.FieldValue.serverTimestamp(),
+      unreadByTeacher: firebase.firestore.FieldValue.increment(1),
+      unreadByStudent: 0
+    }, { merge: true });
+  } catch(err){ alert('Xabar yuborishda xatolik yuz berdi.'); }
+  finally { inp.disabled = false; btn.disabled = false; inp.focus(); }
+}
+
+function startChatUnreadListener(){
+  if (!childStudentUid) return;
+  db.collection('chats').doc(childStudentUid).onSnapshot(doc => {
+    const data = doc.exists ? doc.data() : {};
+    const unread = data.unreadByParent || 0;
+    const badge = document.getElementById('chatNavBadge');
+    badge.hidden = unread === 0;
+    if (unread > 0) badge.textContent = unread;
+  });
+}
+
+document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
+document.getElementById('chatInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
+});
+document.getElementById('goToChatFromTeacher').addEventListener('click', () => {
+  showView('chat');
+  loadChatMessages();
+});
+
+// ===== Teacher info from site-settings or fallback =====
+function loadTeacherInfo(){
+  // Try to get from settings or from childProgress
+  const teacher = childProgress?.teacher || 'Abdurahim';
+  const phone = childProgress?.teacherPhone || '+998 90 550 67 07';
+  const email_ = childProgress?.teacherEmail || 'abdurahim@djamilessons.uz';
+  const spec = childProgress?.teacherSpec || 'IELTS, General English';
+  const exp = childProgress?.teacherExp || '—';
+
+  document.getElementById('tiFullName').textContent = teacher;
+  document.getElementById('tiPhone').textContent = phone;
+  document.getElementById('tiEmail').textContent = email_;
+  document.getElementById('tiSpec').textContent = spec;
+  document.getElementById('tiExp').textContent = exp;
+}
+
+// ===== Navigation =====
+function showView(viewId){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + viewId).classList.add('active');
+  document.querySelectorAll('.sidebar-nav a').forEach(a => {
+    a.classList.toggle('active', a.dataset.view === viewId);
+  });
+  // Close sidebar on mobile
+  document.getElementById('parentSidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+  document.getElementById('hamburgerBtn').classList.remove('open');
+
+  if (viewId === 'chat') loadChatMessages();
+  if (viewId === 'teacher') loadTeacherInfo();
+}
+
+document.querySelectorAll('.sidebar-nav a[data-view]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    showView(a.dataset.view);
+  });
+});
+
+// ===== Mobile sidebar =====
+document.getElementById('hamburgerBtn').addEventListener('click', () => {
+  const open = document.getElementById('parentSidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open', open);
+  document.getElementById('hamburgerBtn').classList.toggle('open', open);
+});
+document.getElementById('sidebarOverlay').addEventListener('click', () => {
+  document.getElementById('parentSidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+  document.getElementById('hamburgerBtn').classList.remove('open');
+});
+
+// ===== Logout =====
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if (confirm('Tizimdan chiqmoqchimisiz?')) {
+    if (chatUnsubscribe) chatUnsubscribe();
+    auth.signOut().then(() => window.location.href = 'login.html');
+  }
+});
+
+function showNoChildError(){
+  document.getElementById('childNameHome').textContent = 'Farzand topilmadi';
+  document.getElementById('childIdHome').textContent = parentData.childId || '—';
+}
+</script>
+</body>
+</html>
