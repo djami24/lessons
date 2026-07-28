@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ota-Ona kirish — Djami Lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+/* ===== Ota-ona kirish sahifasi maxsus stillari ===== */
+.parent-auth-body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8f4fd 50%, #f5f0ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  font-family: var(--font-body, 'Manrope', sans-serif);
+}
+
+.parent-card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(16, 27, 61, 0.12);
+  width: 100%;
+  max-width: 460px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ====== STEP HEADER ====== */
+.step-header {
+  background: linear-gradient(135deg, #2e6f6e 0%, #1a5453 100%);
+  padding: 28px 32px 22px;
+  color: #fff;
+  position: relative;
+}
+.step-header .back-btn {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  background: rgba(255,255,255,.18);
+  border: none;
+  border-radius: 50%;
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background .2s;
+}
+.step-header .back-btn:hover { background: rgba(255,255,255,.3); }
+.step-header .step-icon {
+  width: 56px; height: 56px;
+  background: rgba(255,255,255,.18);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  margin: 0 auto 14px;
+}
+.step-header h2 {
+  margin: 0 0 6px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-align: center;
+}
+.step-header p {
+  margin: 0;
+  font-size: .85rem;
+  color: rgba(255,255,255,.82);
+  text-align: center;
+}
+
+/* ====== STEP BODY ====== */
+.step-body {
+  padding: 28px 32px 32px;
+}
+
+/* ====== STEP 0: Kim sifatida kirasiz ====== */
+.role-chooser {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 28px 28px;
+}
+.role-chooser .site-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  text-decoration: none;
+}
+.role-chooser .site-brand img { width: 40px; height: 40px; border-radius: 10px; }
+.role-chooser .site-brand span { font-size: 1.15rem; font-weight: 800; color: #101B3D; }
+.role-chooser h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #6b7280;
+  margin: 0 0 24px;
+  text-align: center;
+}
+.role-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 28px;
+}
+.role-card {
+  border: 2px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 22px 16px 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+  background: #fff;
+}
+.role-card:hover {
+  border-color: #2e6f6e;
+  box-shadow: 0 6px 20px rgba(46,111,110,.12);
+  transform: translateY(-2px);
+}
+.role-card-icon {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  margin: 0 auto 12px;
+}
+.role-card-icon-student { background: rgba(46,111,110,.1); }
+.role-card-icon-parent { background: rgba(47,111,237,.1); }
+.role-card-title { font-weight: 800; font-size: .95rem; color: #101B3D; margin-bottom: 4px; }
+.role-card-sub { font-size: .78rem; color: #6b7280; }
+.role-chooser .divider { display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 20px; }
+.role-chooser .divider::before, .role-chooser .divider::after { content: ''; flex: 1; height: 1px; background: #e5e7eb; }
+.role-chooser .divider span { font-size: .78rem; color: #9ca3af; white-space: nowrap; }
+.role-chooser .reg-link { font-size: .86rem; color: #6b7280; text-align: center; }
+.role-chooser .reg-link a { color: #2e6f6e; font-weight: 700; text-decoration: none; }
+.role-chooser .reg-link a:hover { text-decoration: underline; }
+
+/* ====== FIELDS ====== */
+.parent-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.parent-field label {
+  font-size: .82rem;
+  font-weight: 700;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.parent-field label .field-icon { color: #9ca3af; }
+.parent-field input {
+  width: 100%;
+  padding: .75em 1em;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: .95rem;
+  font-family: inherit;
+  color: #101B3D;
+  background: #f9fafb;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
+}
+.parent-field input:focus {
+  outline: none;
+  border-color: #2e6f6e;
+  box-shadow: 0 0 0 3px rgba(46,111,110,.1);
+  background: #fff;
+}
+.parent-field input.is-error {
+  border-color: #e53e3e;
+  background: #fff5f5;
+}
+.parent-field .pw-wrap {
+  position: relative;
+}
+.parent-field .pw-wrap input { padding-right: 90px; }
+.parent-field .pw-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #6b7280;
+  font-size: .8rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.btn-parent-primary {
+  width: 100%;
+  padding: .9em 1em;
+  background: linear-gradient(135deg, #2e6f6e, #1a5453);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity .2s, transform .15s;
+  margin-top: 8px;
+}
+.btn-parent-primary:hover:not(:disabled) { opacity: .92; transform: translateY(-1px); }
+.btn-parent-primary:disabled { opacity: .6; cursor: not-allowed; }
+
+.form-error-msg {
+  background: #fff5f5;
+  border: 1.5px solid #fecaca;
+  border-radius: 10px;
+  padding: .7em 1em;
+  font-size: .85rem;
+  color: #c53030;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.form-notice-msg {
+  background: #f0fff4;
+  border: 1.5px solid #9ae6b4;
+  border-radius: 10px;
+  padding: .7em 1em;
+  font-size: .85rem;
+  color: #276749;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.auth-footer-text {
+  text-align: center;
+  font-size: .83rem;
+  color: #6b7280;
+  margin-top: 20px;
+}
+.auth-footer-text a { color: #2e6f6e; font-weight: 700; text-decoration: none; }
+.auth-footer-text a:hover { text-decoration: underline; }
+
+/* ====== STEP 2A/2B: ID tekshirish natijasi ====== */
+.result-wrap {
+  padding: 32px 28px 28px;
+  text-align: center;
+}
+.result-icon-big {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2.4rem;
+  margin: 0 auto 20px;
+}
+.result-icon-success { background: rgba(56,161,105,.12); }
+.result-icon-error { background: rgba(229,62,62,.1); }
+.result-title { font-size: 1.3rem; font-weight: 800; color: #101B3D; margin-bottom: 6px; }
+.result-sub { font-size: .9rem; color: #6b7280; margin-bottom: 24px; }
+
+.student-found-card {
+  background: #f8faff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px 20px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+.student-found-avatar {
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6c63ff, #3fbfbf);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.2rem;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+  margin: 0 auto 12px;
+}
+.student-found-name { font-weight: 800; font-size: 1.1rem; color: #101B3D; text-align: center; margin-bottom: 14px; }
+.student-found-rows { display: flex; flex-direction: column; gap: 8px; }
+.student-found-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: .87rem;
+}
+.student-found-row:last-child { border-bottom: none; }
+.student-found-row .row-label { color: #9ca3af; font-weight: 600; }
+.student-found-row .row-val { color: #101B3D; font-weight: 700; }
+
+.id-error-input-wrap { margin-bottom: 20px; }
+.id-error-input-wrap input {
+  width: 100%;
+  padding: .8em 1em;
+  border: 2px solid #fc8181;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace;
+  color: #c53030;
+  background: #fff5f5;
+  text-align: center;
+  box-sizing: border-box;
+}
+.id-error-hint { font-size: .82rem; color: #e53e3e; margin-top: 6px; font-weight: 600; }
+
+/* ====== Step transitions ====== */
+.step-panel { display: none; }
+.step-panel.active { display: block; }
+</style>
+</head>
+<body class="parent-auth-body">
+
+<div class="parent-card" id="authCard">
+
+  <!-- ====== STEP 0: Kim sifatida kirasiz ====== -->
+  <div class="step-panel active" id="step0">
+    <div class="role-chooser">
+      <a href="../index.html" class="site-brand">
+        <img src="../assets/logo.png" alt="Djami Lessons">
+        <span data-site-brand-name>Djami Lessons</span>
+      </a>
+      <h2>Siz kim sifatida kirmoqchisiz?</h2>
+      <div class="role-cards">
+        <div class="role-card" id="roleStudent">
+          <div class="role-card-icon role-card-icon-student">🎓</div>
+          <div class="role-card-title">Talaba</div>
+          <div class="role-card-sub">O'qish jarayonini kuzatish</div>
+        </div>
+        <div class="role-card" id="roleParent">
+          <div class="role-card-icon role-card-icon-parent">👨‍👩‍👦</div>
+          <div class="role-card-title">Ota-Ona</div>
+          <div class="role-card-sub">Farzandingiz ta'limini kuzatish</div>
+        </div>
+      </div>
+      <div class="divider"><span>Ota-Ona sifatida</span></div>
+      <p class="reg-link">Hisobingiz yo'qmi? <a href="#" id="goToRegister0">Ro'yxatdan o'tish</a></p>
+    </div>
+  </div>
+
+  <!-- ====== STEP 1: Ota-Ona ro'yxatdan o'tish ====== -->
+  <div class="step-panel" id="step1">
+    <div class="step-header">
+      <button class="back-btn" id="backFromStep1">‹</button>
+      <div class="step-icon">👨‍👩‍👦</div>
+      <h2>Ota-Ona sifatida ro'yxatdan o'tish</h2>
+      <p>Iltimos, ma'lumotlaringizni to'g'ri kiriting</p>
+    </div>
+    <div class="step-body">
+      <div id="step1Error" class="form-error-msg" hidden></div>
+
+      <div class="parent-field">
+        <label><span class="field-icon">👤</span> Ism</label>
+        <input type="text" id="pIsm" placeholder="Ismingiz" autocomplete="given-name" required>
+      </div>
+      <div class="parent-field">
+        <label><span class="field-icon">👤</span> Familiya</label>
+        <input type="text" id="pFamiliya" placeholder="Familiyangiz" autocomplete="family-name" required>
+      </div>
+      <div class="parent-field">
+        <label><span class="field-icon">✉️</span> Email</label>
+        <input type="email" id="pEmail" placeholder="email@example.com" autocomplete="email" required>
+      </div>
+      <div class="parent-field">
+        <label><span class="field-icon">🔒</span> Parol</label>
+        <div class="pw-wrap">
+          <input type="password" id="pPassword" placeholder="Kamida 6 ta belgi" autocomplete="new-password" minlength="6" required>
+          <button type="button" class="pw-toggle" id="pwToggle1">Ko'rsatish</button>
+        </div>
+      </div>
+      <div class="parent-field">
+        <label><span class="field-icon">🔒</span> Parolni tasdiqlang</label>
+        <div class="pw-wrap">
+          <input type="password" id="pPasswordConfirm" placeholder="Parolni qayta kiriting" autocomplete="new-password" required>
+          <button type="button" class="pw-toggle" id="pwToggle2">Ko'rsatish</button>
+        </div>
+      </div>
+      <div class="parent-field">
+        <label><span class="field-icon">🆔</span> Farzandingiz ID si</label>
+        <input type="text" id="pChildId" placeholder="Masalan: 857214" autocomplete="off" required>
+      </div>
+
+      <button class="btn-parent-primary" id="step1Submit">Tekshirish</button>
+
+      <p class="auth-footer-text">Hisobingiz bormi? <a href="#" id="goToLogin1">Kirish</a></p>
+    </div>
+  </div>
+
+  <!-- ====== STEP 2A: ID topildi ====== -->
+  <div class="step-panel" id="step2a">
+    <div class="step-header" style="background: linear-gradient(135deg, #276749, #1a5c3a);">
+      <button class="back-btn" id="backFromStep2a">‹</button>
+      <div class="step-icon">✅</div>
+      <h2>O'quvchi topildi!</h2>
+      <p>Ma'lumotlar to'g'ri.</p>
+    </div>
+    <div class="step-body" style="padding-top: 24px;">
+      <div class="student-found-card">
+        <div class="student-found-avatar" id="foundStudentAvatar">AB</div>
+        <div class="student-found-name" id="foundStudentName">Abdurahim Ergashev</div>
+        <div class="student-found-rows">
+          <div class="student-found-row">
+            <span class="row-label">ID</span>
+            <span class="row-val" id="foundStudentId">857214</span>
+          </div>
+          <div class="student-found-row">
+            <span class="row-label">Kurs</span>
+            <span class="row-val" id="foundStudentCourse">—</span>
+          </div>
+          <div class="student-found-row">
+            <span class="row-label">Guruh</span>
+            <span class="row-val" id="foundStudentGroup">—</span>
+          </div>
+          <div class="student-found-row">
+            <span class="row-label">O'qituvchi</span>
+            <span class="row-val" id="foundStudentTeacher">Abdurahim</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="step2aError" class="form-error-msg" hidden></div>
+      <button class="btn-parent-primary" id="step2aConfirm">Davom etish</button>
+      <p class="auth-footer-text" style="margin-top: 14px;">Hisobingiz bormi? <a href="#" id="goToLogin2a">Kirish</a></p>
+    </div>
+  </div>
+
+  <!-- ====== STEP 2B: ID topilmadi ====== -->
+  <div class="step-panel" id="step2b">
+    <div class="step-header" style="background: linear-gradient(135deg, #c53030, #9b2c2c);">
+      <button class="back-btn" id="backFromStep2b">‹</button>
+      <div class="step-icon">❌</div>
+      <h2>Bunday ID topilmadi</h2>
+      <p>Iltimos, ID ni qayta tekshiring.</p>
+    </div>
+    <div class="step-body" style="padding-top: 24px;">
+      <div class="parent-field">
+        <label>Farzandingiz ID si</label>
+        <div class="id-error-input-wrap">
+          <input type="text" id="retryChildId" placeholder="ID kiriting">
+          <p class="id-error-hint" id="retryHint">Bunday ID tizimda mavjud emas.</p>
+        </div>
+      </div>
+
+      <button class="btn-parent-primary" id="step2bRetry" style="background: linear-gradient(135deg,#c53030,#9b2c2c);">Qayta urinish</button>
+      <p class="auth-footer-text" style="margin-top: 14px;">Hisobingiz bormi? <a href="#" id="goToLogin2b">Kirish</a></p>
+    </div>
+  </div>
+
+  <!-- ====== STEP 3: Tizimga kirish (login) ====== -->
+  <div class="step-panel" id="step3">
+    <div class="step-header">
+      <button class="back-btn" id="backFromStep3">‹</button>
+      <div class="step-icon">🔑</div>
+      <h2>Ota-Ona tizimiga kirish</h2>
+      <p>Email va parolingizni kiriting</p>
+    </div>
+    <div class="step-body">
+      <div id="step3Error" class="form-error-msg" hidden></div>
+      <div id="step3Notice" class="form-notice-msg" hidden></div>
+
+      <div class="parent-field">
+        <label><span class="field-icon">✉️</span> Email</label>
+        <input type="email" id="loginEmail" placeholder="email@example.com" autocomplete="email" required>
+      </div>
+      <div class="parent-field">
+        <label><span class="field-icon">🔒</span> Parol</label>
+        <div class="pw-wrap">
+          <input type="password" id="loginPassword" placeholder="Parolingiz" autocomplete="current-password" required>
+          <button type="button" class="pw-toggle" id="pwToggleLogin">Ko'rsatish</button>
+        </div>
+      </div>
+      <div style="text-align:right; margin-bottom: 16px; margin-top: -8px;">
+        <a href="#" id="forgotLink" style="font-size:.83rem; color:#2e6f6e; font-weight:700; text-decoration:none;">Parolni unutdingizmi?</a>
+      </div>
+
+      <button class="btn-parent-primary" id="loginSubmit">Kirish</button>
+      <p class="auth-footer-text">Hisobingiz yo'qmi? <a href="#" id="goToRegister3">Ro'yxatdan o'tish</a></p>
+    </div>
+  </div>
+
+</div><!-- /.parent-card -->
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../site-settings.js"></script>
+<script>
+
+// ============================================================
+//   Ota-Ona kirish / ro'yxatdan o'tish — login.html (parent/)
+//
+//   Oqim:
+//   Step 0 → Talaba tugmasi → student/login.html
+//   Step 0 → Ota-Ona tugmasi → Step 1 (Ro'yxatdan o'tish)
+//   Step 0 → "Ro'yxatdan o'tish" havolasi → Step 1
+//   Step 0 → "Kirish" havolasi → Step 3 (Login)
+//   Step 1 → ID tekshirish → Step 2a (topildi) | Step 2b (topilmadi)
+//   Step 2a → "Davom etish" → Firebase Auth account yaratadi → dashboard.html
+//   Step 2b → "Qayta urinish" → ID qayta tekshiriladi
+//   Step 3 → Login → dashboard.html
+//
+//   Firestore:
+//   parents/{uid}   { ism, familiya, email, childId, createdAt }
+//   oquv_progress/{childId}  — talabaning progress ma'lumotlari (child ID)
+//
+//   Ota-ona o'z farzandini oquv_progress kolleksiyasidagi ID orqali topadi.
+//   Bu ID admin tomonidan beriladi (oquv jarayon bo'limidan).
+// ============================================================
+
+let currentStep = 'step0';
+let foundChildData = null;  // { id, name, group, course } — topilgan farzand
+let pendingRegData = null;  // { ism, familiya, email, password, childId }
+
+function showStep(stepId) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(stepId).classList.add('active');
+  currentStep = stepId;
+}
+
+// ===== Already logged in? Redirect =====
+auth.onAuthStateChanged(async (user) => {
+  if (!user) return;
+  const parentDoc = await db.collection('parents').doc(user.uid).get();
+  if (parentDoc.exists) {
+    window.location.href = 'dashboard.html';
+  }
+});
+
+// ===== STEP 0: Role chooser =====
+document.getElementById('roleStudent').addEventListener('click', () => {
+  window.location.href = '../student/login.html';
+});
+document.getElementById('roleParent').addEventListener('click', () => {
+  showStep('step1');
+});
+document.getElementById('goToRegister0').addEventListener('click', (e) => {
+  e.preventDefault();
+  showStep('step1');
+});
+
+// ===== STEP 1 → Back =====
+document.getElementById('backFromStep1').addEventListener('click', () => showStep('step0'));
+
+// ===== STEP 1 → Go to login =====
+document.getElementById('goToLogin1').addEventListener('click', (e) => {
+  e.preventDefault();
+  showStep('step3');
+});
+
+// ===== Password toggles =====
+function makeToggle(btnId, inputId) {
+  document.getElementById(btnId).addEventListener('click', () => {
+    const inp = document.getElementById(inputId);
+    const btn = document.getElementById(btnId);
+    const show = inp.type === 'password';
+    inp.type = show ? 'text' : 'password';
+    btn.textContent = show ? 'Yashirish' : 'Ko\'rsatish';
+  });
+}
+makeToggle('pwToggle1', 'pPassword');
+makeToggle('pwToggle2', 'pPasswordConfirm');
+makeToggle('pwToggleLogin', 'loginPassword');
+
+// ===== STEP 1: Tekshirish (Validate ID & form, then show 2a/2b) =====
+document.getElementById('step1Submit').addEventListener('click', async () => {
+  const errorEl = document.getElementById('step1Error');
+  const btn = document.getElementById('step1Submit');
+  errorEl.hidden = true;
+
+  const ism = document.getElementById('pIsm').value.trim();
+  const familiya = document.getElementById('pFamiliya').value.trim();
+  const email = document.getElementById('pEmail').value.trim();
+  const password = document.getElementById('pPassword').value;
+  const passwordConfirm = document.getElementById('pPasswordConfirm').value;
+  const childId = document.getElementById('pChildId').value.trim();
+
+  if (!ism || !familiya || !email || !password || !childId) {
+    errorEl.textContent = 'Barcha maydonlarni to\'liq to\'ldiring.';
+    errorEl.hidden = false;
+    return;
+  }
+  if (password.length < 6) {
+    errorEl.textContent = 'Parol kamida 6 ta belgidan iborat bo\'lsin.';
+    errorEl.hidden = false;
+    return;
+  }
+  if (password !== passwordConfirm) {
+    errorEl.textContent = 'Parollar mos kelmadi. Qayta tekshiring.';
+    errorEl.hidden = false;
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Tekshirilmoqda…';
+
+  try {
+    // Look up child in oquv_progress collection by document ID (= the student's code/ID)
+    const doc = await db.collection('oquv_progress').doc(childId).get();
+    if (doc.exists) {
+      const data = doc.data();
+      foundChildData = { id: childId, name: data.name || '', group: data.group || '', course: data.course || '' };
+      pendingRegData = { ism, familiya, email, password, childId };
+
+      // Populate Step 2a
+      const initials = (data.name || 'O\'quvchi').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      document.getElementById('foundStudentAvatar').textContent = initials;
+      document.getElementById('foundStudentName').textContent = data.name || '—';
+      document.getElementById('foundStudentId').textContent = childId;
+      document.getElementById('foundStudentCourse').textContent = data.course || data.kurs || 'General English';
+      document.getElementById('foundStudentGroup').textContent = data.group || '—';
+      document.getElementById('foundStudentTeacher').textContent = data.teacher || 'Abdurahim';
+
+      showStep('step2a');
+    } else {
+      // ID not found → Step 2b
+      pendingRegData = { ism, familiya, email, password, childId };
+      document.getElementById('retryChildId').value = childId;
+      document.getElementById('retryHint').textContent = 'Bunday ID tizimda mavjud emas.';
+      showStep('step2b');
+    }
+  } catch (err) {
+    errorEl.textContent = 'Tarmoq xatosi yuz berdi. Qayta urinib ko\'ring.';
+    errorEl.hidden = false;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Tekshirish';
+  }
+});
+
+// ===== STEP 2a: Back =====
+document.getElementById('backFromStep2a').addEventListener('click', () => showStep('step1'));
+document.getElementById('goToLogin2a').addEventListener('click', (e) => { e.preventDefault(); showStep('step3'); });
+
+// ===== STEP 2a: Davom etish — create Firebase account =====
+document.getElementById('step2aConfirm').addEventListener('click', async () => {
+  const btn = document.getElementById('step2aConfirm');
+  const errorEl = document.getElementById('step2aError');
+  errorEl.hidden = true;
+
+  if (!pendingRegData) { showStep('step1'); return; }
+  btn.disabled = true;
+  btn.textContent = 'Hisob yaratilmoqda…';
+
+  try {
+    const cred = await auth.createUserWithEmailAndPassword(pendingRegData.email, pendingRegData.password);
+    const uid = cred.user.uid;
+    await db.collection('parents').doc(uid).set({
+      ism: pendingRegData.ism,
+      familiya: pendingRegData.familiya,
+      name: `${pendingRegData.ism} ${pendingRegData.familiya}`,
+      email: pendingRegData.email,
+      childId: pendingRegData.childId,
+      childName: foundChildData ? foundChildData.name : '',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    let msg = 'Hisob yaratishda xatolik yuz berdi. Qayta urinib ko\'ring.';
+    if (err.code === 'auth/email-already-in-use') msg = 'Bu email allaqachon ro\'yxatdan o\'tgan. Kirish sahifasidan foydalaning.';
+    if (err.code === 'auth/weak-password') msg = 'Parol juda oddiy — kamida 6 ta belgi kiriting.';
+    if (err.code === 'auth/invalid-email') msg = 'Email manzil noto\'g\'ri kiritildi.';
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
+    btn.disabled = false;
+    btn.textContent = 'Davom etish';
+  }
+});
+
+// ===== STEP 2b: Back & retry =====
+document.getElementById('backFromStep2b').addEventListener('click', () => {
+  if (pendingRegData) {
+    document.getElementById('pChildId').value = pendingRegData.childId;
+  }
+  showStep('step1');
+});
+document.getElementById('goToLogin2b').addEventListener('click', (e) => { e.preventDefault(); showStep('step3'); });
+
+document.getElementById('step2bRetry').addEventListener('click', async () => {
+  const btn = document.getElementById('step2bRetry');
+  const hintEl = document.getElementById('retryHint');
+  const childId = document.getElementById('retryChildId').value.trim();
+
+  if (!childId) { hintEl.textContent = 'ID ni kiriting.'; return; }
+
+  btn.disabled = true;
+  btn.textContent = 'Tekshirilmoqda…';
+  hintEl.textContent = '';
+
+  try {
+    const doc = await db.collection('oquv_progress').doc(childId).get();
+    if (doc.exists) {
+      const data = doc.data();
+      foundChildData = { id: childId, name: data.name || '', group: data.group || '', course: data.course || '' };
+      if (pendingRegData) pendingRegData.childId = childId;
+
+      const initials = (data.name || 'O\'quvchi').split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      document.getElementById('foundStudentAvatar').textContent = initials;
+      document.getElementById('foundStudentName').textContent = data.name || '—';
+      document.getElementById('foundStudentId').textContent = childId;
+      document.getElementById('foundStudentCourse').textContent = data.course || data.kurs || 'General English';
+      document.getElementById('foundStudentGroup').textContent = data.group || '—';
+      document.getElementById('foundStudentTeacher').textContent = data.teacher || 'Abdurahim';
+      document.getElementById('step2aError').hidden = true;
+
+      showStep('step2a');
+    } else {
+      hintEl.textContent = `"${childId}" ID tizimda mavjud emas. Yana bir bor tekshiring.`;
+    }
+  } catch (err) {
+    hintEl.textContent = 'Tarmoq xatosi. Qayta urinib ko\'ring.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Qayta urinish';
+  }
+});
+
+// ===== STEP 3: Login =====
+document.getElementById('backFromStep3').addEventListener('click', () => showStep('step0'));
+document.getElementById('goToRegister3').addEventListener('click', (e) => { e.preventDefault(); showStep('step1'); });
+
+document.getElementById('loginSubmit').addEventListener('click', async () => {
+  const btn = document.getElementById('loginSubmit');
+  const errorEl = document.getElementById('step3Error');
+  const noticeEl = document.getElementById('step3Notice');
+  errorEl.hidden = true;
+  noticeEl.hidden = true;
+
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if (!email || !password) {
+    errorEl.textContent = 'Email va parolni kiriting.';
+    errorEl.hidden = false;
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Tekshirilmoqda…';
+
+  try {
+    const cred = await auth.signInWithEmailAndPassword(email, password);
+    const parentDoc = await db.collection('parents').doc(cred.user.uid).get();
+    if (!parentDoc.exists) {
+      await auth.signOut();
+      errorEl.textContent = 'Bu hisob ota-ona sifatida ro\'yxatdan o\'tmagan.';
+      errorEl.hidden = false;
+      btn.disabled = false;
+      btn.textContent = 'Kirish';
+      return;
+    }
+    window.location.href = 'dashboard.html';
+  } catch (err) {
+    errorEl.textContent = 'Email yoki parol noto\'g\'ri.';
+    errorEl.hidden = false;
+    btn.disabled = false;
+    btn.textContent = 'Kirish';
+  }
+});
+
+document.getElementById('forgotLink').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('step3Error');
+  const noticeEl = document.getElementById('step3Notice');
+  const email = document.getElementById('loginEmail').value.trim();
+  if (!email) {
+    errorEl.textContent = 'Avval email manzilingizni kiriting.';
+    errorEl.hidden = false;
+    return;
+  }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    noticeEl.textContent = `Parolni tiklash havolasi ${email} manziliga yuborildi.`;
+    noticeEl.hidden = false;
+    errorEl.hidden = true;
+  } catch (err) {
+    errorEl.textContent = 'Havolani yuborib bo\'lmadi. Email manzilni tekshiring.';
+    errorEl.hidden = false;
+  }
+});
+
+</script>
+</body>
+</html>
