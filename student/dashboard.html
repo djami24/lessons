@@ -1159,7 +1159,8 @@ function getNextLessonDateLabel(days){
     const d = new Date(today); d.setDate(d.getDate() + i);
     const key = Object.keys(KEY_TO_JSDAY).find(k => KEY_TO_JSDAY[k] === d.getDay());
     if(days.includes(key)){
-      return d.toLocaleDateString('uz-UZ', { day:'numeric', month:'long' });
+      const label = d.toLocaleDateString('uz-UZ', { weekday:'long', day:'numeric', month:'long' });
+      return label.charAt(0).toUpperCase() + label.slice(1);
     }
   }
   return null;
