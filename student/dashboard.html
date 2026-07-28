@@ -298,10 +298,10 @@
         <p class="home-quick-title">⚡ Tezkor ma'lumot</p>
         <div class="home-quick-grid">
           <div class="home-quick-tile">
-            <span class="home-quick-icon hd-icon-blue">📘</span>
+            <span class="home-quick-icon hd-icon-blue">🕐</span>
             <div>
-              <div class="home-quick-label">O‘quv kursi</div>
-              <div class="home-quick-val" id="qiCourseVal">—</div>
+              <div class="home-quick-label">Dars vaqti</div>
+              <div class="home-quick-val" id="qiTimeVal">—</div>
             </div>
           </div>
           <div class="home-quick-tile">
@@ -312,10 +312,10 @@
             </div>
           </div>
           <div class="home-quick-tile">
-            <span class="home-quick-icon" style="background:linear-gradient(155deg,#f0a63a,#c2790a);">🕐</span>
+            <span class="home-quick-icon" style="background:linear-gradient(155deg,#f0a63a,#c2790a);">📅</span>
             <div>
-              <div class="home-quick-label">So‘nggi yangilanish</div>
-              <div class="home-quick-val" id="qiUpdatedVal">—</div>
+              <div class="home-quick-label">Keyingi dars</div>
+              <div class="home-quick-val" id="qiNextLessonVal">—</div>
             </div>
           </div>
           <div class="home-quick-tile">
@@ -1025,12 +1025,43 @@ function renderHomeView(){
 // Shared quick-info bar (below the home cards) — pulls from whichever of
 // the progress card / gradebook card has loaded so far, so either one
 // updating fills in its own tiles without needing the other to be ready.
-const homeQuickInfo = { group: null, course: null, updated: null };
+const homeQuickInfo = { group: null, time: null, nextLesson: null };
 function updateHomeQuickInfo(patch){
   Object.assign(homeQuickInfo, patch);
-  document.getElementById('qiCourseVal').textContent = homeQuickInfo.course || '—';
+  document.getElementById('qiTimeVal').textContent = homeQuickInfo.time || '—';
   document.getElementById('qiGroupVal').textContent = homeQuickInfo.group || '—';
-  document.getElementById('qiUpdatedVal').textContent = homeQuickInfo.updated || '—';
+  document.getElementById('qiNextLessonVal').textContent = homeQuickInfo.nextLesson || '—';
+}
+
+// Lesson time follows the group's weekly schedule:
+//   Tue/Thu/Sat groups meet 15:30–16:30.
+//   Mon/Wed/Fri groups meet 10:00–11:30 ("Marvel") or 14:00 ("Yale").
+function getGroupLessonTime(days, groupName){
+  const set = new Set(days || []);
+  const isTTS = ['tue','thu','sat'].every(d => set.has(d));
+  const isMWF = ['mon','wed','fri'].every(d => set.has(d));
+  if(isTTS) return '15:30–16:30';
+  if(isMWF){
+    if(/marvel/i.test(groupName || '')) return '10:00–11:30';
+    if(/yale/i.test(groupName || '')) return '14:00';
+  }
+  return null;
+}
+
+// Finds the next date (today or later) that falls on one of the group's
+// scheduled weekdays, and formats it the same way as the other date labels.
+function getNextLessonDateLabel(days){
+  if(!days || !days.length) return null;
+  const KEY_TO_JSDAY = { sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6 };
+  const today = new Date(); today.setHours(0,0,0,0);
+  for(let i = 0; i < 8; i++){
+    const d = new Date(today); d.setDate(d.getDate() + i);
+    const key = Object.keys(KEY_TO_JSDAY).find(k => KEY_TO_JSDAY[k] === d.getDay());
+    if(days.includes(key)){
+      return d.toLocaleDateString('uz-UZ', { day:'numeric', month:'long' });
+    }
+  }
+  return null;
 }
 
 async function renderProgressBox(){
@@ -1060,7 +1091,19 @@ async function renderProgressBox(){
 
     const info = doc.data();
     document.getElementById('progressStudentNameVal').textContent = info.name || '';
-    updateHomeQuickInfo({ group: info.group || null });
+    updateHomeQuickInfo({ group: info.group || null, time: null, nextLesson: null });
+    if(info.group){
+      try{
+        const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
+        if(!gSnap.empty){
+          const groupDays = gSnap.docs[0].data().days || [];
+          updateHomeQuickInfo({
+            time: getGroupLessonTime(groupDays, info.group),
+            nextLesson: getNextLessonDateLabel(groupDays)
+          });
+        }
+      } catch(err){ /* schedule lookup is best-effort — leave tiles at '—' */ }
+    }
 
     const dateEl = document.getElementById('progressDate');
     const attendedEl = document.getElementById('progressAttendedVal');
