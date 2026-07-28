@@ -1041,7 +1041,11 @@
           <label><input type="checkbox" value="sun"> Yak</label>
         </div>
       </label>
+      <label>Dars vaqti
+        <input type="text" id="ojGroupTimeInput" placeholder="Masalan: 15:30–16:30">
+      </label>
       <p class="form-error" id="ojGroupError" role="alert" hidden></p>
+
       <div class="modal-actions">
         <button class="btn btn-primary" id="ojGroupSaveBtn">Yaratish</button>
         <button class="btn btn-ghost" onclick="closeModal('modalAddOquvGroup')">Bekor</button>
@@ -4298,7 +4302,7 @@ async function loadOjGroups() {
         <div class="oj-group-card-icon">👥</div>
         <div>
           <div class="oj-group-card-name">${escHtml(g.name)}</div>
-          <div class="oj-group-card-meta">Guruh</div>
+          <div class="oj-group-card-meta">Guruh${g.time ? ` · ${escHtml(g.time)}` : ''}</div>
           ${daysLabel ? `<div class="oj-group-card-days">${OJ_DAY_ORDER.filter(d => (g.days||[]).includes(d)).map(d => `<span class="oj-day-chip">${OJ_DAY_LABELS[d]}</span>`).join('')}</div>` : ''}
         </div>
         <button class="oj-group-card-edit" title="Tahrirlash" data-gid="${doc.id}">✏️</button>
@@ -4313,6 +4317,7 @@ async function loadOjGroups() {
         document.getElementById('ojGroupEditingId').value = doc.id;
         document.getElementById('ojGroupNameInput').value = g.name || '';
         ojSetCheckedDays(g.days || []);
+        document.getElementById('ojGroupTimeInput').value = g.time || '';
         document.getElementById('ojGroupError').hidden = true;
         document.getElementById('ojGroupSaveBtn').textContent = 'Saqlash';
         openModal('modalAddOquvGroup');
@@ -4333,6 +4338,7 @@ document.getElementById('openAddOquvGroup').addEventListener('click', () => {
   document.getElementById('ojGroupEditingId').value = '';
   document.getElementById('ojGroupNameInput').value = '';
   ojSetCheckedDays([]);
+  document.getElementById('ojGroupTimeInput').value = '';
   document.getElementById('ojGroupError').hidden = true;
   document.getElementById('ojGroupSaveBtn').textContent = 'Yaratish';
   openModal('modalAddOquvGroup');
@@ -4344,13 +4350,14 @@ document.getElementById('ojGroupSaveBtn').addEventListener('click', async () => 
   const err = document.getElementById('ojGroupError');
   const editingId = document.getElementById('ojGroupEditingId').value;
   const days = ojGetCheckedDays();
+  const time = document.getElementById('ojGroupTimeInput').value.trim();
   if (!name) { err.textContent = 'Guruh nomi kiritilmagan.'; err.hidden = false; return; }
   err.hidden = true;
   try {
     if (editingId) {
-      await db.collection('oquv_groups').doc(editingId).set({ name, days }, { merge: true });
+      await db.collection('oquv_groups').doc(editingId).set({ name, days, time }, { merge: true });
     } else {
-      await db.collection('oquv_groups').add({ name, days, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await db.collection('oquv_groups').add({ name, days, time, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
     closeModal('modalAddOquvGroup');
     loadOjGroups();
