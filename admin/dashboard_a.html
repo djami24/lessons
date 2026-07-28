@@ -100,6 +100,19 @@
   .oj-entry-card{grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto;}
   .oj-entry-date{grid-column:1/-1;}
 }
+
+/* ====== BOSH SAHIFA / STATISTIKA ====== */
+.home-cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:24px 0 32px;}
+.home-col-title{margin:0 0 12px;font-size:1rem;font-weight:700;}
+.home-lesson-card{background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:box-shadow .2s,transform .15s;}
+.home-lesson-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-1px);}
+.home-lesson-icon{width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,var(--teal,#2e6f6e),var(--amber-deep,#c08a2e));display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.home-lesson-name{font-weight:700;font-size:.95rem;}
+.home-lesson-meta{font-size:.78rem;color:var(--gray);margin-top:2px;}
+.home-lesson-count{margin-left:auto;text-align:center;font-weight:800;font-size:1.15rem;color:var(--teal,#2e6f6e);flex-shrink:0;}
+.home-lesson-count span{display:block;font-size:.68rem;font-weight:600;color:var(--gray);}
+@media(max-width:900px){ .home-cols{grid-template-columns:1fr;} }
+.stats-period-btn.active{background:var(--teal,#2e6f6e);color:#fff;border-color:var(--teal,#2e6f6e);}
 </style>
 </head>
 <body class="admin-theme">
@@ -112,7 +125,8 @@
   <aside class="admin-sidebar">
     <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
     <ul class="admin-nav">
-      <li><a href="#" class="active" id="navLevels">📚 Darslar (General English)</a></li>
+      <li><a href="#" class="active" id="navHome">🏠 Bosh sahifa</a></li>
+      <li><a href="#" id="navLevels">📚 Darslar (General English)</a></li>
       <li><a href="#" id="navIelts">🎧 IELTS</a></li>
       <li><a href="#" id="navCefr">🗂️ CEFR</a></li>
       <li><a href="#" id="navWriting">✍️ Writing</a></li>
@@ -123,6 +137,7 @@
       <li><a href="#" id="navSiteSettings">🎨 Sayt sozlamalari</a></li>
       <li><a href="#" id="navKundalik">📅 Kundalik</a></li>
       <li><a href="#" id="navOquvJarayoni">📖 O'quv jarayoni</a></li>
+      <li><a href="#" id="navStats">📈 Statistika</a></li>
       <li><a href="#" id="navGradebook">📊 Test natijalar</a></li>
       <li><a href="#" id="navBroadcast"><span class="nav-icon-emoji">📢</span><span class="nav-label"> Xabar yuborish</span></a></li>
       <li><a href="#" id="navChats"><span class="nav-icon-emoji">💬</span><span class="nav-label"> Chatlar</span><span id="navChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
@@ -140,8 +155,85 @@
   <!-- MAIN -->
   <main class="admin-main">
 
+    <!-- ===== BOSH SAHIFA (HOME DASHBOARD) ===== -->
+    <section id="view-home">
+      <div class="oj-header">
+        <div>
+          <h1>🏠 Bosh sahifa</h1>
+          <p id="homeDateLine">—</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="homeRefreshBtn">🔄 Yangilash</button>
+      </div>
+
+      <div class="stat-row" id="homeTopStatRow" style="grid-template-columns:repeat(4,1fr);"></div>
+
+      <div class="home-cols">
+        <div class="home-col">
+          <h3 class="home-col-title">📚 Bugungi darslar</h3>
+          <div id="homeTodayGroups" class="oj-groups-grid"></div>
+          <div id="homeTodayEmpty" class="oj-empty" style="display:none; padding:24px;">
+            <div class="oj-empty-icon">🌤️</div>
+            <p>Bugun hech qaysi guruhda dars yo'q.</p>
+          </div>
+        </div>
+
+        <div class="home-col">
+          <h3 class="home-col-title">📅 Ertangi darslar</h3>
+          <div id="homeTomorrowGroups" class="oj-groups-grid"></div>
+          <div id="homeTomorrowEmpty" class="oj-empty" style="display:none; padding:24px;">
+            <div class="oj-empty-icon">🌤️</div>
+            <p>Ertaga hech qaysi guruhda dars yo'q.</p>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="home-col-title" style="margin-top:8px;">📊 Kecha bo'lib o'tgan darslar</h3>
+      <p id="homeYesterdayGroupsLine" style="margin:-8px 0 16px; color:var(--gray); font-size:.85rem;"></p>
+      <div class="oj-stats-row" id="homeYesterdayStatRow"></div>
+      <div id="homeYesterdayEmpty" class="oj-empty" style="display:none; padding:24px;">
+        <div class="oj-empty-icon">🌤️</div>
+        <p>Kecha hech qaysi guruhda dars bo'lmagan.</p>
+      </div>
+
+      <div style="text-align:center; margin-top:8px;">
+        <button class="btn btn-primary" id="homeGoToStats">📈 To'liq statistikani ko'rish</button>
+      </div>
+    </section>
+
+    <!-- ===== STATISTIKA ===== -->
+    <section id="view-stats" hidden>
+      <div class="oj-header">
+        <div>
+          <h1>📈 Statistika</h1>
+          <p>Guruhlar bo'yicha davomat va uy vazifa ko'rsatkichlari.</p>
+        </div>
+        <div class="oj-days-preset-row" id="statsPeriodPicker">
+          <button class="btn btn-ghost btn-sm stats-period-btn" data-days="7">7 kun</button>
+          <button class="btn btn-ghost btn-sm stats-period-btn active" data-days="30">30 kun</button>
+          <button class="btn btn-ghost btn-sm stats-period-btn" data-days="90">90 kun</button>
+        </div>
+      </div>
+
+      <div class="stat-row" id="statsTopStatRow" style="grid-template-columns:repeat(4,1fr);"></div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th>Guruh</th><th>Talabalar</th><th>Davomat %</th><th>Uy vazifa %</th><th>Kelmagan</th><th>Kech qolgan</th>
+          </tr></thead>
+          <tbody id="statsGroupsBody"></tbody>
+        </table>
+      </div>
+      <div id="statsEmpty" class="oj-empty" style="display:none;">
+        <div class="oj-empty-icon">📂</div>
+        <h3>Ma'lumot yo'q</h3>
+        <p>Hali "O'quv jarayoni" bo'limida guruh va talaba yaratilmagan.</p>
+      </div>
+      <p id="statsLoading" style="color:var(--gray); text-align:center; padding:12px;"></p>
+    </section>
+
     <!-- ===== LEVELS OVERVIEW ===== -->
-    <section id="view-levels">
+    <section id="view-levels" hidden>
       <div class="admin-header">
         <div>
           <h1>General English — darajalar</h1>
@@ -1656,6 +1748,7 @@ auth.onAuthStateChanged(async (user) => {
   renderStudents();
   renderBlogsGrid();
   startAdminChatUnreadListener();
+  loadHomeStats();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -2616,6 +2709,10 @@ function closeLevel(){
 }
 
 function switchView(view){
+  document.getElementById('view-home').hidden = view !== 'home';
+  document.getElementById('view-stats').hidden = view !== 'stats';
+  document.getElementById('navHome').classList.toggle('active', view === 'home');
+  document.getElementById('navStats').classList.toggle('active', view === 'stats');
   viewLevels.hidden = view !== 'levels';
   viewLessons.hidden = view !== 'lessons';
   viewStudents.hidden = view !== 'students';
@@ -2683,6 +2780,29 @@ document.getElementById('navGradebook').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('gradebook');
   loadGradebook();
+});
+document.getElementById('navHome').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('home');
+  loadHomeStats();
+});
+document.getElementById('navStats').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('stats');
+  loadStatsPage(_statsPeriodDays);
+});
+document.getElementById('homeRefreshBtn').addEventListener('click', () => loadHomeStats());
+document.getElementById('homeGoToStats').addEventListener('click', () => {
+  switchView('stats');
+  loadStatsPage(_statsPeriodDays);
+});
+document.querySelectorAll('.stats-period-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.stats-period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _statsPeriodDays = Number(btn.dataset.days);
+    loadStatsPage(_statsPeriodDays);
+  });
 });
 
 // ---------- Modal helpers ----------
@@ -4283,6 +4403,203 @@ function ojSetCheckedDays(days){
 
 document.getElementById('ojGroupPresetMWF').addEventListener('click', () => ojSetCheckedDays(['mon','wed','fri']));
 document.getElementById('ojGroupPresetTTS').addEventListener('click', () => ojSetCheckedDays(['tue','thu','sat']));
+
+// ---------- BOSH SAHIFA (home dashboard) & STATISTIKA ----------
+
+function ojDateStr(offsetDays){
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return d.toISOString().slice(0,10);
+}
+function ojDayKeyForOffset(offsetDays){
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return OJ_JSDAY_TO_KEY[d.getDay()];
+}
+
+// Fetches every group together with its student list (id+name) in one go.
+// Used by both the home dashboard and the statistics page.
+async function homeFetchGroupsWithStudents(){
+  const groupsSnap = await db.collection('oquv_groups').orderBy('name').get();
+  const groups = groupsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const studentLists = await Promise.all(groups.map(g =>
+    db.collection('oquv_groups').doc(g.id).collection('students').orderBy('name').get()
+      .then(s => s.docs.map(sd => ({ id: sd.id, name: sd.data().name })))
+      .catch(() => [])
+  ));
+  groups.forEach((g, i) => { g.students = studentLists[i]; });
+  return groups;
+}
+
+function homeRenderLessonCards(containerId, emptyId, groups, dayKey){
+  const box = document.getElementById(containerId);
+  const empty = document.getElementById(emptyId);
+  const todays = groups.filter(g => (g.days || []).includes(dayKey))
+    .sort((a,b) => (a.time || '').localeCompare(b.time || ''));
+  box.innerHTML = '';
+  if (!todays.length) { empty.style.display = 'block'; return { groups: todays, total: 0 }; }
+  empty.style.display = 'none';
+  let total = 0;
+  todays.forEach(g => {
+    const count = g.students.length;
+    total += count;
+    const card = document.createElement('div');
+    card.className = 'home-lesson-card';
+    card.innerHTML = `
+      <div class="home-lesson-icon">📖</div>
+      <div>
+        <div class="home-lesson-name">${escHtml(g.name)}</div>
+        <div class="home-lesson-meta">${g.time ? '🕐 ' + escHtml(g.time) : 'Vaqt kiritilmagan'}</div>
+      </div>
+      <div class="home-lesson-count">${count}<span>talaba</span></div>`;
+    card.addEventListener('click', () => loadOjStudents(g.id, g.name, g.days || []));
+    box.appendChild(card);
+  });
+  return { groups: todays, total };
+}
+
+async function loadHomeStats(){
+  document.getElementById('homeDateLine').textContent =
+    new Date().toLocaleDateString('uz-UZ', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  const groups = await homeFetchGroupsWithStudents();
+  const todayKey = ojDayKeyForOffset(0);
+  const tomorrowKey = ojDayKeyForOffset(1);
+  const yesterdayKey = ojDayKeyForOffset(-1);
+
+  const todayInfo = homeRenderLessonCards('homeTodayGroups', 'homeTodayEmpty', groups, todayKey);
+  const tomorrowInfo = homeRenderLessonCards('homeTomorrowGroups', 'homeTomorrowEmpty', groups, tomorrowKey);
+
+  document.getElementById('homeTopStatRow').innerHTML = `
+    <div class="stat-card"><strong>${todayInfo.groups.length}</strong><span>Bugungi darslar</span></div>
+    <div class="stat-card"><strong>${todayInfo.total}</strong><span>Bugun keladigan talaba</span></div>
+    <div class="stat-card"><strong>${tomorrowInfo.groups.length}</strong><span>Ertangi darslar</span></div>
+    <div class="stat-card"><strong>${tomorrowInfo.total}</strong><span>Ertaga keladigan talaba</span></div>`;
+
+  // ----- Yesterday: attendance & homework -----
+  const yGroups = groups.filter(g => (g.days || []).includes(yesterdayKey));
+  const yesterdayDate = ojDateStr(-1);
+  const empty = document.getElementById('homeYesterdayEmpty');
+  const line = document.getElementById('homeYesterdayGroupsLine');
+  const row = document.getElementById('homeYesterdayStatRow');
+
+  if (!yGroups.length) {
+    empty.style.display = 'block';
+    row.innerHTML = '';
+    line.textContent = '';
+    return;
+  }
+  empty.style.display = 'none';
+  line.textContent = `${new Date(yesterdayDate + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long' })} — ${yGroups.map(g => g.name).join(', ')}`;
+
+  const allStudents = yGroups.flatMap(g => g.students);
+  const entries = await Promise.all(allStudents.map(s =>
+    db.collection('oquv_progress').doc(s.id).collection('entries').doc(yesterdayDate).get()
+      .then(d => d.exists ? d.data() : null).catch(() => null)
+  ));
+
+  let attended = 0, late = 0, absent = 0, noMark = 0;
+  let hwYes = 0, hwPartial = 0, hwNo = 0, hwNoMark = 0;
+  entries.forEach(e => {
+    if (!e) { noMark++; hwNoMark++; return; }
+    const a = e.attended === true || e.attended === 'yes' ? 'yes' : e.attended === 'late' ? 'late' : (e.attended === false || e.attended === 'no') ? 'no' : '';
+    if (a === 'yes') attended++; else if (a === 'late') late++; else if (a === 'no') absent++; else noMark++;
+    const h = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === 'partial' ? 'partial' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : '';
+    if (h === 'yes') hwYes++; else if (h === 'partial') hwPartial++; else if (h === 'no') hwNo++; else hwNoMark++;
+  });
+
+  row.innerHTML = `
+    <div class="oj-stat-card"><div class="oj-stat-val">${allStudents.length}</div><div class="oj-stat-label">Jami talaba</div></div>
+    <div class="oj-stat-card"><div class="oj-stat-val">${attended}</div><div class="oj-stat-label">✅ Keldi</div></div>
+    <div class="oj-stat-card"><div class="oj-stat-val">${late}</div><div class="oj-stat-label">⏰ Kech qoldi</div></div>
+    <div class="oj-stat-card"><div class="oj-stat-val">${absent}</div><div class="oj-stat-label">🚫 Kelmadi</div></div>
+    <div class="oj-stat-card"><div class="oj-stat-val">${hwYes}</div><div class="oj-stat-label">📗 Uy vazifa qilgan</div></div>
+    <div class="oj-stat-card"><div class="oj-stat-val">${hwPartial}</div><div class="oj-stat-label">🔶 Qisman qilgan</div></div>
+    <div class="oj-stat-card"><div class="oj-stat-val">${hwNo}</div><div class="oj-stat-label">📕 Qilmagan</div></div>
+    <div class="oj-stat-card"><div class="oj-stat-val">${noMark}</div><div class="oj-stat-label">❔ Belgilanmagan</div></div>`;
+}
+
+// ----- Full statistics page (period-based, per group) -----
+let _statsPeriodDays = 30;
+
+async function loadStatsPage(days){
+  days = days || _statsPeriodDays;
+  const loading = document.getElementById('statsLoading');
+  const empty = document.getElementById('statsEmpty');
+  const body = document.getElementById('statsGroupsBody');
+  loading.textContent = 'Yuklanmoqda…';
+  body.innerHTML = '';
+  empty.style.display = 'none';
+
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - (days - 1));
+  const cutoffStr = cutoff.toISOString().slice(0,10);
+
+  const groups = await homeFetchGroupsWithStudents();
+  if (!groups.length || !groups.some(g => g.students.length)) {
+    loading.textContent = '';
+    empty.style.display = 'block';
+    document.getElementById('statsTopStatRow').innerHTML = '';
+    return;
+  }
+
+  let grandStudents = 0, grandAttendScored = [], grandHwScored = [], grandAbsent = 0, grandLate = 0;
+
+  const rows = await Promise.all(groups.map(async g => {
+    if (!g.students.length) return { g, count: 0, attendPct: null, hwPct: null, absent: 0, late: 0 };
+    const perStudentEntries = await Promise.all(g.students.map(s =>
+      db.collection('oquv_progress').doc(s.id).collection('entries')
+        .where('date', '>=', cutoffStr).get()
+        .then(snap => snap.docs.map(d => d.data())).catch(() => [])
+    ));
+    const allEntries = perStudentEntries.flat();
+    grandStudents += g.students.length;
+
+    const attendScored = allEntries.map(e => {
+      const a = e.attended === true || e.attended === 'yes' ? 1 : (e.attended === 'late' ? 1 : (e.attended === false || e.attended === 'no') ? 0 : null);
+      return a;
+    }).filter(v => v !== null);
+    const hwScored = allEntries.map(e => {
+      if (e.homeworkDone === true || e.homeworkDone === 'yes') return 100;
+      if (e.homeworkDone === false || e.homeworkDone === 'no') return 0;
+      if (e.homeworkDone === 'partial') return Number(e.homeworkPercent) || 0;
+      return null;
+    }).filter(v => v !== null);
+    const absent = allEntries.filter(e => e.attended === false || e.attended === 'no').length;
+    const late = allEntries.filter(e => e.attended === 'late').length;
+
+    grandAttendScored = grandAttendScored.concat(attendScored);
+    grandHwScored = grandHwScored.concat(hwScored);
+    grandAbsent += absent;
+    grandLate += late;
+
+    return {
+      g, count: g.students.length,
+      attendPct: attendScored.length ? Math.round(attendScored.reduce((s,v)=>s+v,0) / attendScored.length * 100) : null,
+      hwPct: hwScored.length ? Math.round(hwScored.reduce((s,v)=>s+v,0) / hwScored.length) : null,
+      absent, late
+    };
+  }));
+
+  loading.textContent = '';
+  body.innerHTML = rows.map(r => `
+    <tr>
+      <td><strong>${escHtml(r.g.name)}</strong></td>
+      <td>${r.count}</td>
+      <td>${r.attendPct === null ? '—' : r.attendPct + '%'}</td>
+      <td>${r.hwPct === null ? '—' : r.hwPct + '%'}</td>
+      <td>${r.absent}</td>
+      <td>${r.late}</td>
+    </tr>`).join('');
+
+  const overallAttend = grandAttendScored.length ? Math.round(grandAttendScored.reduce((s,v)=>s+v,0) / grandAttendScored.length * 100) : null;
+  const overallHw = grandHwScored.length ? Math.round(grandHwScored.reduce((s,v)=>s+v,0) / grandHwScored.length) : null;
+  document.getElementById('statsTopStatRow').innerHTML = `
+    <div class="stat-card"><strong>${groups.length}</strong><span>Jami guruhlar</span></div>
+    <div class="stat-card"><strong>${grandStudents}</strong><span>Jami talabalar</span></div>
+    <div class="stat-card"><strong>${overallAttend === null ? '—' : overallAttend + '%'}</strong><span>O'rtacha davomat (${days} kun)</span></div>
+    <div class="stat-card"><strong>${overallHw === null ? '—' : overallHw + '%'}</strong><span>O'rtacha uy vazifa (${days} kun)</span></div>`;
+}
 
 async function loadOjGroups() {
   const grid = document.getElementById('ojGroupsGrid');
