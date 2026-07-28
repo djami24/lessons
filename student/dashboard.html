@@ -47,6 +47,45 @@
   body.admin-theme:not(.light-mode){ background:#0d0e12; }
   body.admin-theme:not(.light-mode) .admin-main{ background:#0d0e12; }
 
+  /* Site-wide dark mode: every page (Profil, Kurslarim, Test natijalar,
+     Homework, Chat, va h.k.) shares these --adm-* variables for its page
+     titles/labels, so redefining them here turns that text white across
+     the whole app in one place. Text that sits inside a white/light card
+     (stat-card, level/course cards, tables, chat bubbles, notif cards…)
+     is restored to its original dark color right below, since a light
+     card with white text would be unreadable. */
+  body.admin-theme:not(.light-mode){
+    --adm-ink: #f3f5fb;
+    --adm-gray: #9aa1b8;
+    --adm-line: rgba(255,255,255,.14);
+  }
+  body.admin-theme:not(.light-mode) .stat-card{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .stat-card strong{ color:#101B3D; }
+  body.admin-theme:not(.light-mode) .stat-card span{ color:#8892A6; }
+  body.admin-theme:not(.light-mode) .level-card, body.admin-theme:not(.light-mode) .course-card{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .level-title, body.admin-theme:not(.light-mode) .course-title{ color:#101B3D; }
+  body.admin-theme:not(.light-mode) .level-card.is-locked .level-title{ color:#8892A6; }
+  body.admin-theme:not(.light-mode) table.data-table th{ color:#8892A6; }
+  body.admin-theme:not(.light-mode) .student-row{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .toast{ background:#101B3D; }
+  body.admin-theme:not(.light-mode) .gb-stats-box{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .gb-stats-value{ color:#101B3D; }
+  body.admin-theme:not(.light-mode) .gb-chip{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .gb-group-folder{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .notif-card{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .chat-msg-teacher .chat-msg-bubble{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .chat-date-sep span{ color:#8892A6; }
+  body.admin-theme:not(.light-mode) .chat-input-row{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .chat-textarea{ border-color:#E7EBF4; color:#101B3D; }
+  body.admin-theme:not(.light-mode) .chat-search-box{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .chat-search-box input{ color:#101B3D; }
+  body.admin-theme:not(.light-mode) .chat-panel{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .chat-list-header, body.admin-theme:not(.light-mode) .chat-detail-header{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .chat-list-tab{ color:#101B3D; }
+  body.admin-theme:not(.light-mode) .chat-student-item{ border-color:#E7EBF4; }
+  body.admin-theme:not(.light-mode) .chat-item-preview, body.admin-theme:not(.light-mode) .chat-item-time{ color:#8892A6; }
+  body.admin-theme:not(.light-mode) .chat-detail-name{ color:#101B3D; }
+
   /* ===== Student home page — dark redesign ===== */
   #view-home{
     background: linear-gradient(180deg,#121317 0%,#17181d 100%);
