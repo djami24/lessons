@@ -39,6 +39,114 @@
   .wg-option:disabled{ cursor:default; }
   .wg-option.wg-correct{ border-color:#1e7e34 !important; background:#eaf7ee !important; color:#1e7e34; font-weight:700; }
   .wg-option.wg-wrong{ border-color:#c0392b !important; background:#fdeceb !important; color:#c0392b; font-weight:700; }
+
+  /* ===== Student home page — dark redesign ===== */
+  #view-home{
+    background: linear-gradient(180deg,#0a0e1c 0%,#0d1130 100%);
+    border-radius: 24px;
+    padding: clamp(20px,3vw,34px) clamp(16px,3vw,30px) 30px;
+    color:#f3f5fb;
+  }
+  #view-home .admin-header{ border-bottom:none; padding-bottom:0; margin-bottom:22px; }
+  #view-home .admin-header h1{ color:#fff; font-size:1.7rem; margin-bottom:.3em; }
+  #view-home .home-greet-name{ color:#5b8cff; }
+  #view-home .admin-header p{ color:#8890a6; margin:0 0 .7em; }
+  #view-home .home-header-rule{ width:42px; height:4px; border-radius:3px; background:linear-gradient(90deg,#5b8cff,#2a4fd6); border:none; }
+
+  #view-home .hd-card{
+    background:#111730; border:1px solid rgba(255,255,255,.08); border-radius:18px;
+    padding:20px 20px 22px; display:flex; flex-direction:column;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  #view-home .hd-card-head{ display:flex; align-items:center; gap:.7em; margin-bottom:14px; }
+  #view-home .hd-icon-badge{
+    width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
+    font-size:1.05rem; flex:none;
+  }
+  #view-home .hd-icon-blue{ background:linear-gradient(155deg,#4f7cff,#2a4fd6); }
+  #view-home .hd-icon-green{ background:linear-gradient(155deg,#34d399,#059669); }
+  #view-home .hd-eyebrow{ font-size:.68rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
+  #view-home .hd-eyebrow-blue{ color:#7ea2ff; }
+  #view-home .hd-eyebrow-green{ color:#5fe0a6; }
+  #view-home .hd-date{ font-size:.78rem; color:#78809a; margin-left:auto; }
+  #view-home .hd-card .latest-hw-title{ color:#fff; font-size:1.25rem; margin:0 0 10px; }
+  #view-home .hd-card input[type="text"]{
+    background:#0c1024; border:1.5px solid rgba(255,255,255,.12); color:#f3f5fb; border-radius:10px;
+  }
+  #view-home .hd-card input[type="text"]::placeholder{ color:#5c6480; }
+  #view-home .hd-card .latest-hw-preview{ color:#8890a6; }
+  #view-home .hd-row{ display:flex; align-items:center; gap:.6em; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+  #view-home .hd-row:last-of-type{ border-bottom:none; }
+  #view-home .hd-row-label{ display:flex; align-items:center; gap:.5em; color:#8890a6; font-size:.86rem; }
+  #view-home .hd-row-val{ font-weight:700; color:#f3f5fb; }
+  #view-home #progressMissingWrap{ border-top:1px solid rgba(255,255,255,.06); padding-top:10px; margin-top:4px; }
+  #view-home #progressMissingWrap > span{ color:#8890a6 !important; font-size:.8rem; display:flex; align-items:center; gap:.4em; }
+  #view-home #progressMissingList div{ color:#ff7a7a !important; font-size:.86rem; }
+  #view-home #progressNoteVal{ background:rgba(255,255,255,.04); border-radius:10px; padding:.6em .8em; margin-top:.6em !important; font-size:.84rem; }
+
+  #view-home .hd-pill-btn{
+    margin-top:16px; width:100%; text-align:center; border-radius:30px; padding:.75em 1em;
+    background:transparent; border:1.5px solid rgba(255,255,255,.16); color:#f3f5fb; font-weight:700; font-size:.88rem;
+    display:flex; align-items:center; justify-content:center; gap:.4em; cursor:pointer;
+  }
+  #view-home .hd-pill-btn:hover{ border-color:rgba(255,255,255,.35); }
+
+  /* Test natijasi card — purple/blue gradient */
+  #view-home #gbResultBox{
+    background:linear-gradient(150deg,#3b34c9 0%,#5b3fef 55%,#7048f0 100%);
+    border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:20px 20px 22px;
+    display:flex; flex-direction:column; box-shadow:0 12px 34px rgba(75,58,220,.35);
+  }
+  #view-home #gbResultBox .latest-hw-head{ margin-bottom:14px; }
+  #view-home #gbResultBox .latest-hw-eyebrow{
+    background:rgba(255,255,255,.18); color:#fff; font-size:.7rem; font-weight:800; letter-spacing:.07em;
+    text-transform:uppercase; padding:.4em .8em; border-radius:20px;
+  }
+  #view-home #gbResultBox .latest-hw-title{ color:#fff; font-size:1.3rem; margin:0 0 2px; }
+  #view-home #gbResultBox .latest-hw-preview{ color:rgba(255,255,255,.75); }
+  #view-home #gbResultBox input[type="text"]{
+    background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.25); color:#fff; border-radius:10px;
+  }
+  #view-home #gbResultBox input[type="text"]::placeholder{ color:rgba(255,255,255,.55); }
+  #view-home #gbResultView p#gbResultUnit{ color:rgba(255,255,255,.75); margin:0 0 12px; }
+  #view-home #gbResultMessage{ display:flex; align-items:center; gap:.4em; }
+  #view-home #gbResultBox .btn{ border-radius:26px; font-weight:700; font-size:.85rem; }
+  #view-home #gbResultBox .btn-amber{ background:#fff; color:#3b34c9; border-color:#fff; }
+  #view-home #gbResultBox .btn-amber:hover{ background:#f0f0ff; }
+  #view-home #gbResultBox .btn-ghost{ background:rgba(255,255,255,.08); color:#fff; border-color:rgba(255,255,255,.3); }
+
+  /* So'nggi uy vazifasi card */
+  #view-home #latestHwBox .latest-hw-checklist{ display:flex; flex-direction:column; gap:.5em; margin:0 0 14px; }
+  #view-home #latestHwBox .hd-check-row{ display:flex; align-items:center; gap:.55em; font-size:.88rem; color:#e3e6f0; }
+  #view-home #latestHwBox .hd-check-icon{ color:#34d399; flex:none; }
+  #view-home #latestHwBox > a.btn{
+    align-self:flex-start; background:transparent; border:none; color:#5fe0a6; padding:0; font-weight:700;
+    font-size:.86rem; margin-bottom:16px;
+  }
+  #view-home #latestHwBox > a.btn::after{ content:' →'; }
+  #view-home .hw-status-row{ display:flex; gap:.6em; margin-top:14px; }
+  #view-home #latestHwBox .hw-status-btn{
+    flex:1; border-radius:26px; font-weight:700; font-size:.82rem; padding:.7em .5em;
+    background:transparent !important; border-color:rgba(255,255,255,.18) !important; color:#e3e6f0 !important;
+  }
+  #view-home #latestHwBox .hw-status-btn.is-active[data-status="done"]{
+    background:#1eae6c !important; border-color:#1eae6c !important; color:#fff !important;
+  }
+  #view-home #latestHwBox .hw-status-btn.is-active[data-status="undone"]{
+    background:rgba(255,255,255,.1) !important; border-color:rgba(255,255,255,.3) !important; color:#fff !important;
+  }
+
+  /* Quick info bar */
+  #view-home .home-quick-bar{
+    margin-top:22px; background:#111730; border:1px solid rgba(255,255,255,.08); border-radius:18px;
+    padding:18px 20px 20px;
+  }
+  #view-home .home-quick-title{ display:flex; align-items:center; gap:.5em; color:#fff; font-weight:700; font-size:.95rem; margin:0 0 14px; }
+  #view-home .home-quick-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; }
+  #view-home .home-quick-tile{ display:flex; align-items:center; gap:.7em; background:#0c1024; border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px 14px; }
+  #view-home .home-quick-icon{ width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex:none; }
+  #view-home .home-quick-label{ color:#8890a6; font-size:.74rem; margin-bottom:2px; }
+  #view-home .home-quick-val{ color:#f3f5fb; font-weight:700; font-size:.9rem; }
 </style>
 </head>
 <body class="admin-theme">
@@ -93,15 +201,19 @@
       <div class="admin-header">
         <div>
           <h1 id="homeGreeting">Xush kelibsiz!</h1>
-          <p>Kerakli bo‘limni tanlang.</p>
+          <p>Kerakli bo‘limni tanlang va o‘quv jarayonini davom ettiring.</p>
+          <div class="home-header-rule"></div>
         </div>
       </div>
 
       <div class="home-top-boxes" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.2em; align-items:start;">
-        <div class="latest-hw-box" id="progressBox" style="background:#fff; border:1.5px solid var(--line);">
-          <div class="latest-hw-head">
-            <span class="latest-hw-eyebrow" style="color:var(--teal-deep);">📈 O‘quv jarayoni</span>
-            <span class="latest-hw-date" id="progressDate" style="color:var(--gray);"></span>
+        <div class="latest-hw-box hd-card" id="progressBox">
+          <div class="hd-card-head">
+            <span class="hd-icon-badge hd-icon-blue">📘</span>
+            <div>
+              <span class="latest-hw-eyebrow hd-eyebrow hd-eyebrow-blue">O‘quv jarayoni</span>
+            </div>
+            <span class="latest-hw-date hd-date" id="progressDate"></span>
           </div>
 
           <div id="progressIdForm">
@@ -114,27 +226,27 @@
           </div>
 
           <div id="progressView" hidden>
-            <h3 class="latest-hw-title" id="progressStudentNameVal" style="color:#1b2733;"></h3>
-            <div style="display:flex; flex-direction:column; gap:.5em; margin-top:.4em;">
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
-                <span style="color:var(--gray); font-size:.9rem;">Davomat</span>
-                <span id="progressAttendedVal" style="font-weight:700;">—</span>
+            <h3 class="latest-hw-title" id="progressStudentNameVal"></h3>
+            <div>
+              <div class="hd-row">
+                <span class="hd-row-label">📅 Davomat</span>
+                <span id="progressAttendedVal" class="hd-row-val">—</span>
               </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
-                <span style="color:var(--gray); font-size:.9rem;">Uy vazifa</span>
-                <span id="progressHwVal" style="font-weight:700;">—</span>
+              <div class="hd-row">
+                <span class="hd-row-label">📈 Uy vazifa</span>
+                <span id="progressHwVal" class="hd-row-val">—</span>
               </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; gap:.6em;">
-                <span style="color:var(--gray); font-size:.9rem;">Kunlik baho</span>
-                <span id="progressGradeVal" style="font-weight:700;">—</span>
+              <div class="hd-row">
+                <span class="hd-row-label">🕐 Kunlik baho</span>
+                <span id="progressGradeVal" class="hd-row-val">—</span>
               </div>
-              <div id="progressMissingWrap" hidden style="margin-top:.2em;">
-                <span style="color:var(--gray); font-size:.9rem;">Bajarilmagan uy vazifalar</span>
+              <div id="progressMissingWrap" hidden>
+                <span>ℹ️ Bajarilmagan uy vazifalar</span>
                 <div id="progressMissingList" style="margin-top:.3em; display:flex; flex-direction:column; gap:.2em;"></div>
               </div>
-              <p class="latest-hw-preview" id="progressNoteVal" style="color:var(--gray); margin:.2em 0 0;"></p>
+              <p class="latest-hw-preview" id="progressNoteVal"></p>
             </div>
-            <button type="button" class="btn btn-ghost btn-sm" id="progressChangeIdBtn" style="margin-top:.8em;">ID’ni o‘zgartirish</button>
+            <button type="button" class="hd-pill-btn" id="progressChangeIdBtn">ID’ni o‘zgartirish <span>→</span></button>
           </div>
         </div>
 
@@ -158,23 +270,60 @@
             <div class="quiz-result-score" id="gbResultScore" style="font-size:1.6rem; display:inline-block; padding:.15em .6em; border-radius:8px; margin:.2em 0 .4em;"></div>
             <p id="gbResultMessage" hidden style="margin:0 0 .8em; font-weight:700; font-size:1.05rem;"></p>
             <div style="display:flex; gap:.6em; flex-wrap:wrap;">
-              <a href="../natijalar.html" target="_blank" rel="noopener" class="btn btn-amber btn-sm">Barcha natijalar</a>
-              <button type="button" class="btn btn-ghost btn-sm" id="gbChangeNameBtn">Ismni o‘zgartirish</button>
+              <a href="../natijalar.html" target="_blank" rel="noopener" class="btn btn-amber btn-sm">📊 Barcha natijalar</a>
+              <button type="button" class="btn btn-ghost btn-sm" id="gbChangeNameBtn">👤 Ismni o‘zgartirish</button>
             </div>
           </div>
         </div>
 
-        <div class="latest-hw-box" id="latestHwBox" hidden style="background:#fff; border:1.5px solid var(--line);">
-          <div class="latest-hw-head">
-            <span class="latest-hw-eyebrow" style="color:var(--teal-deep);">🆕 So‘nggi uy vazifasi</span>
-            <span class="latest-hw-date" id="latestHwDate" style="color:var(--gray);"></span>
+        <div class="latest-hw-box hd-card" id="latestHwBox" hidden>
+          <div class="hd-card-head">
+            <span class="hd-icon-badge hd-icon-green">📗</span>
+            <div>
+              <span class="latest-hw-eyebrow hd-eyebrow hd-eyebrow-green">So‘nggi uy vazifasi</span>
+            </div>
+            <span class="latest-hw-date hd-date" id="latestHwDate"></span>
           </div>
-          <h3 class="latest-hw-title" id="latestHwTitle" style="color:#1b2733;"></h3>
-          <p class="latest-hw-preview" id="latestHwPreview" style="color:var(--gray);"></p>
-          <a href="../kundalik.html" class="btn btn-amber btn-sm">Batafsil ko‘rish</a>
+          <h3 class="latest-hw-title" id="latestHwTitle"></h3>
+          <div class="latest-hw-checklist" id="latestHwPreview"></div>
+          <a href="../kundalik.html" class="btn">Batafsil ko‘rish</a>
           <div class="hw-status-row" id="latestHwStatusRow">
             <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
             <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="home-quick-bar">
+        <p class="home-quick-title">⚡ Tezkor ma'lumot</p>
+        <div class="home-quick-grid">
+          <div class="home-quick-tile">
+            <span class="home-quick-icon hd-icon-blue">📘</span>
+            <div>
+              <div class="home-quick-label">O‘quv kursi</div>
+              <div class="home-quick-val" id="qiCourseVal">—</div>
+            </div>
+          </div>
+          <div class="home-quick-tile">
+            <span class="home-quick-icon" style="background:linear-gradient(155deg,#a855f7,#7c3aed);">👥</span>
+            <div>
+              <div class="home-quick-label">O‘quvchilar guruhi</div>
+              <div class="home-quick-val" id="qiGroupVal">—</div>
+            </div>
+          </div>
+          <div class="home-quick-tile">
+            <span class="home-quick-icon" style="background:linear-gradient(155deg,#f0a63a,#c2790a);">🕐</span>
+            <div>
+              <div class="home-quick-label">So‘nggi yangilanish</div>
+              <div class="home-quick-val" id="qiUpdatedVal">—</div>
+            </div>
+          </div>
+          <div class="home-quick-tile">
+            <span class="home-quick-icon" style="background:linear-gradient(155deg,#fb7185,#e11d48);">🎯</span>
+            <div>
+              <div class="home-quick-label">Maqsad</div>
+              <div class="home-quick-val">Eng yaxshi natija sari!</div>
+            </div>
           </div>
         </div>
       </div>
@@ -849,7 +998,16 @@ function switchView(view){
 
 function renderHomeView(){
   const firstName = state.student.name ? state.student.name.split(' ')[0] : 'talaba';
-  document.getElementById('homeGreeting').textContent = 'Xush kelibsiz, ' + firstName + '!';
+  {
+    const greetEl = document.getElementById('homeGreeting');
+    greetEl.textContent = '';
+    greetEl.appendChild(document.createTextNode('Xush kelibsiz, '));
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'home-greet-name';
+    nameSpan.textContent = firstName + '!';
+    greetEl.appendChild(nameSpan);
+    greetEl.appendChild(document.createTextNode(' 👋'));
+  }
   switchView('home');
   document.getElementById('navProfile').classList.remove('active');
   loadLatestHomework();
@@ -864,6 +1022,17 @@ function renderHomeView(){
 // types that ID here once. The ID is then saved on their OWN account
 // (students/{uid}.oquvProgressCode) so it follows them across devices,
 // the same pattern used for the "Test natijasi" (gradebook) card above.
+// Shared quick-info bar (below the home cards) — pulls from whichever of
+// the progress card / gradebook card has loaded so far, so either one
+// updating fills in its own tiles without needing the other to be ready.
+const homeQuickInfo = { group: null, course: null, updated: null };
+function updateHomeQuickInfo(patch){
+  Object.assign(homeQuickInfo, patch);
+  document.getElementById('qiCourseVal').textContent = homeQuickInfo.course || '—';
+  document.getElementById('qiGroupVal').textContent = homeQuickInfo.group || '—';
+  document.getElementById('qiUpdatedVal').textContent = homeQuickInfo.updated || '—';
+}
+
 async function renderProgressBox(){
   const formEl = document.getElementById('progressIdForm');
   const viewEl = document.getElementById('progressView');
@@ -891,6 +1060,7 @@ async function renderProgressBox(){
 
     const info = doc.data();
     document.getElementById('progressStudentNameVal').textContent = info.name || '';
+    updateHomeQuickInfo({ group: info.group || null });
 
     const dateEl = document.getElementById('progressDate');
     const attendedEl = document.getElementById('progressAttendedVal');
@@ -903,6 +1073,7 @@ async function renderProgressBox(){
 
     if(snap.empty){
       dateEl.textContent = '';
+      updateHomeQuickInfo({ updated: null });
       attendedEl.textContent = '—'; attendedEl.style.color = '';
       hwEl.textContent = '—'; hwEl.style.color = '';
       gradeEl.textContent = 'Baho olmadi'; gradeEl.style.color = '#c0392b';
@@ -912,6 +1083,7 @@ async function renderProgressBox(){
       const d = snap.docs[0].data();
       const date = d.date ? new Date(d.date + 'T00:00:00') : null;
       dateEl.textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
+      updateHomeQuickInfo({ updated: dateEl.textContent || null });
 
       // Entries store attended/homeworkDone as the string 'yes'/'no' (or
       // '' when unset) rather than booleans — normalize both just in case.
@@ -1037,7 +1209,16 @@ async function loadLatestHomework(){
     const date = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
     document.getElementById('latestHwDate').textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
     document.getElementById('latestHwTitle').textContent = d.sarlavha || 'Uy vazifasi';
-    document.getElementById('latestHwPreview').textContent = htmlToLinePreview(d.matn, 160);
+    const previewList = document.getElementById('latestHwPreview');
+    previewList.innerHTML = '';
+    const previewLines = htmlToLinePreview(d.matn, 160).split('\n').map(s => s.trim()).filter(Boolean);
+    previewLines.forEach(line => {
+      const row = document.createElement('div');
+      row.className = 'hd-check-row';
+      row.innerHTML = '<span class="hd-check-icon">✅</span><span></span>';
+      row.querySelector('span:last-child').textContent = line;
+      previewList.appendChild(row);
+    });
     setupHwStatusButtons(hwId);
     box.hidden = false;
   } catch(err){
@@ -1162,6 +1343,7 @@ async function renderGbResultBox(){
   const msgEl = document.getElementById('gbResultMessage');
   if(latestUnit){
     document.getElementById('gbResultUnit').textContent = latestUnit + (match.group ? ' · ' + match.group : '');
+    updateHomeQuickInfo({ course: latestUnit });
     scoreEl.hidden = false;
     scoreEl.textContent = latestScore + '/100';
     scoreEl.classList.remove('quiz-result-pass', 'quiz-result-fail');
