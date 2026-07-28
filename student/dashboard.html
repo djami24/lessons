@@ -1033,21 +1033,6 @@ function updateHomeQuickInfo(patch){
   document.getElementById('qiNextLessonVal').textContent = homeQuickInfo.nextLesson || '—';
 }
 
-// Lesson time follows the group's weekly schedule:
-//   Tue/Thu/Sat groups meet 15:30–16:30.
-//   Mon/Wed/Fri groups meet 10:00–11:30 ("Marvel") or 14:00 ("Yale").
-function getGroupLessonTime(days, groupName){
-  const set = new Set(days || []);
-  const isTTS = ['tue','thu','sat'].every(d => set.has(d));
-  const isMWF = ['mon','wed','fri'].every(d => set.has(d));
-  if(isTTS) return '15:30–16:30';
-  if(isMWF){
-    if(/marvel/i.test(groupName || '')) return '10:00–11:30';
-    if(/yale/i.test(groupName || '')) return '14:00';
-  }
-  return null;
-}
-
 // Finds the next date (today or later) that falls on one of the group's
 // scheduled weekdays, and formats it the same way as the other date labels.
 function getNextLessonDateLabel(days){
@@ -1096,9 +1081,10 @@ async function renderProgressBox(){
       try{
         const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
         if(!gSnap.empty){
-          const groupDays = gSnap.docs[0].data().days || [];
+          const groupData = gSnap.docs[0].data();
+          const groupDays = groupData.days || [];
           updateHomeQuickInfo({
-            time: getGroupLessonTime(groupDays, info.group),
+            time: groupData.time || null,
             nextLesson: getNextLessonDateLabel(groupDays)
           });
         }
