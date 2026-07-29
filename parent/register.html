@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ota-ona sifatida ro‘yxatdan o‘tish — Djami Lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .pr-icon-circle{
+    width:74px; height:74px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:2rem; margin: 0 auto 1.1em;
+  }
+  .pr-icon-ok{ background: rgba(46,111,110,.12); color: var(--teal); }
+  .pr-icon-fail{ background: rgba(179,67,43,.1); color: var(--danger); }
+  .pr-step-title{ text-align:center; font-size:1.3rem; margin-bottom:.2em; }
+  .pr-step-sub{ text-align:center; color:var(--gray); margin-bottom:1.6em; }
+  .pr-found-card{
+    border:1.5px solid var(--line); border-radius: var(--radius-m); padding: 1.2em 1.3em;
+    display:flex; align-items:center; gap: 1em; margin-bottom: 1.6em; background: var(--paper-2);
+  }
+  .pr-found-avatar{
+    width:56px; height:56px; border-radius:50%; background: linear-gradient(135deg,#6c63ff,#3fbfbf);
+    color:#fff; font-weight:800; font-size:1.3rem; display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .pr-found-name{ font-weight:800; font-size:1.05rem; }
+  .pr-found-meta{ font-size:.85rem; color:var(--gray); margin-top:.15em; }
+  .pr-back-link{ display:inline-flex; align-items:center; gap:.4em; font-size:.85rem; color:var(--gray); text-decoration:none; margin-bottom:1em; }
+  .pr-back-link:hover{ color:var(--ink); }
+</style>
+</head>
+<body class="auth-body">
+
+<div class="auth-wrap auth-wrap-split">
+  <div class="auth-split">
+
+    <div class="auth-split-left">
+      <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+
+      <div class="auth-split-hero">
+        <h2>Farzandingiz bilan birga!</h2>
+        <p>Ota-ona profilingiz orqali farzandingizning davomati, uy vazifalari va test natijalarini kuzatib boring.</p>
+      </div>
+
+      <p class="auth-split-foot">Hisobingiz bormi? <a href="login.html">Kirish</a></p>
+    </div>
+
+    <div class="auth-split-right">
+
+      <!-- ===== STEP 1: registration form ===== -->
+      <div id="stepForm">
+        <h1 class="auth-title">Ota-ona sifatida ro‘yxatdan o‘tish</h1>
+        <p class="auth-sub">Iltimos, ma’lumotlaringizni to‘g‘ri kiriting.</p>
+
+        <form class="auth-form" id="parentRegForm">
+          <label class="field">
+            <span>Ism</span>
+            <input type="text" id="regFirstName" required autocomplete="given-name">
+          </label>
+          <label class="field">
+            <span>Familiya</span>
+            <input type="text" id="regLastName" required autocomplete="family-name">
+          </label>
+          <label class="field">
+            <span>Email</span>
+            <input type="email" id="regEmail" required autocomplete="username">
+          </label>
+          <label class="field">
+            <span>Parol</span>
+            <div class="password-field">
+              <input type="password" id="regPassword" required autocomplete="new-password" minlength="6">
+              <button type="button" class="pw-toggle" id="pwToggle">Ko‘rsatish</button>
+            </div>
+          </label>
+          <label class="field">
+            <span>Parolni tasdiqlang</span>
+            <input type="password" id="regPassword2" required autocomplete="new-password" minlength="6">
+          </label>
+          <label class="field">
+            <span>Farzandingiz ID si</span>
+            <input type="text" id="regChildId" required placeholder="Masalan: 857214">
+          </label>
+
+          <p class="form-error" id="formError" role="alert" hidden></p>
+
+          <button type="submit" class="btn btn-amber auth-submit" id="checkSubmitBtn">Tekshirish</button>
+        </form>
+      </div>
+
+      <!-- ===== STEP 2A: ID found ===== -->
+      <div id="stepFound" hidden>
+        <a href="#" class="pr-back-link" id="backFromFoundBtn">← Orqaga</a>
+        <div class="pr-icon-circle pr-icon-ok">✅</div>
+        <h1 class="pr-step-title">O‘quvchi topildi!</h1>
+        <p class="pr-step-sub">Ma’lumotlar to‘g‘ri bo‘lsa, davom eting.</p>
+
+        <div class="pr-found-card">
+          <div class="pr-found-avatar" id="foundAvatar">?</div>
+          <div>
+            <div class="pr-found-name" id="foundName"></div>
+            <div class="pr-found-meta">ID: <span id="foundId"></span></div>
+            <div class="pr-found-meta" id="foundGroupRow"></div>
+          </div>
+        </div>
+
+        <p class="form-error" id="createError" role="alert" hidden></p>
+        <button type="button" class="btn btn-amber auth-submit" id="continueBtn">Davom etish</button>
+      </div>
+
+      <!-- ===== STEP 2B: ID not found ===== -->
+      <div id="stepNotFound" hidden>
+        <a href="#" class="pr-back-link" id="backFromNotFoundBtn">← Orqaga</a>
+        <div class="pr-icon-circle pr-icon-fail">✕</div>
+        <h1 class="pr-step-title">Bunday ID topilmadi</h1>
+        <p class="pr-step-sub">Iltimos, ID ni qayta tekshiring.</p>
+
+        <label class="field">
+          <span>Farzandingiz ID si</span>
+          <input type="text" id="retryChildId" placeholder="Masalan: 857214">
+        </label>
+        <p class="form-error" id="notFoundHint" role="alert">Bunday ID tizimda mavjud emas.</p>
+
+        <button type="button" class="btn btn-amber auth-submit" id="retryBtn">Qayta urinish</button>
+        <p class="auth-split-foot" style="margin-top:1em; color:var(--gray);">Hisobingiz bormi? <a href="login.html">Kirish</a></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script src="../site-settings.js"></script>
+<script>
+
+document.getElementById('pwToggle').addEventListener('click', () => {
+  const input = document.getElementById('regPassword');
+  const btn = document.getElementById('pwToggle');
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  btn.textContent = show ? 'Yashirish' : 'Ko‘rsatish';
+});
+
+const stepForm = document.getElementById('stepForm');
+const stepFound = document.getElementById('stepFound');
+const stepNotFound = document.getElementById('stepNotFound');
+
+// Data carried from step 1 into step 2/3.
+let pendingReg = null; // { firstName, lastName, email, password, childId }
+let matchedChild = null; // { id, name, group }
+
+function showStep(step){
+  stepForm.hidden = step !== 'form';
+  stepFound.hidden = step !== 'found';
+  stepNotFound.hidden = step !== 'notfound';
+}
+
+function initialsFor(name){
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if(parts.length === 0) return '?';
+  return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+}
+
+async function lookupChild(id){
+  const doc = await db.collection('oquv_progress').doc(id).get();
+  if(!doc.exists) return null;
+  const d = doc.data();
+  return { id, name: d.name || '', group: d.group || '' };
+}
+
+document.getElementById('parentRegForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errorEl = document.getElementById('formError');
+  const submitBtn = document.getElementById('checkSubmitBtn');
+  errorEl.hidden = true;
+
+  const firstName = document.getElementById('regFirstName').value.trim();
+  const lastName = document.getElementById('regLastName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const password2 = document.getElementById('regPassword2').value;
+  const childId = document.getElementById('regChildId').value.trim();
+
+  if(password !== password2){
+    errorEl.textContent = 'Parollar bir xil emas.';
+    errorEl.hidden = false;
+    return;
+  }
+  if(password.length < 6){
+    errorEl.textContent = 'Parol kamida 6 ta belgidan iborat bo‘lishi kerak.';
+    errorEl.hidden = false;
+    return;
+  }
+  if(!childId){
+    errorEl.textContent = 'Farzandingiz ID sini kiriting.';
+    errorEl.hidden = false;
+    return;
+  }
+
+  pendingReg = { firstName, lastName, email, password, childId };
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Tekshirilmoqda…';
+  try{
+    const child = await lookupChild(childId);
+    if(child){
+      matchedChild = child;
+      document.getElementById('foundAvatar').textContent = initialsFor(child.name);
+      document.getElementById('foundName').textContent = child.name || 'Noma’lum';
+      document.getElementById('foundId').textContent = child.id;
+      document.getElementById('foundGroupRow').textContent = child.group ? ('Guruh: ' + child.group) : '';
+      showStep('found');
+    } else {
+      document.getElementById('retryChildId').value = childId;
+      showStep('notfound');
+    }
+  } catch(err){
+    errorEl.textContent = 'Tekshirishda xatolik yuz berdi. Qayta urinib ko‘ring.';
+    errorEl.hidden = false;
+  }
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Tekshirish';
+});
+
+document.getElementById('retryBtn').addEventListener('click', async () => {
+  const input = document.getElementById('retryChildId');
+  const hint = document.getElementById('notFoundHint');
+  const btn = document.getElementById('retryBtn');
+  const childId = input.value.trim();
+  if(!childId){ hint.textContent = 'ID kiriting.'; hint.hidden = false; return; }
+  btn.disabled = true;
+  btn.textContent = 'Tekshirilmoqda…';
+  try{
+    const child = await lookupChild(childId);
+    pendingReg.childId = childId;
+    if(child){
+      matchedChild = child;
+      document.getElementById('foundAvatar').textContent = initialsFor(child.name);
+      document.getElementById('foundName').textContent = child.name || 'Noma’lum';
+      document.getElementById('foundId').textContent = child.id;
+      document.getElementById('foundGroupRow').textContent = child.group ? ('Guruh: ' + child.group) : '';
+      showStep('found');
+    } else {
+      hint.textContent = 'Bunday ID tizimda mavjud emas.';
+      hint.hidden = false;
+    }
+  } catch(err){
+    hint.textContent = 'Tekshirishda xatolik yuz berdi.';
+    hint.hidden = false;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Qayta urinish';
+});
+
+document.getElementById('backFromFoundBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  showStep('form');
+});
+document.getElementById('backFromNotFoundBtn').addEventListener('click', (e) => {
+  e.preventDefault();
+  showStep('form');
+});
+
+document.getElementById('continueBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('continueBtn');
+  const errorEl = document.getElementById('createError');
+  errorEl.hidden = true;
+  if(!pendingReg || !matchedChild) return;
+  btn.disabled = true;
+  btn.textContent = 'Yaratilmoqda…';
+
+  try{
+    const cred = await auth.createUserWithEmailAndPassword(pendingReg.email, pendingReg.password);
+    await db.collection('parents').doc(cred.user.uid).set({
+      firstName: pendingReg.firstName,
+      lastName: pendingReg.lastName,
+      name: (pendingReg.firstName + ' ' + pendingReg.lastName).trim(),
+      email: pendingReg.email,
+      linkedStudentId: matchedChild.id,
+      linkedStudentName: matchedChild.name,
+      linkedStudentGroup: matchedChild.group,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    window.location.href = 'dashboard.html';
+  } catch(err){
+    let msg = 'Ro‘yxatdan o‘tishda xatolik yuz berdi. Qayta urinib ko‘ring.';
+    const code = (err && err.code) || '';
+    const raw = (err && err.message) || '';
+    if(code === 'auth/email-already-in-use' || raw.includes('EMAIL_EXISTS')){
+      msg = 'Bu email allaqachon ro‘yxatdan o‘tgan. Kirish sahifasidan foydalaning.';
+    } else if(code === 'auth/weak-password' || raw.includes('WEAK_PASSWORD')){
+      msg = 'Parol juda oddiy — kamida 6 ta belgi kiriting.';
+    } else if(code === 'auth/invalid-email' || raw.includes('INVALID_EMAIL')){
+      msg = 'Email manzil noto‘g‘ri kiritildi.';
+    }
+    errorEl.textContent = msg;
+    errorEl.hidden = false;
+  }
+  btn.disabled = false;
+  btn.textContent = 'Davom etish';
+});
+</script>
+</body>
+</html>
