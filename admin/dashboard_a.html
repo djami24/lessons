@@ -157,6 +157,47 @@
 
 .home-cta-wrap{text-align:center;margin-top:26px;}
 .home-cta-wrap .btn{border-radius:14px;padding:.9em 1.8em;font-weight:700;}
+
+/* ---- Bugungi guruh uy vazifalari kartochkalari ---- */
+.today-hw-section{margin-bottom:24px;}
+.today-hw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:4px;}
+.today-hw-card{background:var(--paper);border:1.5px solid var(--adm-line,var(--line));border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;transition:box-shadow .2s,transform .15s;}
+.today-hw-card:hover{box-shadow:0 6px 22px -10px rgba(47,111,237,.3);transform:translateY(-2px);}
+.today-hw-card-head{display:flex;align-items:center;gap:12px;}
+.today-hw-card-icon{width:44px;height:44px;border-radius:13px;background:linear-gradient(135deg,rgba(47,111,237,.15),rgba(124,92,252,.15));display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
+.today-hw-card-name{font-weight:700;font-size:1rem;}
+.today-hw-card-time{font-size:.78rem;color:var(--adm-gray,var(--gray));margin-top:2px;}
+.today-hw-card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.today-hw-stat{background:var(--surface,#f8f9fa);border-radius:12px;padding:10px 8px;text-align:center;}
+.today-hw-stat-num{font-size:1.4rem;font-weight:800;line-height:1;}
+.today-hw-stat-label{font-size:.68rem;font-weight:600;color:var(--adm-gray,var(--gray));margin-top:3px;line-height:1.2;}
+.today-hw-stat.green .today-hw-stat-num{color:#1FAE7A;}
+.today-hw-stat.red .today-hw-stat-num{color:#DC3545;}
+.today-hw-stat.orange .today-hw-stat-num{color:#F0923D;}
+.today-hw-card-footer{font-size:.75rem;color:var(--adm-gray,var(--gray));border-top:1px solid var(--adm-line,var(--line));padding-top:10px;display:flex;align-items:center;justify-content:space-between;}
+.today-hw-loading{color:var(--adm-gray,var(--gray));font-size:.85rem;padding:12px 0;}
+.today-hw-refreshed{font-size:.72rem;color:var(--adm-gray,var(--gray));}
+
+/* ---- Faollik jurnali (Activity Log) ---- */
+.actlog-table-wrap{overflow-x:auto;margin-top:4px;}
+.actlog-table{width:100%;border-collapse:collapse;font-size:.88rem;}
+.actlog-table th{text-align:left;padding:10px 14px;font-size:.75rem;font-weight:700;color:var(--adm-gray,var(--gray));border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;}
+.actlog-table td{padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));vertical-align:middle;}
+.actlog-table tr:last-child td{border-bottom:none;}
+.actlog-table tr:hover td{background:rgba(47,111,237,.04);}
+.actlog-role-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;}
+.actlog-role-student{background:rgba(47,111,237,.12);color:#2F6FED;}
+.actlog-role-parent{background:rgba(31,174,122,.12);color:#1FAE7A;}
+.actlog-action-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.73rem;font-weight:600;}
+.actlog-action-login{background:rgba(124,92,252,.12);color:#7C5CFC;}
+.actlog-action-register{background:rgba(240,146,61,.15);color:#D4780A;}
+.actlog-time{font-size:.78rem;color:var(--adm-gray,var(--gray));}
+.actlog-empty{text-align:center;padding:48px 24px;color:var(--adm-gray,var(--gray));}
+.actlog-filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.actlog-filter-btn{padding:5px 12px;border:1.5px solid var(--adm-line,var(--line));border-radius:8px;background:var(--surface,#f8f9fa);color:var(--adm-gray,var(--gray));font-size:.8rem;font-weight:600;cursor:pointer;transition:background .15s,color .15s,border-color .15s;}
+.actlog-filter-btn.active{background:var(--adm-blue,#2F6FED);color:#fff;border-color:var(--adm-blue,#2F6FED);}
+.actlog-live-dot{width:8px;height:8px;border-radius:50%;background:#1FAE7A;display:inline-block;margin-right:5px;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
 </head>
 
@@ -187,6 +228,7 @@
       <li><a href="#" id="navBroadcast"><span class="nav-icon-emoji">📢</span><span class="nav-label"> Xabar yuborish</span></a></li>
       <li><a href="#" id="navChats"><span class="nav-icon-emoji">💬</span><span class="nav-label"> Chatlar</span><span id="navChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
       <li><a href="#" id="navParentChats"><span class="nav-icon-emoji">👪</span><span class="nav-label"> Ota-onalar</span><span id="navParentChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
+      <li><a href="#" id="navActivityLog"><span class="nav-icon-emoji">🕵️</span><span class="nav-label"> Faollik jurnali</span></a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -236,6 +278,24 @@
             <div class="oj-empty-icon">🌤️</div>
             <p>Ertaga hech qaysi guruhda dars yo'q.</p>
           </div>
+        </div>
+      </div>
+
+      <!-- Bugungi guruh uy vazifalari -->
+      <div class="home-section-card today-hw-section" style="margin-bottom:24px;">
+        <div class="home-section-head">
+          <h3 class="home-col-title">📝 Bugungi guruh — Uy vazifalari</h3>
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span class="today-hw-refreshed" id="todayHwRefreshedAt"></span>
+            <button class="btn btn-ghost btn-sm" id="todayHwRefreshBtn" title="Yangilash">🔄</button>
+          </span>
+        </div>
+        <p id="todayHwSubline" style="margin:-6px 0 12px; color:var(--adm-gray,var(--gray)); font-size:.82rem;"></p>
+        <div class="today-hw-grid" id="todayHwGrid"></div>
+        <div id="todayHwLoading" class="today-hw-loading">⏳ Yuklanmoqda…</div>
+        <div id="todayHwEmpty" class="oj-empty" style="display:none; padding:24px;">
+          <div class="oj-empty-icon">📅</div>
+          <p>Bugun hech qaysi guruhda dars yo'q yoki ma'lumot kiritilmagan.</p>
         </div>
       </div>
 
@@ -1204,6 +1264,51 @@
       </div>
     </section>
 
+    <!-- ===== FAOLLIK JURNALI (Activity Log) ===== -->
+    <section id="view-activity-log" hidden>
+      <div class="oj-header">
+        <div>
+          <h1>🕵️ Faollik jurnali</h1>
+          <p><span class="actlog-live-dot"></span>Talabalar va ota-onalarning kirish va ro'yxatdan o'tish tarixi — real vaqtda yangilanadi.</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="actlogRefreshBtn">🔄 Yangilash</button>
+      </div>
+
+      <div class="actlog-filter-row">
+        <button class="actlog-filter-btn active" data-actlog-filter="all">Barchasi</button>
+        <button class="actlog-filter-btn" data-actlog-filter="student">🎓 Talabalar</button>
+        <button class="actlog-filter-btn" data-actlog-filter="parent">👪 Ota-onalar</button>
+        <button class="actlog-filter-btn" data-actlog-filter="login">🔑 Kirish</button>
+        <button class="actlog-filter-btn" data-actlog-filter="register">✅ Ro'yxatdan o'tish</button>
+      </div>
+
+      <p id="actlogStatusLine" style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:10px;"></p>
+
+      <div class="actlog-table-wrap">
+        <table class="actlog-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Ism</th>
+              <th>Rol</th>
+              <th>Harakat</th>
+              <th>Sana va vaqt</th>
+              <th>Qurilma</th>
+            </tr>
+          </thead>
+          <tbody id="actlogTableBody"></tbody>
+        </table>
+        <div id="actlogEmpty" class="actlog-empty" style="display:none;">
+          <div style="font-size:2.5rem;margin-bottom:10px;">📋</div>
+          <p>Hali faollik yozuvi yo'q.</p>
+        </div>
+        <p id="actlogLoading" style="text-align:center;padding:24px;color:var(--adm-gray,var(--gray));">⏳ Yuklanmoqda…</p>
+      </div>
+      <div style="text-align:center;margin-top:16px;">
+        <button class="btn btn-ghost btn-sm" id="actlogLoadMoreBtn" style="display:none;">Ko'proq yuklash</button>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -1847,6 +1952,7 @@ auth.onAuthStateChanged(async (user) => {
   renderBlogsGrid();
   startAdminChatUnreadListener();
   loadHomeStats();
+  loadTodayHomeworkCards();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -2846,6 +2952,8 @@ function switchView(view){
   document.getElementById('navBroadcast').classList.toggle('active', view === 'broadcast');
   document.getElementById('navChats').classList.toggle('active', view === 'chats');
   document.getElementById('navParentChats').classList.toggle('active', view === 'parent-chats');
+  document.getElementById('view-activity-log').hidden = view !== 'activity-log';
+  document.getElementById('navActivityLog').classList.toggle('active', view === 'activity-log');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
@@ -2885,13 +2993,13 @@ document.getElementById('navHome').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('home');
   loadHomeStats();
+  loadTodayHomeworkCards();
 });
 document.getElementById('navStats').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('stats');
   loadStatsPage(_statsPeriodDays);
 });
-document.getElementById('homeRefreshBtn').addEventListener('click', () => loadHomeStats());
 document.getElementById('homeGoToStats').addEventListener('click', () => {
   switchView('stats');
   loadStatsPage(_statsPeriodDays);
@@ -6294,6 +6402,244 @@ function startParentChatUnreadListener(){
     });
 }
 startParentChatUnreadListener();
+
+// ============================================================
+// BUGUNGI GURUH UY VAZIFALARI KARTOCHKALARI
+// ============================================================
+let _todayHwAutoRefreshInterval = null;
+
+async function loadTodayHomeworkCards(){
+  const grid = document.getElementById('todayHwGrid');
+  const loading = document.getElementById('todayHwLoading');
+  const empty = document.getElementById('todayHwEmpty');
+  const subline = document.getElementById('todayHwSubline');
+  const refreshedAt = document.getElementById('todayHwRefreshedAt');
+
+  grid.innerHTML = '';
+  loading.style.display = 'block';
+  empty.style.display = 'none';
+
+  const todayKey = OJ_JSDAY_TO_KEY[new Date().getDay()];
+  const todayDateStr = new Date().toISOString().slice(0,10);
+
+  const groups = await homeFetchGroupsWithStudents();
+  const todayGroups = groups.filter(g => (g.days || []).includes(todayKey));
+
+  loading.style.display = 'none';
+
+  if(!todayGroups.length){
+    empty.style.display = 'block';
+    subline.textContent = '';
+    refreshedAt.textContent = '';
+    return;
+  }
+
+  const todayFmt = new Date(todayDateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', weekday:'long' });
+  subline.textContent = `${todayFmt} — ${todayGroups.length} ta guruh bugun dars o'tadi`;
+
+  // Fetch today's progress for all students in today's groups
+  const cardData = await Promise.all(todayGroups.map(async g => {
+    const entries = await Promise.all(g.students.map(s =>
+      db.collection('oquv_progress').doc(s.id).collection('entries').doc(todayDateStr).get()
+        .then(d => d.exists ? { ...d.data(), studentId: s.id, studentName: s.name } : { studentId: s.id, studentName: s.name, attended: null, homeworkDone: null })
+        .catch(() => ({ studentId: s.id, studentName: s.name, attended: null, homeworkDone: null }))
+    ));
+    let attended = 0, absent = 0, hwNo = 0;
+    entries.forEach(e => {
+      const a = e.attended === true || e.attended === 'yes' ? 'yes' : e.attended === 'late' ? 'late' : (e.attended === false || e.attended === 'no') ? 'no' : '';
+      if(a === 'yes' || a === 'late') attended++;
+      else if(a === 'no') absent++;
+      const h = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === 'partial' ? 'partial' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : '';
+      if(h === 'no') hwNo++;
+    });
+    return { group: g, entries, attended, absent, hwNo, total: g.students.length };
+  }));
+
+  grid.innerHTML = '';
+  cardData.forEach(({ group: g, attended, absent, hwNo, total }) => {
+    const notMarked = total - attended - absent;
+    const card = document.createElement('div');
+    card.className = 'today-hw-card';
+    card.innerHTML = `
+      <div class="today-hw-card-head">
+        <div class="today-hw-card-icon">📖</div>
+        <div>
+          <div class="today-hw-card-name">${escHtml(g.name)}</div>
+          <div class="today-hw-card-time">${g.time ? '🕐 ' + escHtml(g.time) : 'Vaqt kiritilmagan'} · ${total} talaba</div>
+        </div>
+      </div>
+      <div class="today-hw-card-stats">
+        <div class="today-hw-stat green">
+          <div class="today-hw-stat-num">${attended}</div>
+          <div class="today-hw-stat-label">✅ Keldi</div>
+        </div>
+        <div class="today-hw-stat red">
+          <div class="today-hw-stat-num">${absent}</div>
+          <div class="today-hw-stat-label">🚫 Kelmadi</div>
+        </div>
+        <div class="today-hw-stat orange">
+          <div class="today-hw-stat-num">${hwNo}</div>
+          <div class="today-hw-stat-label">📚 Uy vazifa qilmadi</div>
+        </div>
+      </div>
+      <div class="today-hw-card-footer">
+        <span>${notMarked > 0 ? `⏳ ${notMarked} ta hali belgilanmagan` : '✅ Hammasi belgilangan'}</span>
+        <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;" onclick="loadOjStudents('${escHtml(g.id)}','${escHtml(g.name)}',${JSON.stringify(g.days||[])});switchView('oquv-students');">Ko'rish →</span>
+      </div>`;
+    grid.appendChild(card);
+  });
+
+  const now = new Date();
+  refreshedAt.textContent = `Yangilandi: ${now.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// Auto-refresh every 60 seconds when home tab is visible
+function startTodayHwAutoRefresh(){
+  if(_todayHwAutoRefreshInterval) clearInterval(_todayHwAutoRefreshInterval);
+  _todayHwAutoRefreshInterval = setInterval(() => {
+    if(!document.getElementById('view-home').hidden) loadTodayHomeworkCards();
+  }, 60000);
+}
+
+document.getElementById('todayHwRefreshBtn').addEventListener('click', () => loadTodayHomeworkCards());
+
+// ============================================================
+// FAOLLIK JURNALI (Activity Log)
+// ============================================================
+let _actlogFilter = 'all';
+let _actlogLastDoc = null;
+let _actlogAllDocs = [];
+const ACTLOG_PAGE_SIZE = 50;
+
+// Nav click
+document.getElementById('navActivityLog').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('activity-log');
+  loadActivityLog(true);
+});
+
+document.getElementById('actlogRefreshBtn').addEventListener('click', () => loadActivityLog(true));
+
+document.getElementById('actlogLoadMoreBtn').addEventListener('click', () => loadActivityLog(false));
+
+// Filter buttons
+document.querySelectorAll('[data-actlog-filter]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-actlog-filter]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    _actlogFilter = btn.dataset.actlogFilter;
+    renderActivityLogTable();
+  });
+});
+
+function actlogFormatDate(ts){
+  if(!ts) return '—';
+  let d;
+  if(ts && typeof ts.toDate === 'function') d = ts.toDate();
+  else if(typeof ts === 'number') d = new Date(ts);
+  else if(ts instanceof Date) d = ts;
+  else return '—';
+  return d.toLocaleDateString('uz-UZ',{day:'2-digit',month:'2-digit',year:'numeric'}) + ' ' + d.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+function actlogDeviceParse(ua){
+  if(!ua) return '—';
+  if(/iPhone|iPad|iPod/i.test(ua)) return '📱 iOS';
+  if(/Android/i.test(ua)) return '📱 Android';
+  if(/Windows/i.test(ua)) return '🖥️ Windows';
+  if(/Mac OS X/i.test(ua)) return '🖥️ Mac';
+  if(/Linux/i.test(ua)) return '🖥️ Linux';
+  return '🌐 Noma\'lum';
+}
+
+function renderActivityLogTable(){
+  const body = document.getElementById('actlogTableBody');
+  const emptyEl = document.getElementById('actlogEmpty');
+  const statusLine = document.getElementById('actlogStatusLine');
+
+  const filtered = _actlogAllDocs.filter(doc => {
+    if(_actlogFilter === 'all') return true;
+    if(_actlogFilter === 'student') return doc.role === 'student';
+    if(_actlogFilter === 'parent') return doc.role === 'parent';
+    if(_actlogFilter === 'login') return doc.action === 'login';
+    if(_actlogFilter === 'register') return doc.action === 'register';
+    return true;
+  });
+
+  statusLine.textContent = `Jami: ${filtered.length} ta yozuv ko'rsatilmoqda`;
+
+  if(!filtered.length){
+    body.innerHTML = '';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  body.innerHTML = filtered.map((doc, i) => {
+    const roleBadge = doc.role === 'student'
+      ? '<span class="actlog-role-badge actlog-role-student">🎓 Talaba</span>'
+      : '<span class="actlog-role-badge actlog-role-parent">👪 Ota-ona</span>';
+    const actionBadge = doc.action === 'login'
+      ? '<span class="actlog-action-badge actlog-action-login">🔑 Kirdi</span>'
+      : '<span class="actlog-action-badge actlog-action-register">✅ Ro\'yxatdan o\'tdi</span>';
+    return `<tr>
+      <td style="color:var(--adm-gray,var(--gray));font-size:.8rem;">${i+1}</td>
+      <td><strong>${escHtml(doc.name || '—')}</strong>${doc.email ? '<br><span style="font-size:.75rem;color:var(--adm-gray,var(--gray));">'+escHtml(doc.email)+'</span>' : ''}</td>
+      <td>${roleBadge}</td>
+      <td>${actionBadge}</td>
+      <td class="actlog-time">${actlogFormatDate(doc.at)}</td>
+      <td style="font-size:.78rem;">${actlogDeviceParse(doc.ua)}</td>
+    </tr>`;
+  }).join('');
+}
+
+async function loadActivityLog(reset){
+  const loading = document.getElementById('actlogLoading');
+  const loadMoreBtn = document.getElementById('actlogLoadMoreBtn');
+  loading.style.display = 'block';
+  loadMoreBtn.style.display = 'none';
+
+  if(reset){
+    _actlogAllDocs = [];
+    _actlogLastDoc = null;
+  }
+
+  try {
+    let query = db.collection('activity_log').orderBy('at','desc').limit(ACTLOG_PAGE_SIZE);
+    if(_actlogLastDoc) query = query.startAfter(_actlogLastDoc);
+
+    const snap = await query.get();
+    const newDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    _actlogAllDocs = reset ? newDocs : [..._actlogAllDocs, ...newDocs];
+    _actlogLastDoc = snap.docs[snap.docs.length - 1] || null;
+
+    if(snap.size === ACTLOG_PAGE_SIZE) loadMoreBtn.style.display = 'block';
+
+    renderActivityLogTable();
+  } catch(err){
+    console.error('Activity log error:', err);
+    document.getElementById('actlogStatusLine').textContent = 'Ma\'lumot yuklanmadi. activity_log kolleksiyasi mavjud bo\'lishi kerak.';
+  }
+  loading.style.display = 'none';
+}
+
+// ============================================================
+// STUDENT / PARENT LOGIN FILES — Faollik yozish
+// (student/login.html va parent/login.html fayllariga ham qo'shish kerak)
+// Quyidagi funksiyalar admin panel ichidan chaqirilmaydi, lekin
+// student va parent dashboardlari orqali activity_log kolleksiyasiga
+// yozish uchun qo'llanma sifatida keltirilgan.
+// ============================================================
+
+// Extend loadHomeStats to also load today's homework cards
+const _origLoadHomeStats = typeof loadHomeStats === 'function' ? loadHomeStats : null;
+
+// Patch homeRefreshBtn to also refresh today hw
+document.getElementById('homeRefreshBtn').addEventListener('click', () => {
+  loadHomeStats();
+  loadTodayHomeworkCards();
+});
+startTodayHwAutoRefresh();
 
 </script>
 
