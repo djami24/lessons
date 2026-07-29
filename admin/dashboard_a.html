@@ -6450,7 +6450,9 @@ async function loadTodayHomeworkCards(){
       if(a === 'yes' || a === 'late') attended++;
       else if(a === 'no') absent++;
       const h = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === 'partial' ? 'partial' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : '';
-      if(h === 'no') hwNo++;
+      // "Uy vazifa qilmadi" = to'liq qilmagan ('no') + qisman qilgan ('partial'),
+      // xuddi O'quv jarayoni sahifasidagi "qilmaganlar" filtri kabi (5147-qator).
+      if(h === 'no' || h === 'partial') hwNo++;
     });
     return { group: g, entries, attended, absent, hwNo, total: g.students.length };
   }));
