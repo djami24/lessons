@@ -710,6 +710,11 @@
           <input type="url" id="settingLogoUrl" placeholder="https://…">
         </label>
 
+        <label class="field">
+          <span>O‘qituvchi ismi <span style="font-weight:400; color:var(--gray);">(ota-ona panelidagi "O‘qituvchi haqida" bo‘limida ko‘rinadi)</span></span>
+          <input type="text" id="settingTeacherName" placeholder="Masalan: Djamshid Aliyev">
+        </label>
+
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>💳 To‘lov ma’lumotlari</h3>
         <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">O‘quvchi kurs sotib olganda, to‘lov sahifasida shu karta raqami va egasi ismi ko‘rsatiladi.</p>
@@ -4106,6 +4111,7 @@ const DEFAULT_SITE_SETTINGS = {
   buttonColor: '#D98E3F',
   brandName: 'Djami Lessons',
   logoUrl: '',
+  teacherName: '',
 
   cardNumber: '5614 6818 5667 8473',
   cardHolderName: 'Abduraxmon',
@@ -4171,6 +4177,7 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingButtonColorLabel').textContent = data.buttonColor;
   document.getElementById('settingBrandName').value = data.brandName || '';
   document.getElementById('settingLogoUrl').value = data.logoUrl || '';
+  document.getElementById('settingTeacherName').value = data.teacherName || '';
 
   document.getElementById('settingCardNumber').value = data.cardNumber || '';
   document.getElementById('settingCardHolderName').value = data.cardHolderName || '';
@@ -4320,6 +4327,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     buttonColor: document.getElementById('settingButtonColor').value,
     brandName: document.getElementById('settingBrandName').value.trim() || 'Djami Lessons',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
+    teacherName: document.getElementById('settingTeacherName').value.trim(),
 
     cardNumber: document.getElementById('settingCardNumber').value.trim(),
     cardHolderName: document.getElementById('settingCardHolderName').value.trim(),
