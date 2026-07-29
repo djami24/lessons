@@ -28,6 +28,12 @@ service cloud.firestore {
              request.resource.data.kundalikGroup == resource.data.kundalikGroup;
     }
 
+    function isLinkedParentFor(childCode) {
+      return isSignedIn() &&
+        exists(/databases/$(database)/documents/parents/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/parents/$(request.auth.uid)).data.linkedStudentId == childCode;
+    }
+
     match /admins/{adminId} {
       allow read: if isSignedIn() && request.auth.uid == adminId;
       allow write: if false;
@@ -120,6 +126,19 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Ota-onalar hisobi. parent/register.html, root login.html va
+    // parent/dashboard.html, root dashboard.html shu kolleksiyani
+    // o'qiydi/yozadi (doc ID = ota-onaning auth uid'i).
+    match /parents/{parentId} {
+      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == parentId);
+
+      allow create: if isSignedIn() && request.auth.uid == parentId;
+
+      allow update: if isAdmin() || (isSignedIn() && request.auth.uid == parentId);
+
+      allow delete: if isAdmin();
+    }
+
     match /writingSubmissions/{submissionId} {
       allow read: if isAdmin() || (isSignedIn() && resource.data.studentId == request.auth.uid);
 
@@ -186,12 +205,16 @@ service cloud.firestore {
 
     // O'quv jarayoni — guruhlar va talabalar (admin tomonidan boshqariladi).
     // Struktura:
-    //   oquv_groups/{groupId}                     { name, createdAt }
+    //   oquv_groups/{groupId}                     { name, days, time, createdAt }
     //   oquv_groups/{groupId}/students/{studentId} { name, createdAt }
-    // Faqat admin yozadi va o'chiradi. O'quvchilar o'qimaydi
-    // (bu admin paneli uchun — student dashboardiga kerak emas).
+    // Guruh hujjati (nomi/kunlari/vaqti) o'qish uchun ochiq — talaba va
+    // ota-ona bosh sahifasidagi "Tezkor ma'lumot" panelida shundan dars
+    // vaqti va keyingi darsni ko'rsatadi. Faqat admin yozadi va o'chiradi.
+    // students subkolleksiyasi (guruhdagi o'quvchilar ro'yxati) faqat
+    // admin panel ichida kerak — u yopiq qolaveradi.
     match /oquv_groups/{groupId} {
-      allow read, write: if isAdmin();
+      allow read: if true;
+      allow write: if isAdmin();
 
       match /students/{studentId} {
         allow read, write: if isAdmin();
@@ -237,6 +260,39 @@ service cloud.firestore {
 
         allow update: if isAdmin() || (
           isSignedIn() && request.auth.uid == studentId &&
+          resource.data.senderRole == 'teacher' &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) &&
+          request.resource.data.read == true
+        );
+
+        allow delete: if isAdmin();
+      }
+    }
+
+    // Ota-ona ↔ o'qituvchi chat (parent/dashboard.html va admin panel
+    // "Ota-onalar" chat bo'limi shu kolleksiyani ishlatadi). Doc ID —
+    // farzandning kodi (childCode = parents/{uid}.linkedStudentId),
+    // parentning auth uid'i emas, shuning uchun /chats kabi
+    // request.auth.uid == docId solishtirish ishlamaydi — buning o'rniga
+    // parentning o'z hujjatidagi linkedStudentId maydoni tekshiriladi.
+    match /parentChats/{childCode} {
+      allow read: if isAdmin() || isLinkedParentFor(childCode);
+      allow create, update: if isAdmin() || isLinkedParentFor(childCode);
+      allow delete: if isAdmin();
+
+      match /messages/{msgId} {
+        allow read: if isAdmin() || isLinkedParentFor(childCode);
+
+        allow create: if isLinkedParentFor(childCode) &&
+          request.resource.data.senderRole == 'parent' &&
+          request.resource.data.text is string &&
+          request.resource.data.text.size() > 0 && request.resource.data.text.size() <= 1000;
+
+        allow create: if isAdmin() &&
+          request.resource.data.senderRole == 'teacher';
+
+        allow update: if isAdmin() || (
+          isLinkedParentFor(childCode) &&
           resource.data.senderRole == 'teacher' &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) &&
           request.resource.data.read == true
