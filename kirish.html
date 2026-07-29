@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kirish — Djami Lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .role-body{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background: var(--paper-2); padding: 40px 20px;
+  }
+  .role-wrap{ width:100%; max-width: 480px; text-align:center; }
+  .role-wrap .brand{ justify-content:center; display:inline-flex; margin-bottom: 1.4em; text-decoration:none; }
+  .role-card-box{
+    background: var(--white); border-radius: var(--radius-l); box-shadow: var(--shadow-pop);
+    padding: 2.4em 2.2em 2.6em;
+  }
+  .role-card-box h1{ font-size: 1.5rem; margin-bottom:.2em; }
+  .role-card-box > p{ color:var(--gray); margin-bottom: 1.6em; }
+  .role-choice-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .role-choice{
+    display:flex; flex-direction:column; align-items:center; gap:.5em;
+    border: 1.5px solid var(--line); border-radius: var(--radius-m);
+    padding: 1.6em 1em 1.4em; cursor:pointer; background: var(--paper-2);
+    transition: border-color .18s, transform .18s, box-shadow .18s;
+    text-decoration:none; color: var(--ink);
+  }
+  .role-choice:hover{ border-color: var(--amber); transform: translateY(-3px); box-shadow: var(--shadow-pop); }
+  .role-choice.is-selected{ border-color: var(--amber); background: rgba(217,142,63,.08); }
+  .role-choice-icon{
+    width: 56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size: 1.5rem; background: rgba(46,111,110,.12); color: var(--teal);
+  }
+  .role-choice:nth-child(2) .role-choice-icon{ background: rgba(217,142,63,.16); color: var(--amber-deep); }
+  .role-choice-title{ font-weight:800; font-size: 1.02rem; }
+  .role-choice-sub{ font-size:.8rem; color: var(--gray); margin:0; }
+  .role-continue-row{ margin-top: 1.8em; }
+  .role-signin-row{ margin-top: 1.2em; font-size:.88rem; color: var(--gray); }
+  .role-signin-row a{ color: var(--amber-deep); font-weight:700; text-decoration:none; }
+  .role-signin-row a:hover{ text-decoration:underline; }
+</style>
+</head>
+<body class="role-body">
+
+<div class="role-wrap">
+  <a href="index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+
+  <div class="role-card-box">
+    <h1>Siz kim sifatida kirmoqchisiz?</h1>
+    <p>Davom etish uchun profilingiz turini tanlang.</p>
+
+    <div class="role-choice-grid">
+      <a href="student/login.html" class="role-choice" id="roleStudent">
+        <span class="role-choice-icon">🎓</span>
+        <span class="role-choice-title">Talaba</span>
+        <p class="role-choice-sub">O‘qish jarayonini kuzatish</p>
+      </a>
+      <a href="parent/login.html" class="role-choice" id="roleParent">
+        <span class="role-choice-icon">👪</span>
+        <span class="role-choice-title">Ota-Ona</span>
+        <p class="role-choice-sub">Farzandingiz ta’limini kuzatish</p>
+      </a>
+    </div>
+
+    <p class="role-signin-row">
+      Hisobingiz yo‘qmi? <a href="student/register.html">Talaba sifatida</a> yoki
+      <a href="parent/register.html">Ota-ona sifatida</a> ro‘yxatdan o‘ting.
+    </p>
+  </div>
+</div>
+
+</body>
+</html>
