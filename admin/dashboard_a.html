@@ -180,6 +180,7 @@
       <li><a href="#" id="navGradebook">📊 Test natijalar</a></li>
       <li><a href="#" id="navBroadcast"><span class="nav-icon-emoji">📢</span><span class="nav-label"> Xabar yuborish</span></a></li>
       <li><a href="#" id="navChats"><span class="nav-icon-emoji">💬</span><span class="nav-label"> Chatlar</span><span id="navChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
+      <li><a href="#" id="navParentChats"><span class="nav-icon-emoji">👪</span><span class="nav-label"> Ota-onalar</span><span id="navParentChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -938,6 +939,41 @@
         <div style="margin-top:2em;">
           <h3 style="margin:0 0 .8em;">Yuborilgan xabarlar</h3>
           <div id="broadcastHistoryList" style="display:flex;flex-direction:column;gap:.6em;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== OTA-ONALAR CHAT (parent-teacher) ===== -->
+    <section id="view-parent-chats" hidden>
+      <div class="admin-header chat-page-header">
+        <div>
+          <h1>👪 Ota-onalar</h1>
+          <p>Ota-onalar bilan muloqot va xabar almashish.</p>
+        </div>
+        <div class="chat-header-actions">
+          <div class="chat-search-box">
+            <span class="chat-search-box-icon">🔍</span>
+            <input type="text" id="parentChatListSearchInput" placeholder="Qidirish...">
+          </div>
+        </div>
+      </div>
+      <div class="chat-grid">
+        <div class="chat-panel chat-panel-list">
+          <div class="chat-list-header">
+            <span class="chat-list-tab">Barchasi <span class="chat-list-count" id="parentChatListCount">0</span></span>
+          </div>
+          <div id="parentChatList" class="chat-list"></div>
+        </div>
+        <div class="chat-panel chat-panel-detail" id="parentChatDetailPanel">
+          <div class="chat-detail-header">
+            <div class="chat-detail-avatar" id="parentChatDetailAvatar">?</div>
+            <div class="chat-detail-name chat-detail-empty" id="parentChatDetailName">Ota-onani tanlang</div>
+          </div>
+          <div class="chat-messages" id="adminParentChatMessages"></div>
+          <div class="chat-input-row">
+            <textarea id="adminParentChatInput" class="chat-textarea" placeholder="Javob yozing..." rows="1" maxlength="1000"></textarea>
+            <button class="chat-send-btn" id="adminParentChatSendBtn" title="Yuborish">➤</button>
+          </div>
         </div>
       </div>
     </section>
@@ -2793,8 +2829,10 @@ function switchView(view){
   document.getElementById('navGradebook').classList.toggle('active', view === 'gradebook');
   document.getElementById('view-broadcast').hidden = view !== 'broadcast';
   document.getElementById('view-chats').hidden = view !== 'chats';
+  document.getElementById('view-parent-chats').hidden = view !== 'parent-chats';
   document.getElementById('navBroadcast').classList.toggle('active', view === 'broadcast');
   document.getElementById('navChats').classList.toggle('active', view === 'chats');
+  document.getElementById('navParentChats').classList.toggle('active', view === 'parent-chats');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
@@ -5957,8 +5995,206 @@ async function sendAdminChatMsg(){
   }
 }
 
+// ===== OTA-ONALAR CHAT (admin side) — parentChats/{oquvProgressCode} =====
+// Mirrors the student "Chatlar" panel above, but threads are keyed by the
+// oquv_progress code (the ID a parent enters when linking to their child)
+// instead of a Firebase Auth uid — parents/{uid} isn't tied 1:1 with the
+// student's own account, so this keeps the two messaging systems separate.
+let adminParentChatUnsub = null;
+let adminActiveParentChatId = null;
+let adminActiveParentChatName = null;
+let adminParentChatDocs = [];
+let adminParentChatListUnsub = null;
 
+document.getElementById('navParentChats').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('parent-chats');
+  loadParentChatList();
+});
 
+document.getElementById('parentChatListSearchInput').addEventListener('input', (e) => {
+  renderParentChatList(adminParentChatDocs, e.target.value.trim().toLowerCase());
+});
+
+function loadParentChatList(){
+  const listEl = document.getElementById('parentChatList');
+  const countEl = document.getElementById('parentChatListCount');
+  listEl.innerHTML = '<p style="padding:1em;color:var(--gray);">Yuklanmoqda…</p>';
+  if(adminParentChatListUnsub) adminParentChatListUnsub();
+  adminParentChatListUnsub = db.collection('parentChats').orderBy('lastAt','desc')
+    .onSnapshot(snap => {
+      adminParentChatDocs = snap.docs;
+      if(countEl) countEl.textContent = snap.size;
+      renderParentChatList(adminParentChatDocs, document.getElementById('parentChatListSearchInput').value.trim().toLowerCase());
+    }, err => {
+      listEl.innerHTML = '<p style="padding:1em;color:red;">Xatolik.</p>';
+    });
+}
+
+function renderParentChatList(docs, filter){
+  const listEl = document.getElementById('parentChatList');
+  const filtered = filter
+    ? docs.filter(doc => {
+        const d = doc.data();
+        return (d.parentName||'').toLowerCase().includes(filter) || (d.childName||'').toLowerCase().includes(filter) || doc.id.toLowerCase().includes(filter);
+      })
+    : docs;
+  if(filtered.length === 0){
+    listEl.innerHTML = `<p style="padding:1em;color:var(--gray);">${filter ? 'Hech narsa topilmadi.' : 'Hali ota-onalardan xabar yo‘q.'}</p>`;
+    return;
+  }
+  listEl.innerHTML = '';
+  filtered.forEach(doc => {
+    const d = doc.data();
+    const label = (d.parentName || 'Ota-ona') + (d.childName ? ' · ' + d.childName : ' · ID ' + doc.id);
+    const initial = ((d.parentName || 'O').trim().charAt(0) || 'O').toUpperCase();
+    const color = avatarColorFor(doc.id);
+    const unread = d.unreadByTeacher || 0;
+    const time = d.lastAt && d.lastAt.toDate ? d.lastAt.toDate().toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' }) : '';
+    const div = document.createElement('div');
+    div.className = 'chat-student-item' + (adminActiveParentChatId === doc.id ? ' is-active' : '');
+    div.dataset.chatId = doc.id;
+    div.innerHTML = `<div class="chat-item-body">
+        <div class="chat-item-avatar" style="background:${color};">${escapeHtml(initial)}</div>
+        <div class="chat-item-main">
+          <div class="chat-item-top">
+            <span class="chat-item-name">${escapeHtml(label)}</span>
+            <span class="chat-item-time">${time}</span>
+          </div>
+          <div class="chat-item-bottom">
+            <span class="chat-item-preview">${escapeHtml(d.lastMessage || '')}</span>
+            ${unread > 0 ? `<span class="chat-item-unread">${unread}</span>` : ''}
+          </div>
+        </div>
+      </div>`;
+    div.querySelector('.chat-item-body').addEventListener('click', () => openAdminParentChat(doc.id, d.parentName || 'Ota-ona', d.childName || ''));
+    listEl.appendChild(div);
+  });
+}
+
+function openAdminParentChat(code, parentName, childName){
+  adminActiveParentChatId = code;
+  adminActiveParentChatName = parentName;
+  const label = parentName + (childName ? ' · ' + childName : ' · ID ' + code);
+
+  const nameEl = document.getElementById('parentChatDetailName');
+  nameEl.textContent = label;
+  nameEl.classList.remove('chat-detail-empty');
+  const avatarEl = document.getElementById('parentChatDetailAvatar');
+  const chatColor = avatarColorFor(code);
+  avatarEl.textContent = (parentName.trim().charAt(0) || 'O').toUpperCase();
+  avatarEl.style.background = chatColor;
+
+  document.querySelectorAll('#parentChatList .chat-student-item').forEach(el => {
+    el.classList.toggle('is-active', el.dataset.chatId === code);
+  });
+
+  if(adminParentChatUnsub) adminParentChatUnsub();
+
+  const messagesEl = document.getElementById('adminParentChatMessages');
+  messagesEl.innerHTML = '';
+
+  adminParentChatUnsub = db.collection('parentChats').doc(code).collection('messages')
+    .orderBy('createdAt','asc')
+    .onSnapshot(snap => {
+      let lastDateKey = '';
+      const parts = [];
+      snap.docs.forEach(doc => {
+        const d = doc.data();
+        const isTeacher = d.senderRole === 'teacher';
+        const dateObj = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
+        if(dateObj){
+          const dateKey = dateObj.toDateString();
+          if(dateKey !== lastDateKey){
+            lastDateKey = dateKey;
+            const label = dateObj.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' });
+            parts.push(`<div class="chat-date-sep"><span>${label}</span></div>`);
+          }
+        }
+        const time = dateObj ? dateObj.toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' }) : '';
+        const ticks = isTeacher
+          ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '✓✓' : '✓'}</span>`
+          : '';
+        const avatarHtml = !isTeacher
+          ? `<div class="chat-msg-avatar" style="background:${chatColor};">${escapeHtml((parentName.trim().charAt(0) || 'O').toUpperCase())}</div>`
+          : '';
+        parts.push(`<div class="chat-msg-row${isTeacher ? ' is-mine' : ''}">
+          ${avatarHtml}
+          <div class="chat-msg ${isTeacher ? 'chat-msg-student' : 'chat-msg-teacher'}">
+            <div class="chat-msg-bubble">${escapeHtml(d.text||'')}</div>
+            <div class="chat-msg-meta">${time} ${ticks}</div>
+          </div>
+        </div>`);
+      });
+      messagesEl.innerHTML = parts.join('');
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+
+      const unreadParentMsgs = snap.docs.filter(doc => {
+        const d = doc.data();
+        return d.senderRole === 'parent' && d.read !== true;
+      });
+      if(unreadParentMsgs.length > 0){
+        const batch = db.batch();
+        unreadParentMsgs.forEach(doc => batch.update(doc.ref, { read: true }));
+        batch.commit().catch(()=>{});
+      }
+    });
+
+  db.collection('parentChats').doc(code).update({ unreadByTeacher: 0 }).catch(()=>{});
+  loadParentChatList();
+}
+
+document.getElementById('adminParentChatSendBtn').addEventListener('click', sendAdminParentChatMsg);
+document.getElementById('adminParentChatInput').addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendAdminParentChatMsg(); }
+});
+
+async function sendAdminParentChatMsg(){
+  if(!adminActiveParentChatId) return;
+  const input = document.getElementById('adminParentChatInput');
+  const sendBtn = document.getElementById('adminParentChatSendBtn');
+  const text = input.value.trim();
+  if(!text) return;
+  input.value = '';
+  input.disabled = true;
+  sendBtn.disabled = true;
+  try{
+    await db.collection('parentChats').doc(adminActiveParentChatId).collection('messages').add({
+      text: text,
+      senderRole: 'teacher',
+      senderName: 'O‘qituvchi',
+      read: false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await db.collection('parentChats').doc(adminActiveParentChatId).set({
+      lastMessage: text,
+      lastAt: firebase.firestore.FieldValue.serverTimestamp(),
+      unreadByParent: firebase.firestore.FieldValue.increment(1)
+    }, { merge: true });
+  } catch(err){
+    alert('Xabar yuborishda xatolik.');
+  } finally {
+    input.disabled = false;
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+// Live badge on the "👪 Ota-onalar" sidebar link.
+function startParentChatUnreadListener(){
+  db.collection('parentChats').where('unreadByTeacher', '>', 0)
+    .onSnapshot(snap => {
+      const badge = document.getElementById('navParentChatsBadge');
+      if(!badge) return;
+      if(snap.size > 0){
+        badge.textContent = snap.size;
+        badge.hidden = false;
+      } else {
+        badge.hidden = true;
+      }
+    });
+}
+startParentChatUnreadListener();
 
 </script>
 
