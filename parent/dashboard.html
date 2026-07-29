@@ -541,23 +541,24 @@ function renderProgressEntries(){
     const hwBadge = hv === 'yes' ? '<span class="pd-badge pd-badge-pass">✅ Qildi</span>' : hv === 'partial' ? `<span class="pd-badge" style="background:rgba(217,142,63,.16);color:#c08a2e;">🔶 ${e.homeworkPercent || 0}%</span>` : hv === 'no' ? '<span class="pd-badge pd-badge-fail">🕓 Qilmadi</span>' : '<span class="pd-badge">—</span>';
     const gradeHtml = e.grade ? `<span class="pd-unit-score">${escapeHtml(e.grade)}/5</span>` : '';
     return `<div class="pd-entry-row">
-      <span class="pd-entry-date">📅 ${escapeHtml(e.date || '')}</span>
+      <span class="pd-entry-date">📅 ${escapeHtml(formatEntryDateLabel(e.date))}</span>
       ${attBadge}${hwBadge}${gradeHtml}
       ${e.note ? `<div class="pd-entry-note">💬 ${escapeHtml(e.note)}</div>` : ''}
     </div>`;
   }).join('');
 }
 
-// Formats a stored 'YYYY-MM-DD' date string into a readable Uzbek label
-// with weekday name (e.g. "Dushanba, 27-iyul 2026"). Entries only store a
-// date (no clock time is recorded by the admin panel), so the list below
-// shows the date + weekday and the attendance status for that day.
+// Formats a stored 'YYYY-MM-DD' date string as "12 May Dushanba" (day +
+// Uzbek month name + weekday name). Entries only store a date (no clock
+// time is recorded by the admin panel), so the list below shows just the
+// date in this format plus the attendance status for that day.
+const UZ_MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentyabr','Oktyabr','Noyabr','Dekabr'];
+const UZ_WEEKDAYS = ['Yakshanba','Dushanba','Seshanba','Chorshanba','Payshanba','Juma','Shanba'];
 function formatEntryDateLabel(dateStr){
   if(!dateStr) return '—';
   const d = new Date(dateStr + 'T00:00:00');
   if(isNaN(d.getTime())) return dateStr;
-  const label = d.toLocaleDateString('uz-UZ', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-  return label.charAt(0).toUpperCase() + label.slice(1);
+  return `${d.getDate()} ${UZ_MONTHS[d.getMonth()]} ${UZ_WEEKDAYS[d.getDay()]}`;
 }
 
 function renderAttendanceEntries(){
