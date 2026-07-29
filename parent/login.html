@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Talaba kirish — Djami Lessons</title>
+<title>Ota-ona kirish — Djami Lessons</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Manrope:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
@@ -18,17 +18,17 @@
 
       <div class="auth-split-hero">
         <h2>Assalomu alaykum!</h2>
-        <p>Yana ko‘rishganimizdan xursandmiz. Talaba profilingizga kirishga bir qadam qoldi.</p>
+        <p>Farzandingizning ta’lim jarayoni haqidagi ma’lumotlarga yana bir qadam qoldi.</p>
       </div>
 
       <p class="auth-split-foot">Hisobingiz yo‘qmi? <a href="register.html">Ro‘yxatdan o‘ting</a></p>
     </div>
 
     <div class="auth-split-right">
-      <h1 class="auth-title">Talaba profiliga kirish</h1>
+      <h1 class="auth-title">Ota-ona profiliga kirish</h1>
       <p class="auth-sub">Email va parolingizni kiriting.</p>
 
-      <form class="auth-form" id="studentLoginForm">
+      <form class="auth-form" id="parentLoginForm">
         <label class="field">
           <span>Email</span>
           <input type="email" id="loginEmail" required autocomplete="username">
@@ -52,7 +52,7 @@
         <button type="submit" class="btn btn-amber auth-submit" id="loginSubmit">Kirish</button>
       </form>
 
-      <p class="auth-split-foot" style="margin-top:1.4em; color:var(--gray);">Ota-ona sifatida kirmoqchimisiz? <a href="../parent/login.html">Shu yerga o‘ting</a></p>
+      <p class="auth-split-foot" style="margin-top:1.4em; color:var(--gray);">Talaba sifatida kirmoqchimisiz? <a href="../student/login.html">Shu yerga o‘ting</a></p>
     </div>
 
   </div>
@@ -73,12 +73,7 @@ document.getElementById('pwToggle').addEventListener('click', () => {
   btn.textContent = show ? 'Yashirish' : 'Ko‘rsatish';
 });
 
-// Note: we intentionally do NOT auto-redirect to the dashboard just
-// because a cached session exists (e.g. from "Meni eslab qol" on a
-// previous visit). The login page always shows the form and requires
-// pressing "Kirish" — that's what actually signs the student in below.
-
-document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
+document.getElementById('parentLoginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const errorEl = document.getElementById('loginError');
   const noticeEl = document.getElementById('loginNotice');
@@ -93,16 +88,14 @@ document.getElementById('studentLoginForm').addEventListener('submit', async (e)
   const keepLoggedIn = document.getElementById('keepLoggedIn').checked;
 
   try{
-    // "Meni eslab qol" belgilansa, sessiya brauzer yopilgandan keyin ham
-    // saqlanadi; belgilanmasa, faqat shu tab/sessiya davomida amal qiladi.
     await auth.setPersistence(
       keepLoggedIn ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION
     );
     const cred = await auth.signInWithEmailAndPassword(email, password);
-    const studentDoc = await db.collection('students').doc(cred.user.uid).get();
-    if(!studentDoc.exists){
+    const parentDoc = await db.collection('parents').doc(cred.user.uid).get();
+    if(!parentDoc.exists){
       await auth.signOut();
-      errorEl.textContent = 'Bu hisob talaba sifatida ro‘yxatdan o‘tmagan.';
+      errorEl.textContent = 'Bu hisob ota-ona sifatida ro‘yxatdan o‘tmagan.';
       errorEl.hidden = false;
       submitBtn.disabled = false;
       submitBtn.textContent = 'Kirish';
@@ -111,10 +104,10 @@ document.getElementById('studentLoginForm').addEventListener('submit', async (e)
     // Faollik jurnaliga yozish
     try {
       await db.collection('activity_log').add({
-        role: 'student',
+        role: 'parent',
         action: 'login',
         uid: cred.user.uid,
-        name: studentDoc.data().name || cred.user.email || '—',
+        name: parentDoc.data().parentName || cred.user.email || '—',
         email: cred.user.email || '—',
         at: firebase.firestore.FieldValue.serverTimestamp(),
         ua: navigator.userAgent
