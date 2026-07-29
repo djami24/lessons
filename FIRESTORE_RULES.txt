@@ -126,16 +126,10 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
-    // Ota-onalar hisobi. parent/register.html, root login.html va
-    // parent/dashboard.html, root dashboard.html shu kolleksiyani
-    // o'qiydi/yozadi (doc ID = ota-onaning auth uid'i).
     match /parents/{parentId} {
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid == parentId);
-
       allow create: if isSignedIn() && request.auth.uid == parentId;
-
       allow update: if isAdmin() || (isSignedIn() && request.auth.uid == parentId);
-
       allow delete: if isAdmin();
     }
 
@@ -191,8 +185,6 @@ service cloud.firestore {
       allow update: if false;
     }
 
-    // O'quv jarayoni (eski progress kolleksiyasi) — admin yozadi,
-    // o'quvchi faqat o'zini o'qiydi.
     match /progress/{studentId} {
       allow read: if isAdmin() || (isSignedIn() && request.auth.uid == studentId);
       allow write: if isAdmin();
@@ -203,15 +195,6 @@ service cloud.firestore {
       }
     }
 
-    // O'quv jarayoni — guruhlar va talabalar (admin tomonidan boshqariladi).
-    // Struktura:
-    //   oquv_groups/{groupId}                     { name, days, time, createdAt }
-    //   oquv_groups/{groupId}/students/{studentId} { name, createdAt }
-    // Guruh hujjati (nomi/kunlari/vaqti) o'qish uchun ochiq — talaba va
-    // ota-ona bosh sahifasidagi "Tezkor ma'lumot" panelida shundan dars
-    // vaqti va keyingi darsni ko'rsatadi. Faqat admin yozadi va o'chiradi.
-    // students subkolleksiyasi (guruhdagi o'quvchilar ro'yxati) faqat
-    // admin panel ichida kerak — u yopiq qolaveradi.
     match /oquv_groups/{groupId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -221,17 +204,6 @@ service cloud.firestore {
       }
     }
 
-    // O'quv jarayoni — talabaning kunlik yozuvlari (davomat, uy vazifa, baho).
-    // Struktura:
-    //   oquv_progress/{studentDocId}                     { name, group, createdAt }
-    //   oquv_progress/{studentDocId}/entries/{dateId}
-    //   { date, attended, homeworkDone, grade, note }
-    // Admin barcha yozuvlarni yozadi va o'chiradi.
-    // studentDocId — bu admin panelda talabaga berilgan ID (admin tanlagan
-    // yoki avtomatik yaratilgan kod, oquv_groups/students hujjat IDsi bilan
-    // bir xil). Talaba shu ID’ni o'z bosh sahifasidagi "O'quv jarayoni"
-    // kartochkasiga kiritib, natijalarini ko'radi — xuddi gradebook kabi,
-    // o'qish hammaga ochiq (write faqat admin uchun).
     match /oquv_progress/{studentDocId} {
       allow read: if true;
       allow write: if isAdmin();
@@ -269,12 +241,6 @@ service cloud.firestore {
       }
     }
 
-    // Ota-ona ↔ o'qituvchi chat (parent/dashboard.html va admin panel
-    // "Ota-onalar" chat bo'limi shu kolleksiyani ishlatadi). Doc ID —
-    // farzandning kodi (childCode = parents/{uid}.linkedStudentId),
-    // parentning auth uid'i emas, shuning uchun /chats kabi
-    // request.auth.uid == docId solishtirish ishlamaydi — buning o'rniga
-    // parentning o'z hujjatidagi linkedStudentId maydoni tekshiriladi.
     match /parentChats/{childCode} {
       allow read: if isAdmin() || isLinkedParentFor(childCode);
       allow create, update: if isAdmin() || isLinkedParentFor(childCode);
@@ -300,6 +266,15 @@ service cloud.firestore {
 
         allow delete: if isAdmin();
       }
+    }
+
+    // Faollik jurnali — talaba va ota-onalar kirish/ro'yxatdan o'tish tarixi
+    match /activity_log/{logId} {
+      allow create: if isSignedIn() &&
+        request.resource.data.keys().hasAll(['role', 'action', 'at']) &&
+        request.resource.data.at == request.time;
+      allow read, delete: if isAdmin();
+      allow update: if false;
     }
 
   }
