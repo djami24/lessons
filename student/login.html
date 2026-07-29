@@ -108,6 +108,18 @@ document.getElementById('studentLoginForm').addEventListener('submit', async (e)
       submitBtn.textContent = 'Kirish';
       return;
     }
+    // Faollik jurnaliga yozish
+    try {
+      await db.collection('activity_log').add({
+        role: 'student',
+        action: 'login',
+        uid: cred.user.uid,
+        name: studentDoc.data().name || cred.user.email || '—',
+        email: cred.user.email || '—',
+        at: firebase.firestore.FieldValue.serverTimestamp(),
+        ua: navigator.userAgent
+      });
+    } catch(e){ /* silent */ }
     window.location.href = 'dashboard.html';
   } catch(err){
     errorEl.textContent = 'Email yoki parol noto‘g‘ri.';
