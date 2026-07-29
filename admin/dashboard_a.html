@@ -91,6 +91,10 @@
 .oj-hw-missing{flex:1 1 140px;min-width:120px;padding:.4em .7em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);}
 .oj-row-save{font-size:.85rem;font-weight:700;min-width:16px;text-align:center;color:#2e6f6e;flex-shrink:0;}
 .oj-row-del{background:rgba(231,76,60,.08);border:1.5px solid rgba(231,76,60,.25);border-radius:6px;cursor:pointer;font-size:.8rem;color:#e74c3c;padding:4px 9px;flex-shrink:0;}
+.oj-filter-btn.active{background:var(--teal,#2e6f6e);color:#fff;border-color:var(--teal,#2e6f6e);}
+.oj-filter-count{display:inline-block;margin-left:4px;font-size:.72em;opacity:.85;}
+.oj-student-row.oj-row-hidden{display:none;}
+
 @media (max-width:640px){
   .oj-row-identity{flex:1 1 100%;}
   .oj-row-controls{flex:1 1 100%;}
@@ -1045,6 +1049,13 @@
       </div>
       <div id="ojScheduleBanner" class="oj-schedule-banner" hidden></div>
       <p style="color:var(--gray); font-size:.85rem; margin:-10px 0 16px;">Ro'yxatda <strong id="ojTodayLabel"></strong> uchun davomat, uy vazifa va bahoni belgilang. To'liq tarixni ko'rish yoki tahrirlash uchun talaba ismiga bosing.</p>
+      <div class="oj-days-preset-row" id="ojStudentFilterRow" style="margin-bottom:14px;">
+        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn active" data-oj-filter="all">Barchasi <span class="oj-filter-count" id="ojFilterCountAll">0</span></button>
+        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="attended">✅ Darsga kelganlar <span class="oj-filter-count" id="ojFilterCountAttended">0</span></button>
+        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="absent">🚫 Darsga kelmaganlar <span class="oj-filter-count" id="ojFilterCountAbsent">0</span></button>
+        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="hw-done">✅ Uy vazifa qilganlar <span class="oj-filter-count" id="ojFilterCountHwDone">0</span></button>
+        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="hw-undone">🕓 Uy vazifa qilmaganlar <span class="oj-filter-count" id="ojFilterCountHwUndone">0</span></button>
+      </div>
       <div id="ojStudentsGrid" class="oj-students-list"></div>
       <div id="ojStudentsEmpty" class="oj-empty" style="display:none;">
         <div class="oj-empty-icon">🎓</div>
@@ -4442,6 +4453,7 @@ async function deleteHwItem(hwId, title) {
 // ============================================================
 
 let _ojActiveGroupId = null;
+let _ojActiveStudentFilter = 'all';
 let _ojActiveGroupName = '';
 let _ojActiveGroupDays = [];
 let _ojActiveGroupStudents = []; // [{id, name}] for the currently open group — used by "copy all"
@@ -4864,6 +4876,8 @@ async function loadOjStudents(groupId, groupName, days) {
 
       const row = document.createElement('div');
       row.className = 'oj-student-row';
+      row.dataset.attend = attendVal;
+      row.dataset.hw = hwVal;
       row.innerHTML = `
         <div class="oj-row-identity" data-open>
           <div class="oj-student-card-avatar" style="width:40px; height:40px; font-size:1rem;">${initials}</div>
@@ -4941,6 +4955,8 @@ async function loadOjStudents(groupId, groupName, days) {
             group.querySelectorAll('.oj-toggle-btn').forEach(b => b.classList.remove('active-yes', 'active-no', 'active-late', 'active-partial'));
             const newVal = wasActive ? '' : btn.dataset.val;
             if (!wasActive) btn.classList.add(newVal === 'yes' ? 'active-yes' : newVal === 'no' ? 'active-no' : newVal === 'late' ? 'active-late' : 'active-partial');
+            if (field === 'attended') row.dataset.attend = newVal;
+            if (field === 'homeworkDone') row.dataset.hw = newVal;
             if (field === 'homeworkDone') {
               if (newVal === 'partial') {
                 hwPartialBox.hidden = false;
@@ -4952,6 +4968,7 @@ async function loadOjStudents(groupId, groupName, days) {
             } else {
               ojQuickSave({ [field]: newVal });
             }
+            applyOjStudentFilter(_ojActiveStudentFilter);
           });
         });
       });
@@ -4984,8 +5001,59 @@ async function loadOjStudents(groupId, groupName, days) {
 
       grid.appendChild(row);
     });
+    _ojActiveStudentFilter = 'all';
+    document.querySelectorAll('#ojStudentFilterRow .oj-filter-btn').forEach(b => b.classList.toggle('active', b.dataset.ojFilter === 'all'));
+    applyOjStudentFilter('all');
   } catch(err) { grid.innerHTML = '<p style="color:red;">Xatolik yuz berdi.</p>'; }
 }
+
+// Filters the daily roster by TODAY's attendance/homework status. "Uy
+// vazifa qilmaganlar" intentionally includes BOTH "no" (qilmadi) and
+// "partial" (foizli, qisman bajargan) — a partially done homework still
+// isn't a completed one, so it belongs in the "qilmaganlar" list too.
+function applyOjStudentFilter(filter){
+  _ojActiveStudentFilter = filter;
+  const rows = Array.from(document.querySelectorAll('#ojStudentsGrid .oj-student-row'));
+  let countAll = rows.length, countAttended = 0, countAbsent = 0, countHwDone = 0, countHwUndone = 0;
+
+  rows.forEach(row => {
+    const attend = row.dataset.attend || '';
+    const hw = row.dataset.hw || '';
+    if(attend === 'yes' || attend === 'late') countAttended++;
+    if(attend === 'no') countAbsent++;
+    if(hw === 'yes') countHwDone++;
+    if(hw === 'no' || hw === 'partial') countHwUndone++;
+
+    let visible = true;
+    if(filter === 'attended') visible = (attend === 'yes' || attend === 'late');
+    else if(filter === 'absent') visible = (attend === 'no');
+    else if(filter === 'hw-done') visible = (hw === 'yes');
+    else if(filter === 'hw-undone') visible = (hw === 'no' || hw === 'partial');
+    row.classList.toggle('oj-row-hidden', !visible);
+  });
+
+  document.getElementById('ojFilterCountAll').textContent = countAll;
+  document.getElementById('ojFilterCountAttended').textContent = countAttended;
+  document.getElementById('ojFilterCountAbsent').textContent = countAbsent;
+  document.getElementById('ojFilterCountHwDone').textContent = countHwDone;
+  document.getElementById('ojFilterCountHwUndone').textContent = countHwUndone;
+
+  const empty = document.getElementById('ojStudentsEmpty');
+  const anyVisible = rows.some(row => !row.classList.contains('oj-row-hidden'));
+  if(rows.length > 0){
+    empty.style.display = anyVisible ? 'none' : 'block';
+    empty.querySelector('h3').textContent = anyVisible ? "Hali talaba yo'q" : 'Bu filtrga mos talaba yo\u02bcq';
+    empty.querySelector('p').textContent = anyVisible ? 'Bu guruhga talaba qo\u02bbshing.' : 'Boshqa filtrni tanlab ko\u02bbring.';
+  }
+}
+
+document.querySelectorAll('#ojStudentFilterRow .oj-filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#ojStudentFilterRow .oj-filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyOjStudentFilter(btn.dataset.ojFilter);
+  });
+});
 
 // A student's ID doubles as the Firestore doc ID for both
 // oquv_groups/{g}/students/{id} and oquv_progress/{id} — this is what the
