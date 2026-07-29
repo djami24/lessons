@@ -129,6 +129,8 @@
       });
     }
 
+    setText('[data-site-teacher-name]', data.teacherName);
+
     // ---- Top nav (present on every page) ----
     setText('[data-site-nav-home]', data.navHomeLabel);
     setText('[data-site-nav-courses]', data.navCoursesLabel);
