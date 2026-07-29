@@ -113,6 +113,18 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
       progress: {},
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    // Faollik jurnaliga yozish
+    try {
+      await db.collection('activity_log').add({
+        role: 'student',
+        action: 'register',
+        uid: cred.user.uid,
+        name: name || email,
+        email: email,
+        at: firebase.firestore.FieldValue.serverTimestamp(),
+        ua: navigator.userAgent
+      });
+    } catch(e){ /* silent */ }
     window.location.href = 'dashboard.html';
   } catch(err){
     let msg = 'Ro‘yxatdan o‘tishda xatolik yuz berdi. Qayta urinib ko‘ring.';
