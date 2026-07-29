@@ -356,6 +356,10 @@
                 <span class="hd-row-label">🕐 Kunlik baho</span>
                 <span id="progressGradeVal" class="hd-row-val">—</span>
               </div>
+              <div class="hd-row" id="progressPunishedRow" hidden>
+                <span class="hd-row-label">🚫 Holat</span>
+                <span class="hd-row-val" style="color:#c0392b;">Jazolandi</span>
+              </div>
               <div id="progressMissingWrap" hidden>
                 <span>ℹ️ Bajarilmagan uy vazifalar</span>
                 <div id="progressMissingList" style="margin-top:.3em; display:flex; flex-direction:column; gap:.2em;"></div>
@@ -1223,6 +1227,7 @@ async function renderProgressBox(){
       attendedEl.textContent = '—'; attendedEl.style.color = '';
       hwEl.textContent = '—'; hwEl.style.color = '';
       gradeEl.textContent = 'Baho olmadi'; gradeEl.style.color = '#c0392b';
+      document.getElementById('progressPunishedRow').hidden = true;
       document.getElementById('progressMissingWrap').hidden = true;
       noteEl.textContent = '';
     } else {
@@ -1230,6 +1235,8 @@ async function renderProgressBox(){
       const date = d.date ? new Date(d.date + 'T00:00:00') : null;
       dateEl.textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
       updateHomeQuickInfo({ updated: dateEl.textContent || null });
+
+      document.getElementById('progressPunishedRow').hidden = d.punished !== true;
 
       // Entries store attended/homeworkDone as the string 'yes'/'no' (or
       // '' when unset) rather than booleans — normalize both just in case.
