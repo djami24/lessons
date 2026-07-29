@@ -353,16 +353,36 @@ const state = { parent: null, uid: null, childCode: null, childInfo: null, entri
 const PD_JSDAY_TO_KEY = ['sun','mon','tue','wed','thu','fri','sat'];
 const PD_DAY_LABELS = { mon:'Dushanba', tue:'Seshanba', wed:'Chorshanba', thu:'Payshanba', fri:'Juma', sat:'Shanba', sun:'Yakshanba' };
 
+// Parses a "HH:MM-HH:MM" schedule string and returns the lesson's end
+// time as { hours, minutes }, or null if it can't be parsed.
+function parseLessonEndTime(timeStr){
+  if(!timeStr) return null;
+  const match = String(timeStr).match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);
+  if(!match) return null;
+  return { hours: Number(match[3]), minutes: Number(match[4]) };
+}
+
 // Given a group's { days:[...], time } schedule, finds the next date
 // (today or one of the next 7 days) that matches one of its lesson days.
-function findNextLessonDate(days){
+// If today is a lesson day but today's lesson has already finished
+// (current time is past its end time), today is skipped so the card
+// jumps straight to the following scheduled day.
+function findNextLessonDate(days, time){
   if(!days || !days.length) return null;
-  const today = new Date();
+  const now = new Date();
+  const today = new Date(now);
   today.setHours(0,0,0,0);
+  const endTime = parseLessonEndTime(time);
   for(let i = 0; i < 8; i++){
     const d = new Date(today);
     d.setDate(d.getDate() + i);
-    if(days.includes(PD_JSDAY_TO_KEY[d.getDay()])) return { date: d, offset: i };
+    if(!days.includes(PD_JSDAY_TO_KEY[d.getDay()])) continue;
+    if(i === 0 && endTime){
+      const endDateTime = new Date(d);
+      endDateTime.setHours(endTime.hours, endTime.minutes, 0, 0);
+      if(now > endDateTime) continue;
+    }
+    return { date: d, offset: i };
   }
   return null;
 }
@@ -376,7 +396,7 @@ function renderNextLesson(){
     subEl.textContent = 'Ma’lumot yo‘q';
     return;
   }
-  const next = findNextLessonDate(g.days);
+  const next = findNextLessonDate(g.days, g.time);
   if(!next){
     valEl.textContent = '—';
     subEl.textContent = 'Ma’lumot yo‘q';
