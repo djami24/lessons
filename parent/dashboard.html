@@ -11,6 +11,21 @@
   .pd-greet .wave{ display:inline-block; }
   .pd-sub{ color:var(--gray); margin:0 0 1.4em; }
 
+  /* Mobile sidebar collapse — hamburger (#sidebarMenuToggle) toggles
+     .is-menu-open on #adminSidebar via JS; this is the CSS that actually
+     shows/hides the nav list when that class is present (same pattern
+     as the student dashboard). */
+  #sidebarMenuToggle{ display:none; color:#000 !important; }
+  @media (max-width: 900px){
+    #sidebarMenuToggle{ display:flex; }
+    .admin-nav{
+      flex-basis:100%; max-height:0; overflow:hidden; opacity:0;
+      transition:max-height .25s ease, opacity .2s ease; margin:0;
+    }
+    .admin-sidebar.is-menu-open .admin-nav{ max-height:600px; opacity:1; margin-top:.9em; }
+  }
+</style>
+
   .pd-child-card{
     display:flex; align-items:center; gap:1.1em; flex-wrap:wrap;
     background: var(--white); border:1.5px solid var(--line); border-radius: var(--radius-m);
