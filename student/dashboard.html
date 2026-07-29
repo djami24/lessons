@@ -1155,11 +1155,31 @@ function updateHomeQuickInfo(patch){
 
 // Finds the next date (today or later) that falls on one of the group's
 // scheduled weekdays, and formats it the same way as the other date labels.
-function getNextLessonDateLabel(days){
+// `timeRange` (e.g. "10:00-11:30") lets us skip today if today's lesson
+// has already ended — otherwise "Keyingi dars" would keep showing today's
+// date even after the lesson is long over.
+function getNextLessonDateLabel(days, timeRange){
   if(!days || !days.length) return null;
   const KEY_TO_JSDAY = { sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6 };
-  const today = new Date(); today.setHours(0,0,0,0);
-  for(let i = 0; i < 8; i++){
+  const now = new Date();
+  const today = new Date(now); today.setHours(0,0,0,0);
+
+  let startFrom = 0;
+  const todayKey = Object.keys(KEY_TO_JSDAY).find(k => KEY_TO_JSDAY[k] === today.getDay());
+  if(timeRange && days.includes(todayKey)){
+    const endStr = String(timeRange).split('-')[1];
+    if(endStr){
+      const parts = endStr.trim().split(':').map(Number);
+      const eh = parts[0], em = parts[1] || 0;
+      if(!isNaN(eh)){
+        const endToday = new Date(today);
+        endToday.setHours(eh, em, 0, 0);
+        if(now > endToday) startFrom = 1; // today's lesson already ended — look from tomorrow
+      }
+    }
+  }
+
+  for(let i = startFrom; i < startFrom + 8; i++){
     const d = new Date(today); d.setDate(d.getDate() + i);
     const key = Object.keys(KEY_TO_JSDAY).find(k => KEY_TO_JSDAY[k] === d.getDay());
     if(days.includes(key)){
@@ -1206,7 +1226,7 @@ async function renderProgressBox(){
           const groupDays = groupData.days || [];
           updateHomeQuickInfo({
             time: groupData.time || null,
-            nextLesson: getNextLessonDateLabel(groupDays)
+            nextLesson: getNextLessonDateLabel(groupDays, groupData.time)
           });
         }
       } catch(err){ /* schedule lookup is best-effort — leave tiles at '—' */ }
