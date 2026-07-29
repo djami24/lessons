@@ -86,6 +86,8 @@
 .oj-month-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
 .oj-month-stats-title{font-size:.85rem;font-weight:700;color:var(--gray);margin:0 0 10px;}
 .oj-row-grade{padding:.4em .5em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);flex-shrink:0;}
+.oj-punish-btn{padding:.4em .7em;border:1.5px solid var(--line);border-radius:8px;font-size:.78rem;font-weight:600;background:var(--surface,#f8f9fa);color:var(--gray);cursor:pointer;flex-shrink:0;white-space:nowrap;transition:background .15s,color .15s,border-color .15s;}
+.oj-punish-btn.is-active{background:rgba(192,57,43,.12);color:#c0392b;border-color:#c0392b;}
 .oj-hw-partial{display:flex;align-items:center;gap:6px;flex:1 1 220px;}
 .oj-hw-percent{width:58px;flex-shrink:0;padding:.4em .5em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);}
 .oj-hw-missing{flex:1 1 140px;min-width:120px;padding:.4em .7em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);}
@@ -1169,6 +1171,13 @@
           <label class="oj-label" id="ojHwMissingWrap" style="grid-column:1/-1; display:none;">
             <span>📌 Bajarilmagan uy vazifa</span>
             <input type="text" id="ojHwMissingInput" class="oj-input" placeholder="Masalan: 3-mashq, insho…">
+          </label>
+          <label class="oj-label">
+            <span>🚫 Jazolandi</span>
+            <select id="ojPunishedInput" class="oj-select">
+              <option value="">— Yo'q</option>
+              <option value="yes">🚫 Ha, jazolandi</option>
+            </select>
           </label>
           <label class="oj-label">
             <span>⭐ Baho</span>
@@ -4873,6 +4882,7 @@ async function loadOjStudents(groupId, groupName, days) {
       const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : (entry.attended === false || entry.attended === 'no') ? 'no' : (entry.attended === 'late' ? 'late' : '');
       const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : (entry.homeworkDone === false || entry.homeworkDone === 'no') ? 'no' : (entry.homeworkDone === 'partial' ? 'partial' : '');
       const gradeVal = entry.grade || '';
+      const punishedVal = entry.punished === true;
 
       const row = document.createElement('div');
       row.className = 'oj-student-row';
@@ -4904,6 +4914,7 @@ async function loadOjStudents(groupId, groupName, days) {
             <input type="number" min="0" max="100" class="oj-hw-percent" data-field="homeworkPercent" placeholder="%">
             <input type="text" class="oj-hw-missing" data-field="homeworkMissing" placeholder="Bajarmagan uy vazifasi…">
           </div>
+          <button type="button" class="oj-punish-btn${punishedVal ? ' is-active' : ''}" data-punish-btn title="Jazolandi deb belgilash">🚫 Jazolandi</button>
           <select class="oj-row-grade" data-field="grade">
             <option value="">Baho</option>
             <option value="5" ${gradeVal == '5' ? 'selected' : ''}>⭐5</option>
@@ -4976,6 +4987,14 @@ async function loadOjStudents(groupId, groupName, days) {
       const gradeSelect = row.querySelector('.oj-row-grade');
       gradeSelect.addEventListener('click', (e) => e.stopPropagation());
       gradeSelect.addEventListener('change', () => ojQuickSave({ grade: gradeSelect.value }));
+
+      const punishBtn = row.querySelector('[data-punish-btn]');
+      punishBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const nowPunished = !punishBtn.classList.contains('is-active');
+        punishBtn.classList.toggle('is-active', nowPunished);
+        ojQuickSave({ punished: nowPunished });
+      });
 
       hwPercentInput.addEventListener('click', (e) => e.stopPropagation());
       hwPercentInput.addEventListener('blur', () => ojQuickSave({ homeworkPercent: hwPercentInput.value }));
@@ -5202,6 +5221,7 @@ function openOjProgress(studentId, studentName) {
   document.getElementById('ojHwMissingInput').value = '';
   toggleOjHwExtras('');
   document.getElementById('ojGradeInput').value = '';
+  document.getElementById('ojPunishedInput').value = '';
   document.getElementById('ojNoteInput').value = '';
   document.getElementById('ojEntryEditingId').value = '';
   document.getElementById('ojCancelEditBtn').hidden = true;
@@ -5260,6 +5280,7 @@ function renderOjEntries() {
         <button class="btn btn-danger btn-sm" data-eid="${entry.id}" data-action="del">🗑</button>
       </div>
       ${hwVal === 'partial' && entry.homeworkMissing ? `<div class="oj-entry-note">📌 Bajarmagan: ${escHtml(entry.homeworkMissing)}</div>` : ''}
+      ${entry.punished === true ? `<div class="oj-entry-note" style="color:#c0392b; font-weight:700;">🚫 Jazolandi</div>` : ''}
       ${entry.note ? `<div class="oj-entry-note">💬 ${escHtml(entry.note)}</div>` : ''}`;
     list.appendChild(card);
   });
@@ -5314,6 +5335,7 @@ function ojStartEdit(entryId) {
   document.getElementById('ojHwMissingInput').value = entry.homeworkMissing || '';
   toggleOjHwExtras(hwVal);
   document.getElementById('ojGradeInput').value = entry.grade || '';
+  document.getElementById('ojPunishedInput').value = entry.punished === true ? 'yes' : '';
   document.getElementById('ojNoteInput').value = entry.note || '';
   document.getElementById('ojCancelEditBtn').hidden = false;
   document.querySelector('.oj-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -5328,6 +5350,7 @@ document.getElementById('ojCancelEditBtn').addEventListener('click', () => {
   document.getElementById('ojHwMissingInput').value = '';
   toggleOjHwExtras('');
   document.getElementById('ojGradeInput').value = '';
+  document.getElementById('ojPunishedInput').value = '';
   document.getElementById('ojNoteInput').value = '';
   document.getElementById('ojCancelEditBtn').hidden = true;
 });
@@ -5339,6 +5362,7 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
   const homeworkPercent = homeworkDone === 'partial' ? document.getElementById('ojHwPercentInput').value : '';
   const homeworkMissing = homeworkDone === 'partial' ? document.getElementById('ojHwMissingInput').value.trim() : '';
   const grade = document.getElementById('ojGradeInput').value;
+  const punished = document.getElementById('ojPunishedInput').value === 'yes';
   const note = document.getElementById('ojNoteInput').value.trim();
   const status = document.getElementById('ojSaveStatus');
   const editingId = document.getElementById('ojEntryEditingId').value;
@@ -5347,7 +5371,7 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
   try {
     const docId = editingId || date;
     await db.collection('oquv_progress').doc(_ojActiveStudentId)
-      .collection('entries').doc(docId).set({ date, attended, homeworkDone, homeworkPercent, homeworkMissing, grade, note });
+      .collection('entries').doc(docId).set({ date, attended, homeworkDone, homeworkPercent, homeworkMissing, grade, punished, note });
     status.textContent = '✅ Saqlandi!';
     document.getElementById('ojEntryEditingId').value = '';
     document.getElementById('ojAttendedInput').value = '';
@@ -5356,6 +5380,7 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
     document.getElementById('ojHwMissingInput').value = '';
     toggleOjHwExtras('');
     document.getElementById('ojGradeInput').value = '';
+    document.getElementById('ojPunishedInput').value = '';
     document.getElementById('ojNoteInput').value = '';
     document.getElementById('ojCancelEditBtn').hidden = true;
     setTimeout(() => status.textContent = '', 2500);
