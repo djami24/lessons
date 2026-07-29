@@ -11,6 +11,85 @@
   .pd-greet .wave{ display:inline-block; }
   .pd-sub{ color:var(--gray); margin:0 0 1.4em; }
 
+  /* ===== Bosh sahifa — talaba paneli bilan bir xil dizayn ===== */
+  #view-home{
+    background: linear-gradient(180deg,#121317 0%,#17181d 100%);
+    border-radius: 24px;
+    padding: clamp(20px,3vw,34px) clamp(16px,3vw,30px) 30px;
+    color:#f3f5fb;
+  }
+  #view-home .admin-header{ border-bottom:none; padding-bottom:0; margin-bottom:22px; }
+  #view-home .admin-header h1{ color:#fff; font-size:1.7rem; margin-bottom:.3em; }
+  #view-home .home-greet-name{ color:#5b8cff; }
+  #view-home .admin-header p{ color:#8890a6; margin:0 0 .7em; }
+  #view-home .home-header-rule{ width:42px; height:4px; border-radius:3px; background:linear-gradient(90deg,#5b8cff,#2a4fd6); border:none; }
+
+  #view-home .hd-card{
+    background:#1c1d23; border:1px solid rgba(255,255,255,.08); border-radius:18px;
+    padding:20px 20px 22px; display:flex; flex-direction:column;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+  }
+  #view-home .hd-card-head{ display:flex; align-items:center; gap:.7em; margin-bottom:14px; }
+  #view-home .hd-icon-badge{
+    width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
+    font-size:1.05rem; flex:none;
+  }
+  #view-home .hd-icon-blue{ background:linear-gradient(155deg,#4f7cff,#2a4fd6); }
+  #view-home .hd-icon-green{ background:linear-gradient(155deg,#34d399,#059669); }
+  #view-home .hd-eyebrow{ font-size:.68rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
+  #view-home .hd-eyebrow-blue{ color:#7ea2ff; }
+  #view-home .hd-eyebrow-green{ color:#5fe0a6; }
+  #view-home .hd-date{ font-size:.78rem; color:#78809a; margin-left:auto; }
+  #view-home .hd-card .latest-hw-title{ color:#fff; font-size:1.25rem; margin:0 0 10px; }
+  #view-home .hd-card .latest-hw-preview{ color:#8890a6; }
+  #view-home .hd-row{ display:flex; align-items:center; gap:.6em; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+  #view-home .hd-row:last-of-type{ border-bottom:none; }
+  #view-home .hd-row-label{ display:flex; align-items:center; gap:.5em; color:#8890a6; font-size:.86rem; }
+  #view-home .hd-row-val{ font-weight:700; color:#f3f5fb; }
+  #view-home #progressMissingWrap{ border-top:1px solid rgba(255,255,255,.06); padding-top:10px; margin-top:4px; }
+  #view-home #progressMissingWrap > span{ color:#8890a6 !important; font-size:.8rem; display:flex; align-items:center; gap:.4em; }
+  #view-home #progressMissingList div{ color:#ff7a7a !important; font-size:.86rem; }
+  #view-home #progressNoteVal{ background:rgba(255,255,255,.04); border-radius:10px; padding:.6em .8em; margin-top:.6em !important; font-size:.84rem; }
+
+  #view-home .hd-pill-btn{
+    margin-top:16px; width:100%; text-align:center; border-radius:30px; padding:.75em 1em;
+    background:transparent; border:1.5px solid rgba(255,255,255,.16); color:#f3f5fb; font-weight:700; font-size:.88rem;
+    display:flex; align-items:center; justify-content:center; gap:.4em; cursor:pointer;
+  }
+  #view-home .hd-pill-btn:hover{ border-color:rgba(255,255,255,.35); }
+
+  /* Test natijasi card — purple/blue gradient */
+  #view-home #gbResultBox{
+    background:linear-gradient(150deg,#3b34c9 0%,#5b3fef 55%,#7048f0 100%);
+    border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:20px 20px 22px;
+    display:flex; flex-direction:column; box-shadow:0 12px 34px rgba(75,58,220,.35);
+  }
+  #view-home #gbResultBox .latest-hw-head{ margin-bottom:14px; }
+  #view-home #gbResultBox .latest-hw-eyebrow{
+    background:rgba(255,255,255,.18); color:#fff; font-size:.7rem; font-weight:800; letter-spacing:.07em;
+    text-transform:uppercase; padding:.4em .8em; border-radius:20px;
+  }
+  #view-home #gbResultBox .latest-hw-title{ color:#fff; font-size:1.3rem; margin:0 0 2px; }
+  #view-home #gbResultBox .latest-hw-preview{ color:rgba(255,255,255,.75); }
+  #view-home #gbResultView p#gbResultUnit{ color:rgba(255,255,255,.75); margin:0 0 12px; }
+  #view-home #gbResultMessage{ display:flex; align-items:center; gap:.4em; color:#fff; }
+  #view-home #gbResultBox .btn{ border-radius:26px; font-weight:700; font-size:.85rem; }
+  #view-home #gbResultBox .btn-amber{ background:#fff; color:#3b34c9; border-color:#fff; }
+  #view-home #gbResultBox .btn-amber:hover{ background:#f0f0ff; }
+
+  /* Quick info bar */
+  #view-home .home-quick-bar{
+    margin-top:22px; background:#1c1d23; border:1px solid rgba(255,255,255,.08); border-radius:18px;
+    padding:18px 20px 20px;
+  }
+  #view-home .home-quick-title{ display:flex; align-items:center; gap:.5em; color:#fff; font-weight:700; font-size:.95rem; margin:0 0 14px; }
+  #view-home .home-quick-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; }
+  #view-home .home-quick-tile{ display:flex; align-items:center; gap:.7em; background:#16171c; border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px 14px; }
+  #view-home .home-quick-icon{ width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:.95rem; flex:none; }
+  #view-home .home-quick-label{ color:#8890a6; font-size:.74rem; margin-bottom:2px; }
+  #view-home .home-quick-val{ color:#f3f5fb; font-weight:700; font-size:.9rem; }
+
+
   .pd-child-card{
     display:flex; align-items:center; gap:1.1em; flex-wrap:wrap;
     background: var(--white); border:1.5px solid var(--line); border-radius: var(--radius-m);
@@ -149,64 +228,96 @@
 
     <!-- ===== BOSH SAHIFA ===== -->
     <section id="view-home">
-      <h1 class="pd-greet"><span class="wave">👋</span> Assalomu alaykum, <span id="greetName">Ota-ona</span>!</h1>
-      <p class="pd-sub">Farzandingiz ta’lim jarayoni haqida ma’lumotlar.</p>
-
-      <div class="pd-child-card">
-        <div class="pd-child-avatar" id="homeChildAvatar">?</div>
+      <div class="admin-header">
         <div>
-          <div class="pd-child-name" id="homeChildName">—</div>
-          <div class="pd-child-meta">
-            <span>ID: <b id="homeChildId">—</b></span>
-            <span id="homeChildGroupWrap">Guruh: <b id="homeChildGroup">—</b></span>
-          </div>
-        </div>
-        <span class="pd-child-status" id="homeChildStatus">Faol</span>
-      </div>
-
-      <div class="pd-stat-row">
-        <div class="pd-stat-card">
-          <div class="pd-stat-label">📅 Davomat</div>
-          <div class="pd-stat-val" id="statAttendance">—</div>
-          <div class="pd-stat-sub" id="statAttendanceSub">Ma’lumot yo‘q</div>
-        </div>
-        <div class="pd-stat-card">
-          <div class="pd-stat-label">📝 Uy vazifalari</div>
-          <div class="pd-stat-val" id="statHomework">—</div>
-          <div class="pd-stat-sub" id="statHomeworkSub">Ma’lumot yo‘q</div>
-        </div>
-        <div class="pd-stat-card">
-          <div class="pd-stat-label">📊 Test o‘rtachasi</div>
-          <div class="pd-stat-val" id="statTestAvg">—</div>
-          <div class="pd-stat-sub" id="statTestAvgSub">Gradebook</div>
-        </div>
-        <div class="pd-stat-card">
-          <div class="pd-stat-label">🏆 Umumiy reyting</div>
-          <div class="pd-stat-val" id="statRating">—</div>
-          <div class="pd-stat-sub" id="statRatingSub">Kunlik baholar asosida</div>
+          <h1><span class="wave">👋</span> Assalomu alaykum, <span class="home-greet-name" id="greetName">Ota-ona</span>!</h1>
+          <p>Farzandingiz ta'lim jarayoni haqida ma'lumotlar.</p>
+          <div class="home-header-rule"></div>
         </div>
       </div>
 
-      <div class="pd-cols">
-        <div class="pd-card" id="latestTestCard">
-          <h3>🏆 Eng so‘nggi test natijasi <a href="#" id="homeSeeResults">Barchasini ko‘rish →</a></h3>
-          <div id="latestTestArea">
-            <div class="pd-empty"><div class="pd-empty-icon">📊</div><p>Hali test natijasi yo‘q.</p></div>
+      <div class="home-top-boxes" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.2em; align-items:start;">
+        <div class="latest-hw-box hd-card" id="progressBox">
+          <div class="hd-card-head">
+            <span class="hd-icon-badge hd-icon-blue">📘</span>
+            <div>
+              <span class="latest-hw-eyebrow hd-eyebrow hd-eyebrow-blue">O'quv jarayoni</span>
+            </div>
+            <span class="latest-hw-date hd-date" id="progressDate"></span>
           </div>
+          <h3 class="latest-hw-title" id="progressStudentNameVal"></h3>
+          <div>
+            <div class="hd-row">
+              <span class="hd-row-label">📅 Davomat</span>
+              <span id="progressAttendedVal" class="hd-row-val">—</span>
+            </div>
+            <div class="hd-row">
+              <span class="hd-row-label">📈 Uy vazifa</span>
+              <span id="progressHwVal" class="hd-row-val">—</span>
+            </div>
+            <div class="hd-row">
+              <span class="hd-row-label">🕐 Kunlik baho</span>
+              <span id="progressGradeVal" class="hd-row-val">—</span>
+            </div>
+            <div class="hd-row" id="progressPunishedRow" hidden>
+              <span class="hd-row-label">🚫 Holat</span>
+              <span class="hd-row-val" style="color:#c0392b;">Jazolandi</span>
+            </div>
+            <div id="progressMissingWrap" hidden>
+              <span>ℹ️ Bajarilmagan uy vazifalar</span>
+              <div id="progressMissingList" style="margin-top:.3em; display:flex; flex-direction:column; gap:.2em;"></div>
+            </div>
+            <p class="latest-hw-preview" id="progressNoteVal"></p>
+          </div>
+          <button type="button" class="hd-pill-btn" id="progressChangeIdBtn">Batafsil ko'rish <span>→</span></button>
         </div>
-        <div class="pd-card">
-          <h3>💬 O‘qituvchi izohi</h3>
-          <div id="homeNoteArea">
-            <div class="pd-empty"><div class="pd-empty-icon">📭</div><p>Hozircha izoh yo‘q.</p></div>
+
+        <div class="latest-hw-box" id="gbResultBox">
+          <div class="latest-hw-head">
+            <span class="latest-hw-eyebrow">🏆 Test natijasi</span>
+          </div>
+          <div id="gbResultView">
+            <h3 class="latest-hw-title" id="gbResultName"></h3>
+            <p class="latest-hw-preview" id="gbResultUnit"></p>
+            <div class="quiz-result-score" id="gbResultScore" style="font-size:1.6rem; display:inline-block; padding:.15em .6em; border-radius:8px; margin:.2em 0 .4em;"></div>
+            <p id="gbResultMessage" hidden style="margin:0 0 .8em; font-weight:700; font-size:1.05rem;"></p>
+            <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+              <a href="../natijalar.html" target="_blank" rel="noopener" class="btn btn-amber btn-sm">📊 Barcha natijalar</a>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="pd-cols">
-        <div class="pd-card">
-          <h3>📖 O‘quv jarayoni <a href="#" id="homeSeeProgress">Batafsil →</a></h3>
-          <div id="homeUnitsArea">
-            <div class="pd-empty"><div class="pd-empty-icon">📂</div><p>Ma’lumot yo‘q.</p></div>
+      <div class="home-quick-bar">
+        <p class="home-quick-title">⚡ Tezkor ma'lumot</p>
+        <div class="home-quick-grid">
+          <div class="home-quick-tile">
+            <span class="home-quick-icon hd-icon-blue">🕐</span>
+            <div>
+              <div class="home-quick-label">Dars vaqti</div>
+              <div class="home-quick-val" id="qiTimeVal">—</div>
+            </div>
+          </div>
+          <div class="home-quick-tile">
+            <span class="home-quick-icon" style="background:linear-gradient(155deg,#a855f7,#7c3aed);">👥</span>
+            <div>
+              <div class="home-quick-label">O'quvchilar guruhi</div>
+              <div class="home-quick-val" id="qiGroupVal">—</div>
+            </div>
+          </div>
+          <div class="home-quick-tile">
+            <span class="home-quick-icon" style="background:linear-gradient(155deg,#f0a63a,#c2790a);">📅</span>
+            <div>
+              <div class="home-quick-label">Keyingi dars</div>
+              <div class="home-quick-val" id="qiNextLessonVal">—</div>
+            </div>
+          </div>
+          <div class="home-quick-tile">
+            <span class="home-quick-icon" style="background:linear-gradient(155deg,#fb7185,#e11d48);">🎯</span>
+            <div>
+              <div class="home-quick-label">Maqsad</div>
+              <div class="home-quick-val">Eng yaxshi natija sari!</div>
+            </div>
           </div>
         </div>
       </div>
@@ -342,6 +453,23 @@ function normalizeGbName(s){
   return String(s || '').trim().replace(/\s+/g, ' ').toLowerCase().replace(/[ʻʼ’‘`]/g, "'");
 }
 
+// Finds the next date (today or later) that falls on one of the group's
+// scheduled weekdays, and formats it the same way as the other date labels.
+function getNextLessonDateLabel(days){
+  if(!days || !days.length) return null;
+  const KEY_TO_JSDAY = { sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6 };
+  const today = new Date(); today.setHours(0,0,0,0);
+  for(let i = 0; i < 8; i++){
+    const d = new Date(today); d.setDate(d.getDate() + i);
+    const key = Object.keys(KEY_TO_JSDAY).find(k => KEY_TO_JSDAY[k] === d.getDay());
+    if(days.includes(key)){
+      const label = d.toLocaleDateString('uz-UZ', { weekday:'long', day:'numeric', month:'long' });
+      return label.charAt(0).toUpperCase() + label.slice(1);
+    }
+  }
+  return null;
+}
+
 /* ---------- view switching ---------- */
 const VIEWS = ['home','child','progress','results','homework','attendance','chat','teacher','settings'];
 function switchView(view){
@@ -362,8 +490,7 @@ document.getElementById('navChat').addEventListener('click', e => { e.preventDef
 document.getElementById('navTeacher').addEventListener('click', e => { e.preventDefault(); switchView('teacher'); });
 document.getElementById('navSettings').addEventListener('click', e => { e.preventDefault(); switchView('settings'); });
 document.getElementById('logoHomeBtn').addEventListener('click', e => { e.preventDefault(); switchView('home'); });
-document.getElementById('homeSeeProgress').addEventListener('click', e => { e.preventDefault(); switchView('progress'); });
-document.getElementById('homeSeeResults').addEventListener('click', e => { e.preventDefault(); switchView('results'); });
+document.getElementById('progressChangeIdBtn').addEventListener('click', e => { e.preventDefault(); switchView('progress'); });
 document.getElementById('sidebarMenuToggle').addEventListener('click', () => {
   document.getElementById('adminSidebar').classList.toggle('is-menu-open');
 });
@@ -436,10 +563,22 @@ async function loadChildData(){
   const name = state.childInfo.name || state.parent.linkedStudentName || 'O‘quvchi';
   const group = state.childInfo.group || state.parent.linkedStudentGroup || '';
 
-  ['homeChildName','childName2'].forEach(id => document.getElementById(id).textContent = name);
-  ['homeChildId','childId2'].forEach(id => document.getElementById(id).textContent = state.childCode);
-  ['homeChildGroup','childGroup2'].forEach(id => document.getElementById(id).textContent = group || '—');
-  ['homeChildAvatar','childAvatar2'].forEach(id => document.getElementById(id).textContent = initialsFor(name));
+  ['childName2'].forEach(id => document.getElementById(id).textContent = name);
+  ['childId2'].forEach(id => document.getElementById(id).textContent = state.childCode);
+  ['childGroup2'].forEach(id => document.getElementById(id).textContent = group || '—');
+  ['childAvatar2'].forEach(id => document.getElementById(id).textContent = initialsFor(name));
+
+  document.getElementById('qiGroupVal').textContent = group || '—';
+  if(group){
+    try{
+      const gSnap = await db.collection('oquv_groups').where('name', '==', group).limit(1).get();
+      if(!gSnap.empty){
+        const groupData = gSnap.docs[0].data();
+        document.getElementById('qiTimeVal').textContent = groupData.time || '—';
+        document.getElementById('qiNextLessonVal').textContent = getNextLessonDateLabel(groupData.days || []) || '—';
+      }
+    } catch(err){ /* schedule lookup is best-effort — leave tiles at '—' */ }
+  }
 
   // Entries (davomat / uy vazifa / baho / izoh)
   try{
@@ -452,7 +591,7 @@ async function loadChildData(){
   renderAttendanceHomeworkStats();
   renderAttendanceEntries();
   renderProgressEntries();
-  renderHomeNote();
+  renderHomeProgressCard();
 
   // Gradebook (test natijalari)
   try{
@@ -474,7 +613,6 @@ async function loadChildData(){
     state.gbUnits = [];
   }
   renderResults();
-  renderHomeUnits();
   renderLatestTestResult();
 }
 
@@ -511,13 +649,6 @@ function renderAttendanceHomeworkStats(){
 
   const attPct = total ? Math.round((attYes + attLate) / total * 100) : null;
   const hwPct = total ? Math.round((hwYes + hwPartial * 0.5) / total * 100) : null;
-
-  document.getElementById('statAttendance').textContent = attPct === null ? '—' : attPct + '%';
-  document.getElementById('statAttendanceSub').textContent = total ? `${attYes + attLate}/${total} darsda ishtirok etdi` : 'Ma’lumot yo‘q';
-  document.getElementById('statHomework').textContent = hwPct === null ? '—' : hwPct + '%';
-  document.getElementById('statHomeworkSub').textContent = total ? `${hwYes} bajargan, ${hwNo} bajarmagan` : 'Ma’lumot yo‘q';
-  document.getElementById('statRating').textContent = avgGrade === null ? '—' : avgGrade.toFixed(1) + '/5';
-  document.getElementById('statRatingSub').textContent = graded.length ? `${graded.length} ta kunlik baho asosida` : 'Hali baho yo‘q';
 
   document.getElementById('childStatAttendance').textContent = attPct === null ? '—' : attPct + '%';
   document.getElementById('childStatHomework').textContent = hwPct === null ? '—' : hwPct + '%';
@@ -617,24 +748,85 @@ function renderAttendanceEntries(){
   }).join('');
 }
 
-function renderHomeNote(){
-  const area = document.getElementById('homeNoteArea');
-  const withNote = state.entries.find(e => e.note);
-  if(!withNote){
-    area.innerHTML = `<div class="pd-empty"><div class="pd-empty-icon">📭</div><p>Hozircha izoh yo‘q.</p></div>`;
+// Fills the dark "O'quv jarayoni" home card (progressBox) with the most
+// recent daily entry — same layout/behavior as the student dashboard's
+// own home progress card, just using the already-loaded state.entries
+// (parent doesn't need to type an ID, the child is already linked).
+function renderHomeProgressCard(){
+  const name = state.childInfo.name || state.parent.linkedStudentName || 'O‘quvchi';
+  document.getElementById('progressStudentNameVal').textContent = name;
+
+  const dateEl = document.getElementById('progressDate');
+  const attendedEl = document.getElementById('progressAttendedVal');
+  const hwEl = document.getElementById('progressHwVal');
+  const gradeEl = document.getElementById('progressGradeVal');
+  const noteEl = document.getElementById('progressNoteVal');
+  const missingWrap = document.getElementById('progressMissingWrap');
+  const missingList = document.getElementById('progressMissingList');
+
+  const d = state.entries[0]; // orderBy('date','desc') — most recent first
+  if(!d){
+    dateEl.textContent = '';
+    attendedEl.textContent = '—'; attendedEl.style.color = '';
+    hwEl.textContent = '—'; hwEl.style.color = '';
+    gradeEl.textContent = 'Baho olmadi'; gradeEl.style.color = '#c0392b';
+    document.getElementById('progressPunishedRow').hidden = true;
+    missingWrap.hidden = true;
+    noteEl.textContent = '';
     return;
   }
-  area.innerHTML = `<div class="pd-note-box">“${escapeHtml(withNote.note)}”<span class="pd-note-date">${escapeHtml(withNote.date || '')}</span></div>`;
+
+  const date = d.date ? new Date(d.date + 'T00:00:00') : null;
+  dateEl.textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
+
+  document.getElementById('progressPunishedRow').hidden = d.punished !== true;
+
+  const av = attendedVal(d);
+  if(av === 'yes'){ attendedEl.textContent = '✅ Keldi'; attendedEl.style.color = '#1e7e34'; }
+  else if(av === 'late'){ attendedEl.textContent = '⏰ Kech qoldi'; attendedEl.style.color = '#a15c00'; }
+  else if(av === 'no'){ attendedEl.textContent = '🚫 Kelmadi'; attendedEl.style.color = '#c0392b'; }
+  else { attendedEl.textContent = '—'; attendedEl.style.color = ''; }
+
+  const hv = hwVal(d);
+  if(hv === 'yes'){ hwEl.textContent = '✅ Qildi'; hwEl.style.color = '#1e7e34'; }
+  else if(hv === 'no'){ hwEl.textContent = '🕓 Qilmadi'; hwEl.style.color = '#a15c00'; }
+  else if(hv === 'partial'){ hwEl.textContent = `🔶 ${d.homeworkPercent || 0}% bajardi`; hwEl.style.color = '#a15c00'; }
+  else { hwEl.textContent = '—'; hwEl.style.color = ''; }
+
+  gradeEl.textContent = d.grade ? `${d.grade}/5` : 'Baho olmadi';
+  gradeEl.style.color = d.grade ? 'var(--teal-deep)' : '#c0392b';
+
+  missingList.innerHTML = '';
+  if(hv === 'partial' && d.homeworkMissing){
+    const items = String(d.homeworkMissing).split(/[,;\n]+/).map(s => s.trim()).filter(Boolean);
+    items.forEach(item => {
+      const row = document.createElement('div');
+      row.style.color = '#c0392b';
+      row.style.fontWeight = '600';
+      row.textContent = '✗ ' + item;
+      missingList.appendChild(row);
+    });
+    missingWrap.hidden = items.length === 0;
+  } else {
+    missingWrap.hidden = true;
+  }
+
+  noteEl.textContent = d.note || '';
 }
 
-// Finds the most recently entered score (by scoreTimestamps, same logic
-// the student dashboard uses) for THIS exact linked child, and shows it
-// on the home page. Falls back to the last unit-in-list with a score if
-// no timestamps exist (older data).
 function renderLatestTestResult(){
-  const area = document.getElementById('latestTestArea');
+  const nameEl = document.getElementById('gbResultName');
+  const unitEl = document.getElementById('gbResultUnit');
+  const scoreEl = document.getElementById('gbResultScore');
+  const msgEl = document.getElementById('gbResultMessage');
+  const name = state.childInfo.name || state.parent.linkedStudentName || 'O‘quvchi';
+
   if(!state.gbMatch || !state.gbUnits.length){
-    area.innerHTML = `<div class="pd-empty"><div class="pd-empty-icon">📊</div><p>Hali test natijasi yo‘q.</p></div>`;
+    nameEl.textContent = name;
+    unitEl.textContent = 'Hali test natijasi yo‘q.';
+    scoreEl.textContent = '';
+    scoreEl.style.background = 'transparent';
+    msgEl.hidden = true;
     return;
   }
   const stamps = state.gbMatch.scoreTimestamps || {};
@@ -655,25 +847,22 @@ function renderLatestTestResult(){
   if(latestUnit === null){ latestUnit = fallbackUnit; latestScore = fallbackScore; }
 
   if(latestUnit === null){
-    area.innerHTML = `<div class="pd-empty"><div class="pd-empty-icon">📊</div><p>Hali test natijasi yo‘q.</p></div>`;
+    nameEl.textContent = name;
+    unitEl.textContent = 'Hali test natijasi yo‘q.';
+    scoreEl.textContent = '';
+    scoreEl.style.background = 'transparent';
+    msgEl.hidden = true;
     return;
   }
+
   const pass = Number(latestScore) >= 60;
-  const dateHtml = bestStamp > -1
-    ? `<div class="pd-result-date" style="border-top:1px dashed var(--line); margin-top:.8em; padding-top:.6em;">📅 ${escapeHtml(formatDateFromTimestamp(bestStamp))} topshirilgan</div>`
-    : '';
-  area.innerHTML = `
-    <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; flex-wrap:wrap;">
-      <div>
-        <div class="pd-unit-name" style="font-size:1rem;">${escapeHtml(latestUnit)}</div>
-        <div style="font-size:.78rem; color:var(--gray); margin-top:.1em;">${escapeHtml(state.gbMatch.group || '')}</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="font-family:var(--font-display); font-size:1.9rem; font-weight:700;">${escapeHtml(latestScore)}<span style="font-size:1rem; color:var(--gray);">/100</span></div>
-        ${pass ? '<span class="pd-badge pd-badge-pass">O‘TDI</span>' : '<span class="pd-badge pd-badge-fail">QAYTA</span>'}
-      </div>
-    </div>
-    ${dateHtml}`;
+  nameEl.textContent = name;
+  unitEl.textContent = latestUnit + (bestStamp > -1 ? ` · ${formatDateFromTimestamp(bestStamp)} topshirilgan` : '');
+  scoreEl.textContent = `${latestScore}/100`;
+  scoreEl.style.background = pass ? 'rgba(52,211,153,.22)' : 'rgba(255,255,255,.14)';
+  scoreEl.style.color = '#fff';
+  msgEl.hidden = false;
+  msgEl.textContent = pass ? '✅ O‘tdi' : '🔁 Qayta topshirish kerak';
 }
 
 
@@ -712,25 +901,8 @@ function renderResults(){
     </div>`;
   }).join('');
   const avg = count > 0 ? (sum / count).toFixed(1) : '—';
-  document.getElementById('statTestAvg').textContent = avg === '—' ? '—' : avg + '%';
   area.innerHTML = `<div class="pd-result-grid">${cards}</div>
     <div class="pd-unit-row" style="border-top:2px solid var(--line); margin-top:1em; padding-top:.8em;"><span class="pd-unit-name">O‘rtacha ball</span><span class="pd-unit-score">${avg}${avg !== '—' ? '%' : ''}</span></div>`;
-}
-
-function renderHomeUnits(){
-  const area = document.getElementById('homeUnitsArea');
-  if(!state.gbMatch || !state.gbUnits.length){
-    area.innerHTML = `<div class="pd-empty"><div class="pd-empty-icon">📂</div><p>Ma’lumot yo‘q.</p></div>`;
-    return;
-  }
-  const rows = state.gbUnits.slice(-4).map(unit => {
-    const raw = state.gbMatch.scores ? state.gbMatch.scores[unit] : undefined;
-    const has = raw !== undefined && raw !== null && raw !== '';
-    const label = has ? 'Tugallangan' : 'Kutilmoqda';
-    const badge = has ? '<span class="pd-badge pd-badge-pass">Tugallangan</span>' : '<span class="pd-badge">Kutilmoqda</span>';
-    return `<div class="pd-unit-row"><span class="pd-unit-name">${escapeHtml(unit)}</span>${badge}</div>`;
-  }).join('');
-  area.innerHTML = `<div class="pd-unit-list">${rows}</div>`;
 }
 
 /* ---------- chat with teacher (parentChats/{childCode}) ---------- */
