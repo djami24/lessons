@@ -284,6 +284,20 @@ document.getElementById('continueBtn').addEventListener('click', async () => {
       linkedStudentGroup: matchedChild.group,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    // Faollik jurnaliga yozish
+    try {
+      const fullName = (pendingReg.firstName + ' ' + pendingReg.lastName).trim();
+      await db.collection('activity_log').add({
+        role: 'parent',
+        action: 'register',
+        uid: cred.user.uid,
+        name: fullName || pendingReg.email,
+        email: pendingReg.email,
+        linkedStudent: matchedChild.name || '',
+        at: firebase.firestore.FieldValue.serverTimestamp(),
+        ua: navigator.userAgent
+      });
+    } catch(e){ /* silent */ }
     window.location.href = 'dashboard.html';
   } catch(err){
     let msg = 'Ro‘yxatdan o‘tishda xatolik yuz berdi. Qayta urinib ko‘ring.';
