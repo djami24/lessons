@@ -73,6 +73,7 @@
   .pd-result-score{ font-family: var(--font-display); font-size: 2rem; font-weight:700; color: var(--ink); }
   .pd-result-score small{ font-size:.9rem; font-weight:600; color:var(--gray); }
   .pd-result-bottom{ display:flex; align-items:center; justify-content:space-between; gap:.6em; flex-wrap:wrap; }
+  .pd-result-date{ font-size:.72rem; color:var(--gray); margin-top:.7em; padding-top:.6em; border-top:1px dashed var(--line); }
   .pd-unit-row{ display:flex; align-items:center; justify-content:space-between; gap:.8em; padding:.6em .2em; border-bottom:1px solid var(--line); }
   .pd-unit-row:last-child{ border-bottom:none; }
   .pd-unit-name{ font-weight:700; font-size:.92rem; }
@@ -569,6 +570,14 @@ function formatEntryDateLabel(dateStr){
   return `${d.getDate()} ${UZ_MONTHS[d.getMonth()]} ${UZ_WEEKDAYS[d.getDay()]}`;
 }
 
+// Same "12 May Dushanba" style, but from a millisecond timestamp (used
+// for gradebook scoreTimestamps, which admin panel sets via Date.now()).
+function formatDateFromTimestamp(ms){
+  const d = new Date(ms);
+  if(isNaN(d.getTime())) return '';
+  return `${d.getDate()} ${UZ_MONTHS[d.getMonth()]} ${UZ_WEEKDAYS[d.getDay()]}`;
+}
+
 function renderAttendanceEntries(){
   const area = document.getElementById('attendanceEntriesArea');
   if(!state.entries.length){
@@ -633,6 +642,9 @@ function renderLatestTestResult(){
     return;
   }
   const pass = Number(latestScore) >= 60;
+  const dateHtml = bestStamp > -1
+    ? `<div class="pd-result-date" style="border-top:1px dashed var(--line); margin-top:.8em; padding-top:.6em;">📅 ${escapeHtml(formatDateFromTimestamp(bestStamp))} topshirilgan</div>`
+    : '';
   area.innerHTML = `
     <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; flex-wrap:wrap;">
       <div>
@@ -643,7 +655,8 @@ function renderLatestTestResult(){
         <div style="font-family:var(--font-display); font-size:1.9rem; font-weight:700;">${escapeHtml(latestScore)}<span style="font-size:1rem; color:var(--gray);">/100</span></div>
         ${pass ? '<span class="pd-badge pd-badge-pass">O‘TDI</span>' : '<span class="pd-badge pd-badge-fail">QAYTA</span>'}
       </div>
-    </div>`;
+    </div>
+    ${dateHtml}`;
 }
 
 
@@ -658,12 +671,17 @@ function renderResults(){
     return;
   }
   let sum = 0, count = 0;
+  const stamps = state.gbMatch.scoreTimestamps || {};
   const cards = state.gbUnits.map(unit => {
     const raw = state.gbMatch.scores ? state.gbMatch.scores[unit] : undefined;
     const has = raw !== undefined && raw !== null && raw !== '';
     const score = has ? Number(raw) : null;
     if(has && !isNaN(score)){ sum += score; count++; }
     const badge = !has ? '<span class="pd-badge">Hali topshirmagan</span>' : (score >= 60 ? '<span class="pd-badge pd-badge-pass">O‘TDI</span>' : '<span class="pd-badge pd-badge-fail">QAYTA</span>');
+    const stamp = stamps[unit];
+    const dateHtml = (has && typeof stamp === 'number')
+      ? `<div class="pd-result-date">📅 ${escapeHtml(formatDateFromTimestamp(stamp))} topshirilgan</div>`
+      : '';
     return `<div class="pd-result-card">
       <div class="pd-result-top">
         <span class="pd-result-label">Olgan test bahosi</span>
@@ -673,6 +691,7 @@ function renderResults(){
         <span class="pd-unit-name">${escapeHtml(unit)}</span>
         ${badge}
       </div>
+      ${dateHtml}
     </div>`;
   }).join('');
   const avg = count > 0 ? (sum / count).toFixed(1) : '—';
