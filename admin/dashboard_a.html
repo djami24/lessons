@@ -187,7 +187,6 @@
       <li><a href="#" id="navBroadcast"><span class="nav-icon-emoji">📢</span><span class="nav-label"> Xabar yuborish</span></a></li>
       <li><a href="#" id="navChats"><span class="nav-icon-emoji">💬</span><span class="nav-label"> Chatlar</span><span id="navChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
       <li><a href="#" id="navParentChats"><span class="nav-icon-emoji">👪</span><span class="nav-label"> Ota-onalar</span><span id="navParentChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
-      <li><a href="#" id="navActivity">🕒 Faollik</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -410,41 +409,6 @@
     </section>
 
     <!-- ===== STUDENTS VIEW ===== -->
-    <!-- ===== FAOLLIK (kirish/ro'yxatdan o'tish jurnali) ===== -->
-    <section id="view-activity" hidden>
-      <div class="admin-header">
-        <div>
-          <h1>🕒 Faollik</h1>
-          <p>Talaba va ota-onalarning ro‘yxatdan o‘tgan sanasi va oxirgi kirgan vaqti — sahifa ochiq turganda avtomatik yangilanib turadi.</p>
-        </div>
-      </div>
-
-      <div style="display:flex; align-items:center; gap:1em; margin-bottom:1.2em; flex-wrap:wrap;">
-        <div style="position:relative; flex:1; min-width:240px; max-width:420px;">
-          <input type="text" id="activitySearchInput" placeholder="Ism yoki email bo‘yicha qidirish…"
-            style="width:100%; padding:.75em 1em .75em 2.4em; border-radius:var(--radius-s); border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:.95rem;">
-          <span style="position:absolute; left:.85em; top:50%; transform:translateY(-50%); opacity:.55;">🔍</span>
-        </div>
-        <select id="activityTypeFilter" style="padding:.7em 1em; border-radius:var(--radius-s); border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:.9rem;">
-          <option value="all">Hammasi</option>
-          <option value="student">Faqat talabalar</option>
-          <option value="parent">Faqat ota-onalar</option>
-        </select>
-        <span id="activityCount" style="color:var(--gray); font-size:.85rem; white-space:nowrap;"></span>
-      </div>
-
-      <table class="data-table">
-        <thead>
-          <tr><th>Turi</th><th>Ism</th><th>Email</th><th>Ro‘yxatdan o‘tgan</th><th>Oxirgi kirish</th></tr>
-        </thead>
-        <tbody id="activityTableBody"></tbody>
-      </table>
-      <div id="activityEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
-        <h3>Hali hech kim yo‘q</h3>
-        <p>Talaba yoki ota-ona ro‘yxatdan o‘tishi bilan shu yerda paydo bo‘ladi.</p>
-      </div>
-    </section>
-
     <section id="view-students" hidden>
       <div class="admin-header">
         <div>
@@ -2864,8 +2828,6 @@ function switchView(view){
   document.getElementById('view-oquv-students').hidden = view !== 'oquv-students';
   document.getElementById('view-oquv-progress').hidden = view !== 'oquv-progress';
   document.getElementById('view-gradebook').hidden = view !== 'gradebook';
-  document.getElementById('view-activity').hidden = view !== 'activity';
-  document.getElementById('navActivity').classList.toggle('active', view === 'activity');
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
   document.getElementById('navCefr').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'cefr');
@@ -3234,99 +3196,7 @@ function initials(name){
   return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
 }
 
-// ---------- Faollik (activity log): render ----------
-
-// Same dual-format handling as formatStudentCreatedAt, but also shows the
-// clock time — used for "oxirgi kirish" (last login) so it's obvious
-// exactly when someone logged in, not just which day.
-function formatDateTime(ts){
-  if(!ts) return '—';
-  const d = typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
-  if(isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString('uz-UZ') + ', ' + d.toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' });
-}
-
-let activityStudents = [];
-let activityParents = [];
-let activityStudentsUnsub = null;
-let activityParentsUnsub = null;
-
-function startActivityListeners(){
-  if(activityStudentsUnsub) return; // already listening
-  activityStudentsUnsub = db.collection('students').onSnapshot(snap => {
-    activityStudents = snap.docs.map(d => ({ id: d.id, type: 'student', ...d.data() }));
-    renderActivity();
-  }, err => console.error('Activity (students) listen failed:', err));
-  activityParentsUnsub = db.collection('parents').onSnapshot(snap => {
-    activityParents = snap.docs.map(d => ({ id: d.id, type: 'parent', ...d.data() }));
-    renderActivity();
-  }, err => console.error('Activity (parents) listen failed:', err));
-}
-
-function renderActivity(){
-  const bodyEl = document.getElementById('activityTableBody');
-  const emptyEl = document.getElementById('activityEmpty');
-  const countEl = document.getElementById('activityCount');
-  const searchInput = document.getElementById('activitySearchInput');
-  const typeFilter = document.getElementById('activityTypeFilter');
-  if(!bodyEl) return;
-
-  const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
-  const wantType = typeFilter ? typeFilter.value : 'all';
-
-  let rows = [...activityStudents, ...activityParents];
-  if(wantType !== 'all') rows = rows.filter(r => r.type === wantType);
-  if(query){
-    rows = rows.filter(r => {
-      const haystack = [r.name, r.email].filter(Boolean).join(' ').toLowerCase();
-      return haystack.includes(query);
-    });
-  }
-
-  // Most recently active first; those who've never logged in sink to the
-  // bottom (sorted by registration date among themselves).
-  rows.sort((a, b) => {
-    const aLogin = a.lastLogin && typeof a.lastLogin.toMillis === 'function' ? a.lastLogin.toMillis() : (a.lastLogin ? new Date(a.lastLogin).getTime() : -1);
-    const bLogin = b.lastLogin && typeof b.lastLogin.toMillis === 'function' ? b.lastLogin.toMillis() : (b.lastLogin ? new Date(b.lastLogin).getTime() : -1);
-    if(aLogin !== bLogin) return bLogin - aLogin;
-    const aCreated = a.createdAt && typeof a.createdAt.toMillis === 'function' ? a.createdAt.toMillis() : (a.createdAt ? new Date(a.createdAt).getTime() : 0);
-    const bCreated = b.createdAt && typeof b.createdAt.toMillis === 'function' ? b.createdAt.toMillis() : (b.createdAt ? new Date(b.createdAt).getTime() : 0);
-    return bCreated - aCreated;
-  });
-
-  if(countEl) countEl.textContent = `${rows.length} ta`;
-
-  if(rows.length === 0){
-    bodyEl.innerHTML = '';
-    if(emptyEl) emptyEl.style.display = 'block';
-    return;
-  }
-  if(emptyEl) emptyEl.style.display = 'none';
-
-  bodyEl.innerHTML = rows.map(r => {
-    const typeTag = r.type === 'student'
-      ? '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">🎓 Talaba</span>'
-      : '<span class="tag" style="background:rgba(108,99,255,.14); color:#6c63ff;">👪 Ota-ona</span>';
-    return `<tr>
-      <td>${typeTag}</td>
-      <td>${escapeHtml(r.name || '—')}</td>
-      <td>${escapeHtml(r.email || '—')}</td>
-      <td>${formatStudentCreatedAt(r.createdAt)}</td>
-      <td>${formatDateTime(r.lastLogin)}</td>
-    </tr>`;
-  }).join('');
-}
-
-document.getElementById('activitySearchInput').addEventListener('input', renderActivity);
-document.getElementById('activityTypeFilter').addEventListener('change', renderActivity);
-document.getElementById('navActivity').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('activity');
-  startActivityListeners();
-  renderActivity();
-});
-
-
+function renderStudents(){
   const listEl = document.getElementById('studentsList');
   const empty = document.getElementById('studentsEmpty');
   const noMatch = document.getElementById('studentsNoMatch');
