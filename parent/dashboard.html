@@ -179,12 +179,21 @@
       </div>
 
       <div class="pd-cols">
+        <div class="pd-card" id="latestTestCard">
+          <h3>🏆 Eng so‘nggi test natijasi <a href="#" id="homeSeeResults">Barchasini ko‘rish →</a></h3>
+          <div id="latestTestArea">
+            <div class="pd-empty"><div class="pd-empty-icon">📊</div><p>Hali test natijasi yo‘q.</p></div>
+          </div>
+        </div>
         <div class="pd-card">
           <h3>💬 O‘qituvchi izohi</h3>
           <div id="homeNoteArea">
             <div class="pd-empty"><div class="pd-empty-icon">📭</div><p>Hozircha izoh yo‘q.</p></div>
           </div>
         </div>
+      </div>
+
+      <div class="pd-cols">
         <div class="pd-card">
           <h3>📖 O‘quv jarayoni <a href="#" id="homeSeeProgress">Batafsil →</a></h3>
           <div id="homeUnitsArea">
@@ -341,6 +350,7 @@ document.getElementById('navTeacher').addEventListener('click', e => { e.prevent
 document.getElementById('navSettings').addEventListener('click', e => { e.preventDefault(); switchView('settings'); });
 document.getElementById('logoHomeBtn').addEventListener('click', e => { e.preventDefault(); switchView('home'); });
 document.getElementById('homeSeeProgress').addEventListener('click', e => { e.preventDefault(); switchView('progress'); });
+document.getElementById('homeSeeResults').addEventListener('click', e => { e.preventDefault(); switchView('results'); });
 document.getElementById('sidebarMenuToggle').addEventListener('click', () => {
   document.getElementById('adminSidebar').classList.toggle('is-menu-open');
 });
@@ -451,6 +461,7 @@ async function loadChildData(){
   }
   renderResults();
   renderHomeUnits();
+  renderLatestTestResult();
 }
 
 function attendedVal(e){ return (e.attended === true || e.attended === 'yes') ? 'yes' : (e.attended === false || e.attended === 'no') ? 'no' : (e.attended === 'late' ? 'late' : ''); }
@@ -541,6 +552,52 @@ function renderHomeNote(){
   }
   area.innerHTML = `<div class="pd-note-box">“${escapeHtml(withNote.note)}”<span class="pd-note-date">${escapeHtml(withNote.date || '')}</span></div>`;
 }
+
+// Finds the most recently entered score (by scoreTimestamps, same logic
+// the student dashboard uses) for THIS exact linked child, and shows it
+// on the home page. Falls back to the last unit-in-list with a score if
+// no timestamps exist (older data).
+function renderLatestTestResult(){
+  const area = document.getElementById('latestTestArea');
+  if(!state.gbMatch || !state.gbUnits.length){
+    area.innerHTML = `<div class="pd-empty"><div class="pd-empty-icon">📊</div><p>Hali test natijasi yo‘q.</p></div>`;
+    return;
+  }
+  const stamps = state.gbMatch.scoreTimestamps || {};
+  let latestUnit = null, latestScore = null, bestStamp = -1;
+  let fallbackUnit = null, fallbackScore = null;
+  state.gbUnits.forEach(unit => {
+    const sc = state.gbMatch.scores ? state.gbMatch.scores[unit] : undefined;
+    if(sc === undefined || sc === null || sc === '') return;
+    fallbackUnit = unit;
+    fallbackScore = sc;
+    const stamp = stamps[unit];
+    if(typeof stamp === 'number' && stamp > bestStamp){
+      bestStamp = stamp;
+      latestUnit = unit;
+      latestScore = sc;
+    }
+  });
+  if(latestUnit === null){ latestUnit = fallbackUnit; latestScore = fallbackScore; }
+
+  if(latestUnit === null){
+    area.innerHTML = `<div class="pd-empty"><div class="pd-empty-icon">📊</div><p>Hali test natijasi yo‘q.</p></div>`;
+    return;
+  }
+  const pass = Number(latestScore) >= 60;
+  area.innerHTML = `
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; flex-wrap:wrap;">
+      <div>
+        <div class="pd-unit-name" style="font-size:1rem;">${escapeHtml(latestUnit)}</div>
+        <div style="font-size:.78rem; color:var(--gray); margin-top:.1em;">${escapeHtml(state.gbMatch.group || '')}</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-family:var(--font-display); font-size:1.9rem; font-weight:700;">${escapeHtml(latestScore)}<span style="font-size:1rem; color:var(--gray);">/100</span></div>
+        ${pass ? '<span class="pd-badge pd-badge-pass">O‘TDI</span>' : '<span class="pd-badge pd-badge-fail">QAYTA</span>'}
+      </div>
+    </div>`;
+}
+
 
 function renderResults(){
   const area = document.getElementById('resultsArea');
