@@ -1096,7 +1096,7 @@
         </div>
         <div class="oj-stat-card">
           <div class="oj-stat-val" id="ojStatAvgGrade">—</div>
-          <div class="oj-stat-label">O'rt. baho</div>
+          <div class="oj-stat-label">Jami jazo</div>
         </div>
         <div class="oj-stat-card">
           <div class="oj-stat-val" id="ojStatTotal">0</div>
@@ -1179,16 +1179,9 @@
               <option value="yes">🚫 Ha, jazolandi</option>
             </select>
           </label>
-          <label class="oj-label">
-            <span>⭐ Baho</span>
-            <select id="ojGradeInput" class="oj-select">
-              <option value="">— Yo'q</option>
-              <option value="5">⭐⭐⭐⭐⭐ 5</option>
-              <option value="4">⭐⭐⭐⭐ 4</option>
-              <option value="3">⭐⭐⭐ 3</option>
-              <option value="2">⭐⭐ 2</option>
-              <option value="1">⭐ 1</option>
-            </select>
+          <label class="oj-label" id="ojPunishCountWrap" style="display:none;">
+            <span>🔢 Nechta jazo</span>
+            <input type="number" min="0" step="1" id="ojPunishCountInput" class="oj-input" placeholder="Masalan: 2">
           </label>
           <label class="oj-label" style="grid-column:1/-1;">
             <span>💬 Izoh (ixtiyoriy)</span>
@@ -4881,7 +4874,7 @@ async function loadOjStudents(groupId, groupName, days) {
       const initials = s.name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
       const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : (entry.attended === false || entry.attended === 'no') ? 'no' : (entry.attended === 'late' ? 'late' : '');
       const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : (entry.homeworkDone === false || entry.homeworkDone === 'no') ? 'no' : (entry.homeworkDone === 'partial' ? 'partial' : '');
-      const gradeVal = entry.grade || '';
+      const punishCountVal = entry.punishCount != null ? entry.punishCount : '';
       const punishedVal = entry.punished === true;
 
       const row = document.createElement('div');
@@ -4915,19 +4908,13 @@ async function loadOjStudents(groupId, groupName, days) {
             <input type="text" class="oj-hw-missing" data-field="homeworkMissing" placeholder="Bajarmagan uy vazifasi…">
           </div>
           <button type="button" class="oj-punish-btn${punishedVal ? ' is-active' : ''}" data-punish-btn title="Jazolandi deb belgilash">🚫 Jazolandi</button>
-          <select class="oj-row-grade" data-field="grade">
-            <option value="">Baho</option>
-            <option value="5" ${gradeVal == '5' ? 'selected' : ''}>⭐5</option>
-            <option value="4" ${gradeVal == '4' ? 'selected' : ''}>⭐4</option>
-            <option value="3" ${gradeVal == '3' ? 'selected' : ''}>⭐3</option>
-            <option value="2" ${gradeVal == '2' ? 'selected' : ''}>⭐2</option>
-            <option value="1" ${gradeVal == '1' ? 'selected' : ''}>⭐1</option>
-          </select>
+          <input type="number" min="0" step="1" class="oj-row-grade" data-field="punishCount" placeholder="Nechta jazo" ${punishedVal ? '' : 'hidden'}>
           <span class="oj-row-save"></span>
         </div>
         <button class="oj-row-del" title="O'chirish">✕</button>`;
       row.querySelector('[data-field="homeworkPercent"]').value = entry.homeworkPercent || '';
       row.querySelector('[data-field="homeworkMissing"]').value = entry.homeworkMissing || '';
+      row.querySelector('[data-field="punishCount"]').value = punishCountVal;
 
       row.querySelector('[data-open]').addEventListener('click', () => openOjProgress(sid, s.name));
 
@@ -4984,16 +4971,24 @@ async function loadOjStudents(groupId, groupName, days) {
         });
       });
 
-      const gradeSelect = row.querySelector('.oj-row-grade');
-      gradeSelect.addEventListener('click', (e) => e.stopPropagation());
-      gradeSelect.addEventListener('change', () => ojQuickSave({ grade: gradeSelect.value }));
+      const punishCountInput = row.querySelector('[data-field="punishCount"]');
+      punishCountInput.addEventListener('click', (e) => e.stopPropagation());
+      punishCountInput.addEventListener('blur', () => ojQuickSave({ punishCount: punishCountInput.value ? Number(punishCountInput.value) : null }));
+      punishCountInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); punishCountInput.blur(); } });
 
       const punishBtn = row.querySelector('[data-punish-btn]');
       punishBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         const nowPunished = !punishBtn.classList.contains('is-active');
         punishBtn.classList.toggle('is-active', nowPunished);
-        ojQuickSave({ punished: nowPunished });
+        punishCountInput.hidden = !nowPunished;
+        if (nowPunished) {
+          ojQuickSave({ punished: true });
+          punishCountInput.focus();
+        } else {
+          punishCountInput.value = '';
+          ojQuickSave({ punished: false, punishCount: null });
+        }
       });
 
       hwPercentInput.addEventListener('click', (e) => e.stopPropagation());
@@ -5205,6 +5200,12 @@ function toggleOjHwExtras(val) {
 }
 document.getElementById('ojHomeworkInput').addEventListener('change', (e) => toggleOjHwExtras(e.target.value));
 
+function toggleOjPunishExtras(val) {
+  document.getElementById('ojPunishCountWrap').style.display = val === 'yes' ? '' : 'none';
+  if (val !== 'yes') document.getElementById('ojPunishCountInput').value = '';
+}
+document.getElementById('ojPunishedInput').addEventListener('change', (e) => toggleOjPunishExtras(e.target.value));
+
 function openOjProgress(studentId, studentName) {
   _ojActiveStudentId = studentId;
   _ojActiveStudentName = studentName;
@@ -5220,7 +5221,8 @@ function openOjProgress(studentId, studentName) {
   document.getElementById('ojHwPercentInput').value = '';
   document.getElementById('ojHwMissingInput').value = '';
   toggleOjHwExtras('');
-  document.getElementById('ojGradeInput').value = '';
+  document.getElementById('ojPunishCountInput').value = '';
+  toggleOjPunishExtras('');
   document.getElementById('ojPunishedInput').value = '';
   document.getElementById('ojNoteInput').value = '';
   document.getElementById('ojEntryEditingId').value = '';
@@ -5248,11 +5250,10 @@ function renderOjEntries() {
   const total = _ojProgressEntries.length;
   const attended = _ojProgressEntries.filter(e => e.attended === true || e.attended === 'yes').length;
   const hw = _ojProgressEntries.filter(e => e.homeworkDone === true || e.homeworkDone === 'yes').length;
-  const graded = _ojProgressEntries.filter(e => e.grade);
-  const avgGrade = graded.length ? (graded.reduce((s,e)=>s+Number(e.grade),0)/graded.length).toFixed(1) : '—';
+  const totalPunishCount = _ojProgressEntries.reduce((s,e)=> s + (Number(e.punishCount) || 0), 0);
   document.getElementById('ojStatAttend').textContent = total ? Math.round(attended/total*100)+'%' : '—';
   document.getElementById('ojStatHw').textContent = total ? Math.round(hw/total*100)+'%' : '—';
-  document.getElementById('ojStatAvgGrade').textContent = avgGrade;
+  document.getElementById('ojStatAvgGrade').textContent = totalPunishCount;
   document.getElementById('ojStatTotal').textContent = total;
 
   ojRenderPeriodStats(7, 'ojWeekStatHw', 'ojWeekStatMissed', 'ojWeekStatLate');
@@ -5266,7 +5267,7 @@ function renderOjEntries() {
     const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : entry.homeworkDone === false || entry.homeworkDone === 'no' ? 'no' : entry.homeworkDone === 'partial' ? 'partial' : '';
     const attendBadge = attendVal === 'yes' ? '<span class="oj-badge oj-badge-yes">✅ Keldi</span>' : attendVal === 'late' ? '<span class="oj-badge oj-badge-partial">⏰ Kech qoldi</span>' : attendVal === 'no' ? '<span class="oj-badge oj-badge-no">🚫 Kelmadi</span>' : '<span class="oj-badge oj-badge-pending">—</span>';
     const hwBadge = hwVal === 'yes' ? '<span class="oj-badge oj-badge-yes">✅ Qildi</span>' : hwVal === 'no' ? '<span class="oj-badge oj-badge-no">🕓 Qilmadi</span>' : hwVal === 'partial' ? `<span class="oj-badge oj-badge-partial">🔶 ${entry.homeworkPercent || 0}% qildi</span>` : '<span class="oj-badge oj-badge-pending">—</span>';
-    const gradePill = entry.grade ? `<span class="oj-grade-pill">${entry.grade}</span>` : '<span style="color:var(--gray); font-size:.85rem;">—</span>';
+    const gradePill = entry.punishCount ? `<span class="oj-grade-pill">${entry.punishCount}</span>` : '<span style="color:var(--gray); font-size:.85rem;">—</span>';
     const card = document.createElement('div');
     card.className = 'oj-entry-card';
     card.style.gridTemplateColumns = 'auto 1fr 1fr auto auto';
@@ -5334,8 +5335,10 @@ function ojStartEdit(entryId) {
   document.getElementById('ojHwPercentInput').value = entry.homeworkPercent || '';
   document.getElementById('ojHwMissingInput').value = entry.homeworkMissing || '';
   toggleOjHwExtras(hwVal);
-  document.getElementById('ojGradeInput').value = entry.grade || '';
-  document.getElementById('ojPunishedInput').value = entry.punished === true ? 'yes' : '';
+  const punishedEditVal = entry.punished === true ? 'yes' : '';
+  document.getElementById('ojPunishedInput').value = punishedEditVal;
+  toggleOjPunishExtras(punishedEditVal);
+  document.getElementById('ojPunishCountInput').value = entry.punishCount != null ? entry.punishCount : '';
   document.getElementById('ojNoteInput').value = entry.note || '';
   document.getElementById('ojCancelEditBtn').hidden = false;
   document.querySelector('.oj-form-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -5349,8 +5352,9 @@ document.getElementById('ojCancelEditBtn').addEventListener('click', () => {
   document.getElementById('ojHwPercentInput').value = '';
   document.getElementById('ojHwMissingInput').value = '';
   toggleOjHwExtras('');
-  document.getElementById('ojGradeInput').value = '';
   document.getElementById('ojPunishedInput').value = '';
+  document.getElementById('ojPunishCountInput').value = '';
+  toggleOjPunishExtras('');
   document.getElementById('ojNoteInput').value = '';
   document.getElementById('ojCancelEditBtn').hidden = true;
 });
@@ -5361,8 +5365,9 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
   const homeworkDone = document.getElementById('ojHomeworkInput').value;
   const homeworkPercent = homeworkDone === 'partial' ? document.getElementById('ojHwPercentInput').value : '';
   const homeworkMissing = homeworkDone === 'partial' ? document.getElementById('ojHwMissingInput').value.trim() : '';
-  const grade = document.getElementById('ojGradeInput').value;
   const punished = document.getElementById('ojPunishedInput').value === 'yes';
+  const punishCountRaw = document.getElementById('ojPunishCountInput').value;
+  const punishCount = punished && punishCountRaw ? Number(punishCountRaw) : null;
   const note = document.getElementById('ojNoteInput').value.trim();
   const status = document.getElementById('ojSaveStatus');
   const editingId = document.getElementById('ojEntryEditingId').value;
@@ -5371,7 +5376,7 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
   try {
     const docId = editingId || date;
     await db.collection('oquv_progress').doc(_ojActiveStudentId)
-      .collection('entries').doc(docId).set({ date, attended, homeworkDone, homeworkPercent, homeworkMissing, grade, punished, note });
+      .collection('entries').doc(docId).set({ date, attended, homeworkDone, homeworkPercent, homeworkMissing, punished, punishCount, note });
     status.textContent = '✅ Saqlandi!';
     document.getElementById('ojEntryEditingId').value = '';
     document.getElementById('ojAttendedInput').value = '';
@@ -5379,8 +5384,9 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
     document.getElementById('ojHwPercentInput').value = '';
     document.getElementById('ojHwMissingInput').value = '';
     toggleOjHwExtras('');
-    document.getElementById('ojGradeInput').value = '';
     document.getElementById('ojPunishedInput').value = '';
+    document.getElementById('ojPunishCountInput').value = '';
+    toggleOjPunishExtras('');
     document.getElementById('ojNoteInput').value = '';
     document.getElementById('ojCancelEditBtn').hidden = true;
     setTimeout(() => status.textContent = '', 2500);
