@@ -65,6 +65,14 @@
   .pd-legend-count{ margin-left:auto; font-weight:700; }
 
   .pd-unit-list{ display:flex; flex-direction:column; gap:.6em; }
+
+  .pd-result-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:14px; }
+  .pd-result-card{ border:1.5px solid var(--line); border-radius: var(--radius-m); padding: 1.1em 1.2em; background: var(--paper-2); }
+  .pd-result-top{ text-align:center; padding-bottom: .8em; margin-bottom: .8em; border-bottom: 1px dashed var(--line); }
+  .pd-result-label{ display:block; font-size:.72rem; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--gray); margin-bottom:.35em; }
+  .pd-result-score{ font-family: var(--font-display); font-size: 2rem; font-weight:700; color: var(--ink); }
+  .pd-result-score small{ font-size:.9rem; font-weight:600; color:var(--gray); }
+  .pd-result-bottom{ display:flex; align-items:center; justify-content:space-between; gap:.6em; flex-wrap:wrap; }
   .pd-unit-row{ display:flex; align-items:center; justify-content:space-between; gap:.8em; padding:.6em .2em; border-bottom:1px solid var(--line); }
   .pd-unit-row:last-child{ border-bottom:none; }
   .pd-unit-name{ font-weight:700; font-size:.92rem; }
@@ -650,18 +658,27 @@ function renderResults(){
     return;
   }
   let sum = 0, count = 0;
-  const rows = state.gbUnits.map(unit => {
+  const cards = state.gbUnits.map(unit => {
     const raw = state.gbMatch.scores ? state.gbMatch.scores[unit] : undefined;
     const has = raw !== undefined && raw !== null && raw !== '';
     const score = has ? Number(raw) : null;
     if(has && !isNaN(score)){ sum += score; count++; }
-    const badge = !has ? '<span class="pd-badge">—</span>' : (score >= 60 ? '<span class="pd-badge pd-badge-pass">O‘TDI</span>' : '<span class="pd-badge pd-badge-fail">QAYTA</span>');
-    return `<div class="pd-unit-row"><span class="pd-unit-name">${escapeHtml(unit)}</span><span class="pd-unit-score">${has ? score : '—'}</span>${badge}</div>`;
+    const badge = !has ? '<span class="pd-badge">Hali topshirmagan</span>' : (score >= 60 ? '<span class="pd-badge pd-badge-pass">O‘TDI</span>' : '<span class="pd-badge pd-badge-fail">QAYTA</span>');
+    return `<div class="pd-result-card">
+      <div class="pd-result-top">
+        <span class="pd-result-label">Olgan test bahosi</span>
+        <span class="pd-result-score">${has ? score : '—'}${has ? '<small>/100</small>' : ''}</span>
+      </div>
+      <div class="pd-result-bottom">
+        <span class="pd-unit-name">${escapeHtml(unit)}</span>
+        ${badge}
+      </div>
+    </div>`;
   }).join('');
   const avg = count > 0 ? (sum / count).toFixed(1) : '—';
   document.getElementById('statTestAvg').textContent = avg === '—' ? '—' : avg + '%';
-  area.innerHTML = `<div class="pd-unit-list">${rows}</div>
-    <div class="pd-unit-row" style="border-top:2px solid var(--line); margin-top:.4em;"><span class="pd-unit-name">O‘rtacha ball</span><span class="pd-unit-score">${avg}${avg !== '—' ? '%' : ''}</span></div>`;
+  area.innerHTML = `<div class="pd-result-grid">${cards}</div>
+    <div class="pd-unit-row" style="border-top:2px solid var(--line); margin-top:1em; padding-top:.8em;"><span class="pd-unit-name">O‘rtacha ball</span><span class="pd-unit-score">${avg}${avg !== '—' ? '%' : ''}</span></div>`;
 }
 
 function renderHomeUnits(){
