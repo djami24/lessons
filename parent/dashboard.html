@@ -201,9 +201,9 @@
           <div class="pd-stat-sub" id="statTestAvgSub">Gradebook</div>
         </div>
         <div class="pd-stat-card">
-          <div class="pd-stat-label">🏆 Umumiy reyting</div>
-          <div class="pd-stat-val" id="statRating">—</div>
-          <div class="pd-stat-sub" id="statRatingSub">Kunlik baholar asosida</div>
+          <div class="pd-stat-label">📅 Keyingi dars</div>
+          <div class="pd-stat-val" id="statNextLesson" style="font-size:1.05rem;">—</div>
+          <div class="pd-stat-sub" id="statNextLessonSub">Ma’lumot yo‘q</div>
         </div>
       </div>
 
@@ -346,7 +346,46 @@
 <script src="../site-settings.js"></script>
 <script>
 
-const state = { parent: null, uid: null, childCode: null, childInfo: null, entries: [], gbMatch: null, gbUnits: [] };
+const state = { parent: null, uid: null, childCode: null, childInfo: null, entries: [], gbMatch: null, gbUnits: [], childGroupInfo: null };
+
+/* ---------- next lesson (kun/vaqt) helpers ---------- */
+const PD_JSDAY_TO_KEY = ['sun','mon','tue','wed','thu','fri','sat'];
+const PD_DAY_LABELS = { mon:'Dushanba', tue:'Seshanba', wed:'Chorshanba', thu:'Payshanba', fri:'Juma', sat:'Shanba', sun:'Yakshanba' };
+
+// Given a group's { days:[...], time } schedule, finds the next date
+// (today or one of the next 7 days) that matches one of its lesson days.
+function findNextLessonDate(days){
+  if(!days || !days.length) return null;
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  for(let i = 0; i < 8; i++){
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    if(days.includes(PD_JSDAY_TO_KEY[d.getDay()])) return { date: d, offset: i };
+  }
+  return null;
+}
+
+function renderNextLesson(){
+  const valEl = document.getElementById('statNextLesson');
+  const subEl = document.getElementById('statNextLessonSub');
+  const g = state.childGroupInfo;
+  if(!g || !g.days || !g.days.length){
+    valEl.textContent = '—';
+    subEl.textContent = 'Ma’lumot yo‘q';
+    return;
+  }
+  const next = findNextLessonDate(g.days);
+  if(!next){
+    valEl.textContent = '—';
+    subEl.textContent = 'Ma’lumot yo‘q';
+    return;
+  }
+  const dayLabel = next.offset === 0 ? 'Bugun' : next.offset === 1 ? 'Ertaga' : PD_DAY_LABELS[PD_JSDAY_TO_KEY[next.date.getDay()]];
+  const dateLabel = next.date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long' });
+  valEl.textContent = `${dayLabel}, ${dateLabel}`;
+  subEl.textContent = g.time ? `🕐 ${g.time}` : 'Vaqt kiritilmagan';
+}
 
 function escapeHtml(str){
   const d = document.createElement('div');
@@ -461,6 +500,19 @@ async function loadChildData(){
   ['homeChildGroup','childGroup2'].forEach(id => document.getElementById(id).textContent = group || '—');
   ['homeChildAvatar','childAvatar2'].forEach(id => document.getElementById(id).textContent = initialsFor(name));
 
+  // Guruhning dars kunlari/vaqti (keyingi dars kartochkasi uchun)
+  try{
+    if(group){
+      const groupSnap = await db.collection('oquv_groups').where('name', '==', group).limit(1).get();
+      state.childGroupInfo = groupSnap.empty ? null : groupSnap.docs[0].data();
+    } else {
+      state.childGroupInfo = null;
+    }
+  } catch(err){
+    state.childGroupInfo = null;
+  }
+  renderNextLesson();
+
   // Entries (davomat / uy vazifa / baho / izoh)
   try{
     const snap = await db.collection('oquv_progress').doc(state.childCode)
@@ -536,9 +588,6 @@ function renderAttendanceHomeworkStats(){
   document.getElementById('statAttendanceSub').textContent = total ? `${attYes + attLate}/${total} darsda ishtirok etdi` : 'Ma’lumot yo‘q';
   document.getElementById('statHomework').textContent = hwPct === null ? '—' : hwPct + '%';
   document.getElementById('statHomeworkSub').textContent = total ? `${hwYes} bajargan, ${hwNo} bajarmagan` : 'Ma’lumot yo‘q';
-  document.getElementById('statRating').textContent = avgGrade === null ? '—' : avgGrade.toFixed(1) + '/5';
-  document.getElementById('statRatingSub').textContent = graded.length ? `${graded.length} ta kunlik baho asosida` : 'Hali baho yo‘q';
-
   document.getElementById('childStatAttendance').textContent = attPct === null ? '—' : attPct + '%';
   document.getElementById('childStatHomework').textContent = hwPct === null ? '—' : hwPct + '%';
   document.getElementById('childStatGrade').textContent = avgGrade === null ? '—' : avgGrade.toFixed(1) + '/5';
