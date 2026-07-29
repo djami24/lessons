@@ -161,7 +161,7 @@
             <span id="homeChildGroupWrap">Guruh: <b id="homeChildGroup">—</b></span>
           </div>
         </div>
-        <span class="pd-child-status">Faol</span>
+        <span class="pd-child-status" id="homeChildStatus">Faol</span>
       </div>
 
       <div class="pd-stat-row">
@@ -484,6 +484,22 @@ function hwVal(e){ return (e.homeworkDone === true || e.homeworkDone === 'yes') 
 function renderAttendanceHomeworkStats(){
   const entries = state.entries;
   const total = entries.length;
+
+  // entries[0] is the most recent (ordered by date desc) — reflect
+  // today's/latest "jazolandi" flag on the child-status badge.
+  const statusEl = document.getElementById('homeChildStatus');
+  if(statusEl){
+    if(entries.length && entries[0].punished === true){
+      statusEl.textContent = '🚫 Jazolandi';
+      statusEl.style.background = 'rgba(192,57,43,.12)';
+      statusEl.style.color = '#c0392b';
+    } else {
+      statusEl.textContent = 'Faol';
+      statusEl.style.background = '';
+      statusEl.style.color = '';
+    }
+  }
+
   const attYes = entries.filter(e => attendedVal(e) === 'yes').length;
   const attLate = entries.filter(e => attendedVal(e) === 'late').length;
   const attNo = entries.filter(e => attendedVal(e) === 'no').length;
@@ -549,9 +565,10 @@ function renderProgressEntries(){
     const attBadge = av === 'yes' ? '<span class="pd-badge pd-badge-pass">✅ Keldi</span>' : av === 'late' ? '<span class="pd-badge" style="background:rgba(217,142,63,.16);color:#c08a2e;">⏰ Kech qoldi</span>' : av === 'no' ? '<span class="pd-badge pd-badge-fail">🚫 Kelmadi</span>' : '<span class="pd-badge">—</span>';
     const hwBadge = hv === 'yes' ? '<span class="pd-badge pd-badge-pass">✅ Qildi</span>' : hv === 'partial' ? `<span class="pd-badge" style="background:rgba(217,142,63,.16);color:#c08a2e;">🔶 ${e.homeworkPercent || 0}%</span>` : hv === 'no' ? '<span class="pd-badge pd-badge-fail">🕓 Qilmadi</span>' : '<span class="pd-badge">—</span>';
     const gradeHtml = e.grade ? `<span class="pd-unit-score">${escapeHtml(e.grade)}/5</span>` : '';
+    const punishedBadge = e.punished === true ? '<span class="pd-badge pd-badge-fail">🚫 Jazolandi</span>' : '';
     return `<div class="pd-entry-row">
       <span class="pd-entry-date">📅 ${escapeHtml(formatEntryDateLabel(e.date))}</span>
-      ${attBadge}${hwBadge}${gradeHtml}
+      ${attBadge}${hwBadge}${gradeHtml}${punishedBadge}
       ${e.note ? `<div class="pd-entry-note">💬 ${escapeHtml(e.note)}</div>` : ''}
     </div>`;
   }).join('');
