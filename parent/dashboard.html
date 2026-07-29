@@ -255,11 +255,15 @@
     <!-- ===== DAVOMAT ===== -->
     <section id="view-attendance" hidden>
       <div class="admin-header"><div><h1>📅 Davomat</h1><p>Darslarga qatnashish ko‘rsatkichi.</p></div></div>
-      <div class="pd-card">
+      <div class="pd-card" style="margin-bottom:1.4em;">
         <div class="pd-donut-row">
           <div class="pd-donut" id="attDonut"><div class="pd-donut-hole"><strong id="attDonutTotal">0</strong><span>jami dars</span></div></div>
           <div class="pd-legend" id="attLegend"></div>
         </div>
+      </div>
+      <div class="pd-card">
+        <h3>Kunlar bo‘yicha davomat</h3>
+        <div id="attendanceEntriesArea" class="pd-entry-list"></div>
       </div>
     </section>
 
@@ -437,6 +441,7 @@ async function loadChildData(){
     state.entries = [];
   }
   renderAttendanceHomeworkStats();
+  renderAttendanceEntries();
   renderProgressEntries();
   renderHomeNote();
 
@@ -539,6 +544,40 @@ function renderProgressEntries(){
       <span class="pd-entry-date">📅 ${escapeHtml(e.date || '')}</span>
       ${attBadge}${hwBadge}${gradeHtml}
       ${e.note ? `<div class="pd-entry-note">💬 ${escapeHtml(e.note)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// Formats a stored 'YYYY-MM-DD' date string into a readable Uzbek label
+// with weekday name (e.g. "Dushanba, 27-iyul 2026"). Entries only store a
+// date (no clock time is recorded by the admin panel), so the list below
+// shows the date + weekday and the attendance status for that day.
+function formatEntryDateLabel(dateStr){
+  if(!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  if(isNaN(d.getTime())) return dateStr;
+  const label = d.toLocaleDateString('uz-UZ', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}
+
+function renderAttendanceEntries(){
+  const area = document.getElementById('attendanceEntriesArea');
+  if(!state.entries.length){
+    area.innerHTML = `<div class="pd-empty"><div class="pd-empty-icon">📂</div><p>Hali davomat yozuvi kiritilmagan.</p></div>`;
+    return;
+  }
+  area.innerHTML = state.entries.map(e => {
+    const av = attendedVal(e);
+    const attBadge = av === 'yes'
+      ? '<span class="pd-badge pd-badge-pass">✅ Keldi</span>'
+      : av === 'late'
+        ? '<span class="pd-badge" style="background:rgba(217,142,63,.16);color:#c08a2e;">⏰ Kech qoldi</span>'
+        : av === 'no'
+          ? '<span class="pd-badge pd-badge-fail">🚫 Kelmadi</span>'
+          : '<span class="pd-badge">— Belgilanmagan</span>';
+    return `<div class="pd-entry-row">
+      <span class="pd-entry-date">📅 ${escapeHtml(formatEntryDateLabel(e.date))}</span>
+      ${attBadge}
     </div>`;
   }).join('');
 }
