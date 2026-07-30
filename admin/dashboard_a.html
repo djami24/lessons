@@ -4553,13 +4553,14 @@ function renderRatingStats(sum, count){
       if(data.ok) return { ok: true };
 
       if(blog.imageUrl){
+        console.warn('sendPhoto xato:', data.description, '| imageUrl:', blog.imageUrl);
         var res2 = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ chat_id: chatId, text: caption, parse_mode: 'HTML', disable_web_page_preview: false })
         });
         var d2 = await res2.json();
-        if(d2.ok) return { ok: true };
+        if(d2.ok) return { ok: true, photoError: data.description || 'Rasm yuborilmadi' };
         return { ok: false, error: d2.description || 'Xatolik' };
       }
       return { ok: false, error: data.description || 'Xatolik' };
@@ -4597,11 +4598,16 @@ function renderRatingStats(sum, count){
 
     var ok  = results.filter(function(r){ return r.ok; }).length;
     var err = results.filter(function(r){ return !r.ok; });
+    var photoErr = results.find(function(r){ return r.ok && r.photoError; });
 
     if(btn){ btn.disabled = false; btn.textContent = 'Telegram'; }
 
     if(err.length === 0){
-      showToast('Blog ' + ok + ' ta joyga yuborildi!');
+      if(photoErr){
+        showToast('Blog ' + ok + ' ta joyga yuborildi (rasmsiz - ' + photoErr.photoError + ')');
+      } else {
+        showToast('Blog ' + ok + ' ta joyga yuborildi!');
+      }
     } else if(ok > 0){
       showToast(ok + ' ta yuborildi, ' + err.length + ' ta xato: ' + err[0].error);
     } else {
