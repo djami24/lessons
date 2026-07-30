@@ -207,6 +207,11 @@
         </div>
       </div>
 
+      <div class="pd-card" id="weeklyReportCard" style="margin-bottom:1.4em;">
+        <h3>🗓️ Haftalik hisobot <span id="weeklyReportRange" style="font-weight:400; font-size:.8rem; color:var(--gray); margin-left:auto;"></span></h3>
+        <div id="weeklyReportBody"></div>
+      </div>
+
       <div class="pd-cols">
         <div class="pd-card" id="latestTestCard">
           <h3>🏆 Eng so‘nggi test natijasi <a href="#" id="homeSeeResults">Barchasini ko‘rish →</a></h3>
@@ -559,6 +564,7 @@ async function loadChildData(){
   renderAttendanceEntries();
   renderProgressEntries();
   renderHomeNote();
+  renderWeeklyReport();
 
   // Gradebook (test natijalari)
   try{
@@ -586,6 +592,69 @@ async function loadChildData(){
 
 function attendedVal(e){ return (e.attended === true || e.attended === 'yes') ? 'yes' : (e.attended === false || e.attended === 'no') ? 'no' : (e.attended === 'late' ? 'late' : ''); }
 function hwVal(e){ return (e.homeworkDone === true || e.homeworkDone === 'yes') ? 'yes' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : (e.homeworkDone === 'partial' ? 'partial' : ''); }
+
+// Joriy hafta (Dushanba — Yakshanba, bugungi kungacha) bo'yicha davomat,
+// uy vazifasi va baholar xulosasini chiqaradi. Bu — saytga har kirganda
+// avtomatik hisoblanadigan "haftalik hisobot" (push/email emas, sahifada
+// ko'rinadigan xulosa).
+function renderWeeklyReport(){
+  const rangeEl = document.getElementById('weeklyReportRange');
+  const bodyEl = document.getElementById('weeklyReportBody');
+  if(!rangeEl || !bodyEl) return;
+
+  const now = new Date();
+  const dayIdx = now.getDay(); // 0=Yak,1=Dush,...6=Shan
+  const diffToMonday = dayIdx === 0 ? 6 : dayIdx - 1;
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - diffToMonday);
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+
+  const toStr = d => d.toISOString().slice(0,10);
+  const mondayStr = toStr(monday);
+  const todayStr = toStr(now);
+  const fmt = d => d.toLocaleDateString('uz-UZ', { day:'numeric', month:'long' });
+  rangeEl.textContent = `${fmt(monday)} — ${fmt(sunday)}`;
+
+  const weekEntries = (state.entries || []).filter(e => e.date && e.date >= mondayStr && e.date <= todayStr);
+
+  if(!weekEntries.length){
+    bodyEl.innerHTML = `<div class="pd-empty"><div class="pd-empty-icon">📭</div><p>Bu hafta hali ma'lumot kiritilmagan.</p></div>`;
+    return;
+  }
+
+  const attYes = weekEntries.filter(e => attendedVal(e) === 'yes').length;
+  const attLate = weekEntries.filter(e => attendedVal(e) === 'late').length;
+  const attNo = weekEntries.filter(e => attendedVal(e) === 'no').length;
+  const hwYes = weekEntries.filter(e => hwVal(e) === 'yes').length;
+  const hwPartial = weekEntries.filter(e => hwVal(e) === 'partial').length;
+  const hwNo = weekEntries.filter(e => hwVal(e) === 'no').length;
+  const graded = weekEntries.filter(e => e.grade);
+  const avgGrade = graded.length ? (graded.reduce((s,e) => s + Number(e.grade), 0) / graded.length) : null;
+  const total = weekEntries.length;
+
+  bodyEl.innerHTML = `
+    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8em;">
+      <div class="pd-stat-card" style="padding:.9em 1em;">
+        <div class="pd-stat-label">✅ Darsga keldi</div>
+        <div class="pd-stat-val" style="font-size:1.15rem;">${attYes + attLate}/${total}</div>
+        <div class="pd-stat-sub">${attNo ? `${attNo} kun kelmadi` : 'Hammasida qatnashdi'}</div>
+      </div>
+      <div class="pd-stat-card" style="padding:.9em 1em;">
+        <div class="pd-stat-label">📝 Uy vazifa bajardi</div>
+        <div class="pd-stat-val" style="font-size:1.15rem;">${hwYes}/${total}</div>
+        <div class="pd-stat-sub">${hwNo || hwPartial ? `${hwNo} bajarmadi, ${hwPartial} qisman` : 'Hammasini bajardi'}</div>
+      </div>
+      <div class="pd-stat-card" style="padding:.9em 1em;">
+        <div class="pd-stat-label">⭐ O‘rtacha baho</div>
+        <div class="pd-stat-val" style="font-size:1.15rem;">${avgGrade === null ? '—' : avgGrade.toFixed(1) + '/5'}</div>
+        <div class="pd-stat-sub">${graded.length ? `${graded.length} ta baho asosida` : 'Hali baho yo‘q'}</div>
+      </div>
+    </div>
+  `;
+}
+
 
 function renderAttendanceHomeworkStats(){
   const entries = state.entries;
