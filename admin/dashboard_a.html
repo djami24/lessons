@@ -4588,7 +4588,7 @@ function renderRatingStats(sum, count){
     function escTg(str){ return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
     var caption = (blog.title ? '<b>' + escTg(blog.title) + '</b>\n\n' : '')
                 + (plainText ? escTg(plainText) + (plainText.length === 200 ? '...' : '') + '\n\n' : '')
-                + '<a href="' + escTg(blogUrl) + '">Toliq o'qish</a>';
+                + '<a href="' + escTg(blogUrl) + '">Toliq o\'qish</a>';
 
     var btn = document.querySelector('[data-tg-blog="' + blogId + '"]');
     if(btn){ btn.disabled = true; btn.textContent = '...'; }
