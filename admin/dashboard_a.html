@@ -177,6 +177,13 @@
 .today-hw-card-footer{font-size:.75rem;color:var(--adm-gray,var(--gray));border-top:1px solid var(--adm-line,var(--line));padding-top:10px;display:flex;align-items:center;justify-content:space-between;}
 .today-hw-loading{color:var(--adm-gray,var(--gray));font-size:.85rem;padding:12px 0;}
 .today-hw-refreshed{font-size:.72rem;color:var(--adm-gray,var(--gray));}
+.today-hw-assignment{border-top:1px solid var(--adm-line,var(--line));padding-top:12px;display:flex;flex-direction:column;gap:8px;}
+.today-hw-assignment-item{background:rgba(240,146,61,.08);border:1px solid rgba(240,146,61,.25);border-radius:12px;padding:10px 12px;}
+.today-hw-assignment-title{font-weight:700;font-size:.85rem;color:#D4780A;margin-bottom:4px;}
+.today-hw-assignment-text{font-size:.82rem;color:var(--ink,#1a1a1a);line-height:1.45;max-height:110px;overflow-y:auto;}
+.today-hw-assignment-text p{margin:0 0 6px;}
+.today-hw-assignment-text p:last-child{margin-bottom:0;}
+.today-hw-assignment-empty{font-size:.8rem;color:var(--adm-gray,var(--gray));font-style:italic;padding:4px 0;}
 
 /* ---- Faollik jurnali (Activity Log) ---- */
 .actlog-table-wrap{overflow-x:auto;margin-top:4px;}
@@ -6416,6 +6423,23 @@ startParentChatUnreadListener();
 // ============================================================
 let _todayHwAutoRefreshInterval = null;
 
+// Bugungi kunga tegishli, "Kundalik" bo'limida kiritilgan uy vazifasi matnini
+// guruh nomi bo'yicha topib qaytaradi (agar shu kunga vazifa kiritilgan bo'lsa).
+async function homeFetchTodayKundalikHw(groupName, todayDateStr){
+  try{
+    const kSnap = await db.collection('kundalik').where('name', '==', groupName).limit(1).get();
+    if(kSnap.empty) return { kundalikGroupId: null, items: [] };
+    const kundalikGroupId = kSnap.docs[0].id;
+    const dayStart = firebase.firestore.Timestamp.fromDate(new Date(todayDateStr + 'T00:00:00'));
+    const dayEnd = firebase.firestore.Timestamp.fromDate(new Date(todayDateStr + 'T23:59:59'));
+    const hwSnap = await db.collection('kundalik').doc(kundalikGroupId).collection('vazifalari')
+      .where('sana', '>=', dayStart).where('sana', '<=', dayEnd).get();
+    return { kundalikGroupId, items: hwSnap.docs.map(d => d.data()) };
+  } catch(err){
+    return { kundalikGroupId: null, items: [] };
+  }
+}
+
 async function loadTodayHomeworkCards(){
   const grid = document.getElementById('todayHwGrid');
   const loading = document.getElementById('todayHwLoading');
@@ -6462,12 +6486,23 @@ async function loadTodayHomeworkCards(){
       // xuddi O'quv jarayoni sahifasidagi "qilmaganlar" filtri kabi (5147-qator).
       if(h === 'no' || h === 'partial') hwNo++;
     });
-    return { group: g, entries, attended, absent, hwNo, total: g.students.length };
+    const kundalikInfo = await homeFetchTodayKundalikHw(g.name, todayDateStr);
+    return { group: g, entries, attended, absent, hwNo, total: g.students.length, kundalikGroupId: kundalikInfo.kundalikGroupId, hwItems: kundalikInfo.items };
   }));
 
   grid.innerHTML = '';
-  cardData.forEach(({ group: g, attended, absent, hwNo, total }) => {
+  cardData.forEach(({ group: g, attended, absent, hwNo, total, kundalikGroupId, hwItems }) => {
     const notMarked = total - attended - absent;
+    const openKundalikCall = kundalikGroupId
+      ? `openKundalikGroup('${escHtml(kundalikGroupId)}','${escHtml(g.name)}')`
+      : `loadKundalikGroups()`;
+    const assignmentHtml = hwItems && hwItems.length
+      ? hwItems.map(hw => `
+        <div class="today-hw-assignment-item">
+          <div class="today-hw-assignment-title">📌 ${escHtml(hw.sarlavha || '')}</div>
+          <div class="today-hw-assignment-text">${hw.matn || ''}</div>
+        </div>`).join('')
+      : `<div class="today-hw-assignment-empty">📭 Bugunga uy vazifasi hali kiritilmagan.</div>`;
     const card = document.createElement('div');
     card.className = 'today-hw-card';
     card.innerHTML = `
@@ -6492,9 +6527,13 @@ async function loadTodayHomeworkCards(){
           <div class="today-hw-stat-label">📚 Uy vazifa qilmadi</div>
         </div>
       </div>
+      <div class="today-hw-assignment">${assignmentHtml}</div>
       <div class="today-hw-card-footer">
         <span>${notMarked > 0 ? `⏳ ${notMarked} ta hali belgilanmagan` : '✅ Hammasi belgilangan'}</span>
-        <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;" onclick="loadOjStudents('${escHtml(g.id)}','${escHtml(g.name)}',${JSON.stringify(g.days||[])});switchView('oquv-students');">Ko'rish →</span>
+        <span style="display:flex;gap:14px;">
+          <span style="color:var(--adm-amber,#D4780A);cursor:pointer;font-weight:700;" onclick="switchView('kundalik');${openKundalikCall};">📝 Vazifa</span>
+          <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;" onclick="loadOjStudents('${escHtml(g.id)}','${escHtml(g.name)}',${JSON.stringify(g.days||[])});switchView('oquv-students');">Ko'rish →</span>
+        </span>
       </div>`;
     grid.appendChild(card);
   });
