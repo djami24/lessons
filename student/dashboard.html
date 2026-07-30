@@ -962,6 +962,7 @@ auth.onAuthStateChanged(async (user) => {
   renderHomeView();
   startNotifListener();
   startChatUnreadListener();
+  restoreLastStudentView();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -1110,8 +1111,46 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game'];
 function switchView(view){
+  try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+}
+
+// Logotip orqali sahifa yangilangandan (reload) so'ng, foydalanuvchi qaysi
+// bo'limda turgan bo'lsa, o'sha bo'limga (yoki eng yaqin asosiy bo'limga)
+// qaytarib qo'yadi. Chuqur ichki sahifalar (aniq dars/mavzu/viktorina)
+// uchun eng yaqin menyu bandi — "Kurslarim" ga qaytariladi.
+const STUDENT_VIEW_NAV_MAP = {
+  'profile': 'navProfile',
+  'placement-test': 'navPlacementTest',
+  'courses': 'navCourses',
+  'levels': 'navCourses',
+  'lessons': 'navCourses',
+  'lesson-detail': 'navCourses',
+  'quiz': 'navCourses',
+  'quiz-result': 'navCourses',
+  'payment': 'navCourses',
+  'course-payment': 'navCourses',
+  'course-sections': 'navCourses',
+  'course-topics': 'navCourses',
+  'topic-detail': 'navCourses',
+  'writing-payment': 'navCourses',
+  'writing-tracks': 'navCourses',
+  'writing-folders': 'navCourses',
+  'writing-question': 'navCourses',
+  'my-essays': 'navMyEssays',
+  'word-game': 'navWordGame',
+  'notifications': 'navNotifications',
+  'chat': 'navChat'
+};
+function restoreLastStudentView(){
+  let saved;
+  try{ saved = sessionStorage.getItem('studentLastView'); }catch(err){ saved = null; }
+  if(!saved || saved === 'home') return;
+  const navId = STUDENT_VIEW_NAV_MAP[saved];
+  if(!navId) return;
+  const nav = document.getElementById(navId);
+  if(nav && nav.style.display !== 'none') nav.click();
 }
 
 // ---------- Home (default landing page) ----------
@@ -1637,7 +1676,7 @@ document.getElementById('backToHomeFromCourses').addEventListener('click', (e) =
 document.getElementById('backToHomeFromEssays').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromPlacement').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromProfile').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
-document.getElementById('logoHomeBtn').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
+document.getElementById('logoHomeBtn').addEventListener('click', (e) => { e.preventDefault(); location.reload(); });
 
 // ---------- Courses overview ----------
 
