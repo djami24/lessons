@@ -177,13 +177,22 @@
 .today-hw-card-footer{font-size:.75rem;color:var(--adm-gray,var(--gray));border-top:1px solid var(--adm-line,var(--line));padding-top:10px;display:flex;align-items:center;justify-content:space-between;}
 .today-hw-loading{color:var(--adm-gray,var(--gray));font-size:.85rem;padding:12px 0;}
 .today-hw-refreshed{font-size:.72rem;color:var(--adm-gray,var(--gray));}
-.today-hw-assignment{border-top:1px solid var(--adm-line,var(--line));padding-top:12px;display:flex;flex-direction:column;gap:8px;}
-.today-hw-assignment-item{background:rgba(240,146,61,.08);border:1px solid rgba(240,146,61,.25);border-radius:12px;padding:10px 12px;}
-.today-hw-assignment-title{font-weight:700;font-size:.85rem;color:#D4780A;margin-bottom:4px;}
-.today-hw-assignment-text{font-size:.82rem;color:var(--ink,#1a1a1a);line-height:1.45;max-height:110px;overflow-y:auto;}
-.today-hw-assignment-text p{margin:0 0 6px;}
-.today-hw-assignment-text p:last-child{margin-bottom:0;}
-.today-hw-assignment-empty{font-size:.8rem;color:var(--adm-gray,var(--gray));font-style:italic;padding:4px 0;}
+
+/* ---- Bugungi uy vazifasi — alohida kartochkalar (talaba profilidagi
+   "So'nggi uy vazifasi" kartochkasiga o'xshab) ---- */
+.today-assign-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:4px;}
+.today-assign-card{background:var(--paper);border:1.5px solid var(--adm-line,var(--line));border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:10px;}
+.today-assign-card-head{display:flex;align-items:center;gap:.7em;}
+.today-assign-icon{width:40px;height:40px;border-radius:12px;background:rgba(240,146,61,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.today-assign-eyebrow{font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#D4780A;}
+.today-assign-group{font-weight:700;font-size:.95rem;margin-top:2px;}
+.today-assign-date{font-size:.75rem;color:var(--adm-gray,var(--gray));margin-left:auto;white-space:nowrap;}
+.today-assign-title{font-weight:700;font-size:1rem;margin:0;}
+.today-assign-text{font-size:.85rem;color:var(--ink,#1a1a1a);line-height:1.5;max-height:130px;overflow-y:auto;}
+.today-assign-text p{margin:0 0 6px;}
+.today-assign-text p:last-child{margin-bottom:0;}
+.today-assign-empty{font-size:.82rem;color:var(--adm-gray,var(--gray));font-style:italic;}
+.today-assign-footer{display:flex;justify-content:flex-end;}
 
 /* ---- Faollik jurnali (Activity Log) ---- */
 .actlog-table-wrap{overflow-x:auto;margin-top:4px;}
@@ -304,6 +313,14 @@
           <div class="oj-empty-icon">📅</div>
           <p>Bugun hech qaysi guruhda dars yo'q yoki ma'lumot kiritilmagan.</p>
         </div>
+      </div>
+
+      <!-- Bugungi uy vazifasi matni — alohida kartochkalarda, talaba profilidagi kabi -->
+      <div class="home-section-card today-assign-section" style="margin-bottom:24px;">
+        <div class="home-section-head">
+          <h3 class="home-col-title">📚 Bugungi uy vazifalari</h3>
+        </div>
+        <div class="today-assign-grid" id="todayAssignGrid"></div>
       </div>
 
       <div class="home-section-card" style="margin-bottom:24px;">
@@ -6440,6 +6457,51 @@ async function homeFetchTodayKundalikHw(groupName, todayDateStr){
   }
 }
 
+// Bugungi vazifalarni, talaba profilidagi "So'nggi uy vazifasi" kartochkasiga
+// o'xshab, har bir guruh uchun alohida kartochkada ko'rsatadi.
+function renderTodayAssignmentCards(cardData){
+  const grid = document.getElementById('todayAssignGrid');
+  if(!grid) return;
+  grid.innerHTML = cardData.map(({ group: g, kundalikGroupId, hwItems }) => {
+    const openKundalikCall = kundalikGroupId
+      ? `openKundalikGroup('${escHtml(kundalikGroupId)}','${escHtml(g.name)}')`
+      : `loadKundalikGroups()`;
+    const todayFmt = new Date().toLocaleDateString('uz-UZ', { day:'numeric', month:'short' });
+    if(!hwItems || !hwItems.length){
+      return `
+        <div class="today-assign-card">
+          <div class="today-assign-card-head">
+            <div class="today-assign-icon">📭</div>
+            <div>
+              <div class="today-assign-eyebrow">${escHtml(g.name)}</div>
+              <div class="today-assign-group">Bugungi vazifa</div>
+            </div>
+            <span class="today-assign-date">${todayFmt}</span>
+          </div>
+          <div class="today-assign-empty">Bugunga uy vazifasi hali kiritilmagan.</div>
+          <div class="today-assign-footer">
+            <span style="color:var(--adm-amber,#D4780A);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};">➕ Qo'shish</span>
+          </div>
+        </div>`;
+    }
+    return hwItems.map(hw => `
+      <div class="today-assign-card">
+        <div class="today-assign-card-head">
+          <div class="today-assign-icon">📗</div>
+          <div>
+            <div class="today-assign-eyebrow">${escHtml(g.name)}</div>
+          </div>
+          <span class="today-assign-date">${todayFmt}</span>
+        </div>
+        <h3 class="today-assign-title">${escHtml(hw.sarlavha || 'Uy vazifasi')}</h3>
+        <div class="today-assign-text">${hw.matn || ''}</div>
+        <div class="today-assign-footer">
+          <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};">✏️ Tahrirlash</span>
+        </div>
+      </div>`).join('');
+  }).join('');
+}
+
 async function loadTodayHomeworkCards(){
   const grid = document.getElementById('todayHwGrid');
   const loading = document.getElementById('todayHwLoading');
@@ -6463,6 +6525,8 @@ async function loadTodayHomeworkCards(){
     empty.style.display = 'block';
     subline.textContent = '';
     refreshedAt.textContent = '';
+    const assignGrid = document.getElementById('todayAssignGrid');
+    if(assignGrid) assignGrid.innerHTML = '';
     return;
   }
 
@@ -6491,18 +6555,8 @@ async function loadTodayHomeworkCards(){
   }));
 
   grid.innerHTML = '';
-  cardData.forEach(({ group: g, attended, absent, hwNo, total, kundalikGroupId, hwItems }) => {
+  cardData.forEach(({ group: g, attended, absent, hwNo, total }) => {
     const notMarked = total - attended - absent;
-    const openKundalikCall = kundalikGroupId
-      ? `openKundalikGroup('${escHtml(kundalikGroupId)}','${escHtml(g.name)}')`
-      : `loadKundalikGroups()`;
-    const assignmentHtml = hwItems && hwItems.length
-      ? hwItems.map(hw => `
-        <div class="today-hw-assignment-item">
-          <div class="today-hw-assignment-title">📌 ${escHtml(hw.sarlavha || '')}</div>
-          <div class="today-hw-assignment-text">${hw.matn || ''}</div>
-        </div>`).join('')
-      : `<div class="today-hw-assignment-empty">📭 Bugunga uy vazifasi hali kiritilmagan.</div>`;
     const card = document.createElement('div');
     card.className = 'today-hw-card';
     card.innerHTML = `
@@ -6527,16 +6581,14 @@ async function loadTodayHomeworkCards(){
           <div class="today-hw-stat-label">📚 Uy vazifa qilmadi</div>
         </div>
       </div>
-      <div class="today-hw-assignment">${assignmentHtml}</div>
       <div class="today-hw-card-footer">
         <span>${notMarked > 0 ? `⏳ ${notMarked} ta hali belgilanmagan` : '✅ Hammasi belgilangan'}</span>
-        <span style="display:flex;gap:14px;">
-          <span style="color:var(--adm-amber,#D4780A);cursor:pointer;font-weight:700;" onclick="switchView('kundalik');${openKundalikCall};">📝 Vazifa</span>
-          <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;" onclick="loadOjStudents('${escHtml(g.id)}','${escHtml(g.name)}',${JSON.stringify(g.days||[])});switchView('oquv-students');">Ko'rish →</span>
-        </span>
+        <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;" onclick="loadOjStudents('${escHtml(g.id)}','${escHtml(g.name)}',${JSON.stringify(g.days||[])});switchView('oquv-students');">Ko'rish →</span>
       </div>`;
     grid.appendChild(card);
   });
+
+  renderTodayAssignmentCards(cardData);
 
   const now = new Date();
   refreshedAt.textContent = `Yangilandi: ${now.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'})}`;
