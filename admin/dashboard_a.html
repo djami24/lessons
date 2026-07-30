@@ -160,6 +160,15 @@
 
 /* ---- Bugungi guruh uy vazifalari kartochkalari ---- */
 .today-hw-section{margin-bottom:24px;}
+
+/* ---- Sidebar: "English Lessons" yig'ma menyusi ---- */
+.admin-nav-group{ display:flex; flex-direction:column; }
+.admin-nav-parent{ display:flex !important; align-items:center; justify-content:space-between; cursor:pointer; }
+.admin-nav-parent .nav-caret{ font-size:.75em; transition:transform .2s ease; opacity:.8; }
+.admin-nav-group.open .admin-nav-parent .nav-caret{ transform:rotate(180deg); }
+.admin-nav-sub{ list-style:none; margin:0; padding:0; padding-left:1.1em; max-height:0; overflow:hidden; transition:max-height .25s ease; display:flex; flex-direction:column; gap:.2em; }
+.admin-nav-group.open .admin-nav-sub{ max-height:280px; margin-top:.2em; }
+.admin-nav-sub a{ font-size:.93em; }
 .today-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
 @media (max-width:900px){ .today-row{grid-template-columns:1fr;} }
 .today-hw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:4px;}
@@ -227,14 +236,19 @@
 
   <!-- SIDEBAR -->
   <aside class="admin-sidebar">
-    <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
+    <a href="#" class="brand" id="sidebarBrandLink"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
     <ul class="admin-nav">
       <li><a href="#" class="active" id="navHome">🏠 Bosh sahifa</a></li>
-      <li><a href="#" id="navLevels">📚 Darslar (General English)</a></li>
-      <li><a href="#" id="navIelts">🎧 IELTS</a></li>
-      <li><a href="#" id="navCefr">🗂️ CEFR</a></li>
-      <li><a href="#" id="navWriting">✍️ Writing</a></li>
-      <li><a href="#" id="navEssays">📝 Insholar</a></li>
+      <li class="admin-nav-group" id="navEnglishLessonsGroup">
+        <a href="#" id="navEnglishLessons" class="admin-nav-parent">📚 English Lessons <span class="nav-caret">▾</span></a>
+        <ul class="admin-nav-sub" id="navEnglishLessonsSub">
+          <li><a href="#" id="navLevels">📚 Darslar (General English)</a></li>
+          <li><a href="#" id="navIelts">🎧 IELTS</a></li>
+          <li><a href="#" id="navCefr">🗂️ CEFR</a></li>
+          <li><a href="#" id="navWriting">✍️ Writing</a></li>
+          <li><a href="#" id="navEssays">📝 Insholar</a></li>
+        </ul>
+      </li>
       <li><a href="#" id="navStudents">🎓 O‘quvchilar</a></li>
       <li><a href="#" id="navBlogs">📰 Bloglar</a></li>
       <li><a href="#" id="navPlacementTest">🧭 Daraja testi</a></li>
@@ -2972,6 +2986,11 @@ function switchView(view){
   document.getElementById('navCefr').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'cefr');
   document.getElementById('navWriting').classList.toggle('active', view === 'writing-tracks' || view === 'writing-items');
   document.getElementById('navEssays').classList.toggle('active', view === 'essays');
+  {
+    const englishActive = view === 'levels' || view === 'lessons' || view === 'course-sections' || view === 'course-topics' || view === 'writing-tracks' || view === 'writing-items' || view === 'essays';
+    document.getElementById('navEnglishLessons').classList.toggle('active', englishActive);
+    if(englishActive) document.getElementById('navEnglishLessonsGroup').classList.add('open');
+  }
   document.getElementById('navStudents').classList.toggle('active', view === 'students' || view === 'student-progress');
   document.getElementById('navBlogs').classList.toggle('active', view === 'blogs');
   document.getElementById('navPlacementTest').classList.toggle('active', view === 'placement-test');
@@ -3022,6 +3041,18 @@ document.getElementById('navGradebook').addEventListener('click', (e) => {
   switchView('gradebook');
   loadGradebook();
 });
+// Logotip bosilganda saytdan chiqib ketmasdan, joriy admin sahifasini yangilaydi.
+document.getElementById('sidebarBrandLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  location.reload();
+});
+
+// "English Lessons" yig'ma menyusini ochish/yopish
+document.getElementById('navEnglishLessons').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('navEnglishLessonsGroup').classList.toggle('open');
+});
+
 document.getElementById('navHome').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('home');
