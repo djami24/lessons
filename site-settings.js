@@ -84,6 +84,57 @@
     });
   }
 
+  // ---- Maintenance mode overlay — shown to all non-admin visitors when
+  // maintenanceMode is true in the settings/site Firestore document.
+  // The overlay covers the entire page and blocks interaction; the page
+  // content is never removed so no data is lost. Admin pages are exempt.
+  const IS_ADMIN_PAGE = (function(){
+    const p = window.location.pathname;
+    return p.indexOf('/admin/') !== -1;
+  })();
+
+  let maintenanceOverlayEl = null;
+
+  function showMaintenanceOverlay(msg){
+    if(IS_ADMIN_PAGE) return;
+    if(maintenanceOverlayEl) return; // already shown
+    const text = (msg && msg.trim()) ? msg.trim()
+      : "Sayt takomillashtirilmoqda. Tez orada ishga tushadi!";
+    const el = document.createElement('div');
+    el.id = 'maintenanceModeOverlay';
+    el.style.cssText = [
+      'position:fixed','inset:0','z-index:99999',
+      'display:flex','flex-direction:column',
+      'align-items:center','justify-content:center',
+      'background:var(--paper,#fff)',
+      'padding:2rem','text-align:center',
+      'font-family:var(--font-body,sans-serif)'
+    ].join(';');
+    el.innerHTML =
+      '<div style="font-size:3rem;margin-bottom:1rem;">🔧</div>' +
+      '<h2 style="margin:0 0 .6rem;font-size:1.4rem;color:var(--ink,#14213d);">' +
+        escapeHtmlMaint(text) +
+      '</h2>' +
+      '<p style="margin:0;color:var(--gray,#6b7280);font-size:.9rem;">' +
+        'Sabr-toqatli bo\'lganingiz uchun rahmat!' +
+      '</p>';
+    document.body.appendChild(el);
+    maintenanceOverlayEl = el;
+    // Prevent any scrolling / interaction beneath
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideMaintenanceOverlay(){
+    if(!maintenanceOverlayEl) return;
+    maintenanceOverlayEl.remove();
+    maintenanceOverlayEl = null;
+    document.body.style.overflow = '';
+  }
+
+  function escapeHtmlMaint(s){
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
   function applySettings(data){
     if(!data) return;
     const root = document.documentElement.style;
@@ -235,6 +286,25 @@
       .then(doc => {
         if(doc.exists){
           const data = doc.data();
+          // ---- Maintenance mode check ----
+          if(data.maintenanceMode && !IS_ADMIN_PAGE){
+            showMaintenanceOverlay(data.maintenanceMessage);
+            // Still hide the loading overlay; the maintenance overlay takes over
+            hideLoadingOverlay();
+            // Keep listening for maintenance mode to be turned off in real-time
+            db.collection('settings').doc('site').onSnapshot(snap => {
+              if(!snap.exists) return;
+              const d = snap.data();
+              if(d.maintenanceMode){
+                showMaintenanceOverlay(d.maintenanceMessage);
+              } else {
+                hideMaintenanceOverlay();
+                applySettings(d);
+              }
+            });
+            return; // Do not apply normal settings while maintenance is on
+          }
+          hideMaintenanceOverlay(); // in case it was on before and now turned off
           applySettings(data);
           try{ localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(data)); } catch(e){ /* storage full/unavailable — not critical */ }
         }
