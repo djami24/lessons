@@ -2000,6 +2000,7 @@ auth.onAuthStateChanged(async (user) => {
   startAdminChatUnreadListener();
   loadHomeStats();
   loadTodayHomeworkCards();
+  restoreLastAdminView();
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -2959,7 +2960,56 @@ function closeLevel(){
   renderLevelsOverview();
 }
 
+// Joriy sahifani sessionStorage'ga saqlaydi — logotip orqali sahifa
+// yangilanganda (reload) aynan o'sha sahifada qolish uchun.
+const ADMIN_VIEW_NAV_MAP = {
+  'home': 'navHome',
+  'placement-test': 'navPlacementTest',
+  'students': 'navStudents',
+  'student-progress': 'navStudents',
+  'blogs': 'navBlogs',
+  'site-settings': 'navSiteSettings',
+  'kundalik': 'navKundalik',
+  'oquv-groups': 'navOquvJarayoni',
+  'oquv-students': 'navOquvJarayoni',
+  'oquv-progress': 'navOquvJarayoni',
+  'stats': 'navStats',
+  'gradebook': 'navGradebook',
+  'broadcast': 'navBroadcast',
+  'chats': 'navChats',
+  'parent-chats': 'navParentChats',
+  'activity-log': 'navActivityLog',
+  'levels': 'navLevels',
+  'lessons': 'navLevels',
+  'writing-tracks': 'navWriting',
+  'writing-items': 'navWriting',
+  'essays': 'navEssays'
+};
+
+function restoreLastAdminView(){
+  let saved;
+  try{ saved = sessionStorage.getItem('adminLastView'); }catch(err){ saved = null; }
+  if(!saved || saved === 'home') return;
+  if(saved.indexOf('course-sections:') === 0){
+    const courseId = saved.split(':')[1];
+    const el = document.getElementById(courseId === 'cefr' ? 'navCefr' : 'navIelts');
+    if(el) el.click();
+    return;
+  }
+  const navId = ADMIN_VIEW_NAV_MAP[saved];
+  if(navId){
+    const el = document.getElementById(navId);
+    if(el) el.click();
+  }
+}
+
 function switchView(view){
+  try{
+    const key = (view === 'course-sections' || view === 'course-topics')
+      ? 'course-sections:' + (state.activeCourseId || '')
+      : view;
+    sessionStorage.setItem('adminLastView', key);
+  }catch(err){}
   document.getElementById('view-home').hidden = view !== 'home';
   document.getElementById('view-stats').hidden = view !== 'stats';
   document.getElementById('navHome').classList.toggle('active', view === 'home');
