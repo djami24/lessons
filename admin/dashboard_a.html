@@ -712,23 +712,38 @@
         <div class="home-section-head" style="margin-bottom:12px;">
           <div>
             <h2 style="margin:0 0 4px; font-size:1.1rem;">&#x2708;&#xFE0F; Telegram Bot sozlamalari</h2>
-            <p style="margin:0; color:var(--gray); font-size:.85rem;">Blog postlarini Telegram kanalingizga yuborish uchun bot token va kanal @ username kiriting.</p>
+            <p style="margin:0; color:var(--gray); font-size:.85rem;">Blog postlarini bir vaqtda 4 tagacha kanal yoki guruhga yuborish mumkin. Guruh uchun chat_id raqam kiriting (masalan: <code>-1009876543210</code>).</p>
           </div>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
-          <label class="field">
-            <span>Bot Token <span style="font-weight:400;color:var(--gray);">(BotFather dan)</span></span>
-            <input type="text" id="tgBotToken" placeholder="1234567890:ABCdef..." autocomplete="off">
-          </label>
-          <label class="field">
-            <span>Kanal @ username</span>
-            <input type="text" id="tgChannelId" placeholder="@kanalim_uz">
-          </label>
-        </div>
+        <label class="field">
+          <span>Bot Token <span style="font-weight:400;color:var(--gray);">(BotFather dan)</span></span>
+          <input type="text" id="tgBotToken" placeholder="1234567890:ABCdef..." autocomplete="off" style="max-width:420px;">
+        </label>
         <label class="field" style="margin-top:.8em;">
           <span>Sayt URL <span style="font-weight:400;color:var(--gray);">(blog havolasi shu URL asosida tuziladi)</span></span>
-          <input type="text" id="tgSiteUrl" placeholder="https://djamilessons.netlify.app">
+          <input type="text" id="tgSiteUrl" placeholder="https://djamilessons.netlify.app" style="max-width:420px;">
         </label>
+        <div style="margin-top:1em;">
+          <p style="font-size:.85rem;font-weight:700;margin:0 0 8px;color:var(--gray);">Yuborish joylari (kanal yoki guruh) — bo‘sh qoldirsa o‘tkazib yuboriladi:</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.7em;">
+            <div style="display:flex;align-items:center;gap:.5em;">
+              <span style="font-size:.8rem;font-weight:700;color:var(--gray);min-width:16px;">1</span>
+              <input type="text" class="tg-target-input" placeholder="@kanal_nomi yoki -1009876543210" style="flex:1;">
+            </div>
+            <div style="display:flex;align-items:center;gap:.5em;">
+              <span style="font-size:.8rem;font-weight:700;color:var(--gray);min-width:16px;">2</span>
+              <input type="text" class="tg-target-input" placeholder="@kanal_nomi yoki -1009876543210" style="flex:1;">
+            </div>
+            <div style="display:flex;align-items:center;gap:.5em;">
+              <span style="font-size:.8rem;font-weight:700;color:var(--gray);min-width:16px;">3</span>
+              <input type="text" class="tg-target-input" placeholder="@kanal_nomi yoki -1009876543210" style="flex:1;">
+            </div>
+            <div style="display:flex;align-items:center;gap:.5em;">
+              <span style="font-size:.8rem;font-weight:700;color:var(--gray);min-width:16px;">4</span>
+              <input type="text" class="tg-target-input" placeholder="@kanal_nomi yoki -1009876543210" style="flex:1;">
+            </div>
+          </div>
+        </div>
         <div style="display:flex; gap:.7em; margin-top:14px; align-items:center; flex-wrap:wrap;">
           <button type="button" class="btn btn-amber btn-sm" id="tgSettingsSaveBtn">Saqlash</button>
           <span id="tgSettingsSaveStatus" style="font-size:.82rem; color:var(--gray); min-height:1.2em;"></span>
@@ -4483,148 +4498,127 @@ function renderRatingStats(sum, count){
     } catch(e){ return {}; }
   }
 
-  function saveTgSettingsLocal(token, channelId, siteUrl){
-    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token, channelId, siteUrl })); } catch(e){}
+  function saveTgSettingsLocal(token, siteUrl, targets){
+    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token, siteUrl, targets })); } catch(e){}
   }
 
-  // Fill inputs from saved settings
   function fillTgForm(){
     const s = loadTgSettings();
     const ti = document.getElementById('tgBotToken');
-    const ci = document.getElementById('tgChannelId');
     const su = document.getElementById('tgSiteUrl');
     if(ti) ti.value = s.token || '';
-    if(ci) ci.value = s.channelId || '';
     if(su) su.value = s.siteUrl || '';
+    const inputs = document.querySelectorAll('.tg-target-input');
+    const targets = s.targets || [];
+    inputs.forEach((inp, i) => { inp.value = targets[i] || ''; });
   }
 
-  // Save Telegram settings to localStorage
+  // Save
   document.getElementById('tgSettingsSaveBtn').addEventListener('click', function(){
-    const token     = (document.getElementById('tgBotToken').value || '').trim();
-    const channelId = (document.getElementById('tgChannelId').value || '').trim();
-    const siteUrl   = (document.getElementById('tgSiteUrl').value || '').trim().replace(/\/$/, '');
-    const st        = document.getElementById('tgSettingsSaveStatus');
+    const token   = (document.getElementById('tgBotToken').value || '').trim();
+    const siteUrl = (document.getElementById('tgSiteUrl').value || '').trim().replace(/\/$/, '');
+    const targets = Array.from(document.querySelectorAll('.tg-target-input'))
+                        .map(i => i.value.trim()).filter(Boolean);
+    const st = document.getElementById('tgSettingsSaveStatus');
 
-    if(!token || !channelId || !siteUrl){
-      st.textContent = '⚠️ Barcha maydonlarni to\'ldiring.';
+    if(!token || !siteUrl){
+      st.textContent = '\u26a0\ufe0f Token va Sayt URL majburiy.';
+      st.style.color = '#c0392b';
+      return;
+    }
+    if(targets.length === 0){
+      st.textContent = '\u26a0\ufe0f Kamida 1 ta yuborish joyi kiriting.';
       st.style.color = '#c0392b';
       return;
     }
 
-    saveTgSettingsLocal(token, channelId, siteUrl);
-    st.textContent = '✅ Sozlamalar saqlandi (faqat shu brauzerda).';
+    saveTgSettingsLocal(token, siteUrl, targets);
+    st.textContent = '\u2705 Saqlandi. ' + targets.length + ' ta joy.';
     st.style.color = '#2e6f6e';
     setTimeout(() => { st.textContent = ''; }, 4000);
   });
 
-  // Send blog to Telegram
+  // Send to one chat_id, returns {ok, error}
+  async function sendToOne(token, chatId, blog, caption){
+    const method = blog.imageUrl ? 'sendPhoto' : 'sendMessage';
+    const body   = blog.imageUrl
+      ? { chat_id: chatId, photo: blog.imageUrl, caption, parse_mode: 'HTML' }
+      : { chat_id: chatId, text: caption, parse_mode: 'HTML', disable_web_page_preview: false };
+
+    try{
+      const res  = await fetch('https://api.telegram.org/bot' + token + '/' + method, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if(data.ok) return { ok: true };
+
+      // Photo failed (bad URL?) \u2014 retry as text
+      if(blog.imageUrl){
+        const res2  = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: caption, parse_mode: 'HTML', disable_web_page_preview: false })
+        });
+        const d2 = await res2.json();
+        if(d2.ok) return { ok: true };
+        return { ok: false, error: d2.description || 'Xatolik' };
+      }
+      return { ok: false, error: data.description || 'Xatolik' };
+    } catch(err){
+      return { ok: false, error: err.message || 'Tarmo\u02bq xatosi' };
+    }
+  }
+
+  // Send blog to all saved targets
   async function sendBlogToTelegram(blogId){
     const blog = state.blogs.find(b => b.id === blogId);
     if(!blog){ showToast('Blog topilmadi.'); return; }
 
     const s = loadTgSettings();
-    if(!s.token || !s.channelId || !s.siteUrl){
-      showToast('Avval Telegram sozlamalarini kiriting (Sayt sozlamalari bo\'limida).');
+    if(!s.token || !s.siteUrl || !s.targets || s.targets.length === 0){
+      showToast('\u26a0\ufe0f Avval Telegram sozlamalarini kiriting (Sayt sozlamalari).');
       return;
     }
 
-    // Strip HTML tags from content for preview (first ~200 chars)
     const plainText = (blog.content || '')
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
       .substring(0, 200);
 
-    const blogUrl  = s.siteUrl + '/blog.html?id=' + blogId;
+    const blogUrl = s.siteUrl + '/blog.html?id=' + blogId;
+    function escTg(str){ return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    const caption = (blog.title ? '<b>' + escTg(blog.title) + '</b>\n\n' : '')
+                  + (plainText ? escTg(plainText) + (plainText.length === 200 ? '\u2026' : '') + '\n\n' : '')
+                  + '<a href="' + escTg(blogUrl) + '">\u27a1\ufe0f To\'liq o\'qish</a>';
 
-    // HTML parse_mode — no escaping needed, works with any text
-    function escTg(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    const caption  = (blog.title ? '<b>' + escTg(blog.title) + '</b>\n\n' : '')
-                   + (plainText ? escTg(plainText) + (plainText.length === 200 ? '…' : '') + '\n\n' : '')
-                   + '<a href="' + escTg(blogUrl) + '">➡️ To\'liq o\'qish</a>';
-
-    // Show loading state on the button
     const btn = document.querySelector('[data-tg-blog="' + blogId + '"]');
-    const origText = btn ? btn.textContent : '';
-    if(btn){ btn.disabled = true; btn.textContent = '⏳'; }
+    if(btn){ btn.disabled = true; btn.textContent = '\u23f3'; }
 
-    try{
-      let ok = false;
+    const results = await Promise.all(s.targets.map(chatId => sendToOne(s.token, chatId, blog, caption)));
 
-      // If blog has an image — send as photo with caption
-      if(blog.imageUrl){
-        const res = await fetch(
-          'https://api.telegram.org/bot' + s.token + '/sendPhoto',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: s.channelId,
-              photo: blog.imageUrl,
-              caption: caption,
-              parse_mode: 'HTML'
-            })
-          }
-        );
-        const data = await res.json();
-        ok = data.ok;
-        // If photo fails (bad URL etc), fall back to text
-        if(!ok && blog.imageUrl){
-          const res2 = await fetch(
-            'https://api.telegram.org/bot' + s.token + '/sendMessage',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                chat_id: s.channelId,
-                text: caption,
-                parse_mode: 'HTML',
-                disable_web_page_preview: false
-              })
-            }
-          );
-          const d2 = await res2.json();
-          ok = d2.ok;
-          if(!ok){ throw new Error(d2.description || 'Telegram xatosi'); }
-        } else if(!ok){
-          throw new Error(data.description || 'Telegram xatosi');
-        }
-      } else {
-        // No image — send as text message
-        const res = await fetch(
-          'https://api.telegram.org/bot' + s.token + '/sendMessage',
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              chat_id: s.channelId,
-              text: caption,
-              parse_mode: 'HTML',
-              disable_web_page_preview: false
-            })
-          }
-        );
-        const data = await res.json();
-        ok = data.ok;
-        if(!ok){ throw new Error(data.description || 'Telegram xatosi'); }
-      }
+    const ok  = results.filter(r => r.ok).length;
+    const err = results.filter(r => !r.ok);
 
-      showToast('✅ Blog Telegramga yuborildi!');
-    } catch(err){
-      showToast('❌ Xatolik: ' + (err.message || 'Noma\'lum xato. Token va kanal ID ni tekshiring.'));
-    } finally {
-      if(btn){ btn.disabled = false; btn.textContent = origText; }
+    if(btn){ btn.disabled = false; btn.textContent = '\u2708\ufe0f Telegram'; }
+
+    if(err.length === 0){
+      showToast('\u2705 Blog ' + ok + ' ta joyga yuborildi!');
+    } else if(ok > 0){
+      showToast('\u26a0\ufe0f ' + ok + ' ta yuborildi, ' + err.length + ' ta xato: ' + err[0].error);
+    } else {
+      showToast('\u274c Xatolik: ' + err[0].error);
     }
   }
 
-  // Hook into blog grid click — handle data-tg-blog button
   document.getElementById('blogsGrid').addEventListener('click', function(e){
     const tgBtn = e.target.closest('[data-tg-blog]');
     if(!tgBtn) return;
     sendBlogToTelegram(tgBtn.dataset.tgBlog);
   });
 
-  // Fill form when site-settings nav is clicked
   document.getElementById('navSiteSettings').addEventListener('click', fillTgForm);
   document.addEventListener('DOMContentLoaded', fillTgForm);
 
