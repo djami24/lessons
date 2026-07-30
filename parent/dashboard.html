@@ -425,6 +425,7 @@ function normalizeGbName(s){
 /* ---------- view switching ---------- */
 const VIEWS = ['home','child','progress','results','homework','attendance','chat','teacher','settings'];
 function switchView(view){
+  try{ sessionStorage.setItem('parentLastView', view); }catch(err){}
   VIEWS.forEach(v => {
     document.getElementById('view-' + v).hidden = v !== view;
     const nav = document.getElementById('nav' + v.charAt(0).toUpperCase() + v.slice(1));
@@ -432,6 +433,17 @@ function switchView(view){
   });
   document.getElementById('adminSidebar').classList.remove('is-menu-open');
 }
+
+// Sahifa logotip orqali yangilangandan (reload) so'ng, foydalanuvchi qaysi
+// bo'limda turgan bo'lsa, aynan o'sha bo'limga qaytarib qo'yadi.
+function restoreLastParentView(){
+  let saved;
+  try{ saved = sessionStorage.getItem('parentLastView'); }catch(err){ saved = null; }
+  if(!saved || saved === 'home' || VIEWS.indexOf(saved) === -1) return;
+  const nav = document.getElementById('nav' + saved.charAt(0).toUpperCase() + saved.slice(1));
+  if(nav) nav.click();
+}
+
 document.getElementById('navHome').addEventListener('click', e => { e.preventDefault(); switchView('home'); });
 document.getElementById('navChild').addEventListener('click', e => { e.preventDefault(); switchView('child'); });
 document.getElementById('navProgress').addEventListener('click', e => { e.preventDefault(); switchView('progress'); });
@@ -441,7 +453,7 @@ document.getElementById('navAttendance').addEventListener('click', e => { e.prev
 document.getElementById('navChat').addEventListener('click', e => { e.preventDefault(); switchView('chat'); loadChat(); });
 document.getElementById('navTeacher').addEventListener('click', e => { e.preventDefault(); switchView('teacher'); });
 document.getElementById('navSettings').addEventListener('click', e => { e.preventDefault(); switchView('settings'); });
-document.getElementById('logoHomeBtn').addEventListener('click', e => { e.preventDefault(); switchView('home'); });
+document.getElementById('logoHomeBtn').addEventListener('click', e => { e.preventDefault(); location.reload(); });
 document.getElementById('homeSeeProgress').addEventListener('click', e => { e.preventDefault(); switchView('progress'); });
 document.getElementById('homeSeeResults').addEventListener('click', e => { e.preventDefault(); switchView('results'); });
 document.getElementById('sidebarMenuToggle').addEventListener('click', () => {
@@ -495,6 +507,7 @@ auth.onAuthStateChanged(async (user) => {
 
     document.getElementById('loadingScreen').hidden = true;
     document.getElementById('appShell').hidden = false;
+    restoreLastParentView();
   } catch(err){
     console.error('Parent dashboard bootstrap failed:', err);
     document.getElementById('loadingScreen').textContent = 'Yuklashda xatolik yuz berdi. Sahifani yangilang.';
