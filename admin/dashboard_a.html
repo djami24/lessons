@@ -677,6 +677,34 @@
         </div>
       </div>
 
+      <!-- ===== MAINTENANCE MODE CARD ===== -->
+      <div class="home-section-card" id="maintenanceModeCard" style="margin-bottom:28px; border:2px solid var(--adm-line,var(--line));">
+        <div class="home-section-head" style="margin-bottom:12px;">
+          <div>
+            <h2 style="margin:0 0 4px; font-size:1.1rem;">&#x1F527; Texnik ishlar rejimi</h2>
+            <p style="margin:0; color:var(--gray); font-size:.85rem;">Yoqilganda, saytga kirgan ota-onalar va talabalar &ldquo;Sayt takomillashtirilmoqda&rdquo; sahifasini ko&lsquo;radi. Admin paneli ishlashda davom etadi.</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:.6em; flex-shrink:0;">
+            <span id="maintenanceStatusBadge" style="font-size:.78rem; font-weight:700; padding:4px 12px; border-radius:20px; background:rgba(200,200,200,.2); color:var(--gray);">O&lsquo;CHIRILGAN</span>
+            <label style="display:inline-flex; align-items:center; cursor:pointer;" title="Texnik rejimni yoqish/o&lsquo;chirish">
+              <input type="checkbox" id="maintenanceModeToggle" style="width:0;height:0;opacity:0;position:absolute;">
+              <span id="maintenanceToggleTrack" style="display:inline-block; width:48px; height:26px; border-radius:13px; background:#ccc; position:relative; transition:background .25s; flex-shrink:0;">
+                <span id="maintenanceToggleThumb" style="display:block; width:20px; height:20px; border-radius:50%; background:#fff; position:absolute; top:3px; left:3px; transition:transform .25s; box-shadow:0 1px 4px rgba(0,0,0,.3);"></span>
+              </span>
+            </label>
+          </div>
+        </div>
+        <label class="field" style="margin:0;">
+          <span style="font-size:.85rem;">Xabar matni <span style="font-weight:400; color:var(--gray);">(bo&lsquo;sh qoldirsangiz standart matn ko&lsquo;rsatiladi)</span></span>
+          <input type="text" id="maintenanceMessageInput" placeholder="Sayt takomillashtirilmoqda. Tez orada ishga tushadi!" style="margin-top:6px;">
+        </label>
+        <div style="display:flex; gap:.7em; margin-top:14px; flex-wrap:wrap; align-items:center;">
+          <button type="button" class="btn btn-amber btn-sm" id="maintenanceSaveBtn">Saqlash</button>
+          <span id="maintenanceSaveStatus" style="font-size:.82rem; color:var(--gray); min-height:1.2em;"></span>
+        </div>
+      </div>
+      <!-- ===== /MAINTENANCE MODE CARD ===== -->
+
       <div class="stat-row" id="ratingStatRow" style="grid-template-columns: repeat(2,1fr); margin-bottom:1.8em;"></div>
 
       <form class="modal-form" id="siteSettingsForm" style="max-width:640px;">
@@ -4408,6 +4436,72 @@ function renderRatingStats(sum, count){
     document.getElementById(id + 'Label').textContent = e.target.value.toUpperCase();
   });
 });
+
+
+// ===== MAINTENANCE MODE LOGIC =====
+(function(){
+  const toggle   = document.getElementById('maintenanceModeToggle');
+  const track    = document.getElementById('maintenanceToggleTrack');
+  const thumb    = document.getElementById('maintenanceToggleThumb');
+  const badge    = document.getElementById('maintenanceStatusBadge');
+  const msgInput = document.getElementById('maintenanceMessageInput');
+  const saveBtn  = document.getElementById('maintenanceSaveBtn');
+  const saveStatus = document.getElementById('maintenanceSaveStatus');
+
+  function applyToggleUI(on){
+    track.style.background = on ? 'var(--teal,#2e6f6e)' : '#ccc';
+    thumb.style.transform  = on ? 'translateX(22px)' : 'translateX(0)';
+    badge.textContent      = on ? 'YOQILGAN' : "O'CHIRILGAN";
+    badge.style.background = on ? 'rgba(231,76,60,.12)' : 'rgba(200,200,200,.2)';
+    badge.style.color      = on ? '#c0392b' : 'var(--gray)';
+  }
+
+  // Load current state from Firestore
+  async function loadMaintenanceState(){
+    try{
+      const doc = await db.collection('settings').doc('site').get();
+      if(doc.exists){
+        const d = doc.data();
+        const isOn = !!d.maintenanceMode;
+        toggle.checked = isOn;
+        applyToggleUI(isOn);
+        msgInput.value = d.maintenanceMessage || '';
+      }
+    } catch(e){}
+  }
+
+  toggle.addEventListener('change', function(){
+    applyToggleUI(this.checked);
+  });
+
+  saveBtn.addEventListener('click', async function(){
+    saveBtn.disabled = true;
+    saveStatus.textContent = 'Saqlanmoqda…';
+    saveStatus.style.color = 'var(--gray)';
+    try{
+      await db.collection('settings').doc('site').set({
+        maintenanceMode: toggle.checked,
+        maintenanceMessage: msgInput.value.trim()
+      }, { merge: true });
+      saveStatus.textContent = toggle.checked
+        ? '✅ Texnik rejim yoqildi — tashrif buyuruvchilar "takomillashtirilmoqda" sahifasini ko\'radi.'
+        : '✅ Texnik rejim o\'chirildi — sayt odatdagidek ishlaydi.';
+      saveStatus.style.color = '#2e6f6e';
+      setTimeout(() => { saveStatus.textContent = ''; }, 4000);
+    } catch(err){
+      saveStatus.textContent = '❌ Saqlashda xatolik. Qayta urinib ko\'ring.';
+      saveStatus.style.color = '#c0392b';
+    } finally {
+      saveBtn.disabled = false;
+    }
+  });
+
+  // Load when site-settings nav is clicked
+  document.getElementById('navSiteSettings').addEventListener('click', loadMaintenanceState, { once: false });
+  // Also load on first DOMContentLoaded in case page opens there
+  document.addEventListener('DOMContentLoaded', loadMaintenanceState);
+})();
+// ===== /MAINTENANCE MODE LOGIC =====
 
 document.getElementById('siteSettingsReset').addEventListener('click', () => {
   if(confirm("Sayt sozlamalarini standart holatga qaytarmoqchimisiz? (Saqlash tugmasini bosmaguningizcha oʼzgarish qoʼllanmaydi.)")){
