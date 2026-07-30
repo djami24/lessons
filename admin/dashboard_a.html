@@ -160,6 +160,8 @@
 
 /* ---- Bugungi guruh uy vazifalari kartochkalari ---- */
 .today-hw-section{margin-bottom:24px;}
+.today-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
+@media (max-width:900px){ .today-row{grid-template-columns:1fr;} }
 .today-hw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:4px;}
 .today-hw-card{background:var(--paper);border:1.5px solid var(--adm-line,var(--line));border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;transition:box-shadow .2s,transform .15s;}
 .today-hw-card:hover{box-shadow:0 6px 22px -10px rgba(47,111,237,.3);transform:translateY(-2px);}
@@ -297,30 +299,32 @@
         </div>
       </div>
 
-      <!-- Bugungi guruh uy vazifalari -->
-      <div class="home-section-card today-hw-section" style="margin-bottom:24px;">
-        <div class="home-section-head">
-          <h3 class="home-col-title">📝 Bugungi guruh — Uy vazifalari</h3>
-          <span style="display:flex;align-items:center;gap:8px;">
-            <span class="today-hw-refreshed" id="todayHwRefreshedAt"></span>
-            <button class="btn btn-ghost btn-sm" id="todayHwRefreshBtn" title="Yangilash">🔄</button>
-          </span>
+      <!-- Bugungi guruh — davomat/uy vazifasi holati + Bugungi vazifa matni: yonma-yon -->
+      <div class="today-row" style="margin-bottom:24px;">
+        <div class="home-section-card today-hw-section" style="margin-bottom:0;">
+          <div class="home-section-head">
+            <h3 class="home-col-title">📝 Bugungi guruh — Uy vazifalari</h3>
+            <span style="display:flex;align-items:center;gap:8px;">
+              <span class="today-hw-refreshed" id="todayHwRefreshedAt"></span>
+              <button class="btn btn-ghost btn-sm" id="todayHwRefreshBtn" title="Yangilash">🔄</button>
+            </span>
+          </div>
+          <p id="todayHwSubline" style="margin:-6px 0 12px; color:var(--adm-gray,var(--gray)); font-size:.82rem;"></p>
+          <div class="today-hw-grid" id="todayHwGrid"></div>
+          <div id="todayHwLoading" class="today-hw-loading">⏳ Yuklanmoqda…</div>
+          <div id="todayHwEmpty" class="oj-empty" style="display:none; padding:24px;">
+            <div class="oj-empty-icon">📅</div>
+            <p>Bugun hech qaysi guruhda dars yo'q yoki ma'lumot kiritilmagan.</p>
+          </div>
         </div>
-        <p id="todayHwSubline" style="margin:-6px 0 12px; color:var(--adm-gray,var(--gray)); font-size:.82rem;"></p>
-        <div class="today-hw-grid" id="todayHwGrid"></div>
-        <div id="todayHwLoading" class="today-hw-loading">⏳ Yuklanmoqda…</div>
-        <div id="todayHwEmpty" class="oj-empty" style="display:none; padding:24px;">
-          <div class="oj-empty-icon">📅</div>
-          <p>Bugun hech qaysi guruhda dars yo'q yoki ma'lumot kiritilmagan.</p>
-        </div>
-      </div>
 
-      <!-- Bugungi uy vazifasi matni — alohida kartochkalarda, talaba profilidagi kabi -->
-      <div class="home-section-card today-assign-section" style="margin-bottom:24px;">
-        <div class="home-section-head">
-          <h3 class="home-col-title">📚 Bugungi uy vazifalari</h3>
+        <!-- Bugungi uy vazifasi matni — alohida kartochkalarda, talaba profilidagi kabi -->
+        <div class="home-section-card today-assign-section" style="margin-bottom:0;">
+          <div class="home-section-head">
+            <h3 class="home-col-title">📚 Bugungi uy vazifalari</h3>
+          </div>
+          <div class="today-assign-grid" id="todayAssignGrid"></div>
         </div>
-        <div class="today-assign-grid" id="todayAssignGrid"></div>
       </div>
 
       <div class="home-section-card" style="margin-bottom:24px;">
