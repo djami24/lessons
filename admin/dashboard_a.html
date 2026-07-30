@@ -4536,9 +4536,12 @@ function renderRatingStats(sum, count){
       .substring(0, 200);
 
     const blogUrl  = s.siteUrl + '/blog.html?id=' + blogId;
-    const caption  = (blog.title ? '*' + blog.title.replace(/[*_[\]()~`>#+\-=|{}.!]/g, '\\$&') + '*\n\n' : '')
-                   + (plainText ? plainText + (plainText.length === 200 ? '…' : '') + '\n\n' : '')
-                   + '[➡️ To\'liq o\'qish](' + blogUrl + ')';
+
+    // HTML parse_mode — no escaping needed, works with any text
+    function escTg(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    const caption  = (blog.title ? '<b>' + escTg(blog.title) + '</b>\n\n' : '')
+                   + (plainText ? escTg(plainText) + (plainText.length === 200 ? '…' : '') + '\n\n' : '')
+                   + '<a href="' + escTg(blogUrl) + '">➡️ To\'liq o\'qish</a>';
 
     // Show loading state on the button
     const btn = document.querySelector('[data-tg-blog="' + blogId + '"]');
@@ -4559,7 +4562,7 @@ function renderRatingStats(sum, count){
               chat_id: s.channelId,
               photo: blog.imageUrl,
               caption: caption,
-              parse_mode: 'MarkdownV2'
+              parse_mode: 'HTML'
             })
           }
         );
@@ -4575,7 +4578,7 @@ function renderRatingStats(sum, count){
               body: JSON.stringify({
                 chat_id: s.channelId,
                 text: caption,
-                parse_mode: 'MarkdownV2',
+                parse_mode: 'HTML',
                 disable_web_page_preview: false
               })
             }
@@ -4596,7 +4599,7 @@ function renderRatingStats(sum, count){
             body: JSON.stringify({
               chat_id: s.channelId,
               text: caption,
-              parse_mode: 'MarkdownV2',
+              parse_mode: 'HTML',
               disable_web_page_preview: false
             })
           }
