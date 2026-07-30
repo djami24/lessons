@@ -959,10 +959,12 @@ auth.onAuthStateChanged(async (user) => {
   await loadCourses();
   await loadWriting();
   await loadMySubmissions();
+  let _savedStudentView = null;
+  try{ _savedStudentView = sessionStorage.getItem('studentLastView'); }catch(err){}
   renderHomeView();
   startNotifListener();
   startChatUnreadListener();
-  restoreLastStudentView();
+  restoreLastStudentView(_savedStudentView);
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -1143,9 +1145,7 @@ const STUDENT_VIEW_NAV_MAP = {
   'notifications': 'navNotifications',
   'chat': 'navChat'
 };
-function restoreLastStudentView(){
-  let saved;
-  try{ saved = sessionStorage.getItem('studentLastView'); }catch(err){ saved = null; }
+function restoreLastStudentView(saved){
   if(!saved || saved === 'home') return;
   const navId = STUDENT_VIEW_NAV_MAP[saved];
   if(!navId) return;
