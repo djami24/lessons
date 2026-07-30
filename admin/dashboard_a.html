@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin panel — Djami Lessons</title>
 <link rel="stylesheet" href="../style.css">
-<style>.shake{animation: shakeX .4s;} @keyframes shakeX{ 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }
+<style>.shake{animation: shakeX .4s;} @keyframes shakeX{
+.btn-tg{background:linear-gradient(135deg,#229ED9,#1a7ab5);color:#fff;border-color:#229ED9;}
+.btn-tg:hover{background:linear-gradient(135deg,#1a8fc4,#155f8e);} 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }
 
 /* ====== O'QUV JARAYONI — Modern UI ====== */
 .oj-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1em;flex-wrap:wrap;margin-bottom:28px;}
@@ -704,6 +706,35 @@
         </div>
       </div>
       <!-- ===== /MAINTENANCE MODE CARD ===== -->
+
+      <!-- ===== TELEGRAM BOT CARD ===== -->
+      <div class="home-section-card" id="telegramBotCard" style="margin-bottom:28px;">
+        <div class="home-section-head" style="margin-bottom:12px;">
+          <div>
+            <h2 style="margin:0 0 4px; font-size:1.1rem;">&#x2708;&#xFE0F; Telegram Bot sozlamalari</h2>
+            <p style="margin:0; color:var(--gray); font-size:.85rem;">Blog postlarini Telegram kanalingizga yuborish uchun bot token va kanal @ username kiriting.</p>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field">
+            <span>Bot Token <span style="font-weight:400;color:var(--gray);">(BotFather dan)</span></span>
+            <input type="text" id="tgBotToken" placeholder="1234567890:ABCdef..." autocomplete="off">
+          </label>
+          <label class="field">
+            <span>Kanal @ username</span>
+            <input type="text" id="tgChannelId" placeholder="@kanalim_uz">
+          </label>
+        </div>
+        <label class="field" style="margin-top:.8em;">
+          <span>Sayt URL <span style="font-weight:400;color:var(--gray);">(blog havolasi shu URL asosida tuziladi)</span></span>
+          <input type="text" id="tgSiteUrl" placeholder="https://djamilessons.netlify.app">
+        </label>
+        <div style="display:flex; gap:.7em; margin-top:14px; align-items:center; flex-wrap:wrap;">
+          <button type="button" class="btn btn-amber btn-sm" id="tgSettingsSaveBtn">Saqlash</button>
+          <span id="tgSettingsSaveStatus" style="font-size:.82rem; color:var(--gray); min-height:1.2em;"></span>
+        </div>
+      </div>
+      <!-- ===== /TELEGRAM BOT CARD ===== -->
 
       <div class="stat-row" id="ratingStatRow" style="grid-template-columns: repeat(2,1fr); margin-bottom:1.8em;"></div>
 
@@ -3925,6 +3956,7 @@ function renderBlogsGrid(){
         <div class="blog-admin-card-actions">
           <button type="button" class="btn btn-ghost btn-sm" data-edit-blog="${b.id}">Tahrirlash</button>
           <button type="button" class="btn btn-ghost btn-sm" data-view-comments="${b.id}">💬 Izohlar</button>
+          <button type="button" class="btn btn-tg btn-sm" data-tg-blog="${b.id}">✈️ Telegram</button>
           <button type="button" class="btn btn-ghost btn-sm" data-delete-blog="${b.id}">O‘chirish</button>
         </div>
       </div>
@@ -4437,6 +4469,164 @@ function renderRatingStats(sum, count){
   });
 });
 
+
+
+// ===== TELEGRAM BOT LOGIC =====
+(function(){
+
+  const TG_STORAGE_KEY = 'efTgBotSettings';
+
+  function loadTgSettings(){
+    try{
+      const s = localStorage.getItem(TG_STORAGE_KEY);
+      return s ? JSON.parse(s) : {};
+    } catch(e){ return {}; }
+  }
+
+  function saveTgSettingsLocal(token, channelId, siteUrl){
+    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token, channelId, siteUrl })); } catch(e){}
+  }
+
+  // Fill inputs from saved settings
+  function fillTgForm(){
+    const s = loadTgSettings();
+    const ti = document.getElementById('tgBotToken');
+    const ci = document.getElementById('tgChannelId');
+    const su = document.getElementById('tgSiteUrl');
+    if(ti) ti.value = s.token || '';
+    if(ci) ci.value = s.channelId || '';
+    if(su) su.value = s.siteUrl || '';
+  }
+
+  // Save Telegram settings to localStorage
+  document.getElementById('tgSettingsSaveBtn').addEventListener('click', function(){
+    const token     = (document.getElementById('tgBotToken').value || '').trim();
+    const channelId = (document.getElementById('tgChannelId').value || '').trim();
+    const siteUrl   = (document.getElementById('tgSiteUrl').value || '').trim().replace(/\/$/, '');
+    const st        = document.getElementById('tgSettingsSaveStatus');
+
+    if(!token || !channelId || !siteUrl){
+      st.textContent = '⚠️ Barcha maydonlarni to\'ldiring.';
+      st.style.color = '#c0392b';
+      return;
+    }
+
+    saveTgSettingsLocal(token, channelId, siteUrl);
+    st.textContent = '✅ Sozlamalar saqlandi (faqat shu brauzerda).';
+    st.style.color = '#2e6f6e';
+    setTimeout(() => { st.textContent = ''; }, 4000);
+  });
+
+  // Send blog to Telegram
+  async function sendBlogToTelegram(blogId){
+    const blog = state.blogs.find(b => b.id === blogId);
+    if(!blog){ showToast('Blog topilmadi.'); return; }
+
+    const s = loadTgSettings();
+    if(!s.token || !s.channelId || !s.siteUrl){
+      showToast('Avval Telegram sozlamalarini kiriting (Sayt sozlamalari bo\'limida).');
+      return;
+    }
+
+    // Strip HTML tags from content for preview (first ~200 chars)
+    const plainText = (blog.content || '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 200);
+
+    const blogUrl  = s.siteUrl + '/blog.html?id=' + blogId;
+    const caption  = (blog.title ? '*' + blog.title.replace(/[*_[\]()~`>#+\-=|{}.!]/g, '\\$&') + '*\n\n' : '')
+                   + (plainText ? plainText + (plainText.length === 200 ? '…' : '') + '\n\n' : '')
+                   + '[➡️ To\'liq o\'qish](' + blogUrl + ')';
+
+    // Show loading state on the button
+    const btn = document.querySelector('[data-tg-blog="' + blogId + '"]');
+    const origText = btn ? btn.textContent : '';
+    if(btn){ btn.disabled = true; btn.textContent = '⏳'; }
+
+    try{
+      let ok = false;
+
+      // If blog has an image — send as photo with caption
+      if(blog.imageUrl){
+        const res = await fetch(
+          'https://api.telegram.org/bot' + s.token + '/sendPhoto',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: s.channelId,
+              photo: blog.imageUrl,
+              caption: caption,
+              parse_mode: 'MarkdownV2'
+            })
+          }
+        );
+        const data = await res.json();
+        ok = data.ok;
+        // If photo fails (bad URL etc), fall back to text
+        if(!ok && blog.imageUrl){
+          const res2 = await fetch(
+            'https://api.telegram.org/bot' + s.token + '/sendMessage',
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                chat_id: s.channelId,
+                text: caption,
+                parse_mode: 'MarkdownV2',
+                disable_web_page_preview: false
+              })
+            }
+          );
+          const d2 = await res2.json();
+          ok = d2.ok;
+          if(!ok){ throw new Error(d2.description || 'Telegram xatosi'); }
+        } else if(!ok){
+          throw new Error(data.description || 'Telegram xatosi');
+        }
+      } else {
+        // No image — send as text message
+        const res = await fetch(
+          'https://api.telegram.org/bot' + s.token + '/sendMessage',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: s.channelId,
+              text: caption,
+              parse_mode: 'MarkdownV2',
+              disable_web_page_preview: false
+            })
+          }
+        );
+        const data = await res.json();
+        ok = data.ok;
+        if(!ok){ throw new Error(data.description || 'Telegram xatosi'); }
+      }
+
+      showToast('✅ Blog Telegramga yuborildi!');
+    } catch(err){
+      showToast('❌ Xatolik: ' + (err.message || 'Noma\'lum xato. Token va kanal ID ni tekshiring.'));
+    } finally {
+      if(btn){ btn.disabled = false; btn.textContent = origText; }
+    }
+  }
+
+  // Hook into blog grid click — handle data-tg-blog button
+  document.getElementById('blogsGrid').addEventListener('click', function(e){
+    const tgBtn = e.target.closest('[data-tg-blog]');
+    if(!tgBtn) return;
+    sendBlogToTelegram(tgBtn.dataset.tgBlog);
+  });
+
+  // Fill form when site-settings nav is clicked
+  document.getElementById('navSiteSettings').addEventListener('click', fillTgForm);
+  document.addEventListener('DOMContentLoaded', fillTgForm);
+
+})();
+// ===== /TELEGRAM BOT LOGIC =====
 
 // ===== MAINTENANCE MODE LOGIC =====
 (function(){
