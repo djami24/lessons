@@ -4489,132 +4489,128 @@ function renderRatingStats(sum, count){
 // ===== TELEGRAM BOT LOGIC =====
 (function(){
 
-  const TG_STORAGE_KEY = 'efTgBotSettings';
+  var TG_STORAGE_KEY = 'efTgBotSettings';
 
   function loadTgSettings(){
     try{
-      const s = localStorage.getItem(TG_STORAGE_KEY);
+      var s = localStorage.getItem(TG_STORAGE_KEY);
       return s ? JSON.parse(s) : {};
     } catch(e){ return {}; }
   }
 
   function saveTgSettingsLocal(token, siteUrl, targets){
-    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token, siteUrl, targets })); } catch(e){}
+    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token: token, siteUrl: siteUrl, targets: targets })); } catch(e){}
   }
 
   function fillTgForm(){
-    const s = loadTgSettings();
-    const ti = document.getElementById('tgBotToken');
-    const su = document.getElementById('tgSiteUrl');
+    var s = loadTgSettings();
+    var ti = document.getElementById('tgBotToken');
+    var su = document.getElementById('tgSiteUrl');
     if(ti) ti.value = s.token || '';
     if(su) su.value = s.siteUrl || '';
-    const inputs = document.querySelectorAll('.tg-target-input');
-    const targets = s.targets || [];
-    inputs.forEach((inp, i) => { inp.value = targets[i] || ''; });
+    var inputs = document.querySelectorAll('.tg-target-input');
+    var targets = s.targets || [];
+    inputs.forEach(function(inp, i){ inp.value = targets[i] || ''; });
   }
 
-  // Save
   document.getElementById('tgSettingsSaveBtn').addEventListener('click', function(){
-    const token   = (document.getElementById('tgBotToken').value || '').trim();
-    const siteUrl = (document.getElementById('tgSiteUrl').value || '').trim().replace(/\/$/, '');
-    const targets = Array.from(document.querySelectorAll('.tg-target-input'))
-                        .map(i => i.value.trim()).filter(Boolean);
-    const st = document.getElementById('tgSettingsSaveStatus');
+    var token   = (document.getElementById('tgBotToken').value || '').trim();
+    var siteUrl = (document.getElementById('tgSiteUrl').value || '').trim().replace(/\/+$/, '');
+    var targets = Array.from(document.querySelectorAll('.tg-target-input'))
+                       .map(function(i){ return i.value.trim(); }).filter(Boolean);
+    var st = document.getElementById('tgSettingsSaveStatus');
 
     if(!token || !siteUrl){
-      st.textContent = '\u26a0\ufe0f Token va Sayt URL majburiy.';
+      st.textContent = 'Token va Sayt URL majburiy.';
       st.style.color = '#c0392b';
       return;
     }
     if(targets.length === 0){
-      st.textContent = '\u26a0\ufe0f Kamida 1 ta yuborish joyi kiriting.';
+      st.textContent = 'Kamida 1 ta yuborish joyi kiriting.';
       st.style.color = '#c0392b';
       return;
     }
 
     saveTgSettingsLocal(token, siteUrl, targets);
-    st.textContent = '\u2705 Saqlandi. ' + targets.length + ' ta joy.';
+    st.textContent = 'Saqlandi. ' + targets.length + ' ta joy.';
     st.style.color = '#2e6f6e';
-    setTimeout(() => { st.textContent = ''; }, 4000);
+    setTimeout(function(){ st.textContent = ''; }, 4000);
   });
 
-  // Send to one chat_id, returns {ok, error}
   async function sendToOne(token, chatId, blog, caption){
-    const method = blog.imageUrl ? 'sendPhoto' : 'sendMessage';
-    const body   = blog.imageUrl
-      ? { chat_id: chatId, photo: blog.imageUrl, caption, parse_mode: 'HTML' }
+    var method = blog.imageUrl ? 'sendPhoto' : 'sendMessage';
+    var body   = blog.imageUrl
+      ? { chat_id: chatId, photo: blog.imageUrl, caption: caption, parse_mode: 'HTML' }
       : { chat_id: chatId, text: caption, parse_mode: 'HTML', disable_web_page_preview: false };
 
     try{
-      const res  = await fetch('https://api.telegram.org/bot' + token + '/' + method, {
+      var res  = await fetch('https://api.telegram.org/bot' + token + '/' + method, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
       });
-      const data = await res.json();
+      var data = await res.json();
       if(data.ok) return { ok: true };
 
-      // Photo failed (bad URL?) \u2014 retry as text
       if(blog.imageUrl){
-        const res2  = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+        var res2 = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ chat_id: chatId, text: caption, parse_mode: 'HTML', disable_web_page_preview: false })
         });
-        const d2 = await res2.json();
+        var d2 = await res2.json();
         if(d2.ok) return { ok: true };
         return { ok: false, error: d2.description || 'Xatolik' };
       }
       return { ok: false, error: data.description || 'Xatolik' };
     } catch(err){
-      return { ok: false, error: err.message || 'Tarmo\u02bq xatosi' };
+      return { ok: false, error: err.message || 'Tarmoq xatosi' };
     }
   }
 
-  // Send blog to all saved targets
   async function sendBlogToTelegram(blogId){
-    const blog = state.blogs.find(b => b.id === blogId);
+    var blog = state.blogs.find(function(b){ return b.id === blogId; });
     if(!blog){ showToast('Blog topilmadi.'); return; }
 
-    const s = loadTgSettings();
+    var s = loadTgSettings();
     if(!s.token || !s.siteUrl || !s.targets || s.targets.length === 0){
-      showToast('\u26a0\ufe0f Avval Telegram sozlamalarini kiriting (Sayt sozlamalari).');
+      showToast('Avval Telegram sozlamalarini kiriting (Sayt sozlamalari).');
       return;
     }
 
-    const plainText = (blog.content || '')
+    var plainText = (blog.content || '')
       .replace(/<[^>]+>/g, ' ')
       .replace(/\s+/g, ' ')
       .trim()
       .substring(0, 200);
 
-    const blogUrl = s.siteUrl + '/blog.html?id=' + blogId;
+    var blogUrl = s.siteUrl + '/blog.html?id=' + blogId;
     function escTg(str){ return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-    const caption = (blog.title ? '<b>' + escTg(blog.title) + '</b>\n\n' : '')
-                  + (plainText ? escTg(plainText) + (plainText.length === 200 ? '\u2026' : '') + '\n\n' : '')
-                  + '<a href="' + escTg(blogUrl) + '">\u27a1\ufe0f To\'liq o\'qish</a>';
+    var caption = (blog.title ? '<b>' + escTg(blog.title) + '</b>\n\n' : '')
+                + (plainText ? escTg(plainText) + (plainText.length === 200 ? '...' : '') + '\n\n' : '')
+                + '<a href="' + escTg(blogUrl) + '">Toliq o'qish</a>';
 
-    const btn = document.querySelector('[data-tg-blog="' + blogId + '"]');
-    if(btn){ btn.disabled = true; btn.textContent = '\u23f3'; }
+    var btn = document.querySelector('[data-tg-blog="' + blogId + '"]');
+    if(btn){ btn.disabled = true; btn.textContent = '...'; }
 
-    const results = await Promise.all(s.targets.map(chatId => sendToOne(s.token, chatId, blog, caption)));
+    var results = await Promise.all(s.targets.map(function(chatId){ return sendToOne(s.token, chatId, blog, caption); }));
 
-    const ok  = results.filter(r => r.ok).length;
-    const err = results.filter(r => !r.ok);
+    var ok  = results.filter(function(r){ return r.ok; }).length;
+    var err = results.filter(function(r){ return !r.ok; });
 
-    if(btn){ btn.disabled = false; btn.textContent = '\u2708\ufe0f Telegram'; }
+    if(btn){ btn.disabled = false; btn.textContent = 'Telegram'; }
 
     if(err.length === 0){
-      showToast('\u2705 Blog ' + ok + ' ta joyga yuborildi!');
+      showToast('Blog ' + ok + ' ta joyga yuborildi!');
     } else if(ok > 0){
-      showToast('\u26a0\ufe0f ' + ok + ' ta yuborildi, ' + err.length + ' ta xato: ' + err[0].error);
+      showToast(ok + ' ta yuborildi, ' + err.length + ' ta xato: ' + err[0].error);
     } else {
-      showToast('\u274c Xatolik: ' + err[0].error);
+      showToast('Xatolik: ' + err[0].error);
     }
   }
 
   document.getElementById('blogsGrid').addEventListener('click', function(e){
-    const tgBtn = e.target.closest('[data-tg-blog]');
+    var tgBtn = e.target.closest('[data-tg-blog]');
     if(!tgBtn) return;
     sendBlogToTelegram(tgBtn.dataset.tgBlog);
   });
