@@ -4576,32 +4576,6 @@ async function notifyAbsentStudent(student, dateStr, note){
     }
   }
   window.notifyAbsentStudent = notifyAbsentStudent;
-  // Called when a teacher saves a progress entry with attended = false
-  // ("Kelmadi"). Firebase Cloud Function orqali Telegram xabar yuboradi.
-  
-    var s = loadTgSettings();
-    if(!s.token || !s.absentChatId){
-      console.warn('Kelmadi xabari: Telegram sozlanmagan (token yoki chat ID yo\'q).', s);
-      showToast('Diqqat: "Kelmadi" xabari yuborilmadi — avval Sayt sozlamalarida Bot Token va Chat ID kiriting.');
-      return;
-    }
-    try {
-      var sendTelegram = firebase.functions().httpsCallable('sendTelegram');
-      var result = await sendTelegram({
-        token: s.token,
-        chatId: s.absentChatId,
-        studentName: student.name || '—',
-        studentPhone: student.phone || '—',
-        date: dateStr || '',
-        note: note || ''
-      });
-      showToast('"Kelmadi" xabari Telegramga yuborildi ✓');
-    } catch(err) {
-      console.warn('Kelmadi xabari yuborilmadi:', err);
-      showToast('Diqqat: "Kelmadi" xabari yuborilmadi — ' + (err.message || 'Xatolik'));
-    }
-  }
-  window.notifyAbsentStudent = notifyAbsentStudent;
 
   async function sendToOne(token, chatId, blog, caption){
     var method = blog.imageUrl ? 'sendPhoto' : 'sendMessage';
