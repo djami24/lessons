@@ -4555,23 +4555,42 @@ function renderRatingStats(sum, count){
   });
 
   // Sends a plain text message to a single chat_id via the configured bot.
+  // NOTE: uses XMLHttpRequest instead of fetch(). Apps Script's /exec URL
+  // replies with a 302 redirect to the real execution endpoint; fetch()
+  // downgrades a POST to a GET on that redirect (per the Fetch spec) and
+  // drops the body, which silently triggers doGet() instead of doPost().
+  // XMLHttpRequest preserves the method and body across the redirect.
 async function notifyAbsentStudent(student, dateStr, note){
     var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBPCFHYX4zoMCTozLBRZbsdqSGR5_4x5a6PTzuSH-V2i9Rqx5cO8rWfDc2xITYgB69rg/exec';
     var dateLabel = dateStr ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : dateStr;
+    var payload = JSON.stringify({
+      studentName: student.name || '—',
+      studentPhone: student.phone || '—',
+      date: dateLabel || '',
+      note: note || ''
+    });
     try {
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentName: student.name || '—',
-          studentPhone: student.phone || '—',
-          date: dateLabel || '',
-          note: note || ''
-        })
+      await new Promise(function(resolve, reject){
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', SCRIPT_URL, true);
+        xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+        xhr.onload = function(){
+          if(xhr.status >= 200 && xhr.status < 300){
+            try {
+              var res = JSON.parse(xhr.responseText);
+              if(res && res.ok === false){ reject(new Error(res.error || 'Apps Script xatosi')); return; }
+            } catch(parseErr){ /* javob JSON bo'lmasa ham, 200 bo'lsa muvaffaqiyat deb hisoblaymiz */ }
+            resolve();
+          } else {
+            reject(new Error('HTTP ' + xhr.status));
+          }
+        };
+        xhr.onerror = function(){ reject(new Error('Tarmoq xatosi')); };
+        xhr.send(payload);
       });
       showToast('"Kelmadi" xabari Telegramga yuborildi ✓');
     } catch(err) {
+      console.warn('Kelmadi xabari yuborilmadi:', err);
       showToast('Diqqat: xabar yuborilmadi — ' + (err.message || 'Xatolik'));
     }
   }
