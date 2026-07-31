@@ -744,6 +744,12 @@
             </div>
           </div>
         </div>
+        <div style="margin-top:1.2em; padding-top:1em; border-top:1px dashed var(--line);">
+          <label class="field">
+            <span>🚫 "Kelmadi" xabari uchun Chat ID <span style="font-weight:400;color:var(--gray);">(o'quvchi davomatda "Kelmadi" deb belgilansa, shu chatga yuboriladi — masalan ishchingizning shaxsiy yoki guruh chat_id'si)</span></span>
+            <input type="text" id="tgAbsentChatId" placeholder="@username yoki -1009876543210" style="max-width:420px;">
+          </label>
+        </div>
         <div style="display:flex; gap:.7em; margin-top:14px; align-items:center; flex-wrap:wrap;">
           <button type="button" class="btn btn-amber btn-sm" id="tgSettingsSaveBtn">Saqlash</button>
           <span id="tgSettingsSaveStatus" style="font-size:.82rem; color:var(--gray); min-height:1.2em;"></span>
@@ -3790,6 +3796,13 @@ document.getElementById('progressEntryForm').addEventListener('submit', async (e
     resetProgressForm();
     await loadProgressEntries();
     showToast('Saqlandi.');
+
+    // "Kelmadi" belgilangan bo'lsa, Telegram orqali xabar yuboramiz (agar
+    // sozlangan bo'lsa) — o'quvchining ismi/telefoni ishchiga boradi.
+    if(entryData.attended === false && typeof notifyAbsentStudent === 'function'){
+      var absentStudent = state.students.find(function(s){ return s.id === state.progressStudentId; });
+      if(absentStudent) notifyAbsentStudent(absentStudent, entryData.date, entryData.note);
+    }
   } catch(err){
     console.error('Progress save failed:', err);
     errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
@@ -4498,16 +4511,18 @@ function renderRatingStats(sum, count){
     } catch(e){ return {}; }
   }
 
-  function saveTgSettingsLocal(token, siteUrl, targets){
-    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token: token, siteUrl: siteUrl, targets: targets })); } catch(e){}
+  function saveTgSettingsLocal(token, siteUrl, targets, absentChatId){
+    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token: token, siteUrl: siteUrl, targets: targets, absentChatId: absentChatId || '' })); } catch(e){}
   }
 
   function fillTgForm(){
     var s = loadTgSettings();
     var ti = document.getElementById('tgBotToken');
     var su = document.getElementById('tgSiteUrl');
+    var ac = document.getElementById('tgAbsentChatId');
     if(ti) ti.value = s.token || '';
     if(su) su.value = s.siteUrl || '';
+    if(ac) ac.value = s.absentChatId || '';
     var inputs = document.querySelectorAll('.tg-target-input');
     var targets = s.targets || [];
     inputs.forEach(function(inp, i){ inp.value = targets[i] || ''; });
@@ -4518,6 +4533,7 @@ function renderRatingStats(sum, count){
     var siteUrl = (document.getElementById('tgSiteUrl').value || '').trim().replace(/\/+$/, '');
     var targets = Array.from(document.querySelectorAll('.tg-target-input'))
                        .map(function(i){ return i.value.trim(); }).filter(Boolean);
+    var absentChatId = (document.getElementById('tgAbsentChatId').value || '').trim();
     var st = document.getElementById('tgSettingsSaveStatus');
 
     if(!token || !siteUrl){
@@ -4525,17 +4541,61 @@ function renderRatingStats(sum, count){
       st.style.color = '#c0392b';
       return;
     }
-    if(targets.length === 0){
-      st.textContent = 'Kamida 1 ta yuborish joyi kiriting.';
+    if(targets.length === 0 && !absentChatId){
+      st.textContent = 'Kamida 1 ta yuborish joyi yoki "Kelmadi" chat ID kiriting.';
       st.style.color = '#c0392b';
       return;
     }
 
-    saveTgSettingsLocal(token, siteUrl, targets);
-    st.textContent = 'Saqlandi. ' + targets.length + ' ta joy.';
+    saveTgSettingsLocal(token, siteUrl, targets, absentChatId);
+    st.textContent = 'Saqlandi. ' + targets.length + ' ta joy.' + (absentChatId ? ' Kelmadi xabari yoqilgan.' : '');
     st.style.color = '#2e6f6e';
     setTimeout(function(){ st.textContent = ''; }, 4000);
   });
+
+  // Sends a plain text message to a single chat_id via the configured bot.
+  async function sendPlainMessage(token, chatId, text){
+    try{
+      var res  = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
+      });
+      var data = await res.json();
+      if(data.ok) return { ok: true };
+      return { ok: false, error: data.description || 'Xatolik' };
+    } catch(err){
+      return { ok: false, error: err.message || 'Tarmoq xatosi' };
+    }
+  }
+
+  // Called when a teacher saves a progress entry with attended = false
+  // ("Kelmadi"). Sends the absent student's name/phone/date to the
+  // configured absentChatId so a staff member can follow up by phone.
+  // Silent no-op if Telegram isn't configured for this yet.
+  async function notifyAbsentStudent(student, dateStr, note){
+    var s = loadTgSettings();
+    if(!s.token || !s.absentChatId) return; // not configured — skip quietly
+
+    function escTg(str){ return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    var dateLabel = dateStr ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : dateStr;
+    var lines = [
+      '🚫 <b>O\'quvchi darsga kelmadi</b>',
+      '',
+      '👤 Ism: ' + escTg(student.name || '—'),
+      '📞 Tel: ' + escTg(student.phone || '—'),
+      '📅 Sana: ' + escTg(dateLabel)
+    ];
+    if(note){ lines.push('📝 Izoh: ' + escTg(note)); }
+    var text = lines.join('\n');
+
+    var result = await sendPlainMessage(s.token, s.absentChatId, text);
+    if(!result.ok){
+      console.warn('Kelmadi xabari yuborilmadi:', result.error);
+      showToast('Diqqat: "Kelmadi" xabari Telegramga yuborilmadi (' + result.error + ')');
+    }
+  }
+  window.notifyAbsentStudent = notifyAbsentStudent;
 
   async function sendToOne(token, chatId, blog, caption){
     var method = blog.imageUrl ? 'sendPhoto' : 'sendMessage';
