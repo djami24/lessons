@@ -4572,10 +4572,13 @@ function renderRatingStats(sum, count){
   // Called when a teacher saves a progress entry with attended = false
   // ("Kelmadi"). Sends the absent student's name/phone/date to the
   // configured absentChatId so a staff member can follow up by phone.
-  // Silent no-op if Telegram isn't configured for this yet.
   async function notifyAbsentStudent(student, dateStr, note){
     var s = loadTgSettings();
-    if(!s.token || !s.absentChatId) return; // not configured — skip quietly
+    if(!s.token || !s.absentChatId){
+      console.warn('Kelmadi xabari: Telegram sozlanmagan (token yoki chat ID yo\'q).', s);
+      showToast('Diqqat: "Kelmadi" xabari yuborilmadi — avval Sayt sozlamalarida Bot Token va Chat ID kiriting.');
+      return;
+    }
 
     function escTg(str){ return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     var dateLabel = dateStr ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : dateStr;
@@ -4593,6 +4596,8 @@ function renderRatingStats(sum, count){
     if(!result.ok){
       console.warn('Kelmadi xabari yuborilmadi:', result.error);
       showToast('Diqqat: "Kelmadi" xabari Telegramga yuborilmadi (' + result.error + ')');
+    } else {
+      showToast('"Kelmadi" xabari Telegramga yuborildi ✓');
     }
   }
   window.notifyAbsentStudent = notifyAbsentStudent;
