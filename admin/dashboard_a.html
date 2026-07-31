@@ -4559,8 +4559,9 @@ function renderRatingStats(sum, count){
     var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBPCFHYX4zoMCTozLBRZbsdqSGR5_4x5a6PTzuSH-V2i9Rqx5cO8rWfDc2xITYgB69rg/exec';
     var dateLabel = dateStr ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : dateStr;
     try {
-      var res = await fetch(SCRIPT_URL, {
+      fetch(SCRIPT_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           studentName: student.name || '—',
