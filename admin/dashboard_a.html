@@ -4555,7 +4555,7 @@ function renderRatingStats(sum, count){
   });
 
   // Sends a plain text message to a single chat_id via the configured bot.
- async function notifyAbsentStudent(student, dateStr, note){
+async function notifyAbsentStudent(student, dateStr, note){
     var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBPCFHYX4zoMCTozLBRZbsdqSGR5_4x5a6PTzuSH-V2i9Rqx5cO8rWfDc2xITYgB69rg/exec';
     var dateLabel = dateStr ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : dateStr;
     try {
@@ -4576,7 +4576,6 @@ function renderRatingStats(sum, count){
     }
   }
   window.notifyAbsentStudent = notifyAbsentStudent;
-
   // Called when a teacher saves a progress entry with attended = false
   // ("Kelmadi"). Firebase Cloud Function orqali Telegram xabar yuboradi.
   
