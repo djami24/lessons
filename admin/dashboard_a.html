@@ -1910,6 +1910,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../site-settings.js"></script>
 <script>
@@ -4570,8 +4571,7 @@ function renderRatingStats(sum, count){
   }
 
   // Called when a teacher saves a progress entry with attended = false
-  // ("Kelmadi"). Sends the absent student's name/phone/date to the
-  // configured absentChatId so a staff member can follow up by phone.
+  // ("Kelmadi"). Firebase Cloud Function orqali Telegram xabar yuboradi.
   async function notifyAbsentStudent(student, dateStr, note){
     var s = loadTgSettings();
     if(!s.token || !s.absentChatId){
@@ -4579,25 +4579,20 @@ function renderRatingStats(sum, count){
       showToast('Diqqat: "Kelmadi" xabari yuborilmadi — avval Sayt sozlamalarida Bot Token va Chat ID kiriting.');
       return;
     }
-
-    function escTg(str){ return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-    var dateLabel = dateStr ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : dateStr;
-    var lines = [
-      '🚫 <b>O\'quvchi darsga kelmadi</b>',
-      '',
-      '👤 Ism: ' + escTg(student.name || '—'),
-      '📞 Tel: ' + escTg(student.phone || '—'),
-      '📅 Sana: ' + escTg(dateLabel)
-    ];
-    if(note){ lines.push('📝 Izoh: ' + escTg(note)); }
-    var text = lines.join('\n');
-
-    var result = await sendPlainMessage(s.token, s.absentChatId, text);
-    if(!result.ok){
-      console.warn('Kelmadi xabari yuborilmadi:', result.error);
-      showToast('Diqqat: "Kelmadi" xabari Telegramga yuborilmadi (' + result.error + ')');
-    } else {
+    try {
+      var sendTelegram = firebase.functions().httpsCallable('sendTelegram');
+      var result = await sendTelegram({
+        token: s.token,
+        chatId: s.absentChatId,
+        studentName: student.name || '—',
+        studentPhone: student.phone || '—',
+        date: dateStr || '',
+        note: note || ''
+      });
       showToast('"Kelmadi" xabari Telegramga yuborildi ✓');
+    } catch(err) {
+      console.warn('Kelmadi xabari yuborilmadi:', err);
+      showToast('Diqqat: "Kelmadi" xabari yuborilmadi — ' + (err.message || 'Xatolik'));
     }
   }
   window.notifyAbsentStudent = notifyAbsentStudent;
