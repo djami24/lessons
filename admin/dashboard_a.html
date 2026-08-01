@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="../style.css">
 <style>.shake{animation: shakeX .4s;} @keyframes shakeX{
 .btn-tg{background:linear-gradient(135deg,#229ED9,#1a7ab5);color:#fff;border-color:#229ED9;}
-.brand-mark-logo img{display:block;width:auto;height:32px;object-fit:contain;border-radius:6px;}
 .btn-tg:hover{background:linear-gradient(135deg,#1a8fc4,#155f8e);} 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }
 
 /* ====== O'QUV JARAYONI — Modern UI ====== */
@@ -2067,6 +2066,19 @@ auth.onAuthStateChanged(async (user) => {
   document.getElementById('sidebarUsername').textContent = user.email;
   document.getElementById('loadingScreen').hidden = true;
   document.getElementById('appShell').hidden = false;
+
+  // Sahifa ochilganda Firestore'dan logoUrl yuklab sidebar imgni yangilaymiz
+  try {
+    const _sd = await db.collection('settings').doc('site').get();
+    if(_sd.exists){
+      const _lu = (_sd.data().logoUrl || '').trim();
+      const _im = document.querySelector('[data-site-logo] img');
+      const _sp = document.querySelector('[data-site-logo]');
+      if(_im && _lu){ _im.src = _lu; _im.style.display=''; if(_sp) _sp.style.display=''; }
+      else if(_im){ _im.style.display='none'; if(_sp) _sp.style.display='none'; }
+    }
+  } catch(_e){}
+
   await ensureLevelsExist();
   await loadLevels();
   await ensureCoursesExist();
@@ -4376,11 +4388,9 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingButtonColorLabel').textContent = data.buttonColor;
   document.getElementById('settingBrandName').value = data.brandName || '';
   document.getElementById('settingLogoUrl').value = data.logoUrl || '';
-  // Sidebar logosini ham shu yerda yangilaymiz
-  var _sbl = document.querySelector('[data-site-logo] img');
-  if(_sbl){ _sbl.src = data.logoUrl || '../assets/logo.png'; _sbl.style.display = data.logoUrl ? '' : 'none'; }
-  var _sbspan = document.querySelector('[data-site-logo]');
-  if(_sbspan){ _sbspan.style.display = data.logoUrl ? '' : 'none'; }
+  var _im1=document.querySelector('[data-site-logo] img'),_sp1=document.querySelector('[data-site-logo]');
+  if(_im1&&data.logoUrl){_im1.src=data.logoUrl;_im1.style.display='';if(_sp1)_sp1.style.display='';}
+  else if(_im1){_im1.style.display='none';if(_sp1)_sp1.style.display='none';}
   document.getElementById('settingTeacherName').value = data.teacherName || '';
 
   document.getElementById('settingCardNumber').value = data.cardNumber || '';
@@ -4839,11 +4849,9 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     await db.collection('settings').doc('site').set(data, { merge: true });
     state.certificateImages = cleanedCertificates;
     renderCertificatesEditor();
-    // Sidebar logosini darhol yangilash
-    var _sbl2 = document.querySelector('[data-site-logo] img');
-    if(_sbl2){ _sbl2.src = data.logoUrl || '../assets/logo.png'; _sbl2.style.display = data.logoUrl ? '' : 'none'; }
-    var _sbspan2 = document.querySelector('[data-site-logo]');
-    if(_sbspan2){ _sbspan2.style.display = data.logoUrl ? '' : 'none'; }
+    var _im2=document.querySelector('[data-site-logo] img'),_sp2=document.querySelector('[data-site-logo]');
+    if(_im2&&data.logoUrl){_im2.src=data.logoUrl;_im2.style.display='';if(_sp2)_sp2.style.display='';}
+    else if(_im2){_im2.style.display='none';if(_sp2)_sp2.style.display='none';}
     showToast('Sayt sozlamalari saqlandi.');
   } catch(err){
     errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
