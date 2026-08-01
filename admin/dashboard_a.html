@@ -4537,8 +4537,8 @@ function renderRatingStats(sum, count){
     var absentChatId = (document.getElementById('tgAbsentChatId').value || '').trim();
     var st = document.getElementById('tgSettingsSaveStatus');
 
-    if(!token || !siteUrl){
-      st.textContent = 'Token va Sayt URL majburiy.';
+    if(!token){
+      st.textContent = 'Bot Token majburiy.';
       st.style.color = '#c0392b';
       return;
     }
@@ -4555,54 +4555,50 @@ function renderRatingStats(sum, count){
   });
 
   // Sends a plain text message to a single chat_id via the configured bot.
-  // NOTE: uses XMLHttpRequest instead of fetch(). Apps Script's /exec URL
-  // replies with a 302 redirect to the real execution endpoint; fetch()
-  // downgrades a POST to a GET on that redirect (per the Fetch spec) and
-  // drops the body, which silently triggers doGet() instead of doPost().
-  // XMLHttpRequest preserves the method and body across the redirect.
-async function notifyAbsentStudent(student, dateStr, note){
-    // Saqlangan Telegram sozlamalarini yuklaymiz
-    var s = loadTgSettings();
-    var token    = (s.token || '').trim();
-    var chatId   = (s.absentChatId || '').trim();
+  // "Kelmadi" tugmasi bosilganda do'stingizga Telegram xabari yuboradi.
+  // localStorage'dan bevosita o'qiladi, scope muammosi yo'q.
+  async function notifyAbsentStudent(student, dateStr, note){
+    var stored = {};
+    try { stored = JSON.parse(localStorage.getItem('efTgBotSettings') || '{}'); } catch(e){}
+    var token  = (stored.token        || '').trim();
+    var chatId = (stored.absentChatId || '').trim();
 
     if(!token || !chatId){
-      console.warn('Kelmadi xabari: Bot Token yoki "Kelmadi" Chat ID sozlanmagan. Sayt sozlamalariga kiring.');
-      showToast('⚠️ Avval Telegram sozlamalarini kiriting (Sayt sozlamalari).');
+      showToast('⚠️ Avval Telegram sozlamalarida Bot Token va "Kelmadi" Chat ID kiriting.');
       return;
     }
 
     var dateLabel = dateStr
-      ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' })
+      ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', {day:'numeric', month:'long', year:'numeric'})
       : (dateStr || '');
 
-    function escHtml(str){ return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    var text = '\uD83D\uDEAB <b>Kelmadi!</b>\n\n'
-             + '\uD83D\uDC64 <b>Talaba:</b> '  + escHtml(student.name  || '\u2014') + '\n'
-             + '\uD83D\uDCDE <b>Telefon:</b> '  + escHtml(student.phone || '\u2014') + '\n'
-             + '\uD83D\uDCC5 <b>Sana:</b> '     + escHtml(dateLabel)                 + '\n'
-             + (note ? '\uD83D\uDCDD <b>Izoh:</b> ' + escHtml(note) : '');
+    var text = '🚫 <b>Kelmadi!</b>\n\n'
+             + '👤 <b>Talaba:</b> ' + esc(student.name  || '—') + '\n'
+             + '📞 <b>Telefon:</b> ' + esc(student.phone || '—') + '\n'
+             + '📅 <b>Sana:</b> '    + esc(dateLabel)                 + '\n'
+             + (note ? '📝 <b>Izoh:</b> ' + esc(note) : '');
 
     try {
-      var res = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-        method: 'POST',
+      var res  = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
+        method : 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
+        body   : JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
       });
       var data = await res.json();
       if(data.ok){
-        showToast('"Kelmadi" xabari Telegramga yuborildi \u2713');
+        showToast('"Kelmadi" xabari Telegramga yuborildi ✓');
       } else {
-        console.warn('Telegram API xatosi:', data.description);
-        showToast('Diqqat: xabar yuborilmadi \u2014 ' + (data.description || 'Xatolik'));
+        console.warn('Telegram xatosi:', data.description);
+        showToast('Xato: ' + (data.description || 'Nomaʼlum xato'));
       }
-    } catch(err) {
+    } catch(err){
       console.warn('Kelmadi xabari yuborilmadi:', err);
-      showToast('Diqqat: xabar yuborilmadi \u2014 ' + (err.message || 'Tarmoq xatosi'));
+      showToast('Tarmoq xatosi: ' + (err.message || 'Ulanib boʼlmadi'));
     }
   }
-  window.notifyAbsentStudent = notifyAbsentStudent;
+    window.notifyAbsentStudent = notifyAbsentStudent;
 
   async function sendToOne(token, chatId, blog, caption){
     var method = blog.imageUrl ? 'sendPhoto' : 'sendMessage';
