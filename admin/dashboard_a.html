@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../style.css">
 <style>.shake{animation: shakeX .4s;} @keyframes shakeX{
 .btn-tg{background:linear-gradient(135deg,#229ED9,#1a7ab5);color:#fff;border-color:#229ED9;}
+.brand-mark-logo img{display:block;width:auto;height:32px;object-fit:contain;border-radius:6px;}
 .btn-tg:hover{background:linear-gradient(135deg,#1a8fc4,#155f8e);} 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }
 
 /* ====== O'QUV JARAYONI — Modern UI ====== */
@@ -4375,6 +4376,11 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingButtonColorLabel').textContent = data.buttonColor;
   document.getElementById('settingBrandName').value = data.brandName || '';
   document.getElementById('settingLogoUrl').value = data.logoUrl || '';
+  // Sidebar logosini ham shu yerda yangilaymiz
+  var _sbl = document.querySelector('[data-site-logo] img');
+  if(_sbl){ _sbl.src = data.logoUrl || '../assets/logo.png'; _sbl.style.display = data.logoUrl ? '' : 'none'; }
+  var _sbspan = document.querySelector('[data-site-logo]');
+  if(_sbspan){ _sbspan.style.display = data.logoUrl ? '' : 'none'; }
   document.getElementById('settingTeacherName').value = data.teacherName || '';
 
   document.getElementById('settingCardNumber').value = data.cardNumber || '';
@@ -4537,8 +4543,8 @@ function renderRatingStats(sum, count){
     var absentChatId = (document.getElementById('tgAbsentChatId').value || '').trim();
     var st = document.getElementById('tgSettingsSaveStatus');
 
-    if(!token){
-      st.textContent = 'Bot Token majburiy.';
+    if(!token || !siteUrl){
+      st.textContent = 'Token va Sayt URL majburiy.';
       st.style.color = '#c0392b';
       return;
     }
@@ -4555,50 +4561,46 @@ function renderRatingStats(sum, count){
   });
 
   // Sends a plain text message to a single chat_id via the configured bot.
-  // "Kelmadi" tugmasi bosilganda do'stingizga Telegram xabari yuboradi.
-  // localStorage'dan bevosita o'qiladi, scope muammosi yo'q.
-  async function notifyAbsentStudent(student, dateStr, note){
-    var stored = {};
-    try { stored = JSON.parse(localStorage.getItem('efTgBotSettings') || '{}'); } catch(e){}
-    var token  = (stored.token        || '').trim();
-    var chatId = (stored.absentChatId || '').trim();
-
-    if(!token || !chatId){
-      showToast('⚠️ Avval Telegram sozlamalarida Bot Token va "Kelmadi" Chat ID kiriting.');
-      return;
-    }
-
-    var dateLabel = dateStr
-      ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', {day:'numeric', month:'long', year:'numeric'})
-      : (dateStr || '');
-
-    function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    var text = '🚫 <b>Kelmadi!</b>\n\n'
-             + '👤 <b>Talaba:</b> ' + esc(student.name  || '—') + '\n'
-             + '📞 <b>Telefon:</b> ' + esc(student.phone || '—') + '\n'
-             + '📅 <b>Sana:</b> '    + esc(dateLabel)                 + '\n'
-             + (note ? '📝 <b>Izoh:</b> ' + esc(note) : '');
-
+  // NOTE: uses XMLHttpRequest instead of fetch(). Apps Script's /exec URL
+  // replies with a 302 redirect to the real execution endpoint; fetch()
+  // downgrades a POST to a GET on that redirect (per the Fetch spec) and
+  // drops the body, which silently triggers doGet() instead of doPost().
+  // XMLHttpRequest preserves the method and body across the redirect.
+async function notifyAbsentStudent(student, dateStr, note){
+    var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBPCFHYX4zoMCTozLBRZbsdqSGR5_4x5a6PTzuSH-V2i9Rqx5cO8rWfDc2xITYgB69rg/exec';
+    var dateLabel = dateStr ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : dateStr;
+    var payload = JSON.stringify({
+      studentName: student.name || '—',
+      studentPhone: student.phone || '—',
+      date: dateLabel || '',
+      note: note || ''
+    });
     try {
-      var res  = await fetch('https://api.telegram.org/bot' + token + '/sendMessage', {
-        method : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body   : JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
+      await new Promise(function(resolve, reject){
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', SCRIPT_URL, true);
+        xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+        xhr.onload = function(){
+          if(xhr.status >= 200 && xhr.status < 300){
+            try {
+              var res = JSON.parse(xhr.responseText);
+              if(res && res.ok === false){ reject(new Error(res.error || 'Apps Script xatosi')); return; }
+            } catch(parseErr){ /* javob JSON bo'lmasa ham, 200 bo'lsa muvaffaqiyat deb hisoblaymiz */ }
+            resolve();
+          } else {
+            reject(new Error('HTTP ' + xhr.status));
+          }
+        };
+        xhr.onerror = function(){ reject(new Error('Tarmoq xatosi')); };
+        xhr.send(payload);
       });
-      var data = await res.json();
-      if(data.ok){
-        showToast('"Kelmadi" xabari Telegramga yuborildi ✓');
-      } else {
-        console.warn('Telegram xatosi:', data.description);
-        showToast('Xato: ' + (data.description || 'Nomaʼlum xato'));
-      }
-    } catch(err){
+      showToast('"Kelmadi" xabari Telegramga yuborildi ✓');
+    } catch(err) {
       console.warn('Kelmadi xabari yuborilmadi:', err);
-      showToast('Tarmoq xatosi: ' + (err.message || 'Ulanib boʼlmadi'));
+      showToast('Diqqat: xabar yuborilmadi — ' + (err.message || 'Xatolik'));
     }
   }
-    window.notifyAbsentStudent = notifyAbsentStudent;
+  window.notifyAbsentStudent = notifyAbsentStudent;
 
   async function sendToOne(token, chatId, blog, caption){
     var method = blog.imageUrl ? 'sendPhoto' : 'sendMessage';
@@ -4837,6 +4839,11 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     await db.collection('settings').doc('site').set(data, { merge: true });
     state.certificateImages = cleanedCertificates;
     renderCertificatesEditor();
+    // Sidebar logosini darhol yangilash
+    var _sbl2 = document.querySelector('[data-site-logo] img');
+    if(_sbl2){ _sbl2.src = data.logoUrl || '../assets/logo.png'; _sbl2.style.display = data.logoUrl ? '' : 'none'; }
+    var _sbspan2 = document.querySelector('[data-site-logo]');
+    if(_sbspan2){ _sbspan2.style.display = data.logoUrl ? '' : 'none'; }
     showToast('Sayt sozlamalari saqlandi.');
   } catch(err){
     errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
