@@ -73,12 +73,27 @@ document.getElementById('pwToggle').addEventListener('click', () => {
   btn.textContent = show ? 'Yashirish' : 'Ko‘rsatish';
 });
 
-// Note: we intentionally do NOT auto-redirect to the dashboard just
-// because a cached session exists (e.g. from "Meni eslab qol" on a
-// previous visit). The login page always shows the form and requires
-// pressing "Kirish" — that's what actually signs the student in below.
+// Agar oldin "Meni eslab qol" belgilangan bo'lsa, Firebase brauzerda
+// sessiyani saqlab qoladi. Shunday holatda talabani qayta email/parol
+// so'ramasdan avtomatik ravishda dashboard'ga o'tkazamiz.
+const authForm = document.getElementById('studentLoginForm');
+const autoLoginNotice = document.getElementById('loginNotice');
+auth.onAuthStateChanged(async (user) => {
+  if(!user) return;
+  try{
+    const studentDoc = await db.collection('students').doc(user.uid).get();
+    if(studentDoc.exists){
+      authForm.hidden = true;
+      autoLoginNotice.textContent = 'Avvalgi profilingizga avtomatik kirilmoqda…';
+      autoLoginNotice.hidden = false;
+      window.location.href = 'dashboard.html';
+    }
+    // Agar bu hisob talaba sifatida ro'yxatdan o'tmagan bo'lsa (masalan,
+    // ota-ona sifatida kirgan), forma oddiy holatda ko'rsatilaveradi.
+  } catch(e){ /* silent — forma ko'rsatilaveradi */ }
+});
 
-document.getElementById('studentLoginForm').addEventListener('submit', async (e) => {
+authForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const errorEl = document.getElementById('loginError');
   const noticeEl = document.getElementById('loginNotice');
