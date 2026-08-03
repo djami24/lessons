@@ -49,8 +49,8 @@
   <a href="index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
 
   <div class="role-card-box">
-    <h1>Siz kim sifatida kirmoqchisiz?</h1>
-    <p>Davom etish uchun profilingiz turini tanlang.</p>
+    <h1 id="roleHeading">Siz kim sifatida kirmoqchisiz?</h1>
+    <p id="roleSub">Davom etish uchun profilingiz turini tanlang.</p>
 
     <div class="role-choice-grid">
       <a href="student/login.html" class="role-choice" id="roleStudent">
@@ -65,12 +65,38 @@
       </a>
     </div>
 
-    <p class="role-signin-row">
+    <p class="role-signin-row" id="roleSigninRow">
       Hisobingiz yo‘qmi? <a href="student/register.html">Talaba sifatida</a> yoki
       <a href="parent/register.html">Ota-ona sifatida</a> ro‘yxatdan o‘ting.
     </p>
   </div>
 </div>
+
+<script>
+  // index.html'dagi "Ro'yxatdan o'tish" va "Kirish" tugmalari shu sahifaga
+  // ?mode=register yoki ?mode=login bilan yo'naltiradi. Shunga qarab Talaba
+  // / Ota-ona tanlovlari ro'yxatdan o'tish yoki kirish sahifasiga o'tkaziladi
+  // — ilgari ikkalasi ham har doim kirish sahifasiga yo'naltirar edi.
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var mode = params.get('mode') === 'register' ? 'register' : 'login';
+
+    var roleStudent = document.getElementById('roleStudent');
+    var roleParent = document.getElementById('roleParent');
+    var heading = document.getElementById('roleHeading');
+    var sub = document.getElementById('roleSub');
+    var signinRow = document.getElementById('roleSigninRow');
+
+    if (mode === 'register') {
+      roleStudent.href = 'student/register.html';
+      roleParent.href = 'parent/register.html';
+      heading.textContent = 'Siz kim sifatida ro‘yxatdan o‘tmoqchisiz?';
+      sub.textContent = 'Davom etish uchun profilingiz turini tanlang.';
+      signinRow.innerHTML = 'Hisobingiz bormi? <a href="student/login.html">Talaba sifatida</a> yoki ' +
+        '<a href="parent/login.html">Ota-ona sifatida</a> kiring.';
+    }
+  })();
+</script>
 
 </body>
 </html>
