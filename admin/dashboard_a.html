@@ -1421,6 +1421,7 @@
               <th>Harakat</th>
               <th>Sana va vaqt</th>
               <th>Qurilma</th>
+              <th>Amal</th>
             </tr>
           </thead>
           <tbody id="actlogTableBody"></tbody>
@@ -7190,6 +7191,9 @@ function renderActivityLogTable(){
     const actionBadge = doc.action === 'login'
       ? '<span class="actlog-action-badge actlog-action-login">🔑 Kirdi</span>'
       : '<span class="actlog-action-badge actlog-action-register">✅ Ro\'yxatdan o\'tdi</span>';
+    const deleteCell = doc.uid
+      ? `<button type="button" class="btn btn-danger btn-sm" data-actlog-delete-uid="${escHtml(doc.uid)}" data-actlog-delete-role="${escHtml(doc.role||'')}" data-actlog-delete-name="${escHtml(doc.name||doc.email||'Foydalanuvchi')}">🗑️ O'chirish</button>`
+      : '—';
     return `<tr>
       <td style="color:var(--adm-gray,var(--gray));font-size:.8rem;">${i+1}</td>
       <td><strong>${escHtml(doc.name || '—')}</strong>${doc.email ? '<br><span style="font-size:.75rem;color:var(--adm-gray,var(--gray));">'+escHtml(doc.email)+'</span>' : ''}</td>
@@ -7197,9 +7201,49 @@ function renderActivityLogTable(){
       <td>${actionBadge}</td>
       <td class="actlog-time">${actlogFormatDate(doc.at)}</td>
       <td style="font-size:.78rem;">${actlogDeviceParse(doc.ua)}</td>
+      <td>${deleteCell}</td>
     </tr>`;
   }).join('');
 }
+
+// Faollik jurnalidagi "O'chirish" tugmasi — kerak bo'lmagan foydalanuvchini
+// (talaba yoki ota-ona) butunlay o'chirib tashlaydi: uning students/parents
+// kolleksiyasidagi hisob yozuvi va shu uid'ga tegishli barcha faollik
+// jurnali yozuvlari o'chiriladi. (Firebase Authentication hisobining o'zini
+// butunlay o'chirish uchun Firebase Console > Authentication bo'limidan
+// foydalaning — bu yerdan faqat sayt ichidagi profil o'chiriladi.)
+document.getElementById('actlogTableBody').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-actlog-delete-uid]');
+  if(!btn) return;
+
+  const uid = btn.dataset.actlogDeleteUid;
+  const role = btn.dataset.actlogDeleteRole;
+  const name = btn.dataset.actlogDeleteName;
+
+  if(!confirm(`"${name}" hisobini butunlay o'chirmoqchimisiz? Uning profili va faollik jurnalidagi barcha yozuvlari o'chiriladi. (Firebase login hisobini butunlay yo'q qilish uchun Firebase Console'dan foydalaning.)`)) return;
+
+  btn.disabled = true;
+  btn.textContent = 'O\'chirilmoqda…';
+
+  try {
+    const collectionName = role === 'parent' ? 'parents' : 'students';
+    await db.collection(collectionName).doc(uid).delete().catch(() => {});
+
+    const logSnap = await db.collection('activity_log').where('uid', '==', uid).get();
+    const batch = db.batch();
+    logSnap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+
+    _actlogAllDocs = _actlogAllDocs.filter(d => d.uid !== uid);
+    renderActivityLogTable();
+    showToast(`"${name}" hisobi butunlay o'chirildi.`);
+  } catch(err){
+    console.error('Activity log delete error:', err);
+    showToast('O\'chirishda xatolik yuz berdi.', true);
+    btn.disabled = false;
+    btn.textContent = '🗑️ O\'chirish';
+  }
+});
 
 async function loadActivityLog(reset){
   const loading = document.getElementById('actlogLoading');
