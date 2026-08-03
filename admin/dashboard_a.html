@@ -1607,6 +1607,19 @@
   </div>
 </div>
 
+<!-- ===== MODAL: Bugungi Keldi/Kelmadi ro'yxati ===== -->
+<div class="modal-overlay" id="modalAttendanceList" hidden>
+  <div class="modal-box" style="max-width:420px;">
+    <h3 id="attendanceListTitle">Ro'yxat</h3>
+    <p class="modal-sub" id="attendanceListSub"></p>
+    <div id="attendanceListBody" style="display:flex; flex-direction:column; gap:6px; max-height:50vh; overflow:auto;"></div>
+    <p id="attendanceListEmpty" style="color:var(--gray); font-size:.9rem;" hidden>Bu ro'yxat bo'sh.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" data-close-modal="modalAttendanceList">Yopish</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MODAL: Add/Edit lesson (+ quiz builder) ===== -->
 <div class="modal-overlay" id="modalEditLesson" hidden>
   <div class="modal-box" style="max-width:640px;">
@@ -7001,7 +7014,9 @@ async function loadTodayHomeworkCards(){
   }));
 
   grid.innerHTML = '';
-  cardData.forEach(({ group: g, attended, absent, hwNo, total }) => {
+  window._todayHwCardData = {};
+  cardData.forEach(({ group: g, entries, attended, absent, hwNo, total }) => {
+    window._todayHwCardData[g.id] = { groupName: g.name, entries };
     const notMarked = total - attended - absent;
     const card = document.createElement('div');
     card.className = 'today-hw-card';
@@ -7014,15 +7029,15 @@ async function loadTodayHomeworkCards(){
         </div>
       </div>
       <div class="today-hw-card-stats">
-        <div class="today-hw-stat green">
+        <div class="today-hw-stat green" style="cursor:pointer;" onclick="showTodayAttendanceList('${escHtml(g.id)}','yes')" title="Kelgan talabalarni ko'rish">
           <div class="today-hw-stat-num">${attended}</div>
           <div class="today-hw-stat-label">✅ Keldi</div>
         </div>
-        <div class="today-hw-stat red">
+        <div class="today-hw-stat red" style="cursor:pointer;" onclick="showTodayAttendanceList('${escHtml(g.id)}','no')" title="Kelmagan talabalarni ko'rish">
           <div class="today-hw-stat-num">${absent}</div>
           <div class="today-hw-stat-label">🚫 Kelmadi</div>
         </div>
-        <div class="today-hw-stat orange">
+        <div class="today-hw-stat orange" style="cursor:pointer;" onclick="showTodayAttendanceList('${escHtml(g.id)}','hw-no')" title="Uy vazifa qilmaganlarni ko'rish">
           <div class="today-hw-stat-num">${hwNo}</div>
           <div class="today-hw-stat-label">📚 Uy vazifa qilmadi</div>
         </div>
@@ -7038,6 +7053,42 @@ async function loadTodayHomeworkCards(){
 
   const now = new Date();
   refreshedAt.textContent = `Yangilandi: ${now.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'})}`;
+}
+
+// Bugungi guruh kartochkasidagi Keldi/Kelmadi/Uy vazifa raqamiga bosilganda,
+// o'sha turkumga tushgan talabalar ism-familiyasini modalda ko'rsatadi.
+function showTodayAttendanceList(groupId, kind){
+  const data = (window._todayHwCardData || {})[groupId];
+  if(!data) return;
+
+  const matches = (data.entries || []).filter(e => {
+    const a = e.attended === true || e.attended === 'yes' ? 'yes' : e.attended === 'late' ? 'late' : (e.attended === false || e.attended === 'no') ? 'no' : '';
+    const h = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === 'partial' ? 'partial' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : '';
+    if(kind === 'yes') return a === 'yes' || a === 'late';
+    if(kind === 'no') return a === 'no';
+    if(kind === 'hw-no') return h === 'no' || h === 'partial';
+    return false;
+  });
+
+  const titleMap = { yes: '✅ Kelgan talabalar', no: '🚫 Kelmagan talabalar', 'hw-no': '📚 Uy vazifa qilmagan talabalar' };
+  document.getElementById('attendanceListTitle').textContent = titleMap[kind] || 'Ro\u2018yxat';
+  document.getElementById('attendanceListSub').textContent = `${escHtml(data.groupName)} — ${matches.length} ta talaba`;
+
+  const body = document.getElementById('attendanceListBody');
+  const emptyEl = document.getElementById('attendanceListEmpty');
+  if(!matches.length){
+    body.innerHTML = '';
+    emptyEl.hidden = false;
+  } else {
+    emptyEl.hidden = true;
+    body.innerHTML = matches.map((e, i) => `
+      <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--line); border-radius:var(--radius-s);">
+        <span style="color:var(--gray); font-size:.8rem; min-width:18px;">${i + 1}.</span>
+        <span style="font-weight:600;">${escHtml(e.studentName || 'Noma\u2019lum talaba')}</span>
+      </div>`).join('');
+  }
+
+  openModal('modalAttendanceList');
 }
 
 // Auto-refresh every 60 seconds when home tab is visible
