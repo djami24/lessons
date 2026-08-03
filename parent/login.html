@@ -73,7 +73,27 @@ document.getElementById('pwToggle').addEventListener('click', () => {
   btn.textContent = show ? 'Yashirish' : 'Ko‘rsatish';
 });
 
-document.getElementById('parentLoginForm').addEventListener('submit', async (e) => {
+// Agar oldin "Meni eslab qol" belgilangan bo'lsa, Firebase brauzerda
+// sessiyani saqlab qoladi. Shunday holatda ota-onani qayta email/parol
+// so'ramasdan avtomatik ravishda dashboard'ga o'tkazamiz.
+const authForm = document.getElementById('parentLoginForm');
+const autoLoginNotice = document.getElementById('loginNotice');
+auth.onAuthStateChanged(async (user) => {
+  if(!user) return;
+  try{
+    const parentDoc = await db.collection('parents').doc(user.uid).get();
+    if(parentDoc.exists){
+      authForm.hidden = true;
+      autoLoginNotice.textContent = 'Avvalgi profilingizga avtomatik kirilmoqda…';
+      autoLoginNotice.hidden = false;
+      window.location.href = 'dashboard.html';
+    }
+    // Agar bu hisob ota-ona sifatida ro'yxatdan o'tmagan bo'lsa (masalan,
+    // talaba sifatida kirgan), forma oddiy holatda ko'rsatilaveradi.
+  } catch(e){ /* silent — forma ko'rsatilaveradi */ }
+});
+
+authForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const errorEl = document.getElementById('loginError');
   const noticeEl = document.getElementById('loginNotice');
