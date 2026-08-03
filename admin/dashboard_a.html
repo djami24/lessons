@@ -7005,9 +7005,9 @@ async function loadTodayHomeworkCards(){
       if(a === 'yes' || a === 'late') attended++;
       else if(a === 'no') absent++;
       const h = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === 'partial' ? 'partial' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : '';
-      // "Uy vazifa qilmadi" = to'liq qilmagan ('no') + qisman qilgan ('partial'),
+      // "Uy vazifa qilmadi" = to'liq qilmagan ('no') + qisman qilgan ('partial') + jazolangan talabalar,
       // xuddi O'quv jarayoni sahifasidagi "qilmaganlar" filtri kabi (5147-qator).
-      if(h === 'no' || h === 'partial') hwNo++;
+      if(h === 'no' || h === 'partial' || e.punished === true) hwNo++;
     });
     const kundalikInfo = await homeFetchTodayKundalikHw(g.name, todayDateStr);
     return { group: g, entries, attended, absent, hwNo, total: g.students.length, kundalikGroupId: kundalikInfo.kundalikGroupId, hwItems: kundalikInfo.items };
@@ -7066,7 +7066,9 @@ function showTodayAttendanceList(groupId, kind){
     const h = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === 'partial' ? 'partial' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : '';
     if(kind === 'yes') return a === 'yes' || a === 'late';
     if(kind === 'no') return a === 'no';
-    if(kind === 'hw-no') return h === 'no' || h === 'partial';
+    // "Uy vazifa qilmadi" ro'yxatiga uy vazifasini qilmagan/qisman qilganlar
+    // bilan bir qatorda jazolangan talabalar ham kiradi (7010-qator hisobiga mos).
+    if(kind === 'hw-no') return h === 'no' || h === 'partial' || e.punished === true;
     return false;
   });
 
@@ -7081,11 +7083,19 @@ function showTodayAttendanceList(groupId, kind){
     emptyEl.hidden = false;
   } else {
     emptyEl.hidden = true;
-    body.innerHTML = matches.map((e, i) => `
+    body.innerHTML = matches.map((e, i) => {
+      const isPunished = e.punished === true;
+      const punishCount = Number(e.punishCount) || 0;
+      const punishBadge = isPunished
+        ? `<span style="margin-left:auto; display:inline-flex; align-items:center; gap:4px; background:rgba(192,57,43,.12); color:#c0392b; font-weight:700; font-size:.78rem; padding:3px 8px; border-radius:999px;">🚫 ${punishCount > 0 ? punishCount + ' marta jazo' : 'Jazolangan'}</span>`
+        : '';
+      return `
       <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--line); border-radius:var(--radius-s);">
         <span style="color:var(--gray); font-size:.8rem; min-width:18px;">${i + 1}.</span>
         <span style="font-weight:600;">${escHtml(e.studentName || 'Noma\u2019lum talaba')}</span>
-      </div>`).join('');
+        ${punishBadge}
+      </div>`;
+    }).join('');
   }
 
   openModal('modalAttendanceList');
