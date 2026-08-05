@@ -750,6 +750,12 @@
             <input type="text" id="tgAbsentChatId" placeholder="@username yoki -1009876543210" style="max-width:420px;">
           </label>
         </div>
+        <div style="margin-top:1.2em; padding-top:1em; border-top:1px dashed var(--line);">
+          <label class="field">
+            <span>📊 "Kelmadi" — Google Sheets Web App URL <span style="font-weight:400;color:var(--gray);">(o'quvchi davomatda "Kelmadi" deb belgilansa, shu qatorga avtomatik yoziladi — Apps Script'ni deploy qilgach /exec havolasini shu yerga qo'ying)</span></span>
+            <input type="text" id="tgSheetScriptUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec" style="max-width:520px;">
+          </label>
+        </div>
         <div style="display:flex; gap:.7em; margin-top:14px; align-items:center; flex-wrap:wrap;">
           <button type="button" class="btn btn-amber btn-sm" id="tgSettingsSaveBtn">Saqlash</button>
           <span id="tgSettingsSaveStatus" style="font-size:.82rem; color:var(--gray); min-height:1.2em;"></span>
@@ -3827,9 +3833,12 @@ document.getElementById('progressEntryForm').addEventListener('submit', async (e
 
     // "Kelmadi" belgilangan bo'lsa, Telegram orqali xabar yuboramiz (agar
     // sozlangan bo'lsa) — o'quvchining ismi/telefoni ishchiga boradi.
-    if(entryData.attended === false && typeof notifyAbsentStudent === 'function'){
+    if(entryData.attended === false){
       var absentStudent = state.students.find(function(s){ return s.id === state.progressStudentId; });
-      if(absentStudent) notifyAbsentStudent(absentStudent, entryData.date, entryData.note);
+      if(absentStudent){
+        if(typeof notifyAbsentStudent === 'function') notifyAbsentStudent(absentStudent, entryData.date, entryData.note);
+        if(typeof logAbsentToSheet === 'function') logAbsentToSheet(absentStudent, entryData.date, entryData.note);
+      }
     }
   } catch(err){
     console.error('Progress save failed:', err);
@@ -4542,8 +4551,8 @@ function renderRatingStats(sum, count){
     } catch(e){ return {}; }
   }
 
-  function saveTgSettingsLocal(token, siteUrl, targets, absentChatId){
-    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token: token, siteUrl: siteUrl, targets: targets, absentChatId: absentChatId || '' })); } catch(e){}
+  function saveTgSettingsLocal(token, siteUrl, targets, absentChatId, sheetScriptUrl){
+    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token: token, siteUrl: siteUrl, targets: targets, absentChatId: absentChatId || '', sheetScriptUrl: sheetScriptUrl || '' })); } catch(e){}
   }
 
   function fillTgForm(){
@@ -4551,9 +4560,11 @@ function renderRatingStats(sum, count){
     var ti = document.getElementById('tgBotToken');
     var su = document.getElementById('tgSiteUrl');
     var ac = document.getElementById('tgAbsentChatId');
+    var sh = document.getElementById('tgSheetScriptUrl');
     if(ti) ti.value = s.token || '';
     if(su) su.value = s.siteUrl || '';
     if(ac) ac.value = s.absentChatId || '';
+    if(sh) sh.value = s.sheetScriptUrl || '';
     var inputs = document.querySelectorAll('.tg-target-input');
     var targets = s.targets || [];
     inputs.forEach(function(inp, i){ inp.value = targets[i] || ''; });
@@ -4565,6 +4576,7 @@ function renderRatingStats(sum, count){
     var targets = Array.from(document.querySelectorAll('.tg-target-input'))
                        .map(function(i){ return i.value.trim(); }).filter(Boolean);
     var absentChatId = (document.getElementById('tgAbsentChatId').value || '').trim();
+    var sheetScriptUrl = (document.getElementById('tgSheetScriptUrl').value || '').trim();
     var st = document.getElementById('tgSettingsSaveStatus');
 
     if(!token || !siteUrl){
@@ -4578,8 +4590,8 @@ function renderRatingStats(sum, count){
       return;
     }
 
-    saveTgSettingsLocal(token, siteUrl, targets, absentChatId);
-    st.textContent = 'Saqlandi. ' + targets.length + ' ta joy.' + (absentChatId ? ' Kelmadi xabari yoqilgan.' : '');
+    saveTgSettingsLocal(token, siteUrl, targets, absentChatId, sheetScriptUrl);
+    st.textContent = 'Saqlandi. ' + targets.length + ' ta joy.' + (absentChatId ? ' Kelmadi xabari yoqilgan.' : '') + (sheetScriptUrl ? ' Sheets yozuvi yoqilgan.' : '');
     st.style.color = '#2e6f6e';
     setTimeout(function(){ st.textContent = ''; }, 4000);
   });
@@ -4625,6 +4637,49 @@ async function notifyAbsentStudent(student, dateStr, note){
     }
   }
   window.notifyAbsentStudent = notifyAbsentStudent;
+
+  // Kelmagan talaba haqida ma'lumotni Google Sheets jadvaliga qator qilib
+  // qo'shadi. sozlamalarda "Google Sheets Web App URL" to'ldirilmagan bo'lsa,
+  // hech narsa qilmay chiqib ketadi (xususiyat ixtiyoriy).
+  async function logAbsentToSheet(student, dateStr, note){
+    var s = loadTgSettings();
+    var SHEET_URL = (s.sheetScriptUrl || '').trim();
+    if(!SHEET_URL) return; // sozlanmagan — jim o'tkazib yuboramiz
+
+    var dateLabel = dateStr ? new Date(dateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : dateStr;
+    var payload = JSON.stringify({
+      studentName: student.name || '—',
+      studentPhone: student.phone || '—',
+      date: dateLabel || '',
+      rawDate: dateStr || '',
+      note: note || ''
+    });
+    try {
+      await new Promise(function(resolve, reject){
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', SHEET_URL, true);
+        xhr.setRequestHeader('Content-Type', 'text/plain;charset=utf-8');
+        xhr.onload = function(){
+          if(xhr.status >= 200 && xhr.status < 300){
+            try {
+              var res = JSON.parse(xhr.responseText);
+              if(res && res.ok === false){ reject(new Error(res.error || 'Apps Script xatosi')); return; }
+            } catch(parseErr){ /* JSON bo'lmasa ham 200 bo'lsa muvaffaqiyat */ }
+            resolve();
+          } else {
+            reject(new Error('HTTP ' + xhr.status));
+          }
+        };
+        xhr.onerror = function(){ reject(new Error('Tarmoq xatosi')); };
+        xhr.send(payload);
+      });
+      showToast('"Kelmadi" Google Sheets\'ga yozildi ✓');
+    } catch(err) {
+      console.warn('Sheets yozuvi amalga oshmadi:', err);
+      showToast('Diqqat: Sheets\'ga yozilmadi — ' + (err.message || 'Xatolik'));
+    }
+  }
+  window.logAbsentToSheet = logAbsentToSheet;
 
   async function sendToOne(token, chatId, blog, caption){
     var method = blog.imageUrl ? 'sendPhoto' : 'sendMessage';
