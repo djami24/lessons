@@ -5757,7 +5757,7 @@ document.getElementById('ojStudentSaveBtn').addEventListener('click', async () =
         id = await ojGenUniqueCode();
       }
       await col.doc(id).set({ name, createdAt: ts });
-      await db.collection('oquv_progress').doc(id).set({ name, group: _ojActiveGroupName, createdAt: ts }, { merge: true });
+      await db.collection('oquv_progress').doc(id).set({ name, group: _ojActiveGroupName, groupId: _ojActiveGroupId, createdAt: ts }, { merge: true });
       closeModal('modalAddOquvStudent');
       loadOjStudents(_ojActiveGroupId, _ojActiveGroupName);
     } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
@@ -5783,7 +5783,7 @@ document.getElementById('ojStudentSaveBtn').addEventListener('click', async () =
         do { id = await ojGenUniqueCode(); } while (usedCodes.has(id));
         usedCodes.add(id);
         batch.set(col.doc(id), { name, createdAt: ts });
-        batch.set(db.collection('oquv_progress').doc(id), { name, group: _ojActiveGroupName, createdAt: ts }, { merge: true });
+        batch.set(db.collection('oquv_progress').doc(id), { name, group: _ojActiveGroupName, groupId: _ojActiveGroupId, createdAt: ts }, { merge: true });
       }
       await batch.commit();
       closeModal('modalAddOquvStudent');
