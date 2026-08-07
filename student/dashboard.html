@@ -288,6 +288,7 @@
   <aside class="admin-sidebar" id="adminSidebar">
     <a href="#" class="brand" id="logoHomeBtn"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
     <ul class="admin-nav">
+      <li><a href="#" id="navHome">🏠 Bosh Sahifa</a></li>
       <li><a href="#" id="navProfile">👤 Profil</a></li>
       <li><a href="../kundalik.html">📅 Homework</a></li>
       <li><a href="../natijalar.html" id="navResultsCard">📊 Test natijalar</a></li>
@@ -1237,6 +1238,10 @@ function renderHomeView(){
     greetEl.appendChild(document.createTextNode(' 👋'));
   }
   switchView('home');
+  document.getElementById('navHome').classList.add('active');
+  document.getElementById('navCourses').classList.remove('active');
+  document.getElementById('navMyEssays').classList.remove('active');
+  document.getElementById('navPlacementTest').classList.remove('active');
   document.getElementById('navProfile').classList.remove('active');
   loadLatestHomework();
   renderGbResultBox();
@@ -1780,6 +1785,7 @@ function renderCoursesOverview(){
   }
 
   switchView('courses');
+  document.getElementById('navHome').classList.remove('active');
   document.getElementById('navCourses').classList.add('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.remove('active');
@@ -1797,6 +1803,7 @@ document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
 document.getElementById('cardIelts').addEventListener('click', () => openCourseEntry('ielts'));
 document.getElementById('cardCefr').addEventListener('click', () => openCourseEntry('cefr'));
 document.getElementById('cardWriting').addEventListener('click', () => openWritingEntry());
+document.getElementById('navHome').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('navCourses').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 document.getElementById('navMyEssays').addEventListener('click', async (e) => {
   e.preventDefault();
@@ -2262,6 +2269,7 @@ function openWritingQuestionDetail(questionId){
 // ---------- My essays (all submissions across all questions) ----------
 
 function renderMyEssays(){
+  document.getElementById('navHome').classList.remove('active');
   document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.add('active');
   document.getElementById('navPlacementTest').classList.remove('active');
@@ -2716,6 +2724,7 @@ function renderQuizResult(scorePct, passed){
 // The student's own last result is saved on their own student doc as `placementResult: {score,total,level,takenAt}`.
 
 async function openPlacementTestView(){
+  document.getElementById('navHome').classList.remove('active');
   document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.add('active');
@@ -2894,6 +2903,7 @@ const AVATAR_EMOJIS = [
 ];
 
 function renderProfile(){
+  document.getElementById('navHome').classList.remove('active');
   document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.remove('active');
