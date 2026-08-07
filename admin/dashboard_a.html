@@ -7017,8 +7017,10 @@ async function loadTodayHomeworkCards(){
 
   grid.innerHTML = '';
   window._todayHwCardData = {};
+  window._todayHwGroupsById = {};
   cardData.forEach(({ group: g, entries, attended, absent, hwNo, total }) => {
     window._todayHwCardData[g.id] = { groupName: g.name, entries };
+    window._todayHwGroupsById[g.id] = { name: g.name, days: g.days || [] };
     const notMarked = total - attended - absent;
     const card = document.createElement('div');
     card.className = 'today-hw-card';
@@ -7046,10 +7048,22 @@ async function loadTodayHomeworkCards(){
       </div>
       <div class="today-hw-card-footer">
         <span>${notMarked > 0 ? `⏳ ${notMarked} ta hali belgilanmagan` : '✅ Hammasi belgilangan'}</span>
-        <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;" onclick="loadOjStudents('${escHtml(g.id)}','${escHtml(g.name)}',${JSON.stringify(g.days||[])});switchView('oquv-students');">Ko'rish →</span>
+        <span class="today-hw-view-btn" data-group-id="${escHtml(g.id)}" style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;">Ko'rish →</span>
       </div>`;
     grid.appendChild(card);
   });
+
+  if(!grid.dataset.viewBtnBound){
+    grid.dataset.viewBtnBound = '1';
+    grid.addEventListener('click', (e) => {
+      const btn = e.target.closest('.today-hw-view-btn');
+      if(!btn) return;
+      const gid = btn.getAttribute('data-group-id');
+      const info = (window._todayHwGroupsById || {})[gid];
+      if(!info) return;
+      loadOjStudents(gid, info.name, info.days);
+    });
+  }
 
   renderTodayAssignmentCards(cardData);
 
