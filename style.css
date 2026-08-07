@@ -303,6 +303,16 @@ footer a:hover{ color: var(--amber); }
 .auth-split-left::before{ width:260px; height:260px; top:-90px; right:-90px; }
 .auth-split-left::after{ width:190px; height:190px; bottom:-70px; left:-50px; background: rgba(217,142,63,.16); }
 .auth-split-left .brand{ color: var(--paper); position:relative; z-index:1; }
+.auth-home-btn{
+  align-self:flex-start; position:relative; z-index:1;
+  display:inline-flex; align-items:center; gap:.4em;
+  color: rgba(247,247,243,.85); text-decoration:none;
+  font-size:.82rem; font-weight:700;
+  padding:.5em .9em; margin-bottom:1.6em;
+  border-radius:999px; border:1.5px solid rgba(247,247,243,.3);
+  transition: border-color .2s, background .2s, color .2s;
+}
+.auth-home-btn:hover{ border-color: rgba(247,247,243,.6); background: rgba(247,247,243,.1); color:#fff; }
 .auth-split-hero{ margin: auto 0; position:relative; z-index:1; }
 .auth-split-hero h2{ font-family: var(--font-display); font-size:2rem; margin: 0 0 .4em; color: var(--paper); }
 .auth-split-hero p{ color: rgba(247,247,243,.75); font-size:.95rem; line-height:1.6; max-width: 320px; margin:0; }
