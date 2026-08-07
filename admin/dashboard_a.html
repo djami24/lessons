@@ -1064,14 +1064,17 @@
             <input type="text" id="gbBulkGroupInput" placeholder="Guruh nomi (barchasiga)" style="flex:1; min-width:180px;">
             <button class="btn btn-amber btn-sm" id="gbBulkAddBtn">Hammasini qo‘shish</button>
           </div>
+          <p style="font-size:.78rem; color:var(--gray); margin:6px 0 0;">Bu usulda ID kiritilmaydi — talabalar qo‘shilgach, pastdagi jadvaldagi «ID» ustunidan har biriga alohida ID biriktirishingiz mumkin.</p>
         </div>
 
         <div id="gbAddModeOnePanel" style="display:none;">
           <div style="display:flex; gap:.6em; flex-wrap:wrap;">
             <input type="text" id="gbOneNameInput" placeholder="Ism familiya" style="flex:1; min-width:160px;">
             <input type="text" id="gbOneGroupInput" placeholder="Guruh nomi" style="flex:1; min-width:160px;">
+            <input type="text" id="gbOneIdInput" placeholder="Talaba ID (ixtiyoriy)" style="flex:1; min-width:160px;">
             <button class="btn btn-amber btn-sm" id="gbOneAddBtn">Qo‘shish</button>
           </div>
+          <p style="font-size:.78rem; color:var(--gray); margin:6px 0 0;">ID maydoniga «O‘quv jarayoni» bo‘limida shu talabaga berilgan xuddi o‘sha ID’ni kiriting — shunda talaba bosh sahifasida faqat bitta ID bilan test natijasi ham avtomatik chiqadi. Keyinroq pastdagi jadvaldan ham qo‘shish/tahrirlash mumkin.</p>
         </div>
 
         <p id="gbBulkHint" style="margin:10px 0 0; font-size:.85rem; color:var(--gray);"></p>
@@ -6061,6 +6064,13 @@ function getUnitsForGroup(group){
   return (gbData.unitsByGroup && gbData.unitsByGroup[group]) || [];
 }
 
+// Normalizes a linking ID the same way on both the admin and student
+// sides (trim + case-insensitive) so "Ali01" and "ali01 " are treated
+// as the same ID.
+function normalizeGbId(s){
+  return String(s || '').trim().toLowerCase();
+}
+
 async function loadGradebook(){
   if(!gbLoaded){
     try{
@@ -6176,18 +6186,26 @@ gbAddModeOne.addEventListener('change', updateGbAddMode);
 document.getElementById('gbOneAddBtn').addEventListener('click', async () => {
   const nameEl = document.getElementById('gbOneNameInput');
   const groupEl = document.getElementById('gbOneGroupInput');
+  const idEl = document.getElementById('gbOneIdInput');
   const hint = document.getElementById('gbBulkHint');
   const name = nameEl.value.trim();
   const group = groupEl.value.trim();
+  const progressId = idEl.value.trim();
   if(!name){ hint.textContent = 'Iltimos, ism-familiyani kiriting.'; return; }
   if(!group){ hint.textContent = 'Iltimos, guruh nomini kiriting.'; return; }
+  if(progressId && gbData.students.some(s => s.progressId && normalizeGbId(s.progressId) === normalizeGbId(progressId))){
+    hint.textContent = `"${progressId}" ID band — boshqa ID tanlang yoki maydonni bo'sh qoldiring.`;
+    return;
+  }
 
   const btn = document.getElementById('gbOneAddBtn');
   btn.disabled = true;
   hint.textContent = "Qo'shilmoqda\u2026";
 
-  gbData.students.push({ id: 's' + Date.now() + '_' + Math.floor(Math.random()*1000), name, group, scores: {} });
-  nameEl.value = ''; groupEl.value = '';
+  const entry = { id: 's' + Date.now() + '_' + Math.floor(Math.random()*1000), name, group, scores: {} };
+  if(progressId) entry.progressId = progressId;
+  gbData.students.push(entry);
+  nameEl.value = ''; groupEl.value = ''; idEl.value = '';
   renderGbAdminGradeTable();
   const ok = await saveGradebook();
   hint.textContent = ok ? `"${name}" "${group}" guruhiga qo'shildi.` : "Saqlashda xatolik yuz berdi, qayta urinib ko'ring.";
@@ -6277,13 +6295,14 @@ function renderGbGroupTable(group){
     table.innerHTML = '<tr><td style="border:none; padding:16px; color:var(--gray);">Bu guruh uchun hali unit qo\u2018shilmagan. Yuqoridan unit qo\u2018shing.</td></tr>';
     return;
   }
-  let thead = '<tr><th>Ism</th>';
+  let thead = '<tr><th>Ism</th><th>ID</th>';
   units.forEach(u => { thead += `<th>${escapeHtml(u)}</th>`; });
   thead += '<th></th></tr>';
 
   let tbody = '';
   students.forEach(s => {
     tbody += `<tr><td style="font-weight:700; white-space:nowrap;">${escapeHtml(s.name)}</td>`;
+    tbody += `<td><input type="text" data-id-student="${s.id}" value="${escapeHtml(s.progressId || '')}" placeholder="—" style="width:100px;"></td>`;
     units.forEach(u => {
       const val = (s.scores && s.scores[u] !== undefined) ? s.scores[u] : '';
       tbody += `<td><input type="number" min="0" max="100" data-student="${s.id}" data-unit="${escapeHtml(u)}" value="${val}"></td>`;
@@ -6291,6 +6310,23 @@ function renderGbGroupTable(group){
     tbody += `<td><button type="button" class="btn btn-ghost btn-sm" data-del-student="${s.id}">O'chirish</button></td></tr>`;
   });
   table.innerHTML = '<thead>' + thead + '</thead><tbody>' + tbody + '</tbody>';
+
+  table.querySelectorAll('input[data-id-student]').forEach(inp => {
+    const commit = () => {
+      const student = gbData.students.find(x => x.id === inp.dataset.idStudent);
+      if(!student) return;
+      const val = inp.value.trim();
+      if(val && gbData.students.some(x => x.id !== student.id && x.progressId && normalizeGbId(x.progressId) === normalizeGbId(val))){
+        alert(`"${val}" ID band — boshqa talabada allaqachon ishlatilgan.`);
+        inp.value = student.progressId || '';
+        return;
+      }
+      if(val) student.progressId = val; else delete student.progressId;
+      // In-memory only — persisted together with scores when the admin
+      // clicks "Saqlash" below, same as the score cells.
+    };
+    inp.addEventListener('change', commit);
+  });
 
   table.querySelectorAll('input[type="number"]').forEach(inp => {
     inp.addEventListener('input', () => {
