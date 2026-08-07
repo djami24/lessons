@@ -407,13 +407,36 @@ auth.onAuthStateChanged(async user => {
   await initGroupFlow();
 });
 
-// A student picks their Kundalik group exactly once. After that, we skip
-// the groups list entirely and go straight to their own group's homework —
-// other groups are never shown to them again.
+// A student's Kundalik group is resolved automatically from their
+// oquvProgressCode (students/{uid}.oquvProgressCode -> oquv_progress/{code}.groupId),
+// the same link already used on the home page's "Test natijasi" card and
+// "So'nggi uy vazifasi" card — so there's nothing to manually pick, and the
+// group always matches exactly what the admin panel uses.
+// Falls back to the older manually-chosen kundalikGroup field (individual
+// students who set a personal folder name before this page existed).
 async function initGroupFlow(){
   try{
     const studentDoc = await db.collection('students').doc(currentUid).get();
     const data = studentDoc.exists ? studentDoc.data() : {};
+
+    if(data.oquvProgressCode){
+      const progDoc = await db.collection('oquv_progress').doc(data.oquvProgressCode).get();
+      if(progDoc.exists){
+        const info = progDoc.data();
+        let groupId = info.groupId || null;
+        let groupName = info.group || null;
+        if(!groupId && groupName){
+          const gSnap = await db.collection('oquv_groups').where('name', '==', groupName).limit(1).get();
+          if(!gSnap.empty){ groupId = gSnap.docs[0].id; groupName = gSnap.docs[0].data().name; }
+        }
+        if(groupId){
+          document.getElementById('backToGroups').style.display = 'none';
+          openGroup(groupId, groupName);
+          return;
+        }
+      }
+    }
+
     const kundalikGroup = data.kundalikGroup || null;
     if(kundalikGroup){
       document.getElementById('backToGroups').style.display = 'none';
@@ -494,17 +517,16 @@ function showView(name){
   document.getElementById('viewNamePrompt').style.display = name === 'name-prompt' ? '' : 'none';
 }
 
-/* ---- Groups ---- */
+/* ---- Groups (fallback for students without an oquvProgressCode yet) ---- */
 async function loadGroups(){
   const grid = document.getElementById('groupsGrid');
   grid.innerHTML = '<div class="loading">Guruhlar yuklanmoqda…</div>';
   try{
-    const snap = await db.collection('kundalik').get();
+    const snap = await db.collection('oquv_groups').orderBy('name').get();
     if(snap.empty){
       grid.innerHTML = '<div class="empty"><div class="icon">📂</div>Hali guruhlar qo\'shilmagan.</div>';
       return;
     }
-    // Each doc = one group, doc id = group name
     const groups = snap.docs.map(d => ({id:d.id, ...d.data()}));
     grid.innerHTML = groups.map(g => `
       <div class="group-card" data-gid="${escHtml(g.id)}">
