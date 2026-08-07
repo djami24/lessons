@@ -376,11 +376,7 @@
           </div>
 
           <div id="gbNameForm">
-            <p class="latest-hw-preview">Test natijangizni ko‘rish uchun ism-familiyangizni kiriting.</p>
-            <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:.6em;">
-              <input type="text" id="gbNameInput" placeholder="Ism familiya" style="flex:1; min-width:160px;">
-              <button type="button" class="btn btn-amber btn-sm" id="gbNameSubmitBtn">Ko‘rish</button>
-            </div>
+            <p class="latest-hw-preview" id="gbNameFormMsg">Test natijangizni ko‘rish uchun avval «O‘quv jarayoni» kartochkasiga administrator bergan ID’ni kiriting — natijangiz shu yerda avtomatik chiqadi.</p>
             <p class="form-error" id="gbNameError" role="alert" hidden style="margin-top:.6em;"></p>
           </div>
 
@@ -391,7 +387,6 @@
             <p id="gbResultMessage" hidden style="margin:0 0 .8em; font-weight:700; font-size:1.05rem;"></p>
             <div style="display:flex; gap:.6em; flex-wrap:wrap;">
               <a href="../natijalar.html" target="_blank" rel="noopener" class="btn btn-amber btn-sm">📊 Barcha natijalar</a>
-              <button type="button" class="btn btn-ghost btn-sm" id="gbChangeNameBtn">👤 Ismni o‘zgartirish</button>
             </div>
           </div>
         </div>
@@ -1257,6 +1252,17 @@ async function renderProgressBox(){
     const info = doc.data();
     document.getElementById('progressStudentNameVal').textContent = info.name || '';
     updateHomeQuickInfo({ group: info.group || null, time: null, nextLesson: null });
+
+    // Keep the "Test natijasi" (gradebook) lookup name in sync with this
+    // same ID's name, so the student never has to type their name a
+    // second time — one ID now drives every card on this page.
+    if(info.name && state.student.gradebookName !== info.name){
+      try{
+        await db.collection('students').doc(currentUid).update({ gradebookName: info.name });
+        state.student.gradebookName = info.name;
+      } catch(err){ /* best-effort — gradebook card will just retry next render */ }
+      renderGbResultBox();
+    }
     if(info.group){
       try{
         const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
@@ -1376,13 +1382,18 @@ document.getElementById('progressChangeIdBtn').addEventListener('click', async (
   const btn = document.getElementById('progressChangeIdBtn');
   btn.disabled = true;
   try{
-    await db.collection('students').doc(currentUid).update({ oquvProgressCode: firebase.firestore.FieldValue.delete() });
+    await db.collection('students').doc(currentUid).update({
+      oquvProgressCode: firebase.firestore.FieldValue.delete(),
+      gradebookName: firebase.firestore.FieldValue.delete()
+    });
   } catch(err){ /* if this fails, we'll just ask again — no harm done */ }
   delete state.student.oquvProgressCode;
+  delete state.student.gradebookName;
   document.getElementById('progressIdInput').value = '';
   document.getElementById('progressIdError').hidden = true;
   document.getElementById('progressView').hidden = true;
   document.getElementById('progressIdForm').hidden = false;
+  renderGbResultBox();
   btn.disabled = false;
 });
 
@@ -1467,10 +1478,10 @@ async function loadLatestHomework(){
 // Shows the student's own result from the admin-entered "gradebook"
 // (the same public data source as natijalar.html — collection
 // gradebook, doc "gradebook", shape { units: string[], students: [{name,
-// group, scores}] }). The student types their full name once; that name
-// is then saved on their OWN account (students/{uid}.gradebookName), so
-// their latest unit score follows them and shows up automatically next
-// to the homework box on any device they sign in on.
+// group, scores}] }). The lookup name is derived automatically from the
+// single "O'quv jarayoni" ID (see renderProgressBox), saved on the
+// student's own account (students/{uid}.gradebookName), so their latest
+// unit score follows them and shows up automatically on any device.
 const GB_NAME_STORAGE_KEY = 'efGradebookName'; // legacy, browser-only value from an earlier version — migrated below
 let gbLookupData = null; // cached { units, students } for this session
 
@@ -1509,8 +1520,14 @@ async function renderGbResultBox(){
   const formEl = document.getElementById('gbNameForm');
   const viewEl = document.getElementById('gbResultView');
   const errorEl = document.getElementById('gbNameError');
+  const formMsgEl = document.getElementById('gbNameFormMsg');
   errorEl.hidden = true;
 
+  // The gradebook lookup name now follows automatically from the same
+  // administrator-assigned ID used by the "O'quv jarayoni" card
+  // (students/{uid}.gradebookName is kept in sync with oquv_progress'
+  // name field by renderProgressBox — see below) instead of asking the
+  // student to type their name a second time.
   let savedName = state.student.gradebookName || null;
 
   // One-time migration: an earlier version of this page saved the name
@@ -1532,6 +1549,7 @@ async function renderGbResultBox(){
 
   if(!savedName){
     box.style.background = '';
+    formMsgEl.textContent = 'Test natijangizni ko‘rish uchun avval «O‘quv jarayoni» kartochkasiga administrator bergan ID’ni kiriting — natijangiz shu yerda avtomatik chiqadi.';
     formEl.hidden = false;
     viewEl.hidden = true;
     return;
@@ -1542,9 +1560,7 @@ async function renderGbResultBox(){
 
   if(!match){
     box.style.background = '';
-    document.getElementById('gbNameInput').value = savedName;
-    errorEl.textContent = `"${savedName}" ismi natijalar ro‘yxatidan topilmadi. Ism-familiyangizni tekshirib, qayta kiriting.`;
-    errorEl.hidden = false;
+    formMsgEl.textContent = `"${savedName}" ismi natijalar ro‘yxatidan topilmadi. Iltimos, ismingiz to‘g‘ri kiritilganini administratordan so‘rang.`;
     formEl.hidden = false;
     viewEl.hidden = true;
     return;
@@ -1622,52 +1638,11 @@ function getGbScoreTier(score){
   return { cardBg: '', message: 'A’lochi o‘quvchi', emoji: '😄' };
 }
 
-document.getElementById('gbNameSubmitBtn').addEventListener('click', async () => {
-  const input = document.getElementById('gbNameInput');
-  const errorEl = document.getElementById('gbNameError');
-  const btn = document.getElementById('gbNameSubmitBtn');
-  const name = input.value.trim();
-  if(!name){
-    errorEl.textContent = 'Iltimos, ism-familiyangizni kiriting.';
-    errorEl.hidden = false;
-    return;
-  }
-  btn.disabled = true;
-  const originalLabel = btn.textContent;
-  btn.textContent = 'Saqlanmoqda…';
-  try{
-    await db.collection('students').doc(currentUid).update({ gradebookName: name });
-    state.student.gradebookName = name;
-    await renderGbResultBox();
-  } catch(err){
-    errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
-    errorEl.hidden = false;
-  } finally {
-    btn.disabled = false;
-    btn.textContent = originalLabel;
-  }
-});
-
-document.getElementById('gbNameInput').addEventListener('keydown', (e) => {
-  if(e.key === 'Enter'){
-    e.preventDefault();
-    document.getElementById('gbNameSubmitBtn').click();
-  }
-});
-
-document.getElementById('gbChangeNameBtn').addEventListener('click', async () => {
-  const btn = document.getElementById('gbChangeNameBtn');
-  btn.disabled = true;
-  try{
-    await db.collection('students').doc(currentUid).update({ gradebookName: firebase.firestore.FieldValue.delete() });
-  } catch(err){ /* even if this fails, let them re-enter — it'll just resave next submit */ }
-  delete state.student.gradebookName;
-  btn.disabled = false;
-  document.getElementById('gbNameInput').value = '';
-  document.getElementById('gbNameError').hidden = true;
-  document.getElementById('gbNameForm').hidden = false;
-  document.getElementById('gbResultView').hidden = true;
-});
+// Manual name entry for the "Test natijasi" card was removed — the name
+// used to look up the gradebook result now always follows automatically
+// from the single ID entered in the "O'quv jarayoni" card (see
+// renderProgressBox, which keeps students/{uid}.gradebookName in sync
+// with oquv_progress' name field and calls renderGbResultBox() itself).
 
 // Optional "did you do it?" self-check — purely cosmetic and stored only
 // in this browser (same idea as the blog like/dislike buttons). Nothing
