@@ -999,9 +999,8 @@
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
         <div>
           <h1 style="margin:0 0 4px;">📅 Kundalik — Uy vazifalari</h1>
-          <p style="margin:0; color:var(--gray); font-size:14px;">Guruh papkasi oching, sana bo'yicha uy vazifalari qo'shing.</p>
+          <p style="margin:0; color:var(--gray); font-size:14px;">Guruh papkasini oching, sana bo'yicha uy vazifalari qo'shing. Ro'yxat "Guruhlar" bo'limidagi guruhlar bilan avtomatik bir xil.</p>
         </div>
-        <button class="btn btn-amber" id="openAddKundalikGroup">+ Yangi guruh</button>
       </div>
 
       <!-- Group list -->
@@ -1528,23 +1527,6 @@
 </div>
 
 <!-- ===== MODAL: Kundalik group ===== -->
-<div class="modal-overlay" id="modalAddKundalikGroup" hidden>
-  <div class="modal-box" style="max-width:420px;">
-    <h3>Yangi guruh papkasi</h3>
-    <form class="modal-form" id="addKundalikGroupForm">
-      <label class="field">
-        <span>Guruh nomi</span>
-        <input type="text" id="newKundalikGroupName" placeholder="Masalan: 7A, Advanced-1…" required maxlength="60">
-      </label>
-      <p id="addKundalikGroupError" class="form-error" role="alert" hidden></p>
-      <div class="modal-actions">
-        <button type="button" class="btn btn-ghost" data-close-modal="modalAddKundalikGroup">Bekor qilish</button>
-        <button type="submit" class="btn btn-amber" id="addKundalikGroupSubmit">Qo'shish</button>
-      </div>
-    </form>
-  </div>
-</div>
-
 <!-- ===== MODAL: Add/Edit homework ===== -->
 <div class="modal-overlay" id="modalEditHw" hidden>
   <div class="modal-box" style="max-width:600px;">
@@ -4933,9 +4915,12 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
 
 /* ================================================================
    KUNDALIK — Admin: guruh papkalari va uy vazifalari boshqaruvi
+   Guruh papkalari endi alohida kiritilmaydi — ro'yxat to'g'ridan-to'g'ri
+   haqiqiy guruhlar kolleksiyasidan (oquv_groups) olinadi, shunday qilib
+   bosh sahifadagi "Bugungi uy vazifalari" bilan guruh nomi/ID hech qachon
+   mos kelmay qolmaydi.
    Firestore:
-     kundalik/{groupId}              { name }
-     kundalik/{groupId}/vazifalari/{hwId}  { sarlavha, matn, sana }
+     kundalik/{oquv_groups guruh ID}/vazifalari/{hwId}  { sarlavha, matn, sana }
    ================================================================ */
 
 let _kundalikActiveGroup = null;
@@ -4946,13 +4931,13 @@ async function loadKundalikGroups() {
   document.getElementById('kundalikHwView').style.display = 'none';
   listEl.innerHTML = '<p style="color:var(--gray);font-size:14px;padding:8px 0;">Yuklanmoqda\u2026</p>';
   try {
-    const snap = await db.collection('kundalik').orderBy('name').get();
+    const snap = await db.collection('oquv_groups').orderBy('name').get();
     if (snap.empty) {
-      listEl.innerHTML = '<p style="color:var(--gray);font-size:14px;padding:8px 0;">Hali guruhlar yo\u02bcq. &quot;+ Yangi guruh&quot; tugmasini bosing.</p>';
+      listEl.innerHTML = '<p style="color:var(--gray);font-size:14px;padding:8px 0;">Hali guruhlar yo\u02bcq. Avval &quot;Guruhlar&quot; bo\u02bclimida guruh yarating.</p>';
       return;
     }
     listEl.innerHTML = '<table class="data-table"><thead><tr><th>Guruh nomi</th><th>Amallar</th></tr></thead><tbody>' +
-      snap.docs.map(d => '<tr><td><strong>' + escapeHtml(d.data().name || d.id) + '</strong></td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-amber btn-sm" onclick="openKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">📂 Ochish</button><button class="btn btn-danger btn-sm" onclick="deleteKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">O\u02bcchirish</button></td></tr>').join('') +
+      snap.docs.map(d => '<tr><td><strong>' + escapeHtml(d.data().name || d.id) + '</strong></td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-amber btn-sm" onclick="openKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">📂 Ochish</button></td></tr>').join('') +
       '</tbody></table>';
   } catch (err) {
     listEl.innerHTML = '<p style="color:var(--error);font-size:14px;">Yuklab bo\u02bclmadi.</p>';
@@ -4996,44 +4981,6 @@ async function loadKundalikHw(groupId) {
     tbody.innerHTML = '<tr><td colspan="3" style="color:var(--error);">Yuklab bo\u02bclmadi.</td></tr>';
     console.error(err);
   }
-}
-
-document.getElementById('openAddKundalikGroup').addEventListener('click', () => {
-  document.getElementById('newKundalikGroupName').value = '';
-  document.getElementById('addKundalikGroupError').hidden = true;
-  openModal('modalAddKundalikGroup');
-});
-
-document.getElementById('addKundalikGroupForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const errEl = document.getElementById('addKundalikGroupError');
-  const submitBtn = document.getElementById('addKundalikGroupSubmit');
-  errEl.hidden = true;
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Qo\u02bcshilmoqda\u2026';
-  const name = document.getElementById('newKundalikGroupName').value.trim();
-  try {
-    const id = name.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9\-]/g,'') || ('g' + Date.now());
-    await db.collection('kundalik').doc(id).set({ name });
-    closeModal('modalAddKundalikGroup');
-    loadKundalikGroups();
-  } catch (err) {
-    errEl.textContent = 'Xatolik yuz berdi.'; errEl.hidden = false;
-  } finally {
-    submitBtn.disabled = false; submitBtn.textContent = 'Qo\u02bcshish';
-  }
-});
-
-async function deleteKundalikGroup(groupId, groupName) {
-  if (!confirm('\u201c' + groupName + '\u201d guruhini va barcha uy vazifalarini o\u02bcchirmoqchimisiz?')) return;
-  try {
-    const sub = await db.collection('kundalik').doc(groupId).collection('vazifalari').get();
-    const batch = db.batch();
-    sub.docs.forEach(d => batch.delete(d.ref));
-    batch.delete(db.collection('kundalik').doc(groupId));
-    await batch.commit();
-    loadKundalikGroups();
-  } catch (err) { alert('O\u02bcchirishda xatolik.'); console.error(err); }
 }
 
 let _editHwId = null;
@@ -6956,17 +6903,16 @@ startParentChatUnreadListener();
 let _todayHwAutoRefreshInterval = null;
 
 // Bugungi kunga tegishli, "Kundalik" bo'limida kiritilgan uy vazifasi matnini
-// guruh nomi bo'yicha topib qaytaradi (agar shu kunga vazifa kiritilgan bo'lsa).
-async function homeFetchTodayKundalikHw(groupName, todayDateStr){
+// guruh ID'si bo'yicha topib qaytaradi (agar shu kunga vazifa kiritilgan bo'lsa).
+// Guruh ID'si to'g'ridan-to'g'ri oquv_groups'dagi haqiqiy guruh ID'si bilan bir xil,
+// shuning uchun nom farqi (probel, katta-kichik harf) tufayli hech qachon mos kelmay qolmaydi.
+async function homeFetchTodayKundalikHw(groupId, todayDateStr){
   try{
-    const kSnap = await db.collection('kundalik').where('name', '==', groupName).limit(1).get();
-    if(kSnap.empty) return { kundalikGroupId: null, items: [] };
-    const kundalikGroupId = kSnap.docs[0].id;
     const dayStart = firebase.firestore.Timestamp.fromDate(new Date(todayDateStr + 'T00:00:00'));
     const dayEnd = firebase.firestore.Timestamp.fromDate(new Date(todayDateStr + 'T23:59:59'));
-    const hwSnap = await db.collection('kundalik').doc(kundalikGroupId).collection('vazifalari')
+    const hwSnap = await db.collection('kundalik').doc(groupId).collection('vazifalari')
       .where('sana', '>=', dayStart).where('sana', '<=', dayEnd).get();
-    return { kundalikGroupId, items: hwSnap.docs.map(d => d.data()) };
+    return { kundalikGroupId: groupId, items: hwSnap.docs.map(d => d.data()) };
   } catch(err){
     return { kundalikGroupId: null, items: [] };
   }
@@ -7065,7 +7011,7 @@ async function loadTodayHomeworkCards(){
       // xuddi O'quv jarayoni sahifasidagi "qilmaganlar" filtri kabi (5147-qator).
       if(h === 'no' || h === 'partial' || e.punished === true) hwNo++;
     });
-    const kundalikInfo = await homeFetchTodayKundalikHw(g.name, todayDateStr);
+    const kundalikInfo = await homeFetchTodayKundalikHw(g.id, todayDateStr);
     return { group: g, entries, attended, absent, hwNo, total: g.students.length, kundalikGroupId: kundalikInfo.kundalikGroupId, hwItems: kundalikInfo.items };
   }));
 
