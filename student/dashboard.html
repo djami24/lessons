@@ -1386,8 +1386,10 @@ document.getElementById('progressChangeIdBtn').addEventListener('click', async (
   btn.disabled = false;
 });
 
-// Shows the most recent homework from the student's own kundalikGroup
-// (same source data as kundalik.html) right at the top of the home page.
+// Shows the most recent homework from the student's own real group
+// (resolved automatically via their oquvProgressCode -> oquv_progress.groupId,
+// the same link already used by the "Test natijasi"/progress card above —
+// no separate manual group-picking step needed).
 // Re-fetched every time the home view renders, so a newly added homework
 // from the admin panel shows up the next time the student opens/returns
 // to this page.
@@ -1407,9 +1409,32 @@ function htmlToLinePreview(html, maxLen){
   return withBreaks.length > maxLen ? withBreaks.slice(0, maxLen).trim() + '…' : withBreaks;
 }
 
+// Resolves the student's real class-group ID (same ID the admin panel uses
+// under kundalik/{groupId}) from their saved oquvProgressCode. Falls back to
+// matching by group name for older oquv_progress records saved before
+// groupId started being stored.
+async function resolveStudentKundalikGroupId(){
+  const code = state.student.oquvProgressCode;
+  if(!code) return null;
+  try{
+    const doc = await db.collection('oquv_progress').doc(code).get();
+    if(!doc.exists) return null;
+    const info = doc.data();
+    if(info.groupId) return info.groupId;
+    if(info.group){
+      const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
+      if(!gSnap.empty) return gSnap.docs[0].id;
+    }
+    return null;
+  } catch(err){
+    console.error('resolveStudentKundalikGroupId failed:', err);
+    return null;
+  }
+}
+
 async function loadLatestHomework(){
   const box = document.getElementById('latestHwBox');
-  const group = state.student.kundalikGroup;
+  const group = await resolveStudentKundalikGroupId();
   if(!group){ box.hidden = true; return; }
   try{
     const snap = await db.collection('kundalik').doc(group)
