@@ -47,8 +47,8 @@
 }
 
 /* Top-of-homepage running banner (admin-editable in Sayt sozlamalari).
-   Text slides in from the left, crosses the screen, disappears off the
-   right edge, then loops back in from the left again — endlessly. */
+   Text slides in from the right, crosses the screen, disappears off the
+   left edge, then loops back in from the right again — endlessly. */
 .site-marquee{
   width:100%;
   overflow:hidden;
@@ -59,8 +59,8 @@
   display:inline-block;
   white-space:nowrap;
   padding: .55em 0;
-  transform: translateX(-100%);
-  animation: site-marquee-scroll 16s linear infinite;
+  transform: translateX(100vw);
+  animation: site-marquee-scroll 35s linear infinite;
 }
 .site-marquee-track span{
   font-family: var(--font-mono);
@@ -70,8 +70,8 @@
   color: var(--footer-text, #F7F7F3);
 }
 @keyframes site-marquee-scroll{
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(100vw); }
+  0%   { transform: translateX(100vw); }
+  100% { transform: translateX(-100%); }
 }
 
 *,*::before,*::after{ box-sizing: border-box; }
@@ -1000,12 +1000,12 @@ table.data-table td .tag{ margin-right:.3em; }
   .site-footer-bottom{ flex-direction:column; align-items:flex-start; }
 }
 .home-admin-link{
-  display:inline-flex; align-items:center; gap:.4em;
+  display:inline-flex; align-items:center;
   color: var(--gray); font-size:.8rem; font-weight:600; text-decoration:none; font-family: var(--font-body);
-  background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px; padding: .5em 1.05em .5em .85em;
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 999px; padding: .5em 1.05em;
   transition: background-color .18s var(--ease), color .18s var(--ease), border-color .18s var(--ease), transform .18s var(--ease);
 }
-.home-admin-link::before{ content:'🔒'; font-size:.82em; line-height:1; }
+.home-admin-link::before{ content:''; }
 .home-admin-link:hover{ background: var(--paper-3); color: var(--ink); border-color: var(--gray); transform: translateY(-1px); }
 .home-topbar-links{ display:flex; align-items:center; gap:.8em; }
 
