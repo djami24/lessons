@@ -236,6 +236,10 @@
 
 <body class="admin-theme">
 
+<div class="site-marquee" data-site-marquee style="display:none">
+  <div class="site-marquee-track"><span data-site-marquee-text></span></div>
+</div>
+
 <div id="loadingScreen" class="loading-screen">Yuklanmoqda…</div>
 
 <div class="admin-shell" id="appShell" hidden>
@@ -885,8 +889,12 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>📢 Yugurma yozuv (bosh sahifa, eng tepada)</h3>
-        <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">Bosh sahifaning eng tepasida chapdan o‘ngga qarab uzluksiz suzib turadigan yozuv. Bo‘sh qoldirsangiz, umuman ko‘rinmaydi.</p>
+        <h3>📢 Yugurma yozuv (bosh sahifa, admin, talaba va ota-ona panellarida, eng tepada)</h3>
+        <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">Chapdan o‘ngga qarab uzluksiz suzib turadigan yozuv. Matnni o‘chirmasdan ham, pastdagi belgi orqali xohlagan payt yoqib/o‘chirib qo‘yishingiz mumkin.</p>
+        <div style="display:flex; align-items:center; gap:.7em; font-weight:700; font-size:.85rem; margin-bottom:1em;">
+          <input type="checkbox" id="settingMarqueeEnabled" style="width:19px; height:19px; accent-color: var(--teal); flex:none; cursor:pointer;">
+          <label for="settingMarqueeEnabled" style="cursor:pointer;">Yugurma yozuvni ko‘rsatish</label>
+        </div>
         <label class="field">
           <span>Yugurma matni</span>
           <input type="text" id="settingMarqueeText" placeholder="Masalan: Yangi IELTS guruhi 15-avgustdan boshlanadi — joylar cheklangan!">
@@ -4354,6 +4362,7 @@ const DEFAULT_SITE_SETTINGS = {
   navCtaText: 'Ro\'yxatdan o\'tish',
 
   marqueeText: '',
+  marqueeEnabled: true,
 
   heroEyebrow: "Djami Lessons'ga xush kelibsiz",
   heroTitle: 'Ingliz tilini o‘rganishning zamonaviy platformasi',
@@ -4428,6 +4437,7 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingBlogLinkText').value = data.blogLinkText || '';
   document.getElementById('settingHomeAdminBtnText').value = data.homeAdminBtnText || '';
 
+  document.getElementById('settingMarqueeEnabled').checked = data.marqueeEnabled !== false;
   document.getElementById('settingMarqueeText').value = data.marqueeText || '';
 
   document.getElementById('settingHeroEyebrow').value = data.heroEyebrow || '';
@@ -4880,6 +4890,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     homeAdminBtnText: document.getElementById('settingHomeAdminBtnText').value.trim(),
 
     marqueeText: document.getElementById('settingMarqueeText').value.trim(),
+    marqueeEnabled: document.getElementById('settingMarqueeEnabled').checked,
 
     heroEyebrow: document.getElementById('settingHeroEyebrow').value.trim(),
     heroTitle: document.getElementById('settingHeroTitle').value.trim(),
