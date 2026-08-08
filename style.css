@@ -696,7 +696,7 @@ table.data-table td .tag{ margin-right:.3em; }
 .hero-mini-text strong{ font-family: var(--font-display); font-size:1.1rem; }
 .hero-mini-text small{ color: var(--gray); font-size:.8rem; }
 
-.hero-visual{ position:relative; display:flex; align-items:center; justify-content:center; min-height: 380px; }
+.hero-visual{ position:relative; display:flex; align-items:center; justify-content:center; min-height: 380px; cursor:pointer; text-decoration:none; }
 .hero-visual-panel{
   width: 100%; max-width: 400px; aspect-ratio: 3 / 4; border-radius: var(--radius-l);
   background: linear-gradient(155deg, #3457AC, var(--dark-bg));
