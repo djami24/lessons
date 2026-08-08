@@ -899,6 +899,135 @@ table.data-table td .tag{ margin-right:.3em; }
   .rating-star-btn{ font-size:1.7rem; }
 }
 
+
+/* ===== TALABALAR FIKRI — Testimonials ===== */
+.testimonials-section{
+  width:100%; max-width: 1080px;
+  display:flex; flex-direction:column; align-items:center;
+  gap: 2.4em;
+  padding: 0 0 1em;
+}
+.testimonials-heading-wrap{
+  display:flex; flex-direction:column; align-items:center;
+  text-align:center; gap:.4em;
+}
+.testimonials-heading{
+  font-family: var(--font-display); font-weight:900;
+  font-size:clamp(1.6rem, 3vw, 2.1rem); color: var(--ink); margin:0;
+}
+.testimonials-sub{
+  font-size:.95rem; color: var(--ink-soft); max-width:520px;
+  margin:0; line-height:1.6;
+}
+.testimonials-grid{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.3em;
+  width:100%;
+}
+.testimonial-card--wide{
+  grid-column: 1 / -1;
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.2em 2em;
+  align-items:end;
+}
+.testimonial-card--wide .testimonial-quote-icon{
+  position:static; font-size:5rem; opacity:.12; margin:0; line-height:1;
+  grid-column:1; grid-row:1; align-self:start;
+  color: var(--teal);
+}
+.testimonial-card--wide .testimonial-text{
+  grid-column:1; grid-row:1; margin-top: 1.8em;
+}
+.testimonial-card--wide .testimonial-footer{
+  grid-column:1; border-top:1px solid var(--line); padding-top:1em; margin-top:.4em;
+}
+.testimonial-card{
+  display:flex; flex-direction:column; gap:1.1em;
+  padding: 1.8em 1.6em; border-radius: var(--radius-l);
+  background: var(--paper);
+  border: 1.5px solid var(--line);
+  box-shadow: var(--shadow-card);
+  position:relative; overflow:hidden;
+  transition: transform .22s var(--ease), box-shadow .22s var(--ease);
+}
+.testimonial-card:hover{
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-pop);
+}
+.testimonial-card--teal{
+  background: linear-gradient(145deg, var(--teal), var(--teal-deep));
+  border-color: transparent;
+  color: #fff;
+}
+.testimonial-card--teal .testimonial-text{ color: rgba(255,255,255,.92); }
+.testimonial-card--teal .testimonial-quote-icon{ color: rgba(255,255,255,.25); }
+.testimonial-card--teal .testimonial-name{ color: #fff; }
+.testimonial-card--teal .testimonial-role{ color: rgba(255,255,255,.72); }
+.testimonial-card--teal .testimonial-stars{ color: #FFD166; }
+.testimonial-card--teal .testimonial-avatar{
+  background: rgba(255,255,255,.2); color:#fff;
+}
+.testimonial-card--dark{
+  background: linear-gradient(145deg, #14213D, #1d2e50);
+  border-color: transparent;
+}
+.testimonial-card--dark .testimonial-text{ color: rgba(247,247,243,.88); }
+.testimonial-card--dark .testimonial-quote-icon{ color: rgba(255,255,255,.15); }
+.testimonial-card--dark .testimonial-name{ color: #F7F7F3; }
+.testimonial-card--dark .testimonial-role{ color: rgba(247,247,243,.6); }
+.testimonial-card--dark .testimonial-stars{ color: #FFD166; }
+.testimonial-card--dark .testimonial-avatar{
+  background: rgba(255,255,255,.12); color:#F7F7F3;
+}
+.testimonial-quote-icon{
+  font-family: Georgia, serif; font-size:3.5rem; line-height:1;
+  color: var(--paper-3); font-weight:900; margin-bottom:-.4em;
+  position:absolute; top:.5em; right:.8em;
+}
+.testimonial-text{
+  font-size:.96rem; color: var(--ink-soft);
+  line-height:1.65; margin:0; position:relative; z-index:1;
+  flex:1;
+}
+.testimonial-footer{
+  display:flex; align-items:center; gap:.85em;
+  border-top:1px solid var(--line);
+  padding-top:1em; margin-top:auto;
+  flex-wrap:wrap;
+}
+.testimonial-card--teal .testimonial-footer,
+.testimonial-card--dark .testimonial-footer{
+  border-top-color: rgba(255,255,255,.15);
+}
+.testimonial-avatar{
+  width:40px; height:40px; border-radius:50%; flex-shrink:0;
+  background: var(--teal); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--font-display); font-weight:700; font-size:1rem;
+}
+.testimonial-name{
+  font-weight:700; font-size:.88rem; color: var(--ink); margin:0; line-height:1.3;
+}
+.testimonial-role{
+  font-size:.78rem; color: var(--ink-soft); margin:0; line-height:1.3;
+}
+.testimonial-stars{
+  margin-left:auto; font-size:.9rem; color: #F4A83A;
+  letter-spacing:.05em; flex-shrink:0;
+}
+@media (max-width: 900px){
+  .testimonials-grid{ grid-template-columns: 1fr 1fr; }
+  .testimonial-card--wide{ grid-column: 1 / -1; display:flex; flex-direction:column; }
+}
+@media (max-width: 560px){
+  .testimonials-grid{ grid-template-columns: 1fr; }
+  .testimonial-card{ padding:1.4em 1.3em; }
+  .testimonial-card--wide{ grid-column: 1; }
+}
+/* ===== /TALABALAR FIKRI ===== */
+
 .home-blog-section{
   width:100%; max-width: 1080px; display:flex; flex-direction:column; align-items:center; gap:1.4em;
 }
