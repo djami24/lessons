@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kundalik — Uy vazifalari</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=IBM+Plex+Mono:wght@500;600&family=PT+Serif:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     color-scheme: dark;
@@ -26,7 +26,7 @@
   body{
     background: radial-gradient(ellipse at top, #182236 0%, var(--bg) 55%, var(--bg-2) 100%);
     color: var(--ink);
-    font-family: 'PT Serif', Georgia, serif;
+    font-family: 'Merriweather', Georgia, serif;
     min-height:100vh;
   }
 
@@ -39,7 +39,7 @@
     position:sticky; top:0; z-index:100;
   }
   .topbar-brand{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-weight:600; font-size:16px;
     color:var(--brass);
   }
@@ -47,7 +47,7 @@
     display:flex; align-items:center; gap:12px;
   }
   .user-chip{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:12px; color:var(--ink-dim);
     background:var(--panel-2);
     border:1px solid var(--line);
@@ -55,7 +55,7 @@
     padding:6px 14px;
   }
   .btn-ghost{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:12px; font-weight:600;
     background:transparent;
     border:1px solid var(--line);
@@ -78,7 +78,7 @@
     margin-bottom:28px;
   }
   .page-head h1{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:clamp(20px,4vw,28px);
     margin:0 0 6px;
   }
@@ -88,7 +88,7 @@
 
   /* ---- Back button ---- */
   .back-btn{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:12px; font-weight:600;
     background:transparent;
     border:1px solid var(--line);
@@ -104,7 +104,7 @@
 
   /* ---- Group folders ---- */
   .groups-heading{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:14px; color:var(--ink-dim);
     margin:0 0 16px;
     letter-spacing:0.04em;
@@ -130,7 +130,7 @@
   }
   .group-card .icon{ font-size:28px; }
   .group-card .name{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-weight:600; font-size:15px;
   }
   .group-card .count{
@@ -139,7 +139,7 @@
 
   /* ---- Homework cards ---- */
   .hw-heading{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:14px; color:var(--ink-dim);
     margin:0 0 16px;
     letter-spacing:0.04em;
@@ -165,7 +165,7 @@
   .hw-card-date{
     background: var(--brass);
     color:#ffffff;
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-weight:600; font-size:13px;
     padding:10px 16px;
     letter-spacing:0.03em;
@@ -200,7 +200,7 @@
     display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;
   }
   .hw-status-btn{
-    font-family:'PT Sans', sans-serif; font-size:13px; font-weight:700; cursor:pointer;
+    font-family:'Source Sans 3', sans-serif; font-size:13px; font-weight:700; cursor:pointer;
     border-radius:999px; padding:9px 18px; border:1.5px solid var(--line);
     background:var(--panel-2); color:var(--ink); transition:all 0.2s;
   }
@@ -228,7 +228,7 @@
     position:relative;
   }
   .modal-date{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:12px; color:var(--brass);
     margin:0 0 10px;
     letter-spacing:0.06em;
@@ -255,7 +255,7 @@
     border-radius:8px;
     padding:6px 12px;
     cursor:pointer;
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:13px;
     transition:all 0.2s;
   }
@@ -266,14 +266,14 @@
     text-align:center;
     padding:40px;
     color:var(--ink-dim);
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:14px;
   }
   .empty{
     text-align:center;
     padding:50px 20px;
     color:var(--ink-dim);
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size:14px;
     background:var(--panel);
     border:1px solid var(--line);
@@ -286,7 +286,7 @@
     position:fixed; inset:0;
     background:var(--bg);
     display:flex; align-items:center; justify-content:center;
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     color:var(--ink-dim); font-size:14px;
   }
 </style>
@@ -326,7 +326,7 @@
       </div>
       <form id="individualNameForm" style="display:flex; gap:10px; flex-wrap:wrap; max-width:480px;">
         <input type="text" id="individualNameInput" placeholder="Ism familiya" required autocomplete="name"
-          style="flex:1; min-width:220px; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:12px 14px; font-family:'PT Sans',sans-serif; font-size:14px;">
+          style="flex:1; min-width:220px; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:12px 14px; font-family:'Source Sans 3',sans-serif; font-size:14px;">
         <button type="submit" class="btn-ghost" id="individualNameSubmit" style="background:var(--brass); color:#fff; border-color:var(--brass);">Tasdiqlash</button>
       </form>
       <p class="empty" id="individualNameError" style="margin-top:16px; display:none;"></p>

@@ -10,7 +10,7 @@
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
 <link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Sans+Caption:wght@400;700&family=PT+Serif:ital,wght@0,400;0,700;1,700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     color-scheme: dark;
@@ -49,7 +49,7 @@
   body{
     background: radial-gradient(ellipse at top, var(--bg-grad-1) 0%, var(--bg) 55%, var(--bg-2) 100%);
     color: var(--ink);
-    font-family: 'PT Serif', Georgia, serif;
+    font-family: 'Merriweather', Georgia, serif;
     min-height:100vh;
     transition: background 0.3s ease, color 0.3s ease;
   }
@@ -71,7 +71,7 @@
     border-radius: 999px;
     padding: 7px 16px 7px 7px;
     cursor:pointer;
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 12px;
     color: var(--ink-dim);
     transition: background 0.3s ease, border-color 0.3s ease;
@@ -87,7 +87,7 @@
   .theme-toggle:hover .icon{ transform: rotate(20deg); }
 
   .corner-admin-btn{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 12.5px;
     font-weight:600;
     letter-spacing: 0.04em;
@@ -117,7 +117,7 @@
     margin: 0 auto 14px;
   }
   .brand h1{
-    font-family:'PT Sans Caption', 'PT Sans', Arial, sans-serif;
+    font-family:'Source Sans 3', Arial, sans-serif;
     font-weight: 600;
     font-size: clamp(26px, 5vw, 38px);
     margin: 0;
@@ -136,7 +136,7 @@
   }
 
   h2.section-title{
-    font-family:'PT Sans Caption', 'PT Sans', Arial, sans-serif;
+    font-family:'Source Sans 3', Arial, sans-serif;
     font-weight: 600;
     font-size: 19px;
     margin: 0 0 4px;
@@ -158,7 +158,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     color: var(--ink);
-    font-family: 'PT Serif', Georgia, serif;
+    font-family: 'Merriweather', Georgia, serif;
     font-size: 15px;
     padding: 12px 14px;
     outline: none;
@@ -169,7 +169,7 @@
   input::placeholder{ color: #5c6a80; }
 
   button.primary{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-weight:600;
     font-size: 13px;
     background: var(--brass);
@@ -185,7 +185,7 @@
   button.primary:disabled{ opacity: 0.5; cursor:not-allowed; }
 
   button.ghost{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 12px;
     background: transparent;
     color: var(--ink-dim);
@@ -197,7 +197,7 @@
   button.ghost:hover{ color: var(--ink); border-color: var(--brass-dim); }
 
   button.danger{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 11px;
     background: transparent;
     color: var(--fail);
@@ -233,12 +233,12 @@
     border-bottom: 1px dashed var(--line);
   }
   .result-head .name{
-    font-family:'PT Sans Caption', 'PT Sans', Arial, sans-serif;
+    font-family:'Source Sans 3', Arial, sans-serif;
     font-weight:600;
     font-size: 20px;
   }
   .result-head .group{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 12.5px;
     color: var(--brass);
   }
@@ -252,7 +252,7 @@
   }
   table.grades th{
     text-align:left;
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 11px;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -269,10 +269,10 @@
     color: var(--ink);
   }
   table.grades tr:last-child td{ border-bottom:none; }
-  td.score-cell{ font-family:'IBM Plex Mono', monospace; font-weight:600; }
+  td.score-cell{ font-family:'Source Sans 3', sans-serif; font-weight:600; }
 
   .stamp{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 10.5px;
     font-weight:700;
     letter-spacing: 0.06em;
@@ -291,7 +291,7 @@
     margin-top: 14px;
     padding-top: 14px;
     border-top: 1px solid var(--line);
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 13px;
     color: var(--ink-dim);
   }
@@ -335,7 +335,7 @@
     border: 1px solid var(--line);
     border-radius: 8px;
     color: var(--ink);
-    font-family: 'PT Serif', Georgia, serif;
+    font-family: 'Merriweather', Georgia, serif;
     font-size: 14px;
     padding: 12px 14px;
     outline: none;
@@ -359,19 +359,19 @@
     min-width: 140px;
   }
   .stats-label{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--ink-dim);
   }
   .stats-value{
-    font-family:'PT Sans Caption', 'PT Sans', Arial, sans-serif;
+    font-family:'Source Sans 3', Arial, sans-serif;
     font-weight:700;
     font-size: 24px;
     color: var(--brass);
   }
-  .stats-value-sm{ font-size: 13px; font-family:'IBM Plex Mono', monospace; color: var(--ink); }
+  .stats-value-sm{ font-size: 13px; font-family:'Source Sans 3', sans-serif; color: var(--ink); }
 
   .mode-switch{
     display:flex; gap: 10px; margin-bottom: 4px; flex-wrap:wrap;
@@ -403,7 +403,7 @@
     border: 1px solid var(--line);
     border-radius: 999px;
     padding: 6px 8px 6px 14px;
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 12.5px;
   }
   .chip button{ background:none; border:none; color: var(--fail); cursor:pointer; font-size:13px; padding: 2px 4px; }
@@ -424,7 +424,7 @@
     padding: 12px 16px;
   }
   .leaderboard-rank{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-weight:700;
     font-size: 14px;
     color: var(--ink-dim);
@@ -437,19 +437,19 @@
   .leaderboard-row.top3 .leaderboard-rank{ color: #c98a4b; font-size:17px; }
   .leaderboard-info{ flex:1; min-width:0; }
   .leaderboard-name{
-    font-family:'PT Sans Caption', 'PT Sans', Arial, sans-serif;
+    font-family:'Source Sans 3', Arial, sans-serif;
     font-weight:700;
     font-size: 15px;
     color: var(--ink);
   }
   .leaderboard-group{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 11.5px;
     color: var(--brass);
     margin-top: 2px;
   }
   .leaderboard-score{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-weight:700;
     font-size: 16px;
     color: var(--pass);
@@ -477,14 +477,14 @@
   .group-folder:hover{ border-color: var(--brass); transform: translateY(-2px); }
   .group-folder .folder-icon{ font-size: 20px; }
   .group-folder .folder-name{
-    font-family:'PT Sans Caption', 'PT Sans', Arial, sans-serif;
+    font-family:'Source Sans 3', Arial, sans-serif;
     font-weight:700;
     font-size: 15px;
     color: var(--ink);
     word-break: break-word;
   }
   .group-folder .folder-count{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 11.5px;
     color: var(--ink-dim);
   }
@@ -495,7 +495,7 @@
     margin-bottom: 4px;
   }
   .group-table-title{
-    font-family:'PT Sans Caption', 'PT Sans', Arial, sans-serif;
+    font-family:'Source Sans 3', Arial, sans-serif;
     font-weight:700;
     font-size: 16px;
     color: var(--brass);
@@ -512,13 +512,13 @@
     color: var(--ink);
   }
   table.admin-grades th{
-    font-family:'IBM Plex Mono', monospace;
+    font-family:'Source Sans 3', sans-serif;
     font-size: 11px;
     color: var(--brass);
     background: var(--panel-2);
   }
   table.admin-grades td.name-cell{ text-align:left; font-weight:600; white-space:nowrap; }
-  table.admin-grades td.group-cell{ text-align:left; color: var(--ink-dim); font-family:'IBM Plex Mono', monospace; font-size:12px; white-space:nowrap; }
+  table.admin-grades td.group-cell{ text-align:left; color: var(--ink-dim); font-family:'Source Sans 3', sans-serif; font-size:12px; white-space:nowrap; }
   table.admin-grades input[type="number"]{
     padding: 6px; text-align:center; width: 64px;
   }
@@ -527,7 +527,7 @@
     display:flex; align-items:center; gap: 12px;
     margin-top: 18px;
   }
-  .save-status{ font-size: 12px; color: var(--ink-dim); font-family:'IBM Plex Mono', monospace; }
+  .save-status{ font-size: 12px; color: var(--ink-dim); font-family:'Source Sans 3', sans-serif; }
 
   footer{
     text-align:center;
@@ -586,7 +586,7 @@
     Natijalar doimiy ravishda yangilanib boriladi.<br>
     Admin bilan bog'lanish: <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" style="color:var(--brass); text-decoration:none;">t.me/djamiteacher</a>
   </footer>
-  <div style="text-align:center; margin-top:14px; font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.1em; color: var(--ink-dim);">DJAMI 2026</div>
+  <div style="text-align:center; margin-top:14px; font-family:'Source Sans 3', sans-serif; font-size:11px; letter-spacing:0.1em; color: var(--ink-dim);">DJAMI 2026</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>

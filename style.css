@@ -1,10 +1,10 @@
 /* =========================================================
    Djami Lessons — Shared design tokens & components
    Palette: Ink Navy / Paper / Folder Amber / Stamp Teal / Ink Gray
-   Display: Fraunces · Body: Manrope · Utility: IBM Plex Mono
+   Display: Merriweather · Body: Source Sans 3
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@400;500;600;700;800&display=swap');
 
 :root{
   --ink:        #14213D;
@@ -30,9 +30,9 @@
   --btn-color:      var(--amber);
   --btn-color-deep: var(--amber-deep);
 
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-display: 'Merriweather', Georgia, serif;
+  --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Source Sans 3', ui-monospace, monospace;
 
   --radius-s: 6px;
   --radius-m: 12px;
@@ -1921,7 +1921,7 @@ body.admin-theme .chat-detail-avatar-teacher{ background:var(--adm-blue); }
 /* Hero achievements overlay — sits at the TOP of the certificate panel */
 .hero-achievements-overlay{
   position:absolute; top:0; left:0; right:0; z-index:3;
-  font-family:'Manrope', sans-serif; font-weight:800; font-size:.95rem;
+  font-family:'Source Sans 3', sans-serif; font-weight:800; font-size:.95rem;
   color:#fff; background:var(--amber, #D98E3F);
   text-align:center; padding:.5em 1em;
   letter-spacing:.03em;
