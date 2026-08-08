@@ -885,6 +885,14 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>📢 Yugurma yozuv (bosh sahifa, eng tepada)</h3>
+        <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">Bosh sahifaning eng tepasida chapdan o‘ngga qarab uzluksiz suzib turadigan yozuv. Bo‘sh qoldirsangiz, umuman ko‘rinmaydi.</p>
+        <label class="field">
+          <span>Yugurma matni</span>
+          <input type="text" id="settingMarqueeText" placeholder="Masalan: Yangi IELTS guruhi 15-avgustdan boshlanadi — joylar cheklangan!">
+        </label>
+
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3>🏠 Bosh sahifa — Hero qismi</h3>
 
         <label class="field">
@@ -4345,6 +4353,8 @@ const DEFAULT_SITE_SETTINGS = {
   navResultsLabel: 'Natijalar',
   navCtaText: 'Ro\'yxatdan o\'tish',
 
+  marqueeText: '',
+
   heroEyebrow: "Djami Lessons'ga xush kelibsiz",
   heroTitle: 'Ingliz tilini o‘rganishning zamonaviy platformasi',
   heroLead: 'General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.',
@@ -4417,6 +4427,8 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingNavCtaText').value = data.navCtaText || '';
   document.getElementById('settingBlogLinkText').value = data.blogLinkText || '';
   document.getElementById('settingHomeAdminBtnText').value = data.homeAdminBtnText || '';
+
+  document.getElementById('settingMarqueeText').value = data.marqueeText || '';
 
   document.getElementById('settingHeroEyebrow').value = data.heroEyebrow || '';
   document.getElementById('settingHeroTitle').value = data.heroTitle || '';
@@ -4866,6 +4878,8 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     navCtaText: document.getElementById('settingNavCtaText').value.trim(),
     blogLinkText: document.getElementById('settingBlogLinkText').value.trim(),
     homeAdminBtnText: document.getElementById('settingHomeAdminBtnText').value.trim(),
+
+    marqueeText: document.getElementById('settingMarqueeText').value.trim(),
 
     heroEyebrow: document.getElementById('settingHeroEyebrow').value.trim(),
     heroTitle: document.getElementById('settingHeroTitle').value.trim(),
