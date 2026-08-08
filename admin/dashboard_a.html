@@ -1005,6 +1005,42 @@
           <input type="text" id="settingRatingLabel" placeholder="Saytni baholang">
         </label>
 
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3>💬 Talabalar fikri (4 ta kartochka)</h3>
+        <p style="font-size:.85rem; color:var(--gray); margin:0 0 1.2em;">Bosh sahifadagi "Talabalar fikri" bo'limidagi kartochkalarni tahrirlang.</p>
+
+        <div style="display:flex; flex-direction:column; gap:1.4em;">
+
+          <div style="background:var(--paper-2); border-radius:var(--radius-s); padding:1.2em 1.4em;">
+            <p style="font-weight:700; font-size:.9rem; margin:0 0 .8em; color:var(--teal);">1-talaba (yashil karta)</p>
+            <label class="field"><span>Ism</span><input type="text" id="settingTestimonial1Name" placeholder="Baxodirova Shaxlo"></label>
+            <label class="field"><span>Daraja / natija</span><input type="text" id="settingTestimonial1Role" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat"></label>
+            <label class="field"><span>Izoh matni</span><textarea id="settingTestimonial1Text" rows="3" placeholder="Talabaning fikri…"></textarea></label>
+          </div>
+
+          <div style="background:var(--paper-2); border-radius:var(--radius-s); padding:1.2em 1.4em;">
+            <p style="font-weight:700; font-size:.9rem; margin:0 0 .8em; color:var(--ink);">2-talaba (oq karta)</p>
+            <label class="field"><span>Ism</span><input type="text" id="settingTestimonial2Name" placeholder="Mirmuhsinova Honzoda"></label>
+            <label class="field"><span>Daraja / natija</span><input type="text" id="settingTestimonial2Role" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat"></label>
+            <label class="field"><span>Izoh matni</span><textarea id="settingTestimonial2Text" rows="3" placeholder="Talabaning fikri…"></textarea></label>
+          </div>
+
+          <div style="background:var(--paper-2); border-radius:var(--radius-s); padding:1.2em 1.4em;">
+            <p style="font-weight:700; font-size:.9rem; margin:0 0 .8em; color:#1d2e50;">3-talaba (to'q ko'k karta)</p>
+            <label class="field"><span>Ism</span><input type="text" id="settingTestimonial3Name" placeholder="Rahmonova Hafizabonu"></label>
+            <label class="field"><span>Daraja / natija</span><input type="text" id="settingTestimonial3Role" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat"></label>
+            <label class="field"><span>Izoh matni</span><textarea id="settingTestimonial3Text" rows="3" placeholder="Talabaning fikri…"></textarea></label>
+          </div>
+
+          <div style="background:var(--paper-2); border-radius:var(--radius-s); padding:1.2em 1.4em;">
+            <p style="font-weight:700; font-size:.9rem; margin:0 0 .8em; color:var(--teal-deep);">4-talaba (to'liq kenglik karta)</p>
+            <label class="field"><span>Ism</span><input type="text" id="settingTestimonial4Name" placeholder="Abdurahmonova Muslima"></label>
+            <label class="field"><span>Daraja / natija</span><input type="text" id="settingTestimonial4Role" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat ichida"></label>
+            <label class="field"><span>Izoh matni</span><textarea id="settingTestimonial4Text" rows="4" placeholder="Talabaning fikri…"></textarea></label>
+          </div>
+
+        </div>
+
         <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
 
         <div class="modal-actions" style="justify-content:flex-start; position:sticky; bottom:0; background:var(--paper); padding:1em 0;">
@@ -4476,6 +4512,22 @@ function fillSiteSettingsForm(data){
 
   document.getElementById('settingBlogHeading').value = data.blogHeading || '';
   document.getElementById('settingRatingLabel').value = data.ratingLabel || '';
+
+  document.getElementById('settingTestimonial1Name').value = data.testimonial1Name || '';
+  document.getElementById('settingTestimonial1Role').value = data.testimonial1Role || '';
+  document.getElementById('settingTestimonial1Text').value = data.testimonial1Text || '';
+
+  document.getElementById('settingTestimonial2Name').value = data.testimonial2Name || '';
+  document.getElementById('settingTestimonial2Role').value = data.testimonial2Role || '';
+  document.getElementById('settingTestimonial2Text').value = data.testimonial2Text || '';
+
+  document.getElementById('settingTestimonial3Name').value = data.testimonial3Name || '';
+  document.getElementById('settingTestimonial3Role').value = data.testimonial3Role || '';
+  document.getElementById('settingTestimonial3Text').value = data.testimonial3Text || '';
+
+  document.getElementById('settingTestimonial4Name').value = data.testimonial4Name || '';
+  document.getElementById('settingTestimonial4Role').value = data.testimonial4Role || '';
+  document.getElementById('settingTestimonial4Text').value = data.testimonial4Text || '';
 }
 
 const certificatesEditor = document.getElementById('certificatesEditor');
@@ -4926,7 +4978,23 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     feature4Text: document.getElementById('settingFeature4Text').value.trim(),
 
     blogHeading: document.getElementById('settingBlogHeading').value.trim(),
-    ratingLabel: document.getElementById('settingRatingLabel').value.trim()
+    ratingLabel: document.getElementById('settingRatingLabel').value.trim(),
+
+    testimonial1Name: document.getElementById('settingTestimonial1Name').value.trim(),
+    testimonial1Role: document.getElementById('settingTestimonial1Role').value.trim(),
+    testimonial1Text: document.getElementById('settingTestimonial1Text').value.trim(),
+
+    testimonial2Name: document.getElementById('settingTestimonial2Name').value.trim(),
+    testimonial2Role: document.getElementById('settingTestimonial2Role').value.trim(),
+    testimonial2Text: document.getElementById('settingTestimonial2Text').value.trim(),
+
+    testimonial3Name: document.getElementById('settingTestimonial3Name').value.trim(),
+    testimonial3Role: document.getElementById('settingTestimonial3Role').value.trim(),
+    testimonial3Text: document.getElementById('settingTestimonial3Text').value.trim(),
+
+    testimonial4Name: document.getElementById('settingTestimonial4Name').value.trim(),
+    testimonial4Role: document.getElementById('settingTestimonial4Role').value.trim(),
+    testimonial4Text: document.getElementById('settingTestimonial4Text').value.trim()
   };
 
   try{
