@@ -40,6 +40,21 @@
     });
   }
 
+  // Top-of-homepage running banner — only shown when the admin has
+  // written something into it; hidden (default) otherwise. Element only
+  // exists on the homepage, so this is a no-op on every other page.
+  function applyMarquee(text){
+    const wrap = document.querySelector('[data-site-marquee]');
+    if(!wrap) return;
+    const clean = (text || '').trim();
+    if(clean){
+      document.querySelectorAll('[data-site-marquee-text]').forEach(el => { el.textContent = clean; });
+      wrap.style.display = '';
+    } else {
+      wrap.style.display = 'none';
+    }
+  }
+
   // Rotating certificate gallery — shown instead of a single hero image
   // when the admin has added one or more certificate URLs. Cross-fades
   // through the list automatically; no controls needed.
@@ -201,6 +216,8 @@
     applyFooterContact('[data-site-footer-telegram]', data.footerTelegram, v => 'https://t.me/' + v.replace(/^@|^https?:\/\/t\.me\//i, ''));
 
     // ---- Homepage-only fields (elements simply won't exist on other pages) ----
+
+    applyMarquee(data.marqueeText);
 
     // Hero
     setText('[data-site-hero-eyebrow]', data.heroEyebrow);
