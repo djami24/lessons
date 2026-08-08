@@ -1003,8 +1003,9 @@
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
         <div>
           <h1 style="margin:0 0 4px;">📅 Kundalik — Uy vazifalari</h1>
-          <p style="margin:0; color:var(--gray); font-size:14px;">Guruh papkasini oching, sana bo'yicha uy vazifalari qo'shing. Ro'yxat "Guruhlar" bo'limidagi guruhlar bilan avtomatik bir xil.</p>
+          <p style="margin:0; color:var(--gray); font-size:14px;">Guruh papkasini oching, sana bo'yicha uy vazifalari qo'shing. Ro'yxat "Guruhlar" bo'limidagi guruhlar bilan avtomatik bir xil — yangi guruhni shu yerdan ham qo'shishingiz mumkin.</p>
         </div>
+        <button class="btn btn-primary" id="openAddKundalikGroup">+ Yangi guruh</button>
       </div>
 
       <!-- Group list -->
@@ -4940,16 +4941,32 @@ async function loadKundalikGroups() {
   try {
     const snap = await db.collection('oquv_groups').orderBy('name').get();
     if (snap.empty) {
-      listEl.innerHTML = '<p style="color:var(--gray);font-size:14px;padding:8px 0;">Hali guruhlar yo\u02bcq. Avval &quot;Guruhlar&quot; bo\u02bclimida guruh yarating.</p>';
+      listEl.innerHTML = '<p style="color:var(--gray);font-size:14px;padding:8px 0;">Hali guruhlar yo\u02bcq. Yuqoridagi &quot;+ Yangi guruh&quot; tugmasi orqali birinchi guruhni yarating.</p>';
       return;
     }
+    window._kundalikGroupsCache = {};
+    snap.docs.forEach(d => { window._kundalikGroupsCache[d.id] = d.data(); });
     listEl.innerHTML = '<table class="data-table"><thead><tr><th>Guruh nomi</th><th>Amallar</th></tr></thead><tbody>' +
-      snap.docs.map(d => '<tr><td><strong>' + escapeHtml(d.data().name || d.id) + '</strong></td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-amber btn-sm" onclick="openKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">📂 Ochish</button></td></tr>').join('') +
+      snap.docs.map(d => '<tr><td><strong>' + escapeHtml(d.data().name || d.id) + '</strong></td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-amber btn-sm" onclick="openKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">📂 Ochish</button><button class="btn btn-ghost btn-sm" onclick="editKundalikGroup(\'' + d.id + '\')">✏️ Tahrirlash</button></td></tr>').join('') +
       '</tbody></table>';
   } catch (err) {
     listEl.innerHTML = '<p style="color:var(--error);font-size:14px;">Yuklab bo\u02bclmadi.</p>';
     console.error(err);
   }
+}
+
+function editKundalikGroup(groupId) {
+  const g = (window._kundalikGroupsCache || {})[groupId];
+  if (!g) return;
+  _ojGroupModalSource = 'kundalik';
+  document.getElementById('ojGroupModalTitle').textContent = 'Guruhni tahrirlash';
+  document.getElementById('ojGroupEditingId').value = groupId;
+  document.getElementById('ojGroupNameInput').value = g.name || '';
+  ojSetCheckedDays(g.days || []);
+  document.getElementById('ojGroupTimeInput').value = g.time || '';
+  document.getElementById('ojGroupError').hidden = true;
+  document.getElementById('ojGroupSaveBtn').textContent = 'Saqlash';
+  openModal('modalAddOquvGroup');
 }
 
 function openKundalikGroup(groupId, groupName) {
@@ -5378,6 +5395,7 @@ async function loadOjGroups() {
       });
       card.querySelector('.oj-group-card-edit').addEventListener('click', (e) => {
         e.stopPropagation();
+        _ojGroupModalSource = 'oj';
         document.getElementById('ojGroupModalTitle').textContent = 'Guruhni tahrirlash';
         document.getElementById('ojGroupEditingId').value = doc.id;
         document.getElementById('ojGroupNameInput').value = g.name || '';
@@ -5399,6 +5417,25 @@ async function loadOjGroups() {
 }
 
 document.getElementById('openAddOquvGroup').addEventListener('click', () => {
+  _ojGroupModalSource = 'oj';
+  document.getElementById('ojGroupModalTitle').textContent = 'Yangi guruh';
+  document.getElementById('ojGroupEditingId').value = '';
+  document.getElementById('ojGroupNameInput').value = '';
+  ojSetCheckedDays([]);
+  document.getElementById('ojGroupTimeInput').value = '';
+  document.getElementById('ojGroupError').hidden = true;
+  document.getElementById('ojGroupSaveBtn').textContent = 'Yaratish';
+  openModal('modalAddOquvGroup');
+  setTimeout(() => document.getElementById('ojGroupNameInput').focus(), 80);
+});
+
+// Kundalik bo'limidan ham xuddi shu "Yangi guruh" oynasi ochiladi — guruhlar
+// ro'yxati "Guruhlar" bo'limi bilan bitta manbadan (oquv_groups) kelgani
+// uchun bu yerda yaratilgan guruh ikkala joyda ham darhol ko'rinadi.
+let _ojGroupModalSource = 'oj';
+
+document.getElementById('openAddKundalikGroup').addEventListener('click', () => {
+  _ojGroupModalSource = 'kundalik';
   document.getElementById('ojGroupModalTitle').textContent = 'Yangi guruh';
   document.getElementById('ojGroupEditingId').value = '';
   document.getElementById('ojGroupNameInput').value = '';
@@ -5425,7 +5462,7 @@ document.getElementById('ojGroupSaveBtn').addEventListener('click', async () => 
       await db.collection('oquv_groups').add({ name, days, time, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
     closeModal('modalAddOquvGroup');
-    loadOjGroups();
+    if (_ojGroupModalSource === 'kundalik') { loadKundalikGroups(); } else { loadOjGroups(); }
   } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
 });
 
