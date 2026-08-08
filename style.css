@@ -46,6 +46,34 @@
   *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
 }
 
+/* Top-of-homepage running banner (admin-editable in Sayt sozlamalari).
+   Text slides in from the left, crosses the screen, disappears off the
+   right edge, then loops back in from the left again — endlessly. */
+.site-marquee{
+  width:100%;
+  overflow:hidden;
+  background: var(--dark-bg);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.site-marquee-track{
+  display:inline-block;
+  white-space:nowrap;
+  padding: .55em 0;
+  transform: translateX(-100%);
+  animation: site-marquee-scroll 16s linear infinite;
+}
+.site-marquee-track span{
+  font-family: var(--font-mono);
+  font-size:.82rem;
+  font-weight:600;
+  letter-spacing:.03em;
+  color: var(--footer-text, #F7F7F3);
+}
+@keyframes site-marquee-scroll{
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100vw); }
+}
+
 *,*::before,*::after{ box-sizing: border-box; }
 html{ scroll-behavior: smooth; }
 body{
