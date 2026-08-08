@@ -4936,7 +4936,22 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     var _im2=document.querySelector('[data-site-logo] img'),_sp2=document.querySelector('[data-site-logo]');
     if(_im2&&data.logoUrl){_im2.src=data.logoUrl;_im2.style.display='';if(_sp2)_sp2.style.display='';}
     else if(_im2){_im2.style.display='none';if(_sp2)_sp2.style.display='none';}
+    try{ localStorage.setItem('efSiteSettingsCache', JSON.stringify(data)); } catch(e){ /* storage full/unavailable — not critical */ }
+
     showToast('Sayt sozlamalari saqlandi.');
+
+    // Reflect the marquee toggle/text immediately on this page too — the
+    // site-settings.js loader only reads settings once on page load, so
+    // without this the banner wouldn't update until a refresh.
+    var _mq = document.querySelector('[data-site-marquee]');
+    if(_mq){
+      if(data.marqueeText && data.marqueeEnabled !== false){
+        document.querySelectorAll('[data-site-marquee-text]').forEach(function(el){ el.textContent = data.marqueeText; });
+        _mq.style.display = '';
+      } else {
+        _mq.style.display = 'none';
+      }
+    }
   } catch(err){
     errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
     errorEl.hidden = false;
