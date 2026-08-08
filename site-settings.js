@@ -258,6 +258,20 @@
     // Blog + rating
     setText('[data-site-blog-heading]', data.blogHeading);
     setText('[data-site-rating-label]', data.ratingLabel);
+
+    // Talabalar fikri — testimonials
+    setText('[data-testimonial-1-name]', data.testimonial1Name);
+    setText('[data-testimonial-1-role]', data.testimonial1Role);
+    setText('[data-testimonial-1-text]', data.testimonial1Text);
+    setText('[data-testimonial-2-name]', data.testimonial2Name);
+    setText('[data-testimonial-2-role]', data.testimonial2Role);
+    setText('[data-testimonial-2-text]', data.testimonial2Text);
+    setText('[data-testimonial-3-name]', data.testimonial3Name);
+    setText('[data-testimonial-3-role]', data.testimonial3Role);
+    setText('[data-testimonial-3-text]', data.testimonial3Text);
+    setText('[data-testimonial-4-name]', data.testimonial4Name);
+    setText('[data-testimonial-4-role]', data.testimonial4Role);
+    setText('[data-testimonial-4-text]', data.testimonial4Text);
   }
 
   const SETTINGS_CACHE_KEY = 'efSiteSettingsCache';
