@@ -338,10 +338,10 @@
           </div>
         </div>
 
-        <!-- Bugungi uy vazifasi matni — alohida kartochkalarda, talaba profilidagi kabi -->
+        <!-- So'nggi kiritilgan uy vazifasi matni — alohida kartochkalarda, talaba profilidagi kabi -->
         <div class="home-section-card today-assign-section" style="margin-bottom:0;">
           <div class="home-section-head">
-            <h3 class="home-col-title">📚 Bugungi uy vazifalari</h3>
+            <h3 class="home-col-title">📚 Guruhlarning so'nggi uy vazifalari</h3>
           </div>
           <div class="today-assign-grid" id="todayAssignGrid"></div>
         </div>
@@ -6979,24 +6979,27 @@ startParentChatUnreadListener();
 // ============================================================
 let _todayHwAutoRefreshInterval = null;
 
-// Bugungi kunga tegishli, "Kundalik" bo'limida kiritilgan uy vazifasi matnini
-// guruh ID'si bo'yicha topib qaytaradi (agar shu kunga vazifa kiritilgan bo'lsa).
-// Guruh ID'si to'g'ridan-to'g'ri oquv_groups'dagi haqiqiy guruh ID'si bilan bir xil,
-// shuning uchun nom farqi (probel, katta-kichik harf) tufayli hech qachon mos kelmay qolmaydi.
-async function homeFetchTodayKundalikHw(groupId, todayDateStr){
+// Har bir guruh uchun "Kundalik" bo'limida eng so'nggi kiritilgan (sana
+// bo'yicha eng yangi) uy vazifasini topib qaytaradi — sana albatta
+// bugungi kun bo'lishi shart emas, guruhga oxirgi marta qachon uy vazifa
+// kiritilgan bo'lsa o'shani ko'rsatadi (talaba profilidagi "So'nggi uy
+// vazifasi" kartochkasi bilan bir xil mantiq). Guruh ID'si to'g'ridan-
+// to'g'ri oquv_groups'dagi haqiqiy guruh ID'si bilan bir xil, shuning
+// uchun nom farqi (probel, katta-kichik harf) tufayli hech qachon mos
+// kelmay qolmaydi.
+async function homeFetchLatestKundalikHw(groupId){
   try{
-    const dayStart = firebase.firestore.Timestamp.fromDate(new Date(todayDateStr + 'T00:00:00'));
-    const dayEnd = firebase.firestore.Timestamp.fromDate(new Date(todayDateStr + 'T23:59:59'));
-    const hwSnap = await db.collection('kundalik').doc(groupId).collection('vazifalari')
-      .where('sana', '>=', dayStart).where('sana', '<=', dayEnd).get();
+    const hwSnap = await db.collection('kundalik').doc(groupId)
+      .collection('vazifalari').orderBy('sana', 'desc').limit(1).get();
     return { kundalikGroupId: groupId, items: hwSnap.docs.map(d => d.data()) };
   } catch(err){
     return { kundalikGroupId: null, items: [] };
   }
 }
 
-// Bugungi vazifalarni, talaba profilidagi "So'nggi uy vazifasi" kartochkasiga
-// o'xshab, har bir guruh uchun alohida kartochkada ko'rsatadi.
+// Har bir guruhning eng so'nggi kiritilgan uy vazifasini, talaba
+// profilidagi "So'nggi uy vazifasi" kartochkasiga o'xshab, alohida
+// kartochkada ko'rsatadi.
 function renderTodayAssignmentCards(cardData){
   const grid = document.getElementById('todayAssignGrid');
   if(!grid) return;
@@ -7004,7 +7007,6 @@ function renderTodayAssignmentCards(cardData){
     const openKundalikCall = kundalikGroupId
       ? `openKundalikGroup('${escHtml(kundalikGroupId)}','${escHtml(g.name)}')`
       : `loadKundalikGroups()`;
-    const todayFmt = new Date().toLocaleDateString('uz-UZ', { day:'numeric', month:'short' });
     if(!hwItems || !hwItems.length){
       return `
         <div class="today-assign-card">
@@ -7012,31 +7014,35 @@ function renderTodayAssignmentCards(cardData){
             <div class="today-assign-icon">📭</div>
             <div>
               <div class="today-assign-eyebrow">${escHtml(g.name)}</div>
-              <div class="today-assign-group">Bugungi vazifa</div>
+              <div class="today-assign-group">So'nggi vazifa</div>
             </div>
-            <span class="today-assign-date">${todayFmt}</span>
           </div>
-          <div class="today-assign-empty">Bugunga uy vazifasi hali kiritilmagan.</div>
+          <div class="today-assign-empty">Bu guruh uchun hali uy vazifasi kiritilmagan.</div>
           <div class="today-assign-footer">
             <span style="color:var(--adm-amber,#D4780A);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};">➕ Qo'shish</span>
           </div>
         </div>`;
     }
-    return hwItems.map(hw => `
+    return hwItems.map(hw => {
+      const ts = hw.sana;
+      const date = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
+      const dateFmt = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'short' }) : '';
+      return `
       <div class="today-assign-card">
         <div class="today-assign-card-head">
           <div class="today-assign-icon">📗</div>
           <div>
             <div class="today-assign-eyebrow">${escHtml(g.name)}</div>
           </div>
-          <span class="today-assign-date">${todayFmt}</span>
+          <span class="today-assign-date">${escHtml(dateFmt)}</span>
         </div>
         <h3 class="today-assign-title">${escHtml(hw.sarlavha || 'Uy vazifasi')}</h3>
         <div class="today-assign-text">${hw.matn || ''}</div>
         <div class="today-assign-footer">
           <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};">✏️ Tahrirlash</span>
         </div>
-      </div>`).join('');
+      </div>`;
+    }).join('');
   }).join('');
 }
 
@@ -7088,7 +7094,7 @@ async function loadTodayHomeworkCards(){
       // xuddi O'quv jarayoni sahifasidagi "qilmaganlar" filtri kabi (5147-qator).
       if(h === 'no' || h === 'partial' || e.punished === true) hwNo++;
     });
-    const kundalikInfo = await homeFetchTodayKundalikHw(g.id, todayDateStr);
+    const kundalikInfo = await homeFetchLatestKundalikHw(g.id);
     return { group: g, entries, attended, absent, hwNo, total: g.students.length, kundalikGroupId: kundalikInfo.kundalikGroupId, hwItems: kundalikInfo.items };
   }));
 
