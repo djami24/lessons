@@ -40,14 +40,15 @@
     });
   }
 
-  // Top-of-homepage running banner — only shown when the admin has
-  // written something into it; hidden (default) otherwise. Element only
-  // exists on the homepage, so this is a no-op on every other page.
-  function applyMarquee(text){
+  // Top-of-page running banner (homepage + admin/student/parent panels) —
+  // only shown when the admin has both written text AND left the toggle
+  // on. marqueeEnabled defaults to "on" when the field hasn't been saved
+  // yet (older settings docs), so existing text keeps showing as before.
+  function applyMarquee(text, enabled){
     const wrap = document.querySelector('[data-site-marquee]');
     if(!wrap) return;
     const clean = (text || '').trim();
-    if(clean){
+    if(clean && enabled !== false){
       document.querySelectorAll('[data-site-marquee-text]').forEach(el => { el.textContent = clean; });
       wrap.style.display = '';
     } else {
@@ -217,7 +218,7 @@
 
     // ---- Homepage-only fields (elements simply won't exist on other pages) ----
 
-    applyMarquee(data.marqueeText);
+    applyMarquee(data.marqueeText, data.marqueeEnabled);
 
     // Hero
     setText('[data-site-hero-eyebrow]', data.heroEyebrow);
