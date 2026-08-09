@@ -921,11 +921,12 @@ table.data-table td .tag{ margin-right:.3em; }
 }
 .testimonials-carousel{
   position:relative;
-  width:100%; max-width: 660px;
+  width:100%; max-width: 780px;
   display:flex; align-items:center; justify-content:center;
+  gap: .9em;
 }
 .testimonial-carousel-track{
-  position:relative; width:100%;
+  position:relative; width:100%; min-width:0; flex: 1 1 auto;
 }
 .testimonial-slide{
   display:none;
@@ -986,7 +987,7 @@ table.data-table td .tag{ margin-right:.3em; }
   font-size:.82rem; color: var(--ink-soft); margin:0; line-height:1.3;
 }
 .testimonial-nav-btn{
-  position:absolute; top:50%; transform: translateY(-50%);
+  position:relative;
   width:44px; height:44px; border-radius:50%; flex-shrink:0;
   background: var(--paper); border:1.5px solid var(--line);
   box-shadow: var(--shadow-card);
@@ -997,10 +998,9 @@ table.data-table td .tag{ margin-right:.3em; }
 }
 .testimonial-nav-btn:hover{
   background: var(--teal); color:#fff; border-color: var(--teal);
-  transform: translateY(-50%) scale(1.06);
+  transform: scale(1.06);
 }
-.testimonial-nav-prev{ left:-58px; }
-.testimonial-nav-next{ right:-58px; }
+.testimonial-nav-btn:active{ transform: scale(.96); }
 .testimonial-dots{
   display:flex; align-items:center; justify-content:center; gap:.55em;
   margin-top: .3em;
@@ -1014,17 +1014,15 @@ table.data-table td .tag{ margin-right:.3em; }
   width:24px; border-radius:6px; background: var(--teal);
 }
 @media (max-width: 820px){
-  .testimonial-nav-prev{ left:-6px; }
-  .testimonial-nav-next{ right:-6px; }
-  .testimonial-slide{ padding: 2.2em 2.6em 1.9em; }
+  .testimonial-slide{ padding: 2.2em 2em 1.9em; }
 }
 @media (max-width: 560px){
-  .testimonial-nav-btn{ width:36px; height:36px; font-size:1.15rem; }
-  .testimonial-nav-prev{ left:-2px; }
-  .testimonial-nav-next{ right:-2px; }
-  .testimonial-slide{ padding: 2em 2.6em 1.7em; gap:.9em; }
+  .testimonials-carousel{ gap:.5em; }
+  .testimonial-nav-btn{ width:34px; height:34px; font-size:1.1rem; }
+  .testimonial-slide{ padding: 1.8em 1.1em 1.6em; gap:.85em; }
   .testimonial-avatar-lg{ width:68px; height:68px; font-size:1.4rem; }
   .testimonial-slide .testimonial-text{ font-size:.94rem; }
+  .t-badge{ font-size:.72rem; padding:.36em .8em; }
 }
 /* ===== /TALABALAR FIKRI ===== */
 
