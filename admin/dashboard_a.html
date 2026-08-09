@@ -7371,6 +7371,25 @@ function actlogDeviceParse(ua){
   return '🌐 Noma\'lum';
 }
 
+// Qurilma + brauzer + (mavjud bo'lsa) taxminiy joylashuvni bitta katakda
+// ko'rsatadi. Joylashuv faqat mehmon (guest) yozuvlarida bo'ladi — talaba/
+// ota-ona yozuvlarida IP/shahar umuman so'ralmaydi.
+function actlogDeviceCell(doc){
+  var parts = [actlogDeviceParse(doc.ua)];
+  if(doc.browser) parts.push(doc.browser);
+  var line1 = parts.join(' · ');
+  var line2 = '';
+  if(doc.city || doc.country){
+    line2 = '<br><span style="font-size:.74rem;color:var(--adm-gray,var(--gray));">📍 ' +
+      escHtml([doc.city, doc.country].filter(Boolean).join(', ')) + '</span>';
+  }
+  if(doc.role === 'guest'){
+    line2 += '<br><span style="font-size:.72rem;color:var(--adm-gray,var(--gray));">' +
+      (doc.isReturning ? '🔁 Qaytgan mehmon' : '🆕 Birinchi tashrif') + '</span>';
+  }
+  return line1 + line2;
+}
+
 function renderActivityLogTable(){
   const body = document.getElementById('actlogTableBody');
   const emptyEl = document.getElementById('actlogEmpty');
@@ -7422,7 +7441,7 @@ function renderActivityLogTable(){
       <td>${roleBadge}</td>
       <td>${actionBadge}</td>
       <td class="actlog-time">${actlogFormatDate(doc.at)}</td>
-      <td style="font-size:.78rem;">${actlogDeviceParse(doc.ua)}</td>
+      <td style="font-size:.78rem;">${actlogDeviceCell(doc)}</td>
       <td>${deleteCell}</td>
     </tr>`;
   }).join('');
