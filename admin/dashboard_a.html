@@ -221,9 +221,11 @@
 .actlog-role-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;}
 .actlog-role-student{background:rgba(47,111,237,.12);color:#2F6FED;}
 .actlog-role-parent{background:rgba(31,174,122,.12);color:#1FAE7A;}
+.actlog-role-guest{background:rgba(107,114,128,.14);color:#6B7280;}
 .actlog-action-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:.73rem;font-weight:600;}
 .actlog-action-login{background:rgba(124,92,252,.12);color:#7C5CFC;}
 .actlog-action-register{background:rgba(240,146,61,.15);color:#D4780A;}
+.actlog-action-visit{background:rgba(20,184,166,.13);color:#0D9488;}
 .actlog-time{font-size:.78rem;color:var(--adm-gray,var(--gray));}
 .actlog-empty{text-align:center;padding:48px 24px;color:var(--adm-gray,var(--gray));}
 .actlog-filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
@@ -1461,7 +1463,7 @@
       <div class="oj-header">
         <div>
           <h1>🕵️ Faollik jurnali</h1>
-          <p><span class="actlog-live-dot"></span>Talabalar va ota-onalarning kirish va ro'yxatdan o'tish tarixi — real vaqtda yangilanadi.</p>
+          <p><span class="actlog-live-dot"></span>Talabalar, ota-onalarning kirish/ro'yxatdan o'tishi va ro'yxatdan o'tmagan mehmonlarning sayt tashriflari — real vaqtda yangilanadi.</p>
         </div>
         <button class="btn btn-ghost btn-sm" id="actlogRefreshBtn">🔄 Yangilash</button>
       </div>
@@ -1470,8 +1472,10 @@
         <button class="actlog-filter-btn active" data-actlog-filter="all">Barchasi</button>
         <button class="actlog-filter-btn" data-actlog-filter="student">🎓 Talabalar</button>
         <button class="actlog-filter-btn" data-actlog-filter="parent">👪 Ota-onalar</button>
+        <button class="actlog-filter-btn" data-actlog-filter="guest">🌐 Mehmonlar</button>
         <button class="actlog-filter-btn" data-actlog-filter="login">🔑 Kirish</button>
         <button class="actlog-filter-btn" data-actlog-filter="register">✅ Ro'yxatdan o'tish</button>
+        <button class="actlog-filter-btn" data-actlog-filter="visit">👣 Sayt tashrifi</button>
       </div>
 
       <p id="actlogStatusLine" style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:10px;"></p>
@@ -7376,8 +7380,10 @@ function renderActivityLogTable(){
     if(_actlogFilter === 'all') return true;
     if(_actlogFilter === 'student') return doc.role === 'student';
     if(_actlogFilter === 'parent') return doc.role === 'parent';
+    if(_actlogFilter === 'guest') return doc.role === 'guest';
     if(_actlogFilter === 'login') return doc.action === 'login';
     if(_actlogFilter === 'register') return doc.action === 'register';
+    if(_actlogFilter === 'visit') return doc.action === 'visit';
     return true;
   });
 
@@ -7391,18 +7397,28 @@ function renderActivityLogTable(){
   emptyEl.style.display = 'none';
 
   body.innerHTML = filtered.map((doc, i) => {
-    const roleBadge = doc.role === 'student'
-      ? '<span class="actlog-role-badge actlog-role-student">🎓 Talaba</span>'
-      : '<span class="actlog-role-badge actlog-role-parent">👪 Ota-ona</span>';
-    const actionBadge = doc.action === 'login'
-      ? '<span class="actlog-action-badge actlog-action-login">🔑 Kirdi</span>'
-      : '<span class="actlog-action-badge actlog-action-register">✅ Ro\'yxatdan o\'tdi</span>';
+    let roleBadge;
+    if(doc.role === 'student') roleBadge = '<span class="actlog-role-badge actlog-role-student">🎓 Talaba</span>';
+    else if(doc.role === 'parent') roleBadge = '<span class="actlog-role-badge actlog-role-parent">👪 Ota-ona</span>';
+    else roleBadge = '<span class="actlog-role-badge actlog-role-guest">🌐 Mehmon</span>';
+
+    let actionBadge;
+    if(doc.action === 'login') actionBadge = '<span class="actlog-action-badge actlog-action-login">🔑 Kirdi</span>';
+    else if(doc.action === 'register') actionBadge = '<span class="actlog-action-badge actlog-action-register">✅ Ro\'yxatdan o\'tdi</span>';
+    else actionBadge = '<span class="actlog-action-badge actlog-action-visit">👣 Saytga kirdi</span>';
+
+    // Mehmon yozuvlarida ism/email bo'lmaydi — o'rniga qaysi sahifaga
+    // kirganini ko'rsatamiz.
+    const nameCell = doc.role === 'guest'
+      ? `<span style="color:var(--adm-gray,var(--gray));">${escHtml(doc.page || doc.path || 'Nomaʼlum sahifa')}</span>`
+      : `<strong>${escHtml(doc.name || '—')}</strong>${doc.email ? '<br><span style="font-size:.75rem;color:var(--adm-gray,var(--gray));">'+escHtml(doc.email)+'</span>' : ''}`;
+
     const deleteCell = doc.uid
       ? `<button type="button" class="btn btn-danger btn-sm" data-actlog-delete-uid="${escHtml(doc.uid)}" data-actlog-delete-role="${escHtml(doc.role||'')}" data-actlog-delete-name="${escHtml(doc.name||doc.email||'Foydalanuvchi')}">🗑️ O'chirish</button>`
       : '—';
     return `<tr>
       <td style="color:var(--adm-gray,var(--gray));font-size:.8rem;">${i+1}</td>
-      <td><strong>${escHtml(doc.name || '—')}</strong>${doc.email ? '<br><span style="font-size:.75rem;color:var(--adm-gray,var(--gray));">'+escHtml(doc.email)+'</span>' : ''}</td>
+      <td>${nameCell}</td>
       <td>${roleBadge}</td>
       <td>${actionBadge}</td>
       <td class="actlog-time">${actlogFormatDate(doc.at)}</td>
