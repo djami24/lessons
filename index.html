@@ -132,61 +132,69 @@
       <h2 class="testimonials-heading">Talabalar fikri</h2>
       <p class="testimonials-sub">Djami Lessons orqali qisqa muddat ichida CEFR B2 sertifikatini qo'lga kiritgan talabalarimiz so'zlaydi</p>
     </div>
-    <div class="testimonials-grid">
+    <div class="testimonials-carousel" id="testimonialsCarousel">
+      <button type="button" class="testimonial-nav-btn testimonial-nav-prev" id="testimonialPrev" aria-label="Oldingi fikr">‹</button>
 
-      <div class="testimonial-card testimonial-card--teal">
-        <div class="testimonial-quote-icon">"</div>
-        <p class="testimonial-text" data-testimonial-1-text>Rostini aytsam, boshida CEFR B2 mening uchun uzoq orzu bo'lib tuyulardi. Lekin Djami o'qituvchining usuli butunlay boshqacha — har bir mavzuni shunchalik oddiy va qiziqarli tushuntiradiki, o'zingizni sezmasdan oldinga siljiyapsiz. Djami Lessons platformasi esa har kuni o'z natijalaringizni ko'rib borishga yordam beradi. Shu ikkalasi birgalikda meni B2 ga olib keldi!</p>
-        <div class="testimonial-footer">
-          <div class="testimonial-avatar">Sh</div>
-          <div>
-            <p class="testimonial-name" data-testimonial-1-name>Baxodirova Shaxlo</p>
-            <p class="testimonial-role" data-testimonial-1-role>CEFR — B2 sertifikati ✦ Qisqa muddat</p>
+      <div class="testimonial-carousel-track" id="testimonialTrack">
+
+        <div class="testimonial-slide is-active" data-slide="0">
+          <div class="testimonial-avatar-lg">Sh</div>
+          <div class="testimonial-badges">
+            <span class="t-badge t-badge-before"><span class="t-badge-text">Qisqa muddat</span></span>
+            <span class="t-badge t-badge-after">🏆 <span class="t-badge-text">CEFR — B2 sertifikati</span></span>
           </div>
-          <div class="testimonial-stars">★★★★★</div>
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-text" data-testimonial-1-text>Rostini aytsam, boshida CEFR B2 mening uchun uzoq orzu bo'lib tuyulardi. Lekin Djami o'qituvchining usuli butunlay boshqacha — har bir mavzuni shunchalik oddiy va qiziqarli tushuntiradiki, o'zingizni sezmasdan oldinga siljiyapsiz. Djami Lessons platformasi esa har kuni o'z natijalaringizni ko'rib borishga yordam beradi. Shu ikkalasi birgalikda meni B2 ga olib keldi!</p>
+          <div class="testimonial-divider"></div>
+          <p class="testimonial-name" data-testimonial-1-name>Baxodirova Shaxlo</p>
+          <p class="testimonial-role" data-testimonial-1-role>CEFR — B2 sertifikati ✦ Qisqa muddat</p>
         </div>
+
+        <div class="testimonial-slide" data-slide="1">
+          <div class="testimonial-avatar-lg">H</div>
+          <div class="testimonial-badges">
+            <span class="t-badge t-badge-before"><span class="t-badge-text">Qisqa muddat</span></span>
+            <span class="t-badge t-badge-after">🏆 <span class="t-badge-text">CEFR — B2 sertifikati</span></span>
+          </div>
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-text" data-testimonial-2-text>Djami o'qituvchi ingliz tilini o'rgatish bilan birga o'zingizga bo'lgan ishonchingizni ham oshiradi. Har bir dars so'ng "yana birini ko'rsam bo'ladi" degan his paydo bo'ladi. Platforma juda qulay — uy vazifalarni, testlarni va natijalarni bir joydan ko'rish vaqtni tejaydi. Oxirida CEFR B2 ni qo'lga kiritganimda hech qanday hayrat sezmasdan, chunki tayyorligimni bilardim.</p>
+          <div class="testimonial-divider"></div>
+          <p class="testimonial-name" data-testimonial-2-name>Mirmuhsinova Honzoda</p>
+          <p class="testimonial-role" data-testimonial-2-role>CEFR — B2 sertifikati ✦ Qisqa muddat</p>
+        </div>
+
+        <div class="testimonial-slide" data-slide="2">
+          <div class="testimonial-avatar-lg">Hf</div>
+          <div class="testimonial-badges">
+            <span class="t-badge t-badge-before"><span class="t-badge-text">Qisqa muddat</span></span>
+            <span class="t-badge t-badge-after">🏆 <span class="t-badge-text">CEFR — B2 sertifikati</span></span>
+          </div>
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-text" data-testimonial-3-text>O'ylamagan edim bu qadar tez yutuqqa erishaman deb. Djami o'qituvchining darslarida keraksiz narsaga vaqt sarflanmaydi — faqat muhim, faqat foydali. Djami Lessons saytidagi testlar va mashqlar esa imtihonga asl tayyorgarlik bo'ldi. CEFR B2 endi faqat bir boshlang'ich — oldinda yanada katta maqsadlar bor!</p>
+          <div class="testimonial-divider"></div>
+          <p class="testimonial-name" data-testimonial-3-name>Rahmonova Hafizabonu</p>
+          <p class="testimonial-role" data-testimonial-3-role>CEFR — B2 sertifikati ✦ Qisqa muddat</p>
+        </div>
+
+        <div class="testimonial-slide" data-slide="3">
+          <div class="testimonial-avatar-lg">M</div>
+          <div class="testimonial-badges">
+            <span class="t-badge t-badge-before"><span class="t-badge-text">Qisqa muddat ichida</span></span>
+            <span class="t-badge t-badge-after">🏆 <span class="t-badge-text">CEFR — B2 sertifikati</span></span>
+          </div>
+          <div class="testimonial-quote-mark">"</div>
+          <p class="testimonial-text" data-testimonial-4-text>Djami o'qituvchi va Djami Lessons platformasi — bu ikki narsa birlashganda natija muqarrar. O'qituvchi har bir talabaga individual yondashadi, savollarga sabr bilan javob beradi, kuchli tomonlaringizni oshiradi, zaif tomonlaringizni tuzatadi. Sayt esa siz o'qimagan darslaringizni eslatib turadi, natijalaringizni ko'rsatadi, motivatsiyangizni tutib turadi. Men qisqa muddat ichida CEFR B2 ga erishganimning asosiy siri — shu ikkalasi. Hech qanday "sirli usul" yo'q, faqat to'g'ri yo'nalish va izchillik kerak. Djami Lessons mana shu ikkalasini beradi.</p>
+          <div class="testimonial-divider"></div>
+          <p class="testimonial-name" data-testimonial-4-name>Abdurahmonova Muslima</p>
+          <p class="testimonial-role" data-testimonial-4-role>CEFR — B2 sertifikati ✦ Qisqa muddat ichida</p>
+        </div>
+
       </div>
 
-      <div class="testimonial-card">
-        <div class="testimonial-quote-icon">"</div>
-        <p class="testimonial-text" data-testimonial-2-text>Djami o'qituvchi ingliz tilini o'rgatish bilan birga o'zingizga bo'lgan ishonchingizni ham oshiradi. Har bir dars so'ng "yana birini ko'rsam bo'ladi" degan his paydo bo'ladi. Platforma juda qulay — uy vazifalarni, testlarni va natijalarni bir joydan ko'rish vaqtni tejaydi. Oxirida CEFR B2 ni qo'lga kiritganimda hech qanday hayrat sezmasdan, chunki tayyorligimni bilardim.</p>
-        <div class="testimonial-footer">
-          <div class="testimonial-avatar">H</div>
-          <div>
-            <p class="testimonial-name" data-testimonial-2-name>Mirmuhsinova Honzoda</p>
-            <p class="testimonial-role" data-testimonial-2-role>CEFR — B2 sertifikati ✦ Qisqa muddat</p>
-          </div>
-          <div class="testimonial-stars">★★★★★</div>
-        </div>
-      </div>
-
-      <div class="testimonial-card testimonial-card--dark">
-        <div class="testimonial-quote-icon">"</div>
-        <p class="testimonial-text" data-testimonial-3-text>O'ylamagan edim bu qadar tez yutuqqa erishaman deb. Djami o'qituvchining darslarida keraksiz narsaga vaqt sarflanmaydi — faqat muhim, faqat foydali. Djami Lessons saytidagi testlar va mashqlar esa imtihonga asl tayyorgarlik bo'ldi. CEFR B2 endi faqat bir boshlang'ich — oldinda yanada katta maqsadlar bor!</p>
-        <div class="testimonial-footer">
-          <div class="testimonial-avatar">Hf</div>
-          <div>
-            <p class="testimonial-name" data-testimonial-3-name>Rahmonova Hafizabonu</p>
-            <p class="testimonial-role" data-testimonial-3-role>CEFR — B2 sertifikati ✦ Qisqa muddat</p>
-          </div>
-          <div class="testimonial-stars">★★★★★</div>
-        </div>
-      </div>
-
-      <div class="testimonial-card testimonial-card--wide">
-        <div class="testimonial-quote-icon">"</div>
-        <p class="testimonial-text" data-testimonial-4-text>Djami o'qituvchi va Djami Lessons platformasi — bu ikki narsa birlashganda natija muqarrar. O'qituvchi har bir talabaga individual yondashadi, savollarga sabr bilan javob beradi, kuchli tomonlaringizni oshiradi, zaif tomonlaringizni tuzatadi. Sayt esa siz o'qimagan darslaringizni eslatib turadi, natijalaringizni ko'rsatadi, motivatsiyangizni tutib turadi. Men qisqa muddat ichida CEFR B2 ga erishganimning asosiy siri — shu ikkalasi. Hech qanday "sirli usul" yo'q, faqat to'g'ri yo'nalish va izchillik kerak. Djami Lessons mana shu ikkalasini beradi.</p>
-        <div class="testimonial-footer">
-          <div class="testimonial-avatar">M</div>
-          <div>
-            <p class="testimonial-name" data-testimonial-4-name>Abdurahmonova Muslima</p>
-            <p class="testimonial-role" data-testimonial-4-role>CEFR — B2 sertifikati ✦ Qisqa muddat ichida</p>
-          </div>
-          <div class="testimonial-stars">★★★★★</div>
-        </div>
-      </div>
-
+      <button type="button" class="testimonial-nav-btn testimonial-nav-next" id="testimonialNext" aria-label="Keyingi fikr">›</button>
     </div>
+
+    <div class="testimonial-dots" id="testimonialDots"></div>
   </section>
   <!-- ===== /TALABALAR FIKRI ===== -->
 
@@ -266,6 +274,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script src="site-settings.js"></script>
+<script src="testimonials-carousel.js" defer></script>
 <script>
 /* ============================================================
    Sayt baholash (site rating) widget
