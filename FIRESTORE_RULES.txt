@@ -241,6 +241,20 @@ service cloud.firestore {
       }
     }
 
+    // Presence — online / last-seen status for the student<->teacher chat.
+    // presence/{uid}: a student writes only to presence/{their own uid};
+    // any signed-in admin session writes to the single shared
+    // presence/teacher-status doc (so "teacher online" reflects whichever
+    // admin currently has the dashboard open). Everyone signed in can
+    // read presence, since both sides need to see the other's status.
+    match /presence/{uid} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && (
+        request.auth.uid == uid ||
+        (uid == 'teacher-status' && isAdmin())
+      );
+    }
+
     match /parentChats/{childCode} {
       allow read: if isAdmin() || isLinkedParentFor(childCode);
       allow create, update: if isAdmin() || isLinkedParentFor(childCode);
