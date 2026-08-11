@@ -6857,20 +6857,14 @@ function openAdminChat(chatId, studentName){
         const quoteHtml = d.replyTo
           ? `<div class="chat-msg-quote"><span class="chat-msg-quote-name">${escapeHtml(d.replyTo.senderRole === 'teacher' ? 'Siz' : resolvedName)}</span>${escapeHtml(d.replyTo.text || '')}</div>`
           : '';
-        // Likes — either side can like any message, Telegram-style. "Mine"
-        // here is always the teacher's own like (this is the admin dashboard).
-        const likedByMe = !!d.likedByTeacher;
-        const anyLiked = likedByMe || !!d.likedByStudent;
 
         parts.push(`<div class="chat-msg-row${isTeacher ? ' is-mine' : ''}" data-msg-id="${doc.id}" data-msg-text="${escapeHtml(d.text||'')}" data-msg-role="${isTeacher ? 'teacher' : 'student'}">
           ${avatarHtml}
           <div class="chat-msg ${isTeacher ? 'chat-msg-student' : 'chat-msg-teacher'}">
             <div class="chat-msg-bubble">${quoteHtml}${escapeHtml(d.text||'')}</div>
             <div class="chat-msg-meta">${time} ${ticks}</div>
-            <span class="chat-msg-like-badge${anyLiked ? ' is-visible' : ''}">❤️</span>
           </div>
           <div class="chat-msg-actions">
-            <button type="button" class="chat-msg-action-btn chat-msg-like-btn${likedByMe ? ' is-liked' : ''}" data-like-id="${doc.id}" title="Layk">${likedByMe ? '❤️' : '🤍'}</button>
             <button type="button" class="chat-msg-action-btn chat-msg-reply-btn" title="Javob berish">↩</button>
           </div>
         </div>`);
@@ -6926,14 +6920,6 @@ function openAdminChat(chatId, studentName){
 // ----- Reply-to-message (admin) -----
 
 document.getElementById('adminChatMessages').addEventListener('click', (e) => {
-  const likeBtn = e.target.closest('.chat-msg-like-btn');
-  if(likeBtn){
-    const msgId = likeBtn.dataset.likeId;
-    const nowLiked = !likeBtn.classList.contains('is-liked');
-    db.collection('chats').doc(adminActiveChatId).collection('messages').doc(msgId)
-      .update({ likedByTeacher: nowLiked }).catch(()=>{});
-    return;
-  }
   const btn = e.target.closest('.chat-msg-reply-btn');
   if(!btn) return;
   const row = btn.closest('.chat-msg-row');
