@@ -6856,7 +6856,7 @@ function openAdminChat(chatId, studentName){
             <div class="chat-msg-bubble">${quoteHtml}${escapeHtml(d.text||'')}</div>
             <div class="chat-msg-meta">${time} ${ticks}</div>
           </div>
-          <button type="button" class="chat-msg-reply-btn" title="Javob berish">↩</button>
+          <button type="button" class="chat-msg-reply-btn" title="Javob berish">${CHAT_REPLY_ICON_SVG}</button>
         </div>`);
       });
       messagesEl.innerHTML = parts.join('');
