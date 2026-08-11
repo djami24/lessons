@@ -873,12 +873,34 @@
       <div class="chat-panel chat-panel-detail chat-panel-solo" id="chatBox">
         <div class="chat-detail-header">
           <div class="chat-detail-avatar chat-detail-avatar-teacher">🎓</div>
-          <div class="chat-detail-name">O‘qituvchi</div>
+          <div class="chat-detail-info">
+            <div class="chat-detail-name">O‘qituvchi</div>
+            <div class="chat-status-line" id="chatTeacherStatus">
+              <span class="chat-status-dot" id="chatTeacherStatusDot"></span>
+              <span class="chat-status-text" id="chatTeacherStatusText">—</span>
+            </div>
+          </div>
         </div>
         <div class="chat-messages" id="chatMessages">
           <p style="color:var(--gray);text-align:center;padding:2em 0;" id="chatEmpty">Hali xabarlar yo‘q. Birinchi xabarni yuboring!</p>
+          <div class="chat-typing-row" id="chatTypingRow" hidden>
+            <div class="chat-msg-avatar" style="background:var(--teal);">🎓</div>
+            <div class="chat-typing-bubble"><span></span><span></span><span></span></div>
+          </div>
+        </div>
+        <div class="chat-reply-preview" id="chatReplyPreview" hidden>
+          <div class="chat-reply-preview-bar"></div>
+          <div class="chat-reply-preview-body">
+            <div class="chat-reply-preview-label">Javob: <span id="chatReplyPreviewName"></span></div>
+            <div class="chat-reply-preview-text" id="chatReplyPreviewText"></div>
+          </div>
+          <button type="button" class="chat-reply-preview-close" id="chatReplyPreviewClose" title="Bekor qilish">✕</button>
         </div>
         <div class="chat-input-row">
+          <div class="chat-emoji-wrap">
+            <button type="button" class="chat-emoji-btn" id="chatEmojiBtn" title="Emoji">😊</button>
+            <div class="chat-emoji-panel" id="chatEmojiPanel" hidden></div>
+          </div>
           <textarea id="chatInput" class="chat-textarea" placeholder="Xabar yozing..." rows="1" maxlength="1000"></textarea>
           <button class="chat-send-btn" id="chatSendBtn" title="Yuborish">➤</button>
         </div>
@@ -892,6 +914,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
+<script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
 <script>
 /* ============================================================
@@ -1004,6 +1027,17 @@ async function enterDashboard(){
   renderHomeView();
   startNotifListener();
   startChatUnreadListener();
+  startPresenceHeartbeat(currentUid, 'student');
+  watchPresenceStatus('teacher-status', (status) => {
+    chatTeacherPresenceStatus = status;
+    if(!chatTeacherIsTyping){
+      renderPresenceStatus(
+        document.getElementById('chatTeacherStatusDot'),
+        document.getElementById('chatTeacherStatusText'),
+        status
+      );
+    }
+  });
   restoreLastStudentView(_savedStudentView);
 }
 
@@ -3144,8 +3178,15 @@ function startChatUnreadListener(){
 // ===== CHAT WITH TEACHER =====
 
 let chatUnsubscribe = null;
+let chatTypingUnsubscribe = null;
+let chatReplyTarget = null; // { id, text, senderName } of the message being replied to
+let chatTeacherPresenceStatus = { online:false, lastSeenDate:null };
+let chatTeacherIsTyping = false;
+const chatTypingCtrl = () => makeTypingController(db.collection('chats').doc(currentUid), 'studentTyping');
+let chatTypingController = null;
 
-function renderChatMessage(d){
+function renderChatMessage(doc){
+  const d = doc.data();
   const isStudent = d.senderRole === 'student';
   const dateObj = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
   const time = dateObj ? dateObj.toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' }) : '';
@@ -3156,22 +3197,30 @@ function renderChatMessage(d){
     ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '✓✓' : '✓'}</span>`
     : '';
   const avatarHtml = !isStudent ? `<div class="chat-msg-avatar" style="background:var(--teal);">🎓</div>` : '';
-  return `<div class="chat-msg-row${isStudent ? ' is-mine' : ''}">
+  const quoteHtml = d.replyTo
+    ? `<div class="chat-msg-quote"><span class="chat-msg-quote-name">${escapeHtml(d.replyTo.senderRole === 'student' ? 'Siz' : 'O‘qituvchi')}</span>${escapeHtml(d.replyTo.text || '')}</div>`
+    : '';
+  return `<div class="chat-msg-row${isStudent ? ' is-mine' : ''}" data-msg-id="${doc.id}" data-msg-text="${escapeHtml(d.text || '')}" data-msg-role="${isStudent ? 'student' : 'teacher'}">
     ${avatarHtml}
     <div class="chat-msg ${isStudent ? 'chat-msg-student' : 'chat-msg-teacher'}">
-      <div class="chat-msg-bubble">${escapeHtml(d.text || '')}</div>
+      <div class="chat-msg-bubble">${quoteHtml}${escapeHtml(d.text || '')}</div>
       <div class="chat-msg-meta">${time} ${ticks}</div>
     </div>
+    <button type="button" class="chat-msg-reply-btn" data-reply-id="${doc.id}" title="Javob berish">↩</button>
   </div>`;
 }
 
 function loadChat(){
   const messagesEl = document.getElementById('chatMessages');
   const emptyEl = document.getElementById('chatEmpty');
+  const typingRow = document.getElementById('chatTypingRow');
 
   if(chatUnsubscribe) chatUnsubscribe();
+  if(chatTypingUnsubscribe) chatTypingUnsubscribe();
 
-  chatUnsubscribe = db.collection('chats').doc(currentUid)
+  const chatDocRef = db.collection('chats').doc(currentUid);
+
+  chatUnsubscribe = chatDocRef
     .collection('messages')
     .orderBy('createdAt', 'asc')
     .onSnapshot(snap => {
@@ -3179,6 +3228,7 @@ function loadChat(){
         emptyEl.hidden = false;
         messagesEl.innerHTML = '';
         messagesEl.appendChild(emptyEl);
+        messagesEl.appendChild(typingRow);
         return;
       }
       emptyEl.hidden = true;
@@ -3198,9 +3248,10 @@ function loadChat(){
             parts.push(`<div class="chat-date-sep"><span>${label}</span></div>`);
           }
         }
-        parts.push(renderChatMessage(d));
+        parts.push(renderChatMessage(doc));
       });
       messagesEl.innerHTML = parts.join('');
+      messagesEl.appendChild(typingRow);
       messagesEl.scrollTop = messagesEl.scrollHeight;
 
       // Mark any teacher messages the student can now see as read — this
@@ -3215,6 +3266,20 @@ function loadChat(){
         batch.commit().catch(()=>{});
       }
     });
+
+  // "O‘qituvchi yozmoqda..." indicator, driven by teacherTyping on the chat doc.
+  chatTypingUnsubscribe = watchTyping(chatDocRef, 'teacherTyping', (isTyping) => {
+    chatTeacherIsTyping = isTyping;
+    typingRow.hidden = !isTyping;
+    const statusTextEl = document.getElementById('chatTeacherStatusText');
+    statusTextEl.classList.toggle('is-typing', isTyping);
+    if(isTyping){
+      statusTextEl.textContent = 'yozmoqda...';
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    } else {
+      renderPresenceStatus(document.getElementById('chatTeacherStatusDot'), statusTextEl, chatTeacherPresenceStatus);
+    }
+  });
 }
 
 document.getElementById('navChat').addEventListener('click', (e) => {
@@ -3229,7 +3294,52 @@ document.getElementById('navChat').addEventListener('click', (e) => {
 document.getElementById('backToHomeFromChat').addEventListener('click', (e) => {
   e.preventDefault();
   if(chatUnsubscribe){ chatUnsubscribe(); chatUnsubscribe = null; }
+  if(chatTypingUnsubscribe){ chatTypingUnsubscribe(); chatTypingUnsubscribe = null; }
+  if(chatTypingController) chatTypingController.notifyStopped();
+  cancelChatReply();
   renderHomeView();
+});
+
+// ----- Reply-to-message -----
+
+document.getElementById('chatMessages').addEventListener('click', (e) => {
+  const btn = e.target.closest('.chat-msg-reply-btn');
+  if(!btn) return;
+  const row = btn.closest('.chat-msg-row');
+  const isMine = row.classList.contains('is-mine');
+  chatReplyTarget = {
+    text: truncateForReply(row.dataset.msgText),
+    senderRole: isMine ? 'student' : 'teacher'
+  };
+  document.getElementById('chatReplyPreviewName').textContent = isMine ? 'Siz' : 'O‘qituvchi';
+  document.getElementById('chatReplyPreviewText').textContent = chatReplyTarget.text;
+  document.getElementById('chatReplyPreview').hidden = false;
+  document.getElementById('chatInput').focus();
+});
+
+function cancelChatReply(){
+  chatReplyTarget = null;
+  document.getElementById('chatReplyPreview').hidden = true;
+}
+document.getElementById('chatReplyPreviewClose').addEventListener('click', cancelChatReply);
+
+// ----- Emoji picker -----
+
+initChatEmojiPicker({
+  btn: document.getElementById('chatEmojiBtn'),
+  panel: document.getElementById('chatEmojiPanel'),
+  textarea: document.getElementById('chatInput')
+});
+
+// ----- Typing indicator (student -> teacher) -----
+
+document.getElementById('chatInput').addEventListener('input', () => {
+  if(!chatTypingController) chatTypingController = chatTypingCtrl();
+  if(document.getElementById('chatInput').value.trim()){
+    chatTypingController.notifyTyping();
+  } else {
+    chatTypingController.notifyStopped();
+  }
 });
 
 document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
@@ -3242,18 +3352,23 @@ async function sendChatMessage(){
   const sendBtn = document.getElementById('chatSendBtn');
   const text = input.value.trim();
   if(!text) return;
+  const replyTo = chatReplyTarget;
   input.value = '';
   input.disabled = true;
   sendBtn.disabled = true;
+  if(chatTypingController) chatTypingController.notifyStopped();
+  cancelChatReply();
 
   try{
-    await db.collection('chats').doc(currentUid).collection('messages').add({
+    const msgData = {
       text: text,
       senderRole: 'student',
       senderName: state.student.name || 'Talaba',
       read: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    };
+    if(replyTo) msgData.replyTo = replyTo;
+    await db.collection('chats').doc(currentUid).collection('messages').add(msgData);
     // Update chat metadata for admin to see
     await db.collection('chats').doc(currentUid).set({
       studentId: currentUid,
