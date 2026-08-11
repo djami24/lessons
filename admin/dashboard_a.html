@@ -1263,10 +1263,28 @@
         <div class="chat-panel chat-panel-detail" id="chatDetailPanel">
           <div class="chat-detail-header">
             <div class="chat-detail-avatar" id="chatDetailAvatar">?</div>
-            <div class="chat-detail-name chat-detail-empty" id="chatDetailName">Talabani tanlang</div>
+            <div class="chat-detail-info">
+              <div class="chat-detail-name chat-detail-empty" id="chatDetailName">Talabani tanlang</div>
+              <div class="chat-status-line" id="chatDetailStatus" hidden>
+                <span class="chat-status-dot" id="chatDetailStatusDot"></span>
+                <span class="chat-status-text" id="chatDetailStatusText">—</span>
+              </div>
+            </div>
           </div>
           <div class="chat-messages" id="adminChatMessages"></div>
+          <div class="chat-reply-preview" id="adminChatReplyPreview" hidden>
+            <div class="chat-reply-preview-bar"></div>
+            <div class="chat-reply-preview-body">
+              <div class="chat-reply-preview-label">Javob: <span id="adminChatReplyPreviewName"></span></div>
+              <div class="chat-reply-preview-text" id="adminChatReplyPreviewText"></div>
+            </div>
+            <button type="button" class="chat-reply-preview-close" id="adminChatReplyPreviewClose" title="Bekor qilish">✕</button>
+          </div>
           <div class="chat-input-row">
+            <div class="chat-emoji-wrap">
+              <button type="button" class="chat-emoji-btn" id="adminChatEmojiBtn" title="Emoji">😊</button>
+              <div class="chat-emoji-panel" id="adminChatEmojiPanel" hidden></div>
+            </div>
             <textarea id="adminChatInput" class="chat-textarea" placeholder="Javob yozing..." rows="1" maxlength="1000"></textarea>
             <button class="chat-send-btn" id="adminChatSendBtn" title="Yuborish">➤</button>
           </div>
@@ -1978,6 +1996,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
 <script src="../firebase-config.js"></script>
+<script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
 <script>
 /* ============================================================
@@ -2158,6 +2177,9 @@ auth.onAuthStateChanged(async (user) => {
   renderStudents();
   renderBlogsGrid();
   startAdminChatUnreadListener();
+  // Presence: keeps presence/teacher-status fresh while any admin session
+  // is open, which is what students see as "O‘qituvchi onlayn" in their chat.
+  startPresenceHeartbeat('teacher-status', 'admin');
   loadHomeStats();
   loadTodayHomeworkCards();
   restoreLastAdminView();
@@ -6598,9 +6620,15 @@ document.getElementById('broadcastSendBtn').addEventListener('click', async () =
 
 // ===== CHATS (admin side) =====
 let adminChatUnsub = null;
+let adminChatTypingUnsub = null;
+let adminChatPresenceUnsub = null;
 let adminActiveChatId = null;
 let adminActiveChatName = null;
 let adminChatDocs = [];
+let adminChatReplyTarget = null;
+let adminChatTypingController = null;
+let adminStudentPresenceStatus = { online:false, lastSeenDate:null };
+let adminStudentIsTyping = false;
 
 // Deterministic avatar color per chat/student, so the same person always
 // gets the same color across the list, detail header, and message avatars.
@@ -6673,11 +6701,15 @@ async function deleteChat(chatId, studentName){
     if(adminActiveChatId === chatId){
       adminActiveChatId = null;
       if(adminChatUnsub){ adminChatUnsub(); adminChatUnsub = null; }
+      if(adminChatTypingUnsub){ adminChatTypingUnsub(); adminChatTypingUnsub = null; }
+      if(adminChatPresenceUnsub){ adminChatPresenceUnsub(); adminChatPresenceUnsub = null; }
+      cancelAdminChatReply();
       const nameEl = document.getElementById('chatDetailName');
       nameEl.textContent = 'Talabani tanlang';
       nameEl.classList.add('chat-detail-empty');
       document.getElementById('chatDetailAvatar').textContent = '?';
       document.getElementById('chatDetailAvatar').style.background = 'var(--gray)';
+      document.getElementById('chatDetailStatus').hidden = true;
       document.getElementById('adminChatMessages').innerHTML = '';
     }
     loadChatStudentList();
@@ -6746,11 +6778,22 @@ function renderChatStudentList(docs, filter){
   });
 }
 
+function renderAdminChatTypingRow(chatColor){
+  const row = document.createElement('div');
+  row.className = 'chat-typing-row';
+  row.id = 'adminChatTypingRow';
+  row.hidden = true;
+  row.innerHTML = `<div class="chat-msg-avatar" style="background:${chatColor};">👤</div>
+    <div class="chat-typing-bubble"><span></span><span></span><span></span></div>`;
+  return row;
+}
+
 function openAdminChat(chatId, studentName){
   const knownStudent = state.students.find(s => s.id === chatId);
   const resolvedName = (knownStudent && knownStudent.name) ? knownStudent.name : studentName;
   adminActiveChatId = chatId;
   adminActiveChatName = resolvedName;
+  cancelAdminChatReply();
 
   const nameEl = document.getElementById('chatDetailName');
   nameEl.textContent = resolvedName;
@@ -6759,17 +6802,21 @@ function openAdminChat(chatId, studentName){
   const chatColor = avatarColorFor(chatId);
   avatarEl.textContent = (resolvedName.trim().charAt(0) || 'T').toUpperCase();
   avatarEl.style.background = chatColor;
+  document.getElementById('chatDetailStatus').hidden = false;
 
   document.querySelectorAll('.chat-student-item').forEach(el => {
     el.classList.toggle('is-active', el.dataset.chatId === chatId);
   });
 
   if(adminChatUnsub) adminChatUnsub();
+  if(adminChatTypingUnsub) adminChatTypingUnsub();
+  if(adminChatPresenceUnsub) adminChatPresenceUnsub();
 
   const messagesEl = document.getElementById('adminChatMessages');
   messagesEl.innerHTML = '';
+  const chatDocRef = db.collection('chats').doc(chatId);
 
-  adminChatUnsub = db.collection('chats').doc(chatId).collection('messages')
+  adminChatUnsub = chatDocRef.collection('messages')
     .orderBy('createdAt','asc')
     .onSnapshot(snap => {
       let lastDateKey = '';
@@ -6799,16 +6846,22 @@ function openAdminChat(chatId, studentName){
         const avatarHtml = !isTeacher
           ? `<div class="chat-msg-avatar" style="background:${chatColor};">${escapeHtml((resolvedName.trim().charAt(0) || 'T').toUpperCase())}</div>`
           : '';
+        const quoteHtml = d.replyTo
+          ? `<div class="chat-msg-quote"><span class="chat-msg-quote-name">${escapeHtml(d.replyTo.senderRole === 'teacher' ? 'Siz' : resolvedName)}</span>${escapeHtml(d.replyTo.text || '')}</div>`
+          : '';
 
-        parts.push(`<div class="chat-msg-row${isTeacher ? ' is-mine' : ''}">
+        parts.push(`<div class="chat-msg-row${isTeacher ? ' is-mine' : ''}" data-msg-text="${escapeHtml(d.text||'')}" data-msg-role="${isTeacher ? 'teacher' : 'student'}">
           ${avatarHtml}
           <div class="chat-msg ${isTeacher ? 'chat-msg-student' : 'chat-msg-teacher'}">
-            <div class="chat-msg-bubble">${escapeHtml(d.text||'')}</div>
+            <div class="chat-msg-bubble">${quoteHtml}${escapeHtml(d.text||'')}</div>
             <div class="chat-msg-meta">${time} ${ticks}</div>
           </div>
+          <button type="button" class="chat-msg-reply-btn" title="Javob berish">↩</button>
         </div>`);
       });
       messagesEl.innerHTML = parts.join('');
+      messagesEl.appendChild(renderAdminChatTypingRow(chatColor));
+      messagesEl.querySelector('#adminChatTypingRow').hidden = !adminStudentIsTyping;
       messagesEl.scrollTop = messagesEl.scrollHeight;
 
       // Mark any student messages the admin can now see as read — this
@@ -6824,10 +6877,80 @@ function openAdminChat(chatId, studentName){
       }
     });
 
+  // "<Talaba> yozmoqda..." indicator, driven by studentTyping on the chat doc.
+  adminChatTypingUnsub = watchTyping(chatDocRef, 'studentTyping', (isTyping) => {
+    adminStudentIsTyping = isTyping;
+    const row = document.getElementById('adminChatTypingRow');
+    const statusTextEl = document.getElementById('chatDetailStatusText');
+    if(row){
+      row.hidden = !isTyping;
+      if(isTyping) messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+    statusTextEl.classList.toggle('is-typing', isTyping);
+    if(isTyping){
+      statusTextEl.textContent = 'yozmoqda...';
+    } else {
+      renderPresenceStatus(document.getElementById('chatDetailStatusDot'), statusTextEl, adminStudentPresenceStatus);
+    }
+  });
+
+  // Online / last-seen for this specific student.
+  adminChatPresenceUnsub = watchPresenceStatus(chatId, (status) => {
+    adminStudentPresenceStatus = status;
+    if(!adminStudentIsTyping){
+      renderPresenceStatus(document.getElementById('chatDetailStatusDot'), document.getElementById('chatDetailStatusText'), status);
+    }
+  });
+
   // Mark as read
-  db.collection('chats').doc(chatId).update({ unreadByTeacher: 0 }).catch(()=>{});
+  chatDocRef.update({ unreadByTeacher: 0 }).catch(()=>{});
   loadChatStudentList();
 }
+
+// ----- Reply-to-message (admin) -----
+
+document.getElementById('adminChatMessages').addEventListener('click', (e) => {
+  const btn = e.target.closest('.chat-msg-reply-btn');
+  if(!btn) return;
+  const row = btn.closest('.chat-msg-row');
+  adminChatReplyTarget = {
+    text: truncateForReply(row.dataset.msgText),
+    senderRole: row.dataset.msgRole
+  };
+  document.getElementById('adminChatReplyPreviewName').textContent = row.dataset.msgRole === 'teacher' ? 'Siz' : adminActiveChatName;
+  document.getElementById('adminChatReplyPreviewText').textContent = adminChatReplyTarget.text;
+  document.getElementById('adminChatReplyPreview').hidden = false;
+  document.getElementById('adminChatInput').focus();
+});
+
+function cancelAdminChatReply(){
+  adminChatReplyTarget = null;
+  document.getElementById('adminChatReplyPreview').hidden = true;
+}
+document.getElementById('adminChatReplyPreviewClose').addEventListener('click', cancelAdminChatReply);
+
+// ----- Emoji picker (admin) -----
+
+initChatEmojiPicker({
+  btn: document.getElementById('adminChatEmojiBtn'),
+  panel: document.getElementById('adminChatEmojiPanel'),
+  textarea: document.getElementById('adminChatInput')
+});
+
+// ----- Typing indicator (admin -> student) -----
+
+document.getElementById('adminChatInput').addEventListener('input', () => {
+  if(!adminActiveChatId) return;
+  if(!adminChatTypingController || adminChatTypingController.chatId !== adminActiveChatId){
+    adminChatTypingController = makeTypingController(db.collection('chats').doc(adminActiveChatId), 'teacherTyping');
+    adminChatTypingController.chatId = adminActiveChatId;
+  }
+  if(document.getElementById('adminChatInput').value.trim()){
+    adminChatTypingController.notifyTyping();
+  } else {
+    adminChatTypingController.notifyStopped();
+  }
+});
 
 document.getElementById('adminChatSendBtn').addEventListener('click', sendAdminChatMsg);
 document.getElementById('adminChatInput').addEventListener('keydown', (e) => {
@@ -6859,17 +6982,22 @@ async function sendAdminChatMsg(){
   const sendBtn = document.getElementById('adminChatSendBtn');
   const text = input.value.trim();
   if(!text) return;
+  const replyTo = adminChatReplyTarget;
   input.value = '';
   input.disabled = true;
   sendBtn.disabled = true;
+  if(adminChatTypingController) adminChatTypingController.notifyStopped();
+  cancelAdminChatReply();
   try{
-    await db.collection('chats').doc(adminActiveChatId).collection('messages').add({
+    const msgData = {
       text: text,
       senderRole: 'teacher',
       senderName: 'O‘qituvchi',
       read: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    };
+    if(replyTo) msgData.replyTo = replyTo;
+    await db.collection('chats').doc(adminActiveChatId).collection('messages').add(msgData);
     await db.collection('chats').doc(adminActiveChatId).set({
       studentName: adminActiveChatName,
       lastMessage: text,
