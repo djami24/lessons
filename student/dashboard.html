@@ -1034,7 +1034,9 @@ async function enterDashboard(){
       renderPresenceStatus(
         document.getElementById('chatTeacherStatusDot'),
         document.getElementById('chatTeacherStatusText'),
-        status
+        status,
+        null,
+        chatTeacherFallbackSeenAt
       );
     }
   });
@@ -3172,6 +3174,20 @@ function startChatUnreadListener(){
     } else {
       chatBadge.hidden = true;
     }
+    // Fallback "last seen" source: the chat's own last-activity time, used
+    // when there's no presence record yet (e.g. this account chatted
+    // before the online/offline feature existed) so we still show a real
+    // time instead of a generic placeholder.
+    if(d.lastAt && d.lastAt.toDate) chatTeacherFallbackSeenAt = d.lastAt.toDate();
+    if(!chatTeacherIsTyping){
+      renderPresenceStatus(
+        document.getElementById('chatTeacherStatusDot'),
+        document.getElementById('chatTeacherStatusText'),
+        chatTeacherPresenceStatus,
+        null,
+        chatTeacherFallbackSeenAt
+      );
+    }
   });
 }
 
@@ -3181,6 +3197,7 @@ let chatUnsubscribe = null;
 let chatTypingUnsubscribe = null;
 let chatReplyTarget = null; // { id, text, senderName } of the message being replied to
 let chatTeacherPresenceStatus = { online:false, lastSeenDate:null };
+let chatTeacherFallbackSeenAt = null;
 let chatTeacherIsTyping = false;
 const chatTypingCtrl = () => makeTypingController(db.collection('chats').doc(currentUid), 'studentTyping');
 let chatTypingController = null;
@@ -3200,13 +3217,21 @@ function renderChatMessage(doc){
   const quoteHtml = d.replyTo
     ? `<div class="chat-msg-quote"><span class="chat-msg-quote-name">${escapeHtml(d.replyTo.senderRole === 'student' ? 'Siz' : 'O‘qituvchi')}</span>${escapeHtml(d.replyTo.text || '')}</div>`
     : '';
+  // Likes — either side can like any message, Telegram-style. "Mine" here
+  // is always the student's own like (this is the student's dashboard).
+  const likedByMe = !!d.likedByStudent;
+  const anyLiked = likedByMe || !!d.likedByTeacher;
   return `<div class="chat-msg-row${isStudent ? ' is-mine' : ''}" data-msg-id="${doc.id}" data-msg-text="${escapeHtml(d.text || '')}" data-msg-role="${isStudent ? 'student' : 'teacher'}">
     ${avatarHtml}
     <div class="chat-msg ${isStudent ? 'chat-msg-student' : 'chat-msg-teacher'}">
       <div class="chat-msg-bubble">${quoteHtml}${escapeHtml(d.text || '')}</div>
       <div class="chat-msg-meta">${time} ${ticks}</div>
+      <span class="chat-msg-like-badge${anyLiked ? ' is-visible' : ''}">❤️</span>
     </div>
-    <button type="button" class="chat-msg-reply-btn" data-reply-id="${doc.id}" title="Javob berish">↩</button>
+    <div class="chat-msg-actions">
+      <button type="button" class="chat-msg-action-btn chat-msg-like-btn${likedByMe ? ' is-liked' : ''}" data-like-id="${doc.id}" title="Layk">${likedByMe ? '❤️' : '🤍'}</button>
+      <button type="button" class="chat-msg-action-btn chat-msg-reply-btn" data-reply-id="${doc.id}" title="Javob berish">↩</button>
+    </div>
   </div>`;
 }
 
@@ -3277,7 +3302,7 @@ function loadChat(){
       statusTextEl.textContent = 'yozmoqda...';
       messagesEl.scrollTop = messagesEl.scrollHeight;
     } else {
-      renderPresenceStatus(document.getElementById('chatTeacherStatusDot'), statusTextEl, chatTeacherPresenceStatus);
+      renderPresenceStatus(document.getElementById('chatTeacherStatusDot'), statusTextEl, chatTeacherPresenceStatus, null, chatTeacherFallbackSeenAt);
     }
   });
 }
@@ -3303,6 +3328,14 @@ document.getElementById('backToHomeFromChat').addEventListener('click', (e) => {
 // ----- Reply-to-message -----
 
 document.getElementById('chatMessages').addEventListener('click', (e) => {
+  const likeBtn = e.target.closest('.chat-msg-like-btn');
+  if(likeBtn){
+    const msgId = likeBtn.dataset.likeId;
+    const nowLiked = !likeBtn.classList.contains('is-liked');
+    db.collection('chats').doc(currentUid).collection('messages').doc(msgId)
+      .update({ likedByStudent: nowLiked }).catch(()=>{});
+    return;
+  }
   const btn = e.target.closest('.chat-msg-reply-btn');
   if(!btn) return;
   const row = btn.closest('.chat-msg-row');
