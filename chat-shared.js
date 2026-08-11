@@ -89,7 +89,7 @@ function watchPresenceStatus(uid, onUpdate){
 
 // Formats a "last seen" timestamp in Uzbek, e.g. "bugun, 14:32".
 function formatLastSeen(date){
-  if(!date) return 'hali onlayn bo‘lmagan';
+  if(!date) return 'onlayn holati mavjud emas';
   const now = new Date();
   const time = date.toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' });
   if(date.toDateString() === now.toDateString()) return 'bugun, ' + time;
@@ -100,10 +100,15 @@ function formatLastSeen(date){
 }
 
 // Applies an {online, lastSeenDate} status onto a dot + text element pair.
-function renderPresenceStatus(dotEl, textEl, status, onlineLabel){
+// fallbackDate: used when there's no real presence record yet (e.g. this
+// person used the chat before the presence feature existed) — we fall
+// back to the chat's last-activity timestamp so we still show a real
+// time instead of the generic "onlayn holati mavjud emas" placeholder.
+function renderPresenceStatus(dotEl, textEl, status, onlineLabel, fallbackDate){
   if(!dotEl || !textEl) return;
   dotEl.classList.toggle('is-online', !!status.online);
-  textEl.textContent = status.online ? (onlineLabel || 'Onlayn') : ('Oxirgi marta: ' + formatLastSeen(status.lastSeenDate));
+  const seenDate = status.lastSeenDate || fallbackDate || null;
+  textEl.textContent = status.online ? (onlineLabel || 'Onlayn') : ('Oxirgi marta: ' + formatLastSeen(seenDate));
 }
 
 /* ---------- TYPING INDICATOR ---------- */
