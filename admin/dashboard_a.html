@@ -1839,6 +1839,10 @@
   <div class="modal-box">
     <h3 id="studentDetailName">O‘quvchi</h3>
     <p class="modal-sub" id="studentDetailEmail"></p>
+    <div class="chat-status-line" id="studentDetailPresenceLine" style="margin:-0.6em 0 1em;">
+      <span class="chat-status-dot" id="studentDetailStatusDot"></span>
+      <span class="chat-status-text" id="studentDetailStatusText">—</span>
+    </div>
 
     <div style="display:flex; align-items:center; gap:.6em; margin:.2em 0 1.4em; flex-wrap:wrap;">
       <span style="color:var(--gray); font-size:.85rem;">📞</span>
@@ -3312,13 +3316,19 @@ document.querySelectorAll('.stats-period-btn').forEach(btn => {
 // ---------- Modal helpers ----------
 
 function openModal(id){ document.getElementById(id).hidden = false; }
-function closeModal(id){ document.getElementById(id).hidden = true; }
+function closeModal(id){
+  document.getElementById(id).hidden = true;
+  if(id === 'modalStudentDetail' && studentDetailPresenceUnsub){
+    studentDetailPresenceUnsub();
+    studentDetailPresenceUnsub = null;
+  }
+}
 
 document.querySelectorAll('[data-close-modal]').forEach(btn => {
   btn.addEventListener('click', () => closeModal(btn.dataset.closeModal));
 });
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', (e) => { if(e.target === overlay) overlay.hidden = true; });
+  overlay.addEventListener('click', (e) => { if(e.target === overlay) closeModal(overlay.id); });
 });
 
 let toastTimer = null;
@@ -3665,6 +3675,20 @@ document.getElementById('studentsList').addEventListener('click', (e) => {
   document.getElementById('studentDetailPhoneInput').value = student.phone || '';
   refreshStudentDetailModal(student);
   openModal('modalStudentDetail');
+
+  // Online / last-seen for this student, right in their profile card —
+  // not just inside the chat page.
+  if(studentDetailPresenceUnsub) studentDetailPresenceUnsub();
+  const knownChatDoc = adminChatDocs.find(doc => doc.id === student.id);
+  const knownChatLastAt = knownChatDoc ? knownChatDoc.data().lastAt : null;
+  const fallbackSeenAt = (knownChatLastAt && knownChatLastAt.toDate) ? knownChatLastAt.toDate() : null;
+  studentDetailPresenceUnsub = watchPresenceStatus(student.id, (status) => {
+    renderPresenceStatus(
+      document.getElementById('studentDetailStatusDot'),
+      document.getElementById('studentDetailStatusText'),
+      status, null, fallbackSeenAt
+    );
+  });
 });
 
 document.getElementById('studentSearchInput').addEventListener('input', () => {
@@ -6634,6 +6658,9 @@ let adminStudentPresenceStatus = { online:false, lastSeenDate:null };
 // instead of a generic placeholder.
 let adminActiveChatFallbackSeenAt = null;
 let adminStudentIsTyping = false;
+// Presence watcher for the "student profile" modal (Talabalar list), so
+// online/last-seen is visible there too, not only inside the chat page.
+let studentDetailPresenceUnsub = null;
 
 // Deterministic avatar color per chat/student, so the same person always
 // gets the same color across the list, detail header, and message avatars.
