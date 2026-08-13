@@ -1,5 +1,8 @@
 const functions = require("firebase-functions");
 const https = require("https");
+const admin = require("firebase-admin");
+
+admin.initializeApp();
 
 exports.sendTelegram = functions.https.onCall(async (data, context) => {
   const { token, chatId, studentName, studentPhone, date, note } = data;
@@ -49,3 +52,33 @@ exports.sendTelegram = functions.https.onCall(async (data, context) => {
     req.end();
   });
 });
+
+// ============================================================
+// Faollik jurnali (activity_log) — avtomatik tozalash
+// ------------------------------------------------------------
+// activity_log kolleksiyasiga har safar yangi yozuv qo'shilganda
+// (talaba/ota-ona kirishi yoki mehmon tashrifi) ishga tushadi va
+// eng so'nggi 30 tadan boshqasini o'chiradi — shunda jurnal
+// cheksiz o'sib ketmaydi va admin panelda doim so'nggi 30 ta
+// faollik ko'rinadi.
+// ============================================================
+const ACTIVITY_LOG_LIMIT = 30;
+
+exports.trimActivityLog = functions.firestore
+  .document("activity_log/{logId}")
+  .onCreate(async () => {
+    const db = admin.firestore();
+    const col = db.collection("activity_log");
+
+    const extraDocs = await col
+      .orderBy("at", "desc")
+      .offset(ACTIVITY_LOG_LIMIT)
+      .get();
+
+    if (extraDocs.empty) return null;
+
+    const batch = db.batch();
+    extraDocs.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+    return null;
+  });
