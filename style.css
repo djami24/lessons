@@ -6,6 +6,30 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@400;500;600;700;800&display=swap');
 
+/* ── POWERED BY ── */
+.powered-by{
+  position: fixed;
+  right: 18px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  opacity: .4;
+  z-index: 500;
+  pointer-events: none;
+}
+.powered-by span{
+  font-size: 9px;
+  font-style: italic;
+  color: var(--gray);
+}
+.powered-by span b{
+  font-style: italic;
+  font-weight: 600;
+  font-family: var(--font-display);
+  letter-spacing: .3px;
+  color: var(--ink);
+}
+
 :root{
   --ink:        #14213D;
   --ink-soft:   #253559;
