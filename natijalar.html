@@ -44,6 +44,29 @@
     --fail: #b8503b;
     --shadow: 0 24px 50px -25px rgba(0,0,0,0.15);
   }
+  .powered-by{
+    position: fixed;
+    right: 18px;
+    bottom: 14px;
+    display: flex;
+    align-items: center;
+    opacity: .4;
+    z-index: 500;
+    pointer-events: none;
+  }
+  .powered-by span{
+    font-size: 9px;
+    font-style: italic;
+    color: var(--ink-dim);
+  }
+  .powered-by span b{
+    font-style: italic;
+    font-weight: 600;
+    font-family: 'Merriweather', Georgia, serif;
+    letter-spacing: .3px;
+    color: var(--ink);
+  }
+
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
@@ -814,5 +837,9 @@ searchInput.addEventListener('keydown', e => { if(e.key === 'Enter') runSearch()
 loadData().then(renderLeaderboard);
 trackVisit();
 </script>
+<div class="powered-by">
+  <span>powered by <b>Djami</b></span>
+</div>
+
 </body>
 </html>
