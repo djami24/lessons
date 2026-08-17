@@ -261,7 +261,6 @@
       <div class="pd-stat-row">
         <div class="pd-stat-card"><div class="pd-stat-label">📅 Davomat</div><div class="pd-stat-val" id="childStatAttendance">—</div></div>
         <div class="pd-stat-card"><div class="pd-stat-label">📝 Uy vazifa</div><div class="pd-stat-val" id="childStatHomework">—</div></div>
-        <div class="pd-stat-card"><div class="pd-stat-label">🕐 Kunlik o‘rtacha baho</div><div class="pd-stat-val" id="childStatGrade">—</div></div>
         <div class="pd-stat-card"><div class="pd-stat-label">📚 Jami darslar</div><div class="pd-stat-val" id="childStatTotal">—</div></div>
       </div>
     </section>
@@ -689,9 +688,6 @@ function renderAttendanceHomeworkStats(){
   const hwYes = entries.filter(e => hwVal(e) === 'yes').length;
   const hwPartial = entries.filter(e => hwVal(e) === 'partial').length;
   const hwNo = entries.filter(e => hwVal(e) === 'no').length;
-  const graded = entries.filter(e => e.grade);
-  const avgGrade = graded.length ? (graded.reduce((s,e)=>s+Number(e.grade),0)/graded.length) : null;
-
   const attPct = total ? Math.round((attYes + attLate) / total * 100) : null;
   const hwPct = total ? Math.round((hwYes + hwPartial * 0.5) / total * 100) : null;
 
@@ -701,7 +697,7 @@ function renderAttendanceHomeworkStats(){
   document.getElementById('statHomeworkSub').textContent = total ? `${hwYes} bajargan, ${hwNo} bajarmagan` : 'Ma’lumot yo‘q';
   document.getElementById('childStatAttendance').textContent = attPct === null ? '—' : attPct + '%';
   document.getElementById('childStatHomework').textContent = hwPct === null ? '—' : hwPct + '%';
-  document.getElementById('childStatGrade').textContent = avgGrade === null ? '—' : avgGrade.toFixed(1) + '/5';
+
   document.getElementById('childStatTotal').textContent = total;
 
   // Attendance donut
