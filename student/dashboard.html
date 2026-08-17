@@ -378,10 +378,7 @@
                 <span class="hd-row-label">📈 Uy vazifa</span>
                 <span id="progressHwVal" class="hd-row-val">—</span>
               </div>
-              <div class="hd-row">
-                <span class="hd-row-label">🕐 Kunlik baho</span>
-                <span id="progressGradeVal" class="hd-row-val">—</span>
-              </div>
+
               <div class="hd-row" id="progressPunishedRow" hidden>
                 <span class="hd-row-label">🚫 Holat</span>
                 <span class="hd-row-val" style="color:#c0392b;">Jazolandi</span>
@@ -1399,7 +1396,7 @@ async function renderProgressBox(){
     const dateEl = document.getElementById('progressDate');
     const attendedEl = document.getElementById('progressAttendedVal');
     const hwEl = document.getElementById('progressHwVal');
-    const gradeEl = document.getElementById('progressGradeVal');
+
     const noteEl = document.getElementById('progressNoteVal');
 
     const snap = await db.collection('oquv_progress').doc(savedCode)
@@ -1410,7 +1407,7 @@ async function renderProgressBox(){
       updateHomeQuickInfo({ updated: null });
       attendedEl.textContent = '—'; attendedEl.style.color = '';
       hwEl.textContent = '—'; hwEl.style.color = '';
-      gradeEl.textContent = 'Baho olmadi'; gradeEl.style.color = '#c0392b';
+
       document.getElementById('progressPunishedRow').hidden = true;
       document.getElementById('progressMissingWrap').hidden = true;
       noteEl.textContent = '';
@@ -1436,8 +1433,7 @@ async function renderProgressBox(){
       else if(hwDone === 'partial'){ hwEl.textContent = `🔶 ${d.homeworkPercent || 0}% bajardi`; hwEl.style.color = '#a15c00'; }
       else { hwEl.textContent = '—'; hwEl.style.color = ''; }
 
-      gradeEl.textContent = d.grade ? `${d.grade}/5` : 'Baho olmadi';
-      gradeEl.style.color = d.grade ? 'var(--teal-deep)' : '#c0392b';
+
 
       const missingWrap = document.getElementById('progressMissingWrap');
       const missingList = document.getElementById('progressMissingList');
