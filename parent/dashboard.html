@@ -261,6 +261,7 @@
       <div class="pd-stat-row">
         <div class="pd-stat-card"><div class="pd-stat-label">📅 Davomat</div><div class="pd-stat-val" id="childStatAttendance">—</div></div>
         <div class="pd-stat-card"><div class="pd-stat-label">📝 Uy vazifa</div><div class="pd-stat-val" id="childStatHomework">—</div></div>
+        <div class="pd-stat-card"><div class="pd-stat-label">🕐 Kunlik o‘rtacha baho</div><div class="pd-stat-val" id="childStatGrade">—</div></div>
         <div class="pd-stat-card"><div class="pd-stat-label">📚 Jami darslar</div><div class="pd-stat-val" id="childStatTotal">—</div></div>
       </div>
     </section>
@@ -688,6 +689,9 @@ function renderAttendanceHomeworkStats(){
   const hwYes = entries.filter(e => hwVal(e) === 'yes').length;
   const hwPartial = entries.filter(e => hwVal(e) === 'partial').length;
   const hwNo = entries.filter(e => hwVal(e) === 'no').length;
+  const graded = entries.filter(e => e.grade);
+  const avgGrade = graded.length ? (graded.reduce((s,e)=>s+Number(e.grade),0)/graded.length) : null;
+
   const attPct = total ? Math.round((attYes + attLate) / total * 100) : null;
   const hwPct = total ? Math.round((hwYes + hwPartial * 0.5) / total * 100) : null;
 
@@ -697,7 +701,7 @@ function renderAttendanceHomeworkStats(){
   document.getElementById('statHomeworkSub').textContent = total ? `${hwYes} bajargan, ${hwNo} bajarmagan` : 'Ma’lumot yo‘q';
   document.getElementById('childStatAttendance').textContent = attPct === null ? '—' : attPct + '%';
   document.getElementById('childStatHomework').textContent = hwPct === null ? '—' : hwPct + '%';
-
+  document.getElementById('childStatGrade').textContent = avgGrade === null ? '—' : avgGrade.toFixed(1) + '/5';
   document.getElementById('childStatTotal').textContent = total;
 
   // Attendance donut
@@ -1004,11 +1008,32 @@ document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage
 document.getElementById('chatInput').addEventListener('keydown', e => {
   if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendChatMessage(); }
 });
+// --- Xabar ovozi (Web Audio API) ---
+function playMsgSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(880, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
+    g.gain.setValueAtTime(0.35, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.3);
+    o.onended = () => ctx.close();
+  } catch(e){}
+}
+
 function startChatBadgeListener(){
   if(!state.childCode) return;
+  let _prevUnread = 0;
   db.collection('parentChats').doc(state.childCode).onSnapshot(doc => {
     if(!doc.exists) return;
     const unread = doc.data().unreadByParent || 0;
+    if(unread > _prevUnread) playMsgSound();
+    _prevUnread = unread;
     const badge = document.getElementById('chatBadge');
     if(unread > 0){ badge.textContent = unread; badge.hidden = false; }
     else { badge.hidden = true; }
