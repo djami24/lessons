@@ -3178,13 +3178,16 @@ function playMsgSound(){
 // Real-time chat unread badge — listens to teacher messages student hasn't read
 function startChatUnreadListener(){
   const chatBadge = document.getElementById('chatBadge');
+  let _initialized = false;
   let _prevUnread = 0;
   db.collection('chats').doc(currentUid).onSnapshot(doc => {
-    if(!doc.exists){ chatBadge.hidden = true; _prevUnread = 0; return; }
+    if(!doc.exists){ chatBadge.hidden = true; _prevUnread = 0; _initialized = true; return; }
     const d = doc.data();
     const unread = d.unreadByStudent || 0;
-    if(unread > _prevUnread) playMsgSound();
+    const chatIsOpen = !document.getElementById('view-chat').hidden;
+    if(_initialized && unread > _prevUnread && !chatIsOpen) playMsgSound();
     _prevUnread = unread;
+    _initialized = true;
     if(unread > 0){
       chatBadge.textContent = unread;
       chatBadge.hidden = false;
