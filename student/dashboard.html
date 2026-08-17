@@ -3157,13 +3157,34 @@ function startNotifListener(){
     });
 }
 
+// --- Xabar ovozi (Web Audio API) ---
+function playMsgSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(880, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(660, ctx.currentTime + 0.12);
+    g.gain.setValueAtTime(0.35, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.3);
+    o.onended = () => ctx.close();
+  } catch(e){}
+}
+
 // Real-time chat unread badge — listens to teacher messages student hasn't read
 function startChatUnreadListener(){
   const chatBadge = document.getElementById('chatBadge');
+  let _prevUnread = 0;
   db.collection('chats').doc(currentUid).onSnapshot(doc => {
-    if(!doc.exists){ chatBadge.hidden = true; return; }
+    if(!doc.exists){ chatBadge.hidden = true; _prevUnread = 0; return; }
     const d = doc.data();
     const unread = d.unreadByStudent || 0;
+    if(unread > _prevUnread) playMsgSound();
+    _prevUnread = unread;
     if(unread > 0){
       chatBadge.textContent = unread;
       chatBadge.hidden = false;
