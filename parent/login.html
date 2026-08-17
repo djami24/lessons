@@ -132,7 +132,7 @@ authForm.addEventListener('submit', async (e) => {
         role: 'parent',
         action: 'login',
         uid: cred.user.uid,
-        name: parentDoc.data().parentName || cred.user.email || '—',
+        name: parentDoc.data().name || (parentDoc.data().firstName + ' ' + parentDoc.data().lastName).trim() || cred.user.email || '—',
         email: cred.user.email || '—',
         at: firebase.firestore.FieldValue.serverTimestamp(),
         ua: navigator.userAgent
