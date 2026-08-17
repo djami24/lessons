@@ -7018,13 +7018,16 @@ function playMsgSound(){
 // resets unreadByTeacher to 0), regardless of which page the admin is
 // currently viewing.
 function startAdminChatUnreadListener(){
+  let _initialized = false;
   let _prevSize = 0;
   db.collection('chats').where('unreadByTeacher', '>', 0)
     .onSnapshot(snap => {
       const badge = document.getElementById('navChatsBadge');
       if(!badge) return;
-      if(snap.size > _prevSize) playMsgSound();
+      const chatIsOpen = !document.getElementById('view-chats').hidden;
+      if(_initialized && snap.size > _prevSize && !chatIsOpen) playMsgSound();
       _prevSize = snap.size;
+      _initialized = true;
       if(snap.size > 0){
         badge.textContent = snap.size;
         badge.hidden = false;
@@ -7258,13 +7261,16 @@ async function sendAdminParentChatMsg(){
 
 // Live badge on the "👪 Ota-onalar" sidebar link.
 function startParentChatUnreadListener(){
+  let _initialized = false;
   let _prevSize = 0;
   db.collection('parentChats').where('unreadByTeacher', '>', 0)
     .onSnapshot(snap => {
       const badge = document.getElementById('navParentChatsBadge');
       if(!badge) return;
-      if(snap.size > _prevSize) playMsgSound();
+      const chatIsOpen = !document.getElementById('view-chats').hidden;
+      if(_initialized && snap.size > _prevSize && !chatIsOpen) playMsgSound();
       _prevSize = snap.size;
+      _initialized = true;
       if(snap.size > 0){
         badge.textContent = snap.size;
         badge.hidden = false;
