@@ -1008,6 +1008,19 @@ async function enterDashboard(){
   document.getElementById('sidebarAvatar').textContent = state.student.avatarEmoji || '🙂';
   document.getElementById('appShell').hidden = false;
 
+  // Faollik jurnali: talaba profiliga kirdi
+  try {
+    await db.collection('activity_log').add({
+      role: 'student',
+      action: 'dashboard_visit',
+      uid: currentUid,
+      name: state.student.name || state.student.email || '—',
+      email: state.student.email || '—',
+      at: firebase.firestore.FieldValue.serverTimestamp(),
+      ua: navigator.userAgent
+    });
+  } catch(e){ /* silent */ }
+
   // Individual students only see Homework, Kurslarim and Insholarim on the
   // home page — no Test natijalar and no Darajani bilish testi.
   if(state.student.studentType === 'individual'){
