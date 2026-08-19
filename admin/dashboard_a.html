@@ -226,6 +226,7 @@
 .actlog-action-login{background:rgba(124,92,252,.12);color:#7C5CFC;}
 .actlog-action-register{background:rgba(240,146,61,.15);color:#D4780A;}
 .actlog-action-visit{background:rgba(20,184,166,.13);color:#0D9488;}
+.actlog-action-dashboard{background:rgba(59,130,246,.13);color:#1D4ED8;}
 .actlog-time{font-size:.78rem;color:var(--adm-gray,var(--gray));}
 .actlog-empty{text-align:center;padding:48px 24px;color:var(--adm-gray,var(--gray));}
 .actlog-filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
@@ -1492,6 +1493,7 @@
         <button class="actlog-filter-btn" data-actlog-filter="parent">👪 Ota-onalar</button>
         <button class="actlog-filter-btn" data-actlog-filter="guest">🌐 Mehmonlar</button>
         <button class="actlog-filter-btn" data-actlog-filter="login">🔑 Kirish</button>
+        <button class="actlog-filter-btn" data-actlog-filter="dashboard_visit">🏠 Profilga kirish</button>
         <button class="actlog-filter-btn" data-actlog-filter="register">✅ Ro'yxatdan o'tish</button>
         <button class="actlog-filter-btn" data-actlog-filter="visit">👣 Sayt tashrifi</button>
       </div>
@@ -7598,6 +7600,7 @@ function renderActivityLogTable(){
     if(_actlogFilter === 'login') return doc.action === 'login';
     if(_actlogFilter === 'register') return doc.action === 'register';
     if(_actlogFilter === 'visit') return doc.action === 'visit';
+    if(_actlogFilter === 'dashboard_visit') return doc.action === 'dashboard_visit';
     return true;
   });
 
@@ -7617,15 +7620,20 @@ function renderActivityLogTable(){
     else roleBadge = '<span class="actlog-role-badge actlog-role-guest">🌐 Mehmon</span>';
 
     let actionBadge;
-    if(doc.action === 'login') actionBadge = '<span class="actlog-action-badge actlog-action-login">🔑 Kirdi</span>';
+    if(doc.action === 'login') actionBadge = '<span class="actlog-action-badge actlog-action-login">🔑 Tizimga kirdi</span>';
     else if(doc.action === 'register') actionBadge = '<span class="actlog-action-badge actlog-action-register">✅ Ro\'yxatdan o\'tdi</span>';
+    else if(doc.action === 'dashboard_visit') actionBadge = '<span class="actlog-action-badge actlog-action-dashboard">🏠 Profiliga kirdi</span>';
     else actionBadge = '<span class="actlog-action-badge actlog-action-visit">👣 Saytga kirdi</span>';
 
-    // Mehmon yozuvlarida ism/email bo'lmaydi — o'rniga qaysi sahifaga
-    // kirganini ko'rsatamiz.
-    const nameCell = doc.role === 'guest'
-      ? `<span style="color:var(--adm-gray,var(--gray));">${escHtml(doc.page || doc.path || 'Nomaʼlum sahifa')}</span>`
-      : `<strong>${escHtml(doc.name || '—')}</strong>${doc.email ? '<br><span style="font-size:.75rem;color:var(--adm-gray,var(--gray));">'+escHtml(doc.email)+'</span>' : ''}`;
+    // Mehmon yozuvlarida ism/email bo'lmaydi — qaysi sahifaga kirganini ko'rsatamiz.
+    // Talaba/ota-ona yozuvlarida ism + email ko'rsatiladi.
+    let nameCell;
+    if(doc.role === 'guest'){
+      const pageLabel = doc.page || doc.path || 'Nomaʼlum sahifa';
+      nameCell = `<span style="color:var(--adm-gray,var(--gray));">👤 Mehmon</span><br><span style="font-size:.74rem;color:var(--adm-gray,var(--gray));">${escHtml(pageLabel)}</span>`;
+    } else {
+      nameCell = `<strong>${escHtml(doc.name || '—')}</strong>${doc.email ? '<br><span style="font-size:.75rem;color:var(--adm-gray,var(--gray));">'+escHtml(doc.email)+'</span>' : ''}`;
+    }
 
     const deleteCell = doc.uid
       ? `<button type="button" class="btn btn-danger btn-sm" data-actlog-delete-uid="${escHtml(doc.uid)}" data-actlog-delete-role="${escHtml(doc.role||'')}" data-actlog-delete-name="${escHtml(doc.name||doc.email||'Foydalanuvchi')}">🗑️ O'chirish</button>`
