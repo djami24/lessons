@@ -282,11 +282,25 @@ service cloud.firestore {
       }
     }
 
-    // Faollik jurnali — talaba va ota-onalar kirish/ro'yxatdan o'tish tarixi
+    // Faollik jurnali — talaba va ota-onalar kirish/ro'yxatdan o'tish tarixi,
+    // shuningdek tizimga kirmagan mehmonlarning tashrifi (guest-visit-log.js).
     match /activity_log/{logId} {
+      // Tizimga kirgan foydalanuvchi (talaba/ota-ona) — login/register yozuvi
       allow create: if isSignedIn() &&
         request.resource.data.keys().hasAll(['role', 'action', 'at']) &&
+        request.resource.data.role in ['student', 'parent'] &&
         request.resource.data.at == request.time;
+
+      // Tizimga kirmagan mehmon — sahifaga tashrif (guest-visit-log.js)
+      allow create: if !isSignedIn() &&
+        request.resource.data.role == 'guest' &&
+        request.resource.data.action == 'visit' &&
+        request.resource.data.at == request.time &&
+        request.resource.data.keys().hasOnly(
+          ['role','action','page','path','at','ua','browser','deviceId','isReturning','ip','city','country']
+        ) &&
+        request.resource.data.ua is string && request.resource.data.ua.size() <= 500;
+
       allow read, delete: if isAdmin();
       allow update: if false;
     }
