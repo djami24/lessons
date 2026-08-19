@@ -515,6 +515,22 @@ auth.onAuthStateChanged(async (user) => {
     document.getElementById('settingsEmail').textContent = state.parent.email || '—';
     document.getElementById('settingsChildId').textContent = state.childCode || '—';
 
+    // Faollik jurnali: ota-ona profiliga kirdi
+    try {
+      const parentName = state.parent.name ||
+        ([state.parent.firstName, state.parent.lastName].filter(Boolean).join(' ').trim()) ||
+        user.email || '—';
+      await db.collection('activity_log').add({
+        role: 'parent',
+        action: 'dashboard_visit',
+        uid: user.uid,
+        name: parentName,
+        email: user.email || '—',
+        at: firebase.firestore.FieldValue.serverTimestamp(),
+        ua: navigator.userAgent
+      });
+    } catch(e){ /* silent */ }
+
     await loadChildData();
     startChatBadgeListener();
 
