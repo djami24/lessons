@@ -57,7 +57,7 @@ exports.sendTelegram = functions.https.onCall(async (data, context) => {
 // Faollik jurnali (activity_log) — avtomatik tozalash
 // ------------------------------------------------------------
 // activity_log kolleksiyasiga har safar yangi yozuv qo'shilganda
-// (talaba/ota-ona kirishi yoki mehmon tashrifi) ishga tushadi va
+// (talaba yoki ota-ona kirishi/ro'yxatdan o'tishi) ishga tushadi va
 // eng so'nggi 30 tadan boshqasini o'chiradi — shunda jurnal
 // cheksiz o'sib ketmaydi va admin panelda doim so'nggi 30 ta
 // faollik ko'rinadi.
