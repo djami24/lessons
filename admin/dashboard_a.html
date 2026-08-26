@@ -1319,6 +1319,7 @@
           <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupDaysLine"></p>
         </div>
         <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn" style="margin-left:auto;">📋 Hammasini nusxalash</button>
+        <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn">📄 Guruh statistikasi (PDF, 30 kun)</button>
         <button class="btn btn-primary" id="openAddOquvStudent">+ Talaba qo'shish</button>
       </div>
       <div id="ojScheduleBanner" class="oj-schedule-banner" hidden></div>
@@ -1354,6 +1355,7 @@
           <code id="ojProgressIdVal" style="background:var(--surface,#f4f4f4); padding:4px 9px; border-radius:6px; font-weight:700;"></code>
           <button type="button" class="btn btn-ghost btn-sm" id="ojCopyIdBtn">Nusxalash</button>
         </div>
+        <button type="button" class="btn btn-ghost btn-sm" id="ojStudentPdfBtn" style="margin-left:auto;">📄 PDF yuklash (30 kun)</button>
       </div>
 
       <!-- Stats row -->
@@ -1997,6 +1999,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
+<!-- Talaba statistikasini PDF qilib yuklab olish uchun (1 oylik hisobot) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
@@ -7729,7 +7734,219 @@ document.getElementById('homeRefreshBtn').addEventListener('click', () => {
 });
 startTodayHwAutoRefresh();
 
+// ============================================================
+// PDF HISOBOT — har bir talabaning oxirgi 30 kunlik statistikasi
+// (davomat, uy vazifa, jazo, kunlik yozuvlar) PDF fayl sifatida
+// yuklab olinadi. Ikki joydan ishlatiladi:
+//   1) Bitta talaba sahifasida — "📄 PDF yuklash (30 kun)" tugmasi.
+//   2) Guruh ro'yxati sahifasida — "📄 Guruh statistikasi (PDF)"
+//      tugmasi — guruhdagi HAR BIR talaba uchun alohida sahifada,
+//      bitta PDF faylga jamlanadi.
+// Kutubxonalar: html2canvas (HTML'ni rasmga oladi) + jsPDF (rasmlarni
+// A4 sahifalarga joylaydi) — shunday qilib o'zbekcha harflar
+// (o', g' kabi) PDF shrift muammosisiz, brauzer o'zi chizgani kabi
+// chiqadi.
+// ============================================================
+
+function ojFormatDateUz(dateStr) {
+  if (!dateStr) return '—';
+  const parts = String(dateStr).split('-');
+  if (parts.length !== 3) return String(dateStr);
+  const months = ['Yan','Fev','Mar','Apr','May','Iyun','Iyul','Avg','Sen','Okt','Noy','Dek'];
+  const y = parts[0], m = Number(parts[1]), d = Number(parts[2]);
+  return d + ' ' + (months[m - 1] || '') + ' ' + y;
+}
+
+// Berilgan yozuvlar ro'yxatidan oxirgi `days` kunlik xulosani chiqaradi.
+// Formulalar mavjud "renderOjEntries"/"ojRenderPeriodStats" bilan bir xil
+// mantiqqa amal qiladi, shunda PDF'dagi raqamlar ekrandagi bilan mos keladi.
+function ojComputeMonthlyStats(entries, days) {
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - (days - 1));
+  const cutoffStr = cutoff.toISOString().slice(0, 10);
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  const periodEntries = (entries || [])
+    .filter(e => e.date && e.date >= cutoffStr)
+    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+
+  const total = periodEntries.length;
+  const attendedCount = periodEntries.filter(e => e.attended === true || e.attended === 'yes').length;
+  const lateCount = periodEntries.filter(e => e.attended === 'late').length;
+  const absentCount = periodEntries.filter(e => e.attended === false || e.attended === 'no').length;
+
+  const hwScored = periodEntries.map(e => {
+    const hwVal = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes'
+      : e.homeworkDone === false || e.homeworkDone === 'no' ? 'no'
+      : e.homeworkDone === 'partial' ? 'partial' : '';
+    if (hwVal === 'yes') return 100;
+    if (hwVal === 'no') return 0;
+    if (hwVal === 'partial') return Number(e.homeworkPercent) || 0;
+    return null;
+  }).filter(v => v !== null);
+  const hwPct = hwScored.length ? Math.round(hwScored.reduce((s, v) => s + v, 0) / hwScored.length) : null;
+  const attendedPct = total ? Math.round(attendedCount / total * 100) : null;
+  const punishTotal = periodEntries.reduce((s, e) => s + (Number(e.punishCount) || 0), 0);
+
+  return { periodEntries, total, attendedPct, hwPct, absentCount, lateCount, punishTotal, cutoffStr, todayStr };
+}
+
+function ojStatCardHtml(value, label) {
+  return '<div style="border:1.5px solid #e2e2e6;border-radius:10px;padding:10px 6px;text-align:center;">' +
+    '<div style="font-size:18px;font-weight:800;color:#2e6f6e;">' + value + '</div>' +
+    '<div style="font-size:10.5px;color:#777;margin-top:2px;">' + label + '</div></div>';
+}
+
+// Bitta talaba uchun to'liq hisobot HTML'ini quradi (keyin html2canvas
+// orqali rasmga olinadi). Statik inline-style ishlatiladi, chunki
+// html2canvas tashqi CSS fayllarni har doim ham to'g'ri o'qiy olmasligi
+// mumkin.
+function ojBuildStudentReportHtml(studentName, groupName, studentId, stats) {
+  const periodLabel = ojFormatDateUz(stats.cutoffStr) + ' — ' + ojFormatDateUz(stats.todayStr);
+  const rows = stats.periodEntries.map(e => {
+    const attendVal = e.attended === true || e.attended === 'yes' ? '✅ Keldi'
+      : e.attended === 'late' ? '⏰ Kech qoldi'
+      : (e.attended === false || e.attended === 'no') ? '🚫 Kelmadi' : '—';
+    const hwVal = e.homeworkDone === true || e.homeworkDone === 'yes' ? '✅ Qildi'
+      : (e.homeworkDone === false || e.homeworkDone === 'no') ? '🕓 Qilmadi'
+      : e.homeworkDone === 'partial' ? ('🔶 ' + (e.homeworkPercent ? e.homeworkPercent + '%' : 'qisman')) : '—';
+    const punish = (e.punished === 'yes' || Number(e.punishCount) > 0) ? ('🚫 ' + (e.punishCount || 1)) : '—';
+    const note = e.note ? escapeHtml(e.note) : '—';
+    return '<tr>' +
+      '<td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap;">' + escapeHtml(ojFormatDateUz(e.date)) + '</td>' +
+      '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + attendVal + '</td>' +
+      '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + hwVal + '</td>' +
+      '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + punish + '</td>' +
+      '<td style="padding:6px 8px;border-bottom:1px solid #eee;">' + note + '</td></tr>';
+  }).join('') || '<tr><td colspan="5" style="text-align:center;color:#888;padding:14px;">Bu davrda yozuv yo\'q</td></tr>';
+
+  return '<div style="font-family:\'Segoe UI\',Arial,sans-serif;width:764px;padding:20px 24px 28px;box-sizing:border-box;color:#1c1c22;">' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #2e6f6e;padding-bottom:12px;margin-bottom:18px;">' +
+      '<div><div style="font-size:20px;font-weight:800;color:#2e6f6e;">Djami Lessons</div>' +
+      '<div style="font-size:12px;color:#777;">Talaba statistikasi hisoboti</div></div>' +
+      '<div style="text-align:right;font-size:12px;color:#777;">Yaratildi: ' + ojFormatDateUz(stats.todayStr) + '</div>' +
+    '</div>' +
+    '<div style="margin-bottom:16px;">' +
+      '<div style="font-size:17px;font-weight:700;">' + escapeHtml(studentName) + '</div>' +
+      '<div style="font-size:13px;color:#555;margin-top:2px;">Guruh: ' + escapeHtml(groupName) + ' &nbsp;·&nbsp; ID: ' + escapeHtml(studentId) + '</div>' +
+      '<div style="font-size:13px;color:#555;">Davr: ' + periodLabel + ' (oxirgi 30 kun)</div>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:20px;">' +
+      ojStatCardHtml(stats.attendedPct === null ? '—' : stats.attendedPct + '%', 'Davomat') +
+      ojStatCardHtml(stats.hwPct === null ? '—' : stats.hwPct + '%', 'Uy vazifa') +
+      ojStatCardHtml(stats.absentCount, 'Kelmagan') +
+      ojStatCardHtml(stats.lateCount, 'Kech qolgan') +
+      ojStatCardHtml(stats.punishTotal, 'Jami jazo') +
+    '</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+      '<thead><tr style="background:#2e6f6e;color:#fff;">' +
+        '<th style="padding:7px 8px;text-align:left;">Sana</th>' +
+        '<th style="padding:7px 8px;text-align:left;">Davomat</th>' +
+        '<th style="padding:7px 8px;text-align:left;">Uy vazifa</th>' +
+        '<th style="padding:7px 8px;text-align:left;">Jazo</th>' +
+        '<th style="padding:7px 8px;text-align:left;">Izoh</th>' +
+      '</tr></thead><tbody>' + rows + '</tbody></table></div>';
+}
+
+// Berilgan HTML'ni ekrandan tashqaridagi #pdfRenderRoot ichiga joylab,
+// html2canvas orqali rasmga (canvas) aylantiradi.
+async function ojRenderNodeToCanvas(html) {
+  const root = document.getElementById('pdfRenderRoot');
+  root.innerHTML = html;
+  await new Promise(r => setTimeout(r, 60)); // shrift/emoji joylashib ulgurishi uchun kichik pauza
+  const canvas = await html2canvas(root, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+  root.innerHTML = '';
+  return canvas;
+}
+
+// Uzun (bo'yi A4'dan katta) canvas'ni bir nechta A4 sahifaga bo'lib joylaydi.
+function ojAddTallCanvasToPdf(pdf, canvas, forceNewPageForFirstSlice) {
+  const pageWidthMm = 210, pageHeightMm = 297, marginMm = 8;
+  const usableWidthMm = pageWidthMm - marginMm * 2;
+  const usableHeightMm = pageHeightMm - marginMm * 2;
+  const pxPerMm = canvas.width / usableWidthMm;
+  const pageHeightPx = Math.max(1, Math.floor(usableHeightMm * pxPerMm));
+
+  let renderedPx = 0, sliceIndex = 0;
+  while (renderedPx < canvas.height) {
+    const sliceHeightPx = Math.min(pageHeightPx, canvas.height - renderedPx);
+    const sliceCanvas = document.createElement('canvas');
+    sliceCanvas.width = canvas.width;
+    sliceCanvas.height = sliceHeightPx;
+    sliceCanvas.getContext('2d').drawImage(canvas, 0, renderedPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
+    if (sliceIndex > 0 || forceNewPageForFirstSlice) pdf.addPage();
+    pdf.addImage(sliceCanvas.toDataURL('image/jpeg', 0.92), 'JPEG', marginMm, marginMm, usableWidthMm, sliceHeightPx / pxPerMm);
+    renderedPx += sliceHeightPx;
+    sliceIndex++;
+  }
+}
+
+async function ojAppendStudentReportToPdf(pdf, html, isFirstOverall) {
+  const canvas = await ojRenderNodeToCanvas(html);
+  ojAddTallCanvasToPdf(pdf, canvas, !isFirstOverall);
+}
+
+// ----- 1) Bitta talabaning PDF hisoboti -----
+const ojStudentPdfBtnEl = document.getElementById('ojStudentPdfBtn');
+if (ojStudentPdfBtnEl) {
+  ojStudentPdfBtnEl.addEventListener('click', async () => {
+    const btn = ojStudentPdfBtnEl;
+    const original = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Tayyorlanmoqda…';
+    try {
+      const stats = ojComputeMonthlyStats(_ojProgressEntries, 30);
+      const html = ojBuildStudentReportHtml(_ojActiveStudentName, _ojActiveGroupName, _ojActiveStudentId, stats);
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+      await ojAppendStudentReportToPdf(pdf, html, true);
+      pdf.save((_ojActiveStudentName || 'talaba') + ' - statistika.pdf');
+    } catch (err) {
+      console.error(err);
+      alert('PDF yaratishda xatolik yuz berdi.');
+    } finally {
+      btn.disabled = false; btn.textContent = original;
+    }
+  });
+}
+
+// ----- 2) Butun guruh uchun PDF (har bir talaba — alohida sahifada) -----
+const ojGroupPdfBtnEl = document.getElementById('ojGroupPdfBtn');
+if (ojGroupPdfBtnEl) {
+  ojGroupPdfBtnEl.addEventListener('click', async () => {
+    const btn = ojGroupPdfBtnEl;
+    if (!_ojActiveGroupStudents.length) { alert('Bu guruhda hali talaba yo\'q.'); return; }
+    const original = btn.textContent;
+    btn.disabled = true;
+    try {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+      for (let i = 0; i < _ojActiveGroupStudents.length; i++) {
+        const s = _ojActiveGroupStudents[i];
+        btn.textContent = `Tayyorlanmoqda… (${i + 1}/${_ojActiveGroupStudents.length})`;
+        let entries = [];
+        try {
+          const snap = await db.collection('oquv_progress').doc(s.id).collection('entries').get();
+          entries = snap.docs.map(d => d.data());
+        } catch (e) { entries = []; }
+        const stats = ojComputeMonthlyStats(entries, 30);
+        const html = ojBuildStudentReportHtml(s.name, _ojActiveGroupName, s.id, stats);
+        await ojAppendStudentReportToPdf(pdf, html, i === 0);
+      }
+      pdf.save((_ojActiveGroupName || 'guruh') + ' - statistika.pdf');
+    } catch (err) {
+      console.error(err);
+      alert('PDF yaratishda xatolik yuz berdi.');
+    } finally {
+      btn.disabled = false; btn.textContent = original;
+    }
+  });
+}
+
 </script>
+
+<!-- PDF hisobotlarini chizish uchun ekrandan tashqaridagi vaqtinchalik joy
+     (html2canvas shu yerdagi HTML'ni rasmga aylantiradi, keyin bo'shatiladi) -->
+<div id="pdfRenderRoot" style="position:fixed; top:0; left:-99999px; width:780px; background:#fff;"></div>
 
 <div class="powered-by">
   <span>powered by <b>Djami</b></span>
