@@ -570,3 +570,6 @@
     boot();
   }
 })();
+<div class="powered-by">
+  <span>powered by <b>Djami</b></span>
+</div>
