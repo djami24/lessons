@@ -218,29 +218,8 @@
   padding:0 5% 2rem;
   display:flex; align-items:center; gap:16px; flex-wrap:wrap;
 }
-.mnt-bell-wrap {
-  width:52px; height:52px; border-radius:50%;
-  background:#4f4fcc; display:flex; align-items:center;
-  justify-content:center; font-size:1.3rem; flex-shrink:0;
-}
-.mnt-notify-text { flex:1; min-width:120px; }
 .mnt-notify-title { font-weight:700; font-size:.95rem; color:#1a1a3e; }
 .mnt-notify-sub { font-size:.8rem; color:#7070aa; margin-top:2px; }
-.mnt-email-row { display:flex; gap:8px; flex-wrap:wrap; }
-.mnt-email-input {
-  flex:1; min-width:160px; padding:10px 16px;
-  border:1.5px solid #ddddf0; border-radius:10px;
-  font-size:.87rem; outline:none; color:#1a1a3e;
-  background:#fff;
-}
-.mnt-email-input:focus { border-color:#5555dd; }
-.mnt-email-btn {
-  padding:10px 20px; border-radius:10px;
-  background:#3a3acc; color:#fff; border:none;
-  font-size:.87rem; font-weight:700; cursor:pointer;
-  white-space:nowrap;
-}
-.mnt-email-btn:hover { background:#2929bb; }
 /* social */
 .mnt-social {
   text-align:center; padding:10px 0 1rem; font-size:.78rem; color:#9090bb;
@@ -248,13 +227,12 @@
 }
 .mnt-social-icons { display:flex; gap:12px; justify-content:center; margin-top:8px; }
 .mnt-social-icon {
-  width:36px; height:36px; border-radius:50%;
-  border:1.5px solid #d0d0ee; background:#fff;
+  width:52px; height:52px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-size:1rem; text-decoration:none; color:#5555dd;
-  transition:border-color .2s;
+  text-decoration:none; transition:transform .2s, box-shadow .2s;
+  overflow:hidden;
 }
-.mnt-social-icon:hover { border-color:#5555dd; }
+.mnt-social-icon:hover { transform:scale(1.1); box-shadow:0 4px 16px rgba(41,182,246,.4); }
 @media(max-width:560px){
   .mnt-notify { flex-direction:column; align-items:flex-start; }
   .mnt-dot-tl { display:none; } .mnt-dot-br { display:none; }
@@ -345,30 +323,21 @@
   </div>
 </div>
 
-<!-- wave + notify -->
+<!-- wave + social -->
 <div class="mnt-wave-wrap">
   <svg class="mnt-wave" viewBox="0 0 1440 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M0,120 C360,200 1080,20 1440,100 L1440,200 L0,200 Z" fill="#ddddf8"/>
   </svg>
-  <div class="mnt-notify">
-    <div class="mnt-bell-wrap">🔔</div>
-    <div class="mnt-notify-text">
-      <div class="mnt-notify-title">Yangiliklardan xabardor bo'ling</div>
-      <div class="mnt-notify-sub">Sayt ishga tushishi bilan sizga xabar beramiz.</div>
-    </div>
-    <div class="mnt-email-row">
-      <input class="mnt-email-input" type="email" id="mntEmailInput" placeholder="E-mail manzilingiz">
-      <button class="mnt-email-btn" id="mntEmailBtn">Xabar berish</button>
-    </div>
-  </div>
 </div>
 <div class="mnt-social">
-  Bizni ijtimoiy tarmoqlarda kuzating:
+  Bizni Telegramda kuzating:
   <div class="mnt-social-icons">
-    <a class="mnt-social-icon" href="#" aria-label="Telegram">✈️</a>
-    <a class="mnt-social-icon" href="#" aria-label="Instagram">📸</a>
-    <a class="mnt-social-icon" href="#" aria-label="Facebook">👤</a>
-    <a class="mnt-social-icon" href="#" aria-label="YouTube">▶️</a>
+    <a class="mnt-social-icon mnt-tg-icon" href="https://t.me/djamiteacher" target="_blank" rel="noopener" aria-label="Telegram">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
+        <circle cx="24" cy="24" r="24" fill="#29B6F6"/>
+        <path d="M10.5 23.5l22-9c1-.4 1.9.2 1.6 1.4l-3.7 17.4c-.3 1.2-1 1.5-2 .9l-5.5-4-2.6 2.5c-.3.3-.6.4-.9.3l.4-5.7 10.2-9.2c.4-.4 0-.6-.5-.2L15.5 27.3l-5-1.6c-1-.3-1-.9.5-1.4z" fill="white"/>
+      </svg>
+    </a>
   </div>
 </div>
 <script>
@@ -391,18 +360,7 @@
     requestAnimationFrame(tick);
   }, 200);
 
-  // email button feedback
-  var btn = document.getElementById('mntEmailBtn');
-  var inp = document.getElementById('mntEmailInput');
-  if(btn && inp){
-    btn.addEventListener('click', function(){
-      if(!inp.value.trim()){ inp.focus(); return; }
-      btn.textContent = "Yuborildi ✓";
-      btn.style.background = "#3a9a5c";
-      btn.disabled = true;
-      inp.disabled = true;
-    });
-  }
+
 })();
 </script>`;
 
