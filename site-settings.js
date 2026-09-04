@@ -116,27 +116,298 @@
     if(maintenanceOverlayEl) return; // already shown
     const text = (msg && msg.trim()) ? msg.trim()
       : "Sayt takomillashtirilmoqda. Tez orada ishga tushadi!";
+
     const el = document.createElement('div');
     el.id = 'maintenanceModeOverlay';
-    el.style.cssText = [
-      'position:fixed','inset:0','z-index:99999',
-      'display:flex','flex-direction:column',
-      'align-items:center','justify-content:center',
-      'background:var(--paper,#fff)',
-      'padding:2rem','text-align:center',
-      'font-family:var(--font-body,sans-serif)'
-    ].join(';');
-    el.innerHTML =
-      '<div style="font-size:3rem;margin-bottom:1rem;">🔧</div>' +
-      '<h2 style="margin:0 0 .6rem;font-size:1.4rem;color:var(--ink,#14213d);">' +
-        escapeHtmlMaint(text) +
-      '</h2>' +
-      '<p style="margin:0;color:var(--gray,#6b7280);font-size:.9rem;">' +
-        'Sabr-toqatli bo\'lganingiz uchun rahmat!' +
-      '</p>';
+    el.innerHTML = `
+<style>
+#maintenanceModeOverlay {
+  position:fixed; inset:0; z-index:99999;
+  background: #f0f0ff;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  overflow:hidden;
+  display:flex; flex-direction:column;
+}
+#mnt-body {
+  flex:1; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:2rem 1rem 1rem;
+  text-align:center; position:relative;
+}
+/* decorative dots */
+.mnt-dots {
+  position:absolute; opacity:.35;
+  display:grid; gap:7px;
+}
+.mnt-dots span {
+  width:6px; height:6px; border-radius:50%;
+  background:#8080cc; display:block;
+}
+.mnt-dot-tl { top:60px; left:60px; grid-template-columns:repeat(4,1fr); }
+.mnt-dot-br { bottom:100px; right:60px; grid-template-columns:repeat(4,1fr); }
+.mnt-circle-l {
+  position:absolute; left:60px; bottom:140px;
+  width:80px; height:80px; border-radius:50%;
+  background:#d8d8f8; opacity:.7;
+}
+.mnt-circle-r {
+  position:absolute; right:50px; top:120px;
+  width:40px; height:40px; border-radius:50%;
+  border:2px solid #c8c8ee; background:transparent;
+}
+/* illustration */
+.mnt-illus {
+  position:relative; width:320px; max-width:90vw; margin-bottom:2rem;
+}
+.mnt-laptop {
+  width:100%; filter:drop-shadow(0 20px 40px rgba(100,100,200,.18));
+}
+/* cone left */
+.mnt-cone-l {
+  position:absolute; left:-10px; bottom:28px;
+  width:52px;
+}
+/* barrier right */
+.mnt-barrier {
+  position:absolute; right:-14px; bottom:20px;
+  width:68px;
+}
+/* heading */
+.mnt-h1 {
+  margin:0 0 .3rem; font-size:clamp(1.35rem,4vw,2rem);
+  font-weight:800; color:#1a1a3e; line-height:1.2;
+}
+.mnt-h2 {
+  margin:0 0 .6rem; font-size:clamp(1.3rem,3.8vw,1.9rem);
+  font-weight:800; color:#4040cc; line-height:1.2;
+}
+.mnt-sub {
+  margin:0 0 1.6rem; color:#7070aa; font-size:.92rem;
+}
+/* progress card */
+.mnt-card {
+  background:#fff; border-radius:16px;
+  padding:14px 20px; display:flex; align-items:center; gap:14px;
+  box-shadow:0 4px 20px rgba(100,100,200,.1);
+  width:100%; max-width:460px; margin-bottom:2rem;
+}
+.mnt-wrench { font-size:1.5rem; flex-shrink:0; }
+.mnt-progress-wrap { flex:1; }
+.mnt-progress-label { font-size:.82rem; color:#9090bb; margin-bottom:6px; text-align:left; }
+.mnt-bar-row { display:flex; align-items:center; gap:10px; }
+.mnt-bar-bg {
+  flex:1; height:7px; border-radius:99px;
+  background:#e8e8f8; overflow:hidden;
+}
+.mnt-bar-fill {
+  height:100%; border-radius:99px;
+  background:linear-gradient(90deg,#5555dd,#7777ff);
+  width:0%; transition:width 1.2s cubic-bezier(.4,0,.2,1);
+}
+.mnt-pct { font-size:.82rem; font-weight:700; color:#5555dd; white-space:nowrap; }
+/* bottom wave + notify bar */
+.mnt-wave-wrap {
+  position:relative; width:100%; flex-shrink:0;
+}
+.mnt-wave {
+  display:block; width:100%; height:auto;
+}
+.mnt-notify {
+  position:absolute; bottom:0; left:0; right:0;
+  background:transparent;
+  padding:0 5% 2rem;
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.mnt-bell-wrap {
+  width:52px; height:52px; border-radius:50%;
+  background:#4f4fcc; display:flex; align-items:center;
+  justify-content:center; font-size:1.3rem; flex-shrink:0;
+}
+.mnt-notify-text { flex:1; min-width:120px; }
+.mnt-notify-title { font-weight:700; font-size:.95rem; color:#1a1a3e; }
+.mnt-notify-sub { font-size:.8rem; color:#7070aa; margin-top:2px; }
+.mnt-email-row { display:flex; gap:8px; flex-wrap:wrap; }
+.mnt-email-input {
+  flex:1; min-width:160px; padding:10px 16px;
+  border:1.5px solid #ddddf0; border-radius:10px;
+  font-size:.87rem; outline:none; color:#1a1a3e;
+  background:#fff;
+}
+.mnt-email-input:focus { border-color:#5555dd; }
+.mnt-email-btn {
+  padding:10px 20px; border-radius:10px;
+  background:#3a3acc; color:#fff; border:none;
+  font-size:.87rem; font-weight:700; cursor:pointer;
+  white-space:nowrap;
+}
+.mnt-email-btn:hover { background:#2929bb; }
+/* social */
+.mnt-social {
+  text-align:center; padding:10px 0 1rem; font-size:.78rem; color:#9090bb;
+  position:relative; z-index:2; background:transparent;
+}
+.mnt-social-icons { display:flex; gap:12px; justify-content:center; margin-top:8px; }
+.mnt-social-icon {
+  width:36px; height:36px; border-radius:50%;
+  border:1.5px solid #d0d0ee; background:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1rem; text-decoration:none; color:#5555dd;
+  transition:border-color .2s;
+}
+.mnt-social-icon:hover { border-color:#5555dd; }
+@media(max-width:560px){
+  .mnt-notify { flex-direction:column; align-items:flex-start; }
+  .mnt-dot-tl { display:none; } .mnt-dot-br { display:none; }
+  .mnt-circle-l { display:none; } .mnt-circle-r { display:none; }
+  .mnt-wave-wrap { display:none; }
+  .mnt-social { padding-bottom:2rem; }
+}
+</style>
+<div id="mnt-body">
+  <!-- decorative dots -->
+  <div class="mnt-dots mnt-dot-tl">
+    ${Array(12).fill('<span></span>').join('')}
+  </div>
+  <div class="mnt-dots mnt-dot-br">
+    ${Array(12).fill('<span></span>').join('')}
+  </div>
+  <div class="mnt-circle-l"></div>
+  <div class="mnt-circle-r"></div>
+
+  <!-- illustration -->
+  <div class="mnt-illus">
+    <svg class="mnt-laptop" viewBox="0 0 340 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- laptop base -->
+      <rect x="30" y="170" width="280" height="14" rx="7" fill="#c8c8e8"/>
+      <!-- screen body -->
+      <rect x="55" y="18" width="230" height="158" rx="12" fill="#2a2a5e"/>
+      <!-- screen glass -->
+      <rect x="65" y="30" width="210" height="136" rx="6" fill="#e8e8ff"/>
+      <!-- browser bar -->
+      <rect x="65" y="30" width="210" height="26" rx="6" fill="#5555cc"/>
+      <circle cx="82" cy="43" r="5" fill="#fff" opacity=".5"/>
+      <circle cx="97" cy="43" r="5" fill="#fff" opacity=".5"/>
+      <circle cx="112" cy="43" r="5" fill="#fff" opacity=".5"/>
+      <!-- gear icon centered -->
+      <g transform="translate(170,108)">
+        <circle r="22" fill="#6666dd" opacity=".15"/>
+        <path d="M0-24v6M0 18v6M24 0h-6M-18 0h-6M17-17l-4.2 4.2M-12.8 12.8l-4.2 4.2M17 17l-4.2-4.2M-12.8-12.8l-4.2-4.2" stroke="#5555cc" stroke-width="3" stroke-linecap="round"/>
+        <circle r="10" fill="none" stroke="#5555cc" stroke-width="3"/>
+        <circle r="4" fill="#5555cc"/>
+      </g>
+      <!-- small image placeholders -->
+      <rect x="80" y="62" width="44" height="34" rx="5" fill="#c8c8ee" opacity=".6"/>
+      <rect x="216" y="62" width="44" height="34" rx="5" fill="#c8c8ee" opacity=".6"/>
+    </svg>
+    <!-- cone left (SVG inline) -->
+    <svg class="mnt-cone-l" viewBox="0 0 52 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="26" cy="72" rx="22" ry="6" fill="#7070cc" opacity=".3"/>
+      <path d="M26 4 L48 68 H4 Z" fill="#5555cc"/>
+      <path d="M10 52 L42 52" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+      <path d="M16 38 L36 38" stroke="#fff" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+    <!-- barrier right -->
+    <svg class="mnt-barrier" viewBox="0 0 68 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- legs -->
+      <rect x="10" y="52" width="6" height="26" rx="3" fill="#aaaacc"/>
+      <rect x="52" y="52" width="6" height="26" rx="3" fill="#aaaacc"/>
+      <!-- board -->
+      <rect x="2" y="30" width="64" height="26" rx="5" fill="#f0f0ff"/>
+      <path d="M2 35 L66 35" stroke="#5555cc" stroke-width="0"/>
+      <!-- stripes -->
+      <clipPath id="bc"><rect x="2" y="30" width="64" height="26" rx="5"/></clipPath>
+      <g clip-path="url(#bc)">
+        <path d="M2 56 L22 30" stroke="#5555cc" stroke-width="9"/>
+        <path d="M20 56 L40 30" stroke="#5555cc" stroke-width="9"/>
+        <path d="M38 56 L58 30" stroke="#5555cc" stroke-width="9"/>
+        <path d="M56 56 L76 30" stroke="#5555cc" stroke-width="9"/>
+      </g>
+      <!-- top bar -->
+      <rect x="2" y="22" width="64" height="10" rx="5" fill="#5555cc"/>
+    </svg>
+  </div>
+
+  <!-- text -->
+  <h2 class="mnt-h1">Sayt takomillashtirilmoqda.</h2>
+  <h2 class="mnt-h2">Tez orada ishga tushadi!</h2>
+  <p class="mnt-sub">Sabr-toqatli bo'lganingiz uchun rahmat!</p>
+
+  <!-- progress card -->
+  <div class="mnt-card">
+    <span class="mnt-wrench">🔧</span>
+    <div class="mnt-progress-wrap">
+      <div class="mnt-progress-label">Ish jarayoni davom etmoqda...</div>
+      <div class="mnt-bar-row">
+        <div class="mnt-bar-bg"><div class="mnt-bar-fill" id="mntBarFill"></div></div>
+        <span class="mnt-pct" id="mntPct">0%</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- wave + notify -->
+<div class="mnt-wave-wrap">
+  <svg class="mnt-wave" viewBox="0 0 1440 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,120 C360,200 1080,20 1440,100 L1440,200 L0,200 Z" fill="#ddddf8"/>
+  </svg>
+  <div class="mnt-notify">
+    <div class="mnt-bell-wrap">🔔</div>
+    <div class="mnt-notify-text">
+      <div class="mnt-notify-title">Yangiliklardan xabardor bo'ling</div>
+      <div class="mnt-notify-sub">Sayt ishga tushishi bilan sizga xabar beramiz.</div>
+    </div>
+    <div class="mnt-email-row">
+      <input class="mnt-email-input" type="email" id="mntEmailInput" placeholder="E-mail manzilingiz">
+      <button class="mnt-email-btn" id="mntEmailBtn">Xabar berish</button>
+    </div>
+  </div>
+</div>
+<div class="mnt-social">
+  Bizni ijtimoiy tarmoqlarda kuzating:
+  <div class="mnt-social-icons">
+    <a class="mnt-social-icon" href="#" aria-label="Telegram">✈️</a>
+    <a class="mnt-social-icon" href="#" aria-label="Instagram">📸</a>
+    <a class="mnt-social-icon" href="#" aria-label="Facebook">👤</a>
+    <a class="mnt-social-icon" href="#" aria-label="YouTube">▶️</a>
+  </div>
+</div>
+<script>
+(function(){
+  // animate progress bar to 65%
+  var target = 65;
+  var fill = document.getElementById('mntBarFill');
+  var pct  = document.getElementById('mntPct');
+  if(!fill) return;
+  setTimeout(function(){
+    fill.style.width = target + '%';
+    var start = Date.now(), dur = 1200, from = 0;
+    function tick(){
+      var p = Math.min((Date.now()-start)/dur, 1);
+      var ease = 1-Math.pow(1-p,3);
+      var v = Math.round(from + (target-from)*ease);
+      if(pct) pct.textContent = v + '%';
+      if(p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+  }, 200);
+
+  // email button feedback
+  var btn = document.getElementById('mntEmailBtn');
+  var inp = document.getElementById('mntEmailInput');
+  if(btn && inp){
+    btn.addEventListener('click', function(){
+      if(!inp.value.trim()){ inp.focus(); return; }
+      btn.textContent = "Yuborildi ✓";
+      btn.style.background = "#3a9a5c";
+      btn.disabled = true;
+      inp.disabled = true;
+    });
+  }
+})();
+</script>`;
+
     document.body.appendChild(el);
     maintenanceOverlayEl = el;
-    // Prevent any scrolling / interaction beneath
     document.body.style.overflow = 'hidden';
   }
 
