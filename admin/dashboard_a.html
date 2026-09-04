@@ -234,11 +234,6 @@
 .actlog-live-dot{width:8px;height:8px;border-radius:50%;background:#1FAE7A;display:inline-block;margin-right:5px;animation:pulse 1.4s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
-<script>
-  window.vmtrcq = window.vmtrcq || [];
-  window.vmtrc = window.vmtrc || function (){window.vmtrcq.push(Array.prototype.slice.call(arguments))};
-</script>
-<script defer src="https://cdn.vemetric.com/main.js" data-token="CHdcoB75KN2xKaYh"></script>
 </head>
 
 <body class="admin-theme">
@@ -5113,7 +5108,7 @@ async function loadKundalikGroups() {
     window._kundalikGroupsCache = {};
     snap.docs.forEach(d => { window._kundalikGroupsCache[d.id] = d.data(); });
     listEl.innerHTML = '<table class="data-table"><thead><tr><th>Guruh nomi</th><th>Amallar</th></tr></thead><tbody>' +
-      snap.docs.map(d => '<tr><td><strong>' + escapeHtml(d.data().name || d.id) + '</strong></td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-amber btn-sm" onclick="openKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">📂 Ochish</button><button class="btn btn-ghost btn-sm" onclick="editKundalikGroup(\'' + d.id + '\')">✏️ Tahrirlash</button></td></tr>').join('') +
+      snap.docs.map(d => '<tr><td><strong>' + escapeHtml(d.data().name || d.id) + '</strong></td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-amber btn-sm" onclick="openKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">📂 Ochish</button><button class="btn btn-ghost btn-sm" onclick="editKundalikGroup(\'' + d.id + '\')">✏️ Tahrirlash</button><button class="btn btn-danger btn-sm" onclick="deleteKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">🗑️ O\'chirish</button></td></tr>').join('') +
       '</tbody></table>';
   } catch (err) {
     listEl.innerHTML = '<p style="color:var(--error);font-size:14px;">Yuklab bo\u02bclmadi.</p>';
@@ -5236,6 +5231,39 @@ async function deleteHwItem(hwId, title) {
       .collection('vazifalari').doc(hwId).delete();
     loadKundalikHw(_kundalikActiveGroup);
   } catch (err) { alert('O\u02bcchirishda xatolik.'); }
+}
+
+async function deleteKundalikGroup(groupId, groupName) {
+  if (!confirm('\u201c' + groupName + '\u201d guruhini to\u02bcliq o\u02bcchirmoqchimisiz?\n\nQuyidagilar o\u02bcchiriladi:\n\u2022 Guruhning barcha uy vazifalari\n\u2022 Guruh va uning barcha talabalari\n\u2022 Har bir talabaning o\u02bcquv jarayoni tarixi\n\nBu amalni ortga qaytarib bo\u02bclamaydi!')) return;
+  try {
+    const batch = db.batch();
+
+    // 1. kundalik/{groupId}/vazifalari — barcha uy vazifalari
+    const hwSnap = await db.collection('kundalik').doc(groupId).collection('vazifalari').get();
+    hwSnap.docs.forEach(doc => batch.delete(doc.ref));
+    batch.delete(db.collection('kundalik').doc(groupId));
+
+    // 2. oquv_groups/{groupId}/students — talabalar ro'yxati + har birining oquv_progress
+    const studentsSnap = await db.collection('oquv_groups').doc(groupId).collection('students').get();
+    for (const sDoc of studentsSnap.docs) {
+      batch.delete(sDoc.ref);
+      // oquv_progress/{studentId}/entries
+      try {
+        const entriesSnap = await db.collection('oquv_progress').doc(sDoc.id).collection('entries').get();
+        entriesSnap.docs.forEach(ed => batch.delete(ed.ref));
+        batch.delete(db.collection('oquv_progress').doc(sDoc.id));
+      } catch (e) { console.warn('oquv_progress cleanup skip:', sDoc.id, e); }
+    }
+
+    // 3. oquv_groups/{groupId} — guruh hujjati
+    batch.delete(db.collection('oquv_groups').doc(groupId));
+
+    await batch.commit();
+    loadKundalikGroups();
+  } catch (err) {
+    console.error(err);
+    alert('O\u02bcchirishda xatolik yuz berdi.');
+  }
 }
 
 // ============================================================
