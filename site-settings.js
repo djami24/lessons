@@ -131,8 +131,9 @@
 #mnt-body {
   flex:1; display:flex; flex-direction:column;
   align-items:center; justify-content:center;
-  padding:2rem 1rem 1rem;
+  padding:1rem 1rem 0.5rem;
   text-align:center; position:relative;
+  min-height:0;
 }
 /* decorative dots */
 .mnt-dots {
@@ -157,7 +158,7 @@
 }
 /* illustration */
 .mnt-illus {
-  position:relative; width:320px; max-width:90vw; margin-bottom:2rem;
+  position:relative; width:240px; max-width:70vw; margin-bottom:1rem;
 }
 .mnt-laptop {
   width:100%; filter:drop-shadow(0 20px 40px rgba(100,100,200,.18));
@@ -174,22 +175,22 @@
 }
 /* heading */
 .mnt-h1 {
-  margin:0 0 .3rem; font-size:clamp(1.35rem,4vw,2rem);
+  margin:0 0 .2rem; font-size:clamp(1.1rem,3vw,1.6rem);
   font-weight:800; color:#1a1a3e; line-height:1.2;
 }
 .mnt-h2 {
-  margin:0 0 .6rem; font-size:clamp(1.3rem,3.8vw,1.9rem);
+  margin:0 0 .4rem; font-size:clamp(1.1rem,3vw,1.55rem);
   font-weight:800; color:#4040cc; line-height:1.2;
 }
 .mnt-sub {
-  margin:0 0 1.6rem; color:#7070aa; font-size:.92rem;
+  margin:0 0 1rem; color:#7070aa; font-size:.88rem;
 }
 /* progress card */
 .mnt-card {
   background:#fff; border-radius:16px;
-  padding:14px 20px; display:flex; align-items:center; gap:14px;
+  padding:10px 18px; display:flex; align-items:center; gap:14px;
   box-shadow:0 4px 20px rgba(100,100,200,.1);
-  width:100%; max-width:460px; margin-bottom:2rem;
+  width:100%; max-width:420px; margin-bottom:0;
 }
 .mnt-wrench { font-size:1.5rem; flex-shrink:0; }
 .mnt-progress-wrap { flex:1; }
@@ -206,24 +207,13 @@
 }
 .mnt-pct { font-size:.82rem; font-weight:700; color:#5555dd; white-space:nowrap; }
 /* bottom wave + notify bar */
-.mnt-wave-wrap {
-  position:relative; width:100%; flex-shrink:0;
+.mnt-bottom {
+  flex-shrink:0; width:100%; background:#f0f0ff;
 }
-.mnt-wave {
-  display:block; width:100%; height:auto;
-}
-.mnt-notify {
-  position:absolute; bottom:0; left:0; right:0;
-  background:transparent;
-  padding:0 5% 2rem;
-  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
-}
-.mnt-notify-title { font-weight:700; font-size:.95rem; color:#1a1a3e; }
-.mnt-notify-sub { font-size:.8rem; color:#7070aa; margin-top:2px; }
 /* social */
 .mnt-social {
-  text-align:center; padding:10px 0 1rem; font-size:.78rem; color:#9090bb;
-  position:relative; z-index:2; background:transparent;
+  text-align:center; padding:8px 0 16px; font-size:.78rem; color:#9090bb;
+  background:#ddddf8;
 }
 .mnt-social-icons { display:flex; gap:12px; justify-content:center; margin-top:8px; }
 .mnt-social-icon {
@@ -234,11 +224,8 @@
 }
 .mnt-social-icon:hover { transform:scale(1.1); box-shadow:0 4px 16px rgba(41,182,246,.4); }
 @media(max-width:560px){
-  .mnt-notify { flex-direction:column; align-items:flex-start; }
   .mnt-dot-tl { display:none; } .mnt-dot-br { display:none; }
   .mnt-circle-l { display:none; } .mnt-circle-r { display:none; }
-  .mnt-wave-wrap { display:none; }
-  .mnt-social { padding-bottom:2rem; }
 }
 </style>
 <div id="mnt-body">
@@ -323,21 +310,20 @@
   </div>
 </div>
 
-<!-- wave + social -->
-<div class="mnt-wave-wrap">
-  <svg class="mnt-wave" viewBox="0 0 1440 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M0,120 C360,200 1080,20 1440,100 L1440,200 L0,200 Z" fill="#ddddf8"/>
+<div class="mnt-bottom">
+  <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:50px;flex-shrink:0;">
+    <path d="M0,50 C360,80 1080,10 1440,40 L1440,80 L0,80 Z" fill="#ddddf8"/>
   </svg>
-</div>
-<div class="mnt-social">
-  Bizni Telegramda kuzating:
-  <div class="mnt-social-icons">
-    <a class="mnt-social-icon mnt-tg-icon" href="https://t.me/djamiteacher" target="_blank" rel="noopener" aria-label="Telegram">
-      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28">
-        <circle cx="24" cy="24" r="24" fill="#29B6F6"/>
-        <path d="M10.5 23.5l22-9c1-.4 1.9.2 1.6 1.4l-3.7 17.4c-.3 1.2-1 1.5-2 .9l-5.5-4-2.6 2.5c-.3.3-.6.4-.9.3l.4-5.7 10.2-9.2c.4-.4 0-.6-.5-.2L15.5 27.3l-5-1.6c-1-.3-1-.9.5-1.4z" fill="white"/>
-      </svg>
-    </a>
+  <div class="mnt-social">
+    Bizni Telegramda kuzating:
+    <div class="mnt-social-icons">
+      <a class="mnt-social-icon mnt-tg-icon" href="https://t.me/djamiteacher" target="_blank" rel="noopener" aria-label="Telegram">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
+          <circle cx="24" cy="24" r="24" fill="#29B6F6"/>
+          <path d="M10.5 23.5l22-9c1-.4 1.9.2 1.6 1.4l-3.7 17.4c-.3 1.2-1 1.5-2 .9l-5.5-4-2.6 2.5c-.3.3-.6.4-.9.3l.4-5.7 10.2-9.2c.4-.4 0-.6-.5-.2L15.5 27.3l-5-1.6c-1-.3-1-.9.5-1.4z" fill="white"/>
+        </svg>
+      </a>
+    </div>
   </div>
 </div>
 <script>
