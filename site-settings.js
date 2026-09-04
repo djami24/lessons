@@ -326,31 +326,28 @@
     </div>
   </div>
 </div>
-<script>
-(function(){
-  // animate progress bar to 65%
-  var target = 65;
-  var fill = document.getElementById('mntBarFill');
-  var pct  = document.getElementById('mntPct');
-  if(!fill) return;
-  setTimeout(function(){
-    fill.style.width = target + '%';
-    var start = Date.now(), dur = 1200, from = 0;
-    function tick(){
-      var p = Math.min((Date.now()-start)/dur, 1);
-      var ease = 1-Math.pow(1-p,3);
-      var v = Math.round(from + (target-from)*ease);
-      if(pct) pct.textContent = v + '%';
-      if(p < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-  }, 200);
-
-
-})();
-</script>`;
+`;
 
     document.body.appendChild(el);
+    // animate progress bar — must run after el is in the DOM
+    (function(){
+      var target = 65;
+      var fill = el.querySelector('#mntBarFill');
+      var pct  = el.querySelector('#mntPct');
+      if(!fill) return;
+      setTimeout(function(){
+        fill.style.width = target + '%';
+        var start = Date.now(), dur = 1200, from = 0;
+        function tick(){
+          var p = Math.min((Date.now()-start)/dur, 1);
+          var ease = 1-Math.pow(1-p,3);
+          var v = Math.round(from + (target-from)*ease);
+          if(pct) pct.textContent = v + '%';
+          if(p < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }, 200);
+    })();
     maintenanceOverlayEl = el;
     document.body.style.overflow = 'hidden';
   }
