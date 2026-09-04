@@ -317,7 +317,7 @@
   <div class="mnt-social">
     Bizni Telegramda kuzating:
     <div class="mnt-social-icons">
-      <a class="mnt-social-icon mnt-tg-icon" href="https://t.me/djamiteacher" target="_blank" rel="noopener" aria-label="Telegram">
+      <a class="mnt-social-icon mnt-tg-icon" href="https://t.me/djami_teacher" target="_blank" rel="noopener" aria-label="Telegram">
         <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36">
           <circle cx="24" cy="24" r="24" fill="#29B6F6"/>
           <path d="M10.5 23.5l22-9c1-.4 1.9.2 1.6 1.4l-3.7 17.4c-.3 1.2-1 1.5-2 .9l-5.5-4-2.6 2.5c-.3.3-.6.4-.9.3l.4-5.7 10.2-9.2c.4-.4 0-.6-.5-.2L15.5 27.3l-5-1.6c-1-.3-1-.9.5-1.4z" fill="white"/>
