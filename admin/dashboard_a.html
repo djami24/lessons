@@ -6490,12 +6490,29 @@ function renderGbAdminGradeTable(){
   } else {
     foldersEl.innerHTML = '';
     groups.forEach(g => {
+      const wrapDiv = document.createElement('div');
+      wrapDiv.style.cssText = 'display:flex; align-items:center; gap:6px;';
+
       const folder = document.createElement('button');
       folder.type = 'button';
       folder.className = 'gb-group-folder';
+      folder.style.flex = '1';
       folder.innerHTML = `<span>\ud83d\udcc1</span><span style="flex:1; text-align:left; font-weight:700;">${escapeHtml(g.name)}</span><span style="color:var(--gray); font-size:.8rem;">${g.count} talaba</span>`;
       folder.addEventListener('click', () => { gbSelectedGroup = g.name; renderGbAdminGradeTable(); });
-      foldersEl.appendChild(folder);
+
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'btn btn-danger btn-sm';
+      delBtn.title = "Guruhni o\u02bcchirish";
+      delBtn.textContent = '\ud83d\uddd1\ufe0f';
+      delBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await deleteGbGroup(g.name);
+      });
+
+      wrapDiv.appendChild(folder);
+      wrapDiv.appendChild(delBtn);
+      foldersEl.appendChild(wrapDiv);
     });
   }
 
@@ -6592,6 +6609,17 @@ function renderGbGroupTable(group){
       await saveGradebook();
     });
   });
+}
+
+// ---- Delete a whole group from gradebook ----
+async function deleteGbGroup(groupName) {
+  const count = gbData.students.filter(s => s.group === groupName).length;
+  if (!confirm(`\u201c${groupName}\u201d guruhini o\u02bcchirmoqchimisiz?\n\n${count} ta talaba va ularning barcha ballari o\u02bcchib ketadi.\n\nBu amalni ortga qaytarib bo\u02bclamaydi!`)) return;
+  gbData.students = gbData.students.filter(s => s.group !== groupName);
+  if (gbData.unitsByGroup) delete gbData.unitsByGroup[groupName];
+  if (gbSelectedGroup === groupName) gbSelectedGroup = null;
+  renderGbAdminGradeTable();
+  await saveGradebook();
 }
 
 // ---- Visit stats (read-only here; natijalar.html bumps the counter) ----
