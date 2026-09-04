@@ -557,11 +557,21 @@
       .catch(() => { hideLoadingOverlay(); /* settings doc not created yet, or offline — keep defaults */ });
   }
 
+  // "Powered by Djami" credit badge — shown on every page that loads this script.
+  function renderPoweredByBadge(){
+    if(document.querySelector('.powered-by')) return; // ikki marta qo'shilib ketmasin
+    const badge = document.createElement('div');
+    badge.className = 'powered-by';
+    badge.innerHTML = '<span>powered by <b>Djami</b></span>';
+    document.body.appendChild(badge);
+  }
+
   function boot(){
     const hadCache = applyCachedSettings();
     init();
     if(hadCache) hideLoadingOverlay();
     setTimeout(hideLoadingOverlay, 4000); // safety net — never leave the overlay stuck up
+    renderPoweredByBadge();
   }
 
   if(document.readyState === 'loading'){
@@ -570,4 +580,3 @@
     boot();
   }
 })();
-
