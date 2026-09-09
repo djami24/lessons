@@ -1721,16 +1721,42 @@ function htmlToLinePreview(html, maxLen){
 // matching by group name for older oquv_progress records saved before
 // groupId started being stored.
 async function resolveStudentKundalikGroupId(){
-  const code = state.student.oquvProgressCode;
-  if(!code) return null;
   try{
-    const doc = await db.collection('oquv_progress').doc(code).get();
-    if(!doc.exists) return null;
-    const info = doc.data();
-    if(info.groupId) return info.groupId;
-    if(info.group){
-      const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
-      if(!gSnap.empty) return gSnap.docs[0].id;
+    // 1. oquvProgressCode orqali (asosiy yo'l)
+    const code = state.student.oquvProgressCode;
+    if(code){
+      const doc = await db.collection('oquv_progress').doc(code).get();
+      if(doc.exists){
+        const info = doc.data();
+        if(info.groupId) return info.groupId;
+        if(info.group){
+          const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
+          if(!gSnap.empty) return gSnap.docs[0].id;
+        }
+      }
+    }
+    // 2. students/{uid}.kundalikGroup orqali (fallback)
+    if(state.student.kundalikGroup) return state.student.kundalikGroup;
+    // 3. Firebase dan to'g'ridan o'qib ko'ramiz (state da bo'lmasa)
+    if(currentUid){
+      const sDoc = await db.collection('students').doc(currentUid).get();
+      if(sDoc.exists){
+        const d = sDoc.data();
+        // oquvProgressCode bor bo'lsa, qayta urinib ko'ramiz
+        if(d.oquvProgressCode && d.oquvProgressCode !== code){
+          const pDoc = await db.collection('oquv_progress').doc(d.oquvProgressCode).get();
+          if(pDoc.exists){
+            const info = pDoc.data();
+            if(info.groupId) return info.groupId;
+            if(info.group){
+              const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
+              if(!gSnap.empty) return gSnap.docs[0].id;
+            }
+          }
+        }
+        // kundalikGroup to'g'ridan
+        if(d.kundalikGroup) return d.kundalikGroup;
+      }
     }
     return null;
   } catch(err){
@@ -1742,6 +1768,12 @@ async function resolveStudentKundalikGroupId(){
 
 // ===== So'nggi uy vazifasi kartasi (Bugungi o'quv reja) =====
 // kundalik/{groupId}/vazifalari/ dan so'nggi 5 ta vazifani olib ko'rsatadi
+// ===== So'nggi uy vazifalari kartasi =====
+// kundalik/{groupId}/vazifalari/ dan so'nggi 5 ta vazifani olib ko'rsatadi.
+// GroupId ni quyidagi tartibda topadi:
+//   1. oquvProgressCode → oquv_progress.groupId
+//   2. state.student.kundalikGroup
+//   3. students/{uid}.kundalikGroup (Firestore dan qayta o'qib)
 async function loadHomePlanCard(){
   const loadingEl = document.getElementById('homePlanLoading');
   const emptyEl   = document.getElementById('homePlanEmpty');
@@ -1753,92 +1785,140 @@ async function loadHomePlanCard(){
   const itemsEl   = document.getElementById('homePlanItems');
 
   // Reset
-  loadingEl.style.display = 'block';
-  emptyEl.style.display   = 'none';
-  contentEl.style.display = 'none';
-  footerEl.style.display  = 'none';
-  dateEl.textContent = '—';
+  if(loadingEl) loadingEl.style.display = 'block';
+  if(emptyEl)   emptyEl.style.display   = 'none';
+  if(contentEl) contentEl.style.display = 'none';
+  if(footerEl)  footerEl.style.display  = 'none';
+  if(dateEl)    dateEl.textContent      = '—';
 
-  try {
-    const group = await resolveStudentKundalikGroupId();
-    if (!group) { _planShowEmpty(); return; }
+  try{
+    // --- 1. GroupId ni topamiz ---
+    let groupId = null;
 
-    const snap = await db.collection('kundalik').doc(group)
-      .collection('vazifalari').orderBy('sana', 'desc').limit(5).get();
+    // 1a. oquvProgressCode orqali
+    const code = (state.student && state.student.oquvProgressCode) || null;
+    if(code){
+      try{
+        const pDoc = await db.collection('oquv_progress').doc(code).get();
+        if(pDoc.exists){
+          const info = pDoc.data();
+          if(info.groupId){ groupId = info.groupId; }
+          else if(info.group){
+            const gSnap = await db.collection('oquv_groups')
+              .where('name','==',info.group).limit(1).get();
+            if(!gSnap.empty) groupId = gSnap.docs[0].id;
+          }
+        }
+      } catch(e){ console.warn('[HomePlan] oquvProgressCode lookup failed:', e); }
+    }
 
-    if (snap.empty) { _planShowEmpty(); return; }
+    // 1b. state.student.kundalikGroup
+    if(!groupId && state.student && state.student.kundalikGroup){
+      groupId = state.student.kundalikGroup;
+    }
+
+    // 1c. Firestore dan qayta o'qib (state yangilanmagan bo'lsa)
+    if(!groupId && currentUid){
+      try{
+        const sDoc = await db.collection('students').doc(currentUid).get();
+        if(sDoc.exists){
+          const d = sDoc.data();
+          if(d.kundalikGroup){ groupId = d.kundalikGroup; }
+          else if(d.oquvProgressCode && d.oquvProgressCode !== code){
+            const pDoc2 = await db.collection('oquv_progress').doc(d.oquvProgressCode).get();
+            if(pDoc2.exists){
+              const info2 = pDoc2.data();
+              if(info2.groupId){ groupId = info2.groupId; }
+              else if(info2.group){
+                const gSnap2 = await db.collection('oquv_groups')
+                  .where('name','==',info2.group).limit(1).get();
+                if(!gSnap2.empty) groupId = gSnap2.docs[0].id;
+              }
+            }
+          }
+        }
+      } catch(e){ console.warn('[HomePlan] students doc lookup failed:', e); }
+    }
+
+    console.log('[HomePlan] resolved groupId:', groupId);
+
+    if(!groupId){
+      showEmpty(); return;
+    }
+
+    // --- 2. Vazifalari yuklaymiz ---
+    const snap = await db.collection('kundalik').doc(groupId)
+      .collection('vazifalari').orderBy('sana','desc').limit(5).get();
+
+    if(snap.empty){ showEmpty(); return; }
 
     // Birinchi (eng so'nggi) hujjat — sarlavha va sana
     const latest = snap.docs[0].data();
-    const ts = latest.sana;
-    const date = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
-
-    if (date) {
-      dateEl.textContent = date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' });
+    const ts0 = latest.sana;
+    const date0 = ts0 ? (typeof ts0.toDate==='function' ? ts0.toDate() : new Date(ts0)) : null;
+    if(date0 && dateEl){
+      dateEl.textContent = date0.toLocaleDateString('uz-UZ',{day:'numeric',month:'long',year:'numeric'});
     }
-    titleEl.textContent = latest.sarlavha || 'Uy vazifasi';
-    metaEl.textContent  = snap.docs.length > 1
-      ? 'Soʿnggi ' + snap.docs.length + ' ta vazifa'
-      : 'Soʿnggi vazifa';
+    if(titleEl) titleEl.textContent = latest.sarlavha || 'Uy vazifasi';
+    if(metaEl)  metaEl.textContent  = snap.docs.length + ' ta vazifa';
 
     // Vazifalar ro'yxati
-    itemsEl.innerHTML = '';
+    if(itemsEl) itemsEl.innerHTML = '';
+    const today = new Date(); today.setHours(0,0,0,0);
+
     snap.docs.forEach((doc, idx) => {
       const d   = doc.data();
-      const ts2 = d.sana;
-      const dt2 = ts2 ? (typeof ts2.toDate === 'function' ? ts2.toDate() : new Date(ts2)) : null;
-      const dateStr = dt2
-        ? dt2.toLocaleDateString('uz-UZ', { day:'numeric', month:'short' })
-        : '';
+      const ts  = d.sana;
+      const dt  = ts ? (typeof ts.toDate==='function' ? ts.toDate() : new Date(ts)) : null;
+      const dateStr = dt ? dt.toLocaleDateString('uz-UZ',{day:'numeric',month:'short'}) : '';
 
       // matn dan qisqa preview
-      const rawText = (d.matn || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g,' ').trim();
-      const preview = rawText.length > 70 ? rawText.slice(0, 70) + '...' : rawText;
+      const rawText = (d.matn || '').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+      const preview = rawText.length > 65 ? rawText.slice(0,65)+'…' : rawText;
 
-      // Holat - sana bo'yicha aniqlash
-      const today = new Date(); today.setHours(0,0,0,0);
+      // Holat — birinchi = Yangi, o'tmish = Muddati o'tdi, bugun = Bugun
       let pillClass = 'gray', pillText = 'Rejalashtirilgan';
-      if (dt2) {
-        const taskDay = new Date(dt2); taskDay.setHours(0,0,0,0);
-        if (taskDay < today) { pillClass = 'red';  pillText = 'Muddati oʿtdi'; }
-        else if (taskDay.getTime() === today.getTime()) { pillClass = 'blue'; pillText = 'Bugun'; }
+      if(idx === 0){ pillClass = 'blue'; pillText = 'Yangi'; }
+      else if(dt){
+        const taskDay = new Date(dt); taskDay.setHours(0,0,0,0);
+        if(taskDay < today){ pillClass = 'red';  pillText = "Muddati oʿtdi"; }
+        else if(taskDay.getTime() === today.getTime()){ pillClass = 'blue'; pillText = 'Bugun'; }
       }
-      if (idx === 0) { pillClass = 'blue'; pillText = 'Yangi'; }
 
       const row = document.createElement('div');
-      row.style.cssText = 'display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--gray-100);';
-      if (idx === snap.docs.length - 1) row.style.borderBottom = 'none';
-
+      row.style.cssText = 'display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--gray-100);';
+      if(idx === snap.docs.length-1) row.style.borderBottom = 'none';
       row.innerHTML =
-        '<div style="flex:1; min-width:0;">' +
-          '<div style="font-size:13px; font-weight:600; color:var(--gray-900); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-size:13px;font-weight:600;color:var(--gray-900);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
             _esc(d.sarlavha || 'Uy vazifasi') +
           '</div>' +
-          (preview ? '<div style="font-size:11.5px; color:var(--gray-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + _esc(preview) + '</div>' : '') +
+          (preview ? '<div style="font-size:11.5px;color:var(--gray-500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + _esc(preview) + '</div>' : '') +
         '</div>' +
-        '<div style="flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:4px;">' +
-          (dateStr ? '<span style="font-size:11px; color:var(--gray-400);">' + _esc(dateStr) + '</span>' : '') +
+        '<div style="flex-shrink:0;display:flex;flex-direction:column;align-items:flex-end;gap:4px;">' +
+          (dateStr ? '<span style="font-size:11px;color:var(--gray-400);">' + _esc(dateStr) + '</span>' : '') +
           '<span class="pill ' + pillClass + '">' + pillText + '</span>' +
         '</div>';
-      itemsEl.appendChild(row);
+      if(itemsEl) itemsEl.appendChild(row);
     });
 
-    loadingEl.style.display = 'none';
-    contentEl.style.display = 'flex';
-    footerEl.style.display  = 'block';
+    if(loadingEl) loadingEl.style.display = 'none';
+    if(contentEl){ contentEl.style.display = 'flex'; contentEl.style.flexDirection = 'column'; }
+    if(footerEl)  footerEl.style.display   = 'block';
 
-  } catch(err) {
-    console.error('loadHomePlanCard error:', err);
-    _planShowEmpty();
+  } catch(err){
+    console.error('[HomePlan] error:', err);
+    showEmpty();
   }
 
-  function _planShowEmpty(){
-    loadingEl.style.display = 'none';
-    emptyEl.style.display   = 'block';
-    contentEl.style.display = 'none';
-    footerEl.style.display  = 'none';
+  function showEmpty(){
+    if(loadingEl) loadingEl.style.display = 'none';
+    if(emptyEl)   emptyEl.style.display   = 'block';
+    if(contentEl) contentEl.style.display = 'none';
+    if(footerEl)  footerEl.style.display  = 'none';
   }
 }
+
 
 function _esc(str){
   return String(str)
