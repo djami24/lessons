@@ -807,43 +807,177 @@
     <!-- ===== PROFILE (student's own profile) ===== -->
     <section id="view-profile" hidden>
       <a href="#" id="backToHomeFromProfile" class="back-link">← Bosh sahifaga</a>
-      <div class="admin-header">
-        <div>
-          <h1>Mening profilim</h1>
-          <p>Ism, telefon raqam va profil belgingizni shu yerdan o‘zgartirasiz.</p>
-        </div>
-      </div>
 
-      <div class="profile-card">
-        <div class="profile-avatar-row">
-          <div class="profile-avatar-big" id="profileAvatarBig">🙂</div>
-          <div>
-            <button type="button" class="btn btn-ghost btn-sm" id="toggleEmojiPickerBtn">Belgini o‘zgartirish</button>
-            <p style="margin:.5em 0 0; color:var(--gray); font-size:.85rem;">Profil rasmi o‘rniga emoji tanlang.</p>
+      <style>
+        /* ===== YANGI PROFIL DIZAYN ===== */
+        .new-profile-wrap { display:flex; flex-direction:column; gap:20px; max-width:860px; }
+        .np-card { background:var(--paper); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow-card); overflow:hidden; }
+        .np-card-head { display:flex; align-items:center; gap:10px; padding:16px 20px; border-bottom:1px solid var(--line); }
+        .np-icon-badge { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0; }
+        .np-card-head h3 { font-size:14.5px;font-weight:700;margin:0;color:var(--ink); }
+        .np-profile-row { display:flex;gap:20px;padding:22px;align-items:flex-start; }
+        .np-avatar-col { display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0; }
+        .np-avatar-circle { width:82px;height:82px;border-radius:50%;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-size:2.4rem;border:2px solid var(--line);cursor:pointer;transition:transform 0.15s; }
+        .np-avatar-circle:hover { transform:scale(1.04); }
+        .np-avatar-change-btn { font-size:11.5px;color:var(--teal);font-weight:700;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px; }
+        .np-info-col { flex:1; }
+        .np-name-row { display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px; }
+        .np-name { font-size:19px;font-weight:800;color:var(--ink); }
+        .np-status-badge { font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:20px;background:#e7f8f0;color:#22b573;display:inline-flex;align-items:center;gap:5px; }
+        .np-status-dot { width:6px;height:6px;border-radius:50%;background:currentColor; }
+        .np-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;font-size:13px; }
+        .np-grid-label { color:var(--gray);margin-bottom:2px;font-size:12px; }
+        .np-grid-val { color:var(--ink);font-weight:600; }
+        .np-divider { width:1px;background:var(--line);align-self:stretch; }
+        .np-status-tile { width:96px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#eaf1ff;border-radius:10px;padding:14px 8px;text-align:center; }
+        .np-status-tile svg { width:22px;height:22px;color:#2f5fd8; }
+        .np-status-tile span { font-size:11.5px;font-weight:700;color:#2f5fd8;line-height:1.3; }
+        .np-stats-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px; }
+        .np-stat { background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow-card); }
+        .np-stat-top { display:flex;align-items:center;gap:10px; }
+        .np-stat-icon { width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem; }
+        .np-stat-label { font-size:12px;font-weight:600;color:var(--gray); }
+        .np-stat-value { font-size:22px;font-weight:800;color:var(--ink); }
+        .np-stat-sub { font-size:11px;color:#9aa2b1; }
+        .np-form-section { padding:22px; }
+        .np-form-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px; }
+        .np-field { display:flex;flex-direction:column;gap:5px; }
+        .np-field label { font-size:12px;font-weight:600;color:var(--gray); }
+        .np-field input { border:1.5px solid var(--line);border-radius:9px;padding:10px 13px;font-size:13.5px;font-family:inherit;color:var(--ink);background:var(--paper);outline:none;transition:border-color 0.15s; }
+        .np-field input:focus { border-color:#2E6F6E; }
+        .np-field input:disabled { opacity:0.6;cursor:not-allowed;background:var(--paper-2); }
+        .np-save-btn { display:inline-flex;align-items:center;gap:7px;background:var(--teal);color:#fff;font-size:13.5px;font-weight:700;padding:11px 24px;border-radius:9px;border:none;cursor:pointer;transition:background 0.15s; }
+        .np-save-btn:hover { background:var(--teal-deep); }
+        .np-save-btn:disabled { opacity:0.6;cursor:not-allowed; }
+        .np-emoji-grid { display:flex;flex-wrap:wrap;gap:6px;padding:14px 22px;border-top:1px solid var(--line); }
+        .np-emoji-btn { width:38px;height:38px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color 0.12s,background 0.12s; }
+        .np-emoji-btn:hover { border-color:var(--teal);background:#f0f8f7; }
+        .np-alert-error { background:#fdeaec;color:#b3432b;border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:600;margin-top:10px; }
+        .np-alert-notice { background:#e7f8f0;color:#22b573;border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:600;margin-top:10px; }
+        @media(max-width:700px){
+          .np-profile-row{flex-direction:column;}
+          .np-grid{grid-template-columns:1fr;}
+          .np-stats-row{grid-template-columns:1fr 1fr;}
+          .np-form-grid{grid-template-columns:1fr;}
+          .np-divider,.np-status-tile{display:none;}
+        }
+      </style>
+
+      <div class="new-profile-wrap">
+
+        <!-- Profil kartasi -->
+        <div class="np-card">
+          <div class="np-card-head">
+            <span class="np-icon-badge" style="background:#e8f0fe;">👤</span>
+            <h3>Shaxsiy ma'lumotlar</h3>
+          </div>
+          <div class="np-profile-row">
+            <div class="np-avatar-col">
+              <div class="np-avatar-circle" id="profileAvatarBig" title="Belgini o'zgartirish">🙂</div>
+              <button type="button" class="np-avatar-change-btn" id="toggleEmojiPickerBtn">Belgini o'zgartirish</button>
+            </div>
+            <div class="np-info-col">
+              <div class="np-name-row">
+                <div class="np-name" id="npDisplayName">—</div>
+                <span class="np-status-badge"><span class="np-status-dot"></span>Faol talaba</span>
+              </div>
+              <div class="np-grid">
+                <div>
+                  <div class="np-grid-label">Ism familiya</div>
+                  <div class="np-grid-val" id="npNameVal">—</div>
+                </div>
+                <div>
+                  <div class="np-grid-label">Telefon raqam</div>
+                  <div class="np-grid-val" id="npPhoneVal">—</div>
+                </div>
+                <div>
+                  <div class="np-grid-label">Email</div>
+                  <div class="np-grid-val" id="npEmailVal">—</div>
+                </div>
+                <div>
+                  <div class="np-grid-label">Guruh</div>
+                  <div class="np-grid-val" id="npGroupVal">—</div>
+                </div>
+              </div>
+            </div>
+            <div class="np-divider"></div>
+            <div class="np-status-tile">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+              <span>Talaba<br>Statusi</span>
+            </div>
+          </div>
+          <!-- Emoji picker -->
+          <div class="np-emoji-grid" id="emojiPickerGrid" hidden></div>
+        </div>
+
+        <!-- Statistika qatori -->
+        <div class="np-stats-row">
+          <div class="np-stat">
+            <div class="np-stat-top">
+              <div class="np-stat-icon" style="background:#dcfce7;">📅</div>
+              <span class="np-stat-label">Davomat</span>
+            </div>
+            <div class="np-stat-value" id="npStatAttendance">—</div>
+            <div class="np-stat-sub">So'nggi ma'lumot</div>
+          </div>
+          <div class="np-stat">
+            <div class="np-stat-top">
+              <div class="np-stat-icon" style="background:#dbeafe;">📚</div>
+              <span class="np-stat-label">Uy vazifalari</span>
+            </div>
+            <div class="np-stat-value" id="npStatHw">—</div>
+            <div class="np-stat-sub">Topshirilgan</div>
+          </div>
+          <div class="np-stat">
+            <div class="np-stat-top">
+              <div class="np-stat-icon" style="background:#ede9fe;">🏆</div>
+              <span class="np-stat-label">Test natijasi</span>
+            </div>
+            <div class="np-stat-value" id="npStatTest">—</div>
+            <div class="np-stat-sub">So'nggi test</div>
+          </div>
+          <div class="np-stat">
+            <div class="np-stat-top">
+              <div class="np-stat-icon" style="background:#fef3c7;">⭐</div>
+              <span class="np-stat-label">Daraja</span>
+            </div>
+            <div class="np-stat-value" id="npStatLevel">—</div>
+            <div class="np-stat-sub">Joriy daraja</div>
           </div>
         </div>
 
-        <div class="emoji-picker-grid" id="emojiPickerGrid" hidden></div>
-
-        <form class="modal-form" id="profileForm" style="margin-top:1.8em; max-width:460px;">
-          <label class="field">
-            <span>Ism familiya</span>
-            <input type="text" id="profileName" required maxlength="80">
-          </label>
-          <label class="field">
-            <span>Telefon raqam</span>
-            <input type="tel" id="profilePhone" placeholder="+998 90 123 45 67" maxlength="30">
-          </label>
-          <label class="field">
-            <span>Email (login)</span>
-            <input type="email" id="profileEmail" disabled style="opacity:.65; cursor:not-allowed;">
-          </label>
-          <p class="form-error" id="profileError" role="alert" hidden></p>
-          <p class="form-notice" id="profileNotice" role="status" hidden></p>
-          <div class="modal-actions" style="justify-content:flex-start;">
-            <button type="submit" class="btn btn-amber" id="profileSaveBtn">Saqlash</button>
+        <!-- Ma'lumotlarni tahrirlash -->
+        <div class="np-card">
+          <div class="np-card-head">
+            <span class="np-icon-badge" style="background:#fef3c7;">✏️</span>
+            <h3>Ma'lumotlarni tahrirlash</h3>
           </div>
-        </form>
+          <div class="np-form-section">
+            <form id="profileForm">
+              <div class="np-form-grid">
+                <div class="np-field">
+                  <label>Ism familiya</label>
+                  <input type="text" id="profileName" required maxlength="80" placeholder="Ism Familiya">
+                </div>
+                <div class="np-field">
+                  <label>Telefon raqam</label>
+                  <input type="tel" id="profilePhone" placeholder="+998 90 123 45 67" maxlength="30">
+                </div>
+                <div class="np-field" style="grid-column:1/-1;">
+                  <label>Email (login — o'zgartirib bo'lmaydi)</label>
+                  <input type="email" id="profileEmail" disabled>
+                </div>
+              </div>
+              <p class="np-alert-error" id="profileError" hidden></p>
+              <p class="np-alert-notice" id="profileNotice" hidden></p>
+              <button type="submit" class="np-save-btn" id="profileSaveBtn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Saqlash
+              </button>
+            </form>
+          </div>
+        </div>
+
       </div>
     </section>
 
@@ -2967,13 +3101,72 @@ function renderProfile(){
   document.getElementById('navPlacementTest').classList.remove('active');
   document.getElementById('navProfile').classList.add('active');
 
+  // Ma'lumotlarni formaga yuklash
   document.getElementById('profileName').value = state.student.name || '';
   document.getElementById('profilePhone').value = state.student.phone || '';
   document.getElementById('profileEmail').value = state.student.email || '';
-  document.getElementById('profileAvatarBig').textContent = state.student.avatarEmoji || '🙂';
+  document.getElementById('profileAvatarBig').textContent = state.student.avatarEmoji || '\uD83D\uDE42';
   document.getElementById('profileError').hidden = true;
   document.getElementById('profileNotice').hidden = true;
   document.getElementById('emojiPickerGrid').hidden = true;
+
+  // Yangi profil kartasiga ma'lumotlarni yuklash
+  const name = state.student.name || '—';
+  const phone = state.student.phone || '—';
+  const email = state.student.email || '—';
+  document.getElementById('npDisplayName').textContent = name;
+  document.getElementById('npNameVal').textContent = name;
+  document.getElementById('npPhoneVal').textContent = phone;
+  document.getElementById('npEmailVal').textContent = email;
+
+  // Guruh ma'lumotini yuklash (oquv_progress orqali)
+  const savedCode = state.student.oquvProgressCode;
+  if(savedCode){
+    db.collection('oquv_progress').doc(savedCode).get().then(doc => {
+      if(doc.exists){
+        const info = doc.data();
+        document.getElementById('npGroupVal').textContent = info.group || '—';
+        // Statistikani ham to'ldirish
+        const attended = info.attended != null ? info.attended : null;
+        const hw = info.hw != null ? info.hw : null;
+        if(attended !== null) document.getElementById('npStatAttendance').textContent = attended + '%';
+        if(hw !== null) document.getElementById('npStatHw').textContent = hw + ' ta';
+      }
+    }).catch(()=>{});
+  }
+
+  // Test natijasini yuklash
+  if(savedCode){
+    db.collection('gradebook').where('oquvProgressCode','==',savedCode).orderBy('createdAt','desc').limit(1).get()
+      .then(snap => {
+        if(!snap.empty){
+          const gb = snap.docs[0].data();
+          const score = gb.score != null ? gb.score + (gb.total ? ' / ' + gb.total : '') : '—';
+          document.getElementById('npStatTest').textContent = score;
+        }
+      }).catch(()=>{
+        // Eski tizim: name orqali qidirish
+        if(state.student._progressName){
+          db.collection('gradebook').where('studentName','==',state.student._progressName).orderBy('createdAt','desc').limit(1).get()
+            .then(snap2 => {
+              if(!snap2.empty){
+                const gb = snap2.docs[0].data();
+                const score = gb.score != null ? gb.score + (gb.total ? ' / ' + gb.total : '') : '—';
+                document.getElementById('npStatTest').textContent = score;
+              }
+            }).catch(()=>{});
+        }
+      });
+  }
+
+  // Daraja (General English progress)
+  const progress = state.student.progress || {};
+  const levels = ['beginner','elementary','pre-intermediate','intermediate'];
+  let currentLevel = '—';
+  for(const lvl of [...levels].reverse()){
+    if(progress[lvl] && Object.keys(progress[lvl]).length > 0){ currentLevel = lvl.charAt(0).toUpperCase()+lvl.slice(1); break; }
+  }
+  document.getElementById('npStatLevel').textContent = currentLevel;
 
   switchView('profile');
 }
@@ -2991,6 +3184,7 @@ emojiGrid.addEventListener('click', async (e) => {
   const emoji = btn.dataset.emoji;
   document.getElementById('profileAvatarBig').textContent = emoji;
   document.getElementById('sidebarAvatar').textContent = emoji;
+  // Yangi profil kartasi avatar ham yangilanadi
   emojiGrid.hidden = true;
   try{
     await db.collection('students').doc(currentUid).update({ avatarEmoji: emoji });
@@ -3024,6 +3218,10 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     state.student.name = name;
     state.student.phone = phone;
     document.getElementById('sidebarUsername').textContent = name;
+    // Yangi profil kartasini ham yangilash
+    document.getElementById('npDisplayName').textContent = name;
+    document.getElementById('npNameVal').textContent = name;
+    document.getElementById('npPhoneVal').textContent = phone || '—';
     noticeEl.textContent = 'Profil yangilandi.';
     noticeEl.hidden = false;
   } catch(err){
