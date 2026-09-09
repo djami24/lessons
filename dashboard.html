@@ -3713,29 +3713,37 @@ function updateNotifBadge(){
 
 // Check for new notifications on load (real-time listener)
 function startNotifListener(){
-  let _initialized = false;
-  let _knownIds = new Set();
+  let _firstLoad = true;
 
   db.collection('notifications')
     .orderBy('createdAt', 'desc')
     .limit(30)
     .onSnapshot(snap => {
       const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
-      let unread = 0;
 
+      // Faqat birinchi yuklanishdan KEYIN qo'shilgan hujjatlarni tekshir
+      if(!_firstLoad){
+        snap.docChanges().forEach(change => {
+          if(change.type === 'added'){
+            const doc = change.doc;
+            if(!readSet.includes(doc.id)){
+              const d = doc.data();
+              // serverTimestamp pending bo'lsa title/body mavjud bo'ladi
+              if(d.title || d.body){
+                showNotifPopup(doc.id, d.title || 'Yangilik', d.body || '');
+              }
+            }
+          }
+        });
+      }
+
+      _firstLoad = false;
+
+      // Badge yangilash
+      let unread = 0;
       snap.docs.forEach(doc => {
         if(!readSet.includes(doc.id)) unread++;
-
-        // Yangi kelgan (avval ko'rilmagan) xabar — popup ko'rsat
-        if(_initialized && !_knownIds.has(doc.id) && !readSet.includes(doc.id)){
-          const d = doc.data();
-          showNotifPopup(doc.id, d.title || 'Yangilik', d.body || '');
-        }
-        _knownIds.add(doc.id);
       });
-
-      _initialized = true;
-
       const badge = document.getElementById('notifBadge');
       if(badge){
         badge.textContent = unread;
