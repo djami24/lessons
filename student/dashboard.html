@@ -90,56 +90,170 @@
   body.admin-theme:not(.light-mode) .chat-item-preview, body.admin-theme:not(.light-mode) .chat-item-time{ color:#8892A6; }
   body.admin-theme:not(.light-mode) .chat-detail-name{ color:#101B3D; }
 
-  /* ===== Student home page — dark redesign ===== */
-  #view-home{
-    background: linear-gradient(180deg,#121317 0%,#17181d 100%);
-    border-radius: 24px;
-    padding: clamp(20px,3vw,34px) clamp(16px,3vw,30px) 30px;
-    color:#f3f5fb;
-  }
-  #view-home .admin-header{ border-bottom:none; padding-bottom:0; margin-bottom:22px; }
-  #view-home .admin-header h1{ color:#fff; font-size:1.7rem; margin-bottom:.3em; }
-  #view-home .home-greet-name{ color:#5b8cff; }
-  #view-home .admin-header p{ color:#8890a6; margin:0 0 .7em; }
-  #view-home .home-header-rule{ width:42px; height:4px; border-radius:3px; background:linear-gradient(90deg,#5b8cff,#2a4fd6); border:none; }
+  /* ===== Talaba kabineti — yangi dizayn ===== */
+  #view-home{ background:var(--gray-25) !important; border-radius:0 !important; padding:0 !important; color:var(--gray-900) !important; }
 
-  #view-home .hd-card{
-    background:#1c1d23; border:1px solid rgba(255,255,255,.08); border-radius:18px;
-    padding:20px 20px 22px; display:flex; flex-direction:column;
-    box-shadow:0 10px 30px rgba(0,0,0,.25);
-  }
-  #view-home .hd-card-head{ display:flex; align-items:center; gap:.7em; margin-bottom:14px; }
-  #view-home .hd-icon-badge{
-    width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
-    font-size:1.05rem; flex:none;
-  }
-  #view-home .hd-icon-blue{ background:linear-gradient(155deg,#4f7cff,#2a4fd6); }
-  #view-home .hd-icon-green{ background:linear-gradient(155deg,#34d399,#059669); }
-  #view-home .hd-eyebrow{ font-size:.68rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
-  #view-home .hd-eyebrow-blue{ color:#7ea2ff; }
-  #view-home .hd-eyebrow-green{ color:#5fe0a6; }
-  #view-home .hd-date{ font-size:.78rem; color:#78809a; margin-left:auto; }
-  #view-home .hd-card .latest-hw-title{ color:#fff; font-size:1.25rem; margin:0 0 10px; }
-  #view-home .hd-card input[type="text"]{
-    background:#16171c; border:1.5px solid rgba(255,255,255,.12); color:#f3f5fb; border-radius:10px;
-  }
-  #view-home .hd-card input[type="text"]::placeholder{ color:#5c6480; }
-  #view-home .hd-card .latest-hw-preview{ color:#8890a6; }
-  #view-home .hd-row{ display:flex; align-items:center; gap:.6em; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.06); }
-  #view-home .hd-row:last-of-type{ border-bottom:none; }
-  #view-home .hd-row-label{ display:flex; align-items:center; gap:.5em; color:#8890a6; font-size:.86rem; }
-  #view-home .hd-row-val{ font-weight:700; color:#f3f5fb; }
-  #view-home #progressMissingWrap{ border-top:1px solid rgba(255,255,255,.06); padding-top:10px; margin-top:4px; }
-  #view-home #progressMissingWrap > span{ color:#8890a6 !important; font-size:.8rem; display:flex; align-items:center; gap:.4em; }
-  #view-home #progressMissingList div{ color:#ff7a7a !important; font-size:.86rem; }
-  #view-home #progressNoteVal{ background:rgba(255,255,255,.04); border-radius:10px; padding:.6em .8em; margin-top:.6em !important; font-size:.84rem; }
+  /* kb-content wrapper */
+  #view-home .kb-content{ padding:0; }
 
-  #view-home .hd-pill-btn{
-    margin-top:16px; width:100%; text-align:center; border-radius:30px; padding:.75em 1em;
-    background:transparent; border:1.5px solid rgba(255,255,255,.16); color:#f3f5fb; font-weight:700; font-size:.88rem;
-    display:flex; align-items:center; justify-content:center; gap:.4em; cursor:pointer;
+  :root{
+    --navy-950:#0f1f3d;
+    --navy-900:#132a52;
+    --navy-800:#1a3766;
+    --blue-600:#2f5fd8;
+    --blue-500:#3b6ff0;
+    --blue-50:#eaf1ff;
+    --green-500:#22b573;
+    --green-50:#e7f8f0;
+    --red-500:#e0455a;
+    --red-50:#fdeaec;
+    --purple-500:#7c5cf0;
+    --purple-50:#f1ecfe;
+    --teal-500:#2596a3;
+    --teal-50:#e7f6f8;
+    --gray-25:#f6f7fb;
+    --gray-100:#eef0f5;
+    --gray-200:#e2e5ec;
+    --gray-400:#9aa2b1;
+    --gray-500:#6b7484;
+    --gray-700:#3c4353;
+    --gray-900:#1c212e;
+    --white:#ffffff;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(20,25,40,0.04), 0 2px 8px rgba(20,25,40,0.05);
   }
-  #view-home .hd-pill-btn:hover{ border-color:rgba(255,255,255,.35); }
+  .content{padding:26px 28px 40px;}
+  .page-title{font-size:24px;font-weight:800;color:var(--gray-900);margin:0 0 4px;}
+  .page-sub{font-size:13.5px;color:var(--gray-500);margin:0 0 22px;}
+
+  .card{
+    background:var(--white);
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .card-head{
+    display:flex;align-items:center;gap:10px;
+    padding:16px 18px;
+    border-bottom:1px solid var(--gray-100);
+  }
+  .card-head .icon-badge{
+    width:30px;height:30px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .card-head .icon-badge svg{width:16px;height:16px;}
+  .card-head h3{font-size:14.5px;font-weight:700;margin:0;color:var(--gray-900);}
+  .card-head .spacer{margin-left:auto;font-size:12px;color:var(--gray-400);}
+  .link{color:var(--blue-600);font-size:12.5px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:4px;}
+
+  /* top row layout */
+  .row-top{
+    display:grid;
+    grid-template-columns:1.5fr 1fr 1fr;
+    gap:18px;
+    margin-bottom:18px;
+  }
+  .profile-card{padding:20px;display:flex;gap:18px;align-items:flex-start;}
+  .profile-main{flex:1;}
+  .profile-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .profile-name{font-size:18px;font-weight:800;color:var(--gray-900);}
+  .badge{
+    font-size:11.5px;font-weight:700;
+    padding:4px 10px;border-radius:20px;
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .badge.green{background:var(--green-50);color:var(--green-500);}
+  .badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap-y:12px;row-gap:12px;column-gap:16px;font-size:13px;}
+  .pg-label{color:var(--gray-500);margin-bottom:3px;}
+  .pg-value{color:var(--gray-900);font-weight:600;}
+  .divider-v{width:1px;background:var(--gray-100);align-self:stretch;}
+  .status-tile{
+    width:96px;flex-shrink:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    background:var(--blue-50);border-radius:10px;padding:14px 8px;text-align:center;
+  }
+  .status-tile svg{width:22px;height:22px;color:var(--blue-600);}
+  .status-tile span{font-size:11.5px;font-weight:700;color:var(--blue-600);line-height:1.3;}
+
+  .test-card{padding:0;}
+  .test-body{padding:16px 18px;}
+  .test-title{font-size:13.5px;font-weight:700;color:var(--gray-900);margin:0 0 10px;}
+  .test-score{font-size:30px;font-weight:800;color:var(--gray-900);display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
+  .test-score small{font-size:15px;font-weight:600;color:var(--gray-400);}
+  .test-date{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--gray-500);margin-bottom:14px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    width:100%;
+    background:var(--blue-50);color:var(--blue-600);
+    font-size:13px;font-weight:700;
+    padding:10px;border-radius:9px;border:none;cursor:pointer;
+  }
+  .btn.dark{background:var(--navy-900);color:#fff;}
+  .btn.dark:hover{background:var(--navy-800);}
+
+  .plan-card{padding:0;display:flex;flex-direction:column;}
+  .plan-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--gray-100);}
+  .plan-date{margin-left:auto;font-size:12px;color:var(--gray-400);}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  thead th{
+    text-align:left;color:var(--gray-500);font-weight:600;
+    padding:10px 18px;font-size:11.5px;
+    border-bottom:1px solid var(--gray-100);
+  }
+  tbody td{padding:12px 18px;border-bottom:1px solid var(--gray-100);color:var(--gray-900);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  .pill{
+    font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;display:inline-block;
+  }
+  .pill.red{background:var(--red-50);color:var(--red-500);}
+  .pill.blue{background:var(--blue-50);color:var(--blue-600);}
+  .pill.gray{background:var(--gray-100);color:var(--gray-500);}
+  .plan-footer{padding:14px 18px;}
+
+  /* stat row */
+  .row-stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:18px;
+  }
+  .stat-card{padding:16px 18px;display:flex;flex-direction:column;gap:10px;}
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .stat-icon svg{width:18px;height:18px;color:#fff;}
+  .stat-label{font-size:12.5px;font-weight:600;color:var(--gray-700);}
+  .stat-value-row{display:flex;align-items:baseline;gap:8px;}
+  .stat-value{font-size:24px;font-weight:800;color:var(--gray-900);}
+  .stat-delta{font-size:11.5px;font-weight:700;color:var(--green-500);display:flex;align-items:center;gap:2px;}
+  .stat-sub{font-size:11.5px;color:var(--gray-400);}
+
+  /* bottom row */
+  .row-bottom{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;}
+  .schedule-card{padding:0;}
+  .activity-card{padding:0;display:flex;flex-direction:column;}
+  .activity-list{padding:6px 4px;}
+  .activity-item{display:flex;gap:12px;padding:12px 16px;}
+  .activity-check{
+    width:22px;height:22px;border-radius:50%;background:var(--green-500);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;
+  }
+  .activity-check svg{width:12px;height:12px;color:#fff;}
+  .activity-main{flex:1;}
+  .activity-title-row{display:flex;justify-content:space-between;gap:10px;}
+  .activity-title{font-size:13px;font-weight:700;color:var(--gray-900);}
+  .activity-time{font-size:11px;color:var(--gray-400);white-space:nowrap;}
+  .activity-sub{font-size:12px;color:var(--gray-500);margin-top:2px;}
+  .activity-footer{padding:12px 16px;border-top:1px solid var(--gray-100);}
+
+  @media (max-width:1180px){
+    .row-top{grid-template-columns:1fr;}
+    .row-stats{grid-template-columns:1fr 1fr;}
+    .row-bottom{grid-template-columns:1fr;}
+  }
+
+
 
   /* Test natijasi card — purple/blue gradient */
   #view-home #gbResultBox{
@@ -345,132 +459,170 @@
     <!-- ===== COURSES OVERVIEW =====
     <!-- ===== HOME (default landing page) ===== -->
     <section id="view-home">
-      <div class="admin-header">
-        <div>
-          <h1 id="homeGreeting">Xush kelibsiz!</h1>
-          <p>Kerakli bo‘limni tanlang va o‘quv jarayonini davom ettiring.</p>
-          <div class="home-header-rule"></div>
+      <div class="kb-content">
+<h1 class="page-title">Talaba shaxsiy kabineti</h1>
+    <p class="page-sub">Shaxsiy ma'lumotlaringiz va ta'lim jarayoningizni boshqarishingiz mumkin.</p>
+
+    <!-- TOP ROW -->
+    <div class="row-top">
+      <!-- profile -->
+      <div class="card profile-card">
+        <div class="avatar lg" style="background:var(--blue-50);">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6" stroke="var(--blue-600)" stroke-width="1.6"/><path d="M4.5 20c1.5-4 4.5-6.2 7.5-6.2s6 2.2 7.5 6.2" stroke="var(--blue-600)" stroke-width="1.6" stroke-linecap="round"/></svg>
+        </div>
+        <div class="profile-main">
+          <div class="profile-name-row">
+            <div class="profile-name">Abduraxmonova Mufazalxon</div>
+            <span class="badge green"><span class="badge-dot"></span>Faol talaba</span>
+          </div>
+          <div class="profile-grid">
+            <div><div class="pg-label">Talaba ID:</div><div class="pg-value">12345678</div></div>
+            <div><div class="pg-label">Ta'lim yo'nalishi:</div><div class="pg-value">Ingliz tili</div></div>
+            <div><div class="pg-label">Guruh:</div><div class="pg-value">Texas</div></div>
+            <div><div class="pg-label">Ta'lim muassasasi:</div><div class="pg-value">Toshkent Davlat Pedagogika Universiteti</div></div>
+          </div>
+        </div>
+        <div class="divider-v"></div>
+        <div class="status-tile">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 10-5-10-5z" stroke="var(--blue-600)" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5" stroke="var(--blue-600)" stroke-width="1.6" stroke-linejoin="round"/></svg>
+          <span>Talaba<br>Statusi</span>
         </div>
       </div>
 
-      <div class="home-top-boxes" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.2em; align-items:start;">
-        <div class="latest-hw-box hd-card" id="progressBox">
-          <div class="hd-card-head">
-            <span class="hd-icon-badge hd-icon-blue">📘</span>
-            <div>
-              <span class="latest-hw-eyebrow hd-eyebrow hd-eyebrow-blue">O‘quv jarayoni</span>
-            </div>
-            <span class="latest-hw-date hd-date" id="progressDate"></span>
-          </div>
-
-          <div id="progressIdForm">
-            <p class="latest-hw-preview">O‘quv jarayoningizni ko‘rish uchun administrator bergan ID’ni kiriting.</p>
-            <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:.6em;">
-              <input type="text" id="progressIdInput" placeholder="ID" style="flex:1; min-width:160px;">
-              <button type="button" class="btn btn-amber btn-sm" id="progressIdSubmitBtn">Ko‘rish</button>
-            </div>
-            <p class="form-error" id="progressIdError" role="alert" hidden style="margin-top:.6em;"></p>
-          </div>
-
-          <div id="progressView" hidden>
-            <h3 class="latest-hw-title" id="progressStudentNameVal"></h3>
-            <div>
-              <div class="hd-row">
-                <span class="hd-row-label">📅 Davomat</span>
-                <span id="progressAttendedVal" class="hd-row-val">—</span>
-              </div>
-              <div class="hd-row">
-                <span class="hd-row-label">📈 Uy vazifa</span>
-                <span id="progressHwVal" class="hd-row-val">—</span>
-              </div>
-
-              <div class="hd-row" id="progressPunishedRow" hidden>
-                <span class="hd-row-label">🚫 Holat</span>
-                <span class="hd-row-val" style="color:#c0392b;">Jazolandi</span>
-              </div>
-              <div id="progressMissingWrap" hidden>
-                <span>ℹ️ Bajarilmagan uy vazifalar</span>
-                <div id="progressMissingList" style="margin-top:.3em; display:flex; flex-direction:column; gap:.2em;"></div>
-              </div>
-              <p class="latest-hw-preview" id="progressNoteVal"></p>
-            </div>
-            <button type="button" class="hd-pill-btn" id="progressChangeIdBtn">ID’ni o‘zgartirish <span>→</span></button>
-          </div>
+      <!-- test result -->
+      <div class="card test-card">
+        <div class="card-head">
+          <div class="icon-badge" style="background:var(--navy-900);"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h3>So‘nggi test natijasi</h3>
         </div>
-
-        <div class="latest-hw-box" id="gbResultBox">
-          <div class="latest-hw-head">
-            <span class="latest-hw-eyebrow">🏆 Test natijasi</span>
+        <div class="test-body">
+          <p class="test-title">Introduction Test - Texas</p>
+          <div class="test-score">100 <small>/ 100</small> <span class="badge green" style="margin-left:4px;">Muvaffaqiyatli</span></div>
+          <div class="test-date">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 2v4M16 2v4M3 10h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            Topshirilgan sana: 09.09.2026
           </div>
-
-          <div id="gbNameForm">
-            <p class="latest-hw-preview" id="gbNameFormMsg">Test natijangizni ko‘rish uchun avval «O‘quv jarayoni» kartochkasiga administrator bergan ID’ni kiriting — natijangiz shu yerda avtomatik chiqadi.</p>
-            <p class="form-error" id="gbNameError" role="alert" hidden style="margin-top:.6em;"></p>
-          </div>
-
-          <div id="gbResultView" hidden>
-            <h3 class="latest-hw-title" id="gbResultName"></h3>
-            <p class="latest-hw-preview" id="gbResultUnit"></p>
-            <div class="quiz-result-score" id="gbResultScore" style="font-size:1.6rem; display:inline-block; padding:.15em .6em; border-radius:8px; margin:.2em 0 .4em;"></div>
-            <p id="gbResultMessage" hidden style="margin:0 0 .8em; font-weight:700; font-size:1.05rem;"></p>
-            <div style="display:flex; gap:.6em; flex-wrap:wrap;">
-              <a href="../natijalar.html" target="_blank" rel="noopener" class="btn btn-amber btn-sm">📊 Barcha natijalar</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="latest-hw-box hd-card" id="latestHwBox" hidden>
-          <div class="hd-card-head">
-            <span class="hd-icon-badge hd-icon-green">📗</span>
-            <div>
-              <span class="latest-hw-eyebrow hd-eyebrow hd-eyebrow-green">So‘nggi uy vazifasi</span>
-            </div>
-            <span class="latest-hw-date hd-date" id="latestHwDate"></span>
-          </div>
-          <h3 class="latest-hw-title" id="latestHwTitle"></h3>
-          <div class="latest-hw-checklist" id="latestHwPreview"></div>
-          <a href="../kundalik.html" class="btn">Batafsil ko‘rish</a>
-          <div class="hw-status-row" id="latestHwStatusRow">
-            <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
-            <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
-          </div>
+          <button class="btn">Batafsil
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
         </div>
       </div>
 
-      <div class="home-quick-bar">
-        <p class="home-quick-title">⚡ Tezkor ma'lumot</p>
-        <div class="home-quick-grid">
-          <div class="home-quick-tile">
-            <span class="home-quick-icon hd-icon-blue">🕐</span>
-            <div>
-              <div class="home-quick-label">Dars vaqti</div>
-              <div class="home-quick-val" id="qiTimeVal">—</div>
+      <!-- today plan -->
+      <div class="card plan-card">
+        <div class="plan-head">
+          <div class="icon-badge" style="background:var(--blue-50);"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="var(--blue-600)" stroke-width="1.7"/><path d="M8 2v4M16 2v4M3 10h18" stroke="var(--blue-600)" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h3>Bugungi o‘quv reja</h3>
+          <span class="plan-date">10-sentabr, 2026</span>
+        </div>
+        <table>
+          <thead><tr><th>Fan</th><th>Vazifa</th><th>Muddat</th><th>Holat</th></tr></thead>
+          <tbody>
+            <tr><td>Ingliz tili</td><td>Lug'at mashqi</td><td>10-sentabr</td><td><span class="pill red">Bajarilmagan</span></td></tr>
+            <tr><td>Grammatika</td><td>Unit 5</td><td>10-sentabr</td><td><span class="pill blue">Jarayonda</span></td></tr>
+            <tr><td>Yozish</td><td>Essay</td><td>11-sentabr</td><td><span class="pill gray">Rejalashtirilgan</span></td></tr>
+          </tbody>
+        </table>
+        <div class="plan-footer">
+          <button class="btn dark">Vazifalarni ko'rish
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="row-stats">
+      <div class="card stat-card">
+        <div class="stat-top">
+          <div class="stat-icon" style="background:var(--green-500);"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="#fff" stroke-width="1.7"/><path d="M8 2v4M16 2v4M3 10h18" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <span class="stat-label">Davomat</span>
+        </div>
+        <div class="stat-value-row"><span class="stat-value">96%</span><span class="stat-delta">↑ 4%</span></div>
+        <span class="stat-sub">So'nggi 30 kun</span>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-top">
+          <div class="stat-icon" style="background:var(--blue-500);"><svg viewBox="0 0 24 24" fill="none"><path d="M3 11l9-7 9 7" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v9a1 1 0 001 1h12a1 1 0 001-1v-9" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+          <span class="stat-label">Uy vazifalari</span>
+        </div>
+        <div class="stat-value-row"><span class="stat-value">12 ta</span><span class="stat-delta">↑ 3 ta</span></div>
+        <span class="stat-sub">Topshirilgan</span>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-top">
+          <div class="stat-icon" style="background:var(--purple-500);"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <span class="stat-label">Test natijalari</span>
+        </div>
+        <div class="stat-value-row"><span class="stat-value">92%</span><span class="stat-delta">↑ 5%</span></div>
+        <span class="stat-sub">O'rtacha natija</span>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-top">
+          <div class="stat-icon" style="background:var(--teal-500);"><svg viewBox="0 0 24 24" fill="none"><path d="M12 6.5c-1.7-1.4-4.2-2-6.5-2C4.7 4.5 4 5 4 5.7v12.6c0 .7.7 1.1 1.5 1 2.3-.3 4.8.2 6.5 1.7 1.7-1.5 4.2-2 6.5-1.7.8.1 1.5-.3 1.5-1V5.7c0-.7-.7-1.2-1.5-1.2-2.3 0-4.8.6-6.5 2z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg></div>
+          <span class="stat-label">Faol kurslar</span>
+        </div>
+        <div class="stat-value-row"><span class="stat-value">3 ta</span><span class="stat-delta">↑ 1 ta</span></div>
+        <span class="stat-sub">Jami kurslar</span>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="row-bottom">
+      <div class="card schedule-card">
+        <div class="plan-head">
+          <div class="icon-badge" style="background:var(--blue-50);"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="var(--blue-600)" stroke-width="1.7"/><path d="M8 2v4M16 2v4M3 10h18" stroke="var(--blue-600)" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h3>Ta'lim jadvali</h3>
+          <a class="link" style="margin-left:auto;">Barcha darslar
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <table>
+          <thead><tr><th>Kun</th><th>Vaqt</th><th>Fan</th><th>Guruh</th><th>Xona</th></tr></thead>
+          <tbody>
+            <tr><td>Dushanba</td><td>15:00 – 16:40</td><td>Ingliz tili</td><td>Texas</td><td>203</td></tr>
+            <tr><td>Chorshanba</td><td>15:00 – 16:40</td><td>Ingliz tili</td><td>Texas</td><td>203</td></tr>
+            <tr><td>Payshanba</td><td>15:00 – 16:40</td><td>Ingliz tili</td><td>Texas</td><td>203</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card activity-card">
+        <div class="plan-head">
+          <div class="icon-badge" style="background:var(--blue-50);"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--blue-600)" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="var(--blue-600)" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h3>So‘nggi faoliyat</h3>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="activity-main">
+              <div class="activity-title-row"><span class="activity-title">Test topshirildi</span><span class="activity-time">09.09.2026 16:24</span></div>
+              <div class="activity-sub">Introduction Test - Texas</div>
             </div>
           </div>
-          <div class="home-quick-tile">
-            <span class="home-quick-icon" style="background:linear-gradient(155deg,#a855f7,#7c3aed);">👥</span>
-            <div>
-              <div class="home-quick-label">O‘quvchilar guruhi</div>
-              <div class="home-quick-val" id="qiGroupVal">—</div>
+          <div class="activity-item">
+            <div class="activity-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="activity-main">
+              <div class="activity-title-row"><span class="activity-title">Uy vazifasi qabul qilindi</span><span class="activity-time">08.09.2026 14:12</span></div>
+              <div class="activity-sub">Lug'at mashqi</div>
             </div>
           </div>
-          <div class="home-quick-tile">
-            <span class="home-quick-icon" style="background:linear-gradient(155deg,#f0a63a,#c2790a);">📅</span>
-            <div>
-              <div class="home-quick-label">Keyingi dars</div>
-              <div class="home-quick-val" id="qiNextLessonVal">—</div>
-            </div>
-          </div>
-          <div class="home-quick-tile">
-            <span class="home-quick-icon" style="background:linear-gradient(155deg,#fb7185,#e11d48);">🎯</span>
-            <div>
-              <div class="home-quick-label">Maqsad</div>
-              <div class="home-quick-val">Eng yaxshi natija sari!</div>
+          <div class="activity-item">
+            <div class="activity-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="activity-main">
+              <div class="activity-title-row"><span class="activity-title">Profil ma'lumotlari yangilandi</span><span class="activity-time">05.09.2026 10:03</span></div>
+              <div class="activity-sub">Shaxsiy ma'lumotlar</div>
             </div>
           </div>
         </div>
+        <div class="activity-footer">
+          <a class="link">Barcha faoliyat
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
       </div>
-
+    </div>
+      </div>
     </section>
 
     <section id="view-courses">
@@ -807,177 +959,43 @@
     <!-- ===== PROFILE (student's own profile) ===== -->
     <section id="view-profile" hidden>
       <a href="#" id="backToHomeFromProfile" class="back-link">← Bosh sahifaga</a>
-
-      <style>
-        /* ===== YANGI PROFIL DIZAYN ===== */
-        .new-profile-wrap { display:flex; flex-direction:column; gap:20px; max-width:860px; }
-        .np-card { background:var(--paper); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow-card); overflow:hidden; }
-        .np-card-head { display:flex; align-items:center; gap:10px; padding:16px 20px; border-bottom:1px solid var(--line); }
-        .np-icon-badge { width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0; }
-        .np-card-head h3 { font-size:14.5px;font-weight:700;margin:0;color:var(--ink); }
-        .np-profile-row { display:flex;gap:20px;padding:22px;align-items:flex-start; }
-        .np-avatar-col { display:flex;flex-direction:column;align-items:center;gap:10px;flex-shrink:0; }
-        .np-avatar-circle { width:82px;height:82px;border-radius:50%;background:#e8f0fe;display:flex;align-items:center;justify-content:center;font-size:2.4rem;border:2px solid var(--line);cursor:pointer;transition:transform 0.15s; }
-        .np-avatar-circle:hover { transform:scale(1.04); }
-        .np-avatar-change-btn { font-size:11.5px;color:var(--teal);font-weight:700;background:none;border:none;cursor:pointer;padding:0;text-decoration:underline;text-underline-offset:2px; }
-        .np-info-col { flex:1; }
-        .np-name-row { display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px; }
-        .np-name { font-size:19px;font-weight:800;color:var(--ink); }
-        .np-status-badge { font-size:11.5px;font-weight:700;padding:4px 11px;border-radius:20px;background:#e7f8f0;color:#22b573;display:inline-flex;align-items:center;gap:5px; }
-        .np-status-dot { width:6px;height:6px;border-radius:50%;background:currentColor; }
-        .np-grid { display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;font-size:13px; }
-        .np-grid-label { color:var(--gray);margin-bottom:2px;font-size:12px; }
-        .np-grid-val { color:var(--ink);font-weight:600; }
-        .np-divider { width:1px;background:var(--line);align-self:stretch; }
-        .np-status-tile { width:96px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#eaf1ff;border-radius:10px;padding:14px 8px;text-align:center; }
-        .np-status-tile svg { width:22px;height:22px;color:#2f5fd8; }
-        .np-status-tile span { font-size:11.5px;font-weight:700;color:#2f5fd8;line-height:1.3; }
-        .np-stats-row { display:grid;grid-template-columns:repeat(4,1fr);gap:14px; }
-        .np-stat { background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow-card); }
-        .np-stat-top { display:flex;align-items:center;gap:10px; }
-        .np-stat-icon { width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem; }
-        .np-stat-label { font-size:12px;font-weight:600;color:var(--gray); }
-        .np-stat-value { font-size:22px;font-weight:800;color:var(--ink); }
-        .np-stat-sub { font-size:11px;color:#9aa2b1; }
-        .np-form-section { padding:22px; }
-        .np-form-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px; }
-        .np-field { display:flex;flex-direction:column;gap:5px; }
-        .np-field label { font-size:12px;font-weight:600;color:var(--gray); }
-        .np-field input { border:1.5px solid var(--line);border-radius:9px;padding:10px 13px;font-size:13.5px;font-family:inherit;color:var(--ink);background:var(--paper);outline:none;transition:border-color 0.15s; }
-        .np-field input:focus { border-color:#2E6F6E; }
-        .np-field input:disabled { opacity:0.6;cursor:not-allowed;background:var(--paper-2); }
-        .np-save-btn { display:inline-flex;align-items:center;gap:7px;background:var(--teal);color:#fff;font-size:13.5px;font-weight:700;padding:11px 24px;border-radius:9px;border:none;cursor:pointer;transition:background 0.15s; }
-        .np-save-btn:hover { background:var(--teal-deep); }
-        .np-save-btn:disabled { opacity:0.6;cursor:not-allowed; }
-        .np-emoji-grid { display:flex;flex-wrap:wrap;gap:6px;padding:14px 22px;border-top:1px solid var(--line); }
-        .np-emoji-btn { width:38px;height:38px;border:1.5px solid var(--line);border-radius:8px;background:var(--paper);font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color 0.12s,background 0.12s; }
-        .np-emoji-btn:hover { border-color:var(--teal);background:#f0f8f7; }
-        .np-alert-error { background:#fdeaec;color:#b3432b;border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:600;margin-top:10px; }
-        .np-alert-notice { background:#e7f8f0;color:#22b573;border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:600;margin-top:10px; }
-        @media(max-width:700px){
-          .np-profile-row{flex-direction:column;}
-          .np-grid{grid-template-columns:1fr;}
-          .np-stats-row{grid-template-columns:1fr 1fr;}
-          .np-form-grid{grid-template-columns:1fr;}
-          .np-divider,.np-status-tile{display:none;}
-        }
-      </style>
-
-      <div class="new-profile-wrap">
-
-        <!-- Profil kartasi -->
-        <div class="np-card">
-          <div class="np-card-head">
-            <span class="np-icon-badge" style="background:#e8f0fe;">👤</span>
-            <h3>Shaxsiy ma'lumotlar</h3>
-          </div>
-          <div class="np-profile-row">
-            <div class="np-avatar-col">
-              <div class="np-avatar-circle" id="profileAvatarBig" title="Belgini o'zgartirish">🙂</div>
-              <button type="button" class="np-avatar-change-btn" id="toggleEmojiPickerBtn">Belgini o'zgartirish</button>
-            </div>
-            <div class="np-info-col">
-              <div class="np-name-row">
-                <div class="np-name" id="npDisplayName">—</div>
-                <span class="np-status-badge"><span class="np-status-dot"></span>Faol talaba</span>
-              </div>
-              <div class="np-grid">
-                <div>
-                  <div class="np-grid-label">Ism familiya</div>
-                  <div class="np-grid-val" id="npNameVal">—</div>
-                </div>
-                <div>
-                  <div class="np-grid-label">Telefon raqam</div>
-                  <div class="np-grid-val" id="npPhoneVal">—</div>
-                </div>
-                <div>
-                  <div class="np-grid-label">Email</div>
-                  <div class="np-grid-val" id="npEmailVal">—</div>
-                </div>
-                <div>
-                  <div class="np-grid-label">Guruh</div>
-                  <div class="np-grid-val" id="npGroupVal">—</div>
-                </div>
-              </div>
-            </div>
-            <div class="np-divider"></div>
-            <div class="np-status-tile">
-              <svg viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 10-5-10-5z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
-              <span>Talaba<br>Statusi</span>
-            </div>
-          </div>
-          <!-- Emoji picker -->
-          <div class="np-emoji-grid" id="emojiPickerGrid" hidden></div>
+      <div class="admin-header">
+        <div>
+          <h1>Mening profilim</h1>
+          <p>Ism, telefon raqam va profil belgingizni shu yerdan o‘zgartirasiz.</p>
         </div>
+      </div>
 
-        <!-- Statistika qatori -->
-        <div class="np-stats-row">
-          <div class="np-stat">
-            <div class="np-stat-top">
-              <div class="np-stat-icon" style="background:#dcfce7;">📅</div>
-              <span class="np-stat-label">Davomat</span>
-            </div>
-            <div class="np-stat-value" id="npStatAttendance">—</div>
-            <div class="np-stat-sub">So'nggi ma'lumot</div>
-          </div>
-          <div class="np-stat">
-            <div class="np-stat-top">
-              <div class="np-stat-icon" style="background:#dbeafe;">📚</div>
-              <span class="np-stat-label">Uy vazifalari</span>
-            </div>
-            <div class="np-stat-value" id="npStatHw">—</div>
-            <div class="np-stat-sub">Topshirilgan</div>
-          </div>
-          <div class="np-stat">
-            <div class="np-stat-top">
-              <div class="np-stat-icon" style="background:#ede9fe;">🏆</div>
-              <span class="np-stat-label">Test natijasi</span>
-            </div>
-            <div class="np-stat-value" id="npStatTest">—</div>
-            <div class="np-stat-sub">So'nggi test</div>
-          </div>
-          <div class="np-stat">
-            <div class="np-stat-top">
-              <div class="np-stat-icon" style="background:#fef3c7;">⭐</div>
-              <span class="np-stat-label">Daraja</span>
-            </div>
-            <div class="np-stat-value" id="npStatLevel">—</div>
-            <div class="np-stat-sub">Joriy daraja</div>
+      <div class="profile-card">
+        <div class="profile-avatar-row">
+          <div class="profile-avatar-big" id="profileAvatarBig">🙂</div>
+          <div>
+            <button type="button" class="btn btn-ghost btn-sm" id="toggleEmojiPickerBtn">Belgini o‘zgartirish</button>
+            <p style="margin:.5em 0 0; color:var(--gray); font-size:.85rem;">Profil rasmi o‘rniga emoji tanlang.</p>
           </div>
         </div>
 
-        <!-- Ma'lumotlarni tahrirlash -->
-        <div class="np-card">
-          <div class="np-card-head">
-            <span class="np-icon-badge" style="background:#fef3c7;">✏️</span>
-            <h3>Ma'lumotlarni tahrirlash</h3>
-          </div>
-          <div class="np-form-section">
-            <form id="profileForm">
-              <div class="np-form-grid">
-                <div class="np-field">
-                  <label>Ism familiya</label>
-                  <input type="text" id="profileName" required maxlength="80" placeholder="Ism Familiya">
-                </div>
-                <div class="np-field">
-                  <label>Telefon raqam</label>
-                  <input type="tel" id="profilePhone" placeholder="+998 90 123 45 67" maxlength="30">
-                </div>
-                <div class="np-field" style="grid-column:1/-1;">
-                  <label>Email (login — o'zgartirib bo'lmaydi)</label>
-                  <input type="email" id="profileEmail" disabled>
-                </div>
-              </div>
-              <p class="np-alert-error" id="profileError" hidden></p>
-              <p class="np-alert-notice" id="profileNotice" hidden></p>
-              <button type="submit" class="np-save-btn" id="profileSaveBtn">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Saqlash
-              </button>
-            </form>
-          </div>
-        </div>
+        <div class="emoji-picker-grid" id="emojiPickerGrid" hidden></div>
 
+        <form class="modal-form" id="profileForm" style="margin-top:1.8em; max-width:460px;">
+          <label class="field">
+            <span>Ism familiya</span>
+            <input type="text" id="profileName" required maxlength="80">
+          </label>
+          <label class="field">
+            <span>Telefon raqam</span>
+            <input type="tel" id="profilePhone" placeholder="+998 90 123 45 67" maxlength="30">
+          </label>
+          <label class="field">
+            <span>Email (login)</span>
+            <input type="email" id="profileEmail" disabled style="opacity:.65; cursor:not-allowed;">
+          </label>
+          <p class="form-error" id="profileError" role="alert" hidden></p>
+          <p class="form-notice" id="profileNotice" role="status" hidden></p>
+          <div class="modal-actions" style="justify-content:flex-start;">
+            <button type="submit" class="btn btn-amber" id="profileSaveBtn">Saqlash</button>
+          </div>
+        </form>
       </div>
     </section>
 
@@ -3101,72 +3119,13 @@ function renderProfile(){
   document.getElementById('navPlacementTest').classList.remove('active');
   document.getElementById('navProfile').classList.add('active');
 
-  // Ma'lumotlarni formaga yuklash
   document.getElementById('profileName').value = state.student.name || '';
   document.getElementById('profilePhone').value = state.student.phone || '';
   document.getElementById('profileEmail').value = state.student.email || '';
-  document.getElementById('profileAvatarBig').textContent = state.student.avatarEmoji || '\uD83D\uDE42';
+  document.getElementById('profileAvatarBig').textContent = state.student.avatarEmoji || '🙂';
   document.getElementById('profileError').hidden = true;
   document.getElementById('profileNotice').hidden = true;
   document.getElementById('emojiPickerGrid').hidden = true;
-
-  // Yangi profil kartasiga ma'lumotlarni yuklash
-  const name = state.student.name || '—';
-  const phone = state.student.phone || '—';
-  const email = state.student.email || '—';
-  document.getElementById('npDisplayName').textContent = name;
-  document.getElementById('npNameVal').textContent = name;
-  document.getElementById('npPhoneVal').textContent = phone;
-  document.getElementById('npEmailVal').textContent = email;
-
-  // Guruh ma'lumotini yuklash (oquv_progress orqali)
-  const savedCode = state.student.oquvProgressCode;
-  if(savedCode){
-    db.collection('oquv_progress').doc(savedCode).get().then(doc => {
-      if(doc.exists){
-        const info = doc.data();
-        document.getElementById('npGroupVal').textContent = info.group || '—';
-        // Statistikani ham to'ldirish
-        const attended = info.attended != null ? info.attended : null;
-        const hw = info.hw != null ? info.hw : null;
-        if(attended !== null) document.getElementById('npStatAttendance').textContent = attended + '%';
-        if(hw !== null) document.getElementById('npStatHw').textContent = hw + ' ta';
-      }
-    }).catch(()=>{});
-  }
-
-  // Test natijasini yuklash
-  if(savedCode){
-    db.collection('gradebook').where('oquvProgressCode','==',savedCode).orderBy('createdAt','desc').limit(1).get()
-      .then(snap => {
-        if(!snap.empty){
-          const gb = snap.docs[0].data();
-          const score = gb.score != null ? gb.score + (gb.total ? ' / ' + gb.total : '') : '—';
-          document.getElementById('npStatTest').textContent = score;
-        }
-      }).catch(()=>{
-        // Eski tizim: name orqali qidirish
-        if(state.student._progressName){
-          db.collection('gradebook').where('studentName','==',state.student._progressName).orderBy('createdAt','desc').limit(1).get()
-            .then(snap2 => {
-              if(!snap2.empty){
-                const gb = snap2.docs[0].data();
-                const score = gb.score != null ? gb.score + (gb.total ? ' / ' + gb.total : '') : '—';
-                document.getElementById('npStatTest').textContent = score;
-              }
-            }).catch(()=>{});
-        }
-      });
-  }
-
-  // Daraja (General English progress)
-  const progress = state.student.progress || {};
-  const levels = ['beginner','elementary','pre-intermediate','intermediate'];
-  let currentLevel = '—';
-  for(const lvl of [...levels].reverse()){
-    if(progress[lvl] && Object.keys(progress[lvl]).length > 0){ currentLevel = lvl.charAt(0).toUpperCase()+lvl.slice(1); break; }
-  }
-  document.getElementById('npStatLevel').textContent = currentLevel;
 
   switchView('profile');
 }
@@ -3184,7 +3143,6 @@ emojiGrid.addEventListener('click', async (e) => {
   const emoji = btn.dataset.emoji;
   document.getElementById('profileAvatarBig').textContent = emoji;
   document.getElementById('sidebarAvatar').textContent = emoji;
-  // Yangi profil kartasi avatar ham yangilanadi
   emojiGrid.hidden = true;
   try{
     await db.collection('students').doc(currentUid).update({ avatarEmoji: emoji });
@@ -3218,10 +3176,6 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     state.student.name = name;
     state.student.phone = phone;
     document.getElementById('sidebarUsername').textContent = name;
-    // Yangi profil kartasini ham yangilash
-    document.getElementById('npDisplayName').textContent = name;
-    document.getElementById('npNameVal').textContent = name;
-    document.getElementById('npPhoneVal').textContent = phone || '—';
     noticeEl.textContent = 'Profil yangilandi.';
     noticeEl.hidden = false;
   } catch(err){
