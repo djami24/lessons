@@ -4,7 +4,7 @@
    Display: Merriweather · Body: Source Sans 3
    ========================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Source+Sans+3:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
 /* ── POWERED BY ── */
 .powered-by{
@@ -54,9 +54,9 @@
   --btn-color:      var(--amber);
   --btn-color-deep: var(--amber-deep);
 
-  --font-display: 'Merriweather', Georgia, serif;
-  --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'Source Sans 3', ui-monospace, monospace;
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'Inter', ui-monospace, monospace;
 
   --radius-s: 6px;
   --radius-m: 12px;
