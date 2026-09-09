@@ -151,10 +151,48 @@
   /* top row layout */
   .row-top{
     display:grid;
-    grid-template-columns:1.6fr 1fr;
+    grid-template-columns:1.5fr 1fr;
     gap:18px;
     margin-bottom:18px;
   }
+  /* ===== Yangi profil kartochka (birinchi rasmdagi uslub) ===== */
+  .profile-card-new{
+    padding:24px 26px;
+    display:flex;
+    gap:22px;
+    align-items:flex-start;
+  }
+  .pnew-avatar-col{ flex-shrink:0; }
+  .pnew-avatar-circle{
+    width:88px; height:88px;
+    border-radius:50%;
+    background:var(--blue-50);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .pnew-main{ flex:1; min-width:0; }
+  .pnew-name{
+    font-size:19px; font-weight:800; color:var(--gray-900);
+    margin-bottom:8px; line-height:1.2;
+  }
+  .pnew-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    background:var(--green-50); color:var(--green-500);
+    font-size:12px; font-weight:700;
+    padding:4px 12px; border-radius:20px;
+    margin-bottom:16px;
+  }
+  .pnew-divider{ height:1px; background:var(--gray-100); margin-bottom:14px; }
+  .pnew-rows{ display:flex; flex-direction:column; gap:10px; }
+  .pnew-row{ display:flex; align-items:baseline; gap:6px; }
+  .pnew-label{
+    font-size:12.5px; color:var(--gray-500);
+    min-width:110px; flex-shrink:0;
+  }
+  .pnew-val{
+    font-size:13.5px; font-weight:600; color:var(--gray-900);
+  }
+  /* Eski profil CSS — boshqa sahifalar uchun saqlab qo'yamiz */
   .profile-card{padding:20px;display:flex;gap:18px;align-items:flex-start;}
   .profile-main{flex:1;}
   .profile-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
@@ -475,20 +513,38 @@
     <!-- TOP ROW -->
     <div class="row-top">
       <!-- profile — dinamik (Firestore'dan to'ldiriladi) -->
-      <div class="card profile-card">
-        <div class="avatar lg" style="background:var(--blue-50);">
-          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6" stroke="var(--blue-600)" stroke-width="1.6"/><path d="M4.5 20c1.5-4 4.5-6.2 7.5-6.2s6 2.2 7.5 6.2" stroke="var(--blue-600)" stroke-width="1.6" stroke-linecap="round"/></svg>
-        </div>
-        <div class="profile-main">
-          <div class="profile-name-row">
-            <div class="profile-name" id="homeStudentName">Yuklanmoqda…</div>
-            <span class="badge green"><span class="badge-dot"></span>Faol talaba</span>
+      <div class="card profile-card-new">
+        <div class="pnew-avatar-col">
+          <div class="pnew-avatar-circle">
+            <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+              <circle cx="40" cy="30" r="20" fill="#c7ddf8"/>
+              <ellipse cx="40" cy="76" rx="30" ry="18" fill="#c7ddf8"/>
+            </svg>
           </div>
-          <div class="profile-grid">
-            <div><div class="pg-label">Talaba ID:</div><div class="pg-value" id="homeStudentId">—</div></div>
-            <div><div class="pg-label">Guruh:</div><div class="pg-value" id="qiGroupVal">—</div></div>
-            <div><div class="pg-label">Dars vaqti:</div><div class="pg-value" id="qiTimeVal">—</div></div>
-            <div><div class="pg-label">Keyingi dars:</div><div class="pg-value" id="qiNextLessonVal">—</div></div>
+        </div>
+        <div class="pnew-main">
+          <div class="pnew-name" id="homeStudentName">Yuklanmoqda…</div>
+          <div class="pnew-badge-row">
+            <span class="pnew-badge">✔ Faol talaba</span>
+          </div>
+          <div class="pnew-divider"></div>
+          <div class="pnew-rows">
+            <div class="pnew-row">
+              <span class="pnew-label">Talaba ID:</span>
+              <span class="pnew-val" id="homeStudentId">—</span>
+            </div>
+            <div class="pnew-row">
+              <span class="pnew-label">Guruh:</span>
+              <span class="pnew-val" id="qiGroupVal">—</span>
+            </div>
+            <div class="pnew-row">
+              <span class="pnew-label">Dars vaqti:</span>
+              <span class="pnew-val" id="qiTimeVal">—</span>
+            </div>
+            <div class="pnew-row">
+              <span class="pnew-label">Keyingi dars:</span>
+              <span class="pnew-val" id="qiNextLessonVal">—</span>
+            </div>
           </div>
         </div>
       </div>
