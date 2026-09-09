@@ -1250,7 +1250,7 @@ async function enterDashboard(){
   const homeNameEl = document.getElementById('homeStudentName');
   if(homeNameEl) homeNameEl.textContent = state.student.name || state.student.email || '—';
   const homeIdEl = document.getElementById('homeStudentId');
-  if(homeIdEl) homeIdEl.textContent = state.student.studentId || currentUid.slice(0,8) || '—';
+  if(homeIdEl) homeIdEl.textContent = state.student.oquvProgressCode || '—';
 
   // Faollik jurnali: talaba profiliga kirdi
   try {
