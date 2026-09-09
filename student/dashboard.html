@@ -215,11 +215,14 @@
   /* stat row */
   .row-stats{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
+    grid-template-columns:repeat(3,1fr);
     gap:18px;
     margin-bottom:18px;
   }
   .stat-card{padding:16px 18px;display:flex;flex-direction:column;gap:10px;}
+  /* style.css dagi doira dekoratsiyani o'chirish */
+  body.admin-theme .row-stats .stat-card{ padding:16px 18px !important; border-radius:14px; }
+  body.admin-theme .row-stats .stat-card::before{ display:none !important; }
   .stat-top{display:flex;align-items:center;gap:10px;}
   .stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
   .stat-icon svg{width:18px;height:18px;color:#fff;}
@@ -556,7 +559,7 @@
         <div class="stat-value-row">
           <span class="stat-value" id="statMissedLessons" style="color:#e74c3c;">—</span>
         </div>
-        <span class="stat-sub">Jami yo'qlab</span>
+        <span class="stat-sub">Jami darsga kelmadi</span>
       </div>
       <div class="card stat-card">
         <div class="stat-top">
