@@ -598,11 +598,9 @@
           </a>
         </div>
         <table>
-          <thead><tr><th>Kun</th><th>Vaqt</th><th>Fan</th><th>Guruh</th><th>Xona</th></tr></thead>
-          <tbody>
-            <tr><td>Dushanba</td><td>15:00 – 16:40</td><td>Ingliz tili</td><td>Texas</td><td>203</td></tr>
-            <tr><td>Chorshanba</td><td>15:00 – 16:40</td><td>Ingliz tili</td><td>Texas</td><td>203</td></tr>
-            <tr><td>Payshanba</td><td>15:00 – 16:40</td><td>Ingliz tili</td><td>Texas</td><td>203</td></tr>
+          <thead><tr><th>Kun</th><th>Vaqt</th><th>Guruh</th></tr></thead>
+          <tbody id="scheduleTableBody">
+            <tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:18px 0;">Yuklanmoqda…</td></tr>
           </tbody>
         </table>
       </div>
@@ -1284,6 +1282,7 @@ async function enterDashboard(){
   await loadWriting();
   await loadMySubmissions();
   loadStudentStatsCards(); // statistika kartochkalari (fon, kutilmaydi)
+  loadScheduleTable();     // ta'lim jadvali (fon, kutilmaydi)
   let _savedStudentView = null;
   try{ _savedStudentView = sessionStorage.getItem('studentLastView'); }catch(err){}
   renderHomeView();
@@ -1616,6 +1615,57 @@ function getNextLessonDateLabel(days, timeRange){
     }
   }
   return null;
+}
+
+// ===== TA'LIM JADVALI (Firestore dan dinamik) =====
+const SCHEDULE_DAY_LABELS = {
+  mon: 'Dushanba', tue: 'Seshanba', wed: 'Chorshanba',
+  thu: 'Payshanba', fri: 'Juma', sat: 'Shanba', sun: 'Yakshanba'
+};
+const SCHEDULE_DAY_ORDER = ['mon','tue','wed','thu','fri','sat','sun'];
+
+async function loadScheduleTable(){
+  const code = state.student.oquvProgressCode;
+  const tbody = document.getElementById('scheduleTableBody');
+  if(!tbody || !code) return;
+
+  try{
+    // 1. oquv_progress dan guruh ma'lumotini ol
+    const pDoc = await db.collection('oquv_progress').doc(code).get();
+    if(!pDoc.exists){ tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:14px 0;">Ma\'lumot topilmadi</td></tr>'; return; }
+
+    const pData = pDoc.data();
+    const groupId   = pData.groupId  || null;
+    const groupName = pData.group    || null;
+
+    // 2. oquv_groups dan days va time ni ol
+    let groupData = null;
+    if(groupId){
+      const gDoc = await db.collection('oquv_groups').doc(groupId).get();
+      if(gDoc.exists) groupData = gDoc.data();
+    }
+    if(!groupData && groupName){
+      const gSnap = await db.collection('oquv_groups').where('name','==',groupName).limit(1).get();
+      if(!gSnap.empty) groupData = gSnap.docs[0].data();
+    }
+
+    if(!groupData || !groupData.days || !groupData.days.length){
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:14px 0;">Jadval kiritilmagan</td></tr>';
+      return;
+    }
+
+    const days    = SCHEDULE_DAY_ORDER.filter(d => groupData.days.includes(d));
+    const time    = groupData.time  || '—';
+    const gName   = groupData.name  || groupName || '—';
+
+    tbody.innerHTML = days.map(d =>
+      `<tr><td>${SCHEDULE_DAY_LABELS[d]}</td><td>${time}</td><td>${gName}</td></tr>`
+    ).join('');
+
+  } catch(err){
+    console.warn('loadScheduleTable failed:', err);
+    if(tbody) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:14px 0;">Xatolik yuz berdi</td></tr>';
+  }
 }
 
 // ===== STATISTIKA KARTOCHKALARI (dars qoldirdi / hw qilmadi / jazolandi) =====
