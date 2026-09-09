@@ -258,29 +258,25 @@
 
 
 
-  /* Test natijasi card — purple/blue gradient */
-  #view-home #gbResultBox{
-    background:linear-gradient(150deg,#3b34c9 0%,#5b3fef 55%,#7048f0 100%);
-    border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:20px 20px 22px;
-    display:flex; flex-direction:column; box-shadow:0 12px 34px rgba(75,58,220,.35);
-  }
+  /* Test natijasi card — oddiy oq karta */
+  #view-home #gbResultBox{ padding:0; }
   #view-home #gbResultBox .latest-hw-head{ margin-bottom:14px; }
   #view-home #gbResultBox .latest-hw-eyebrow{
-    background:rgba(255,255,255,.18); color:#fff; font-size:.7rem; font-weight:800; letter-spacing:.07em;
+    background:var(--blue-50); color:var(--blue-600); font-size:.7rem; font-weight:800; letter-spacing:.07em;
     text-transform:uppercase; padding:.4em .8em; border-radius:20px;
   }
-  #view-home #gbResultBox .latest-hw-title{ color:#fff; font-size:1.3rem; margin:0 0 2px; }
-  #view-home #gbResultBox .latest-hw-preview{ color:rgba(255,255,255,.75); }
+  #view-home #gbResultBox .latest-hw-title{ color:var(--gray-900); font-size:1.3rem; margin:0 0 2px; }
+  #view-home #gbResultBox .latest-hw-preview{ color:var(--gray-500); }
   #view-home #gbResultBox input[type="text"]{
-    background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.25); color:#fff; border-radius:10px;
+    background:var(--gray-50); border:1.5px solid var(--gray-200); color:var(--gray-900); border-radius:10px;
   }
-  #view-home #gbResultBox input[type="text"]::placeholder{ color:rgba(255,255,255,.55); }
-  #view-home #gbResultView p#gbResultUnit{ color:rgba(255,255,255,.75); margin:0 0 12px; }
+  #view-home #gbResultBox input[type="text"]::placeholder{ color:var(--gray-400); }
+  #view-home #gbResultView p#gbResultUnit{ color:var(--gray-500); margin:0 0 12px; }
   #view-home #gbResultMessage{ display:flex; align-items:center; gap:.4em; }
   #view-home #gbResultBox .btn{ border-radius:26px; font-weight:700; font-size:.85rem; }
-  #view-home #gbResultBox .btn-amber{ background:#fff; color:#3b34c9; border-color:#fff; }
-  #view-home #gbResultBox .btn-amber:hover{ background:#f0f0ff; }
-  #view-home #gbResultBox .btn-ghost{ background:rgba(255,255,255,.08); color:#fff; border-color:rgba(255,255,255,.3); }
+  #view-home #gbResultBox .btn-amber{ background:var(--blue-600); color:#fff; border-color:var(--blue-600); }
+  #view-home #gbResultBox .btn-amber:hover{ background:var(--blue-700,#1d4ed8); }
+  #view-home #gbResultBox .btn-ghost{ background:var(--gray-100); color:var(--gray-700); border-color:var(--gray-200); }
 
   /* So'nggi uy vazifasi card */
   #view-home #latestHwBox .latest-hw-checklist{ display:flex; flex-direction:column; gap:.5em; margin:0 0 14px; }
@@ -487,17 +483,12 @@
             <div><div class="pg-label">Keyingi dars:</div><div class="pg-value" id="qiNextLessonVal">—</div></div>
           </div>
         </div>
-        <div class="divider-v"></div>
-        <div class="status-tile">
-          <svg viewBox="0 0 24 24" fill="none"><path d="M12 3L2 8l10 5 10-5-10-5z" stroke="var(--blue-600)" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5" stroke="var(--blue-600)" stroke-width="1.6" stroke-linejoin="round"/></svg>
-          <span>Talaba<br>Statusi</span>
-        </div>
       </div>
 
       <!-- test result — dinamik (gbResultBox) -->
       <div class="card test-card" id="gbResultBox" style="padding:0; transition:background .3s;">
         <div class="card-head">
-          <div class="icon-badge" style="background:var(--navy-900);"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <div class="icon-badge" style="background:var(--blue-50);"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="var(--blue-600)" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="var(--blue-600)" stroke-width="1.7" stroke-linecap="round"/></svg></div>
           <h3>So'nggi test natijasi</h3>
         </div>
         <!-- ID kiritish (agar progress bog'lanmagan bo'lsa) -->
@@ -2295,12 +2286,12 @@ async function renderGbResultBox(){
     scoreEl.classList.remove('quiz-result-pass', 'quiz-result-fail');
 
     const tier = getGbScoreTier(latestScore);
-    box.style.background = tier.cardBg; // the WHOLE card, not just the score badge
-    scoreEl.style.background = 'rgba(255,255,255,.2)';
-    scoreEl.style.color = '#fff';
+    box.style.background = ''; // karta har doim oq — rang o'zgartirilmaydi
+    scoreEl.style.background = tier.cardBg || 'var(--blue-50)';
+    scoreEl.style.color = tier.cardBg ? '#fff' : 'var(--blue-600)';
     msgEl.hidden = false;
     msgEl.textContent = tier.emoji + ' ' + tier.message;
-    msgEl.style.color = '#fff'; // always white, regardless of card color
+    msgEl.style.color = tier.cardBg || 'var(--gray-600)';
   } else {
     box.style.background = '';
     document.getElementById('gbResultUnit').textContent = (match.group ? match.group + ' · ' : '') + 'Hali natija kiritilmagan.';
