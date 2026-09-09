@@ -467,21 +467,21 @@
 
     <!-- TOP ROW -->
     <div class="row-top">
-      <!-- profile -->
+      <!-- profile — dinamik (Firestore'dan to'ldiriladi) -->
       <div class="card profile-card">
         <div class="avatar lg" style="background:var(--blue-50);">
           <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="3.6" stroke="var(--blue-600)" stroke-width="1.6"/><path d="M4.5 20c1.5-4 4.5-6.2 7.5-6.2s6 2.2 7.5 6.2" stroke="var(--blue-600)" stroke-width="1.6" stroke-linecap="round"/></svg>
         </div>
         <div class="profile-main">
           <div class="profile-name-row">
-            <div class="profile-name">Abduraxmonova Mufazalxon</div>
+            <div class="profile-name" id="homeStudentName">Yuklanmoqda…</div>
             <span class="badge green"><span class="badge-dot"></span>Faol talaba</span>
           </div>
           <div class="profile-grid">
-            <div><div class="pg-label">Talaba ID:</div><div class="pg-value">12345678</div></div>
-            <div><div class="pg-label">Ta'lim yo'nalishi:</div><div class="pg-value">Ingliz tili</div></div>
-            <div><div class="pg-label">Guruh:</div><div class="pg-value">Texas</div></div>
-            <div><div class="pg-label">Ta'lim muassasasi:</div><div class="pg-value">Toshkent Davlat Pedagogika Universiteti</div></div>
+            <div><div class="pg-label">Talaba ID:</div><div class="pg-value" id="homeStudentId">—</div></div>
+            <div><div class="pg-label">Guruh:</div><div class="pg-value" id="qiGroupVal">—</div></div>
+            <div><div class="pg-label">Dars vaqti:</div><div class="pg-value" id="qiTimeVal">—</div></div>
+            <div><div class="pg-label">Keyingi dars:</div><div class="pg-value" id="qiNextLessonVal">—</div></div>
           </div>
         </div>
         <div class="divider-v"></div>
@@ -491,22 +491,26 @@
         </div>
       </div>
 
-      <!-- test result -->
-      <div class="card test-card">
+      <!-- test result — dinamik (gbResultBox) -->
+      <div class="card test-card" id="gbResultBox" style="padding:0; transition:background .3s;">
         <div class="card-head">
           <div class="icon-badge" style="background:var(--navy-900);"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="#fff" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg></div>
-          <h3>So‘nggi test natijasi</h3>
+          <h3>So'nggi test natijasi</h3>
         </div>
-        <div class="test-body">
-          <p class="test-title">Introduction Test - Texas</p>
-          <div class="test-score">100 <small>/ 100</small> <span class="badge green" style="margin-left:4px;">Muvaffaqiyatli</span></div>
-          <div class="test-date">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M8 2v4M16 2v4M3 10h18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-            Topshirilgan sana: 09.09.2026
-          </div>
-          <button class="btn">Batafsil
+        <!-- ID kiritish (agar progress bog'lanmagan bo'lsa) -->
+        <div id="gbNameForm" class="test-body">
+          <p id="gbNameFormMsg" style="font-size:12.5px; color:var(--gray-500); margin:0 0 8px; line-height:1.5;">Test natijangizni ko'rish uchun «O'quv jarayoni» kartochkasidagi ID kiriting.</p>
+          <p id="gbNameError" hidden style="font-size:12px; color:var(--red-500); margin:0 0 8px;"></p>
+        </div>
+        <!-- Natija ko'rinishi -->
+        <div id="gbResultView" hidden class="test-body">
+          <p class="test-title" id="gbResultName" style="margin:0 0 2px;"></p>
+          <p id="gbResultUnit" style="font-size:12px; margin:0 0 10px;"></p>
+          <div id="gbResultScore" hidden style="font-size:28px; font-weight:800; border-radius:8px; padding:2px 14px; display:inline-flex; align-items:center; margin-bottom:8px;"></div>
+          <div id="gbResultMessage" style="font-size:13px; font-weight:600; margin-bottom:14px;"></div>
+          <a href="../natijalar.html" target="_blank" class="btn">Batafsil
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+          </a>
         </div>
       </div>
 
@@ -632,6 +636,74 @@
       </div>
     </div>
       </div>
+      <!-- ===== HIDDEN ELEMENTS: JS tomonidan to'ldiriladi ===== -->
+
+      <!-- O'quv jarayoni kartochkasi (progressIdForm / progressView) -->
+      <div id="progressIdForm" hidden style="background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-top:18px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+          <div style="width:30px;height:30px;border-radius:8px;background:var(--blue-50);display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" stroke="var(--blue-600)" stroke-width="1.5"/></svg>
+          </div>
+          <h3 style="font-size:14.5px; font-weight:700; margin:0; color:var(--gray-900);">O'quv jarayoni</h3>
+        </div>
+        <p style="font-size:12.5px; color:var(--gray-500); margin:0 0 12px; line-height:1.5;">Administrator bergan ID'ni kiriting — davomat, uy vazifasi va dars ma'lumotlari shu yerda ko'rinadi.</p>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="progressIdInput" placeholder="Masalan: TX-001" style="flex:1; padding:9px 12px; border:1.5px solid var(--gray-200); border-radius:8px; font-size:13px; outline:none; color:var(--gray-900);">
+          <button type="button" id="progressIdSubmitBtn" class="btn" style="white-space:nowrap;">Tasdiqlash</button>
+        </div>
+        <p id="progressIdError" hidden style="font-size:12px; color:var(--red-500); margin:8px 0 0;"></p>
+      </div>
+
+      <div id="progressView" hidden style="background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); box-shadow:var(--shadow); margin-top:18px; overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:10px; padding:16px 18px; border-bottom:1px solid var(--gray-100);">
+          <div style="width:30px;height:30px;border-radius:8px;background:var(--blue-50);display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" stroke="var(--blue-600)" stroke-width="1.5"/></svg>
+          </div>
+          <h3 style="font-size:14.5px; font-weight:700; margin:0; color:var(--gray-900);">O'quv jarayoni</h3>
+          <span id="progressStudentNameVal" style="margin-left:auto; font-size:12.5px; font-weight:700; color:var(--blue-600);"></span>
+        </div>
+        <div style="padding:14px 18px;">
+          <div style="font-size:11.5px; color:var(--gray-400); margin-bottom:10px;" id="progressDate"></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            <div style="background:var(--gray-25); border-radius:8px; padding:10px 12px;">
+              <div style="font-size:11px; color:var(--gray-500); margin-bottom:3px;">Davomat</div>
+              <div id="progressAttendedVal" style="font-size:13.5px; font-weight:700; color:var(--gray-900);">—</div>
+            </div>
+            <div style="background:var(--gray-25); border-radius:8px; padding:10px 12px;">
+              <div style="font-size:11px; color:var(--gray-500); margin-bottom:3px;">Uy vazifasi</div>
+              <div id="progressHwVal" style="font-size:13.5px; font-weight:700; color:var(--gray-900);">—</div>
+            </div>
+          </div>
+          <div id="progressPunishedRow" hidden style="background:#fdeaec; border-radius:8px; padding:8px 12px; margin-bottom:10px; font-size:12.5px; color:var(--red-500); font-weight:600;">⚠️ Jarima belgilangan</div>
+          <div id="progressMissingWrap" hidden style="margin-bottom:10px;">
+            <div style="font-size:11.5px; color:var(--gray-500); margin-bottom:4px;">Qilmagan vazifalar:</div>
+            <div id="progressMissingList"></div>
+          </div>
+          <div id="progressNoteVal" style="font-size:12.5px; color:var(--gray-700); line-height:1.5; white-space:pre-wrap;"></div>
+        </div>
+        <div style="padding:0 18px 14px;">
+          <button type="button" id="progressChangeIdBtn" style="font-size:11.5px; color:var(--gray-400); background:none; border:none; cursor:pointer; padding:0;">ID'ni o'zgartirish</button>
+        </div>
+      </div>
+
+      <!-- So'nggi uy vazifasi kartochkasi (latestHwBox) -->
+      <!-- Bu qo'shimcha kartochka: loadLatestHomework() tomonidan to'ldiriladi -->
+      <!-- homePlanCard bilan parallel ishlaydi, lekin alohida ma'lumot ko'rsatadi -->
+      <div id="latestHwBox" hidden style="background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); box-shadow:var(--shadow); margin-top:18px; padding:18px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+          <div style="width:30px;height:30px;border-radius:8px;background:var(--teal-50);display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="var(--teal-500)" stroke-width="1.7"/><path d="M8 2v4M16 2v4M3 10h18" stroke="var(--teal-500)" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </div>
+          <h3 style="font-size:14px; font-weight:700; margin:0; color:var(--gray-900);">Vazifa: <span id="latestHwTitle"></span></h3>
+          <span id="latestHwDate" style="margin-left:auto; font-size:11.5px; color:var(--gray-400);"></span>
+        </div>
+        <div id="latestHwPreview" class="latest-hw-checklist"></div>
+        <div class="hw-status-row" id="latestHwStatusRow">
+          <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
+          <button type="button" class="hw-status-btn" data-status="undone">⏳ Bajarmaganman</button>
+        </div>
+      </div>
+
     </section>
 
     <section id="view-courses">
@@ -1174,6 +1246,12 @@ async function enterDashboard(){
   document.getElementById('sidebarAvatar').textContent = state.student.avatarEmoji || '🙂';
   document.getElementById('appShell').hidden = false;
 
+  // Profil kartochkasini to'ldirish (yangi dizayn uchun)
+  const homeNameEl = document.getElementById('homeStudentName');
+  if(homeNameEl) homeNameEl.textContent = state.student.name || state.student.email || '—';
+  const homeIdEl = document.getElementById('homeStudentId');
+  if(homeIdEl) homeIdEl.textContent = state.student.studentId || currentUid.slice(0,8) || '—';
+
   // Faollik jurnali: talaba profiliga kirdi
   try {
     await db.collection('activity_log').add({
@@ -1449,13 +1527,18 @@ function renderHomeView(){
   const firstName = state.student.name ? state.student.name.split(' ')[0] : 'talaba';
   {
     const greetEl = document.getElementById('homeGreeting');
-    greetEl.textContent = '';
-    greetEl.appendChild(document.createTextNode('Xush kelibsiz, '));
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'home-greet-name';
-    nameSpan.textContent = firstName + '!';
-    greetEl.appendChild(nameSpan);
-    greetEl.appendChild(document.createTextNode(' 👋'));
+    if(greetEl){
+      greetEl.textContent = '';
+      greetEl.appendChild(document.createTextNode('Xush kelibsiz, '));
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'home-greet-name';
+      nameSpan.textContent = firstName + '!';
+      greetEl.appendChild(nameSpan);
+      greetEl.appendChild(document.createTextNode(' 👋'));
+    }
+    // Also update page-title if it exists (new design)
+    const pageTitleEl = document.getElementById('homeStudentName');
+    if(pageTitleEl) pageTitleEl.textContent = state.student.name || 'Talaba';
   }
   switchView('home');
   document.getElementById('navHome').classList.add('active');
@@ -1482,9 +1565,12 @@ function renderHomeView(){
 const homeQuickInfo = { group: null, time: null, nextLesson: null };
 function updateHomeQuickInfo(patch){
   Object.assign(homeQuickInfo, patch);
-  document.getElementById('qiTimeVal').textContent = homeQuickInfo.time || '—';
-  document.getElementById('qiGroupVal').textContent = homeQuickInfo.group || '—';
-  document.getElementById('qiNextLessonVal').textContent = homeQuickInfo.nextLesson || '—';
+  const qiTime = document.getElementById('qiTimeVal');
+  const qiGroup = document.getElementById('qiGroupVal');
+  const qiNext = document.getElementById('qiNextLessonVal');
+  if(qiTime) qiTime.textContent = homeQuickInfo.time || '—';
+  if(qiGroup) qiGroup.textContent = homeQuickInfo.group || '—';
+  if(qiNext) qiNext.textContent = homeQuickInfo.nextLesson || '—';
 }
 
 // Finds the next date (today or later) that falls on one of the group's
@@ -1646,52 +1732,72 @@ async function renderProgressBox(){
   }
 }
 
-document.getElementById('progressIdSubmitBtn').addEventListener('click', async () => {
-  const input = document.getElementById('progressIdInput');
-  const code = input.value.trim();
-  const errorEl = document.getElementById('progressIdError');
-  const btn = document.getElementById('progressIdSubmitBtn');
-  errorEl.hidden = true;
-  if(!code){ errorEl.textContent = 'ID kiriting.'; errorEl.hidden = false; return; }
-  btn.disabled = true;
-  try{
-    await db.collection('students').doc(currentUid).update({ oquvProgressCode: code });
-    state.student.oquvProgressCode = code;
-    await renderProgressBox();
-  } catch(err){
-    console.error('Progress code save failed:', err);
-    errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
-    errorEl.hidden = false;
-  }
-  btn.disabled = false;
-});
-
-document.getElementById('progressIdInput').addEventListener('keydown', (e) => {
-  if(e.key === 'Enter'){
-    e.preventDefault();
-    document.getElementById('progressIdSubmitBtn').click();
-  }
-});
-
-document.getElementById('progressChangeIdBtn').addEventListener('click', async () => {
-  const btn = document.getElementById('progressChangeIdBtn');
-  btn.disabled = true;
-  try{
-    await db.collection('students').doc(currentUid).update({
-      oquvProgressCode: firebase.firestore.FieldValue.delete(),
-      gradebookName: firebase.firestore.FieldValue.delete()
+// progressIdSubmitBtn — null-safe (element yangi dizaynda dinamik qo'shilgan)
+{
+  const submitBtn = document.getElementById('progressIdSubmitBtn');
+  if(submitBtn){
+    submitBtn.addEventListener('click', async () => {
+      const input = document.getElementById('progressIdInput');
+      const code = input.value.trim();
+      const errorEl = document.getElementById('progressIdError');
+      const btn = document.getElementById('progressIdSubmitBtn');
+      errorEl.hidden = true;
+      if(!code){ errorEl.textContent = 'ID kiriting.'; errorEl.hidden = false; return; }
+      btn.disabled = true;
+      try{
+        await db.collection('students').doc(currentUid).update({ oquvProgressCode: code });
+        state.student.oquvProgressCode = code;
+        await renderProgressBox();
+      } catch(err){
+        console.error('Progress code save failed:', err);
+        errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko\'ring.';
+        errorEl.hidden = false;
+      }
+      btn.disabled = false;
     });
-  } catch(err){ /* if this fails, we'll just ask again — no harm done */ }
-  delete state.student.oquvProgressCode;
-  delete state.student.gradebookName;
-  delete state.student._progressName;
-  document.getElementById('progressIdInput').value = '';
-  document.getElementById('progressIdError').hidden = true;
-  document.getElementById('progressView').hidden = true;
-  document.getElementById('progressIdForm').hidden = false;
-  renderGbResultBox();
-  btn.disabled = false;
-});
+  }
+}
+
+{
+  const inputEl = document.getElementById('progressIdInput');
+  if(inputEl){
+    inputEl.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        const btn = document.getElementById('progressIdSubmitBtn');
+        if(btn) btn.click();
+      }
+    });
+  }
+}
+
+{
+  const changeBtn = document.getElementById('progressChangeIdBtn');
+  if(changeBtn){
+    changeBtn.addEventListener('click', async () => {
+      changeBtn.disabled = true;
+      try{
+        await db.collection('students').doc(currentUid).update({
+          oquvProgressCode: firebase.firestore.FieldValue.delete(),
+          gradebookName: firebase.firestore.FieldValue.delete()
+        });
+      } catch(err){ /* if this fails, we'll just ask again — no harm done */ }
+      delete state.student.oquvProgressCode;
+      delete state.student.gradebookName;
+      delete state.student._progressName;
+      const inputEl2 = document.getElementById('progressIdInput');
+      if(inputEl2) inputEl2.value = '';
+      const errEl = document.getElementById('progressIdError');
+      if(errEl) errEl.hidden = true;
+      const viewEl = document.getElementById('progressView');
+      if(viewEl) viewEl.hidden = true;
+      const formEl = document.getElementById('progressIdForm');
+      if(formEl) formEl.hidden = false;
+      renderGbResultBox();
+      changeBtn.disabled = false;
+    });
+  }
+}
 
 // Shows the most recent homework from the student's own real group
 // (resolved automatically via their oquvProgressCode -> oquv_progress.groupId,
