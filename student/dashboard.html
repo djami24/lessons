@@ -3602,6 +3602,60 @@ document.getElementById('markAllReadBtn').addEventListener('click', () => {
   document.getElementById('notifBadge').hidden = true;
 });
 
+// ===== Broadcast Notification Popup =====
+let _notifInitialized = false;
+let _notifKnownIds = new Set();
+
+function showNotifPopup(docId, title, body){
+  const container = document.getElementById('notifPopupContainer');
+  if(!container) return;
+
+  const card = document.createElement('div');
+  card.className = 'notif-popup-card';
+  card.setAttribute('role', 'alert');
+  card.innerHTML = `
+    <button class="notif-popup-close" title="Yopish" aria-label="Yopish">×</button>
+    <div class="notif-popup-top">
+      <span class="notif-popup-icon">📢</span>
+      <span class="notif-popup-label">Yangi xabar</span>
+    </div>
+    <div class="notif-popup-title">${escapeHtml(title || 'Xabar')}</div>
+    <div class="notif-popup-body">${escapeHtml(body || '')}</div>
+    <div class="notif-popup-hint">Batafsil ko'rish ›</div>
+  `;
+
+  // Click on card body → go to notifications view
+  card.addEventListener('click', (e) => {
+    if(e.target.classList.contains('notif-popup-close')) return;
+    markNotifRead(docId);
+    dismissNotifPopup(card);
+    switchView('notifications');
+  });
+
+  // Close button
+  card.querySelector('.notif-popup-close').addEventListener('click', (e) => {
+    e.stopPropagation();
+    dismissNotifPopup(card);
+  });
+
+  container.appendChild(card);
+
+  // Animate in
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => card.classList.add('notif-popup-show'));
+  });
+
+  // Auto-dismiss after 7 seconds
+  setTimeout(() => dismissNotifPopup(card), 7000);
+}
+
+function dismissNotifPopup(card){
+  if(!card || !card.parentNode) return;
+  card.classList.remove('notif-popup-show');
+  card.classList.add('notif-popup-hide');
+  setTimeout(() => { if(card.parentNode) card.parentNode.removeChild(card); }, 380);
+}
+
 // Check for new notifications on load (real-time listener)
 function startNotifListener(){
   db.collection('notifications')
@@ -3610,8 +3664,20 @@ function startNotifListener(){
     .onSnapshot(snap => {
       const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
       let unread = 0;
+
       snap.docs.forEach(doc => {
-        if(!readSet.includes(doc.id)) unread++;
+        const isRead = readSet.includes(doc.id);
+        if(!isRead) unread++;
+
+        // Show popup only for genuinely NEW notifications (not on first load)
+        if(_notifInitialized && !_notifKnownIds.has(doc.id) && !isRead){
+          const d = doc.data();
+          showNotifPopup(doc.id, d.title, d.body);
+        }
+        _notifKnownIds.add(doc.id);
+      });
+
+      _notifInitialized = true;
       });
       const badge = document.getElementById('notifBadge');
       if(unread > 0){
@@ -4302,6 +4368,9 @@ wgApplyVisibilitySetting();
 <div class="powered-by">
   <span>powered by <b>Djami</b></span>
 </div>
+
+<!-- ===== Broadcast Notification Popup Container ===== -->
+<div class="notif-popup" id="notifPopupContainer" aria-live="polite"></div>
 
 </body>
 </html>
