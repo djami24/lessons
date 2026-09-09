@@ -377,6 +377,8 @@
     }
     .admin-sidebar.is-menu-open .admin-nav{ max-height:600px; opacity:1; margin-top:.9em; }
   }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -509,24 +511,31 @@
       </div>
 
       <!-- today plan -->
-      <div class="card plan-card">
+      <div class="card plan-card" id="homePlanCard">
         <div class="plan-head">
           <div class="icon-badge" style="background:var(--blue-50);"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="var(--blue-600)" stroke-width="1.7"/><path d="M8 2v4M16 2v4M3 10h18" stroke="var(--blue-600)" stroke-width="1.7" stroke-linecap="round"/></svg></div>
-          <h3>Bugungi o‘quv reja</h3>
-          <span class="plan-date">10-sentabr, 2026</span>
+          <h3>Soʿnggi uy vazifasi</h3>
+          <span class="plan-date" id="homePlanDate">—</span>
         </div>
-        <table>
-          <thead><tr><th>Fan</th><th>Vazifa</th><th>Muddat</th><th>Holat</th></tr></thead>
-          <tbody>
-            <tr><td>Ingliz tili</td><td>Lug'at mashqi</td><td>10-sentabr</td><td><span class="pill red">Bajarilmagan</span></td></tr>
-            <tr><td>Grammatika</td><td>Unit 5</td><td>10-sentabr</td><td><span class="pill blue">Jarayonda</span></td></tr>
-            <tr><td>Yozish</td><td>Essay</td><td>11-sentabr</td><td><span class="pill gray">Rejalashtirilgan</span></td></tr>
-          </tbody>
-        </table>
-        <div class="plan-footer">
-          <button class="btn dark">Vazifalarni ko'rish
+        <div id="homePlanLoading" style="padding:24px 18px; text-align:center; color:var(--gray-400); font-size:13px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="vertical-align:middle; margin-right:6px;"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke="var(--blue-600)" stroke-width="2" stroke-linecap="round"/></svg>
+          Yuklanmoqda...
+        </div>
+        <div id="homePlanEmpty" style="padding:24px 18px; text-align:center; color:var(--gray-400); font-size:13px; display:none;">
+          <div style="font-size:28px; margin-bottom:6px;">📅</div>
+          Hozircha uy vazifasi yoʿq
+        </div>
+        <div id="homePlanContent" style="display:none; flex:1; flex-direction:column;">
+          <div style="padding:14px 18px 0;">
+            <div style="font-size:15px; font-weight:700; color:var(--gray-900); margin-bottom:6px;" id="homePlanTitle"></div>
+            <div style="font-size:12px; color:var(--gray-500); margin-bottom:10px;" id="homePlanMeta"></div>
+          </div>
+          <div id="homePlanItems" style="padding:0 18px 4px;"></div>
+        </div>
+        <div class="plan-footer" id="homePlanFooter" style="display:none;">
+          <a href="../kundalik.html" target="_blank" class="btn dark">Vazifalarni koʿrish
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+          </a>
         </div>
       </div>
     </div>
@@ -1457,6 +1466,7 @@ function renderHomeView(){
   loadLatestHomework();
   renderGbResultBox();
   renderProgressBox();
+  loadHomePlanCard();
 }
 
 // Shows the student's own attendance/homework/grade diary from the admin
@@ -1727,6 +1737,115 @@ async function resolveStudentKundalikGroupId(){
     console.error('resolveStudentKundalikGroupId failed:', err);
     return null;
   }
+}
+
+
+// ===== So'nggi uy vazifasi kartasi (Bugungi o'quv reja) =====
+// kundalik/{groupId}/vazifalari/ dan so'nggi 5 ta vazifani olib ko'rsatadi
+async function loadHomePlanCard(){
+  const loadingEl = document.getElementById('homePlanLoading');
+  const emptyEl   = document.getElementById('homePlanEmpty');
+  const contentEl = document.getElementById('homePlanContent');
+  const footerEl  = document.getElementById('homePlanFooter');
+  const dateEl    = document.getElementById('homePlanDate');
+  const titleEl   = document.getElementById('homePlanTitle');
+  const metaEl    = document.getElementById('homePlanMeta');
+  const itemsEl   = document.getElementById('homePlanItems');
+
+  // Reset
+  loadingEl.style.display = 'block';
+  emptyEl.style.display   = 'none';
+  contentEl.style.display = 'none';
+  footerEl.style.display  = 'none';
+  dateEl.textContent = '—';
+
+  try {
+    const group = await resolveStudentKundalikGroupId();
+    if (!group) { _planShowEmpty(); return; }
+
+    const snap = await db.collection('kundalik').doc(group)
+      .collection('vazifalari').orderBy('sana', 'desc').limit(5).get();
+
+    if (snap.empty) { _planShowEmpty(); return; }
+
+    // Birinchi (eng so'nggi) hujjat — sarlavha va sana
+    const latest = snap.docs[0].data();
+    const ts = latest.sana;
+    const date = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
+
+    if (date) {
+      dateEl.textContent = date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' });
+    }
+    titleEl.textContent = latest.sarlavha || 'Uy vazifasi';
+    metaEl.textContent  = snap.docs.length > 1
+      ? 'Soʿnggi ' + snap.docs.length + ' ta vazifa'
+      : 'Soʿnggi vazifa';
+
+    // Vazifalar ro'yxati
+    itemsEl.innerHTML = '';
+    snap.docs.forEach((doc, idx) => {
+      const d   = doc.data();
+      const ts2 = d.sana;
+      const dt2 = ts2 ? (typeof ts2.toDate === 'function' ? ts2.toDate() : new Date(ts2)) : null;
+      const dateStr = dt2
+        ? dt2.toLocaleDateString('uz-UZ', { day:'numeric', month:'short' })
+        : '';
+
+      // matn dan qisqa preview
+      const rawText = (d.matn || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g,' ').trim();
+      const preview = rawText.length > 70 ? rawText.slice(0, 70) + '...' : rawText;
+
+      // Holat - sana bo'yicha aniqlash
+      const today = new Date(); today.setHours(0,0,0,0);
+      let pillClass = 'gray', pillText = 'Rejalashtirilgan';
+      if (dt2) {
+        const taskDay = new Date(dt2); taskDay.setHours(0,0,0,0);
+        if (taskDay < today) { pillClass = 'red';  pillText = 'Muddati oʿtdi'; }
+        else if (taskDay.getTime() === today.getTime()) { pillClass = 'blue'; pillText = 'Bugun'; }
+      }
+      if (idx === 0) { pillClass = 'blue'; pillText = 'Yangi'; }
+
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--gray-100);';
+      if (idx === snap.docs.length - 1) row.style.borderBottom = 'none';
+
+      row.innerHTML =
+        '<div style="flex:1; min-width:0;">' +
+          '<div style="font-size:13px; font-weight:600; color:var(--gray-900); margin-bottom:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' +
+            _esc(d.sarlavha || 'Uy vazifasi') +
+          '</div>' +
+          (preview ? '<div style="font-size:11.5px; color:var(--gray-500); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + _esc(preview) + '</div>' : '') +
+        '</div>' +
+        '<div style="flex-shrink:0; display:flex; flex-direction:column; align-items:flex-end; gap:4px;">' +
+          (dateStr ? '<span style="font-size:11px; color:var(--gray-400);">' + _esc(dateStr) + '</span>' : '') +
+          '<span class="pill ' + pillClass + '">' + pillText + '</span>' +
+        '</div>';
+      itemsEl.appendChild(row);
+    });
+
+    loadingEl.style.display = 'none';
+    contentEl.style.display = 'flex';
+    footerEl.style.display  = 'block';
+
+  } catch(err) {
+    console.error('loadHomePlanCard error:', err);
+    _planShowEmpty();
+  }
+
+  function _planShowEmpty(){
+    loadingEl.style.display = 'none';
+    emptyEl.style.display   = 'block';
+    contentEl.style.display = 'none';
+    footerEl.style.display  = 'none';
+  }
+}
+
+function _esc(str){
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
 async function loadLatestHomework(){
