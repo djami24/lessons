@@ -126,6 +126,15 @@
     --shadow:0 1px 2px rgba(20,25,40,0.04), 0 2px 8px rgba(20,25,40,0.05);
   }
   html, body{ overflow-x:hidden; max-width:100%; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; }
+
+  @keyframes notifSlideIn{
+    from{ opacity:0; transform:translateX(60px) scale(.95); }
+    to{   opacity:1; transform:translateX(0)    scale(1);   }
+  }
+  @keyframes notifSlideOut{
+    from{ opacity:1; transform:translateX(0) scale(1);    }
+    to{   opacity:0; transform:translateX(60px) scale(.95); }
+  }
   .content{padding:26px 28px 40px; min-width:0; max-width:100%; overflow-x:hidden;}
   .page-title{font-size:24px;font-weight:800;color:var(--gray-900);margin:0 0 4px;}
   .page-sub{font-size:13.5px;color:var(--gray-500);margin:0 0 22px;}
@@ -3602,89 +3611,143 @@ document.getElementById('markAllReadBtn').addEventListener('click', () => {
   document.getElementById('notifBadge').hidden = true;
 });
 
-// ===== Broadcast Notification Popup =====
-let _notifInitialized = false;
-let _notifKnownIds = new Set();
+// ===== YANGILIK POPUP TIZIMI =====
+// Admin notifications kolleksiyasiga yangilik qo'shganda
+// talaba ekranida pastda o'ng tomonda popup chiqadi.
+// Talaba bosib o'qisa yo'qoladi va o'qilgan deb belgilanadi.
 
 function showNotifPopup(docId, title, body){
   const container = document.getElementById('notifPopupContainer');
   if(!container) return;
 
   const card = document.createElement('div');
-  card.className = 'notif-popup-card';
-  card.setAttribute('role', 'alert');
+  card.style.cssText = [
+    'background:#fff',
+    'border:1px solid #e2e8f0',
+    'border-left:4px solid #2563eb',
+    'border-radius:14px',
+    'box-shadow:0 8px 32px rgba(0,0,0,0.13)',
+    'padding:14px 16px',
+    'cursor:pointer',
+    'pointer-events:all',
+    'animation:notifSlideIn .35s cubic-bezier(.22,.68,0,1.2) both',
+    'font-family:inherit',
+    'position:relative',
+    'user-select:none',
+  ].join(';');
+
   card.innerHTML = `
-    <button class="notif-popup-close" title="Yopish" aria-label="Yopish">×</button>
-    <div class="notif-popup-top">
-      <span class="notif-popup-icon">📢</span>
-      <span class="notif-popup-label">Yangi xabar</span>
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <div style="flex-shrink:0;width:32px;height:32px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;">\uD83D\uDCE2</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:3px;line-height:1.3;">${escapeHtml(title)}</div>
+        <div style="font-size:12px;color:#64748b;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${escapeHtml(body)}</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:6px;">Yopish uchun bosing</div>
+      </div>
+      <div style="flex-shrink:0;font-size:16px;color:#94a3b8;line-height:1;padding-top:1px;">&times;</div>
     </div>
-    <div class="notif-popup-title">${escapeHtml(title || 'Xabar')}</div>
-    <div class="notif-popup-body">${escapeHtml(body || '')}</div>
-    <div class="notif-popup-hint">Batafsil ko'rish ›</div>
   `;
 
-  // Click on card body → go to notifications view
-  card.addEventListener('click', (e) => {
-    if(e.target.classList.contains('notif-popup-close')) return;
-    markNotifRead(docId);
-    dismissNotifPopup(card);
-    switchView('notifications');
-  });
+  // O'qilgan deb belgilab yopish
+  function dismiss(){
+    card.style.animation = 'notifSlideOut .25s ease both';
+    setTimeout(() => card.remove(), 260);
+    // localStorage ga o'qilgan deb yozish
+    try{
+      const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+      if(!readSet.includes(docId)){
+        readSet.push(docId);
+        localStorage.setItem('efReadNotifs_' + currentUid, JSON.stringify(readSet));
+      }
+    } catch(e){}
+    updateNotifBadge();
+  }
 
-  // Close button
-  card.querySelector('.notif-popup-close').addEventListener('click', (e) => {
-    e.stopPropagation();
-    dismissNotifPopup(card);
-  });
+  card.addEventListener('click', dismiss);
 
+  // 12 soniyadan keyin o'zidan o'zi yopiladi (lekin o'qilmagan qoladi)
+  const autoClose = setTimeout(() => {
+    if(card.isConnected){
+      card.style.animation = 'notifSlideOut .25s ease both';
+      setTimeout(() => card.remove(), 260);
+    }
+  }, 12000);
+
+  card.addEventListener('click', () => clearTimeout(autoClose));
   container.appendChild(card);
 
-  // Animate in
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => card.classList.add('notif-popup-show'));
-  });
-
-  // Auto-dismiss after 7 seconds
-  setTimeout(() => dismissNotifPopup(card), 7000);
+  // Ovoz
+  playNotifSound();
 }
 
-function dismissNotifPopup(card){
-  if(!card || !card.parentNode) return;
-  card.classList.remove('notif-popup-show');
-  card.classList.add('notif-popup-hide');
-  setTimeout(() => { if(card.parentNode) card.parentNode.removeChild(card); }, 380);
+function playNotifSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(520, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(780, ctx.currentTime + 0.1);
+    o.frequency.exponentialRampToValueAtTime(640, ctx.currentTime + 0.25);
+    g.gain.setValueAtTime(0.28, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.4);
+    o.onended = () => ctx.close();
+  } catch(e){}
+}
+
+function updateNotifBadge(){
+  const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+  db.collection('notifications').orderBy('createdAt','desc').limit(30).get().then(snap => {
+    let unread = 0;
+    snap.docs.forEach(doc => { if(!readSet.includes(doc.id)) unread++; });
+    const badge = document.getElementById('notifBadge');
+    if(badge){
+      badge.textContent = unread;
+      badge.hidden = unread === 0;
+    }
+  }).catch(()=>{});
 }
 
 // Check for new notifications on load (real-time listener)
 function startNotifListener(){
+  let _firstLoad = true;
+
   db.collection('notifications')
     .orderBy('createdAt', 'desc')
     .limit(30)
     .onSnapshot(snap => {
       const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+
+      // Faqat birinchi yuklanishdan KEYIN qo'shilgan hujjatlarni tekshir
+      if(!_firstLoad){
+        snap.docChanges().forEach(change => {
+          if(change.type === 'added'){
+            const doc = change.doc;
+            if(!readSet.includes(doc.id)){
+              const d = doc.data();
+              // serverTimestamp pending bo'lsa title/body mavjud bo'ladi
+              if(d.title || d.body){
+                showNotifPopup(doc.id, d.title || 'Yangilik', d.body || '');
+              }
+            }
+          }
+        });
+      }
+
+      _firstLoad = false;
+
+      // Badge yangilash
       let unread = 0;
-
       snap.docs.forEach(doc => {
-        const isRead = readSet.includes(doc.id);
-        if(!isRead) unread++;
-
-        // Show popup only for genuinely NEW notifications (not on first load)
-        if(_notifInitialized && !_notifKnownIds.has(doc.id) && !isRead){
-          const d = doc.data();
-          showNotifPopup(doc.id, d.title, d.body);
-        }
-        _notifKnownIds.add(doc.id);
-      });
-
-      _notifInitialized = true;
+        if(!readSet.includes(doc.id)) unread++;
       });
       const badge = document.getElementById('notifBadge');
-      if(unread > 0){
+      if(badge){
         badge.textContent = unread;
-        badge.hidden = false;
-      } else {
-        badge.hidden = true;
+        badge.hidden = unread === 0;
       }
     });
 }
@@ -4365,12 +4428,17 @@ async function wgApplyVisibilitySetting(){
 wgApplyVisibilitySetting();
 
 </script>
+<!-- ===== YANGILIK POPUP (pastda o'ng tomonda) ===== -->
+<div id="notifPopupContainer" style="
+  position:fixed; bottom:20px; right:20px; z-index:9999;
+  display:flex; flex-direction:column; gap:10px;
+  pointer-events:none;
+  max-width:340px; width:calc(100vw - 40px);
+"></div>
+
 <div class="powered-by">
   <span>powered by <b>Djami</b></span>
 </div>
-
-<!-- ===== Broadcast Notification Popup Container ===== -->
-<div class="notif-popup" id="notifPopupContainer" aria-live="polite"></div>
 
 </body>
 </html>
