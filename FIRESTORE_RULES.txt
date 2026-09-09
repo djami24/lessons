@@ -241,12 +241,6 @@ service cloud.firestore {
       }
     }
 
-    // Presence — online / last-seen status for the student<->teacher chat.
-    // presence/{uid}: a student writes only to presence/{their own uid};
-    // any signed-in admin session writes to the single shared
-    // presence/teacher-status doc (so "teacher online" reflects whichever
-    // admin currently has the dashboard open). Everyone signed in can
-    // read presence, since both sides need to see the other's status.
     match /presence/{uid} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && (
@@ -282,16 +276,12 @@ service cloud.firestore {
       }
     }
 
-    // Faollik jurnali — talaba va ota-onalar kirish/ro'yxatdan o'tish tarixi,
-    // shuningdek tizimga kirmagan mehmonlarning tashrifi (guest-visit-log.js).
     match /activity_log/{logId} {
-      // Tizimga kirgan foydalanuvchi (talaba/ota-ona) — login/register yozuvi
       allow create: if isSignedIn() &&
         request.resource.data.keys().hasAll(['role', 'action', 'at']) &&
         request.resource.data.role in ['student', 'parent'] &&
         request.resource.data.at == request.time;
 
-      // Tizimga kirmagan mehmon — sahifaga tashrif (guest-visit-log.js)
       allow create: if !isSignedIn() &&
         request.resource.data.role == 'guest' &&
         request.resource.data.action == 'visit' &&
