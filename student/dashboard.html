@@ -3617,7 +3617,7 @@ document.getElementById('markAllReadBtn').addEventListener('click', () => {
 // Talaba bosib o'qisa yo'qoladi va o'qilgan deb belgilanadi.
 
 // ===== KATTA ANNOUNCEMENT MODAL =====
-function showAnnouncementModal(docId, title, body){
+function showAnnouncementModal(docId, title, body, onClosed){
   const modal = document.getElementById('announcementModal');
   const box   = document.getElementById('announcementModalBox');
   if(!modal) return;
@@ -3631,12 +3631,10 @@ function showAnnouncementModal(docId, title, body){
   box.offsetWidth; // reflow
   box.style.animation = 'announcementIn .38s cubic-bezier(.22,.68,0,1.2) both';
 
-  // mark as read
+  // store docId and callback
   modal._docId = docId;
+  modal._onClosed = onClosed || null;
   document.body.style.overflow = 'hidden';
-
-  // close on overlay click
-  // Modal faqat tugma orqali yopiladi
 
   playNotifSound();
 }
@@ -3663,10 +3661,14 @@ function closeAnnouncementModal(){
       } catch(e){}
       updateNotifBadge();
     }
+    // Navbatdagi keyingi popup (agar mavjud bo'lsa)
+    const cb = modal._onClosed;
+    modal._onClosed = null;
+    if(typeof cb === 'function') cb();
   }, 230);
 }
 
-// Close on Escape key
+// Escape key: disabled
 document.addEventListener('keydown', e => {
   // Escape bilan yopilmaydi
 });
@@ -3776,7 +3778,26 @@ function startNotifListener(){
     .onSnapshot(snap => {
       const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
 
-      // Faqat birinchi yuklanishdan KEYIN qo'shilgan hujjatlarni tekshir
+      // Birinchi yuklanishda: o'qilmagan popup tipidagi xabarlarni ketma-ket ko'rsat
+      if(_firstLoad){
+        const unreadPopups = snap.docs.filter(doc => {
+          const d = doc.data();
+          return d.displayType === 'popup' && !readSet.includes(doc.id) && (d.title || d.body);
+        });
+        // Birinchi popup'ni darhol ko'rsat, qolganlarini navbatga qo'y
+        if(unreadPopups.length > 0){
+          let idx = 0;
+          function showNext(){
+            if(idx >= unreadPopups.length) return;
+            const doc = unreadPopups[idx++];
+            const d = doc.data();
+            showAnnouncementModal(doc.id, d.title || "E'lon", d.body || '', showNext);
+          }
+          showNext();
+        }
+      }
+
+      // Keyinchalik qo'shilgan yangi xabarlarni real-vaqtda ko'rsat
       if(!_firstLoad){
         snap.docChanges().forEach(change => {
           if(change.type === 'added'){
@@ -3786,7 +3807,7 @@ function startNotifListener(){
               // serverTimestamp pending bo'lsa title/body mavjud bo'ladi
               if(d.title || d.body){
                 if(d.displayType === 'popup'){
-                  showAnnouncementModal(doc.id, d.title || 'E\'lon', d.body || '');
+                  showAnnouncementModal(doc.id, d.title || "E'lon", d.body || '');
                 } else {
                   showNotifPopup(doc.id, d.title || 'Yangilik', d.body || '');
                 }
