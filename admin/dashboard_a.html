@@ -1192,6 +1192,10 @@
           <textarea id="broadcastBody" rows="4" placeholder="Xabar matnini yozing..." maxlength="1000" style="width:100%;font-family:inherit;padding:.8em 1em;border-radius:var(--radius-s);border:1.5px solid var(--line);resize:vertical;"></textarea>
         </label>
         <label class="field" style="margin-top:1em;">
+          <span>Rasm havolasi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy)</span></span>
+          <input type="text" id="broadcastImageUrl" placeholder="https://... (rasm manzili)">
+        </label>
+        <label class="field" style="margin-top:1em;">
           <span>Ko&#39;rinish turi</span>
           <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typeNotifLabel">
@@ -6678,9 +6682,15 @@ async function loadBroadcastHistory(){
     listEl.innerHTML = snap.docs.map(doc => {
       const d = doc.data();
       const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
+      const thumb = d.imageUrl
+        ? `<img src="${escapeHtml(d.imageUrl)}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'">`
+        : '';
       return `<div style="background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-s);padding:.8em 1em;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:.5em;flex-wrap:wrap;">
-          <strong>${escapeHtml(d.title||'')}</strong>
+          <div style="display:flex;align-items:center;gap:.6em;min-width:0;">
+            ${thumb}
+            <strong>${escapeHtml(d.title||'')}</strong>
+          </div>
           <span style="font-size:.8rem;color:var(--gray);">${date}</span>
           <button class="btn btn-danger btn-sm" data-del-notif="${doc.id}" style="padding:.2em .6em;">O‘chirish</button>
         </div>
@@ -6713,6 +6723,7 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('broadcastSendBtn').addEventListener('click', async () => {
   const title = document.getElementById('broadcastTitle').value.trim();
   const body = document.getElementById('broadcastBody').value.trim();
+  const imageUrl = document.getElementById('broadcastImageUrl').value.trim();
   const statusEl = document.getElementById('broadcastStatus');
   const displayType = (document.querySelector('input[name="broadcastType"]:checked') || {}).value || 'notification';
   if(!title || !body){ statusEl.textContent = 'Sarlavha va xabar matni to‘ldirilishi shart.'; return; }
@@ -6720,14 +6731,17 @@ document.getElementById('broadcastSendBtn').addEventListener('click', async () =
   btn.disabled = true;
   statusEl.textContent = 'Yuborilmoqda…';
   try{
-    await db.collection('notifications').add({
+    const payload = {
       title: title,
       body: body,
       displayType: displayType,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    };
+    if(imageUrl) payload.imageUrl = imageUrl;
+    await db.collection('notifications').add(payload);
     document.getElementById('broadcastTitle').value = '';
     document.getElementById('broadcastBody').value = '';
+    document.getElementById('broadcastImageUrl').value = '';
     statusEl.textContent = '✅ Xabar muvaffaqiyatli yuborildi!';
     loadBroadcastHistory();
   } catch(err){
