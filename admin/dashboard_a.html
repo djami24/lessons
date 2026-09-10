@@ -1578,7 +1578,7 @@
       <div class="admin-header">
         <div>
           <h1>Reading Mocks</h1>
-          <p>IELTS Academic va General Training Reading Mock testlarini yarating, tahrirlang va boshqaring.</p>
+          <p>CEFR Reading Mock testlarini yarating, tahrirlang va boshqaring.</p>
         </div>
         <button class="btn btn-amber" id="rmOpenCreateBtn">+ Yangi mock yaratish</button>
       </div>
@@ -1600,7 +1600,7 @@
         <div>
           <button class="btn btn-ghost btn-sm" id="rmBuilderBack" style="margin-bottom:8px;">← Orqaga</button>
           <h1 id="rmBuilderTitle">Yangi Mock Test</h1>
-          <p id="rmBuilderSub">Asosiy ma'lumotlarni to'ldiring, so'ng har bir passajni qo'shing.</p>
+          <p id="rmBuilderSub">Asosiy ma'lumotlarni to'ldiring, so'ng har bir partni qo'shing.</p>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <button class="btn btn-ghost btn-sm" id="rmSaveDraftBtn">Qoralama saqlash</button>
@@ -1611,9 +1611,11 @@
       <!-- Step tabs -->
       <div class="rm-tabs" id="rmTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:20px 0 24px;border-bottom:2px solid var(--adm-line,var(--line));padding-bottom:0;">
         <button class="rm-tab active" data-tab="basic">Asosiy ma'lumot</button>
-        <button class="rm-tab" data-tab="passage-0">Passaj 1</button>
-        <button class="rm-tab" data-tab="passage-1">Passaj 2</button>
-        <button class="rm-tab" data-tab="passage-2">Passaj 3</button>
+        <button class="rm-tab" data-tab="passage-0">Part 1</button>
+        <button class="rm-tab" data-tab="passage-1">Part 2</button>
+        <button class="rm-tab" data-tab="passage-2">Part 3</button>
+        <button class="rm-tab" data-tab="passage-3">Part 4</button>
+        <button class="rm-tab" data-tab="passage-4">Part 5</button>
       </div>
 
       <!-- Basic Info Tab -->
@@ -1622,7 +1624,7 @@
           <div class="oj-form-grid" style="gap:18px;">
             <label class="oj-label" style="grid-column:1/-1;">
               Mock Test sarlavhasi *
-              <input class="oj-input" type="text" id="rmTitle" placeholder="Masalan: IELTS Reading Practice Test 1" required>
+              <input class="oj-input" type="text" id="rmTitle" placeholder="Masalan: CEFR Reading Practice Test 1" required>
             </label>
             <label class="oj-label" style="grid-column:1/-1;">
               Tavsif (ixtiyoriy)
@@ -1654,6 +1656,8 @@
       <div id="rmTab-passage-0" class="rm-tab-panel" style="display:none;"></div>
       <div id="rmTab-passage-1" class="rm-tab-panel" style="display:none;"></div>
       <div id="rmTab-passage-2" class="rm-tab-panel" style="display:none;"></div>
+      <div id="rmTab-passage-3" class="rm-tab-panel" style="display:none;"></div>
+      <div id="rmTab-passage-4" class="rm-tab-panel" style="display:none;"></div>
 
     </section>
 
@@ -8187,7 +8191,7 @@ let _rmEditingId = null; // null = new, string = existing mock id
 const _rmPassageDefaults = () => ({ title: '', content: '', imageUrl: '', questionGroups: [] });
 const _rmState = {
   title: '', description: '', testType: 'academic', duration: 60, status: 'draft',
-  passages: [_rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults()]
+  passages: [_rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults()]
 };
 
 // IELTS Band Score tables (raw score 0-40)
@@ -8281,7 +8285,7 @@ document.getElementById('rmOpenCreateBtn').addEventListener('click', () => {
 function rmResetBuilderState() {
   Object.assign(_rmState, {
     title: '', description: '', testType: 'academic', duration: 60, status: 'draft',
-    passages: [_rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults()]
+    passages: [_rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults()]
   });
 }
 
@@ -8293,7 +8297,7 @@ function rmOpenBuilder(titleText) {
   document.getElementById('rmDuration').value = _rmState.duration;
   document.getElementById('rmStatus').value = _rmState.status;
   // Render passage tabs
-  [0, 1, 2].forEach(i => rmRenderPassageTab(i));
+  [0, 1, 2, 3, 4].forEach(i => rmRenderPassageTab(i));
   // Activate first tab
   rmActivateTab('basic');
   switchView('reading-mock-builder');
@@ -8327,15 +8331,15 @@ function rmRenderPassageTab(idx) {
   const panel = document.getElementById('rmTab-passage-' + idx);
   panel.innerHTML = `
     <div class="oj-form-card" style="margin-bottom:20px;">
-      <h3 style="margin:0 0 16px;font-size:1rem;font-weight:700;">Passaj ${idx + 1} — Asosiy ma'lumot</h3>
+      <h3 style="margin:0 0 16px;font-size:1rem;font-weight:700;">Part ${idx + 1} — Asosiy ma'lumot</h3>
       <div class="oj-form-grid" style="gap:16px;">
         <label class="oj-label" style="grid-column:1/-1;">
-          Passaj sarlavhasi
+          Part sarlavhasi
           <input class="oj-input rm-p-title" data-pi="${idx}" type="text" placeholder="Masalan: The History of Printing" value="${escapeHtml(p.title)}">
         </label>
         <label class="oj-label" style="grid-column:1/-1;">
-          Passaj matni
-          <textarea class="oj-textarea rm-p-content" data-pi="${idx}" placeholder="Passaj matnini shu yerga kiriting…" rows="10" style="min-height:200px;">${escapeHtml(p.content)}</textarea>
+          Part matni
+          <textarea class="oj-textarea rm-p-content" data-pi="${idx}" placeholder="Part matnini shu yerga kiriting…" rows="10" style="min-height:200px;">${escapeHtml(p.content)}</textarea>
         </label>
         <label class="oj-label" style="grid-column:1/-1;">
           Rasm havolasi (ixtiyoriy)
@@ -8864,7 +8868,7 @@ async function rmSaveMock(status) {
 
     // Save passages
     const batch = db.batch();
-    for (let pi = 0; pi < 3; pi++) {
+    for (let pi = 0; pi < 5; pi++) {
       const p = _rmState.passages[pi];
       const passRef = rmPassagesRef(mockId).doc('passage-' + (pi + 1));
       batch.set(passRef, {
@@ -8917,7 +8921,7 @@ async function rmEditMock(mockId) {
     });
 
     // Load passages
-    for (let pi = 0; pi < 3; pi++) {
+    for (let pi = 0; pi < 5; pi++) {
       const passDoc = await rmPassagesRef(mockId).doc('passage-' + (pi + 1)).get();
       if (passDoc.exists) {
         const pd = passDoc.data();
