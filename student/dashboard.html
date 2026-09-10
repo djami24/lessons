@@ -4598,7 +4598,6 @@ wgApplyVisibilitySetting();
     try {
       var snap = await db.collection('reading_mocks')
         .where('status', '==', 'published')
-        .orderBy('createdAt', 'desc')
         .get();
       _rmMocks = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
       rmRenderMockList();
