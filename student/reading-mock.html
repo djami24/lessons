@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IELTS Reading Mock Test — Djami Lessons</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="stylesheet" href="../style.css">
+<style>
+/* ============================================================
+   IELTS Reading Mock Test — Student Interface
+   ============================================================ */
+
+* { box-sizing: border-box; }
+
+body.rm-body {
+  background: var(--adm-bg, #F3F6FC);
+  font-family: var(--font-body, 'Inter', sans-serif);
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- Header ---- */
+.rm-header {
+  background: var(--adm-navy, #0E1836);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  z-index: 100;
+}
+.rm-header-left { display: flex; align-items: center; gap: 14px; }
+.rm-header-logo { font-weight: 800; font-size: 1rem; color: var(--amber, #D98E3F); }
+.rm-header-title { font-weight: 700; font-size: .95rem; color: #fff; }
+.rm-header-center { display: flex; align-items: center; gap: 20px; }
+.rm-timer-box {
+  background: rgba(255,255,255,.1);
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-family: var(--font-mono, monospace);
+  font-size: 1.3rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,.15);
+  min-width: 90px;
+  text-align: center;
+}
+.rm-timer-box.rm-timer-warning { color: #FBBF24; border-color: rgba(251,191,36,.4); }
+.rm-timer-box.rm-timer-danger { color: #F87171; border-color: rgba(248,113,113,.4); animation: rm-blink .8s infinite; }
+@keyframes rm-blink { 0%,100%{ opacity:1 } 50%{ opacity:.5 } }
+.rm-progress-text { font-size: .82rem; color: rgba(255,255,255,.7); }
+.rm-header-right { display: flex; gap: 8px; align-items: center; }
+
+/* ---- Submit button ---- */
+.rm-submit-btn {
+  background: #1FAE7A;
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  padding: 9px 18px;
+  font-weight: 700;
+  font-size: .88rem;
+  cursor: pointer;
+  transition: background .15s;
+}
+.rm-submit-btn:hover { background: #178a60; }
+.rm-preview-badge {
+  background: rgba(251,191,36,.2);
+  border: 1px solid rgba(251,191,36,.5);
+  color: #FBBF24;
+  border-radius: 8px;
+  padding: 5px 12px;
+  font-size: .78rem;
+  font-weight: 700;
+}
+
+/* ---- Main layout ---- */
+.rm-main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  height: 0;
+}
+
+/* ---- Passage panel (left) ---- */
+.rm-passage-panel {
+  flex: 1 1 55%;
+  overflow-y: auto;
+  padding: 24px 28px;
+  border-right: 2px solid var(--adm-line, #E7EBF4);
+  background: #fff;
+}
+.rm-passage-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: var(--adm-ink, #101B3D);
+}
+.rm-passage-subtitle {
+  font-size: .8rem;
+  color: var(--adm-gray, #8892A6);
+  margin-bottom: 18px;
+}
+.rm-passage-body {
+  font-size: .95rem;
+  line-height: 1.85;
+  color: var(--ink, #14213D);
+  white-space: pre-wrap;
+}
+.rm-passage-img { max-width: 100%; border-radius: 10px; margin: 14px 0; display: block; }
+
+/* ---- Questions panel (right) ---- */
+.rm-questions-panel {
+  flex: 1 1 45%;
+  max-width: 520px;
+  overflow-y: auto;
+  padding: 20px 22px;
+  background: var(--adm-bg, #F3F6FC);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ---- Passage selector tabs ---- */
+.rm-passage-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid var(--adm-line, #E7EBF4);
+  padding-bottom: 0;
+}
+.rm-ptab {
+  padding: .55em 1em;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: .84rem;
+  font-weight: 600;
+  color: var(--adm-gray, #8892A6);
+  cursor: pointer;
+  margin-bottom: -2px;
+  border-radius: 0;
+}
+.rm-ptab.active {
+  color: var(--adm-blue, #2F6FED);
+  border-bottom-color: var(--adm-blue, #2F6FED);
+}
+
+/* ---- Question group ---- */
+.rm-qgroup {
+  background: #fff;
+  border: 1.5px solid var(--adm-line, #E7EBF4);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.rm-qgroup-header {
+  font-size: .78rem;
+  font-weight: 800;
+  color: var(--adm-blue, #2F6FED);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.rm-qgroup-instr {
+  font-size: .84rem;
+  color: var(--adm-gray, #8892A6);
+  font-style: italic;
+  margin-bottom: 14px;
+  border-left: 3px solid var(--adm-line, #E7EBF4);
+  padding-left: 10px;
+}
+
+/* ---- Individual question ---- */
+.rm-question-block {
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--adm-line, #E7EBF4);
+}
+.rm-question-block:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.rm-q-label {
+  font-size: .88rem;
+  font-weight: 700;
+  color: var(--adm-ink, #101B3D);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.rm-q-num-badge {
+  min-width: 26px;
+  height: 26px;
+  background: var(--adm-blue, #2F6FED);
+  color: #fff;
+  border-radius: 50%;
+  font-size: .75rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rm-q-num-badge.answered { background: #1FAE7A; }
+.rm-q-num-badge.flagged { background: var(--adm-orange, #F0923D); }
+
+/* ---- MC options ---- */
+.rm-mc-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1.5px solid var(--adm-line, #E7EBF4);
+  border-radius: 10px;
+  cursor: pointer;
+  margin-bottom: 6px;
+  transition: border-color .15s, background .15s;
+  font-size: .88rem;
+  background: #fff;
+}
+.rm-mc-option:hover { border-color: var(--adm-blue, #2F6FED); background: rgba(47,111,237,.04); }
+.rm-mc-option.selected { border-color: var(--adm-blue, #2F6FED); background: rgba(47,111,237,.08); }
+.rm-mc-option.correct { border-color: #1FAE7A; background: rgba(31,174,122,.1); }
+.rm-mc-option.wrong { border-color: #E74C3C; background: rgba(231,76,60,.08); }
+.rm-mc-key { font-weight: 800; min-width: 22px; color: var(--adm-blue, #2F6FED); flex-shrink: 0; }
+
+/* ---- TFNG radio ---- */
+.rm-tf-options { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.rm-tf-btn {
+  padding: 7px 16px;
+  border: 1.5px solid var(--adm-line, #E7EBF4);
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: .84rem;
+  background: #fff;
+  transition: border-color .15s, background .15s, color .15s;
+}
+.rm-tf-btn:hover { border-color: var(--adm-blue, #2F6FED); color: var(--adm-blue, #2F6FED); }
+.rm-tf-btn.selected { border-color: var(--adm-blue, #2F6FED); background: var(--adm-blue, #2F6FED); color: #fff; }
+.rm-tf-btn.correct { border-color: #1FAE7A; background: #1FAE7A; color: #fff; }
+.rm-tf-btn.wrong { border-color: #E74C3C; background: rgba(231,76,60,.1); color: #E74C3C; }
+
+/* ---- Text input ---- */
+.rm-text-input {
+  width: 100%;
+  padding: .6em .9em;
+  border: 1.5px solid var(--adm-line, #E7EBF4);
+  border-radius: 10px;
+  font-family: var(--font-body);
+  font-size: .9rem;
+  background: #fff;
+  color: var(--adm-ink, #101B3D);
+  transition: border-color .2s;
+  margin-top: 6px;
+}
+.rm-text-input:focus { outline: none; border-color: var(--adm-blue, #2F6FED); }
+.rm-text-input.correct { border-color: #1FAE7A; background: rgba(31,174,122,.06); }
+.rm-text-input.wrong { border-color: #E74C3C; background: rgba(231,76,60,.06); }
+
+/* ---- Question navigation palette ---- */
+.rm-nav-panel {
+  flex-shrink: 0;
+  background: #fff;
+  border-top: 2px solid var(--adm-line, #E7EBF4);
+  padding: 12px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rm-nav-row { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.rm-nav-label { font-size: .75rem; font-weight: 700; color: var(--adm-gray, #8892A6); margin-right: 6px; }
+.rm-nav-btn {
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid var(--adm-line, #E7EBF4);
+  border-radius: 8px;
+  background: #fff;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s, border-color .15s, color .15s;
+  color: var(--adm-ink, #101B3D);
+}
+.rm-nav-btn:hover { border-color: var(--adm-blue, #2F6FED); color: var(--adm-blue, #2F6FED); }
+.rm-nav-btn.answered { background: #1FAE7A; border-color: #1FAE7A; color: #fff; }
+.rm-nav-btn.current { background: var(--adm-blue, #2F6FED); border-color: var(--adm-blue, #2F6FED); color: #fff; }
+.rm-nav-btn.flagged { background: var(--adm-orange, #F0923D); border-color: var(--adm-orange, #F0923D); color: #fff; }
+.rm-nav-legend { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 2px; }
+.rm-nav-legend-item { display: flex; align-items: center; gap: 5px; font-size: .72rem; color: var(--adm-gray, #8892A6); }
+.rm-nav-legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+/* ---- Flag button ---- */
+.rm-flag-btn {
+  padding: 4px 12px;
+  border: 1.5px solid var(--adm-line, #E7EBF4);
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--adm-gray, #8892A6);
+  transition: all .15s;
+  margin-left: auto;
+}
+.rm-flag-btn.flagged { border-color: var(--adm-orange, #F0923D); color: var(--adm-orange, #F0923D); background: rgba(240,146,61,.08); }
+
+/* ---- Result screen ---- */
+.rm-result-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,18,40,.85);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  overflow-y: auto;
+}
+.rm-result-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 36px 40px;
+  max-width: 700px;
+  width: 100%;
+  box-shadow: 0 32px 80px rgba(0,0,0,.35);
+}
+.rm-result-title { font-size: 1.5rem; font-weight: 800; margin: 0 0 6px; color: var(--adm-ink, #101B3D); }
+.rm-result-sub { color: var(--adm-gray, #8892A6); font-size: .9rem; margin-bottom: 28px; }
+.rm-score-big {
+  text-align: center;
+  background: linear-gradient(135deg, rgba(47,111,237,.08), rgba(31,174,122,.08));
+  border: 1.5px solid var(--adm-line, #E7EBF4);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 20px;
+}
+.rm-score-num { font-size: 3.5rem; font-weight: 900; color: var(--adm-blue, #2F6FED); line-height: 1; }
+.rm-score-denom { font-size: 1.6rem; font-weight: 700; color: var(--adm-gray, #8892A6); }
+.rm-score-label { font-size: .9rem; color: var(--adm-gray, #8892A6); margin-top: 8px; }
+.rm-band-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--adm-blue, #2F6FED), #1FAE7A);
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 900;
+  border-radius: 14px;
+  padding: 10px 24px;
+  margin-top: 12px;
+}
+.rm-passage-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.rm-ps-card {
+  background: var(--adm-bg, #F3F6FC);
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+  border: 1.5px solid var(--adm-line, #E7EBF4);
+}
+.rm-ps-num { font-size: 1.4rem; font-weight: 800; color: var(--adm-ink, #101B3D); }
+.rm-ps-label { font-size: .75rem; color: var(--adm-gray, #8892A6); margin-top: 4px; }
+.rm-review-list { margin-top: 20px; max-height: 40vh; overflow-y: auto; }
+.rm-review-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  border: 1px solid var(--adm-line, #E7EBF4);
+  font-size: .86rem;
+}
+.rm-review-item.correct { background: rgba(31,174,122,.06); border-color: rgba(31,174,122,.25); }
+.rm-review-item.wrong { background: rgba(231,76,60,.05); border-color: rgba(231,76,60,.2); }
+.rm-review-item.skipped { background: rgba(200,200,200,.08); }
+.rm-review-qnum { font-weight: 800; min-width: 30px; }
+.rm-review-status { font-weight: 700; }
+.rm-review-status.correct { color: #1FAE7A; }
+.rm-review-status.wrong { color: #E74C3C; }
+.rm-review-status.skipped { color: var(--adm-gray, #8892A6); }
+.rm-result-actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+
+/* ---- Loading ---- */
+.rm-loading-screen {
+  position: fixed; inset: 0;
+  background: var(--adm-bg, #F3F6FC);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 14px; z-index: 9999;
+}
+.rm-loading-spin {
+  width: 40px; height: 40px;
+  border: 3px solid var(--adm-line, #E7EBF4);
+  border-top-color: var(--adm-blue, #2F6FED);
+  border-radius: 50%;
+  animation: rm-spin .7s linear infinite;
+}
+@keyframes rm-spin { to { transform: rotate(360deg); } }
+
+/* ---- Mobile ---- */
+@media (max-width: 768px) {
+  body.rm-body { overflow: auto; height: auto; }
+  .rm-main { flex-direction: column; overflow: visible; height: auto; }
+  .rm-passage-panel { border-right: none; border-bottom: 2px solid var(--adm-line, #E7EBF4); max-height: 50vh; }
+  .rm-questions-panel { max-width: 100%; }
+  .rm-result-card { padding: 24px 20px; }
+  .rm-passage-scores { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+
+<body class="rm-body">
+
+<!-- Loading screen -->
+<div class="rm-loading-screen" id="rmLoadingScreen">
+  <div class="rm-loading-spin"></div>
+  <p style="color:var(--adm-gray,#8892A6);font-size:.9rem;">Mock test yuklanmoqda…</p>
+</div>
+
+<!-- Header -->
+<header class="rm-header" id="rmHeader" style="display:none;">
+  <div class="rm-header-left">
+    <span class="rm-header-logo">Djami Lessons</span>
+    <span class="rm-header-title" id="rmHeaderTitle">IELTS Reading Mock Test</span>
+  </div>
+  <div class="rm-header-center">
+    <div style="text-align:center;">
+      <div class="rm-timer-box" id="rmTimerBox">60:00</div>
+      <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:3px;">Qolgan vaqt</div>
+    </div>
+    <div>
+      <div class="rm-progress-text" id="rmProgressText">0 / 0 savol javoblandi</div>
+    </div>
+  </div>
+  <div class="rm-header-right">
+    <span class="rm-preview-badge" id="rmPreviewBadge" style="display:none;">PREVIEW</span>
+    <button class="rm-submit-btn" id="rmSubmitBtn">Testni yakunlash</button>
+  </div>
+</header>
+
+<!-- Main Area -->
+<div class="rm-main" id="rmMain" style="display:none;">
+
+  <!-- LEFT: Passage -->
+  <div class="rm-passage-panel">
+    <div class="rm-passage-tabs" id="rmPassageTabs"></div>
+    <div id="rmPassageContent">
+      <p style="color:var(--adm-gray);font-size:.9rem;">Passaj yuklanmoqda…</p>
+    </div>
+  </div>
+
+  <!-- RIGHT: Questions -->
+  <div style="display:flex;flex-direction:column;flex:1 1 45%;max-width:520px;overflow:hidden;">
+    <div class="rm-questions-panel" id="rmQuestionsPanel">
+    </div>
+    <!-- Question nav palette (fixed at bottom of right column) -->
+    <div class="rm-nav-panel" id="rmNavPanel">
+      <div class="rm-nav-row" id="rmNavRow">
+        <span class="rm-nav-label">Savollar:</span>
+      </div>
+      <div class="rm-nav-legend">
+        <div class="rm-nav-legend-item"><div class="rm-nav-legend-dot" style="background:#1FAE7A;"></div> Javoblangan</div>
+        <div class="rm-nav-legend-item"><div class="rm-nav-legend-dot" style="background:var(--adm-blue,#2F6FED);"></div> Joriy</div>
+        <div class="rm-nav-legend-item"><div class="rm-nav-legend-dot" style="background:var(--adm-orange,#F0923D);"></div> Belgilangan</div>
+        <div class="rm-nav-legend-item"><div class="rm-nav-legend-dot" style="border:1.5px solid var(--adm-line,#E7EBF4);background:#fff;"></div> Javobsiz</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Result Overlay -->
+<div class="rm-result-overlay" id="rmResultOverlay" style="display:none;">
+  <div class="rm-result-card">
+    <h2 class="rm-result-title">Test yakunlandi!</h2>
+    <p class="rm-result-sub" id="rmResultSub">Sizning natijalaringiz:</p>
+
+    <div class="rm-score-big">
+      <div><span class="rm-score-num" id="rmResultCorrect">0</span><span class="rm-score-denom"> / <span id="rmResultTotal">0</span></span></div>
+      <div class="rm-score-label">To'g'ri javoblar</div>
+      <div class="rm-band-badge">Band: <span id="rmResultBand">—</span></div>
+    </div>
+
+    <div class="rm-passage-scores" id="rmPassageScores"></div>
+
+    <details style="margin-top:16px;">
+      <summary style="cursor:pointer;font-weight:700;font-size:.9rem;color:var(--adm-blue,#2F6FED);">Javoblarni ko'rish</summary>
+      <div class="rm-review-list" id="rmReviewList"></div>
+    </details>
+
+    <div class="rm-result-actions">
+      <button class="btn btn-ghost" onclick="location.href='dashboard.html'">← Kabinentga qaytish</button>
+      <button class="btn btn-amber" onclick="location.reload()">Qaytadan urinish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+
+<script>
+// ============================================================
+// IELTS Reading Mock Test — Student Script
+// ============================================================
+
+const urlParams = new URLSearchParams(location.search);
+const MOCK_ID = urlParams.get('mockId');
+const IS_PREVIEW = urlParams.get('preview') === '1';
+
+// ---- State ----
+const rmState = {
+  mock: null,
+  passages: [],    // [{title, content, imageUrl, groups:[{type, instr, questions:[]}]}]
+  answers: {},     // { 'p1g0q0': 'A', ... }
+  flagged: new Set(),
+  currentPassageIdx: 0,
+  timerSec: 3600,
+  timerInterval: null,
+  submitted: false
+};
+
+// ---- IELTS Band tables ----
+const ACADEMIC_BAND = {40:9,39:9,38:8.5,37:8.5,36:8.5,35:8,34:8,33:7.5,32:7.5,31:7.5,30:7,29:7,28:7,27:6.5,26:6.5,25:6.5,24:6,23:6,22:6,21:5.5,20:5.5,19:5.5,18:5,17:5,16:5,15:4.5,14:4.5,13:4.5,12:4,11:4,10:4,9:3.5,8:3.5,7:3,6:2.5,5:2.5,4:2,3:2,2:1.5,1:1,0:0};
+const GENERAL_BAND = {40:9,39:9,38:8.5,37:8,36:7.5,35:7.5,34:7,33:6.5,32:6.5,31:6,30:6,29:5.5,28:5.5,27:5,26:5,25:4.5,24:4.5,23:4,22:4,21:4,20:3.5,19:3.5,18:3.5,17:3.5,16:3,15:3,14:3,13:3,12:2.5,11:2.5,10:2.5,9:2,8:2,7:2,6:2,5:1.5,4:1.5,3:1.5,2:1,1:1,0:0};
+function getBand(raw, testType) {
+  const table = testType === 'general' ? GENERAL_BAND : ACADEMIC_BAND;
+  return table[Math.max(0, Math.min(40, Math.round(raw)))] || 0;
+}
+
+// ---- Helper ----
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function answerKey(pi, gi, qi) { return `p${pi}g${gi}q${qi}`; }
+
+// ---- Load mock from Firestore ----
+async function loadMock() {
+  if (!MOCK_ID) { showError('Mock ID ko\'rsatilmagan.'); return; }
+  try {
+    const mockDoc = await db.collection('reading_mocks').doc(MOCK_ID).get();
+    if (!mockDoc.exists) { showError('Mock test topilmadi.'); return; }
+    rmState.mock = { id: MOCK_ID, ...mockDoc.data() };
+
+    if (rmState.mock.status !== 'published' && !IS_PREVIEW) {
+      showError('Bu mock test hali nashr etilmagan.'); return;
+    }
+
+    rmState.timerSec = (rmState.mock.duration || 60) * 60;
+
+    // Load passages
+    for (let pi = 1; pi <= 3; pi++) {
+      const passDoc = await db.collection('reading_mocks').doc(MOCK_ID).collection('passages').doc('passage-' + pi).get();
+      const passData = passDoc.exists ? passDoc.data() : { title: '', content: '', imageUrl: '' };
+      const groups = [];
+      const groupSnap = await db.collection('reading_mocks').doc(MOCK_ID).collection('passages').doc('passage-' + pi).collection('groups').orderBy('groupOrder').get();
+      for (const gDoc of groupSnap.docs) {
+        const gData = gDoc.data();
+        const qSnap = await db.collection('reading_mocks').doc(MOCK_ID).collection('passages').doc('passage-' + pi).collection('groups').doc(gDoc.id).collection('questions').orderBy('questionIndex').get();
+        const questions = qSnap.docs.map(d => d.data());
+        groups.push({ ...gData, questions });
+      }
+      rmState.passages.push({ title: passData.title || `Passaj ${pi}`, content: passData.content || '', imageUrl: passData.imageUrl || '', groups });
+    }
+
+    renderUI();
+  } catch (err) {
+    showError('Yuklanmadi: ' + err.message);
+  }
+}
+
+function showError(msg) {
+  document.getElementById('rmLoadingScreen').innerHTML = `<div style="text-align:center;padding:40px;"><div style="font-size:2rem;margin-bottom:14px;">⚠️</div><h3 style="color:var(--adm-ink,#101B3D);margin:0 0 8px;">${esc(msg)}</h3><a href="dashboard.html" class="btn btn-ghost" style="margin-top:16px;">← Kabinetga qaytish</a></div>`;
+}
+
+// ---- Render UI ----
+function renderUI() {
+  document.getElementById('rmLoadingScreen').style.display = 'none';
+  document.getElementById('rmHeader').style.display = '';
+  document.getElementById('rmMain').style.display = '';
+
+  document.getElementById('rmHeaderTitle').textContent = rmState.mock.title || 'IELTS Reading Mock';
+  if (IS_PREVIEW) document.getElementById('rmPreviewBadge').style.display = '';
+
+  renderPassageTabs();
+  renderCurrentPassage();
+  renderNavPalette();
+  updateProgress();
+
+  if (!IS_PREVIEW) startTimer();
+  else document.getElementById('rmTimerBox').textContent = '60:00';
+}
+
+function renderPassageTabs() {
+  const container = document.getElementById('rmPassageTabs');
+  container.innerHTML = rmState.passages.map((p, i) => `
+    <button class="rm-ptab ${i === rmState.currentPassageIdx ? 'active' : ''}" onclick="switchPassage(${i})">
+      Passaj ${i + 1}
+    </button>`).join('');
+}
+
+function switchPassage(idx) {
+  rmState.currentPassageIdx = idx;
+  renderPassageTabs();
+  renderCurrentPassage();
+}
+
+function renderCurrentPassage() {
+  const pi = rmState.currentPassageIdx;
+  const p = rmState.passages[pi];
+  const passagePanel = document.getElementById('rmPassageContent');
+  passagePanel.innerHTML = `
+    <h2 class="rm-passage-title">${esc(p.title)}</h2>
+    ${p.imageUrl ? `<img class="rm-passage-img" src="${esc(p.imageUrl)}" alt="Passage image">` : ''}
+    <div class="rm-passage-body">${esc(p.content)}</div>
+  `;
+
+  const questionsPanel = document.getElementById('rmQuestionsPanel');
+  questionsPanel.innerHTML = p.groups.length ? p.groups.map((g, gi) => renderQuestionGroup(pi, gi, g)).join('') : '<p style="color:var(--adm-gray);font-size:.9rem;padding:24px 0;">Bu passajda hali savol qo\'shilmagan.</p>';
+  renderNavPalette();
+}
+
+function renderQuestionGroup(pi, gi, g) {
+  const typeLabel = {
+    multiple_choice:'Multiple Choice', multiple_answer:'Multiple Choice (ko\'p)',
+    true_false_ng:'True/False/Not Given', yes_no_ng:'Yes/No/Not Given',
+    matching_headings:'Matching Headings', matching_info:'Matching Information',
+    matching_features:'Matching Features', matching_endings:'Matching Sentence Endings',
+    sentence_completion:'Sentence Completion', summary_completion:'Summary Completion',
+    note_completion:'Note Completion', table_completion:'Table Completion',
+    flowchart_completion:'Flow-chart Completion', diagram_labelling:'Diagram Labelling',
+    short_answer:'Short Answer'
+  }[g.questionType] || g.questionType;
+
+  const qRange = g.questionFrom && g.questionTo ? `Savollar ${g.questionFrom}–${g.questionTo}` : '';
+  return `<div class="rm-qgroup">
+    <div class="rm-qgroup-header">${esc(typeLabel)}${qRange ? ' · ' + esc(qRange) : ''}</div>
+    ${g.instruction ? `<div class="rm-qgroup-instr">${esc(g.instruction)}</div>` : ''}
+    ${(g.questions || []).map((q, qi) => renderQuestion(pi, gi, qi, q, g.questionType)).join('')}
+  </div>`;
+}
+
+function renderQuestion(pi, gi, qi, q, type) {
+  const key = answerKey(pi, gi, qi);
+  const ans = rmState.answers[key];
+  const isFlagged = rmState.flagged.has(key);
+  const qNum = (q.questionFrom || ((gi * 10) + qi + 1));
+
+  let inputHtml = '';
+  switch (type) {
+    case 'multiple_choice':
+      inputHtml = renderMCQ(pi, gi, qi, q, ans); break;
+    case 'multiple_answer':
+      inputHtml = renderMCA(pi, gi, qi, q, ans); break;
+    case 'true_false_ng':
+      inputHtml = renderTF(pi, gi, qi, q, ans, ['TRUE','FALSE','NOT GIVEN']); break;
+    case 'yes_no_ng':
+      inputHtml = renderTF(pi, gi, qi, q, ans, ['YES','NO','NOT GIVEN']); break;
+    default:
+      inputHtml = renderTextInput(pi, gi, qi, ans); break;
+  }
+
+  return `<div class="rm-question-block" id="rmQBlock-${pi}-${gi}-${qi}">
+    <div class="rm-q-label">
+      <span class="rm-q-num-badge ${ans ? 'answered' : ''} ${isFlagged ? 'flagged' : ''}">${q.questionFrom || (qi + 1)}</span>
+      <span>${esc(q.text)}</span>
+      <button class="rm-flag-btn ${isFlagged ? 'flagged' : ''}" onclick="toggleFlag('${key}')">
+        ${isFlagged ? '★ Belgilangan' : '☆ Belgilash'}
+      </button>
+    </div>
+    ${inputHtml}
+  </div>`;
+}
+
+function renderMCQ(pi, gi, qi, q, ans) {
+  const opts = q.options || [];
+  return opts.map((o, oi) => {
+    const key = o.key || String.fromCharCode(65 + oi);
+    const sel = ans === key;
+    return `<div class="rm-mc-option ${sel ? 'selected' : ''}" onclick="setAnswer('${answerKey(pi,gi,qi)}','${key}', ${pi})">
+      <span class="rm-mc-key">${esc(key)}.</span>
+      <span>${esc(o.text)}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderMCA(pi, gi, qi, q, ans) {
+  const opts = q.options || [];
+  const selected = ans ? ans.split(',') : [];
+  return opts.map((o, oi) => {
+    const key = o.key || String.fromCharCode(65 + oi);
+    const sel = selected.includes(key);
+    return `<div class="rm-mc-option ${sel ? 'selected' : ''}" onclick="toggleMultiAnswer('${answerKey(pi,gi,qi)}','${key}', ${pi})">
+      <input type="checkbox" ${sel ? 'checked' : ''} style="pointer-events:none;">
+      <span class="rm-mc-key">${esc(key)}.</span>
+      <span>${esc(o.text)}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderTF(pi, gi, qi, q, ans, options) {
+  return `<div class="rm-tf-options">${options.map(opt => `
+    <button class="rm-tf-btn ${ans === opt ? 'selected' : ''}" onclick="setAnswer('${answerKey(pi,gi,qi)}','${opt}', ${pi})">${esc(opt)}</button>`).join('')}
+  </div>`;
+}
+
+function renderTextInput(pi, gi, qi, ans) {
+  const key = answerKey(pi, gi, qi);
+  return `<input class="rm-text-input" type="text" placeholder="Javobingizni kiriting…" value="${esc(ans || '')}" 
+    oninput="setAnswer('${key}', this.value, ${pi})" data-akey="${key}">`;
+}
+
+// ---- Answer handling ----
+function setAnswer(key, value, pi) {
+  rmState.answers[key] = value || null;
+  if (!value) delete rmState.answers[key];
+  updateNavBtn(key);
+  updateProgress();
+  autoSave();
+  // Re-render just the changed question block's num badge
+  const [p, g, q] = key.replace(/p|g|q/g, ' ').trim().split(' ').map(Number);
+  const block = document.getElementById(`rmQBlock-${p}-${g}-${q}`);
+  if (block) {
+    const badge = block.querySelector('.rm-q-num-badge');
+    if (badge) badge.classList.toggle('answered', !!value);
+  }
+}
+
+function toggleMultiAnswer(key, optKey, pi) {
+  const current = rmState.answers[key] ? rmState.answers[key].split(',') : [];
+  const idx = current.indexOf(optKey);
+  if (idx > -1) current.splice(idx, 1);
+  else current.push(optKey);
+  setAnswer(key, current.length ? current.sort().join(',') : null, pi);
+  const [p, g, q] = key.replace(/p|g|q/g, ' ').trim().split(' ').map(Number);
+  const block = document.getElementById(`rmQBlock-${p}-${g}-${q}`);
+  if (block) block.querySelectorAll('.rm-mc-option').forEach((el, oi) => {
+    const k = el.querySelector('.rm-mc-key')?.textContent?.replace('.','');
+    el.classList.toggle('selected', current.includes(k));
+    const chk = el.querySelector('input[type=checkbox]');
+    if (chk) chk.checked = current.includes(k);
+  });
+}
+
+function toggleFlag(key) {
+  if (rmState.flagged.has(key)) rmState.flagged.delete(key);
+  else rmState.flagged.add(key);
+  const [p, g, q] = key.replace(/p|g|q/g, ' ').trim().split(' ').map(Number);
+  const block = document.getElementById(`rmQBlock-${p}-${g}-${q}`);
+  if (block) {
+    const flagBtn = block.querySelector('.rm-flag-btn');
+    if (flagBtn) { flagBtn.classList.toggle('flagged', rmState.flagged.has(key)); flagBtn.textContent = rmState.flagged.has(key) ? '★ Belgilangan' : '☆ Belgilash'; }
+    const badge = block.querySelector('.rm-q-num-badge');
+    if (badge) badge.classList.toggle('flagged', rmState.flagged.has(key));
+  }
+  updateNavBtn(key);
+}
+
+// ---- Nav palette ----
+function renderNavPalette() {
+  const row = document.getElementById('rmNavRow');
+  let btns = '<span class="rm-nav-label">Savollar:</span>';
+  let qNum = 1;
+  rmState.passages.forEach((p, pi) => {
+    p.groups.forEach((g, gi) => {
+      g.questions.forEach((q, qi) => {
+        const key = answerKey(pi, gi, qi);
+        const isAnswered = !!rmState.answers[key];
+        const isFlagged = rmState.flagged.has(key);
+        const displayNum = q.questionFrom || qNum;
+        btns += `<button class="rm-nav-btn ${isAnswered ? 'answered' : ''} ${isFlagged ? 'flagged' : ''}" id="rmNav-${key}" onclick="jumpToQuestion(${pi}, ${gi}, ${qi})" title="Savol ${displayNum}">${displayNum}</button>`;
+        qNum++;
+      });
+    });
+  });
+  row.innerHTML = btns;
+}
+
+function updateNavBtn(key) {
+  const btn = document.getElementById('rmNav-' + key);
+  if (!btn) return;
+  const isAnswered = !!rmState.answers[key];
+  const isFlagged = rmState.flagged.has(key);
+  btn.className = `rm-nav-btn ${isAnswered ? 'answered' : ''} ${isFlagged ? 'flagged' : ''}`;
+}
+
+function jumpToQuestion(pi, gi, qi) {
+  if (pi !== rmState.currentPassageIdx) { rmState.currentPassageIdx = pi; renderPassageTabs(); renderCurrentPassage(); }
+  setTimeout(() => {
+    const el = document.getElementById(`rmQBlock-${pi}-${gi}-${qi}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 50);
+}
+
+function updateProgress() {
+  const total = rmState.passages.reduce((s, p) => s + p.groups.reduce((s2, g) => s2 + g.questions.length, 0), 0);
+  const answered = Object.keys(rmState.answers).filter(k => rmState.answers[k]).length;
+  document.getElementById('rmProgressText').textContent = `${answered} / ${total} savol javoblandi`;
+}
+
+// ---- Timer ----
+function startTimer() {
+  clearInterval(rmState.timerInterval);
+  updateTimerDisplay();
+  rmState.timerInterval = setInterval(() => {
+    rmState.timerSec--;
+    updateTimerDisplay();
+    if (rmState.timerSec <= 0) { clearInterval(rmState.timerInterval); submitTest(true); }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(rmState.timerSec / 60);
+  const s = rmState.timerSec % 60;
+  const box = document.getElementById('rmTimerBox');
+  box.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  box.classList.toggle('rm-timer-warning', rmState.timerSec <= 600 && rmState.timerSec > 120);
+  box.classList.toggle('rm-timer-danger', rmState.timerSec <= 120);
+}
+
+// ---- Auto save ----
+let _autoSaveTimer = null;
+function autoSave() {
+  clearTimeout(_autoSaveTimer);
+  _autoSaveTimer = setTimeout(() => {
+    try { sessionStorage.setItem('rm_answers_' + MOCK_ID, JSON.stringify(rmState.answers)); } catch(e) {}
+  }, 500);
+}
+
+function restoreAnswers() {
+  try {
+    const saved = sessionStorage.getItem('rm_answers_' + MOCK_ID);
+    if (saved) { Object.assign(rmState.answers, JSON.parse(saved)); }
+  } catch(e) {}
+}
+
+// ---- Submit ----
+document.getElementById('rmSubmitBtn').addEventListener('click', () => {
+  const total = rmState.passages.reduce((s, p) => s + p.groups.reduce((s2, g) => s2 + g.questions.length, 0), 0);
+  const answered = Object.keys(rmState.answers).filter(k => rmState.answers[k]).length;
+  const unanswered = total - answered;
+  if (unanswered > 0 && !confirm(`${unanswered} ta savol javobsiz qoldi. Baribir yakunlaysizmi?`)) return;
+  submitTest(false);
+});
+
+function normalizeAnswer(s) {
+  return String(s || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, ' ');
+}
+
+function checkTextAnswer(userAns, q) {
+  const norm = normalizeAnswer(userAns);
+  if (!norm) return false;
+  const correct = normalizeAnswer(q.correctAnswer);
+  if (norm === correct) return true;
+  if (q.altAnswers && q.altAnswers.some(a => normalizeAnswer(a) === norm)) return true;
+  if (q.wordLimit) {
+    const wordCount = norm.split(' ').filter(Boolean).length;
+    if (wordCount > q.wordLimit) return false;
+  }
+  return false;
+}
+
+function checkAnswer(userAns, q, type) {
+  if (!userAns) return false;
+  if (['multiple_choice','true_false_ng','yes_no_ng','matching_headings','matching_info','matching_features','matching_endings'].includes(type)) {
+    return normalizeAnswer(userAns) === normalizeAnswer(q.correctAnswer);
+  }
+  if (type === 'multiple_answer') {
+    const userKeys = userAns.split(',').sort().map(k => k.trim().toUpperCase());
+    const correctKeys = (q.options || []).filter(o => o.correct).map(o => (o.key || '').toUpperCase()).sort();
+    return JSON.stringify(userKeys) === JSON.stringify(correctKeys);
+  }
+  return checkTextAnswer(userAns, q);
+}
+
+function submitTest(autoSubmit) {
+  if (rmState.submitted) return;
+  rmState.submitted = true;
+  clearInterval(rmState.timerInterval);
+
+  if (IS_PREVIEW) { showResults(); return; }
+
+  // Save to Firestore
+  const user = auth.currentUser;
+  if (user) {
+    db.collection('reading_mock_attempts').add({
+      mockId: MOCK_ID,
+      studentId: user.uid,
+      answers: rmState.answers,
+      submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      autoSubmit: !!autoSubmit,
+      timeSpent: (rmState.mock.duration * 60) - rmState.timerSec
+    }).catch(() => {});
+  }
+  showResults();
+}
+
+function showResults() {
+  let totalCorrect = 0;
+  const passageScores = [];
+  const reviewItems = [];
+  let globalQNum = 1;
+
+  rmState.passages.forEach((p, pi) => {
+    let pCorrect = 0, pTotal = 0;
+    p.groups.forEach((g, gi) => {
+      g.questions.forEach((q, qi) => {
+        const key = answerKey(pi, gi, qi);
+        const userAns = rmState.answers[key] || '';
+        const correct = checkAnswer(userAns, q, g.questionType);
+        if (correct) { totalCorrect++; pCorrect++; }
+        pTotal++;
+        reviewItems.push({ num: q.questionFrom || globalQNum, correct, userAns, correctAns: q.correctAnswer, text: q.text, type: g.questionType });
+        globalQNum++;
+      });
+    });
+    passageScores.push({ num: pi + 1, correct: pCorrect, total: pTotal });
+  });
+
+  const totalQ = reviewItems.length;
+  const band = getBand(totalCorrect, rmState.mock?.testType || 'academic');
+
+  document.getElementById('rmResultCorrect').textContent = totalCorrect;
+  document.getElementById('rmResultTotal').textContent = totalQ;
+  document.getElementById('rmResultBand').textContent = band;
+  document.getElementById('rmResultSub').textContent = rmState.mock?.title ? `"${rmState.mock.title}" natijalaringiz:` : 'Natijalaringiz:';
+
+  document.getElementById('rmPassageScores').innerHTML = passageScores.map(ps => `
+    <div class="rm-ps-card">
+      <div class="rm-ps-num">${ps.correct} / ${ps.total}</div>
+      <div class="rm-ps-label">Passaj ${ps.num}</div>
+    </div>`).join('');
+
+  document.getElementById('rmReviewList').innerHTML = reviewItems.map(item => {
+    const status = !item.userAns ? 'skipped' : (item.correct ? 'correct' : 'wrong');
+    return `<div class="rm-review-item ${status}">
+      <span class="rm-review-qnum">${item.num}.</span>
+      <div style="flex:1;">
+        <div style="font-size:.82rem;color:var(--adm-gray,#8892A6);margin-bottom:3px;">${esc(item.text?.slice(0, 80)) || '—'}</div>
+        <div style="font-size:.84rem;">Sizning javobingiz: <strong>${esc(item.userAns) || '—'}</strong></div>
+        ${!item.correct && item.correctAns ? `<div style="font-size:.84rem;color:#1FAE7A;">To'g'ri javob: <strong>${esc(item.correctAns)}</strong></div>` : ''}
+      </div>
+      <span class="rm-review-status ${status}">${status === 'correct' ? '✓' : status === 'wrong' ? '✗' : '—'}</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('rmResultOverlay').style.display = '';
+}
+
+// ---- Init ----
+document.addEventListener('DOMContentLoaded', async () => {
+  if (IS_PREVIEW) {
+    restoreAnswers();
+    await loadMock();
+  } else {
+    auth.onAuthStateChanged(async user => {
+      if (!user) { location.href = 'login.html'; return; }
+      restoreAnswers();
+      await loadMock();
+    });
+  }
+});
+</script>
+
+</body>
+</html>
