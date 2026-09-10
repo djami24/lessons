@@ -3617,13 +3617,24 @@ document.getElementById('markAllReadBtn').addEventListener('click', () => {
 // Talaba bosib o'qisa yo'qoladi va o'qilgan deb belgilanadi.
 
 // ===== KATTA ANNOUNCEMENT MODAL =====
-function showAnnouncementModal(docId, title, body, onClosed){
+function showAnnouncementModal(docId, title, body, imageUrl, onClosed){
   const modal = document.getElementById('announcementModal');
   const box   = document.getElementById('announcementModalBox');
   if(!modal) return;
 
   document.getElementById('announcementModalTitle').textContent = title;
   document.getElementById('announcementModalBody').textContent  = body;
+
+  const imgBox = document.getElementById('announcementModalImage');
+  if(imgBox){
+    if(imageUrl){
+      imgBox.src = imageUrl;
+      imgBox.style.display = 'block';
+    } else {
+      imgBox.removeAttribute('src');
+      imgBox.style.display = 'none';
+    }
+  }
 
   modal.style.display = 'flex';
   // reset animation
@@ -3673,7 +3684,7 @@ document.addEventListener('keydown', e => {
   // Escape bilan yopilmaydi
 });
 
-function showNotifPopup(docId, title, body){
+function showNotifPopup(docId, title, body, imageUrl){
   const container = document.getElementById('notifPopupContainer');
   if(!container) return;
 
@@ -3693,9 +3704,13 @@ function showNotifPopup(docId, title, body){
     'user-select:none',
   ].join(';');
 
+  const thumbHtml = imageUrl
+    ? `<img src="${escapeHtml(imageUrl)}" style="flex-shrink:0;width:32px;height:32px;border-radius:8px;object-fit:cover;">`
+    : `<div style="flex-shrink:0;width:32px;height:32px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;">\uD83D\uDCE2</div>`;
+
   card.innerHTML = `
     <div style="display:flex;align-items:flex-start;gap:10px;">
-      <div style="flex-shrink:0;width:32px;height:32px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;">\uD83D\uDCE2</div>
+      ${thumbHtml}
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:3px;line-height:1.3;">${escapeHtml(title)}</div>
         <div style="font-size:12px;color:#64748b;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${escapeHtml(body)}</div>
@@ -3791,7 +3806,7 @@ function startNotifListener(){
             if(idx >= unreadPopups.length) return;
             const doc = unreadPopups[idx++];
             const d = doc.data();
-            showAnnouncementModal(doc.id, d.title || "E'lon", d.body || '', showNext);
+            showAnnouncementModal(doc.id, d.title || "E'lon", d.body || '', d.imageUrl || '', showNext);
           }
           showNext();
         }
@@ -3807,9 +3822,9 @@ function startNotifListener(){
               // serverTimestamp pending bo'lsa title/body mavjud bo'ladi
               if(d.title || d.body){
                 if(d.displayType === 'popup'){
-                  showAnnouncementModal(doc.id, d.title || "E'lon", d.body || '');
+                  showAnnouncementModal(doc.id, d.title || "E'lon", d.body || '', d.imageUrl || '');
                 } else {
-                  showNotifPopup(doc.id, d.title || 'Yangilik', d.body || '');
+                  showNotifPopup(doc.id, d.title || 'Yangilik', d.body || '', d.imageUrl || '');
                 }
               }
             }
@@ -4547,6 +4562,7 @@ wgApplyVisibilitySetting();
       </div>
     </div>
     <div style="padding:24px 28px 28px;">
+      <img id="announcementModalImage" style="display:none;width:100%;max-height:280px;object-fit:cover;border-radius:12px;margin:0 0 18px;" alt="">
       <p id="announcementModalBody" style="font-size:15px;color:#334155;line-height:1.7;margin:0 0 24px;white-space:pre-line;"></p>
       <button onclick="closeAnnouncementModal()" style="
         width:100%;padding:13px;background:#2563eb;color:#fff;border:none;
