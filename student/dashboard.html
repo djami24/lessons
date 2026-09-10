@@ -125,7 +125,7 @@
     --radius:12px;
     --shadow:0 1px 2px rgba(20,25,40,0.04), 0 2px 8px rgba(20,25,40,0.05);
   }
-  html{ overflow-x:hidden; }
+  html{ overflow-x:hidden; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
   body{ max-width:100%; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; }
 
   @keyframes notifSlideIn{
@@ -197,7 +197,7 @@
   }
   .pnew-divider{ height:1px; background:var(--gray-100); margin-bottom:14px; }
   .pnew-rows{ display:flex; flex-direction:column; gap:10px; }
-  .pnew-row{ display:flex; align-items:baseline; gap:6px; }
+  .pnew-row{ display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
   .pnew-label{
     font-size:12.5px; color:var(--gray-500);
     min-width:110px; flex-shrink:0;
