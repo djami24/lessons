@@ -233,6 +233,31 @@
 .actlog-filter-btn.active{background:var(--adm-blue,#2F6FED);color:#fff;border-color:var(--adm-blue,#2F6FED);}
 .actlog-live-dot{width:8px;height:8px;border-radius:50%;background:#1FAE7A;display:inline-block;margin-right:5px;animation:pulse 1.4s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ===== READING MOCKS — Admin Styles ===== */
+.rm-mock-row{background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:16px;padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;transition:box-shadow .2s;}
+.rm-mock-row:hover{box-shadow:0 4px 18px rgba(0,0,0,.08);}
+.rm-mock-info{display:flex;align-items:center;gap:14px;flex:1 1 280px;min-width:200px;}
+.rm-mock-icon{width:44px;height:44px;border-radius:12px;background:rgba(47,111,237,.1);color:var(--adm-blue,#2F6FED);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.rm-mock-title{font-weight:700;font-size:.95rem;}
+.rm-mock-meta{font-size:.78rem;color:var(--adm-gray,var(--gray));margin-top:3px;}
+.rm-mock-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.rm-badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:700;}
+.rm-badge-pub{background:rgba(31,174,122,.14);color:#1FAE7A;}
+.rm-badge-draft{background:rgba(200,200,200,.25);color:var(--adm-gray,var(--gray));}
+.rm-del-btn{color:#e74c3c!important;border-color:rgba(231,76,60,.3)!important;}
+.rm-del-btn:hover{background:rgba(231,76,60,.1)!important;border-color:#e74c3c!important;}
+.rm-tab{padding:.7em 1.2em;background:none;border:none;border-bottom:3px solid transparent;font-size:.88rem;font-weight:600;color:var(--adm-gray,var(--gray));cursor:pointer;transition:color .15s,border-color .15s;margin-bottom:-2px;border-radius:0;}
+.rm-tab:hover{color:var(--adm-ink,var(--ink));}
+.rm-tab.active{color:var(--adm-blue,#2F6FED);border-bottom-color:var(--adm-blue,#2F6FED);}
+.rm-group-card{background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:14px;margin-bottom:12px;overflow:hidden;}
+.rm-group-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(47,111,237,.04);border-bottom:1px solid var(--adm-line,var(--line));}
+.rm-group-num{font-weight:700;font-size:.9rem;}
+.rm-group-body{padding:16px;}
+.rm-q-block{background:var(--adm-bg,#F3F6FC);border:1px solid var(--adm-line,var(--line));border-radius:10px;padding:14px 16px;margin-bottom:10px;}
+.rm-q-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.rm-q-num{font-weight:700;font-size:.82rem;color:var(--adm-blue,#2F6FED);}
+
 </style>
 </head>
 
@@ -273,6 +298,7 @@
       <li><a href="#" id="navChats"><span class="nav-icon-emoji">💬</span><span class="nav-label"> Chatlar</span><span id="navChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
       <li><a href="#" id="navParentChats"><span class="nav-icon-emoji">👪</span><span class="nav-label"> Ota-onalar</span><span id="navParentChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
       <li><a href="#" id="navActivityLog"><span class="nav-icon-emoji">🕵️</span><span class="nav-label"> Faollik jurnali</span></a></li>
+      <li><a href="#" id="navReadingMocks"><span class="nav-icon-emoji">📖</span><span class="nav-label"> Reading Mocks</span></a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -1545,6 +1571,90 @@
       <div style="text-align:center;margin-top:16px;">
         <button class="btn btn-ghost btn-sm" id="actlogLoadMoreBtn" style="display:none;">Ko'proq yuklash</button>
       </div>
+    </section>
+
+    <!-- ===== READING MOCKS VIEW ===== -->
+    <section id="view-reading-mocks" hidden>
+      <div class="admin-header">
+        <div>
+          <h1>Reading Mocks</h1>
+          <p>IELTS Academic va General Training Reading Mock testlarini yarating, tahrirlang va boshqaring.</p>
+        </div>
+        <button class="btn btn-amber" id="rmOpenCreateBtn">+ Yangi mock yaratish</button>
+      </div>
+
+      <div id="rmListContainer">
+        <p id="rmLoading" style="color:var(--adm-gray,var(--gray));padding:24px 0;">Yuklanmoqda…</p>
+        <div id="rmGrid" style="display:flex;flex-direction:column;gap:12px;"></div>
+        <div id="rmEmpty" style="display:none;text-align:center;padding:60px 24px;color:var(--adm-gray,var(--gray));">
+          <div style="font-size:3rem;margin-bottom:14px;">📖</div>
+          <h3 style="margin:0 0 8px;color:var(--adm-ink,var(--ink));">Hali mock test yaratilmagan</h3>
+          <p style="margin:0;font-size:.9rem;">"Yangi mock yaratish" tugmasini bosib birinchi mock testni yarating.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== READING MOCK BUILDER VIEW ===== -->
+    <section id="view-reading-mock-builder" hidden>
+      <div class="admin-header" style="margin-bottom:0;">
+        <div>
+          <button class="btn btn-ghost btn-sm" id="rmBuilderBack" style="margin-bottom:8px;">← Orqaga</button>
+          <h1 id="rmBuilderTitle">Yangi Mock Test</h1>
+          <p id="rmBuilderSub">Asosiy ma'lumotlarni to'ldiring, so'ng har bir passajni qo'shing.</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-ghost btn-sm" id="rmSaveDraftBtn">Qoralama saqlash</button>
+          <button class="btn btn-amber" id="rmPublishBtn">Nashr etish</button>
+        </div>
+      </div>
+
+      <!-- Step tabs -->
+      <div class="rm-tabs" id="rmTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:20px 0 24px;border-bottom:2px solid var(--adm-line,var(--line));padding-bottom:0;">
+        <button class="rm-tab active" data-tab="basic">Asosiy ma'lumot</button>
+        <button class="rm-tab" data-tab="passage-0">Passaj 1</button>
+        <button class="rm-tab" data-tab="passage-1">Passaj 2</button>
+        <button class="rm-tab" data-tab="passage-2">Passaj 3</button>
+      </div>
+
+      <!-- Basic Info Tab -->
+      <div id="rmTab-basic" class="rm-tab-panel">
+        <div class="oj-form-card">
+          <div class="oj-form-grid" style="gap:18px;">
+            <label class="oj-label" style="grid-column:1/-1;">
+              Mock Test sarlavhasi *
+              <input class="oj-input" type="text" id="rmTitle" placeholder="Masalan: IELTS Reading Practice Test 1" required>
+            </label>
+            <label class="oj-label" style="grid-column:1/-1;">
+              Tavsif (ixtiyoriy)
+              <textarea class="oj-textarea" id="rmDescription" placeholder="Mock test haqida qisqa ma'lumot…" rows="3"></textarea>
+            </label>
+            <label class="oj-label">
+              Test turi
+              <select class="oj-select" id="rmTestType">
+                <option value="academic">Academic Reading</option>
+                <option value="general">General Training Reading</option>
+              </select>
+            </label>
+            <label class="oj-label">
+              Muddat (daqiqa)
+              <input class="oj-input" type="number" id="rmDuration" value="60" min="1" max="180">
+            </label>
+            <label class="oj-label">
+              Holat
+              <select class="oj-select" id="rmStatus">
+                <option value="draft">Qoralama</option>
+                <option value="published">Nashr etilgan</option>
+              </select>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Passage Tabs (0,1,2) -->
+      <div id="rmTab-passage-0" class="rm-tab-panel" style="display:none;"></div>
+      <div id="rmTab-passage-1" class="rm-tab-panel" style="display:none;"></div>
+      <div id="rmTab-passage-2" class="rm-tab-panel" style="display:none;"></div>
+
     </section>
 
   </main>
@@ -3268,6 +3378,9 @@ function switchView(view){
   document.getElementById('navParentChats').classList.toggle('active', view === 'parent-chats');
   document.getElementById('view-activity-log').hidden = view !== 'activity-log';
   document.getElementById('navActivityLog').classList.toggle('active', view === 'activity-log');
+  document.getElementById('view-reading-mocks').hidden = view !== 'reading-mocks';
+  document.getElementById('view-reading-mock-builder').hidden = view !== 'reading-mock-builder';
+  document.getElementById('navReadingMocks').classList.toggle('active', view === 'reading-mocks' || view === 'reading-mock-builder');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
@@ -8060,6 +8173,808 @@ if (ojGroupPdfBtnEl) {
     }
   });
 }
+
+
+
+// ============================================================
+// READING MOCKS — Admin Panel Module
+// ============================================================
+
+// ---- State ----
+let _rmMocks = [];
+let _rmEditingId = null; // null = new, string = existing mock id
+
+const _rmPassageDefaults = () => ({ title: '', content: '', imageUrl: '', questionGroups: [] });
+const _rmState = {
+  title: '', description: '', testType: 'academic', duration: 60, status: 'draft',
+  passages: [_rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults()]
+};
+
+// IELTS Band Score tables (raw score 0-40)
+const _rmAcademicBand = {
+  40:9,39:9,38:8.5,37:8.5,36:8.5,35:8,34:8,33:7.5,32:7.5,31:7.5,30:7,
+  29:7,28:7,27:6.5,26:6.5,25:6.5,24:6,23:6,22:6,21:5.5,20:5.5,19:5.5,
+  18:5,17:5,16:5,15:4.5,14:4.5,13:4.5,12:4,11:4,10:4,9:3.5,8:3.5,7:3,
+  6:2.5,5:2.5,4:2,3:2,2:1.5,1:1,0:0
+};
+const _rmGeneralBand = {
+  40:9,39:9,38:8.5,37:8,36:7.5,35:7.5,34:7,33:6.5,32:6.5,31:6,30:6,
+  29:5.5,28:5.5,27:5,26:5,25:4.5,24:4.5,23:4,22:4,21:4,20:3.5,19:3.5,
+  18:3.5,17:3.5,16:3,15:3,14:3,13:3,12:2.5,11:2.5,10:2.5,9:2,8:2,7:2,
+  6:2,5:1.5,4:1.5,3:1.5,2:1,1:1,0:0
+};
+
+function rmGetBand(raw, testType) {
+  const table = testType === 'general' ? _rmGeneralBand : _rmAcademicBand;
+  const score = Math.max(0, Math.min(40, Math.round(raw)));
+  return table[score] !== undefined ? table[score] : 0;
+}
+
+// ---- Firestore helpers ----
+function rmMocksRef() { return db.collection('reading_mocks'); }
+function rmPassagesRef(mockId) { return db.collection('reading_mocks').doc(mockId).collection('passages'); }
+function rmGroupsRef(mockId, passageId) { return db.collection('reading_mocks').doc(mockId).collection('passages').doc(passageId).collection('groups'); }
+function rmQuestionsRef(mockId, passageId, groupId) { return db.collection('reading_mocks').doc(mockId).collection('passages').doc(passageId).collection('groups').doc(groupId).collection('questions'); }
+
+// ---- Nav click ----
+document.getElementById('navReadingMocks').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('reading-mocks');
+  rmLoadMocks();
+});
+
+// ---- Load mock list ----
+async function rmLoadMocks() {
+  document.getElementById('rmLoading').style.display = '';
+  document.getElementById('rmGrid').innerHTML = '';
+  document.getElementById('rmEmpty').style.display = 'none';
+  try {
+    const snap = await rmMocksRef().orderBy('createdAt', 'desc').get();
+    _rmMocks = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    rmRenderMockList();
+  } catch (err) {
+    showToast('Mocklar yuklanmadi: ' + err.message, true);
+  } finally {
+    document.getElementById('rmLoading').style.display = 'none';
+  }
+}
+
+function rmRenderMockList() {
+  const grid = document.getElementById('rmGrid');
+  const empty = document.getElementById('rmEmpty');
+  if (!_rmMocks.length) { empty.style.display = ''; grid.innerHTML = ''; return; }
+  empty.style.display = 'none';
+  grid.innerHTML = _rmMocks.map(m => {
+    const created = m.createdAt ? (m.createdAt.toDate ? m.createdAt.toDate() : new Date(m.createdAt)) : null;
+    const dateStr = created ? created.toLocaleDateString('uz-UZ') : '—';
+    const totalQ = m.totalQuestions || 0;
+    const typeLabel = m.testType === 'general' ? 'General Training' : 'Academic';
+    const statusBadge = m.status === 'published'
+      ? '<span class="rm-badge rm-badge-pub">Nashr etilgan</span>'
+      : '<span class="rm-badge rm-badge-draft">Qoralama</span>';
+    return `<div class="rm-mock-row">
+      <div class="rm-mock-info">
+        <div class="rm-mock-icon">📖</div>
+        <div>
+          <div class="rm-mock-title">${escapeHtml(m.title || 'Nomsiz mock')}</div>
+          <div class="rm-mock-meta">${typeLabel} · ${m.duration || 60} daqiqa · ${totalQ} savol · Yaratildi: ${dateStr}</div>
+        </div>
+      </div>
+      <div class="rm-mock-actions">
+        ${statusBadge}
+        <button class="btn btn-ghost btn-sm" onclick="rmEditMock('${m.id}')">Tahrirlash</button>
+        <button class="btn btn-ghost btn-sm" onclick="rmPreviewMock('${m.id}')">Preview</button>
+        <button class="btn btn-ghost btn-sm" onclick="rmDuplicateMock('${m.id}')">Nusxa</button>
+        <button class="btn btn-ghost btn-sm rm-del-btn" onclick="rmDeleteMock('${m.id}', '${escapeHtml(m.title || '')}')">O'chirish</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ---- Create new mock ----
+document.getElementById('rmOpenCreateBtn').addEventListener('click', () => {
+  _rmEditingId = null;
+  rmResetBuilderState();
+  rmOpenBuilder('Yangi Mock Test');
+});
+
+function rmResetBuilderState() {
+  Object.assign(_rmState, {
+    title: '', description: '', testType: 'academic', duration: 60, status: 'draft',
+    passages: [_rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults()]
+  });
+}
+
+function rmOpenBuilder(titleText) {
+  document.getElementById('rmBuilderTitle').textContent = titleText;
+  document.getElementById('rmTitle').value = _rmState.title;
+  document.getElementById('rmDescription').value = _rmState.description;
+  document.getElementById('rmTestType').value = _rmState.testType;
+  document.getElementById('rmDuration').value = _rmState.duration;
+  document.getElementById('rmStatus').value = _rmState.status;
+  // Render passage tabs
+  [0, 1, 2].forEach(i => rmRenderPassageTab(i));
+  // Activate first tab
+  rmActivateTab('basic');
+  switchView('reading-mock-builder');
+}
+
+function rmActivateTab(tabKey) {
+  document.querySelectorAll('.rm-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tabKey));
+  document.querySelectorAll('.rm-tab-panel').forEach(p => p.style.display = 'none');
+  const panel = document.getElementById('rmTab-' + tabKey);
+  if (panel) panel.style.display = '';
+}
+
+document.getElementById('rmTabs').addEventListener('click', (e) => {
+  const tab = e.target.closest('.rm-tab');
+  if (!tab) return;
+  rmSyncBasicInfo();
+  rmActivateTab(tab.dataset.tab);
+});
+
+function rmSyncBasicInfo() {
+  _rmState.title = document.getElementById('rmTitle').value.trim();
+  _rmState.description = document.getElementById('rmDescription').value.trim();
+  _rmState.testType = document.getElementById('rmTestType').value;
+  _rmState.duration = parseInt(document.getElementById('rmDuration').value) || 60;
+  _rmState.status = document.getElementById('rmStatus').value;
+}
+
+// ---- Render passage tab content ----
+function rmRenderPassageTab(idx) {
+  const p = _rmState.passages[idx];
+  const panel = document.getElementById('rmTab-passage-' + idx);
+  panel.innerHTML = `
+    <div class="oj-form-card" style="margin-bottom:20px;">
+      <h3 style="margin:0 0 16px;font-size:1rem;font-weight:700;">Passaj ${idx + 1} — Asosiy ma'lumot</h3>
+      <div class="oj-form-grid" style="gap:16px;">
+        <label class="oj-label" style="grid-column:1/-1;">
+          Passaj sarlavhasi
+          <input class="oj-input rm-p-title" data-pi="${idx}" type="text" placeholder="Masalan: The History of Printing" value="${escapeHtml(p.title)}">
+        </label>
+        <label class="oj-label" style="grid-column:1/-1;">
+          Passaj matni
+          <textarea class="oj-textarea rm-p-content" data-pi="${idx}" placeholder="Passaj matnini shu yerga kiriting…" rows="10" style="min-height:200px;">${escapeHtml(p.content)}</textarea>
+        </label>
+        <label class="oj-label" style="grid-column:1/-1;">
+          Rasm havolasi (ixtiyoriy)
+          <input class="oj-input rm-p-image" data-pi="${idx}" type="url" placeholder="https://…" value="${escapeHtml(p.imageUrl || '')}">
+        </label>
+      </div>
+    </div>
+
+    <div class="oj-form-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <h3 style="margin:0;font-size:1rem;font-weight:700;">Savol Guruhlari</h3>
+        <button class="btn btn-ghost btn-sm rm-add-group-btn" data-pi="${idx}">+ Guruh qo'shish</button>
+      </div>
+      <div class="rm-groups-list" id="rmGroupsList-${idx}">
+        ${rmRenderGroupsHtml(idx)}
+      </div>
+      ${p.questionGroups.length === 0 ? `<p style="color:var(--adm-gray,var(--gray));font-size:.9rem;font-style:italic;">Hali savol guruhi qo'shilmagan.</p>` : ''}
+    </div>
+  `;
+
+  // Bind events
+  panel.querySelectorAll('.rm-p-title').forEach(el => el.addEventListener('input', e => _rmState.passages[idx].title = e.target.value));
+  panel.querySelectorAll('.rm-p-content').forEach(el => el.addEventListener('input', e => _rmState.passages[idx].content = e.target.value));
+  panel.querySelectorAll('.rm-p-image').forEach(el => el.addEventListener('input', e => _rmState.passages[idx].imageUrl = e.target.value));
+  panel.querySelectorAll('.rm-add-group-btn').forEach(btn => btn.addEventListener('click', () => rmAddGroup(parseInt(btn.dataset.pi))));
+}
+
+function rmRenderGroupsHtml(pi) {
+  const groups = _rmState.passages[pi].questionGroups;
+  if (!groups.length) return '';
+  return groups.map((g, gi) => rmRenderGroupCard(pi, gi, g)).join('');
+}
+
+function rmRenderGroupCard(pi, gi, g) {
+  const typeOptions = [
+    ['multiple_choice', 'Multiple Choice (Yagona javob)'],
+    ['multiple_answer', 'Multiple Choice (Ko\'p javob)'],
+    ['true_false_ng', 'True / False / Not Given'],
+    ['yes_no_ng', 'Yes / No / Not Given'],
+    ['matching_headings', 'Matching Headings'],
+    ['matching_info', 'Matching Information'],
+    ['matching_features', 'Matching Features'],
+    ['matching_endings', 'Matching Sentence Endings'],
+    ['sentence_completion', 'Sentence Completion'],
+    ['summary_completion', 'Summary Completion'],
+    ['note_completion', 'Note Completion'],
+    ['table_completion', 'Table Completion'],
+    ['flowchart_completion', 'Flow-chart Completion'],
+    ['diagram_labelling', 'Diagram Labelling'],
+    ['short_answer', 'Short Answer Questions']
+  ].map(([v, l]) => `<option value="${v}"${g.questionType === v ? ' selected' : ''}>${l}</option>`).join('');
+
+  return `<div class="rm-group-card" id="rmGroup-${pi}-${gi}">
+    <div class="rm-group-header">
+      <span class="rm-group-num">Guruh ${gi + 1}</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn btn-ghost btn-sm rm-group-toggle" data-pi="${pi}" data-gi="${gi}">${g._open ? 'Yig\'ish' : 'Ochish'}</button>
+        <button class="btn btn-ghost btn-sm rm-del-btn rm-group-del" data-pi="${pi}" data-gi="${gi}">O'chirish</button>
+      </div>
+    </div>
+    <div class="rm-group-body" style="display:${g._open ? '' : 'none'};">
+      <div class="oj-form-grid" style="gap:12px;margin-bottom:14px;">
+        <label class="oj-label">
+          Savol turi
+          <select class="oj-select rm-gtype" data-pi="${pi}" data-gi="${gi}">${typeOptions}</select>
+        </label>
+        <label class="oj-label">
+          Savol raqamidan
+          <input class="oj-input rm-gqfrom" data-pi="${pi}" data-gi="${gi}" type="number" min="1" max="40" value="${g.questionFrom || ''}">
+        </label>
+        <label class="oj-label">
+          Savol raqamigacha
+          <input class="oj-input rm-gqto" data-pi="${pi}" data-gi="${gi}" type="number" min="1" max="40" value="${g.questionTo || ''}">
+        </label>
+        <label class="oj-label" style="grid-column:1/-1;">
+          Ko'rsatma (instruction)
+          <input class="oj-input rm-ginstr" data-pi="${pi}" data-gi="${gi}" type="text" placeholder="Masalan: Choose the correct letter, A, B, C or D." value="${escapeHtml(g.instruction || '')}">
+        </label>
+      </div>
+      <div class="rm-questions-area" id="rmQArea-${pi}-${gi}">
+        ${rmRenderQuestionsArea(pi, gi, g)}
+      </div>
+      <button class="btn btn-ghost btn-sm rm-add-q-btn" data-pi="${pi}" data-gi="${gi}" style="margin-top:10px;">+ Savol qo'shish</button>
+    </div>
+  </div>`;
+}
+
+const RM_QUESTION_TYPES = {
+  multiple_choice: rmRenderMCQ,
+  multiple_answer: rmRenderMCA,
+  true_false_ng: rmRenderTFNG,
+  yes_no_ng: rmRenderYNNG,
+  matching_headings: rmRenderMatchHeadings,
+  matching_info: rmRenderMatchInfo,
+  matching_features: rmRenderMatchFeatures,
+  matching_endings: rmRenderMatchEndings,
+  sentence_completion: rmRenderSentenceComp,
+  summary_completion: rmRenderSummaryComp,
+  note_completion: rmRenderNoteComp,
+  table_completion: rmRenderTableComp,
+  flowchart_completion: rmRenderFlowchartComp,
+  diagram_labelling: rmRenderDiagram,
+  short_answer: rmRenderShortAnswer
+};
+
+function rmRenderQuestionsArea(pi, gi, g) {
+  if (!g.questions || !g.questions.length) return '<p style="color:var(--adm-gray);font-size:.86rem;font-style:italic;">Hali savol qo\'shilmagan.</p>';
+  const renderer = RM_QUESTION_TYPES[g.questionType] || rmRenderMCQ;
+  return g.questions.map((q, qi) => renderer(pi, gi, qi, q)).join('');
+}
+
+// --- Question renderers ---
+function rmQBase(pi, gi, qi, label, inner) {
+  return `<div class="rm-q-block" id="rmQ-${pi}-${gi}-${qi}">
+    <div class="rm-q-header">
+      <span class="rm-q-num">Savol ${qi + 1}</span>
+      <button class="btn btn-ghost btn-sm rm-del-btn rm-q-del" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" style="font-size:.78rem;">O'chirish</button>
+    </div>
+    ${inner}
+  </div>`;
+}
+
+function rmRenderMCQ(pi, gi, qi, q) {
+  const opts = q.options || [{key:'A',text:''},{key:'B',text:''},{key:'C',text:''},{key:'D',text:''}];
+  const optHtml = opts.map((o, oi) => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+    <span style="font-weight:700;min-width:20px;">${o.key || String.fromCharCode(65+oi)}.</span>
+    <input class="oj-input rm-q-opt" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-oi="${oi}" style="flex:1;" type="text" placeholder="Variant ${o.key || String.fromCharCode(65+oi)}" value="${escapeHtml(o.text||'')}">
+    <button class="btn btn-ghost btn-sm rm-del-btn rm-opt-del" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-oi="${oi}">×</button>
+  </div>`).join('');
+  const ansOpts = opts.map((o, oi) => `<option value="${o.key||String.fromCharCode(65+oi)}"${q.correctAnswer === (o.key||String.fromCharCode(65+oi)) ? ' selected' : ''}>${o.key||String.fromCharCode(65+oi)}</option>`).join('');
+  return rmQBase(pi, gi, qi, 'Multiple Choice', `
+    <label class="oj-label">Savol matni<textarea class="oj-textarea rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" rows="2" placeholder="Savol matni…">${escapeHtml(q.text||'')}</textarea></label>
+    <div style="margin:10px 0 4px;font-size:.82rem;font-weight:600;color:var(--adm-gray);">Variantlar:</div>
+    ${optHtml}
+    <button class="btn btn-ghost btn-sm rm-add-opt-btn" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" style="margin:4px 0 10px;">+ Variant qo'shish</button>
+    <label class="oj-label">To'g'ri javob<select class="oj-select rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}">${ansOpts}</select></label>
+  `);
+}
+
+function rmRenderMCA(pi, gi, qi, q) {
+  const opts = q.options || [{key:'A',text:'',correct:false},{key:'B',text:'',correct:false},{key:'C',text:'',correct:false},{key:'D',text:'',correct:false}];
+  const optHtml = opts.map((o, oi) => `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+    <input type="checkbox" class="rm-q-chk" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-oi="${oi}" ${o.correct ? 'checked' : ''} title="To'g'ri javob">
+    <span style="font-weight:700;min-width:20px;">${o.key||String.fromCharCode(65+oi)}.</span>
+    <input class="oj-input rm-q-opt" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-oi="${oi}" style="flex:1;" type="text" value="${escapeHtml(o.text||'')}">
+    <button class="btn btn-ghost btn-sm rm-del-btn rm-opt-del" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-oi="${oi}">×</button>
+  </div>`).join('');
+  return rmQBase(pi, gi, qi, 'Multiple Answer', `
+    <label class="oj-label">Savol matni<textarea class="oj-textarea rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" rows="2">${escapeHtml(q.text||'')}</textarea></label>
+    <div style="margin:10px 0 4px;font-size:.82rem;font-weight:600;color:var(--adm-gray);">Variantlar (to'g'rilarini belgilang):</div>
+    ${optHtml}
+    <button class="btn btn-ghost btn-sm rm-add-opt-btn" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" style="margin:4px 0 0;">+ Variant qo'shish</button>
+  `);
+}
+
+function rmRenderTFNG(pi, gi, qi, q) {
+  const mkOpt = (val, label) => `<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+    <input type="radio" name="rmTFNG-${pi}-${gi}-${qi}" class="rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" value="${val}" ${q.correctAnswer===val?'checked':''}>
+    <span style="font-weight:600;">${label}</span></label>`;
+  return rmQBase(pi, gi, qi, 'True/False/Not Given', `
+    <label class="oj-label">Ibora (Statement)<input class="oj-input rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Statement matni…" value="${escapeHtml(q.text||'')}"></label>
+    <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;">
+      ${mkOpt('TRUE','TRUE')} ${mkOpt('FALSE','FALSE')} ${mkOpt('NOT GIVEN','NOT GIVEN')}
+    </div>
+  `);
+}
+
+function rmRenderYNNG(pi, gi, qi, q) {
+  const mkOpt = (val) => `<label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+    <input type="radio" name="rmYNNG-${pi}-${gi}-${qi}" class="rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" value="${val}" ${q.correctAnswer===val?'checked':''}>
+    <span style="font-weight:600;">${val}</span></label>`;
+  return rmQBase(pi, gi, qi, 'Yes/No/Not Given', `
+    <label class="oj-label">Ibora<input class="oj-input rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Statement matni…" value="${escapeHtml(q.text||'')}"></label>
+    <div style="display:flex;gap:16px;margin-top:10px;flex-wrap:wrap;">
+      ${mkOpt('YES')} ${mkOpt('NO')} ${mkOpt('NOT GIVEN')}
+    </div>
+  `);
+}
+
+function rmRenderMatchHeadings(pi, gi, qi, q) {
+  const headings = q.headings || [];
+  const headHtml = headings.map((h, hi) => `<div style="display:flex;gap:6px;margin-bottom:5px;">
+    <span style="font-weight:700;min-width:20px;">${String.fromCharCode(105+hi)}.</span>
+    <input class="oj-input rm-q-heading" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-hi="${hi}" style="flex:1;" type="text" placeholder="Heading…" value="${escapeHtml(h||'')}">
+    <button class="btn btn-ghost btn-sm rm-del-btn rm-heading-del" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-hi="${hi}">×</button>
+  </div>`).join('');
+  return rmQBase(pi, gi, qi, 'Matching Headings', `
+    <label class="oj-label">Paragraf / bo'lim nomi<input class="oj-input rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: Paragraph A" value="${escapeHtml(q.text||'')}"></label>
+    <label class="oj-label" style="margin-top:10px;">To'g'ri heading indeksi (i, ii, iii…)<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: ii" value="${escapeHtml(q.correctAnswer||'')}"></label>
+    <div style="margin-top:10px;">
+      <div style="font-size:.82rem;font-weight:600;color:var(--adm-gray);margin-bottom:6px;">Headinglar ro'yxati:</div>
+      ${headHtml}
+      <button class="btn btn-ghost btn-sm rm-add-heading-btn" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}">+ Heading qo'shish</button>
+    </div>
+  `);
+}
+
+function rmRenderMatchInfo(pi, gi, qi, q) {
+  return rmQBase(pi, gi, qi, 'Matching Information', `
+    <label class="oj-label">Ma'lumot (savol matni)<textarea class="oj-textarea rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" rows="2" placeholder="Masalan: Information about climate change…">${escapeHtml(q.text||'')}</textarea></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri paragraf<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: Paragraph C" value="${escapeHtml(q.correctAnswer||'')}"></label>
+  `);
+}
+
+function rmRenderMatchFeatures(pi, gi, qi, q) {
+  return rmQBase(pi, gi, qi, 'Matching Features', `
+    <label class="oj-label">Savol (xususiyat)<input class="oj-input rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: Discovery in 1900s" value="${escapeHtml(q.text||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri variant (shaxs/guruh/tasnif)<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: John Smith" value="${escapeHtml(q.correctAnswer||'')}"></label>
+  `);
+}
+
+function rmRenderMatchEndings(pi, gi, qi, q) {
+  const endings = q.endings || [];
+  const endHtml = endings.map((e, ei) => `<div style="display:flex;gap:6px;margin-bottom:5px;">
+    <span style="font-weight:700;min-width:20px;">${String.fromCharCode(65+ei)}.</span>
+    <input class="oj-input rm-q-ending" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-ei="${ei}" style="flex:1;" type="text" placeholder="Ending…" value="${escapeHtml(e||'')}">
+    <button class="btn btn-ghost btn-sm rm-del-btn rm-ending-del" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-ei="${ei}">×</button>
+  </div>`).join('');
+  return rmQBase(pi, gi, qi, 'Matching Sentence Endings', `
+    <label class="oj-label">Jumlaning boshi<input class="oj-input rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Jumlaning boshi…" value="${escapeHtml(q.text||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri oxir (A, B, C…)<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: A" value="${escapeHtml(q.correctAnswer||'')}"></label>
+    <div style="margin-top:10px;">
+      <div style="font-size:.82rem;font-weight:600;color:var(--adm-gray);margin-bottom:6px;">Jumlaning oxirlari:</div>
+      ${endHtml}
+      <button class="btn btn-ghost btn-sm rm-add-ending-btn" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}">+ Oxir qo'shish</button>
+    </div>
+  `);
+}
+
+function rmRenderSentenceComp(pi, gi, qi, q) {
+  const alts = q.altAnswers || [];
+  return rmQBase(pi, gi, qi, 'Sentence Completion', `
+    <label class="oj-label">Jumlaning matni (bo'sh joy uchun ______)<textarea class="oj-textarea rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" rows="2" placeholder="Masalan: The main reason was ______.">${escapeHtml(q.text||'')}</textarea></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri javob<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" value="${escapeHtml(q.correctAnswer||'')}"></label>
+    <div style="margin-top:8px;">
+      <div style="font-size:.82rem;font-weight:600;color:var(--adm-gray);margin-bottom:4px;">Muqobil to'g'ri javoblar:</div>
+      ${alts.map((a, ai) => `<div style="display:flex;gap:6px;margin-bottom:5px;">
+        <input class="oj-input rm-q-alt" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-ai="${ai}" style="flex:1;" type="text" value="${escapeHtml(a)}">
+        <button class="btn btn-ghost btn-sm rm-del-btn rm-alt-del" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-ai="${ai}">×</button>
+      </div>`).join('')}
+      <button class="btn btn-ghost btn-sm rm-add-alt-btn" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}">+ Muqobil javob</button>
+    </div>
+    <label class="oj-label" style="margin-top:8px;">Maksimal so'z soni<input class="oj-input rm-q-wordlimit" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="number" min="1" max="10" value="${q.wordLimit||2}"></label>
+  `);
+}
+
+function rmRenderSummaryComp(pi, gi, qi, q) {
+  return rmQBase(pi, gi, qi, 'Summary Completion', `
+    <label class="oj-label">Summary matni (bo'sh joy uchun ______)<textarea class="oj-textarea rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" rows="3" placeholder="The researchers discovered that ______ was responsible…">${escapeHtml(q.text||'')}</textarea></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri javob<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" value="${escapeHtml(q.correctAnswer||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">Maksimal so'z soni<input class="oj-input rm-q-wordlimit" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="number" min="1" max="10" value="${q.wordLimit||2}"></label>
+  `);
+}
+
+function rmRenderNoteComp(pi, gi, qi, q) {
+  return rmQBase(pi, gi, qi, 'Note Completion', `
+    <label class="oj-label">Note label (masalan: Location)<input class="oj-input rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: Location" value="${escapeHtml(q.text||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri javob<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" value="${escapeHtml(q.correctAnswer||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">Maksimal so'z soni<input class="oj-input rm-q-wordlimit" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="number" min="1" max="10" value="${q.wordLimit||2}"></label>
+  `);
+}
+
+function rmRenderTableComp(pi, gi, qi, q) {
+  return rmQBase(pi, gi, qi, 'Table Completion', `
+    <label class="oj-label">Hujayra joylashuvi (masalan: 2-qator, 3-ustun)<input class="oj-input rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: Row 2, Column 1" value="${escapeHtml(q.text||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri javob<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" value="${escapeHtml(q.correctAnswer||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">Maksimal so'z soni<input class="oj-input rm-q-wordlimit" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="number" min="1" max="10" value="${q.wordLimit||2}"></label>
+  `);
+}
+
+function rmRenderFlowchartComp(pi, gi, qi, q) {
+  return rmQBase(pi, gi, qi, 'Flow-chart Completion', `
+    <label class="oj-label">Qadam tavsifi (masalan: Step 2 — ?)<input class="oj-input rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: Step 2 (blank)" value="${escapeHtml(q.text||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri javob<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" value="${escapeHtml(q.correctAnswer||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">Maksimal so'z soni<input class="oj-input rm-q-wordlimit" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="number" min="1" max="10" value="${q.wordLimit||2}"></label>
+  `);
+}
+
+function rmRenderDiagram(pi, gi, qi, q) {
+  return rmQBase(pi, gi, qi, 'Diagram Labelling', `
+    <label class="oj-label">Label nomi / pozitsiyasi<input class="oj-input rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" placeholder="Masalan: Part A (top left)" value="${escapeHtml(q.text||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri javob<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" value="${escapeHtml(q.correctAnswer||'')}"></label>
+    <label class="oj-label" style="margin-top:8px;">Diagramma rasmi havolasi (ixtiyoriy)<input class="oj-input rm-q-diagramurl" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="url" placeholder="https://…" value="${escapeHtml(q.diagramUrl||'')}"></label>
+  `);
+}
+
+function rmRenderShortAnswer(pi, gi, qi, q) {
+  const alts = q.altAnswers || [];
+  return rmQBase(pi, gi, qi, 'Short Answer', `
+    <label class="oj-label">Savol matni<textarea class="oj-textarea rm-q-text" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" rows="2" placeholder="Masalan: Where did the experiment take place?">${escapeHtml(q.text||'')}</textarea></label>
+    <label class="oj-label" style="margin-top:8px;">To'g'ri javob<input class="oj-input rm-q-ans" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="text" value="${escapeHtml(q.correctAnswer||'')}"></label>
+    <div style="margin-top:8px;">
+      <div style="font-size:.82rem;font-weight:600;color:var(--adm-gray);margin-bottom:4px;">Muqobil to'g'ri javoblar:</div>
+      ${alts.map((a, ai) => `<div style="display:flex;gap:6px;margin-bottom:5px;">
+        <input class="oj-input rm-q-alt" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-ai="${ai}" style="flex:1;" type="text" value="${escapeHtml(a)}">
+        <button class="btn btn-ghost btn-sm rm-del-btn rm-alt-del" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" data-ai="${ai}">×</button>
+      </div>`).join('')}
+      <button class="btn btn-ghost btn-sm rm-add-alt-btn" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}">+ Muqobil javob</button>
+    </div>
+    <label class="oj-label" style="margin-top:8px;">Maksimal so'z soni<input class="oj-input rm-q-wordlimit" data-pi="${pi}" data-gi="${gi}" data-qi="${qi}" type="number" min="1" max="10" value="${q.wordLimit||3}"></label>
+  `);
+}
+
+// ---- Event delegation for builder ----
+document.getElementById('view-reading-mock-builder').addEventListener('click', (e) => {
+  const pi = e.target.closest('[data-pi]') ? parseInt(e.target.closest('[data-pi]').dataset.pi) : null;
+  const gi = e.target.closest('[data-gi]') ? parseInt(e.target.closest('[data-gi]').dataset.gi) : null;
+  const qi = e.target.closest('[data-qi]') ? parseInt(e.target.closest('[data-qi]').dataset.qi) : null;
+
+  // Add group
+  if (e.target.classList.contains('rm-add-group-btn')) {
+    rmAddGroup(pi); return;
+  }
+  // Toggle group
+  if (e.target.classList.contains('rm-group-toggle')) {
+    const g = _rmState.passages[pi].questionGroups[gi];
+    g._open = !g._open;
+    rmRefreshGroupCard(pi, gi); return;
+  }
+  // Delete group
+  if (e.target.classList.contains('rm-group-del')) {
+    if (!confirm('Bu savol guruhini o\'chirasizmi?')) return;
+    _rmState.passages[pi].questionGroups.splice(gi, 1);
+    rmRenderPassageTab(pi);
+    rmActivateTab('passage-' + pi); return;
+  }
+  // Add question
+  if (e.target.classList.contains('rm-add-q-btn')) {
+    const g = _rmState.passages[pi].questionGroups[gi];
+    if (!g.questions) g.questions = [];
+    const defQ = { text: '', correctAnswer: '', options: [{key:'A',text:''},{key:'B',text:''},{key:'C',text:''},{key:'D',text:''}], altAnswers: [], wordLimit: 2 };
+    g.questions.push(defQ);
+    rmRefreshQArea(pi, gi); return;
+  }
+  // Delete question
+  if (e.target.classList.contains('rm-q-del')) {
+    const g = _rmState.passages[pi].questionGroups[gi];
+    g.questions.splice(qi, 1);
+    rmRefreshQArea(pi, gi); return;
+  }
+  // Add option
+  if (e.target.classList.contains('rm-add-opt-btn')) {
+    const g = _rmState.passages[pi].questionGroups[gi];
+    const q = g.questions[qi];
+    if (!q.options) q.options = [];
+    q.options.push({ key: String.fromCharCode(65 + q.options.length), text: '', correct: false });
+    rmRefreshQArea(pi, gi); return;
+  }
+  // Delete option
+  if (e.target.classList.contains('rm-opt-del')) {
+    const oi = parseInt(e.target.dataset.oi);
+    const g = _rmState.passages[pi].questionGroups[gi];
+    g.questions[qi].options.splice(oi, 1);
+    rmRefreshQArea(pi, gi); return;
+  }
+  // Add alt answer
+  if (e.target.classList.contains('rm-add-alt-btn')) {
+    const g = _rmState.passages[pi].questionGroups[gi];
+    const q = g.questions[qi];
+    if (!q.altAnswers) q.altAnswers = [];
+    q.altAnswers.push('');
+    rmRefreshQArea(pi, gi); return;
+  }
+  // Delete alt answer
+  if (e.target.classList.contains('rm-alt-del')) {
+    const ai = parseInt(e.target.dataset.ai);
+    const g = _rmState.passages[pi].questionGroups[gi];
+    g.questions[qi].altAnswers.splice(ai, 1);
+    rmRefreshQArea(pi, gi); return;
+  }
+  // Add heading
+  if (e.target.classList.contains('rm-add-heading-btn')) {
+    const g = _rmState.passages[pi].questionGroups[gi];
+    const q = g.questions[qi];
+    if (!q.headings) q.headings = [];
+    q.headings.push('');
+    rmRefreshQArea(pi, gi); return;
+  }
+  if (e.target.classList.contains('rm-heading-del')) {
+    const hi = parseInt(e.target.dataset.hi);
+    _rmState.passages[pi].questionGroups[gi].questions[qi].headings.splice(hi, 1);
+    rmRefreshQArea(pi, gi); return;
+  }
+  // Add ending
+  if (e.target.classList.contains('rm-add-ending-btn')) {
+    const g = _rmState.passages[pi].questionGroups[gi];
+    const q = g.questions[qi];
+    if (!q.endings) q.endings = [];
+    q.endings.push('');
+    rmRefreshQArea(pi, gi); return;
+  }
+  if (e.target.classList.contains('rm-ending-del')) {
+    const ei = parseInt(e.target.dataset.ei);
+    _rmState.passages[pi].questionGroups[gi].questions[qi].endings.splice(ei, 1);
+    rmRefreshQArea(pi, gi); return;
+  }
+});
+
+// Input change delegation
+document.getElementById('view-reading-mock-builder').addEventListener('change', rmHandleBuilderChange);
+document.getElementById('view-reading-mock-builder').addEventListener('input', rmHandleBuilderChange);
+
+function rmHandleBuilderChange(e) {
+  const el = e.target;
+  const pi = el.dataset.pi !== undefined ? parseInt(el.dataset.pi) : null;
+  const gi = el.dataset.gi !== undefined ? parseInt(el.dataset.gi) : null;
+  const qi = el.dataset.qi !== undefined ? parseInt(el.dataset.qi) : null;
+  if (pi === null) return;
+
+  const p = _rmState.passages[pi];
+  if (el.classList.contains('rm-p-title')) { p.title = el.value; return; }
+  if (el.classList.contains('rm-p-content')) { p.content = el.value; return; }
+  if (el.classList.contains('rm-p-image')) { p.imageUrl = el.value; return; }
+
+  if (gi === null) return;
+  const g = p.questionGroups[gi];
+
+  if (el.classList.contains('rm-gtype')) {
+    g.questionType = el.value;
+    g.questions = [];
+    rmRefreshQArea(pi, gi); return;
+  }
+  if (el.classList.contains('rm-gqfrom')) { g.questionFrom = parseInt(el.value) || null; return; }
+  if (el.classList.contains('rm-gqto')) { g.questionTo = parseInt(el.value) || null; return; }
+  if (el.classList.contains('rm-ginstr')) { g.instruction = el.value; return; }
+
+  if (qi === null) return;
+  const q = g.questions[qi];
+
+  if (el.classList.contains('rm-q-text')) { q.text = el.value; return; }
+  if (el.classList.contains('rm-q-ans')) { q.correctAnswer = el.value; return; }
+  if (el.classList.contains('rm-q-wordlimit')) { q.wordLimit = parseInt(el.value) || 2; return; }
+  if (el.classList.contains('rm-q-opt')) {
+    const oi = parseInt(el.dataset.oi);
+    if (!q.options) q.options = [];
+    if (!q.options[oi]) q.options[oi] = {};
+    q.options[oi].text = el.value; return;
+  }
+  if (el.classList.contains('rm-q-chk')) {
+    const oi = parseInt(el.dataset.oi);
+    if (!q.options) q.options = [];
+    if (!q.options[oi]) q.options[oi] = {};
+    q.options[oi].correct = el.checked; return;
+  }
+  if (el.classList.contains('rm-q-alt')) {
+    const ai = parseInt(el.dataset.ai);
+    if (!q.altAnswers) q.altAnswers = [];
+    q.altAnswers[ai] = el.value; return;
+  }
+  if (el.classList.contains('rm-q-heading')) {
+    const hi = parseInt(el.dataset.hi);
+    if (!q.headings) q.headings = [];
+    q.headings[hi] = el.value; return;
+  }
+  if (el.classList.contains('rm-q-ending')) {
+    const ei = parseInt(el.dataset.ei);
+    if (!q.endings) q.endings = [];
+    q.endings[ei] = el.value; return;
+  }
+  if (el.classList.contains('rm-q-diagramurl')) { q.diagramUrl = el.value; return; }
+}
+
+function rmAddGroup(pi) {
+  _rmState.passages[pi].questionGroups.push({
+    questionType: 'multiple_choice', instruction: '', questionFrom: null, questionTo: null,
+    questions: [], _open: true
+  });
+  rmRenderPassageTab(pi);
+  rmActivateTab('passage-' + pi);
+}
+
+function rmRefreshGroupCard(pi, gi) {
+  const card = document.getElementById('rmGroup-' + pi + '-' + gi);
+  if (card) card.outerHTML = rmRenderGroupCard(pi, gi, _rmState.passages[pi].questionGroups[gi]);
+  else { rmRenderPassageTab(pi); rmActivateTab('passage-' + pi); }
+}
+
+function rmRefreshQArea(pi, gi) {
+  const area = document.getElementById('rmQArea-' + pi + '-' + gi);
+  const g = _rmState.passages[pi].questionGroups[gi];
+  if (area) area.innerHTML = rmRenderQuestionsArea(pi, gi, g);
+}
+
+// ---- Back button ----
+document.getElementById('rmBuilderBack').addEventListener('click', () => {
+  switchView('reading-mocks');
+  rmLoadMocks();
+});
+
+// ---- Count total questions ----
+function rmCountTotalQuestions() {
+  let total = 0;
+  _rmState.passages.forEach(p => {
+    p.questionGroups.forEach(g => {
+      total += g.questions ? g.questions.length : 0;
+    });
+  });
+  return total;
+}
+
+// ---- Save / Publish ----
+async function rmSaveMock(status) {
+  rmSyncBasicInfo();
+  if (!_rmState.title) { showToast('Mock test sarlavhasini kiriting!', true); rmActivateTab('basic'); return; }
+
+  const mockData = {
+    title: _rmState.title,
+    description: _rmState.description,
+    testType: _rmState.testType,
+    duration: _rmState.duration,
+    status: status || _rmState.status,
+    totalQuestions: rmCountTotalQuestions(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    let mockId = _rmEditingId;
+    if (!mockId) {
+      mockData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+      const ref = await rmMocksRef().add(mockData);
+      mockId = ref.id;
+      _rmEditingId = mockId;
+    } else {
+      await rmMocksRef().doc(mockId).update(mockData);
+    }
+
+    // Save passages
+    const batch = db.batch();
+    for (let pi = 0; pi < 3; pi++) {
+      const p = _rmState.passages[pi];
+      const passRef = rmPassagesRef(mockId).doc('passage-' + (pi + 1));
+      batch.set(passRef, {
+        passageNumber: pi + 1,
+        title: p.title || '',
+        content: p.content || '',
+        imageUrl: p.imageUrl || '',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Save question groups
+      for (let gi = 0; gi < p.questionGroups.length; gi++) {
+        const g = p.questionGroups[gi];
+        const groupRef = rmGroupsRef(mockId, 'passage-' + (pi + 1)).doc('group-' + gi);
+        const { _open, questions, ...gData } = g;
+        batch.set(groupRef, { ...gData, groupOrder: gi, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+
+        // Save questions
+        for (let qi = 0; qi < (questions || []).length; qi++) {
+          const qRef = rmQuestionsRef(mockId, 'passage-' + (pi + 1), 'group-' + gi).doc('q-' + qi);
+          batch.set(qRef, { ...questions[qi], questionIndex: qi, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        }
+      }
+    }
+    await batch.commit();
+    showToast(status === 'published' ? 'Mock nashr etildi!' : 'Qoralama saqlandi!');
+    if (status === 'published') {
+      switchView('reading-mocks');
+      rmLoadMocks();
+    }
+  } catch (err) {
+    showToast('Saqlashda xatolik: ' + err.message, true);
+  }
+}
+
+document.getElementById('rmSaveDraftBtn').addEventListener('click', () => rmSaveMock('draft'));
+document.getElementById('rmPublishBtn').addEventListener('click', () => rmSaveMock('published'));
+
+// ---- Edit mock ----
+async function rmEditMock(mockId) {
+  _rmEditingId = mockId;
+  rmResetBuilderState();
+  try {
+    const mockDoc = await rmMocksRef().doc(mockId).get();
+    if (!mockDoc.exists) { showToast('Mock topilmadi', true); return; }
+    const d = mockDoc.data();
+    Object.assign(_rmState, {
+      title: d.title || '', description: d.description || '',
+      testType: d.testType || 'academic', duration: d.duration || 60, status: d.status || 'draft'
+    });
+
+    // Load passages
+    for (let pi = 0; pi < 3; pi++) {
+      const passDoc = await rmPassagesRef(mockId).doc('passage-' + (pi + 1)).get();
+      if (passDoc.exists) {
+        const pd = passDoc.data();
+        _rmState.passages[pi] = { title: pd.title || '', content: pd.content || '', imageUrl: pd.imageUrl || '', questionGroups: [] };
+        // Load groups
+        const groupSnap = await rmGroupsRef(mockId, 'passage-' + (pi + 1)).orderBy('groupOrder').get();
+        for (const gDoc of groupSnap.docs) {
+          const gd = gDoc.data();
+          const qSnap = await rmQuestionsRef(mockId, 'passage-' + (pi + 1), gDoc.id).orderBy('questionIndex').get();
+          const questions = qSnap.docs.map(qd => qd.data());
+          _rmState.passages[pi].questionGroups.push({ ...gd, questions, _open: false });
+        }
+      }
+    }
+    rmOpenBuilder('Mock Tahrirlash: ' + (_rmState.title || ''));
+  } catch (err) {
+    showToast('Yuklanmadi: ' + err.message, true);
+  }
+}
+
+// ---- Delete mock ----
+async function rmDeleteMock(mockId, title) {
+  if (!confirm(`"${title}" mock testini o'chirasizmi? Bu amalni qaytarib bo'lmaydi.`)) return;
+  try {
+    // Delete all sub-collections via batch (Firestore doesn't auto-delete)
+    // For simplicity, we delete the main doc; subcollections remain but are orphaned
+    // In production, use a Cloud Function for full cascade delete
+    await rmMocksRef().doc(mockId).delete();
+    _rmMocks = _rmMocks.filter(m => m.id !== mockId);
+    rmRenderMockList();
+    showToast('Mock o\'chirildi.');
+  } catch (err) {
+    showToast('O\'chirishda xatolik: ' + err.message, true);
+  }
+}
+
+// ---- Duplicate mock ----
+async function rmDuplicateMock(mockId) {
+  const mock = _rmMocks.find(m => m.id === mockId);
+  if (!mock) return;
+  if (!confirm(`"${mock.title}" mockini nusxalaysizmi?`)) return;
+  try {
+    const newMock = { ...mock, title: mock.title + ' (nusxa)', status: 'draft', createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    delete newMock.id;
+    await rmMocksRef().add(newMock);
+    showToast('Nusxa yaratildi.');
+    rmLoadMocks();
+  } catch (err) {
+    showToast('Nusxalashda xatolik: ' + err.message, true);
+  }
+}
+
+// ---- Preview mock ----
+function rmPreviewMock(mockId) {
+  window.open('../student/reading-mock.html?mockId=' + mockId + '&preview=1', '_blank');
+}
+
 
 </script>
 
