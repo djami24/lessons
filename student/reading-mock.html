@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IELTS Reading Mock Test — Djami Lessons</title>
+<title>CEFR Reading Mock Test — Djami Lessons</title>
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="stylesheet" href="../style.css">
 <style>
 /* ============================================================
-   IELTS Reading Mock Test — Student Interface
+   CEFR Reading Mock Test — Student Interface
    ============================================================ */
 
 * { box-sizing: border-box; }
@@ -358,7 +358,7 @@ body.rm-body {
   padding: 10px 24px;
   margin-top: 12px;
 }
-.rm-passage-scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+.rm-passage-scores { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
 .rm-ps-card {
   background: var(--adm-bg, #F3F6FC);
   border-radius: 12px;
@@ -430,7 +430,7 @@ body.rm-body {
 <header class="rm-header" id="rmHeader" style="display:none;">
   <div class="rm-header-left">
     <span class="rm-header-logo">Djami Lessons</span>
-    <span class="rm-header-title" id="rmHeaderTitle">IELTS Reading Mock Test</span>
+    <span class="rm-header-title" id="rmHeaderTitle">CEFR Reading Mock Test</span>
   </div>
   <div class="rm-header-center">
     <div style="text-align:center;">
@@ -454,7 +454,7 @@ body.rm-body {
   <div class="rm-passage-panel">
     <div class="rm-passage-tabs" id="rmPassageTabs"></div>
     <div id="rmPassageContent">
-      <p style="color:var(--adm-gray);font-size:.9rem;">Passaj yuklanmoqda…</p>
+      <p style="color:var(--adm-gray);font-size:.9rem;">Part yuklanmoqda…</p>
     </div>
   </div>
 
@@ -512,7 +512,7 @@ body.rm-body {
 
 <script>
 // ============================================================
-// IELTS Reading Mock Test — Student Script
+// CEFR Reading Mock Test — Student Script
 // ============================================================
 
 const urlParams = new URLSearchParams(location.search);
@@ -561,7 +561,7 @@ async function loadMock() {
     rmState.timerSec = (rmState.mock.duration || 60) * 60;
 
     // Load passages
-    for (let pi = 1; pi <= 3; pi++) {
+    for (let pi = 1; pi <= 5; pi++) {
       const passDoc = await db.collection('reading_mocks').doc(MOCK_ID).collection('passages').doc('passage-' + pi).get();
       const passData = passDoc.exists ? passDoc.data() : { title: '', content: '', imageUrl: '' };
       const groups = [];
@@ -572,7 +572,7 @@ async function loadMock() {
         const questions = qSnap.docs.map(d => d.data());
         groups.push({ ...gData, questions });
       }
-      rmState.passages.push({ title: passData.title || `Passaj ${pi}`, content: passData.content || '', imageUrl: passData.imageUrl || '', groups });
+      rmState.passages.push({ title: passData.title || `Part ${pi}`, content: passData.content || '', imageUrl: passData.imageUrl || '', groups });
     }
 
     renderUI();
@@ -607,7 +607,7 @@ function renderPassageTabs() {
   const container = document.getElementById('rmPassageTabs');
   container.innerHTML = rmState.passages.map((p, i) => `
     <button class="rm-ptab ${i === rmState.currentPassageIdx ? 'active' : ''}" onclick="switchPassage(${i})">
-      Passaj ${i + 1}
+      Part ${i + 1}
     </button>`).join('');
 }
 
@@ -940,7 +940,7 @@ function showResults() {
   document.getElementById('rmPassageScores').innerHTML = passageScores.map(ps => `
     <div class="rm-ps-card">
       <div class="rm-ps-num">${ps.correct} / ${ps.total}</div>
-      <div class="rm-ps-label">Passaj ${ps.num}</div>
+      <div class="rm-ps-label">Part ${ps.num}</div>
     </div>`).join('');
 
   document.getElementById('rmReviewList').innerHTML = reviewItems.map(item => {
