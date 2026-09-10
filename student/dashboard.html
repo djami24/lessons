@@ -1194,7 +1194,7 @@
     <section id="view-reading-mocks" hidden>
       <div class="admin-header">
         <h1>📖 Reading Mocks</h1>
-        <p>IELTS Academic va General Training reading mock testlari</p>
+        <p>CEFR reading mock testlari</p>
       </div>
       <div id="rmStudentList" style="display:grid;gap:14px;margin-top:8px;"></div>
     </section>
@@ -4584,14 +4584,14 @@ async function rmStudentLoad() {
       var m = d.data();
       var id = d.id;
       var badge = m.testType === 'general' ? 'General Training' : 'Academic';
-      return '<div style="background:var(--card-bg,#1a1d2e);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">'
+      return '<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">'
         +'<div>'
-        +'<span style="font-size:.7rem;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.08em">'+badge+'</span>'
-        +'<h3 style="margin:5px 0 7px;font-size:1.05rem;">'+((m.title)||'Mock Test')+'</h3>'
-        +'<span style="font-size:.82rem;opacity:.6">'+((m.duration)||60)+' daqiqa &middot; '+((m.totalQuestions)||'?')+' savol</span>'
-        +(m.description?'<p style="margin:6px 0 0;font-size:.82rem;opacity:.55">'+m.description+'</p>':'')
+        +'<span style="font-size:.7rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.08em">'+badge+'</span>'
+        +'<h3 style="margin:5px 0 7px;font-size:1.05rem;color:#0f172a;">'+((m.title)||'Mock Test')+'</h3>'
+        +'<span style="font-size:.82rem;color:#64748b;">'+((m.duration)||60)+' daqiqa &middot; '+((m.totalQuestions)||'?')+' savol</span>'
+        +(m.description?'<p style="margin:6px 0 0;font-size:.82rem;color:#64748b;">'+m.description+'</p>':'')
         +'</div>'
-        +'<a href="../student/reading-mock.html?mockId='+id+'" target="_blank" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:.9rem;white-space:nowrap">Boshlash \u2192</a>'
+        +'<a href="../student/reading-mock.html?mockId='+id+'" target="_blank" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:.9rem;white-space:nowrap">Boshlash</a>'
         +'</div>';
     }).join('');
   } catch(err) {
