@@ -3636,7 +3636,7 @@ function showAnnouncementModal(docId, title, body){
   document.body.style.overflow = 'hidden';
 
   // close on overlay click
-  modal.onclick = function(e){ if(e.target === modal) closeAnnouncementModal(); };
+  // Modal faqat tugma orqali yopiladi
 
   playNotifSound();
 }
@@ -3668,7 +3668,7 @@ function closeAnnouncementModal(){
 
 // Close on Escape key
 document.addEventListener('keydown', e => {
-  if(e.key === 'Escape') closeAnnouncementModal();
+  // Escape bilan yopilmaydi
 });
 
 function showNotifPopup(docId, title, body){
