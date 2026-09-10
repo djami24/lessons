@@ -3523,7 +3523,10 @@ async function loadNotifications(){
     div.className = 'notif-card' + (isRead ? ' notif-read' : '');
     div.dataset.notifId = doc.id;
     const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
-    div.innerHTML = `<div class="notif-card-head"><span class="notif-card-title">${escapeHtml(d.title || 'Xabar')}</span><span class="notif-card-date">${date}</span></div><p class="notif-card-body">${escapeHtml(d.body || '')}</p>`;
+    const imgHtml = d.imageUrl
+      ? `<img src="${escapeHtml(d.imageUrl)}" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:8px 0;display:block;" onerror="this.remove()">`
+      : '';
+    div.innerHTML = `<div class="notif-card-head"><span class="notif-card-title">${escapeHtml(d.title || 'Xabar')}</span><span class="notif-card-date">${date}</span></div>${imgHtml}<p class="notif-card-body">${escapeHtml(d.body || '')}</p>`;
     div.addEventListener('click', () => markNotifRead(doc.id));
     listEl.appendChild(div);
   });
