@@ -483,6 +483,7 @@
       <li><a href="#" id="navPlacementTest">🧭 Darajani bilish testi</a></li>
       <li><a href="#" id="navCourses">📚 Kurslarim</a></li>
       <li><a href="#" id="navMyEssays">✍️ Insholarim</a></li>
+      <li><a href="#" id="navReadingMocks">📖 Reading Mocks</a></li>
       <li><a href="#" id="navWordGame">🎮 So‘z o‘yini</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
@@ -1188,6 +1189,28 @@
       </div>
     </section>
 
+
+    <!-- ===== READING MOCKS LIST VIEW ===== -->
+    <section id="view-reading-mocks" hidden>
+      <a href="#" id="backToHomeFromReadingMocks" class="back-link">← Bosh sahifaga</a>
+      <div class="admin-header">
+        <h1>📖 Reading Mocks</h1>
+        <p>IELTS Academic va General Training Reading Mock testlari.</p>
+      </div>
+      <div id="rmStudentList" style="display:grid; gap:14px; margin-top:8px;"></div>
+    </section>
+
+    <!-- ===== READING MOCK DETAIL (test oynasi) ===== -->
+    <section id="view-reading-mock-detail" hidden>
+      <a href="#" id="backToReadingMocks" class="back-link">← Reading Mocks ro‘yxatiga</a>
+      <div class="admin-header">
+        <h1 id="rmDetailTitle">Reading Mock</h1>
+      </div>
+      <div id="rmDetailIframeWrap" style="margin-top:8px;">
+        <p style="color:var(--gray-400)">Yuklanmoqda...</p>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -1542,7 +1565,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game'];
+const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'reading-mock-detail'];
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
@@ -1573,6 +1596,8 @@ const STUDENT_VIEW_NAV_MAP = {
   'writing-question': 'navCourses',
   'my-essays': 'navMyEssays',
   'word-game': 'navWordGame',
+  'reading-mocks': 'navReadingMocks',
+  'reading-mock-detail': 'navReadingMocks',
   'notifications': 'navNotifications',
   'chat': 'navChat'
 };
@@ -4545,6 +4570,73 @@ async function wgApplyVisibilitySetting(){
   }
 }
 wgApplyVisibilitySetting();
+
+
+// ===== READING MOCKS — Student Panel =====
+(function() {
+  var _rmMocks = [];
+
+  document.getElementById('navReadingMocks').addEventListener('click', function(e) {
+    e.preventDefault();
+    switchView('reading-mocks');
+    rmStudentLoadMocks();
+  });
+
+  document.getElementById('backToHomeFromReadingMocks').addEventListener('click', function(e) {
+    e.preventDefault();
+    switchView('home');
+  });
+
+  document.getElementById('backToReadingMocks').addEventListener('click', function(e) {
+    e.preventDefault();
+    switchView('reading-mocks');
+  });
+
+  async function rmStudentLoadMocks() {
+    var listEl = document.getElementById('rmStudentList');
+    listEl.innerHTML = '<p style="color:var(--gray-400)">Yuklanmoqda...</p>';
+    try {
+      var snap = await db.collection('reading_mocks')
+        .where('status', '==', 'published')
+        .orderBy('createdAt', 'desc')
+        .get();
+      _rmMocks = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
+      rmRenderMockList();
+    } catch(err) {
+      listEl.innerHTML = '<p style="color:#e55;">Yuklanmadi: ' + err.message + '</p>';
+    }
+  }
+
+  function rmRenderMockList() {
+    var listEl = document.getElementById('rmStudentList');
+    if (!_rmMocks.length) {
+      listEl.innerHTML = '<p style="color:var(--gray-400)">Hozircha nashr etilgan mock test yo\u2018q.</p>';
+      return;
+    }
+    listEl.innerHTML = _rmMocks.map(function(m) {
+      var badge = m.testType === 'academic' ? 'Academic' : 'General Training';
+      var dur = m.duration || 60;
+      var qCount = m.totalQuestions || '---';
+      var safeId = m.id.replace(/'/g, '');
+      return '<div style="background:var(--surface-2,#1a1d2e);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">'
+        + '<div>'
+        + '<span style="font-size:.72rem;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.06em;">' + badge + '</span>'
+        + '<h3 style="margin:4px 0 6px;font-size:1.05rem;color:#f3f5fb;">' + (m.title || 'Mock Test') + '</h3>'
+        + '<span style="font-size:.82rem;color:#9aa1b5;">Vaqt: ' + dur + ' daqiqa &middot; ' + qCount + ' ta savol</span>'
+        + (m.description ? '<p style="margin:6px 0 0;font-size:.83rem;color:#9aa1b5;">' + m.description + '</p>' : '')
+        + '</div>'
+        + '<button data-mockid="' + safeId + '" class="rm-start-btn" style="flex:none;background:#2563eb;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:.9rem;cursor:pointer;">Boshlash</button>'
+        + '</div>';
+    }).join('');
+
+    document.querySelectorAll('.rm-start-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        window.open('../student/reading-mock.html?mockId=' + btn.dataset.mockid, '_blank');
+      });
+    });
+  }
+
+})();
 
 </script>
 <!-- ===== YANGILIK POPUP (pastda o'ng tomonda) ===== -->
