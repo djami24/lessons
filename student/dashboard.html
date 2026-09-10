@@ -3524,7 +3524,7 @@ async function loadNotifications(){
     div.dataset.notifId = doc.id;
     const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
     const imgHtml = d.imageUrl
-      ? `<img src="${escapeHtml(d.imageUrl)}" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:10px;margin:8px 0;display:block;" onerror="this.remove()">`
+      ? `<img src="${escapeHtml(d.imageUrl)}" alt="" style="width:100%;max-height:280px;object-fit:contain;background:#f1f3f8;border-radius:10px;margin:8px 0;display:block;" onerror="this.remove()">`
       : '';
     div.innerHTML = `<div class="notif-card-head"><span class="notif-card-title">${escapeHtml(d.title || 'Xabar')}</span><span class="notif-card-date">${date}</span></div>${imgHtml}<p class="notif-card-body">${escapeHtml(d.body || '')}</p>`;
     div.addEventListener('click', () => markNotifRead(doc.id));
@@ -4565,7 +4565,7 @@ wgApplyVisibilitySetting();
       </div>
     </div>
     <div style="padding:24px 28px 28px;">
-      <img id="announcementModalImage" style="display:none;width:100%;max-height:280px;object-fit:cover;border-radius:12px;margin:0 0 18px;" alt="">
+      <img id="announcementModalImage" style="display:none;width:100%;max-height:320px;object-fit:contain;background:#f1f3f8;border-radius:12px;margin:0 0 18px;" alt="">
       <p id="announcementModalBody" style="font-size:15px;color:#334155;line-height:1.7;margin:0 0 24px;white-space:pre-line;"></p>
       <button onclick="closeAnnouncementModal()" style="
         width:100%;padding:13px;background:#2563eb;color:#fff;border:none;
