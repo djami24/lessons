@@ -1251,6 +1251,21 @@ function escapeHtml(str){
   return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
+// Matndagi http(s):// va www. bilan boshlanuvchi manzillarni bosiladigan
+// havolaga aylantiradi. Avval escapeHtml orqali xavfsizlantiriladi,
+// keyin URL qismlari <a> teglariga o'raladi.
+function linkifyHtml(str){
+  const escaped = escapeHtml(str || '');
+  return escaped.replace(/(https?:\/\/[^\s<]+|www\.[^\s<]+)/gi, (m) => {
+    // Oxiridagi tinish belgilarini (., ,, ), !, ?) havoladan tashqarida qoldiramiz
+    let trail = '';
+    const trailMatch = m.match(/[).,!?]+$/);
+    if(trailMatch){ trail = trailMatch[0]; m = m.slice(0, -trail.length); }
+    const href = /^https?:\/\//i.test(m) ? m : 'https://' + m;
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color:#2563eb;text-decoration:underline;word-break:break-all;">${m}</a>${trail}`;
+  });
+}
+
 // ---------- Auth gate ----------
 
 auth.onAuthStateChanged(async (user) => {
@@ -3526,8 +3541,9 @@ async function loadNotifications(){
     const imgHtml = d.imageUrl
       ? `<img src="${escapeHtml(d.imageUrl)}" alt="" style="width:100%;max-height:280px;object-fit:contain;background:#f1f3f8;border-radius:10px;margin:8px 0;display:block;" onerror="this.remove()">`
       : '';
-    div.innerHTML = `<div class="notif-card-head"><span class="notif-card-title">${escapeHtml(d.title || 'Xabar')}</span><span class="notif-card-date">${date}</span></div>${imgHtml}<p class="notif-card-body">${escapeHtml(d.body || '')}</p>`;
-    div.addEventListener('click', () => {
+    div.innerHTML = `<div class="notif-card-head"><span class="notif-card-title">${escapeHtml(d.title || 'Xabar')}</span><span class="notif-card-date">${date}</span></div>${imgHtml}<p class="notif-card-body">${linkifyHtml(d.body || '')}</p>`;
+    div.addEventListener('click', (e) => {
+      if(e.target.closest('a')) return; // havola o'ziga xos harakat qiladi (yangi oynada ochiladi)
       markNotifRead(doc.id);
       showAnnouncementModal(doc.id, d.title || 'Xabar', d.body || '', d.imageUrl || '');
     });
@@ -3629,7 +3645,7 @@ function showAnnouncementModal(docId, title, body, imageUrl, onClosed){
   if(!modal) return;
 
   document.getElementById('announcementModalTitle').textContent = title;
-  document.getElementById('announcementModalBody').textContent  = body;
+  document.getElementById('announcementModalBody').innerHTML = linkifyHtml(body);
 
   const imgBox = document.getElementById('announcementModalImage');
   if(imgBox){
@@ -3719,7 +3735,7 @@ function showNotifPopup(docId, title, body, imageUrl){
       ${thumbHtml}
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:3px;line-height:1.3;">${escapeHtml(title)}</div>
-        <div style="font-size:12px;color:#64748b;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${escapeHtml(body)}</div>
+        <div style="font-size:12px;color:#64748b;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${linkifyHtml(body)}</div>
         <div style="font-size:11px;color:#94a3b8;margin-top:6px;">Yopish uchun bosing</div>
       </div>
       <div style="flex-shrink:0;font-size:16px;color:#94a3b8;line-height:1;padding-top:1px;">&times;</div>
