@@ -8,6 +8,9 @@
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon/favicon-16x16.png">
 <link rel="apple-touch-icon" href="../assets/favicon/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
 <style>
   /* Keep the "Test natijasi" and "So'nggi uy vazifasi" cards aligned to
@@ -90,80 +93,248 @@
   body.admin-theme:not(.light-mode) .chat-item-preview, body.admin-theme:not(.light-mode) .chat-item-time{ color:#8892A6; }
   body.admin-theme:not(.light-mode) .chat-detail-name{ color:#101B3D; }
 
-  /* ===== Student home page — dark redesign ===== */
-  #view-home{
-    background: linear-gradient(180deg,#121317 0%,#17181d 100%);
-    border-radius: 24px;
-    padding: clamp(20px,3vw,34px) clamp(16px,3vw,30px) 30px;
-    color:#f3f5fb;
-  }
-  #view-home .admin-header{ border-bottom:none; padding-bottom:0; margin-bottom:22px; }
-  #view-home .admin-header h1{ color:#fff; font-size:1.7rem; margin-bottom:.3em; }
-  #view-home .home-greet-name{ color:#5b8cff; }
-  #view-home .admin-header p{ color:#8890a6; margin:0 0 .7em; }
-  #view-home .home-header-rule{ width:42px; height:4px; border-radius:3px; background:linear-gradient(90deg,#5b8cff,#2a4fd6); border:none; }
+  /* ===== Talaba kabineti — yangi dizayn ===== */
+  #view-home{ background:var(--gray-25) !important; border-radius:0 !important; padding:0 !important; color:var(--gray-900) !important; }
 
-  #view-home .hd-card{
-    background:#1c1d23; border:1px solid rgba(255,255,255,.08); border-radius:18px;
-    padding:20px 20px 22px; display:flex; flex-direction:column;
-    box-shadow:0 10px 30px rgba(0,0,0,.25);
-  }
-  #view-home .hd-card-head{ display:flex; align-items:center; gap:.7em; margin-bottom:14px; }
-  #view-home .hd-icon-badge{
-    width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
-    font-size:1.05rem; flex:none;
-  }
-  #view-home .hd-icon-blue{ background:linear-gradient(155deg,#4f7cff,#2a4fd6); }
-  #view-home .hd-icon-green{ background:linear-gradient(155deg,#34d399,#059669); }
-  #view-home .hd-eyebrow{ font-size:.68rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }
-  #view-home .hd-eyebrow-blue{ color:#7ea2ff; }
-  #view-home .hd-eyebrow-green{ color:#5fe0a6; }
-  #view-home .hd-date{ font-size:.78rem; color:#78809a; margin-left:auto; }
-  #view-home .hd-card .latest-hw-title{ color:#fff; font-size:1.25rem; margin:0 0 10px; }
-  #view-home .hd-card input[type="text"]{
-    background:#16171c; border:1.5px solid rgba(255,255,255,.12); color:#f3f5fb; border-radius:10px;
-  }
-  #view-home .hd-card input[type="text"]::placeholder{ color:#5c6480; }
-  #view-home .hd-card .latest-hw-preview{ color:#8890a6; }
-  #view-home .hd-row{ display:flex; align-items:center; gap:.6em; justify-content:space-between; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.06); }
-  #view-home .hd-row:last-of-type{ border-bottom:none; }
-  #view-home .hd-row-label{ display:flex; align-items:center; gap:.5em; color:#8890a6; font-size:.86rem; }
-  #view-home .hd-row-val{ font-weight:700; color:#f3f5fb; }
-  #view-home #progressMissingWrap{ border-top:1px solid rgba(255,255,255,.06); padding-top:10px; margin-top:4px; }
-  #view-home #progressMissingWrap > span{ color:#8890a6 !important; font-size:.8rem; display:flex; align-items:center; gap:.4em; }
-  #view-home #progressMissingList div{ color:#ff7a7a !important; font-size:.86rem; }
-  #view-home #progressNoteVal{ background:rgba(255,255,255,.04); border-radius:10px; padding:.6em .8em; margin-top:.6em !important; font-size:.84rem; }
+  /* kb-content wrapper */
+  #view-home .kb-content{ padding:0; }
 
-  #view-home .hd-pill-btn{
-    margin-top:16px; width:100%; text-align:center; border-radius:30px; padding:.75em 1em;
-    background:transparent; border:1.5px solid rgba(255,255,255,.16); color:#f3f5fb; font-weight:700; font-size:.88rem;
-    display:flex; align-items:center; justify-content:center; gap:.4em; cursor:pointer;
+  :root{
+    --navy-950:#0f1f3d;
+    --navy-900:#132a52;
+    --navy-800:#1a3766;
+    --blue-600:#2f5fd8;
+    --blue-500:#3b6ff0;
+    --blue-50:#eaf1ff;
+    --green-500:#22b573;
+    --green-50:#e7f8f0;
+    --red-500:#e0455a;
+    --red-50:#fdeaec;
+    --purple-500:#7c5cf0;
+    --purple-50:#f1ecfe;
+    --teal-500:#2596a3;
+    --teal-50:#e7f6f8;
+    --gray-25:#f6f7fb;
+    --gray-100:#eef0f5;
+    --gray-200:#e2e5ec;
+    --gray-400:#9aa2b1;
+    --gray-500:#6b7484;
+    --gray-700:#3c4353;
+    --gray-900:#1c212e;
+    --white:#ffffff;
+    --radius:12px;
+    --shadow:0 1px 2px rgba(20,25,40,0.04), 0 2px 8px rgba(20,25,40,0.05);
   }
-  #view-home .hd-pill-btn:hover{ border-color:rgba(255,255,255,.35); }
+  html, body{ overflow-x:hidden; max-width:100%; font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif; }
 
-  /* Test natijasi card — purple/blue gradient */
-  #view-home #gbResultBox{
-    background:linear-gradient(150deg,#3b34c9 0%,#5b3fef 55%,#7048f0 100%);
-    border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:20px 20px 22px;
-    display:flex; flex-direction:column; box-shadow:0 12px 34px rgba(75,58,220,.35);
+  @keyframes notifSlideIn{
+    from{ opacity:0; transform:translateX(60px) scale(.95); }
+    to{   opacity:1; transform:translateX(0)    scale(1);   }
   }
+  @keyframes notifSlideOut{
+    from{ opacity:1; transform:translateX(0) scale(1);    }
+    to{   opacity:0; transform:translateX(60px) scale(.95); }
+  }
+  .content{padding:26px 28px 40px; min-width:0; max-width:100%; overflow-x:hidden;}
+  .page-title{font-size:24px;font-weight:800;color:var(--gray-900);margin:0 0 4px;}
+  .page-sub{font-size:13.5px;color:var(--gray-500);margin:0 0 22px;}
+
+  .card{
+    background:var(--white);
+    border:1px solid var(--gray-200);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow);
+  }
+  .card-head{
+    display:flex;align-items:center;gap:10px;
+    padding:16px 18px;
+    border-bottom:1px solid var(--gray-100);
+  }
+  .card-head .icon-badge{
+    width:30px;height:30px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .card-head .icon-badge svg{width:16px;height:16px;}
+  .card-head h3{font-size:14.5px;font-weight:700;margin:0;color:var(--gray-900);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .card-head .spacer{margin-left:auto;font-size:12px;color:var(--gray-400);flex-shrink:0;}
+  .link{color:var(--blue-600);font-size:12.5px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:4px;}
+
+  /* top row layout */
+  .row-top{
+    display:grid;
+    grid-template-columns:1.5fr 1fr;
+    gap:18px;
+    margin-bottom:18px;
+  }
+  /* ===== Yangi profil kartochka (birinchi rasmdagi uslub) ===== */
+  .profile-card-new{
+    padding:24px 26px;
+    display:flex;
+    gap:22px;
+    align-items:flex-start;
+  }
+  .pnew-avatar-col{ flex-shrink:0; }
+  .pnew-avatar-circle{
+    width:88px; height:88px;
+    border-radius:50%;
+    background:var(--blue-50);
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .pnew-main{ flex:1; min-width:0; }
+  .pnew-name{
+    font-size:19px; font-weight:800; color:var(--gray-900);
+    margin-bottom:8px; line-height:1.2;
+  }
+  .pnew-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    background:var(--green-50); color:var(--green-500);
+    font-size:12px; font-weight:700;
+    padding:4px 12px; border-radius:20px;
+    margin-bottom:16px;
+  }
+  .pnew-divider{ height:1px; background:var(--gray-100); margin-bottom:14px; }
+  .pnew-rows{ display:flex; flex-direction:column; gap:10px; }
+  .pnew-row{ display:flex; align-items:baseline; gap:6px; }
+  .pnew-label{
+    font-size:12.5px; color:var(--gray-500);
+    min-width:110px; flex-shrink:0;
+  }
+  .pnew-val{
+    font-size:13.5px; font-weight:600; color:var(--gray-900);
+  }
+  /* Eski profil CSS — boshqa sahifalar uchun saqlab qo'yamiz */
+  .profile-card{padding:20px;display:flex;gap:18px;align-items:flex-start;}
+  .profile-main{flex:1;}
+  .profile-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+  .profile-name{font-size:18px;font-weight:800;color:var(--gray-900);}
+  .badge{
+    font-size:11.5px;font-weight:700;
+    padding:4px 10px;border-radius:20px;
+    display:inline-flex;align-items:center;gap:5px;
+  }
+  .badge.green{background:var(--green-50);color:var(--green-500);}
+  .badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+  .profile-grid{display:grid;grid-template-columns:1fr 1fr;gap-y:12px;row-gap:12px;column-gap:16px;font-size:13px;}
+  .pg-label{color:var(--gray-500);margin-bottom:3px;}
+  .pg-value{color:var(--gray-900);font-weight:600;}
+  .divider-v{width:1px;background:var(--gray-100);align-self:stretch;}
+  .status-tile{
+    width:96px;flex-shrink:0;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    background:var(--blue-50);border-radius:10px;padding:14px 8px;text-align:center;
+  }
+  .status-tile svg{width:22px;height:22px;color:var(--blue-600);}
+  .status-tile span{font-size:11.5px;font-weight:700;color:var(--blue-600);line-height:1.3;}
+
+  .test-card{padding:0;}
+  .test-body{padding:16px 18px;}
+  .test-title{font-size:13.5px;font-weight:700;color:var(--gray-900);margin:0 0 10px;}
+  .test-score{font-size:30px;font-weight:800;color:var(--gray-900);display:flex;align-items:baseline;gap:10px;margin-bottom:10px;}
+  .test-score small{font-size:15px;font-weight:600;color:var(--gray-400);}
+  .test-date{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--gray-500);margin-bottom:14px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    width:100%;
+    background:var(--blue-50);color:var(--blue-600);
+    font-size:13px;font-weight:700;
+    padding:10px;border-radius:9px;border:none;cursor:pointer;
+  }
+  .btn.dark{background:var(--navy-900);color:#fff;}
+  .btn.dark:hover{background:var(--navy-800);}
+
+  .plan-card{padding:0;display:flex;flex-direction:column;min-width:0;}
+  .plan-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--gray-100);}
+  .plan-head h3{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .plan-date{margin-left:auto;font-size:12px;color:var(--gray-400);flex-shrink:0;white-space:nowrap;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  thead th{
+    text-align:left;color:var(--gray-500);font-weight:600;
+    padding:10px 18px;font-size:11.5px;
+    border-bottom:1px solid var(--gray-100);
+  }
+  tbody td{padding:12px 18px;border-bottom:1px solid var(--gray-100);color:var(--gray-900);vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  .pill{
+    font-size:11px;font-weight:700;padding:4px 9px;border-radius:20px;display:inline-block;
+  }
+  .pill.red{background:var(--red-50);color:var(--red-500);}
+  .pill.blue{background:var(--blue-50);color:var(--blue-600);}
+  .pill.gray{background:var(--gray-100);color:var(--gray-500);}
+  .plan-footer{padding:14px 18px;}
+
+  /* stat row */
+  .row-stats{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:18px;
+    margin-bottom:18px;
+  }
+  .stat-card{padding:16px 18px;display:flex;flex-direction:column;gap:10px;}
+  /* style.css dagi doira dekoratsiyani o'chirish */
+  body.admin-theme .row-stats .stat-card{ padding:16px 18px !important; border-radius:14px; }
+  body.admin-theme .row-stats .stat-card::before{ display:none !important; }
+  .stat-top{display:flex;align-items:center;gap:10px;}
+  .stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .stat-icon svg{width:18px;height:18px;color:#fff;}
+  .stat-label{font-size:12.5px;font-weight:600;color:var(--gray-700);}
+  .stat-value-row{display:flex;align-items:baseline;gap:8px;}
+  .stat-value{font-size:24px;font-weight:800;color:var(--gray-900);}
+  .stat-delta{font-size:11.5px;font-weight:700;color:var(--green-500);display:flex;align-items:center;gap:2px;}
+  .stat-sub{font-size:11.5px;color:var(--gray-400);}
+
+  /* bottom row */
+  .row-bottom{display:grid;grid-template-columns:1.6fr 1fr;gap:18px;min-width:0;}
+  .row-bottom > *{min-width:0;}
+  .row-top > *{min-width:0;}
+  .row-stats > *{min-width:0;}
+  .schedule-card{padding:0;}
+  .activity-card{padding:0;display:flex;flex-direction:column;}
+  .activity-list{padding:6px 4px;}
+  .activity-item{display:flex;gap:12px;padding:12px 16px;}
+  .activity-check{
+    width:22px;height:22px;border-radius:50%;background:var(--green-500);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;
+  }
+  .activity-check svg{width:12px;height:12px;color:#fff;}
+  .activity-main{flex:1;}
+  .activity-title-row{display:flex;justify-content:space-between;gap:10px;}
+  .activity-title{font-size:13px;font-weight:700;color:var(--gray-900);}
+  .activity-time{font-size:11px;color:var(--gray-400);white-space:nowrap;}
+  .activity-sub{font-size:12px;color:var(--gray-500);margin-top:2px;}
+  .activity-footer{padding:12px 16px;border-top:1px solid var(--gray-100);}
+
+  @media (max-width:1180px){
+    .row-top{grid-template-columns:1fr;}
+    .row-stats{grid-template-columns:1fr 1fr;}
+    .row-bottom{grid-template-columns:1fr;}
+  }
+  @media (max-width:600px){
+    .row-top{grid-template-columns:1fr;}
+  }
+
+
+
+  /* Test natijasi card — oddiy oq karta */
+  #view-home #gbResultBox{ padding:0; }
   #view-home #gbResultBox .latest-hw-head{ margin-bottom:14px; }
   #view-home #gbResultBox .latest-hw-eyebrow{
-    background:rgba(255,255,255,.18); color:#fff; font-size:.7rem; font-weight:800; letter-spacing:.07em;
+    background:var(--blue-50); color:var(--blue-600); font-size:.7rem; font-weight:800; letter-spacing:.07em;
     text-transform:uppercase; padding:.4em .8em; border-radius:20px;
   }
-  #view-home #gbResultBox .latest-hw-title{ color:#fff; font-size:1.3rem; margin:0 0 2px; }
-  #view-home #gbResultBox .latest-hw-preview{ color:rgba(255,255,255,.75); }
+  #view-home #gbResultBox .latest-hw-title{ color:var(--gray-900); font-size:1.3rem; margin:0 0 2px; }
+  #view-home #gbResultBox .latest-hw-preview{ color:var(--gray-500); }
   #view-home #gbResultBox input[type="text"]{
-    background:rgba(255,255,255,.1); border:1.5px solid rgba(255,255,255,.25); color:#fff; border-radius:10px;
+    background:var(--gray-50); border:1.5px solid var(--gray-200); color:var(--gray-900); border-radius:10px;
   }
-  #view-home #gbResultBox input[type="text"]::placeholder{ color:rgba(255,255,255,.55); }
-  #view-home #gbResultView p#gbResultUnit{ color:rgba(255,255,255,.75); margin:0 0 12px; }
+  #view-home #gbResultBox input[type="text"]::placeholder{ color:var(--gray-400); }
+  #view-home #gbResultView p#gbResultUnit{ color:var(--gray-500); margin:0 0 12px; }
   #view-home #gbResultMessage{ display:flex; align-items:center; gap:.4em; }
   #view-home #gbResultBox .btn{ border-radius:26px; font-weight:700; font-size:.85rem; }
-  #view-home #gbResultBox .btn-amber{ background:#fff; color:#3b34c9; border-color:#fff; }
-  #view-home #gbResultBox .btn-amber:hover{ background:#f0f0ff; }
-  #view-home #gbResultBox .btn-ghost{ background:rgba(255,255,255,.08); color:#fff; border-color:rgba(255,255,255,.3); }
+  #view-home #gbResultBox .btn-amber{ background:var(--blue-600); color:#fff; border-color:var(--blue-600); }
+  #view-home #gbResultBox .btn-amber:hover{ background:var(--blue-700,#1d4ed8); }
+  #view-home #gbResultBox .btn-ghost{ background:var(--gray-100); color:var(--gray-700); border-color:var(--gray-200); }
 
   /* So'nggi uy vazifasi card */
   #view-home #latestHwBox .latest-hw-checklist{ display:flex; flex-direction:column; gap:.5em; margin:0 0 14px; }
@@ -254,34 +425,6 @@
      space on phones (see admin-sidebar's row-wrap layout at <=900px).
      A hamburger toggle (placed next to the theme toggle, top-right) now
      hides/shows it instead of always expanding. */
-  /* Profile kabinet responsive */
-  #pkTopRow { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em; }
-  @media (max-width:1100px){
-    #pkTopRow { grid-template-columns:1fr 1fr; }
-    #pkTopRow > div:last-child { grid-column:1/-1; }
-  }
-  @media (max-width:700px){
-    #pkTopRow { grid-template-columns:1fr; }
-    #pkTopRow > div:last-child { grid-column:auto; }
-    #pkStatsRow { grid-template-columns:1fr 1fr !important; }
-    .pk-bottom-row { grid-template-columns:1fr !important; }
-  }
-  @media (max-width:480px){
-    #pkStatsRow { grid-template-columns:1fr !important; }
-  }
-
-  /* Dark mode adjustments for kabinet */
-  body.admin-theme:not(.light-mode) #view-profile [style*="background:var(--paper)"],
-  body.admin-theme:not(.light-mode) #view-profile [style*="background:#fff"] {
-    background: #1c1d23 !important;
-    border-color: rgba(255,255,255,.08) !important;
-    color: #f3f5fb !important;
-  }
-  body.admin-theme:not(.light-mode) #view-profile [style*="color:var(--ink)"],
-  body.admin-theme:not(.light-mode) #view-profile [style*="color:var(--gray)"] {
-    color: #f3f5fb;
-  }
-
   #sidebarMenuToggle{ display:none; color:#000 !important; }
   @media (max-width: 900px){
     #sidebarMenuToggle{ display:flex; }
@@ -291,6 +434,8 @@
     }
     .admin-sidebar.is-menu-open .admin-nav{ max-height:600px; opacity:1; margin-top:.9em; }
   }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -373,129 +518,233 @@
     <!-- ===== COURSES OVERVIEW =====
     <!-- ===== HOME (default landing page) ===== -->
     <section id="view-home">
-      <div class="admin-header">
-        <div>
-          <h1 id="homeGreeting">Xush kelibsiz!</h1>
-          <p>Kerakli bo‘limni tanlang va o‘quv jarayonini davom ettiring.</p>
-          <div class="home-header-rule"></div>
-        </div>
-      </div>
+      <div class="kb-content">
+<h1 class="page-title">Talaba shaxsiy kabineti</h1>
+    <p class="page-sub">Shaxsiy ma'lumotlaringiz va ta'lim jarayoningizni boshqarishingiz mumkin.</p>
 
-      <div class="home-top-boxes" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:1.2em; align-items:start;">
-        <div class="latest-hw-box hd-card" id="progressBox">
-          <div class="hd-card-head">
-            <span class="hd-icon-badge hd-icon-blue">📘</span>
-            <div>
-              <span class="latest-hw-eyebrow hd-eyebrow hd-eyebrow-blue">O‘quv jarayoni</span>
-            </div>
-            <span class="latest-hw-date hd-date" id="progressDate"></span>
-          </div>
-
-          <div id="progressIdForm">
-            <p class="latest-hw-preview">O‘quv jarayoningizni ko‘rish uchun administrator bergan ID’ni kiriting.</p>
-            <div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:.6em;">
-              <input type="text" id="progressIdInput" placeholder="ID" style="flex:1; min-width:160px;">
-              <button type="button" class="btn btn-amber btn-sm" id="progressIdSubmitBtn">Ko‘rish</button>
-            </div>
-            <p class="form-error" id="progressIdError" role="alert" hidden style="margin-top:.6em;"></p>
-          </div>
-
-          <div id="progressView" hidden>
-            <h3 class="latest-hw-title" id="progressStudentNameVal"></h3>
-            <div>
-              <div class="hd-row">
-                <span class="hd-row-label">📅 Davomat</span>
-                <span id="progressAttendedVal" class="hd-row-val">—</span>
-              </div>
-              <div class="hd-row">
-                <span class="hd-row-label">📈 Uy vazifa</span>
-                <span id="progressHwVal" class="hd-row-val">—</span>
-              </div>
-
-              <div class="hd-row" id="progressPunishedRow" hidden>
-                <span class="hd-row-label">🚫 Holat</span>
-                <span class="hd-row-val" style="color:#c0392b;">Jazolandi</span>
-              </div>
-              <div id="progressMissingWrap" hidden>
-                <span>ℹ️ Bajarilmagan uy vazifalar</span>
-                <div id="progressMissingList" style="margin-top:.3em; display:flex; flex-direction:column; gap:.2em;"></div>
-              </div>
-              <p class="latest-hw-preview" id="progressNoteVal"></p>
-            </div>
-            <button type="button" class="hd-pill-btn" id="progressChangeIdBtn">ID’ni o‘zgartirish <span>→</span></button>
+    <!-- TOP ROW -->
+    <div class="row-top">
+      <!-- profile — dinamik (Firestore'dan to'ldiriladi) -->
+      <div class="card profile-card-new">
+        <div class="pnew-avatar-col">
+          <div class="pnew-avatar-circle">
+            <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+              <circle cx="40" cy="30" r="20" fill="#c7ddf8"/>
+              <ellipse cx="40" cy="76" rx="30" ry="18" fill="#c7ddf8"/>
+            </svg>
           </div>
         </div>
-
-        <div class="latest-hw-box" id="gbResultBox">
-          <div class="latest-hw-head">
-            <span class="latest-hw-eyebrow">🏆 Test natijasi</span>
+        <div class="pnew-main">
+          <div class="pnew-name" id="homeStudentName">Yuklanmoqda…</div>
+          <div class="pnew-badge-row">
+            <span class="pnew-badge">✔ Faol talaba</span>
           </div>
-
-          <div id="gbNameForm">
-            <p class="latest-hw-preview" id="gbNameFormMsg">Test natijangizni ko‘rish uchun avval «O‘quv jarayoni» kartochkasiga administrator bergan ID’ni kiriting — natijangiz shu yerda avtomatik chiqadi.</p>
-            <p class="form-error" id="gbNameError" role="alert" hidden style="margin-top:.6em;"></p>
-          </div>
-
-          <div id="gbResultView" hidden>
-            <h3 class="latest-hw-title" id="gbResultName"></h3>
-            <p class="latest-hw-preview" id="gbResultUnit"></p>
-            <div class="quiz-result-score" id="gbResultScore" style="font-size:1.6rem; display:inline-block; padding:.15em .6em; border-radius:8px; margin:.2em 0 .4em;"></div>
-            <p id="gbResultMessage" hidden style="margin:0 0 .8em; font-weight:700; font-size:1.05rem;"></p>
-            <div style="display:flex; gap:.6em; flex-wrap:wrap;">
-              <a href="../natijalar.html" target="_blank" rel="noopener" class="btn btn-amber btn-sm">📊 Barcha natijalar</a>
+          <div class="pnew-divider"></div>
+          <div class="pnew-rows">
+            <div class="pnew-row">
+              <span class="pnew-label">Talaba ID:</span>
+              <span class="pnew-val" id="homeStudentId">—</span>
             </div>
-          </div>
-        </div>
-
-        <div class="latest-hw-box hd-card" id="latestHwBox" hidden>
-          <div class="hd-card-head">
-            <span class="hd-icon-badge hd-icon-green">📗</span>
-            <div>
-              <span class="latest-hw-eyebrow hd-eyebrow hd-eyebrow-green">So‘nggi uy vazifasi</span>
+            <div class="pnew-row">
+              <span class="pnew-label">Guruh:</span>
+              <span class="pnew-val" id="qiGroupVal">—</span>
             </div>
-            <span class="latest-hw-date hd-date" id="latestHwDate"></span>
-          </div>
-          <h3 class="latest-hw-title" id="latestHwTitle"></h3>
-          <div class="latest-hw-checklist" id="latestHwPreview"></div>
-          <a href="../kundalik.html" class="btn">Batafsil ko‘rish</a>
-          <div class="hw-status-row" id="latestHwStatusRow">
-            <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
-            <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
+            <div class="pnew-row">
+              <span class="pnew-label">Dars vaqti:</span>
+              <span class="pnew-val" id="qiTimeVal">—</span>
+            </div>
+            <div class="pnew-row">
+              <span class="pnew-label">Keyingi dars:</span>
+              <span class="pnew-val" id="qiNextLessonVal">—</span>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="home-quick-bar">
-        <p class="home-quick-title">⚡ Tezkor ma'lumot</p>
-        <div class="home-quick-grid">
-          <div class="home-quick-tile">
-            <span class="home-quick-icon hd-icon-blue">🕐</span>
-            <div>
-              <div class="home-quick-label">Dars vaqti</div>
-              <div class="home-quick-val" id="qiTimeVal">—</div>
+      <!-- test result — dinamik (gbResultBox) -->
+      <div class="card test-card" id="gbResultBox" style="padding:0; transition:background .3s;">
+        <div class="card-head">
+          <div class="icon-badge" style="background:var(--blue-50);"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h9l4 4v14a1 1 0 01-1 1H6a1 1 0 01-1-1V4a1 1 0 011-1z" stroke="var(--blue-600)" stroke-width="1.7" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="var(--blue-600)" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h3>So'nggi test natijasi</h3>
+        </div>
+        <!-- ID kiritish (agar progress bog'lanmagan bo'lsa) -->
+        <div id="gbNameForm" class="test-body">
+          <p id="gbNameFormMsg" style="font-size:12.5px; color:var(--gray-500); margin:0 0 8px; line-height:1.5;">Test natijangizni ko'rish uchun «O'quv jarayoni» kartochkasidagi ID kiriting.</p>
+          <p id="gbNameError" hidden style="font-size:12px; color:var(--red-500); margin:0 0 8px;"></p>
+        </div>
+        <!-- Natija ko'rinishi -->
+        <div id="gbResultView" hidden class="test-body">
+          <p class="test-title" id="gbResultName" style="margin:0 0 2px;"></p>
+          <p id="gbResultUnit" style="font-size:12px; margin:0 0 10px;"></p>
+          <div id="gbResultScore" hidden style="font-size:28px; font-weight:800; border-radius:8px; padding:2px 14px; display:inline-flex; align-items:center; margin-bottom:8px;"></div>
+          <div id="gbResultMessage" style="font-size:13px; font-weight:600; margin-bottom:14px;"></div>
+          <a href="../natijalar.html" target="_blank" class="btn">Batafsil
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="row-stats">
+      <div class="card stat-card">
+        <div class="stat-top">
+          <div class="stat-icon" style="background:#e74c3c;">
+            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="#fff" stroke-width="1.7"/><path d="M8 2v4M16 2v4M3 10h18" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/><path d="M9 15l2 2 4-4" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><line x1="8" y1="15" x2="16" y2="15" stroke="#fff" stroke-width="1.7" stroke-linecap="round" hidden/><path d="M8.5 14.5l7 3M15.5 14.5l-7 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </div>
+          <span class="stat-label">Dars qoldirdi</span>
+        </div>
+        <div class="stat-value-row">
+          <span class="stat-value" id="statMissedLessons" style="color:#e74c3c;">—</span>
+        </div>
+        <span class="stat-sub">Jami darsga kelmadi</span>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-top">
+          <div class="stat-icon" style="background:#e67e22;">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/><rect x="9" y="3" width="6" height="4" rx="1" stroke="#fff" stroke-width="1.7"/><path d="M8.5 13.5l7 3M15.5 13.5l-7 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </div>
+          <span class="stat-label">Uy vazifa qilmadi</span>
+        </div>
+        <div class="stat-value-row">
+          <span class="stat-value" id="statMissedHw" style="color:#e67e22;">—</span>
+        </div>
+        <span class="stat-sub">Jami topshirmadi</span>
+      </div>
+      <div class="card stat-card">
+        <div class="stat-top">
+          <div class="stat-icon" style="background:#8e44ad;">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="9" x2="12" y2="13" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="12" cy="17" r="1" fill="#fff"/></svg>
+          </div>
+          <span class="stat-label">Jazolandi</span>
+        </div>
+        <div class="stat-value-row">
+          <span class="stat-value" id="statPunished" style="color:#8e44ad;">—</span>
+        </div>
+        <span class="stat-sub">Jami jazo</span>
+      </div>
+    </div>
+
+    <!-- BOTTOM ROW -->
+    <div class="row-bottom">
+      <div class="card schedule-card">
+        <div class="plan-head">
+          <div class="icon-badge" style="background:var(--blue-50);"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="var(--blue-600)" stroke-width="1.7"/><path d="M8 2v4M16 2v4M3 10h18" stroke="var(--blue-600)" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h3>Ta'lim jadvali</h3>
+          <a class="link" style="margin-left:auto;">Barcha darslar
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+        <table>
+          <thead><tr><th>Kun</th><th>Vaqt</th><th>Guruh</th></tr></thead>
+          <tbody id="scheduleTableBody">
+            <tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:18px 0;">Yuklanmoqda…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card activity-card">
+        <div class="plan-head">
+          <div class="icon-badge" style="background:var(--blue-50);"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="var(--blue-600)" stroke-width="1.7"/><path d="M12 7v5l3 2" stroke="var(--blue-600)" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+          <h3>So‘nggi faoliyat</h3>
+        </div>
+        <div class="activity-list">
+          <div class="activity-item">
+            <div class="activity-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="activity-main">
+              <div class="activity-title-row"><span class="activity-title">Test topshirildi</span><span class="activity-time">09.09.2026 16:24</span></div>
+              <div class="activity-sub">Introduction Test - Texas</div>
             </div>
           </div>
-          <div class="home-quick-tile">
-            <span class="home-quick-icon" style="background:linear-gradient(155deg,#a855f7,#7c3aed);">👥</span>
-            <div>
-              <div class="home-quick-label">O‘quvchilar guruhi</div>
-              <div class="home-quick-val" id="qiGroupVal">—</div>
+          <div class="activity-item">
+            <div class="activity-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="activity-main">
+              <div class="activity-title-row"><span class="activity-title">Uy vazifasi qabul qilindi</span><span class="activity-time">08.09.2026 14:12</span></div>
+              <div class="activity-sub">Lug'at mashqi</div>
             </div>
           </div>
-          <div class="home-quick-tile">
-            <span class="home-quick-icon" style="background:linear-gradient(155deg,#f0a63a,#c2790a);">📅</span>
-            <div>
-              <div class="home-quick-label">Keyingi dars</div>
-              <div class="home-quick-val" id="qiNextLessonVal">—</div>
+          <div class="activity-item">
+            <div class="activity-check"><svg viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="activity-main">
+              <div class="activity-title-row"><span class="activity-title">Profil ma'lumotlari yangilandi</span><span class="activity-time">05.09.2026 10:03</span></div>
+              <div class="activity-sub">Shaxsiy ma'lumotlar</div>
             </div>
           </div>
-          <div class="home-quick-tile">
-            <span class="home-quick-icon" style="background:linear-gradient(155deg,#fb7185,#e11d48);">🎯</span>
-            <div>
-              <div class="home-quick-label">Maqsad</div>
-              <div class="home-quick-val">Eng yaxshi natija sari!</div>
+        </div>
+        <div class="activity-footer">
+          <a class="link">Barcha faoliyat
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+      </div>
+      <!-- ===== HIDDEN ELEMENTS: JS tomonidan to'ldiriladi ===== -->
+
+      <!-- O'quv jarayoni kartochkasi (progressIdForm / progressView) -->
+      <div id="progressIdForm" hidden style="background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-top:18px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+          <div style="width:30px;height:30px;border-radius:8px;background:var(--blue-50);display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" stroke="var(--blue-600)" stroke-width="1.5"/></svg>
+          </div>
+          <h3 style="font-size:14.5px; font-weight:700; margin:0; color:var(--gray-900);">O'quv jarayoni</h3>
+        </div>
+        <p style="font-size:12.5px; color:var(--gray-500); margin:0 0 12px; line-height:1.5;">Administrator bergan ID'ni kiriting — davomat, uy vazifasi va dars ma'lumotlari shu yerda ko'rinadi.</p>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="text" id="progressIdInput" placeholder="Masalan: TX-001" style="flex:1; padding:9px 12px; border:1.5px solid var(--gray-200); border-radius:8px; font-size:13px; outline:none; color:var(--gray-900);">
+          <button type="button" id="progressIdSubmitBtn" class="btn" style="white-space:nowrap;">Tasdiqlash</button>
+        </div>
+        <p id="progressIdError" hidden style="font-size:12px; color:var(--red-500); margin:8px 0 0;"></p>
+      </div>
+
+      <div id="progressView" hidden style="background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); box-shadow:var(--shadow); margin-top:18px; overflow:hidden;">
+        <div style="display:flex; align-items:center; gap:10px; padding:16px 18px; border-bottom:1px solid var(--gray-100);">
+          <div style="width:30px;height:30px;border-radius:8px;background:var(--blue-50);display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" stroke="var(--blue-600)" stroke-width="1.5"/></svg>
+          </div>
+          <h3 style="font-size:14.5px; font-weight:700; margin:0; color:var(--gray-900);">O'quv jarayoni</h3>
+          <span id="progressStudentNameVal" style="margin-left:auto; font-size:12.5px; font-weight:700; color:var(--blue-600);"></span>
+        </div>
+        <div style="padding:14px 18px;">
+          <div style="font-size:11.5px; color:var(--gray-400); margin-bottom:10px;" id="progressDate"></div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+            <div style="background:var(--gray-25); border-radius:8px; padding:10px 12px;">
+              <div style="font-size:11px; color:var(--gray-500); margin-bottom:3px;">Davomat</div>
+              <div id="progressAttendedVal" style="font-size:13.5px; font-weight:700; color:var(--gray-900);">—</div>
+            </div>
+            <div style="background:var(--gray-25); border-radius:8px; padding:10px 12px;">
+              <div style="font-size:11px; color:var(--gray-500); margin-bottom:3px;">Uy vazifasi</div>
+              <div id="progressHwVal" style="font-size:13.5px; font-weight:700; color:var(--gray-900);">—</div>
             </div>
           </div>
+          <div id="progressPunishedRow" hidden style="background:#fdeaec; border-radius:8px; padding:8px 12px; margin-bottom:10px; font-size:12.5px; color:var(--red-500); font-weight:600;">⚠️ Jarima belgilangan</div>
+          <div id="progressMissingWrap" hidden style="margin-bottom:10px;">
+            <div style="font-size:11.5px; color:var(--gray-500); margin-bottom:4px;">Qilmagan vazifalar:</div>
+            <div id="progressMissingList"></div>
+          </div>
+          <div id="progressNoteVal" style="font-size:12.5px; color:var(--gray-700); line-height:1.5; white-space:pre-wrap;"></div>
+        </div>
+        <div style="padding:0 18px 14px;">
+          <button type="button" id="progressChangeIdBtn" style="font-size:11.5px; color:var(--gray-400); background:none; border:none; cursor:pointer; padding:0;">ID'ni o'zgartirish</button>
+        </div>
+      </div>
+
+      <!-- So'nggi uy vazifasi kartochkasi (latestHwBox) -->
+      <!-- Bu qo'shimcha kartochka: loadLatestHomework() tomonidan to'ldiriladi -->
+      <!-- homePlanCard bilan parallel ishlaydi, lekin alohida ma'lumot ko'rsatadi -->
+      <div id="latestHwBox" hidden style="background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); box-shadow:var(--shadow); margin-top:18px; padding:18px;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+          <div style="width:30px;height:30px;border-radius:8px;background:var(--teal-50);display:flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="17" rx="2" stroke="var(--teal-500)" stroke-width="1.7"/><path d="M8 2v4M16 2v4M3 10h18" stroke="var(--teal-500)" stroke-width="1.7" stroke-linecap="round"/></svg>
+          </div>
+          <h3 style="font-size:14px; font-weight:700; margin:0; color:var(--gray-900);">Vazifa: <span id="latestHwTitle"></span></h3>
+          <span id="latestHwDate" style="margin-left:auto; font-size:11.5px; color:var(--gray-400);"></span>
+        </div>
+        <div id="latestHwPreview" class="latest-hw-checklist"></div>
+        <div class="hw-status-row" id="latestHwStatusRow">
+          <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
+          <button type="button" class="hw-status-btn" data-status="undone">⏳ Bajarmaganman</button>
         </div>
       </div>
 
@@ -832,180 +1081,28 @@
       <div class="quiz-result-box" id="placementResultBox" hidden></div>
     </section>
 
-    <!-- ===== PROFILE — TALABA SHAXSIY KABINETI ===== -->
+    <!-- ===== PROFILE (student's own profile) ===== -->
     <section id="view-profile" hidden>
       <a href="#" id="backToHomeFromProfile" class="back-link">← Bosh sahifaga</a>
-
-      <!-- Page header -->
-      <div class="admin-header" style="margin-bottom:1.4em;">
+      <div class="admin-header">
         <div>
-          <h1 style="font-size:1.55rem; margin-bottom:.2em;">Talaba shaxsiy kabineti</h1>
-          <p style="margin:0; color:var(--gray); font-size:.9rem;">Shaxsiy ma‘lumotlaringiz va ta‘lim jarayoningizni boshqarishingiz mumkin.</p>
+          <h1>Mening profilim</h1>
+          <p>Ism, telefon raqam va profil belgingizni shu yerdan o‘zgartirasiz.</p>
         </div>
       </div>
 
-      <!-- TOP ROW: Profile card + Test result + Today plan -->
-      <div id="pkTopRow" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em; margin-bottom:1em; align-items:start;">
-
-        <!-- Student info card -->
-        <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:16px; padding:1.4em; box-shadow:0 2px 12px rgba(20,33,61,.07);">
-          <div style="display:flex; align-items:center; gap:1em; margin-bottom:1em;">
-            <div id="pkAvatarDisp" style="width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#e8f0ff,#c7d7fc); display:flex; align-items:center; justify-content:center; font-size:2rem; flex:none; border:3px solid #d0dbff;">🙂</div>
-            <div style="flex:1; min-width:0;">
-              <div id="pkStudentName" style="font-size:1.1rem; font-weight:800; color:var(--ink); margin-bottom:.35em; line-height:1.2;">—</div>
-              <span style="display:inline-flex; align-items:center; gap:.35em; background:#e8f9ed; color:#1e7e34; border-radius:20px; padding:.28em .8em; font-size:.75rem; font-weight:700;">✅ Faol talaba</span>
-            </div>
-            <div style="text-align:center; background:#f0f4ff; border-radius:12px; padding:.7em .9em; flex:none;">
-              <div style="font-size:.6rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#6b7280; margin-bottom:.3em;">Statusi</div>
-              <div style="font-size:.82rem; font-weight:800; color:#3b4fd8;">🎓 Talaba</div>
-            </div>
-          </div>
-          <div style="font-size:.875rem; border-top:1px solid var(--line); padding-top:.9em;">
-            <div style="display:flex; justify-content:space-between; padding:.42em 0; border-bottom:1px solid var(--paper-2);">
-              <span style="color:var(--gray);">Talaba ID:</span>
-              <span id="pkStudentId" style="font-weight:700; color:var(--ink);">—</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; padding:.42em 0; border-bottom:1px solid var(--paper-2);">
-              <span style="color:var(--gray);">Ta‘lim yo‘nalishi:</span>
-              <span id="pkSubject" style="font-weight:700; color:var(--ink);">Ingliz tili</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; padding:.42em 0; border-bottom:1px solid var(--paper-2);">
-              <span style="color:var(--gray);">Guruh:</span>
-              <span id="pkGroup" style="font-weight:700; color:var(--ink);">—</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; padding:.42em 0; border-bottom:1px solid var(--paper-2);">
-              <span style="color:var(--gray);">Email:</span>
-              <span id="pkEmail" style="font-weight:700; color:var(--ink); font-size:.8rem; word-break:break-all;">—</span>
-            </div>
-            <div style="margin-top:.9em;">
-              <button type="button" id="pkEditToggleBtn" class="btn btn-ghost btn-sm" style="width:100%; justify-content:center;">✏️ Ma‘lumotlarni tahrirlash</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Test result card (purple gradient) -->
-        <div id="pkTestCard" style="background:linear-gradient(150deg,#3b34c9 0%,#5b3fef 55%,#7048f0 100%); border-radius:16px; padding:1.4em; color:#fff; box-shadow:0 8px 28px rgba(75,58,220,.32); display:flex; flex-direction:column;">
-          <div style="font-size:.65rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; background:rgba(255,255,255,.18); display:inline-block; padding:.35em .8em; border-radius:20px; margin-bottom:1em; align-self:flex-start;">📋 So‘nggi test natijasi</div>
-          <div id="pkTestUnit" style="font-size:1rem; font-weight:700; margin-bottom:.4em; opacity:.9;">—</div>
-          <div style="display:flex; align-items:center; gap:.8em; margin-bottom:.5em;">
-            <div id="pkTestScore" style="font-size:2.6rem; font-weight:900; line-height:1;">—</div>
-            <div id="pkTestBadge" style="background:rgba(255,255,255,.22); border-radius:8px; padding:.3em .7em; font-size:.8rem; font-weight:700;">—</div>
-          </div>
-          <div id="pkTestDate" style="font-size:.8rem; opacity:.75; display:flex; align-items:center; gap:.4em;">📅 —</div>
-          <div style="margin-top:auto; padding-top:1.2em;">
-            <button type="button" id="pkTestDetailBtn" style="background:rgba(255,255,255,.15); color:#fff; border:1.5px solid rgba(255,255,255,.35); border-radius:30px; font-size:.82rem; padding:.5em 1.2em; cursor:pointer; font-weight:700; font-family:inherit;">Test natijalariga o‘tish →</button>
-          </div>
-        </div>
-
-        <!-- Today's study plan -->
-        <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:16px; padding:1.4em; box-shadow:0 2px 12px rgba(20,33,61,.07);">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:.9em;">
-            <div style="font-size:.92rem; font-weight:800; color:var(--ink); display:flex; align-items:center; gap:.5em;">📅 Bugungi o‘quv reja</div>
-            <div id="pkTodayDate" style="font-size:.75rem; color:var(--gray); font-weight:600;">—</div>
-          </div>
-          <table style="width:100%; border-collapse:collapse; font-size:.78rem;">
-            <thead>
-              <tr style="color:var(--gray); font-weight:700; font-size:.7rem; letter-spacing:.04em; text-transform:uppercase;">
-                <th style="text-align:left; padding:.3em .2em .5em; border-bottom:1px solid var(--line);">Fan</th>
-                <th style="text-align:left; padding:.3em .2em .5em; border-bottom:1px solid var(--line);">Vazifa</th>
-                <th style="text-align:left; padding:.3em .2em .5em; border-bottom:1px solid var(--line);">Muddat</th>
-                <th style="text-align:left; padding:.3em .2em .5em; border-bottom:1px solid var(--line);">Holat</th>
-              </tr>
-            </thead>
-            <tbody id="pkTodayPlanBody">
-              <tr><td colspan="4" style="padding:.8em .2em; color:var(--gray); font-size:.8rem;">Yuklanmoqda…</td></tr>
-            </tbody>
-          </table>
-          <button type="button" id="pkViewTasksBtn" class="btn btn-amber" style="width:100%; margin-top:1em; font-size:.82rem; justify-content:center;">Vazifalarni ko‘rish →</button>
-        </div>
-      </div>
-
-      <!-- STATS ROW -->
-      <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1em; margin-bottom:1em;">
-        <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:14px; padding:1.1em 1.2em; box-shadow:0 2px 8px rgba(20,33,61,.05);">
-          <div style="display:flex; align-items:center; gap:.7em; margin-bottom:.6em;">
-            <span style="width:36px; height:36px; border-radius:10px; background:#e8f9ed; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">📅</span>
-            <span style="font-size:.8rem; color:var(--gray); font-weight:600;">Davomat</span>
-          </div>
-          <div style="font-size:1.8rem; font-weight:900; color:var(--ink);" id="pkAttPct">—</div>
-          <div id="pkAttNote" style="font-size:.75rem; color:var(--gray); font-weight:600; margin-top:.15em;">So‘nggi 30 kun</div>
-        </div>
-        <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:14px; padding:1.1em 1.2em; box-shadow:0 2px 8px rgba(20,33,61,.05);">
-          <div style="display:flex; align-items:center; gap:.7em; margin-bottom:.6em;">
-            <span style="width:36px; height:36px; border-radius:10px; background:#fff3e0; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">🏠</span>
-            <span style="font-size:.8rem; color:var(--gray); font-weight:600;">Uy vazifalari</span>
-          </div>
-          <div style="font-size:1.8rem; font-weight:900; color:var(--ink);" id="pkHwCount">—</div>
-          <div style="font-size:.75rem; color:var(--gray); font-weight:600; margin-top:.15em;">Topshirilgan</div>
-        </div>
-        <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:14px; padding:1.1em 1.2em; box-shadow:0 2px 8px rgba(20,33,61,.05);">
-          <div style="display:flex; align-items:center; gap:.7em; margin-bottom:.6em;">
-            <span style="width:36px; height:36px; border-radius:10px; background:#f0f4ff; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">📄</span>
-            <span style="font-size:.8rem; color:var(--gray); font-weight:600;">Test natijalari</span>
-          </div>
-          <div style="font-size:1.8rem; font-weight:900; color:var(--ink);" id="pkTestAvg">—</div>
-          <div style="font-size:.75rem; color:var(--gray); font-weight:600; margin-top:.15em;">O‘rtacha natija</div>
-        </div>
-        <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:14px; padding:1.1em 1.2em; box-shadow:0 2px 8px rgba(20,33,61,.05);">
-          <div style="display:flex; align-items:center; gap:.7em; margin-bottom:.6em;">
-            <span style="width:36px; height:36px; border-radius:10px; background:#e8f9f7; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">📚</span>
-            <span style="font-size:.8rem; color:var(--gray); font-weight:600;">Faol kurslar</span>
-          </div>
-          <div style="font-size:1.8rem; font-weight:900; color:var(--ink);" id="pkCourseCount">—</div>
-          <div style="font-size:.75rem; color:var(--gray); font-weight:600; margin-top:.15em;">Jami kurslar</div>
-        </div>
-      </div>
-
-      <!-- BOTTOM ROW: Schedule + Activity -->
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em; margin-bottom:1.4em;">
-        <!-- Schedule -->
-        <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:16px; padding:1.4em; box-shadow:0 2px 12px rgba(20,33,61,.07);">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1em;">
-            <div style="font-size:.95rem; font-weight:800; color:var(--ink);">📅 Ta‘lim jadvali</div>
-            <a href="#" id="pkAllLessonsLink" style="font-size:.8rem; color:#3b4fd8; font-weight:700; text-decoration:none;">Barcha darslar →</a>
-          </div>
-          <table style="width:100%; border-collapse:collapse; font-size:.82rem;">
-            <thead>
-              <tr style="color:var(--gray); font-weight:700; font-size:.7rem; letter-spacing:.04em; text-transform:uppercase;">
-                <th style="text-align:left; padding:.3em .4em .6em; border-bottom:1px solid var(--line);">Kun</th>
-                <th style="text-align:left; padding:.3em .4em .6em; border-bottom:1px solid var(--line);">Vaqt</th>
-                <th style="text-align:left; padding:.3em .4em .6em; border-bottom:1px solid var(--line);">Fan</th>
-                <th style="text-align:left; padding:.3em .4em .6em; border-bottom:1px solid var(--line);">Guruh</th>
-                <th style="text-align:left; padding:.3em .4em .6em; border-bottom:1px solid var(--line);">Xona</th>
-              </tr>
-            </thead>
-            <tbody id="pkScheduleBody">
-              <tr><td colspan="5" style="padding:1em .4em; color:var(--gray);">Yuklanmoqda…</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Recent activity -->
-        <div style="background:var(--paper); border:1.5px solid var(--line); border-radius:16px; padding:1.4em; box-shadow:0 2px 12px rgba(20,33,61,.07);">
-          <div style="font-size:.95rem; font-weight:800; color:var(--ink); margin-bottom:1em;">🕐 So‘nggi faoliyat</div>
-          <div id="pkActivityList" style="display:flex; flex-direction:column; gap:.75em;">
-            <div style="color:var(--gray); font-size:.85rem;">Yuklanmoqda…</div>
-          </div>
-          <div style="margin-top:1em; text-align:right;">
-            <a href="#" id="pkAllActivityLink" style="font-size:.8rem; color:#3b4fd8; font-weight:700; text-decoration:none;">Barcha faoliyat →</a>
-          </div>
-        </div>
-      </div>
-
-      <!-- EDIT PANEL (collapsible) -->
-      <div id="pkEditPanel" hidden style="background:var(--paper); border:1.5px solid var(--line); border-radius:16px; padding:1.5em; box-shadow:0 2px 12px rgba(20,33,61,.07); max-width:560px; margin-bottom:1.4em;">
-        <h2 style="font-size:1.05rem; font-weight:800; color:var(--ink); margin:0 0 1.2em;">✏️ Ma‘lumotlarni tahrirlash</h2>
-        <div class="profile-avatar-row" style="margin-bottom:1em;">
-          <div id="pkEditAvatarPreview" style="width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg,#e8f0ff,#c7d7fc); display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex:none; border:2px solid #d0dbff;">🙂</div>
-          <!-- hidden element kept for JS compatibility -->
-          <div id="profileAvatarBig" style="display:none;">🙂</div>
+      <div class="profile-card">
+        <div class="profile-avatar-row">
+          <div class="profile-avatar-big" id="profileAvatarBig">🙂</div>
           <div>
             <button type="button" class="btn btn-ghost btn-sm" id="toggleEmojiPickerBtn">Belgini o‘zgartirish</button>
-            <p style="margin:.4em 0 0; color:var(--gray); font-size:.82rem;">Profil rasmi o‘rniga emoji tanlang.</p>
+            <p style="margin:.5em 0 0; color:var(--gray); font-size:.85rem;">Profil rasmi o‘rniga emoji tanlang.</p>
           </div>
         </div>
+
         <div class="emoji-picker-grid" id="emojiPickerGrid" hidden></div>
-        <form class="modal-form" id="profileForm" style="margin-top:1.2em;">
+
+        <form class="modal-form" id="profileForm" style="margin-top:1.8em; max-width:460px;">
           <label class="field">
             <span>Ism familiya</span>
             <input type="text" id="profileName" required maxlength="80">
@@ -1022,11 +1119,9 @@
           <p class="form-notice" id="profileNotice" role="status" hidden></p>
           <div class="modal-actions" style="justify-content:flex-start;">
             <button type="submit" class="btn btn-amber" id="profileSaveBtn">Saqlash</button>
-            <button type="button" class="btn btn-ghost" id="pkCancelEditBtn">Bekor qilish</button>
           </div>
         </form>
       </div>
-
     </section>
 
 
@@ -1195,6 +1290,12 @@ async function enterDashboard(){
   document.getElementById('sidebarAvatar').textContent = state.student.avatarEmoji || '🙂';
   document.getElementById('appShell').hidden = false;
 
+  // Profil kartochkasini to'ldirish (yangi dizayn uchun)
+  const homeNameEl = document.getElementById('homeStudentName');
+  if(homeNameEl) homeNameEl.textContent = state.student.name || state.student.email || '—';
+  const homeIdEl = document.getElementById('homeStudentId');
+  if(homeIdEl) homeIdEl.textContent = state.student.oquvProgressCode || '—';
+
   // Faollik jurnali: talaba profiliga kirdi
   try {
     await db.collection('activity_log').add({
@@ -1219,6 +1320,8 @@ async function enterDashboard(){
   await loadCourses();
   await loadWriting();
   await loadMySubmissions();
+  loadStudentStatsCards(); // statistika kartochkalari (fon, kutilmaydi)
+  loadScheduleTable();     // ta'lim jadvali (fon, kutilmaydi)
   let _savedStudentView = null;
   try{ _savedStudentView = sessionStorage.getItem('studentLastView'); }catch(err){}
   renderHomeView();
@@ -1470,13 +1573,18 @@ function renderHomeView(){
   const firstName = state.student.name ? state.student.name.split(' ')[0] : 'talaba';
   {
     const greetEl = document.getElementById('homeGreeting');
-    greetEl.textContent = '';
-    greetEl.appendChild(document.createTextNode('Xush kelibsiz, '));
-    const nameSpan = document.createElement('span');
-    nameSpan.className = 'home-greet-name';
-    nameSpan.textContent = firstName + '!';
-    greetEl.appendChild(nameSpan);
-    greetEl.appendChild(document.createTextNode(' 👋'));
+    if(greetEl){
+      greetEl.textContent = '';
+      greetEl.appendChild(document.createTextNode('Xush kelibsiz, '));
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'home-greet-name';
+      nameSpan.textContent = firstName + '!';
+      greetEl.appendChild(nameSpan);
+      greetEl.appendChild(document.createTextNode(' 👋'));
+    }
+    // Also update page-title if it exists (new design)
+    const pageTitleEl = document.getElementById('homeStudentName');
+    if(pageTitleEl) pageTitleEl.textContent = state.student.name || 'Talaba';
   }
   switchView('home');
   document.getElementById('navHome').classList.add('active');
@@ -1502,9 +1610,12 @@ function renderHomeView(){
 const homeQuickInfo = { group: null, time: null, nextLesson: null };
 function updateHomeQuickInfo(patch){
   Object.assign(homeQuickInfo, patch);
-  document.getElementById('qiTimeVal').textContent = homeQuickInfo.time || '—';
-  document.getElementById('qiGroupVal').textContent = homeQuickInfo.group || '—';
-  document.getElementById('qiNextLessonVal').textContent = homeQuickInfo.nextLesson || '—';
+  const qiTime = document.getElementById('qiTimeVal');
+  const qiGroup = document.getElementById('qiGroupVal');
+  const qiNext = document.getElementById('qiNextLessonVal');
+  if(qiTime) qiTime.textContent = homeQuickInfo.time || '—';
+  if(qiGroup) qiGroup.textContent = homeQuickInfo.group || '—';
+  if(qiNext) qiNext.textContent = homeQuickInfo.nextLesson || '—';
 }
 
 // Finds the next date (today or later) that falls on one of the group's
@@ -1542,6 +1653,112 @@ function getNextLessonDateLabel(days, timeRange){
     }
   }
   return null;
+}
+
+// ===== TA'LIM JADVALI (Firestore dan dinamik) =====
+const SCHEDULE_DAY_LABELS = {
+  mon: 'Dushanba', tue: 'Seshanba', wed: 'Chorshanba',
+  thu: 'Payshanba', fri: 'Juma', sat: 'Shanba', sun: 'Yakshanba'
+};
+const SCHEDULE_DAY_ORDER = ['mon','tue','wed','thu','fri','sat','sun'];
+
+async function loadScheduleTable(){
+  const code = state.student.oquvProgressCode;
+  const tbody = document.getElementById('scheduleTableBody');
+  if(!tbody || !code) return;
+
+  try{
+    // 1. oquv_progress dan guruh ma'lumotini ol
+    const pDoc = await db.collection('oquv_progress').doc(code).get();
+    if(!pDoc.exists){ tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:14px 0;">Ma\'lumot topilmadi</td></tr>'; return; }
+
+    const pData = pDoc.data();
+    const groupId   = pData.groupId  || null;
+    const groupName = pData.group    || null;
+
+    // 2. oquv_groups dan days va time ni ol
+    let groupData = null;
+    if(groupId){
+      const gDoc = await db.collection('oquv_groups').doc(groupId).get();
+      if(gDoc.exists) groupData = gDoc.data();
+    }
+    if(!groupData && groupName){
+      const gSnap = await db.collection('oquv_groups').where('name','==',groupName).limit(1).get();
+      if(!gSnap.empty) groupData = gSnap.docs[0].data();
+    }
+
+    if(!groupData || !groupData.days || !groupData.days.length){
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:14px 0;">Jadval kiritilmagan</td></tr>';
+      return;
+    }
+
+    const days    = SCHEDULE_DAY_ORDER.filter(d => groupData.days.includes(d));
+    const time    = groupData.time  || '—';
+    const gName   = groupData.name  || groupName || '—';
+
+    tbody.innerHTML = days.map(d =>
+      `<tr><td>${SCHEDULE_DAY_LABELS[d]}</td><td>${time}</td><td>${gName}</td></tr>`
+    ).join('');
+
+  } catch(err){
+    console.warn('loadScheduleTable failed:', err);
+    if(tbody) tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--gray-400);padding:14px 0;">Xatolik yuz berdi</td></tr>';
+  }
+}
+
+// ===== STATISTIKA KARTOCHKALARI (dars qoldirdi / hw qilmadi / jazolandi) =====
+async function loadStudentStatsCards(){
+  const code = state.student.oquvProgressCode;
+  if(!code) return;
+
+  // Yuklanmoqda holatini ko'rsat
+  ['statMissedLessons','statMissedHw','statPunished'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.textContent = '…'; el.style.opacity = '.5'; }
+  });
+
+  try{
+    const snap = await db.collection('oquv_progress').doc(code).collection('entries').get();
+    let missedLessons = 0;
+    let missedHw      = 0;
+    let punishTotal   = 0;
+
+    snap.forEach(doc => {
+      const e = doc.data();
+
+      // Dars qoldirdi: attended === 'no' yoki false
+      const a = e.attended;
+      if(a === false || a === 'no') missedLessons++;
+
+      // Uy vazifa qilmadi: 'no' yoki 'partial'
+      const h = e.homeworkDone;
+      if(h === false || h === 'no' || h === 'partial') missedHw++;
+
+      // Jazolandi: punishCount yig'indisi (agar yo'q bo'lsa punished:true ni 1 deb hisoblaydi)
+      if(e.punishCount != null && Number(e.punishCount) > 0){
+        punishTotal += Number(e.punishCount);
+      } else if(e.punished === true){
+        punishTotal += 1;
+      }
+    });
+
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.textContent = val + ' ta';
+      el.style.opacity = '1';
+    };
+    set('statMissedLessons', missedLessons);
+    set('statMissedHw',      missedHw);
+    set('statPunished',      punishTotal);
+
+  } catch(err){
+    console.warn('loadStudentStatsCards failed:', err);
+    ['statMissedLessons','statMissedHw','statPunished'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el){ el.textContent = '—'; el.style.opacity = '1'; }
+    });
+  }
 }
 
 async function renderProgressBox(){
@@ -1666,52 +1883,72 @@ async function renderProgressBox(){
   }
 }
 
-document.getElementById('progressIdSubmitBtn').addEventListener('click', async () => {
-  const input = document.getElementById('progressIdInput');
-  const code = input.value.trim();
-  const errorEl = document.getElementById('progressIdError');
-  const btn = document.getElementById('progressIdSubmitBtn');
-  errorEl.hidden = true;
-  if(!code){ errorEl.textContent = 'ID kiriting.'; errorEl.hidden = false; return; }
-  btn.disabled = true;
-  try{
-    await db.collection('students').doc(currentUid).update({ oquvProgressCode: code });
-    state.student.oquvProgressCode = code;
-    await renderProgressBox();
-  } catch(err){
-    console.error('Progress code save failed:', err);
-    errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.';
-    errorEl.hidden = false;
-  }
-  btn.disabled = false;
-});
-
-document.getElementById('progressIdInput').addEventListener('keydown', (e) => {
-  if(e.key === 'Enter'){
-    e.preventDefault();
-    document.getElementById('progressIdSubmitBtn').click();
-  }
-});
-
-document.getElementById('progressChangeIdBtn').addEventListener('click', async () => {
-  const btn = document.getElementById('progressChangeIdBtn');
-  btn.disabled = true;
-  try{
-    await db.collection('students').doc(currentUid).update({
-      oquvProgressCode: firebase.firestore.FieldValue.delete(),
-      gradebookName: firebase.firestore.FieldValue.delete()
+// progressIdSubmitBtn — null-safe (element yangi dizaynda dinamik qo'shilgan)
+{
+  const submitBtn = document.getElementById('progressIdSubmitBtn');
+  if(submitBtn){
+    submitBtn.addEventListener('click', async () => {
+      const input = document.getElementById('progressIdInput');
+      const code = input.value.trim();
+      const errorEl = document.getElementById('progressIdError');
+      const btn = document.getElementById('progressIdSubmitBtn');
+      errorEl.hidden = true;
+      if(!code){ errorEl.textContent = 'ID kiriting.'; errorEl.hidden = false; return; }
+      btn.disabled = true;
+      try{
+        await db.collection('students').doc(currentUid).update({ oquvProgressCode: code });
+        state.student.oquvProgressCode = code;
+        await renderProgressBox();
+      } catch(err){
+        console.error('Progress code save failed:', err);
+        errorEl.textContent = 'Saqlashda xatolik yuz berdi. Qayta urinib ko\'ring.';
+        errorEl.hidden = false;
+      }
+      btn.disabled = false;
     });
-  } catch(err){ /* if this fails, we'll just ask again — no harm done */ }
-  delete state.student.oquvProgressCode;
-  delete state.student.gradebookName;
-  delete state.student._progressName;
-  document.getElementById('progressIdInput').value = '';
-  document.getElementById('progressIdError').hidden = true;
-  document.getElementById('progressView').hidden = true;
-  document.getElementById('progressIdForm').hidden = false;
-  renderGbResultBox();
-  btn.disabled = false;
-});
+  }
+}
+
+{
+  const inputEl = document.getElementById('progressIdInput');
+  if(inputEl){
+    inputEl.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        const btn = document.getElementById('progressIdSubmitBtn');
+        if(btn) btn.click();
+      }
+    });
+  }
+}
+
+{
+  const changeBtn = document.getElementById('progressChangeIdBtn');
+  if(changeBtn){
+    changeBtn.addEventListener('click', async () => {
+      changeBtn.disabled = true;
+      try{
+        await db.collection('students').doc(currentUid).update({
+          oquvProgressCode: firebase.firestore.FieldValue.delete(),
+          gradebookName: firebase.firestore.FieldValue.delete()
+        });
+      } catch(err){ /* if this fails, we'll just ask again — no harm done */ }
+      delete state.student.oquvProgressCode;
+      delete state.student.gradebookName;
+      delete state.student._progressName;
+      const inputEl2 = document.getElementById('progressIdInput');
+      if(inputEl2) inputEl2.value = '';
+      const errEl = document.getElementById('progressIdError');
+      if(errEl) errEl.hidden = true;
+      const viewEl = document.getElementById('progressView');
+      if(viewEl) viewEl.hidden = true;
+      const formEl = document.getElementById('progressIdForm');
+      if(formEl) formEl.hidden = false;
+      renderGbResultBox();
+      changeBtn.disabled = false;
+    });
+  }
+}
 
 // Shows the most recent homework from the student's own real group
 // (resolved automatically via their oquvProgressCode -> oquv_progress.groupId,
@@ -1741,22 +1978,60 @@ function htmlToLinePreview(html, maxLen){
 // matching by group name for older oquv_progress records saved before
 // groupId started being stored.
 async function resolveStudentKundalikGroupId(){
-  const code = state.student.oquvProgressCode;
-  if(!code) return null;
   try{
-    const doc = await db.collection('oquv_progress').doc(code).get();
-    if(!doc.exists) return null;
-    const info = doc.data();
-    if(info.groupId) return info.groupId;
-    if(info.group){
-      const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
-      if(!gSnap.empty) return gSnap.docs[0].id;
+    // 1. oquvProgressCode orqali (asosiy yo'l)
+    const code = state.student.oquvProgressCode;
+    if(code){
+      const doc = await db.collection('oquv_progress').doc(code).get();
+      if(doc.exists){
+        const info = doc.data();
+        if(info.groupId) return info.groupId;
+        if(info.group){
+          const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
+          if(!gSnap.empty) return gSnap.docs[0].id;
+        }
+      }
+    }
+    // 2. students/{uid}.kundalikGroup orqali (fallback)
+    if(state.student.kundalikGroup) return state.student.kundalikGroup;
+    // 3. Firebase dan to'g'ridan o'qib ko'ramiz (state da bo'lmasa)
+    if(currentUid){
+      const sDoc = await db.collection('students').doc(currentUid).get();
+      if(sDoc.exists){
+        const d = sDoc.data();
+        // oquvProgressCode bor bo'lsa, qayta urinib ko'ramiz
+        if(d.oquvProgressCode && d.oquvProgressCode !== code){
+          const pDoc = await db.collection('oquv_progress').doc(d.oquvProgressCode).get();
+          if(pDoc.exists){
+            const info = pDoc.data();
+            if(info.groupId) return info.groupId;
+            if(info.group){
+              const gSnap = await db.collection('oquv_groups').where('name', '==', info.group).limit(1).get();
+              if(!gSnap.empty) return gSnap.docs[0].id;
+            }
+          }
+        }
+        // kundalikGroup to'g'ridan
+        if(d.kundalikGroup) return d.kundalikGroup;
+      }
     }
     return null;
   } catch(err){
     console.error('resolveStudentKundalikGroupId failed:', err);
     return null;
   }
+}
+
+
+
+
+
+function _esc(str){
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
 }
 
 async function loadLatestHomework(){
@@ -1907,12 +2182,12 @@ async function renderGbResultBox(){
     scoreEl.classList.remove('quiz-result-pass', 'quiz-result-fail');
 
     const tier = getGbScoreTier(latestScore);
-    box.style.background = tier.cardBg; // the WHOLE card, not just the score badge
-    scoreEl.style.background = 'rgba(255,255,255,.2)';
-    scoreEl.style.color = '#fff';
+    box.style.background = ''; // karta har doim oq — rang o'zgartirilmaydi
+    scoreEl.style.background = tier.cardBg || 'var(--blue-50)';
+    scoreEl.style.color = tier.cardBg ? '#fff' : 'var(--blue-600)';
     msgEl.hidden = false;
     msgEl.textContent = tier.emoji + ' ' + tier.message;
-    msgEl.style.color = '#fff'; // always white, regardless of card color
+    msgEl.style.color = tier.cardBg || 'var(--gray-600)';
   } else {
     box.style.background = '';
     document.getElementById('gbResultUnit').textContent = (match.group ? match.group + ' · ' : '') + 'Hali natija kiritilmagan.';
@@ -3149,245 +3424,15 @@ function renderProfile(){
   document.getElementById('navPlacementTest').classList.remove('active');
   document.getElementById('navProfile').classList.add('active');
 
-  // Populate edit form
   document.getElementById('profileName').value = state.student.name || '';
   document.getElementById('profilePhone').value = state.student.phone || '';
   document.getElementById('profileEmail').value = state.student.email || '';
-  const avatarEmoji = state.student.avatarEmoji || '🙂';
-  document.getElementById('profileAvatarBig').textContent = avatarEmoji;
-  document.getElementById('pkEditAvatarPreview').textContent = avatarEmoji;
-  document.getElementById('pkAvatarDisp').textContent = avatarEmoji;
+  document.getElementById('profileAvatarBig').textContent = state.student.avatarEmoji || '🙂';
   document.getElementById('profileError').hidden = true;
   document.getElementById('profileNotice').hidden = true;
   document.getElementById('emojiPickerGrid').hidden = true;
-  document.getElementById('pkEditPanel').hidden = true;
 
   switchView('profile');
-  renderProfileKabinet();
-}
-
-// ===== PROFILE KABINET =====
-async function renderProfileKabinet(){
-  const s = state.student;
-  document.getElementById('pkStudentName').textContent = s.name || s.email || '—';
-  document.getElementById('pkEmail').textContent = s.email || '—';
-  document.getElementById('pkStudentId').textContent = s.oquvProgressCode || '—';
-  document.getElementById('pkAvatarDisp').textContent = s.avatarEmoji || '🙂';
-
-  const todayStr = new Date().toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' });
-  document.getElementById('pkTodayDate').textContent = todayStr;
-
-  // Count active courses
-  let activeCourseCount = 0;
-  if(s.paymentStatus === 'approved') activeCourseCount++;
-  if(s.coursePayments) Object.values(s.coursePayments).forEach(v => { if(v === 'approved' || v === true) activeCourseCount++; });
-  document.getElementById('pkCourseCount').textContent = activeCourseCount + ' ta';
-
-  const code = s.oquvProgressCode;
-  if(code){
-    try{
-      const progressDoc = await db.collection('oquv_progress').doc(code).get();
-      if(progressDoc.exists){
-        const info = progressDoc.data();
-        document.getElementById('pkGroup').textContent = info.group || '—';
-        state.student._progressName = info.name || null;
-
-        // Attendance stats from last 30 entries
-        const entriesSnap = await db.collection('oquv_progress').doc(code)
-          .collection('entries').orderBy('date','desc').limit(30).get();
-        let attCount = 0, attTotal = 0, hwCount = 0;
-        entriesSnap.docs.forEach(doc => {
-          const d = doc.data();
-          attTotal++;
-          if(d.attended === true || d.attended === 'yes') attCount++;
-          if(d.homeworkDone === true || d.homeworkDone === 'yes') hwCount++;
-        });
-        document.getElementById('pkAttPct').textContent = attTotal > 0 ? Math.round(attCount/attTotal*100) + '%' : '—';
-        document.getElementById('pkAttNote').textContent = attTotal > 0 ? attTotal + ' darsdan ' + attCount + ' ta' : 'Ma'lumot yo'q';
-        document.getElementById('pkHwCount').textContent = hwCount + ' ta';
-
-        if(info.group){
-          try{
-            const gSnap = await db.collection('oquv_groups').where('name','==',info.group).limit(1).get();
-            if(!gSnap.empty){
-              const gData = gSnap.docs[0].data();
-              pkRenderSchedule(gData, info.group);
-              pkRenderTodayPlan(gData, info.group);
-            } else { pkScheduleEmpty(); pkTodayPlanEmpty(); }
-          } catch(e){ pkScheduleEmpty(); pkTodayPlanEmpty(); }
-        } else { pkScheduleEmpty(); pkTodayPlanEmpty(); }
-      }
-    } catch(e){ console.error('Kabinet load:', e); pkScheduleEmpty(); pkTodayPlanEmpty(); }
-  } else {
-    document.getElementById('pkGroup').textContent = '—';
-    document.getElementById('pkAttPct').textContent = '—';
-    document.getElementById('pkHwCount').textContent = '—';
-    pkScheduleEmpty(); pkTodayPlanEmpty();
-  }
-
-  await pkRenderTestCard();
-  await pkRenderActivity();
-
-  // Wire buttons (once)
-  if(!document.getElementById('pkEditToggleBtn')._pkWired){
-    document.getElementById('pkEditToggleBtn')._pkWired = true;
-    document.getElementById('pkEditToggleBtn').addEventListener('click', () => {
-      const panel = document.getElementById('pkEditPanel');
-      panel.hidden = !panel.hidden;
-      if(!panel.hidden) panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
-    });
-    document.getElementById('pkCancelEditBtn').addEventListener('click', () => {
-      document.getElementById('pkEditPanel').hidden = true;
-    });
-    document.getElementById('pkTestDetailBtn').addEventListener('click', () => {
-      window.location.href = '../natijalar.html';
-    });
-    document.getElementById('pkViewTasksBtn').addEventListener('click', () => {
-      window.location.href = '../kundalik.html';
-    });
-    document.getElementById('pkAllLessonsLink').addEventListener('click', (e) => {
-      e.preventDefault(); renderHomeView();
-    });
-    document.getElementById('pkAllActivityLink').addEventListener('click', (e) => { e.preventDefault(); });
-  }
-}
-
-const PK_DAY_NAMES = { sun:'Yakshanba', mon:'Dushanba', tue:'Seshanba', wed:'Chorshanba', thu:'Payshanba', fri:'Juma', sat:'Shanba' };
-
-function pkRenderSchedule(gData, groupName){
-  const body = document.getElementById('pkScheduleBody');
-  const days = gData.days || [];
-  const time = gData.time || '—';
-  const room = gData.room || gData.xona || '—';
-  if(!days.length){ body.innerHTML = '<tr><td colspan="5" style="padding:1em .4em; color:var(--gray);">Jadval yo'q.</td></tr>'; return; }
-  body.innerHTML = days.map(day => `<tr style="border-bottom:1px solid var(--line);">
-    <td style="padding:.5em .4em; font-weight:700; color:var(--ink);">${PK_DAY_NAMES[day]||day}</td>
-    <td style="padding:.5em .4em; color:var(--gray);">${time}</td>
-    <td style="padding:.5em .4em; color:var(--ink);">Ingliz tili</td>
-    <td style="padding:.5em .4em; color:var(--ink);">${groupName}</td>
-    <td style="padding:.5em .4em; color:var(--gray);">${room}</td>
-  </tr>`).join('');
-}
-
-function pkScheduleEmpty(){
-  const body = document.getElementById('pkScheduleBody');
-  if(body) body.innerHTML = '<tr><td colspan="5" style="padding:1em .4em; color:var(--gray);">Ma'lumot yo'q.</td></tr>';
-}
-
-function pkRenderTodayPlan(gData, groupName){
-  const body = document.getElementById('pkTodayPlanBody');
-  const KEY_TO_JSDAY = { sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6 };
-  const todayJs = new Date().getDay();
-  const days = gData.days || [];
-  const todayKey = Object.keys(KEY_TO_JSDAY).find(k => KEY_TO_JSDAY[k] === todayJs);
-  const hasClass = days.includes(todayKey);
-  if(!hasClass){ body.innerHTML = '<tr><td colspan="4" style="padding:.8em .2em; color:var(--gray); font-size:.8rem;">Bugun dars yo'q.</td></tr>'; return; }
-  const todayStr = new Date().toLocaleDateString('uz-UZ', { day:'numeric', month:'short' });
-  body.innerHTML = `
-    <tr style="border-bottom:1px solid var(--line);">
-      <td style="padding:.42em .2em; font-weight:700; color:var(--ink); font-size:.78rem;">Ingliz tili</td>
-      <td style="padding:.42em .2em; color:var(--gray); font-size:.78rem;">${groupName} darsi</td>
-      <td style="padding:.42em .2em; color:var(--gray); font-size:.78rem;">${todayStr}</td>
-      <td style="padding:.42em .2em;"><span style="background:#fff3cd;color:#856404;border-radius:6px;padding:.18em .45em;font-size:.7rem;font-weight:700;">Jarayonda</span></td>
-    </tr>
-    <tr>
-      <td style="padding:.42em .2em; font-weight:700; color:var(--ink); font-size:.78rem;">Ingliz tili</td>
-      <td style="padding:.42em .2em; color:var(--gray); font-size:.78rem;">Uy vazifasi</td>
-      <td style="padding:.42em .2em; color:var(--gray); font-size:.78rem;">${todayStr}</td>
-      <td style="padding:.42em .2em;"><span style="background:#fee2e2;color:#991b1b;border-radius:6px;padding:.18em .45em;font-size:.7rem;font-weight:700;">Bajarilmagan</span></td>
-    </tr>`;
-}
-
-function pkTodayPlanEmpty(){
-  const body = document.getElementById('pkTodayPlanBody');
-  if(body) body.innerHTML = '<tr><td colspan="4" style="padding:.8em .2em; color:var(--gray); font-size:.8rem;">Ma'lumot yo'q.</td></tr>';
-}
-
-async function pkRenderTestCard(){
-  const code = state.student.oquvProgressCode;
-  if(!code){
-    document.getElementById('pkTestUnit').textContent = 'ID kiritilmagan';
-    document.getElementById('pkTestScore').textContent = '—';
-    document.getElementById('pkTestBadge').textContent = '—';
-    document.getElementById('pkTestDate').textContent = '📅 —';
-    document.getElementById('pkTestAvg').textContent = '—';
-    return;
-  }
-  const data = await fetchGbLookupData();
-  let match = data.students.find(s => s.progressId && normalizeGbId(s.progressId) === normalizeGbId(code));
-  if(!match && state.student._progressName){
-    match = data.students.find(s => !s.progressId && normalizeGbName(s.name) === normalizeGbName(state.student._progressName));
-  }
-  if(!match){
-    document.getElementById('pkTestUnit').textContent = 'Natija kiritilmagan';
-    document.getElementById('pkTestScore').textContent = '—';
-    document.getElementById('pkTestBadge').textContent = '—';
-    document.getElementById('pkTestDate').textContent = '📅 —';
-    document.getElementById('pkTestAvg').textContent = '—';
-    return;
-  }
-  const units = (data.unitsByGroup && data.unitsByGroup[match.group]) || [];
-  const stamps = match.scoreTimestamps || {};
-  let latestUnit = null, latestScore = null, bestStamp = -1;
-  let scoreSum = 0, scoreCount = 0;
-  units.forEach(unit => {
-    const sc = match.scores ? match.scores[unit] : undefined;
-    if(sc === undefined || sc === null || sc === '') return;
-    scoreSum += Number(sc); scoreCount++;
-    const stamp = stamps[unit];
-    if(typeof stamp === 'number' && stamp > bestStamp){ bestStamp = stamp; latestUnit = unit; latestScore = sc; }
-    else if(latestUnit === null){ latestUnit = unit; latestScore = sc; }
-  });
-  document.getElementById('pkTestUnit').textContent = latestUnit || '—';
-  document.getElementById('pkTestScore').textContent = latestScore !== null ? latestScore + ' / 100' : '—';
-  if(latestScore !== null){
-    const n = Number(latestScore);
-    const badge = n >= 85 ? '🏆 Muvaffaqiyatli' : n >= 60 ? '👍 Yaxshi' : '💪 Urinib ko'ring';
-    document.getElementById('pkTestBadge').textContent = badge;
-    const dateStr = bestStamp > 0 ? new Date(bestStamp).toLocaleDateString('uz-UZ') : '—';
-    document.getElementById('pkTestDate').textContent = '📅 Topshirilgan: ' + dateStr;
-  } else {
-    document.getElementById('pkTestBadge').textContent = '—';
-    document.getElementById('pkTestDate').textContent = '📅 —';
-  }
-  document.getElementById('pkTestAvg').textContent = scoreCount > 0 ? Math.round(scoreSum/scoreCount) + '%' : '—';
-}
-
-async function pkRenderActivity(){
-  const listEl = document.getElementById('pkActivityList');
-  const ACTION_META = {
-    dashboard_visit: { icon: '✅', text: 'Tizimga kirildi' },
-    quiz_passed:     { icon: '📝', text: 'Test topshirildi' },
-    homework_done:   { icon: '🏠', text: 'Uy vazifasi topshirildi' },
-    profile_update:  { icon: 'ℹ️', text: 'Profil yangilandi' },
-  };
-  try{
-    const snap = await db.collection('activity_log')
-      .where('uid','==', currentUid)
-      .orderBy('at','desc').limit(5).get();
-    if(snap.empty){ listEl.innerHTML = '<div style="color:var(--gray);font-size:.85rem;">Faoliyat yo'q.</div>'; return; }
-    listEl.innerHTML = snap.docs.map(doc => {
-      const d = doc.data();
-      const meta = ACTION_META[d.action] || { icon:'✅', text: d.action||'Faoliyat' };
-      const ts = d.at ? (typeof d.at.toDate==='function' ? d.at.toDate() : new Date(d.at)) : null;
-      const dateStr = ts ? ts.toLocaleDateString('uz-UZ',{day:'numeric',month:'short'}) : '';
-      const timeStr = ts ? ts.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'}) : '—';
-      return `<div style="display:flex;align-items:flex-start;gap:.7em;">
-        <span style="width:24px;height:24px;border-radius:50%;background:#e8f9ed;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex:none;margin-top:.1em;">${meta.icon}</span>
-        <div style="flex:1;min-width:0;">
-          <div style="font-size:.83rem;font-weight:700;color:var(--ink);">${meta.text}</div>
-          <div style="font-size:.73rem;color:var(--gray);margin-top:.1em;">${dateStr} ${timeStr}</div>
-        </div>
-      </div>`;
-    }).join('');
-  } catch(e){
-    // No index or permission — show login event as fallback
-    listEl.innerHTML = `<div style="display:flex;align-items:flex-start;gap:.7em;">
-      <span style="width:24px;height:24px;border-radius:50%;background:#e8f9ed;display:flex;align-items:center;justify-content:center;font-size:.72rem;flex:none;">✅</span>
-      <div><div style="font-size:.83rem;font-weight:700;color:var(--ink);">Tizimga kirildi</div>
-      <div style="font-size:.73rem;color:var(--gray);">${new Date().toLocaleDateString('uz-UZ')}</div></div>
-    </div>`;
-  }
 }
 
 const emojiGrid = document.getElementById('emojiPickerGrid');
@@ -3402,8 +3447,6 @@ emojiGrid.addEventListener('click', async (e) => {
   if(!btn) return;
   const emoji = btn.dataset.emoji;
   document.getElementById('profileAvatarBig').textContent = emoji;
-  document.getElementById('pkEditAvatarPreview').textContent = emoji;
-  document.getElementById('pkAvatarDisp').textContent = emoji;
   document.getElementById('sidebarAvatar').textContent = emoji;
   emojiGrid.hidden = true;
   try{
@@ -3438,8 +3481,6 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     state.student.name = name;
     state.student.phone = phone;
     document.getElementById('sidebarUsername').textContent = name;
-    const pkNameEl = document.getElementById('pkStudentName');
-    if(pkNameEl) pkNameEl.textContent = name;
     noticeEl.textContent = 'Profil yangilandi.';
     noticeEl.hidden = false;
   } catch(err){
@@ -3570,23 +3611,143 @@ document.getElementById('markAllReadBtn').addEventListener('click', () => {
   document.getElementById('notifBadge').hidden = true;
 });
 
+// ===== YANGILIK POPUP TIZIMI =====
+// Admin notifications kolleksiyasiga yangilik qo'shganda
+// talaba ekranida pastda o'ng tomonda popup chiqadi.
+// Talaba bosib o'qisa yo'qoladi va o'qilgan deb belgilanadi.
+
+function showNotifPopup(docId, title, body){
+  const container = document.getElementById('notifPopupContainer');
+  if(!container) return;
+
+  const card = document.createElement('div');
+  card.style.cssText = [
+    'background:#fff',
+    'border:1px solid #e2e8f0',
+    'border-left:4px solid #2563eb',
+    'border-radius:14px',
+    'box-shadow:0 8px 32px rgba(0,0,0,0.13)',
+    'padding:14px 16px',
+    'cursor:pointer',
+    'pointer-events:all',
+    'animation:notifSlideIn .35s cubic-bezier(.22,.68,0,1.2) both',
+    'font-family:inherit',
+    'position:relative',
+    'user-select:none',
+  ].join(';');
+
+  card.innerHTML = `
+    <div style="display:flex;align-items:flex-start;gap:10px;">
+      <div style="flex-shrink:0;width:32px;height:32px;background:#eff6ff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;">\uD83D\uDCE2</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:3px;line-height:1.3;">${escapeHtml(title)}</div>
+        <div style="font-size:12px;color:#64748b;line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;">${escapeHtml(body)}</div>
+        <div style="font-size:11px;color:#94a3b8;margin-top:6px;">Yopish uchun bosing</div>
+      </div>
+      <div style="flex-shrink:0;font-size:16px;color:#94a3b8;line-height:1;padding-top:1px;">&times;</div>
+    </div>
+  `;
+
+  // O'qilgan deb belgilab yopish
+  function dismiss(){
+    card.style.animation = 'notifSlideOut .25s ease both';
+    setTimeout(() => card.remove(), 260);
+    // localStorage ga o'qilgan deb yozish
+    try{
+      const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+      if(!readSet.includes(docId)){
+        readSet.push(docId);
+        localStorage.setItem('efReadNotifs_' + currentUid, JSON.stringify(readSet));
+      }
+    } catch(e){}
+    updateNotifBadge();
+  }
+
+  card.addEventListener('click', dismiss);
+
+  // 12 soniyadan keyin o'zidan o'zi yopiladi (lekin o'qilmagan qoladi)
+  const autoClose = setTimeout(() => {
+    if(card.isConnected){
+      card.style.animation = 'notifSlideOut .25s ease both';
+      setTimeout(() => card.remove(), 260);
+    }
+  }, 12000);
+
+  card.addEventListener('click', () => clearTimeout(autoClose));
+  container.appendChild(card);
+
+  // Ovoz
+  playNotifSound();
+}
+
+function playNotifSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.connect(g); g.connect(ctx.destination);
+    o.type = 'sine';
+    o.frequency.setValueAtTime(520, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(780, ctx.currentTime + 0.1);
+    o.frequency.exponentialRampToValueAtTime(640, ctx.currentTime + 0.25);
+    g.gain.setValueAtTime(0.28, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.4);
+    o.onended = () => ctx.close();
+  } catch(e){}
+}
+
+function updateNotifBadge(){
+  const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+  db.collection('notifications').orderBy('createdAt','desc').limit(30).get().then(snap => {
+    let unread = 0;
+    snap.docs.forEach(doc => { if(!readSet.includes(doc.id)) unread++; });
+    const badge = document.getElementById('notifBadge');
+    if(badge){
+      badge.textContent = unread;
+      badge.hidden = unread === 0;
+    }
+  }).catch(()=>{});
+}
+
 // Check for new notifications on load (real-time listener)
 function startNotifListener(){
+  let _firstLoad = true;
+
   db.collection('notifications')
     .orderBy('createdAt', 'desc')
     .limit(30)
     .onSnapshot(snap => {
       const readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]');
+
+      // Faqat birinchi yuklanishdan KEYIN qo'shilgan hujjatlarni tekshir
+      if(!_firstLoad){
+        snap.docChanges().forEach(change => {
+          if(change.type === 'added'){
+            const doc = change.doc;
+            if(!readSet.includes(doc.id)){
+              const d = doc.data();
+              // serverTimestamp pending bo'lsa title/body mavjud bo'ladi
+              if(d.title || d.body){
+                showNotifPopup(doc.id, d.title || 'Yangilik', d.body || '');
+              }
+            }
+          }
+        });
+      }
+
+      _firstLoad = false;
+
+      // Badge yangilash
       let unread = 0;
       snap.docs.forEach(doc => {
         if(!readSet.includes(doc.id)) unread++;
       });
       const badge = document.getElementById('notifBadge');
-      if(unread > 0){
+      if(badge){
         badge.textContent = unread;
-        badge.hidden = false;
-      } else {
-        badge.hidden = true;
+        badge.hidden = unread === 0;
       }
     });
 }
@@ -4267,6 +4428,14 @@ async function wgApplyVisibilitySetting(){
 wgApplyVisibilitySetting();
 
 </script>
+<!-- ===== YANGILIK POPUP (pastda o'ng tomonda) ===== -->
+<div id="notifPopupContainer" style="
+  position:fixed; bottom:20px; right:20px; z-index:9999;
+  display:flex; flex-direction:column; gap:10px;
+  pointer-events:none;
+  max-width:340px; width:calc(100vw - 40px);
+"></div>
+
 <div class="powered-by">
   <span>powered by <b>Djami</b></span>
 </div>
