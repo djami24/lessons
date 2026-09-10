@@ -1191,6 +1191,25 @@
           <span>Xabar matni</span>
           <textarea id="broadcastBody" rows="4" placeholder="Xabar matnini yozing..." maxlength="1000" style="width:100%;font-family:inherit;padding:.8em 1em;border-radius:var(--radius-s);border:1.5px solid var(--line);resize:vertical;"></textarea>
         </label>
+        <label class="field" style="margin-top:1em;">
+          <span>Ko&#39;rinish turi</span>
+          <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typeNotifLabel">
+              <input type="radio" name="broadcastType" value="notification" id="typeNotif" checked style="accent-color:#2563eb;">
+              <span>
+                <span style="font-weight:600;font-size:13px;">&#128276; Bildirishnoma</span><br>
+                <span style="font-size:11px;color:var(--gray);">Pastda o&#39;ng tomonda kichik popup</span>
+              </span>
+            </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typePopupLabel">
+              <input type="radio" name="broadcastType" value="popup" id="typePopup" style="accent-color:#2563eb;">
+              <span>
+                <span style="font-weight:600;font-size:13px;">&#128227; Katta Popup</span><br>
+                <span style="font-size:11px;color:var(--gray);">Ekran o&#39;rtasida modal oyna</span>
+              </span>
+            </label>
+          </div>
+        </label>
         <p id="broadcastStatus" style="margin:.6em 0 0;font-size:.9rem;color:var(--gray);"></p>
         <div style="margin-top:1em;">
           <button class="btn btn-amber" id="broadcastSendBtn">Yuborish</button>
@@ -6681,10 +6700,21 @@ async function loadBroadcastHistory(){
   }
 }
 
+// Broadcast type radio highlight
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('input[name="broadcastType"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.getElementById('typeNotifLabel').style.borderColor = document.getElementById('typeNotif').checked ? '#2563eb' : 'var(--line)';
+      document.getElementById('typePopupLabel').style.borderColor = document.getElementById('typePopup').checked ? '#2563eb' : 'var(--line)';
+    });
+  });
+});
+
 document.getElementById('broadcastSendBtn').addEventListener('click', async () => {
   const title = document.getElementById('broadcastTitle').value.trim();
   const body = document.getElementById('broadcastBody').value.trim();
   const statusEl = document.getElementById('broadcastStatus');
+  const displayType = (document.querySelector('input[name="broadcastType"]:checked') || {}).value || 'notification';
   if(!title || !body){ statusEl.textContent = 'Sarlavha va xabar matni to‘ldirilishi shart.'; return; }
   const btn = document.getElementById('broadcastSendBtn');
   btn.disabled = true;
@@ -6693,6 +6723,7 @@ document.getElementById('broadcastSendBtn').addEventListener('click', async () =
     await db.collection('notifications').add({
       title: title,
       body: body,
+      displayType: displayType,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
     document.getElementById('broadcastTitle').value = '';
