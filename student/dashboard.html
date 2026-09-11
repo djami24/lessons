@@ -4571,10 +4571,18 @@ document.getElementById('navReadingMocks').addEventListener('click', function(e)
   rmStudentLoad();
 });
 
+// Saqlangan mocklar Set
+var _rmSavedIds = new Set();
+
 async function rmStudentLoad() {
   var el = document.getElementById('rmStudentList');
   el.innerHTML = '<p style="opacity:.5">Yuklanmoqda...</p>';
   try {
+    _rmSavedIds = new Set();
+    if (currentUid) {
+      var savedSnap = await db.collection('students').doc(currentUid).collection('savedMocks').get();
+      savedSnap.forEach(function(d){ _rmSavedIds.add(d.id); });
+    }
     var snap = await db.collection('reading_mocks').where('status','==','published').get();
     if (snap.empty) {
       el.innerHTML = '<p style="opacity:.5">Hozircha mock test mavjud emas.</p>';
@@ -4584,14 +4592,21 @@ async function rmStudentLoad() {
       var m = d.data();
       var id = d.id;
       var badge = m.testType === 'general' ? 'General Training' : 'Academic';
-      return '<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">'
-        +'<div>'
+      var isSaved = _rmSavedIds.has(id);
+      var starStyle = isSaved
+        ? 'background:#fef9c3;border:1.5px solid #eab308;'
+        : 'background:#f8fafc;border:1.5px solid #e2e8f0;';
+      return '<div id="rmCard-'+id+'" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">'
+        +'<div style="flex:1;min-width:0;">'
         +'<span style="font-size:.7rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.08em">'+badge+'</span>'
         +'<h3 style="margin:5px 0 7px;font-size:1.05rem;color:#0f172a;">'+((m.title)||'Mock Test')+'</h3>'
-        +'<span style="font-size:.82rem;color:#64748b;">'+((m.duration)||60)+' daqiqa &middot; '+((m.totalQuestions)||'?')+' savol</span>'
+        +'<span style="font-size:.82rem;color:#64748b;">'+((m.duration)||60)+' daqiqa · '+((m.totalQuestions)||'?')+' savol</span>'
         +(m.description?'<p style="margin:6px 0 0;font-size:.82rem;color:#64748b;">'+m.description+'</p>':'')
         +'</div>'
+        +'<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">'
+        +'<button onclick="rmToggleSave(\'' +id+ '\')" id="rmSaveBtn-'+id+'" title="'+(isSaved?'Saqlangandan olib tashlash':'Saqlash')+'" style="'+starStyle+'border-radius:10px;padding:9px 14px;font-size:1.15rem;cursor:pointer;transition:all .2s;">'+(isSaved?'★':'☆')+'</button>'
         +'<a href="../student/reading-mock.html?mockId='+id+'" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:.9rem;white-space:nowrap">Boshlash</a>'
+        +'</div>'
         +'</div>';
     }).join('');
   } catch(err) {
@@ -4599,7 +4614,25 @@ async function rmStudentLoad() {
   }
 }
 
+async function rmToggleSave(mockId) {
+  if (!currentUid) return;
+  var btn = document.getElementById('rmSaveBtn-' + mockId);
+  var ref = db.collection('students').doc(currentUid).collection('savedMocks').doc(mockId);
+  try {
+    if (_rmSavedIds.has(mockId)) {
+      await ref.delete();
+      _rmSavedIds.delete(mockId);
+      if (btn) { btn.textContent = '☆'; btn.title = 'Saqlash'; btn.style.background = '#f8fafc'; btn.style.borderColor = '#e2e8f0'; }
+    } else {
+      await ref.set({ savedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      _rmSavedIds.add(mockId);
+      if (btn) { btn.textContent = '★'; btn.title = 'Saqlangandan olib tashlash'; btn.style.background = '#fef9c3'; btn.style.borderColor = '#eab308'; }
+    }
+  } catch(err) { alert('Xatolik: ' + err.message); }
+}
+
 </script>
+
 <!-- ===== YANGILIK POPUP (pastda o'ng tomonda) ===== -->
 <div id="notifPopupContainer" style="
   position:fixed; bottom:20px; right:20px; z-index:9999;
