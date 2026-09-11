@@ -4855,56 +4855,49 @@ function openCefrWritingQuestion(questionId) {
 
 // ===== CEFR SPEAKING (CEFR kursidagi speaking bo'limi) =====
 function openCefrSpeaking() {
-  const status = state.student.coursePayments.cefr || 'none';
-  if (status === 'approved') {
-    const course = getCourse('cefr');
-    const section = course && course.sections && course.sections.speaking;
-    if (!section) {
-      renderCefrSpeakingFallback("Speaking bo'limi yuklanmadi yoki hali mavzu qo'shilmagan.");
-      switchView('cefr-speaking');
-      return;
-    }
-    if (section.locked) {
-      renderCefrSpeakingFallback('\uD83D\uDD12 ' + (section.lockedMessage || "Bu bo'lim hozircha yopiq."));
-      switchView('cefr-speaking');
-      return;
-    }
-    // Speaking mavzularini cefrSpeakingContent ichiga render qilamiz
-    const topics = flattenLeaves(section.topics || []);
-    const el = document.getElementById('cefrSpeakingContent');
-    if (!el) return;
-    if (topics.length === 0) {
-      el.innerHTML = `<p style="padding:32px 0;color:#64748b;text-align:center;">Hali speaking mavzusi qo'shilmagan. Admindan so\u2019rang.</p>`;
-    } else {
-      el.innerHTML = `<div class="lesson-list">${topics.map((t, i) => `
-        <div class="lesson-row is-clickable" data-cefr-speaking-topic="${t.id}">
-          <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
-          <div class="lesson-main">
-            <div class="lesson-row-top">
-              <span class="lesson-title">${escapeHtml(t.title || 'Nomsiz mavzu')}</span>
-            </div>
-            <div class="lesson-meta">
-              ${t.timerSeconds ? `<span class="tag">⏱️ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
-            </div>
-          </div>
-        </div>`).join('')}</div>`;
-      // Topic click listener
-      el.querySelectorAll('[data-cefr-speaking-topic]').forEach(row => {
-        row.addEventListener('click', () => {
-          state.activeCourseId = 'cefr';
-          state.activeSectionId = 'speaking';
-          state._speakingReturnView = 'cefr-speaking';
-          openTopicDetail(row.dataset.cefrSpeakingTopic);
-        });
-      });
-    }
+  // Speaking bo'limi bepul — to'lov tekshirilmaydi
+  const course = getCourse('cefr');
+  const section = course && course.sections && course.sections.speaking;
+  if (!section) {
+    renderCefrSpeakingFallback("Speaking bo'limi yuklanmadi yoki hali mavzu qo'shilmagan.");
     switchView('cefr-speaking');
-  } else if (status === 'pending') {
-    renderCefrSpeakingFallback("\u23F3 To'lov tekshirilmoqda. Admin tasdiqlashini kuting.");
-    switchView('cefr-speaking');
-  } else {
-    openCoursePaymentView('cefr');
+    return;
   }
+  if (section.locked) {
+    renderCefrSpeakingFallback('\uD83D\uDD12 ' + (section.lockedMessage || "Bu bo'lim hozircha yopiq."));
+    switchView('cefr-speaking');
+    return;
+  }
+  // Speaking mavzularini cefrSpeakingContent ichiga render qilamiz
+  const topics = flattenLeaves(section.topics || []);
+  const el = document.getElementById('cefrSpeakingContent');
+  if (!el) return;
+  if (topics.length === 0) {
+    el.innerHTML = `<p style="padding:32px 0;color:#64748b;text-align:center;">Hali speaking mavzusi qo'shilmagan. Admindan so\u2019rang.</p>`;
+  } else {
+    el.innerHTML = `<div class="lesson-list">${topics.map((t, i) => `
+      <div class="lesson-row is-clickable" data-cefr-speaking-topic="${t.id}">
+        <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
+        <div class="lesson-main">
+          <div class="lesson-row-top">
+            <span class="lesson-title">${escapeHtml(t.title || 'Nomsiz mavzu')}</span>
+          </div>
+          <div class="lesson-meta">
+            ${t.timerSeconds ? `<span class="tag">⏱️ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+    // Topic click listener
+    el.querySelectorAll('[data-cefr-speaking-topic]').forEach(row => {
+      row.addEventListener('click', () => {
+        state.activeCourseId = 'cefr';
+        state.activeSectionId = 'speaking';
+        state._speakingReturnView = 'cefr-speaking';
+        openTopicDetail(row.dataset.cefrSpeakingTopic);
+      });
+    });
+  }
+  switchView('cefr-speaking');
 }
 
 function renderCefrSpeakingFallback(msg) {
