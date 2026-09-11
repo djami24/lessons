@@ -1021,94 +1021,6 @@
       <div id="cefrSpeakingContent"></div>
     </section>
 
-    <!-- ===== CEFR SPEAKING — TOPIC DETAIL ===== -->
-    <section id="view-cefr-speaking-topic" hidden>
-      <!-- Header -->
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;">
-        <button id="speakingTopicBackBtn" onclick="closeSpeakingTopicDetail()"
-          style="background:#f1f5f9;border:none;cursor:pointer;font-size:.85rem;font-weight:700;color:#374151;padding:8px 16px;border-radius:10px;white-space:nowrap;">
-          ← Orqaga
-        </button>
-        <div>
-          <div style="font-size:.78rem;color:#64748b;margin-bottom:2px;">🎓 CEFR › 🎤 Speaking</div>
-          <h1 id="speakingTopicTitle" style="font-size:1.35rem;font-weight:800;color:#0f172a;margin:0;"></h1>
-        </div>
-      </div>
-
-      <!-- Timer card (agar timer bo'lsa) -->
-      <div id="speakingTimerCard" hidden
-        style="background:linear-gradient(135deg,#1e3a8a,#2563eb);color:#fff;border-radius:16px;padding:24px 28px;margin-bottom:20px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
-        <div style="font-size:3rem;">⏱️</div>
-        <div style="flex:1;">
-          <div style="font-weight:800;font-size:1.1rem;margin-bottom:4px;">Taymerli mashq</div>
-          <div style="font-size:.88rem;opacity:.85;" id="speakingTimerDesc"></div>
-        </div>
-        <div style="text-align:center;">
-          <div id="speakingTimerDisplay" style="font-size:2.2rem;font-weight:900;font-family:monospace;letter-spacing:.06em;">00:00</div>
-          <div style="font-size:.75rem;opacity:.7;margin-top:2px;" id="speakingTimerLabel">vaqt</div>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <button id="speakingTimerStartBtn" onclick="speakingTimerToggle()"
-            style="background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.5);color:#fff;border-radius:10px;padding:9px 22px;font-weight:700;font-size:.9rem;cursor:pointer;white-space:nowrap;">
-            ▶ Boshlash
-          </button>
-          <button onclick="speakingTimerReset()"
-            style="background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:10px;padding:7px 16px;font-weight:600;font-size:.82rem;cursor:pointer;">
-            ↺ Qayta o'rnatish
-          </button>
-        </div>
-      </div>
-
-      <!-- Material link (agar link bo'lsa) -->
-      <div id="speakingMaterialCard" hidden
-        style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:14px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;">
-        <span style="font-size:1.5rem;">🔗</span>
-        <div style="flex:1;">
-          <div style="font-weight:700;font-size:.95rem;color:#166534;margin-bottom:3px;">Material / Havola</div>
-          <div style="font-size:.85rem;color:#15803d;">Mavzuga oid material yoki audio/video</div>
-        </div>
-        <a id="speakingMaterialLink" href="#" target="_blank" rel="noopener"
-          style="background:#16a34a;color:#fff;border-radius:10px;padding:9px 20px;font-weight:700;font-size:.88rem;text-decoration:none;white-space:nowrap;">
-          Ochish →
-        </a>
-      </div>
-
-      <!-- Description / Task -->
-      <div id="speakingDescCard"
-        style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:22px 24px;margin-bottom:20px;">
-        <div style="font-weight:800;font-size:1rem;color:#0f172a;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-          📋 Vazifa
-        </div>
-        <div id="speakingDescContent" style="font-size:.95rem;line-height:1.8;color:#1e293b;"></div>
-      </div>
-
-      <!-- Custom timer (agar fixed emas bo'lsa) -->
-      <div id="speakingCustomTimerCard" hidden
-        style="background:#fff;border:1.5px solid #e2e8f0;border-radius:14px;padding:18px 22px;margin-bottom:20px;">
-        <div style="font-weight:700;font-size:.9rem;color:#374151;margin-bottom:12px;">⏱️ O'z vaqtingizni kiriting</div>
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-          <input type="number" id="speakingCustomMinutes" min="0.17" step="0.5" placeholder="Daqiqa"
-            style="width:100px;padding:9px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:.95rem;background:#f8fafc;color:#0f172a;">
-          <button onclick="speakingSetCustomTimer()"
-            style="background:#2563eb;color:#fff;border:none;border-radius:10px;padding:9px 20px;font-weight:700;font-size:.9rem;cursor:pointer;">
-            Belgilash
-          </button>
-          <span style="font-size:.82rem;color:#64748b;">Mashqni boshlamasdan oldin vaqtni kiriting</span>
-        </div>
-      </div>
-
-      <!-- Tips -->
-      <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:14px;padding:16px 20px;">
-        <div style="font-weight:700;font-size:.88rem;color:#92400e;margin-bottom:8px;">💡 Maslahat</div>
-        <ul style="margin:0;padding-left:18px;font-size:.86rem;color:#78350f;line-height:1.7;">
-          <li>Mavzuni diqqat bilan o'qing va fikrlaringizni tartibga soling</li>
-          <li>Taymerni boshlashdan oldin javob planini tuzing</li>
-          <li>O'zingizni yozib oling va tinglang — bu eng samarali usul</li>
-          <li>Grammatika va lug'atga emas, g'oyalar oqimiga e'tibor bering</li>
-        </ul>
-      </div>
-    </section>
-
     <section id="view-reading-mocks" hidden>
       <div class="admin-header" style="display:flex;align-items:center;gap:12px;">
         <button onclick="switchView('cefr-menu')" style="background:#f1f5f9;border:none;cursor:pointer;font-size:.85rem;font-weight:700;color:#374151;padding:8px 16px;border-radius:10px;transition:background .15s;white-space:nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">Orqaga</button>
@@ -1557,7 +1469,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-speaking-topic'];
+const VIEWS = ['home', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
@@ -1574,7 +1486,6 @@ const STUDENT_VIEW_NAV_MAP = {
   'cefr-menu': 'navCEFR',
   'cefr-writing': 'navCEFR',
   'cefr-speaking': 'navCEFR',
-  'cefr-speaking-topic': 'navCEFR',
   'notifications': 'navNotifications',
   'chat': 'navChat'
 };
@@ -3778,152 +3689,6 @@ function openCefrSpeaking() {
 function renderCefrSpeakingFallback(msg) {
   const el = document.getElementById('cefrSpeakingContent');
   if (el) el.innerHTML = `<p style="padding:32px 0;color:#64748b;text-align:center;">${escapeHtml(msg)}</p>`;
-}
-
-// ================================================================
-// SPEAKING TOPIC DETAIL — open / close / timer
-// ================================================================
-var _spkTimer = { interval: null, remaining: 0, total: 0, running: false, fixed: false };
-
-function openTopicDetail(topicId) {
-  const course = getCourse('cefr');
-  const section = course && course.sections && course.sections.speaking;
-  if (!section) return;
-  const topics = flattenLeaves(section.topics || []);
-  const topic = topics.find(t => t.id === topicId);
-  if (!topic) return;
-
-  // Title
-  const titleEl = document.getElementById('speakingTopicTitle');
-  if (titleEl) titleEl.textContent = topic.title || 'Nomsiz mavzu';
-
-  // Description
-  const descCard = document.getElementById('speakingDescCard');
-  const descContent = document.getElementById('speakingDescContent');
-  if (descContent) {
-    if (topic.description) {
-      descContent.innerHTML = topic.description;
-      if (descCard) descCard.hidden = false;
-    } else {
-      if (descCard) descCard.hidden = true;
-    }
-  }
-
-  // Material link
-  const matCard = document.getElementById('speakingMaterialCard');
-  const matLink = document.getElementById('speakingMaterialLink');
-  if (matCard && matLink) {
-    if (topic.material) {
-      matLink.href = topic.material;
-      matCard.hidden = false;
-    } else {
-      matCard.hidden = true;
-    }
-  }
-
-  // Timer setup
-  const timerCard = document.getElementById('speakingTimerCard');
-  const customCard = document.getElementById('speakingCustomTimerCard');
-  clearInterval(_spkTimer.interval);
-  _spkTimer = { interval: null, remaining: 0, total: 0, running: false, fixed: !!topic.timerFixed };
-
-  if (topic.timerSeconds && topic.timerSeconds >= 10) {
-    _spkTimer.total = topic.timerSeconds;
-    _spkTimer.remaining = topic.timerSeconds;
-    _spkTimer.fixed = !!topic.timerFixed;
-    speakingUpdateTimerDisplay();
-    const timerDesc = document.getElementById('speakingTimerDesc');
-    if (timerDesc) timerDesc.textContent = `Tavsiya etilgan vaqt: ${Math.round(topic.timerSeconds/60*10)/10} daqiqa${topic.timerFixed ? ' (majburiy)' : ' (talaba o'zgartira oladi)'}`;
-    if (timerCard) timerCard.hidden = false;
-    if (customCard) customCard.hidden = topic.timerFixed;
-  } else {
-    if (timerCard) timerCard.hidden = true;
-    if (customCard) customCard.hidden = false;
-    document.getElementById('speakingTimerDisplay') && (document.getElementById('speakingTimerDisplay').textContent = '00:00');
-  }
-
-  // Reset start button
-  const startBtn = document.getElementById('speakingTimerStartBtn');
-  if (startBtn) { startBtn.textContent = '▶ Boshlash'; startBtn.style.background = 'rgba(255,255,255,.2)'; }
-
-  switchView('cefr-speaking-topic');
-}
-
-function closeSpeakingTopicDetail() {
-  clearInterval(_spkTimer.interval);
-  _spkTimer.running = false;
-  const returnView = state._speakingReturnView || 'cefr-speaking';
-  switchView(returnView);
-}
-
-function speakingUpdateTimerDisplay() {
-  const el = document.getElementById('speakingTimerDisplay');
-  if (!el) return;
-  const s = Math.max(0, Math.round(_spkTimer.remaining));
-  const m = Math.floor(s / 60);
-  const sec = s % 60;
-  el.textContent = String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
-  // Rang: qizil tugashga yaqin
-  if (s <= 10 && s > 0) el.style.color = '#fca5a5';
-  else if (s <= 30) el.style.color = '#fde68a';
-  else el.style.color = '#fff';
-}
-
-function speakingTimerToggle() {
-  const startBtn = document.getElementById('speakingTimerStartBtn');
-  if (_spkTimer.running) {
-    // Pause
-    clearInterval(_spkTimer.interval);
-    _spkTimer.running = false;
-    if (startBtn) { startBtn.textContent = '▶ Davom etish'; startBtn.style.background = 'rgba(251,191,36,.3)'; }
-  } else {
-    if (_spkTimer.remaining <= 0) return speakingTimerReset();
-    _spkTimer.running = true;
-    if (startBtn) { startBtn.textContent = '⏸ Pauza'; startBtn.style.background = 'rgba(255,255,255,.35)'; }
-    const tick = 100;
-    _spkTimer.interval = setInterval(() => {
-      _spkTimer.remaining -= tick / 1000;
-      speakingUpdateTimerDisplay();
-      if (_spkTimer.remaining <= 0) {
-        clearInterval(_spkTimer.interval);
-        _spkTimer.running = false;
-        _spkTimer.remaining = 0;
-        speakingUpdateTimerDisplay();
-        const startBtn2 = document.getElementById('speakingTimerStartBtn');
-        if (startBtn2) { startBtn2.textContent = '✅ Vaqt tugadi'; startBtn2.style.background = 'rgba(34,197,94,.3)'; }
-        // Flash
-        const card = document.getElementById('speakingTimerCard');
-        if (card) { card.style.background = 'linear-gradient(135deg,#166534,#22c55e)'; setTimeout(()=>{ card.style.background='linear-gradient(135deg,#1e3a8a,#2563eb)'; },2000); }
-      }
-    }, tick);
-  }
-}
-
-function speakingTimerReset() {
-  clearInterval(_spkTimer.interval);
-  _spkTimer.running = false;
-  _spkTimer.remaining = _spkTimer.total;
-  speakingUpdateTimerDisplay();
-  const startBtn = document.getElementById('speakingTimerStartBtn');
-  if (startBtn) { startBtn.textContent = '▶ Boshlash'; startBtn.style.background = 'rgba(255,255,255,.2)'; }
-  const card = document.getElementById('speakingTimerCard');
-  if (card) card.style.background = 'linear-gradient(135deg,#1e3a8a,#2563eb)';
-}
-
-function speakingSetCustomTimer() {
-  const inp = document.getElementById('speakingCustomMinutes');
-  if (!inp) return;
-  const mins = parseFloat(inp.value);
-  if (!mins || mins < 0.17) { inp.style.borderColor='#e74c3c'; setTimeout(()=>inp.style.borderColor='',1500); return; }
-  _spkTimer.total = Math.round(mins * 60);
-  _spkTimer.remaining = _spkTimer.total;
-  speakingUpdateTimerDisplay();
-  const timerCard = document.getElementById('speakingTimerCard');
-  if (timerCard) timerCard.hidden = false;
-  const timerDesc = document.getElementById('speakingTimerDesc');
-  if (timerDesc) timerDesc.textContent = `O'rnatilgan vaqt: ${mins} daqiqa`;
-  const startBtn = document.getElementById('speakingTimerStartBtn');
-  if (startBtn) { startBtn.textContent = '▶ Boshlash'; startBtn.style.background = 'rgba(255,255,255,.2)'; }
 }
 
 // Saqlangan mocklar
