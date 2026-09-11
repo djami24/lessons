@@ -481,7 +481,7 @@
       <li><a href="../kundalik.html">📅 Homework</a></li>
       <li><a href="../natijalar.html" id="navResultsCard">📊 Test natijalar</a></li>
       <li><a href="#" id="navPlacementTest">🧭 Darajani bilish testi</a></li>
-      <li><a href="#" id="navCourses">📚 Kurslarim</a></li>
+
       <li><a href="#" id="navMyEssays">✍️ Insholarim</a></li>
       <li><a href="#" id="navCEFR">🎓 CEFR</a></li>
       <li><a href="#" id="navWordGame">🎮 So‘z o‘yini</a></li>
@@ -753,50 +753,6 @@
 
     </section>
 
-    <section id="view-courses">
-      <a href="#" id="backToHomeFromCourses" class="back-link">← Bosh sahifaga</a>
-      <div class="admin-header">
-        <div>
-          <h1>Kurslarim</h1>
-          <p>O‘qimoqchi bo‘lgan kursni tanlang.</p>
-        </div>
-      </div>
-      <div class="course-grid">
-        <article class="folder course-card" id="cardGeneralEnglish">
-          <div class="folder-tab" style="--tab-color:#2E6F6E"></div>
-          <div class="folder-body">
-            <span class="tag">A1–B1</span>
-            <h3 class="course-title">General English</h3>
-            <p class="course-sub" id="generalEnglishSub">Beginner → Elementary → Pre-Intermediate → Intermediate</p>
-          </div>
-        </article>
-        <article class="folder course-card" id="cardCefr">
-          <div class="folder-tab" style="--tab-color:#D98E3F"></div>
-          <div class="folder-body">
-            <span class="tag">Listening · Reading · Speaking</span>
-            <h3 class="course-title">CEFR</h3>
-            <p class="course-sub" id="cefrSub">Rasmiy CEFR darajalariga tayyorgarlik · 60 000 so‘m</p>
-          </div>
-        </article>
-        <article class="folder course-card" id="cardIelts">
-          <div class="folder-tab" style="--tab-color:#253559"></div>
-          <div class="folder-body">
-            <span class="tag">Listening · Reading · Speaking</span>
-            <h3 class="course-title">IELTS</h3>
-            <p class="course-sub" id="ieltsSub">IELTS imtihoniga tayyorgarlik · 60 000 so‘m</p>
-          </div>
-        </article>
-        <article class="folder course-card" id="cardWriting">
-          <div class="folder-tab" style="--tab-color:#A63A50"></div>
-          <div class="folder-body">
-            <span class="tag">CEFR · IELTS</span>
-            <h3 class="course-title">Writing</h3>
-            <p class="course-sub" id="writingSub">Insho yozing, admin baholaydi · 50 000 so‘m</p>
-          </div>
-        </article>
-      </div>
-    </section>
-
     <!-- ===== PAYMENT GATE (General English, not approved yet) ===== -->
     <!-- ===== SO'Z O'YINI (vocabulary game) ===== -->
     <section id="view-word-game" hidden>
@@ -838,210 +794,20 @@
       <div class="quiz-result-box" id="wgResultBox" hidden></div>
     </section>
 
-    <section id="view-payment" hidden>
-      <a href="#" id="backToCoursesFromPayment" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1>General English kursi</h1>
-          <p>Kursni ochish uchun to‘lovni amalga oshiring.</p>
-        </div>
-      </div>
-      <div class="payment-box">
-        <p class="eyebrow">To‘lov</p>
-        <div class="payment-price">50 000 so‘m</div>
-        <p>Kurs to‘liq ochilgach, Beginner darajasidan boshlab barcha darslar, uy vazifalari va testlarga ega bo‘lasiz.</p>
-        <ol class="payment-steps">
-          <li>50 000 so‘mni quyidagi kartaga o‘tkazing.</li>
-          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
-          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
-          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
-        </ol>
-        <div class="payment-card-box">
-          <p class="payment-card-label">To‘lov uchun karta</p>
-          <div class="payment-card-number-row">
-            <span class="payment-card-number" data-site-card-number>5614 6818 5667 8473</span>
-            <button type="button" class="btn btn-ghost btn-sm copy-card-btn">Nusxalash</button>
-          </div>
-          <p class="payment-card-holder" data-site-card-holder>Abduraxmon</p>
-        </div>
-        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
-
-        <div id="paymentActionArea" style="margin-top:1.6em;"></div>
-      </div>
-    </section>
-
-    <!-- ===== LEVELS (General English, approved) ===== -->
-    <section id="view-levels" hidden>
-      <a href="#" id="backToCoursesFromLevels" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1>General English</h1>
-          <p>Darajalar ketma-ket ochiladi — oldingi darajadagi barcha darslarni yakunlasangiz, keyingisi ochiladi.</p>
-        </div>
-      </div>
-      <div class="level-grid" id="levelsGrid"></div>
-    </section>
-
-    <!-- ===== LESSON LIST (inside a level) ===== -->
-    <section id="view-lessons" hidden>
-      <a href="#" id="backToLevels" class="back-link">← Darajalarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1 id="lessonsLevelName">Daraja nomi</h1>
-          <p id="lessonsLevelSub"></p>
-        </div>
-      </div>
-      <div class="lesson-list" id="lessonList"></div>
-    </section>
-
-    <!-- ===== LESSON DETAIL ===== -->
-    <section id="view-lesson-detail" hidden>
-      <a href="#" id="backToLessons" class="back-link">← Darslar ro‘yxatiga qaytish</a>
-      <div class="lesson-detail-box" id="lessonDetailBox"></div>
-    </section>
-
-    <!-- ===== PAYMENT GATE (IELTS / CEFR) ===== -->
-    <section id="view-course-payment" hidden>
-      <a href="#" id="backToCoursesFromCoursePayment" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1 id="coursePaymentTitle">IELTS kursi</h1>
-          <p>Kursni ochish uchun to‘lovni amalga oshiring.</p>
-        </div>
-      </div>
-      <div class="payment-box">
-        <p class="eyebrow">To‘lov</p>
-        <div class="payment-price" id="coursePaymentPrice">60 000 so‘m</div>
-        <p>Kurs to‘liq ochilgach, Listening, Reading va Speaking bo‘limlaridagi barcha mavzularga ega bo‘lasiz.</p>
-        <ol class="payment-steps">
-          <li id="coursePaymentStep1">60 000 so‘mni quyidagi kartaga o‘tkazing.</li>
-          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
-          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
-          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
-        </ol>
-        <div class="payment-card-box">
-          <p class="payment-card-label">To‘lov uchun karta</p>
-          <div class="payment-card-number-row">
-            <span class="payment-card-number" data-site-card-number>5614 6818 5667 8473</span>
-            <button type="button" class="btn btn-ghost btn-sm copy-card-btn">Nusxalash</button>
-          </div>
-          <p class="payment-card-holder" data-site-card-holder>Abduraxmon</p>
-        </div>
-        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
-        <div id="coursePaymentActionArea" style="margin-top:1.6em;"></div>
-      </div>
-    </section>
-
-    <!-- ===== COURSE SECTIONS (Listening / Reading / Speaking) ===== -->
-    <section id="view-course-sections" hidden>
-      <a href="#" id="backToCoursesFromSections" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1 id="courseSectionsTitle">IELTS</h1>
-          <p>Bo‘limni tanlang.</p>
-        </div>
-      </div>
-      <div class="level-grid" id="courseSectionsGrid"></div>
-    </section>
-
-    <!-- ===== COURSE TOPICS (inside a section) ===== -->
-    <section id="view-course-topics" hidden>
-      <a href="#" id="backToCourseSections" class="back-link">← Bo‘limlarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1 id="courseTopicsSectionName">Listening</h1>
-          <p id="courseTopicsSub"></p>
-        </div>
-      </div>
-      <div class="lesson-list" id="courseTopicsList"></div>
-    </section>
-
-    <!-- ===== COURSE TOPIC DETAIL ===== -->
-    <section id="view-topic-detail" hidden>
-      <a href="#" id="backToCourseTopics" class="back-link">← Mavzular ro‘yxatiga qaytish</a>
-      <div class="lesson-detail-box" id="topicDetailBox"></div>
-    </section>
-
-    <!-- ===== QUIZ ===== -->
-    <section id="view-quiz" hidden>
-      <a href="#" id="backToLessonFromQuiz" class="back-link">← Darsga qaytish</a>
-      <div class="quiz-box">
-        <h1 id="quizTitle" style="margin-bottom:.3em;">Test</h1>
-        <p class="quiz-progress" id="quizProgress"></p>
-        <div id="quizQuestions"></div>
-        <button type="button" class="btn btn-amber" id="submitQuizBtn">Yakunlash</button>
-      </div>
-    </section>
-
-    <!-- ===== QUIZ RESULT ===== -->
-    <section id="view-quiz-result" hidden>
-      <div class="quiz-result-box" id="quizResultBox"></div>
-    </section>
-
-    <!-- ===== PAYMENT GATE (Writing) ===== -->
-    <section id="view-writing-payment" hidden>
-      <a href="#" id="backToCoursesFromWritingPayment" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1>Writing kursi</h1>
-          <p>Insho yozib yuborish uchun to‘lovni amalga oshiring.</p>
-        </div>
-      </div>
-      <div class="payment-box">
-        <p class="eyebrow">To‘lov</p>
-        <div class="payment-price" id="writingPaymentPrice">50 000 so‘m</div>
-        <p>To‘lov tasdiqlangach, CEFR va IELTS insho savollariga ega bo‘lasiz — istalgan savolni tanlab insho yozib, adminga yuborasiz. Admin ball qo‘yib, izoh yozib qaytaradi.</p>
-        <ol class="payment-steps">
-          <li id="writingPaymentStep1">50 000 so‘mni quyidagi kartaga o‘tkazing.</li>
-          <li>To‘lov skrinshotini quyidagi Telegram orqali adminga yuboring.</li>
-          <li>Pastdagi “To‘lov qildim” tugmasini bosing.</li>
-          <li>Admin skrinshotni tekshirib, kursni ochib beradi.</li>
-        </ol>
-        <div class="payment-card-box">
-          <p class="payment-card-label">To‘lov uchun karta</p>
-          <div class="payment-card-number-row">
-            <span class="payment-card-number" data-site-card-number>5614 6818 5667 8473</span>
-            <button type="button" class="btn btn-ghost btn-sm copy-card-btn">Nusxalash</button>
-          </div>
-          <p class="payment-card-holder" data-site-card-holder>Abduraxmon</p>
-        </div>
-        <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="payment-tg-link">✈️ t.me/djamiteacher</a>
-        <div id="writingPaymentActionArea" style="margin-top:1.6em;"></div>
-      </div>
-    </section>
-
-    <!-- ===== WRITING: tracks (CEFR / IELTS) ===== -->
-    <section id="view-writing-tracks" hidden>
-      <a href="#" id="backToCoursesFromWritingTracks" class="back-link">← Kurslarga qaytish</a>
-      <div class="admin-header">
-        <div>
-          <h1>Writing</h1>
-          <p>Bo‘limni tanlang.</p>
-        </div>
-      </div>
-      <div class="level-grid" id="writingTracksGrid"></div>
-    </section>
-
-    <!-- ===== WRITING: folders / questions inside a track ===== -->
-    <section id="view-writing-folders" hidden>
-      <a href="#" id="backToWritingTracks" class="back-link">← Writing bo‘limlariga qaytish</a>
-      <div class="breadcrumb-trail" id="writingBreadcrumb"></div>
-      <div class="admin-header">
-        <div>
-          <h1 id="writingTrackName">CEFR</h1>
-          <p id="writingFoldersSub"></p>
-        </div>
-      </div>
-      <div class="lesson-list" id="writingFoldersList"></div>
-    </section>
-
-    <!-- ===== WRITING: question detail + essay form ===== -->
-    <section id="view-writing-question" hidden>
-      <a href="#" id="backToWritingFolders" class="back-link">← Ro‘yxatga qaytish</a>
-      <div class="lesson-detail-box" id="writingQuestionBox"></div>
-    </section>
-
-    <!-- ===== MY ESSAYS ===== -->
+        <!-- ===== LEVELS (General English, approved) ===== -->
+        <!-- ===== LESSON LIST (inside a level) ===== -->
+        <!-- ===== LESSON DETAIL ===== -->
+        <!-- ===== PAYMENT GATE (IELTS / CEFR) ===== -->
+        <!-- ===== COURSE SECTIONS (Listening / Reading / Speaking) ===== -->
+        <!-- ===== COURSE TOPICS (inside a section) ===== -->
+        <!-- ===== COURSE TOPIC DETAIL ===== -->
+        <!-- ===== QUIZ ===== -->
+        <!-- ===== QUIZ RESULT ===== -->
+        <!-- ===== PAYMENT GATE (Writing) ===== -->
+        <!-- ===== WRITING: tracks (CEFR / IELTS) ===== -->
+        <!-- ===== WRITING: folders / questions inside a track ===== -->
+        <!-- ===== WRITING: question detail + essay form ===== -->
+        <!-- ===== MY ESSAYS ===== -->
     <section id="view-my-essays" hidden>
       <a href="#" id="backToHomeFromEssays" class="back-link">← Bosh sahifaga</a>
       <div class="admin-header">
@@ -1706,7 +1472,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
+const VIEWS = ['home', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
@@ -1714,27 +1480,9 @@ function switchView(view){
 }
 
 // Logotip orqali sahifa yangilangandan (reload) so'ng, foydalanuvchi qaysi
-// bo'limda turgan bo'lsa, o'sha bo'limga (yoki eng yaqin asosiy bo'limga)
-// qaytarib qo'yadi. Chuqur ichki sahifalar (aniq dars/mavzu/viktorina)
-// uchun eng yaqin menyu bandi — "Kurslarim" ga qaytariladi.
 const STUDENT_VIEW_NAV_MAP = {
   'profile': 'navProfile',
   'placement-test': 'navPlacementTest',
-  'courses': 'navCourses',
-  'levels': 'navCourses',
-  'lessons': 'navCourses',
-  'lesson-detail': 'navCourses',
-  'quiz': 'navCourses',
-  'quiz-result': 'navCourses',
-  'payment': 'navCourses',
-  'course-payment': 'navCourses',
-  'course-sections': 'navCourses',
-  'course-topics': 'navCourses',
-  'topic-detail': 'navCourses',
-  'writing-payment': 'navCourses',
-  'writing-tracks': 'navCourses',
-  'writing-folders': 'navCourses',
-  'writing-question': 'navCourses',
   'my-essays': 'navMyEssays',
   'word-game': 'navWordGame',
   'reading-mocks': 'navCEFR',
@@ -1773,7 +1521,6 @@ function renderHomeView(){
   }
   switchView('home');
   document.getElementById('navHome').classList.add('active');
-  document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.remove('active');
   document.getElementById('navProfile').classList.remove('active');
@@ -2437,74 +2184,12 @@ function setupHwStatusButtons(hwId){
   });
 }
 
-document.getElementById('backToHomeFromCourses').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromEssays').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromPlacement').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromProfile').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('logoHomeBtn').addEventListener('click', (e) => { e.preventDefault(); location.reload(); });
 
-// ---------- Courses overview ----------
 
-function renderCoursesOverview(){
-  const sub = document.getElementById('generalEnglishSub');
-  if(state.student.paymentStatus === 'approved'){
-    const totalLessons = LEVELS.reduce((s, l) => s + flattenLeaves(getLevel(l.id).lessons).length, 0);
-    const doneLessons = LEVELS.reduce((s, l) => s + flattenLeaves(getLevel(l.id).lessons).filter(les => getLessonProgress(l.id, les.id).passed).length, 0);
-    sub.textContent = `${doneLessons}/${totalLessons} dars yakunlangan`;
-  } else if(state.student.paymentStatus === 'pending'){
-    sub.textContent = 'To‘lov tekshirilmoqda…';
-  } else {
-    sub.textContent = 'Beginner → Elementary → Pre-Intermediate → Intermediate · 50 000 so‘m';
-  }
-
-  ['ielts', 'cefr'].forEach(courseId => {
-    const el = document.getElementById(courseId + 'Sub');
-    const course = getCourse(courseId);
-    const status = state.student.coursePayments[courseId] || 'none';
-    if(status === 'approved'){
-      const totalTopics = SECTIONS.reduce((s, sec) => s + flattenLeaves(course.sections[sec.id].topics).length, 0);
-      el.textContent = `${totalTopics} ta mavzu · Listening · Reading · Speaking`;
-    } else if(status === 'pending'){
-      el.textContent = 'To‘lov tekshirilmoqda…';
-    } else {
-      el.textContent = `${COURSES[courseId].name === 'IELTS' ? 'IELTS imtihoniga tayyorgarlik' : 'Rasmiy CEFR darajalariga tayyorgarlik'} · ${course.price.toLocaleString('uz-UZ')} so‘m`;
-    }
-  });
-
-  {
-    const el = document.getElementById('writingSub');
-    const writingStatus = state.student.coursePayments.writing || 'none';
-    if(writingStatus === 'approved'){
-      const totalQuestions = WRITING_TRACKS.reduce((s, t) => s + countQuestionsDeep(getWritingCourse().tracks[t.id].folders), 0);
-      el.textContent = `${totalQuestions} ta savol · CEFR · IELTS`;
-    } else if(writingStatus === 'pending'){
-      el.textContent = 'To‘lov tekshirilmoqda…';
-    } else {
-      el.textContent = `Insho yozing, admin baholaydi · ${getWritingCourse().price.toLocaleString('uz-UZ')} so‘m`;
-    }
-  }
-
-  switchView('courses');
-  document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navCourses').classList.add('active');
-  document.getElementById('navMyEssays').classList.remove('active');
-  document.getElementById('navPlacementTest').classList.remove('active');
-  document.getElementById('navProfile').classList.remove('active');
-}
-
-document.getElementById('cardGeneralEnglish').addEventListener('click', () => {
-  if(state.student.paymentStatus === 'approved'){
-    openLevelsView();
-  } else {
-    openPaymentView();
-  }
-});
-
-document.getElementById('cardIelts').addEventListener('click', () => openCourseEntry('ielts'));
-document.getElementById('cardCefr').addEventListener('click', () => openCourseEntry('cefr'));
-document.getElementById('cardWriting').addEventListener('click', () => openWritingEntry());
-document.getElementById('navHome').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
-document.getElementById('navCourses').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 document.getElementById('navMyEssays').addEventListener('click', async (e) => {
   e.preventDefault();
   await loadMySubmissions();
@@ -2518,15 +2203,6 @@ document.getElementById('navProfile').addEventListener('click', (e) => {
   e.preventDefault();
   renderProfile();
 });
-
-function openCourseEntry(courseId){
-  const status = state.student.coursePayments[courseId] || 'none';
-  if(status === 'approved'){
-    openCourseSectionsView(courseId);
-  } else {
-    openCoursePaymentView(courseId);
-  }
-}
 
 // ---------- Payment gate ----------
 
@@ -2548,8 +2224,6 @@ function openPaymentView(){
   switchView('payment');
 }
 
-document.getElementById('backToCoursesFromPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
-document.getElementById('backToCoursesFromLevels').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 
 // ---------- Payment gate: IELTS / CEFR ----------
 
@@ -2580,8 +2254,6 @@ function openCoursePaymentView(courseId){
   switchView('course-payment');
 }
 
-document.getElementById('backToCoursesFromCoursePayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
-document.getElementById('backToCoursesFromSections').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 
 // ---------- Writing: payment gate, tracks, folders, question, submissions ----------
 
@@ -2618,8 +2290,6 @@ function openWritingPaymentView(){
   switchView('writing-payment');
 }
 
-document.getElementById('backToCoursesFromWritingPayment').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
-document.getElementById('backToCoursesFromWritingTracks').addEventListener('click', (e) => { e.preventDefault(); renderCoursesOverview(); });
 
 function openWritingTracksView(){
   const course = getWritingCourse();
@@ -2978,7 +2648,6 @@ function openWritingQuestionDetail(questionId){
 
 function renderMyEssays(){
   document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.add('active');
   document.getElementById('navPlacementTest').classList.remove('active');
   document.getElementById('navProfile').classList.remove('active');
@@ -3440,7 +3109,6 @@ function renderQuizResult(scorePct, passed){
 
 async function openPlacementTestView(){
   document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.add('active');
   document.getElementById('navProfile').classList.remove('active');
@@ -3569,13 +3237,13 @@ function renderPlacementResult(result){
     ${result.levelComment ? `<div class="placement-level-comment">${escapeHtml(result.levelComment)}</div>` : ''}
     <div class="quiz-result-actions">
       <button type="button" class="btn btn-amber" id="retryPlacementTestBtn">Qayta topshirish</button>
-      <button type="button" class="btn btn-ghost" id="backToCoursesFromPlacementBtn">Kurslarga qaytish</button>
+      <button type="button" class="btn btn-ghost" id="backToCoursesFromPlacementBtn">← Orqaga</button>
     </div>
   `;
   document.getElementById('retryPlacementTestBtn').addEventListener('click', () => {
     document.getElementById('startPlacementTestBtn').click();
   });
-  document.getElementById('backToCoursesFromPlacementBtn').addEventListener('click', () => renderCoursesOverview());
+  document.getElementById('backToCoursesFromPlacementBtn').addEventListener('click', () => renderHomeView());
   document.getElementById('placementQuizBox').hidden = true;
   document.getElementById('placementResultBox').hidden = false;
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
@@ -3619,7 +3287,6 @@ const AVATAR_EMOJIS = [
 
 function renderProfile(){
   document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.remove('active');
   document.getElementById('navProfile').classList.add('active');
@@ -4734,7 +4401,6 @@ wgApplyVisibilitySetting();
 document.getElementById('navCEFR').addEventListener('click', function(e) {
   e.preventDefault();
   document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.remove('active');
   document.getElementById('navProfile').classList.remove('active');
