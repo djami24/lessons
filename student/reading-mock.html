@@ -455,37 +455,7 @@ body.rm-body {
 #rmSelPopup button:hover { background: rgba(255,255,255,.15); }
 #rmSelPopup button span.ico { font-size: 1.1rem; }
 #rmSelPopup .sep { width: 1px; height: 32px; background: rgba(255,255,255,.2); margin: 0 2px; }
-#rmNoteModal {
-  display: none;
-  position: fixed; inset: 0; z-index: 10000;
-  background: rgba(0,0,0,.4);
-  align-items: center; justify-content: center;
-}
-#rmNoteModal.open { display: flex; }
-#rmNoteModalBox {
-  background: #fff;
-  border-radius: 14px;
-  padding: 24px;
-  width: 360px;
-  max-width: 95vw;
-  box-shadow: 0 8px 32px rgba(0,0,0,.18);
-}
-#rmNoteModalBox h3 { margin: 0 0 12px; font-size: 1rem; color: #0f172a; }
-#rmNoteModalBox textarea {
-  width: 100%; box-sizing: border-box;
-  border: 1.5px solid #e2e8f0; border-radius: 8px;
-  padding: 10px; font-size: .9rem; resize: vertical;
-  min-height: 90px; outline: none; font-family: inherit;
-}
-#rmNoteModalBox textarea:focus { border-color: #2563eb; }
-.rm-note-actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
-.rm-note-actions button {
-  padding: 8px 18px; border-radius: 8px; border: none;
-  font-size: .9rem; font-weight: 600; cursor: pointer;
-}
-.rm-note-cancel { background: #f1f5f9; color: #64748b; }
-.rm-note-save   { background: #2563eb; color: #fff; }
-.rm-note-delete { background: #fee2e2; color: #dc2626; margin-right: auto; }
+/* Note modal o'chirildi — Notes panel ishlatiladi */
 #rmHighlightPanel {
   position: fixed; right: 0; top: 50%; transform: translateY(-50%);
   z-index: 999;
@@ -501,6 +471,102 @@ body.rm-body {
   font-size: .8rem; font-weight: 700; transition: border .15s;
 }
 #rmHighlightPanel button:hover, #rmHighlightPanel button.active { border-color: #2563eb; }
+
+/* ---- Notes Side Panel ---- */
+#rmNotesPanel {
+  position: fixed;
+  right: 0; top: 0; bottom: 0;
+  width: 370px;
+  max-width: 100vw;
+  background: #f8faff;
+  border-left: 2px solid #e7ebf4;
+  box-shadow: -6px 0 28px rgba(0,0,0,.14);
+  z-index: 700;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+}
+#rmNotesPanel.open { transform: translateX(0); }
+.rm-notes-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 15px 18px;
+  background: #fff;
+  border-bottom: 1.5px solid #e7ebf4;
+  font-weight: 700; font-size: .95rem; color: #101b3d;
+  flex-shrink: 0;
+  gap: 10px;
+}
+.rm-notes-panel-title { display: flex; align-items: center; gap: 8px; }
+.rm-notes-close-btn {
+  background: none; border: none; cursor: pointer; font-size: 1.15rem;
+  color: #8892a6; width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; transition: background .15s;
+}
+.rm-notes-close-btn:hover { background: #f1f5f9; color: #101b3d; }
+#rmNotesList {
+  flex: 1; overflow-y: auto; padding: 14px;
+  display: flex; flex-direction: column; gap: 12px;
+}
+.rm-notes-empty {
+  text-align: center; color: #b0b8c9; font-size: .88rem;
+  padding: 48px 20px; line-height: 1.6;
+}
+.rm-notes-empty .rm-notes-empty-icon { font-size: 2rem; margin-bottom: 10px; }
+.rm-note-card {
+  background: #fff;
+  border: 1.5px solid #e7ebf4;
+  border-radius: 12px;
+  padding: 14px 14px 10px;
+  transition: border-color .2s, box-shadow .2s;
+}
+.rm-note-card.active {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 3px rgba(231,76,60,.12);
+}
+.rm-note-quote {
+  font-style: italic; font-size: .83rem; color: #64748b;
+  border-left: 3px solid #e74c3c;
+  padding-left: 10px; margin-bottom: 10px; line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.rm-note-textarea {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  padding: 8px 10px; font-size: .85rem; resize: vertical;
+  min-height: 70px; outline: none; font-family: inherit;
+  background: #f8faff; color: #101b3d; transition: border-color .2s, background .2s;
+}
+.rm-note-textarea:focus { border-color: #2563eb; background: #fff; }
+.rm-note-textarea::placeholder { color: #b0b8c9; }
+.rm-note-card-footer { display: flex; justify-content: flex-end; margin-top: 8px; }
+.rm-note-del-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: none; border: none; cursor: pointer;
+  color: #e74c3c; font-size: .78rem; font-weight: 600;
+  padding: 4px 10px; border-radius: 6px; transition: background .15s;
+}
+.rm-note-del-btn:hover { background: #fee2e2; }
+
+/* Notes toggle button in header */
+.rm-notes-toggle {
+  position: relative;
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.2);
+  color: #fff; border-radius: 10px;
+  padding: 7px 14px; font-size: .85rem; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 6px;
+  transition: background .15s;
+}
+.rm-notes-toggle:hover { background: rgba(255,255,255,.22); }
+.rm-notes-toggle.has-notes { border-color: rgba(231,76,60,.6); }
+.rm-notes-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #e74c3c; display: none;
+  border: 2px solid var(--adm-navy, #0E1836);
+  position: absolute; top: -3px; right: -3px;
+}
+.rm-notes-dot.visible { display: block; }
 </style>
 </head>
 
@@ -529,6 +595,11 @@ body.rm-body {
   </div>
   <div class="rm-header-right">
     <span class="rm-preview-badge" id="rmPreviewBadge" style="display:none;">PREVIEW</span>
+    <button class="rm-notes-toggle" id="rmNotesToggle" title="Izohlarim">
+      <span>🖊</span>
+      <span>Notes (<span id="rmNotesHeaderCount">0</span>)</span>
+      <span class="rm-notes-dot" id="rmNotesDot"></span>
+    </button>
     <button class="rm-submit-btn" id="rmSubmitBtn">Testni yakunlash</button>
   </div>
 </header>
@@ -1069,15 +1140,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   <button id="rmPopRemove" style="display:none"><span class="ico">✕</span>O'chirish</button>
 </div>
 
-<!-- Note Modal -->
-<div id="rmNoteModal">
-  <div id="rmNoteModalBox">
-    <h3>📝 Izoh qo'shish</h3>
-    <textarea id="rmNoteText" placeholder="Izohingizni yozing..."></textarea>
-    <div class="rm-note-actions">
-      <button class="rm-note-delete" id="rmNoteDelete" style="display:none">O'chirish</button>
-      <button class="rm-note-cancel" id="rmNoteCancel">Bekor qilish</button>
-      <button class="rm-note-save"   id="rmNoteSave">Saqlash</button>
+<!-- Notes Side Panel -->
+<div id="rmNotesPanel">
+  <div class="rm-notes-panel-header">
+    <div class="rm-notes-panel-title">
+      <span>📝</span>
+      <span>Notes (<span id="rmNotesCount">0</span>)</span>
+    </div>
+    <button class="rm-notes-close-btn" id="rmNotesClose" title="Yopish">✕</button>
+  </div>
+  <div id="rmNotesList">
+    <div class="rm-notes-empty">
+      <div class="rm-notes-empty-icon">🖊</div>
+      Hali izohlar yo'q.<br>Matnni belgilab, "Note" tugmasini bosing.
     </div>
   </div>
 </div>
@@ -1090,6 +1165,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   var _editingId = null;
   var _hlColor = '#ffe066';
   var popup = document.getElementById('rmSelPopup');
+  var notesPanel = document.getElementById('rmNotesPanel');
+  var notesList = document.getElementById('rmNotesList');
+
+  // Notes panel toggle (header button)
+  document.getElementById('rmNotesToggle').addEventListener('click', function() {
+    notesPanel.classList.toggle('open');
+  });
+  document.getElementById('rmNotesClose').addEventListener('click', function() {
+    notesPanel.classList.remove('open');
+  });
 
   // Rang tanlash paneli
   var panel = document.createElement('div');
@@ -1132,7 +1217,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       var sel = window.getSelection();
       if (!sel || sel.isCollapsed || !sel.toString().trim()) { hidePopup(); return; }
       var range = sel.getRangeAt(0);
-      // Faqat passage matn ichida
       var body = range.commonAncestorContainer;
       var inPassage = false;
       var node = body.nodeType === 3 ? body.parentNode : body;
@@ -1162,12 +1246,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('rmPopRemove').style.display = '';
     var rect = hl.getBoundingClientRect();
     showPopup(rect.left + rect.width / 2 - 90, rect.top + window.scrollY);
+    // Agar note paneli ochiq bo'lsa, kartani ajratib ko'rsat
+    if (notesPanel.classList.contains('open')) flashNoteCard(_editingId);
   });
 
-  // Highlight bosish
+  // Highlight tugmasi
   document.getElementById('rmPopHighlight').addEventListener('click', function() {
     if (_editingId) {
-      // Rangni yangilash
       var el = document.querySelector('[data-hlid="' + _editingId + '"]');
       if (el) { el.style.background = _hlColor; highlights[_editingId].color = _hlColor; }
       hidePopup(); return;
@@ -1178,60 +1263,106 @@ document.addEventListener('DOMContentLoaded', async () => {
     hidePopup();
   });
 
-  // Note bosish
+  // Note tugmasi — panel ochiladi
   document.getElementById('rmPopNote').addEventListener('click', function() {
-    openNoteModal(_editingId, _pendingRange);
+    if (_editingId) {
+      // Mavjud highlight — panelni och, kartaga scroll qil
+      openPanelAndFocus(_editingId);
+    } else if (_pendingRange) {
+      // Yangi — avval highlight qo'y, keyin panel
+      var newId = applyHighlight(_pendingRange, _hlColor, '');
+      window.getSelection().removeAllRanges();
+      openPanelAndFocus(newId);
+    }
     hidePopup();
   });
 
-  // O'chirish
+  // O'chirish tugmasi
   document.getElementById('rmPopRemove').addEventListener('click', function() {
     if (_editingId) removeHighlight(_editingId);
     hidePopup();
   });
 
-  // Note modal
-  function openNoteModal(hlId, range) {
-    var modal = document.getElementById('rmNoteModal');
-    var textarea = document.getElementById('rmNoteText');
-    var delBtn = document.getElementById('rmNoteDelete');
-    textarea.value = hlId && highlights[hlId] ? (highlights[hlId].note || '') : '';
-    delBtn.style.display = hlId ? '' : 'none';
-    modal.classList.add('open');
-    textarea.focus();
-
-    document.getElementById('rmNoteSave').onclick = function() {
-      var note = textarea.value.trim();
-      if (hlId) {
-        var el = document.querySelector('[data-hlid="' + hlId + '"]');
-        if (el) {
-          highlights[hlId].note = note;
-          if (note) { el.classList.add('has-note'); el.title = note; }
-          else { el.classList.remove('has-note'); el.removeAttribute('title'); }
-        }
-      } else if (range) {
-        applyHighlight(range, _hlColor, note);
-        window.getSelection().removeAllRanges();
+  // Panel ochib, karta ga focus
+  function openPanelAndFocus(hlId) {
+    notesPanel.classList.add('open');
+    setTimeout(function() {
+      var card = document.getElementById('rm-nc-' + hlId);
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        flashNoteCard(hlId);
+        var ta = card.querySelector('.rm-note-textarea');
+        if (ta) ta.focus();
       }
-      modal.classList.remove('open');
-    };
+    }, 120);
+  }
 
-    document.getElementById('rmNoteCancel').onclick = function() {
-      modal.classList.remove('open');
-    };
+  function flashNoteCard(hlId) {
+    var card = document.getElementById('rm-nc-' + hlId);
+    if (!card) return;
+    card.classList.add('active');
+    setTimeout(function() { card.classList.remove('active'); }, 1600);
+  }
 
-    document.getElementById('rmNoteDelete').onclick = function() {
-      if (hlId) removeHighlight(hlId);
-      modal.classList.remove('open');
-    };
+  // HTML escape
+  function escH(s) {
+    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
 
-    modal.onclick = function(e) {
-      if (e.target === modal) modal.classList.remove('open');
-    };
+  // Panel renderini yangilash
+  function updateNotesPanel() {
+    var ids = Object.keys(highlights);
+    var count = ids.length;
+
+    // Header badge yangilash
+    document.getElementById('rmNotesCount').textContent = count;
+    document.getElementById('rmNotesHeaderCount').textContent = count;
+    var dot = document.getElementById('rmNotesDot');
+    if (count > 0) dot.classList.add('visible');
+    else dot.classList.remove('visible');
+
+    if (!count) {
+      notesList.innerHTML = '<div class="rm-notes-empty"><div class="rm-notes-empty-icon">🖊</div>Hali izohlar yo\'q.<br>Matnni belgilab, "Note" tugmasini bosing.</div>';
+      return;
+    }
+
+    notesList.innerHTML = ids.map(function(id) {
+      var h = highlights[id];
+      var quotedText = h.text ? '"' + escH(h.text.slice(0,120)) + (h.text.length > 120 ? '…' : '') + '"' : '';
+      return '<div class="rm-note-card" id="rm-nc-' + id + '">' +
+        (quotedText ? '<div class="rm-note-quote">' + quotedText + '</div>' : '') +
+        '<textarea class="rm-note-textarea" placeholder="Izohingizni shu yerga yozing..." data-hlid="' + id + '">' + escH(h.note || '') + '</textarea>' +
+        '<div class="rm-note-card-footer">' +
+        '<button class="rm-note-del-btn" data-hlid="' + id + '">🗑 Delete</button>' +
+        '</div></div>';
+    }).join('');
+
+    // Textarea — live saqlash
+    notesList.querySelectorAll('.rm-note-textarea').forEach(function(ta) {
+      ta.addEventListener('input', function() {
+        var id = ta.dataset.hlid;
+        if (!highlights[id]) return;
+        var note = ta.value.trim();
+        highlights[id].note = note;
+        var spanEl = document.querySelector('[data-hlid="' + id + '"]');
+        if (spanEl) {
+          if (note) { spanEl.classList.add('has-note'); spanEl.title = note; }
+          else      { spanEl.classList.remove('has-note'); spanEl.removeAttribute('title'); }
+        }
+      });
+    });
+
+    // Delete tugmalari
+    notesList.querySelectorAll('.rm-note-del-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        removeHighlight(btn.dataset.hlid);
+      });
+    });
   }
 
   function applyHighlight(range, color, note) {
     var id = 'hl_' + Date.now();
+    var selectedText = range.toString().trim();
     var span = document.createElement('span');
     span.className = 'rm-highlight' + (note ? ' has-note' : '');
     span.dataset.hlid = id;
@@ -1239,14 +1370,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (note) span.title = note;
     try {
       range.surroundContents(span);
-      highlights[id] = { color: color, note: note };
     } catch(e) {
-      // Ko'p elementlar bo'lsa
       var frag = range.extractContents();
       span.appendChild(frag);
       range.insertNode(span);
-      highlights[id] = { color: color, note: note };
     }
+    highlights[id] = { color: color, note: note || '', text: selectedText };
+    updateNotesPanel();
+    return id;
   }
 
   function removeHighlight(hlId) {
@@ -1257,7 +1388,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     parent.removeChild(el);
     parent.normalize();
     delete highlights[hlId];
+    updateNotesPanel();
   }
+
+  // Boshlang'ich render
+  updateNotesPanel();
 })();
 </script>
 </body>
