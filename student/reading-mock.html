@@ -1019,13 +1019,13 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
   padding: 14px;
   border: none;
   border-radius: 14px;
-  background: #E74C3C;
+  background: var(--adm-blue, #2F6FED);
   font-size: 1rem; font-weight: 700;
   color: #fff;
   cursor: pointer;
   transition: background .15s;
 }
-.rm-exit-leave:hover { background: #c0392b; }
+.rm-exit-leave:hover { background: #1a5fd4; }
 
 </style>
 
@@ -1034,11 +1034,11 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 <!-- Exit Confirm Modal -->
 <div class="rm-exit-overlay" id="rmExitOverlay">
   <div class="rm-exit-card">
-    <h2 class="rm-exit-title">Exit Test</h2>
-    <p class="rm-exit-desc">Are you sure you want to exit? Your progress may be lost.</p>
+    <h2 class="rm-exit-title">Testdan chiqish</h2>
+    <p class="rm-exit-desc">Haqiqatan ham chiqmoqchimisiz? Jarayoningiz saqlanmasligi mumkin.</p>
     <div class="rm-exit-actions">
-      <button class="rm-exit-stay" id="rmExitStay">Stay</button>
-      <button class="rm-exit-leave" id="rmExitLeave">Yes, Leave</button>
+      <button class="rm-exit-stay" id="rmExitStay">Qolish</button>
+      <button class="rm-exit-leave" id="rmExitLeave">Ha, chiqish</button>
     </div>
   </div>
 </div>
@@ -1052,7 +1052,7 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 <!-- Header -->
 <header class="rm-header" id="rmHeader" style="display:none;">
   <div class="rm-header-left">
-    <button class="rm-exit-btn" id="rmExitBtn" title="Chiqish">&#8592;</button>
+    <button class="rm-exit-btn" id="rmExitBtn" title="Chiqish" style="width:auto;padding:0 14px;font-size:.85rem;font-weight:700;letter-spacing:0;">Chiqish</button>
     <span class="rm-header-logo">Djami Lessons</span>
     <span class="rm-header-title" id="rmHeaderTitle">CEFR Reading Mock Test</span>
   </div>
@@ -1154,7 +1154,7 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 
     <div class="rm-result-actions">
       <button class="btn btn-ghost" onclick="location.href='dashboard.html'">Kabinetga qaytish</button>
-      <button class="btn btn-amber" onclick="location.reload()">Qaytadan urinish</button>
+      <button class="btn btn-primary" onclick="location.reload()" style="background:var(--adm-blue,#2F6FED);color:#fff;border:none;">Qaytadan urinish</button>
     </div>
 
   </div>
@@ -1754,7 +1754,8 @@ function initExitModal() {
   });
 
   leaveBtn.addEventListener('click', () => {
-    location.href = 'dashboard.html';
+    overlay.classList.remove('open');
+    submitTest(false);
   });
 
   // Overlay tashqarisini bosib yopish
