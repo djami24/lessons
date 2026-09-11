@@ -124,6 +124,11 @@ service cloud.firestore {
       );
 
       allow delete: if isAdmin();
+
+      // ✅ Saqlangan mocklar
+      match /savedMocks/{mockId} {
+        allow read, write: if isSignedIn() && request.auth.uid == studentId;
+      }
     }
 
     match /parents/{parentId} {
@@ -293,6 +298,48 @@ service cloud.firestore {
 
       allow read, delete: if isAdmin();
       allow update: if false;
+    }
+
+    // ===== READING MOCKS =====
+    match /reading_mocks/{mockId} {
+      allow read: if isAdmin() ||
+        (isSignedIn() && resource.data.status == 'published');
+      allow write: if isAdmin();
+
+      match /passages/{passageId} {
+        allow read: if isAdmin() ||
+          (isSignedIn() &&
+            get(/databases/$(database)/documents/reading_mocks/$(mockId)).data.status == 'published');
+        allow write: if isAdmin();
+
+        match /groups/{groupId} {
+          allow read: if isAdmin() ||
+            (isSignedIn() &&
+              get(/databases/$(database)/documents/reading_mocks/$(mockId)).data.status == 'published');
+          allow write: if isAdmin();
+
+          match /questions/{questionId} {
+            allow read: if isAdmin() ||
+              (isSignedIn() &&
+                get(/databases/$(database)/documents/reading_mocks/$(mockId)).data.status == 'published');
+            allow write: if isAdmin();
+          }
+        }
+      }
+    }
+
+    // ===== READING MOCK URINISHLARI =====
+    match /reading_mock_attempts/{attemptId} {
+      allow read: if isAdmin() ||
+        (isSignedIn() && resource.data.studentId == request.auth.uid);
+
+      allow create: if isSignedIn() &&
+        request.resource.data.studentId == request.auth.uid &&
+        request.resource.data.mockId is string &&
+        request.resource.data.answers is map &&
+        request.resource.data.submittedAt == request.time;
+
+      allow update, delete: if isAdmin();
     }
 
   }
