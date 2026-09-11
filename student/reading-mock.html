@@ -830,7 +830,9 @@ const rmState = {
   timerSec: 3600,
   timerInterval: null,
   timerPaused: false,
-  submitted: false
+  submitted: false,
+  mockMode: 'full_mock',   // 'full_mock' | 'single_part'
+  singlePartIndex: null
 };
 
 // ---- IELTS Band tables ----
@@ -860,9 +862,16 @@ async function loadMock() {
     }
 
     rmState.timerSec = (rmState.mock.duration || 60) * 60;
+    rmState.mockMode = rmState.mock.mockMode || 'full_mock';
+    rmState.singlePartIndex = rmState.mock.singlePartIndex != null ? rmState.mock.singlePartIndex : null;
 
-    // Load passages
-    for (let pi = 1; pi <= 5; pi++) {
+    // Qaysi partlarni yuklash kerakligini aniqlash
+    const partIndicesToLoad = (rmState.mockMode === 'single_part' && rmState.singlePartIndex != null)
+      ? [rmState.singlePartIndex]  // faqat 1 ta part (0-based)
+      : [0, 1, 2, 3, 4];           // barcha 5 ta part
+
+    for (let pi0 of partIndicesToLoad) {
+      const pi = pi0 + 1; // Firestore: passage-1 ... passage-5
       const passDoc = await db.collection('reading_mocks').doc(MOCK_ID).collection('passages').doc('passage-' + pi).get();
       const passData = passDoc.exists ? passDoc.data() : { title: '', content: '', imageUrl: '' };
       const groups = [];
@@ -892,7 +901,10 @@ function renderUI() {
   document.getElementById('rmHeader').style.display = '';
   document.getElementById('rmMain').style.display = '';
 
-  document.getElementById('rmHeaderTitle').textContent = rmState.mock.title || 'IELTS Reading Mock';
+  const partLabel = (rmState.mockMode === 'single_part' && rmState.singlePartIndex != null)
+    ? ` — Part ${rmState.singlePartIndex + 1}`
+    : '';
+  document.getElementById('rmHeaderTitle').textContent = (rmState.mock.title || 'CEFR Reading Mock') + partLabel;
   if (IS_PREVIEW) document.getElementById('rmPreviewBadge').style.display = '';
 
   renderPassageTabs();
@@ -906,9 +918,15 @@ function renderUI() {
 
 function renderPassageTabs() {
   const container = document.getElementById('rmPassageTabs');
+  // single_part rejimida faqat 1 ta passage bo'ladi, tab ko'rsatmaslik mumkin
+  if (rmState.mockMode === 'single_part' && rmState.passages.length <= 1) {
+    container.style.display = 'none';
+    return;
+  }
+  container.style.display = '';
   container.innerHTML = rmState.passages.map((p, i) => `
     <button class="rm-ptab ${i === rmState.currentPassageIdx ? 'active' : ''}" onclick="switchPassage(${i})">
-      Part ${i + 1}
+      ${p.title || ('Part ' + (rmState.singlePartIndex != null && rmState.mockMode === 'single_part' ? rmState.singlePartIndex + 1 : i + 1))}
     </button>`).join('');
 }
 
@@ -1277,13 +1295,19 @@ function showResults() {
   document.getElementById('rmResultCorrect').textContent = totalCorrect;
   document.getElementById('rmResultTotal').textContent = totalQ;
   document.getElementById('rmResultBand').textContent = band;
-  document.getElementById('rmResultSub').textContent = rmState.mock?.title ? `"${rmState.mock.title}" natijalaringiz:` : 'Natijalaringiz:';
+  document.getElementById('rmResultSub').textContent = rmState.mock?.title ? `"${rmState.mock.title}" natijalaringiz` : 'Natijalaringiz';
 
-  document.getElementById('rmPassageScores').innerHTML = passageScores.map(ps => `
-    <div class="rm-ps-card">
+  // single_part rejimida faqat 1 ta karta, to'g'ri Part raqami bilan
+  const isSingle = rmState.mockMode === 'single_part';
+  document.getElementById('rmPassageScores').innerHTML = passageScores.map((ps, idx) => {
+    const realPartNum = isSingle && rmState.singlePartIndex != null
+      ? rmState.singlePartIndex + 1
+      : ps.num;
+    return `<div class="rm-ps-card">
       <div class="rm-ps-num">${ps.correct} / ${ps.total}</div>
-      <div class="rm-ps-label">Part ${ps.num}</div>
-    </div>`).join('');
+      <div class="rm-ps-label">Part ${realPartNum}</div>
+    </div>`;
+  }).join('');
 
   document.getElementById('rmReviewList').innerHTML = reviewItems.map(item => {
     const status = !item.userAns ? 'skipped' : (item.correct ? 'correct' : 'wrong');
