@@ -281,8 +281,6 @@
         <ul class="admin-nav-sub" id="navEnglishLessonsSub">
           <li><a href="#" id="navLevels">📚 Darslar (General English)</a></li>
           <li><a href="#" id="navIelts">🎧 IELTS</a></li>
-          <li><a href="#" id="navWriting">✍️ Writing</a></li>
-          <li><a href="#" id="navEssays">📝 Insholar</a></li>
         </ul>
       </li>
       <li class="admin-nav-group" id="navCefrGroup">
@@ -290,6 +288,8 @@
         <ul class="admin-nav-sub" id="navCefrSub">
           <li><a href="#" id="navCefrMocks">📖 Reading</a></li>
           <li><a href="#" id="navCefrSpeaking">🎙️ Speaking</a></li>
+          <li><a href="#" id="navWriting">✍️ Writing</a></li>
+          <li><a href="#" id="navEssays">📝 Insholar</a></li>
         </ul>
       </li>
       <li><a href="#" id="navStudents">🎓 O‘quvchilar</a></li>
@@ -3420,7 +3420,7 @@ function switchView(view){
   document.getElementById('view-gradebook').hidden = view !== 'gradebook';
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
-  document.getElementById('navCefr').classList.toggle('active', view === 'reading-mocks' || view === 'reading-mock-builder' || view === 'speaking-menu');
+  document.getElementById('navCefr').classList.toggle('active', view === 'reading-mocks' || view === 'reading-mock-builder' || view === 'speaking-menu' || view === 'writing-tracks' || view === 'writing-items' || view === 'essays');
   document.getElementById('navWriting').classList.toggle('active', view === 'writing-tracks' || view === 'writing-items');
   document.getElementById('navEssays').classList.toggle('active', view === 'essays');
   {
