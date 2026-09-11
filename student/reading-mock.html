@@ -2,7 +2,7 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <title>CEFR Reading Mock Test — Djami Lessons</title>
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="stylesheet" href="../style.css">
@@ -528,15 +528,51 @@ body.rm-body {
 
 /* ---- Mobile ---- */
 @media (max-width: 768px) {
-  body.rm-body { overflow: auto; height: auto; }
-  .rm-main { flex-direction: column; overflow: visible; height: auto; }
-  .rm-passage-panel { border-right: none; border-bottom: 2px solid var(--adm-line, #E7EBF4); max-height: 50vh; }
-  .rm-questions-panel { max-width: 100%; }
+  body.rm-body {
+    overflow: hidden;
+    height: 100vh;
+    height: 100dvh; /* dynamic viewport height - keyboard ochilganda siljimaydi */
+    position: fixed;
+    width: 100%;
+    top: 0;
+    left: 0;
+  }
+  .rm-main {
+    flex-direction: column;
+    overflow: hidden;
+    height: 0;
+    flex: 1;
+  }
+  .rm-passage-panel {
+    border-right: none;
+    border-bottom: 2px solid var(--adm-line, #E7EBF4);
+    flex: 0 0 45vh;
+    max-height: 45vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rm-questions-panel {
+    max-width: 100%;
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Right column wrapper */
+  .rm-main > div:last-child {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
   .rm-result-card { padding: 20px 18px; max-width: 100%; }
   .rm-passage-scores { grid-template-columns: 1fr 1fr 1fr; }
   .rm-score-row { flex-direction: row; gap: 10px; padding: 14px 16px; }
   .rm-score-num { font-size: 2.2rem; }
   .rm-band-badge { min-width: 74px; font-size: 1.2rem; padding: 10px 14px; }
+  /* Header — wrap qilmasin, scroll horizontal bo'lsin */
+  .rm-header { flex-wrap: nowrap; overflow-x: auto; padding: 8px 12px; gap: 10px; }
+  .rm-header-right { gap: 6px; flex-shrink: 0; }
+  /* Nav panel pastki qismida qotib tursin */
+  .rm-nav-panel { flex-shrink: 0; }
 }
 
 /* ---- Highlight & Note ---- */
