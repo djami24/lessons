@@ -944,10 +944,104 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 }
 .rm-contrast-toggle:hover { background: rgba(255,255,255,.22); }
 
+/* ---- Exit button in header ---- */
+.rm-exit-btn {
+  background: rgba(255,255,255,.08);
+  border: 1.5px solid rgba(255,255,255,.18);
+  color: rgba(255,255,255,.75);
+  border-radius: 10px;
+  width: 36px; height: 36px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, color .15s;
+  flex-shrink: 0;
+}
+.rm-exit-btn:hover { background: rgba(255,80,80,.25); border-color: rgba(255,100,100,.4); color: #fff; }
+
+/* ---- Exit Confirm Modal ---- */
+.rm-exit-overlay {
+  position: fixed; inset: 0;
+  background: rgba(8,14,32,.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 2000;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none;
+  transition: opacity .22s;
+}
+.rm-exit-overlay.open { opacity: 1; pointer-events: all; }
+.rm-exit-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 36px 32px 28px;
+  max-width: 420px; width: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,.22);
+  text-align: center;
+  transform: translateY(12px) scale(.97);
+  transition: transform .22s cubic-bezier(.4,0,.2,1);
+}
+.rm-exit-overlay.open .rm-exit-card { transform: translateY(0) scale(1); }
+.rm-exit-icon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(217,142,63,.15);
+  color: #D98E3F;
+  font-size: 1.6rem;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+}
+.rm-exit-title {
+  font-size: 1.3rem; font-weight: 800;
+  color: #101B3D; margin: 0 0 10px;
+}
+.rm-exit-desc {
+  font-size: .92rem; color: #64748b;
+  margin: 0 0 28px; line-height: 1.55;
+}
+.rm-exit-actions {
+  display: flex; gap: 12px;
+}
+.rm-exit-stay {
+  flex: 1;
+  padding: 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  background: #fff;
+  font-size: 1rem; font-weight: 700;
+  color: #101B3D;
+  cursor: pointer;
+  transition: background .15s, border-color .15s;
+}
+.rm-exit-stay:hover { background: #f8fafc; border-color: #cbd5e1; }
+.rm-exit-leave {
+  flex: 1;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: #E74C3C;
+  font-size: 1rem; font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  transition: background .15s;
+}
+.rm-exit-leave:hover { background: #c0392b; }
+
 </style>
-</head>
 
 <body class="rm-body">
+
+<!-- Exit Confirm Modal -->
+<div class="rm-exit-overlay" id="rmExitOverlay">
+  <div class="rm-exit-card">
+    <h2 class="rm-exit-title">Exit Test</h2>
+    <p class="rm-exit-desc">Are you sure you want to exit? Your progress may be lost.</p>
+    <div class="rm-exit-actions">
+      <button class="rm-exit-stay" id="rmExitStay">Stay</button>
+      <button class="rm-exit-leave" id="rmExitLeave">Yes, Leave</button>
+    </div>
+  </div>
+</div>
 
 <!-- Loading screen -->
 <div class="rm-loading-screen" id="rmLoadingScreen">
@@ -958,6 +1052,7 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 <!-- Header -->
 <header class="rm-header" id="rmHeader" style="display:none;">
   <div class="rm-header-left">
+    <button class="rm-exit-btn" id="rmExitBtn" title="Chiqish">&#8592;</button>
     <span class="rm-header-logo">Djami Lessons</span>
     <span class="rm-header-title" id="rmHeaderTitle">CEFR Reading Mock Test</span>
   </div>
@@ -1221,6 +1316,7 @@ function renderUI() {
   if (!IS_PREVIEW) startTimer();
   else document.getElementById('rmTimerBox').textContent = '60:00';
 
+  initExitModal();
   if (!IS_PREVIEW) initBookmark();
 }
 
@@ -1631,6 +1727,45 @@ function showResults() {
   }).join('');
 
   document.getElementById('rmResultOverlay').style.display = '';
+}
+
+// ---- Exit Modal ----
+function initExitModal() {
+  const overlay = document.getElementById('rmExitOverlay');
+  const exitBtn  = document.getElementById('rmExitBtn');
+  const stayBtn  = document.getElementById('rmExitStay');
+  const leaveBtn = document.getElementById('rmExitLeave');
+  if (!overlay || !exitBtn) return;
+
+  exitBtn.addEventListener('click', () => {
+    // Timerni pauza qil
+    if (!rmState.timerPaused && rmState.timerInterval) {
+      clearInterval(rmState.timerInterval);
+    }
+    overlay.classList.add('open');
+  });
+
+  stayBtn.addEventListener('click', () => {
+    overlay.classList.remove('open');
+    // Agar timer pauza qilinmagan bo'lsa, davom ettir
+    if (!rmState.timerPaused && !rmState.submitted && !IS_PREVIEW) {
+      startTimer();
+    }
+  });
+
+  leaveBtn.addEventListener('click', () => {
+    location.href = 'dashboard.html';
+  });
+
+  // Overlay tashqarisini bosib yopish
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      overlay.classList.remove('open');
+      if (!rmState.timerPaused && !rmState.submitted && !IS_PREVIEW) {
+        startTimer();
+      }
+    }
+  });
 }
 
 // ---- Bookmark (Saved Mocks) ----
