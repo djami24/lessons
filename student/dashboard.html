@@ -1209,8 +1209,53 @@
           </div>
           <span style="margin-top:auto;font-size:.8rem;color:#2563eb;font-weight:600;">Ochish</span>
         </div>
-        <!-- Kelajakda boshqa bo'limlar qo'shiladi -->
+        <!-- Writing (Insho) -->
+        <div onclick="openCefrWriting();" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:18px;padding:28px 22px;cursor:pointer;transition:box-shadow .18s,border-color .18s;display:flex;flex-direction:column;gap:10px;align-items:flex-start;"
+          onmouseover="this.style.boxShadow='0 4px 20px rgba(163,58,176,.12)';this.style.borderColor='#a33ab0'"
+          onmouseout="this.style.boxShadow='';this.style.borderColor='#e2e8f0'">
+          <span style="font-size:2rem;">✍️</span>
+          <div>
+            <div style="font-weight:800;font-size:1.05rem;color:#101b3d;">Writing (Insho)</div>
+            <div style="font-size:.84rem;color:#64748b;margin-top:3px;">CEFR writing insholar va topshiriqlar</div>
+          </div>
+          <span style="margin-top:auto;font-size:.8rem;color:#a33ab0;font-weight:600;">Ochish</span>
+        </div>
+        <!-- Speaking -->
+        <div onclick="openCefrSpeaking();" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:18px;padding:28px 22px;cursor:pointer;transition:box-shadow .18s,border-color .18s;display:flex;flex-direction:column;gap:10px;align-items:flex-start;"
+          onmouseover="this.style.boxShadow='0 4px 20px rgba(22,163,74,.12)';this.style.borderColor='#16a34a'"
+          onmouseout="this.style.boxShadow='';this.style.borderColor='#e2e8f0'">
+          <span style="font-size:2rem;">🎤</span>
+          <div>
+            <div style="font-weight:800;font-size:1.05rem;color:#101b3d;">Speaking</div>
+            <div style="font-size:.84rem;color:#64748b;margin-top:3px;">CEFR speaking mashqlari va topshiriqlar</div>
+          </div>
+          <span style="margin-top:auto;font-size:.8rem;color:#16a34a;font-weight:600;">Ochish</span>
+        </div>
       </div>
+    </section>
+
+    <!-- ===== CEFR WRITING ===== -->
+    <section id="view-cefr-writing" hidden>
+      <div class="admin-header" style="display:flex;align-items:center;gap:12px;">
+        <button onclick="switchView('cefr-menu')" style="background:#f1f5f9;border:none;cursor:pointer;font-size:.85rem;font-weight:700;color:#374151;padding:8px 16px;border-radius:10px;transition:background .15s;white-space:nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">Orqaga</button>
+        <div>
+          <h1>✍️ Writing (Insho) — CEFR</h1>
+          <p>CEFR bo'yicha insho yozing va admindan baho oling</p>
+        </div>
+      </div>
+      <div id="cefrWritingContent"></div>
+    </section>
+
+    <!-- ===== CEFR SPEAKING ===== -->
+    <section id="view-cefr-speaking" hidden>
+      <div class="admin-header" style="display:flex;align-items:center;gap:12px;">
+        <button onclick="switchView('cefr-menu')" style="background:#f1f5f9;border:none;cursor:pointer;font-size:.85rem;font-weight:700;color:#374151;padding:8px 16px;border-radius:10px;transition:background .15s;white-space:nowrap;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">Orqaga</button>
+        <div>
+          <h1>🎤 Speaking — CEFR</h1>
+          <p>CEFR speaking mavzulari va mashqlari</p>
+        </div>
+      </div>
+      <div id="cefrSpeakingContent"></div>
     </section>
 
     <section id="view-reading-mocks" hidden>
@@ -1363,7 +1408,9 @@ let state = {
   writingPath: [],          // array of folder ids — where we are inside the current track's folder tree
   activeWritingQuestionId: null,
   mySubmissions: [],         // this student's own writingSubmissions docs
-  placementTestConfig: null  // { questions:[{question,options,correctIndex}], levels:[{min,max,label}] } — loaded lazily
+  placementTestConfig: null, // { questions:[{question,options,correctIndex}], levels:[{min,max,label}] } — loaded lazily
+  _writingReturnView: null,  // CEFR writing viewidan ochilganda 'cefr-writing' bo'ladi
+  _speakingReturnView: null  // CEFR speaking viewidan ochilganda 'cefr-speaking' bo'ladi
 };
 
 function escapeHtml(str){
@@ -1659,7 +1706,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu'];
+const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
@@ -1692,6 +1739,8 @@ const STUDENT_VIEW_NAV_MAP = {
   'word-game': 'navWordGame',
   'reading-mocks': 'navCEFR',
   'cefr-menu': 'navCEFR',
+  'cefr-writing': 'navCEFR',
+  'cefr-speaking': 'navCEFR',
   'notifications': 'navNotifications',
   'chat': 'navChat'
 };
@@ -2680,7 +2729,15 @@ document.getElementById('writingFoldersList').addEventListener('click', (e) => {
 
 document.getElementById('backToWritingFolders').addEventListener('click', (e) => {
   e.preventDefault();
-  openWritingFoldersView(state.activeWritingTrackId, state.writingPath);
+  // Agar CEFR writing dan kelgan bo'lsa, u yerga qaytamiz
+  if (state._writingReturnView === 'cefr-writing') {
+    state._writingReturnView = null;
+    renderCefrWritingFolders(getWritingCourse().tracks.cefr.folders || []);
+    switchView('cefr-writing');
+  } else {
+    state._writingReturnView = null;
+    openWritingFoldersView(state.activeWritingTrackId, state.writingPath);
+  }
 });
 
 function findWritingQuestion(questionId){
@@ -3147,7 +3204,14 @@ function openTopicDetail(topicId){
 document.getElementById('backToCourseTopics').addEventListener('click', (e) => {
   e.preventDefault();
   stopSpeakingTimer();
-  openCourseTopicsView(state.activeSectionId);
+  // Agar CEFR speaking dan kelgan bo'lsa, u yerga qaytamiz
+  if (state._speakingReturnView === 'cefr-speaking') {
+    state._speakingReturnView = null;
+    openCefrSpeaking();
+  } else {
+    state._speakingReturnView = null;
+    openCourseTopicsView(state.activeSectionId);
+  }
 });
 
 
@@ -4677,6 +4741,176 @@ document.getElementById('navCEFR').addEventListener('click', function(e) {
   document.getElementById('navCEFR').classList.add('active');
   switchView('cefr-menu');
 });
+
+// ===== CEFR WRITING (Writing insho — CEFR trekidan) =====
+function openCefrWriting() {
+  // Writing kursi to'langan bo'lsa, to'g'ridan-to'g'ri CEFR trekini ochadi.
+  // To'lanmagan bo'lsa, to'lov sahifasiga yo'naltiradi.
+  const status = state.student.coursePayments.writing || 'none';
+  if (status === 'approved') {
+    // CEFR trekini toʻgʻridan-toʻgʻri ochish
+    const course = getWritingCourse();
+    const cefrTrackData = course && course.tracks && course.tracks.cefr;
+    if (!cefrTrackData) {
+      renderCefrWritingFallback('Writing kursi yuklanmadi. Qayta urinib ko\'ring.');
+      switchView('cefr-writing');
+      return;
+    }
+    state.activeWritingTrackId = 'cefr';
+    state.writingPath = [];
+    renderCefrWritingFolders(cefrTrackData.folders || []);
+    switchView('cefr-writing');
+  } else if (status === 'pending') {
+    renderCefrWritingFallback('⏳ To\'lov tekshirilmoqda. Admin tasdiqlashini kuting.');
+    switchView('cefr-writing');
+  } else {
+    // To'lov sahifasiga o'tamiz
+    openWritingPaymentView();
+  }
+}
+
+function renderCefrWritingFallback(msg) {
+  const el = document.getElementById('cefrWritingContent');
+  if (el) el.innerHTML = `<p style="padding:32px 0;color:#64748b;text-align:center;">${escapeHtml(msg)}</p>`;
+}
+
+function renderCefrWritingFolders(folders) {
+  const el = document.getElementById('cefrWritingContent');
+  if (!el) return;
+  if (!folders || folders.length === 0) {
+    el.innerHTML = '<p style="padding:32px 0;color:#64748b;text-align:center;">Hali savol qo\'shilmagan. Admindan so'rang.</p>';
+    return;
+  }
+  // Breadcrumb
+  const path = state.writingPath;
+  let currentFolders = folders;
+  const crumbNodes = [];
+  for (const pid of path) {
+    const node = currentFolders.find(f => f.id === pid);
+    if (!node) break;
+    crumbNodes.push(node);
+    currentFolders = node.children || node.folders || [];
+  }
+
+  let breadcrumbHtml = '';
+  if (path.length > 0) {
+    breadcrumbHtml = `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:16px;font-size:.88rem;">
+      <a href="#" onclick="event.preventDefault();state.writingPath=[];renderCefrWritingFolders(getWritingCourse().tracks.cefr.folders||[]);" style="color:#2563eb;font-weight:600;text-decoration:none;">CEFR Writing</a>`;
+    crumbNodes.forEach((node, i) => {
+      breadcrumbHtml += `<span style="color:#94a3b8;">/</span>`;
+      if (i < crumbNodes.length - 1) {
+        const idx = i;
+        breadcrumbHtml += `<a href="#" onclick="event.preventDefault();state.writingPath=state.writingPath.slice(0,${idx+1});renderCefrWritingFolders(getWritingCourse().tracks.cefr.folders||[]);" style="color:#2563eb;font-weight:600;text-decoration:none;">${escapeHtml(node.title||'Papka')}</a>`;
+      } else {
+        breadcrumbHtml += `<span style="color:#374151;font-weight:600;">${escapeHtml(node.title||'Papka')}</span>`;
+      }
+    });
+    breadcrumbHtml += `</div>`;
+  }
+
+  const items = currentFolders.map(node => {
+    const isQuestion = node.type === 'question';
+    const count = isQuestion ? '' : (() => {
+      const { count: c } = countQuestionsDeep(node.children || node.folders || []);
+      return `<span style="font-size:.78rem;color:#64748b;">${c} ta savol</span>`;
+    })();
+    const locked = !!node.locked;
+    return `<div class="lesson-item${locked?' is-locked':''}" style="cursor:${locked?'default':'pointer'};opacity:${locked?'.6':'1'};"
+      ${locked ? '' : `onclick="${isQuestion ? `openCefrWritingQuestion('${node.id}')` : `cefrWritingOpenFolder('${node.id}')`}"`}>
+      <div class="lesson-icon">${isQuestion ? '📝' : '📁'}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="lesson-title">${escapeHtml(node.title||'Nomsiz')}</div>
+        ${isQuestion ? `<div style="font-size:.78rem;color:#64748b;">${node.timer ? node.timer+' daqiqa' : 'Insho topshirig\'i'}</div>` : count}
+      </div>
+      ${locked ? '<span style="font-size:.9rem;">🔒</span>' : (isQuestion ? '<span style="font-size:.8rem;color:#a33ab0;font-weight:600;">Yozish →</span>' : '<span style="font-size:.8rem;color:#64748b;">Ochish →</span>')}
+    </div>`;
+  }).join('');
+
+  el.innerHTML = breadcrumbHtml + `<div class="lesson-list">${items || '<p style="padding:24px;color:#64748b;">Bu papka bo\'sh.</p>'}</div>`;
+}
+
+function cefrWritingOpenFolder(nodeId) {
+  state.writingPath = [...state.writingPath, nodeId];
+  renderCefrWritingFolders(getWritingCourse().tracks.cefr.folders || []);
+}
+
+function openCefrWritingQuestion(questionId) {
+  // Mavjud writing-question viewini ishlatamiz, lekin CEFR trekida
+  state.activeWritingTrackId = 'cefr';
+  state._writingReturnView = 'cefr-writing';  // orqaga qaytish uchun
+  const course = getWritingCourse();
+  const cefrFolders = course.tracks.cefr.folders || [];
+  // Find the question node in the path
+  let currentFolders = cefrFolders;
+  for (const pid of state.writingPath) {
+    const node = currentFolders.find(f => f.id === pid);
+    if (!node) break;
+    currentFolders = node.children || node.folders || [];
+  }
+  const qNode = currentFolders.find(n => n.id === questionId);
+  if (!qNode) return;
+  state.activeWritingQuestionId = questionId;
+  openWritingQuestionDetail(questionId);
+}
+
+// ===== CEFR SPEAKING (CEFR kursidagi speaking bo'limi) =====
+function openCefrSpeaking() {
+  const status = state.student.coursePayments.cefr || 'none';
+  if (status === 'approved') {
+    const course = getCourse('cefr');
+    const section = course && course.sections && course.sections.speaking;
+    if (!section) {
+      renderCefrSpeakingFallback('Speaking bo\'limi yuklanmadi yoki hali mavzu qo\'shilmagan.');
+      switchView('cefr-speaking');
+      return;
+    }
+    if (section.locked) {
+      renderCefrSpeakingFallback('🔒 ' + (section.lockedMessage || 'Bu bo\'lim hozircha yopiq.'));
+      switchView('cefr-speaking');
+      return;
+    }
+    // Speaking mavzularini cefrSpeakingContent ichiga render qilamiz
+    const topics = flattenLeaves(section.topics || []);
+    const el = document.getElementById('cefrSpeakingContent');
+    if (!el) return;
+    if (topics.length === 0) {
+      el.innerHTML = '<p style="padding:32px 0;color:#64748b;text-align:center;">Hali speaking mavzusi qo\'shilmagan. Admindan so'rang.</p>';
+    } else {
+      el.innerHTML = `<div class="lesson-list">${topics.map((t, i) => `
+        <div class="lesson-row is-clickable" data-cefr-speaking-topic="${t.id}">
+          <div class="lesson-index">${String(i + 1).padStart(2, '0')}</div>
+          <div class="lesson-main">
+            <div class="lesson-row-top">
+              <span class="lesson-title">${escapeHtml(t.title || 'Nomsiz mavzu')}</span>
+            </div>
+            <div class="lesson-meta">
+              ${t.timerSeconds ? `<span class="tag">⏱️ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
+            </div>
+          </div>
+        </div>`).join('')}</div>`;
+      // Topic click listener
+      el.querySelectorAll('[data-cefr-speaking-topic]').forEach(row => {
+        row.addEventListener('click', () => {
+          state.activeCourseId = 'cefr';
+          state.activeSectionId = 'speaking';
+          state._speakingReturnView = 'cefr-speaking';
+          openTopicDetail(row.dataset.cefrSpeakingTopic);
+        });
+      });
+    }
+    switchView('cefr-speaking');
+  } else if (status === 'pending') {
+    renderCefrSpeakingFallback('⏳ To\'lov tekshirilmoqda. Admin tasdiqlashini kuting.');
+    switchView('cefr-speaking');
+  } else {
+    openCoursePaymentView('cefr');
+  }
+}
+
+function renderCefrSpeakingFallback(msg) {
+  const el = document.getElementById('cefrSpeakingContent');
+  if (el) el.innerHTML = `<p style="padding:32px 0;color:#64748b;text-align:center;">${escapeHtml(msg)}</p>`;
+}
 
 // Saqlangan mocklar
 var _rmSavedIds = new Set();
