@@ -445,7 +445,7 @@
 </script>
 <script defer src="https://cdn.vemetric.com/main.js" data-token="CHdcoB75KN2xKaYh"></script>
 </head>
-<body class="admin-theme">
+<body class="admin-theme light-mode">
 
 <div class="site-marquee" data-site-marquee style="display:none">
   <div class="site-marquee-track"><span data-site-marquee-text></span></div>
@@ -2181,6 +2181,7 @@ function setupHwStatusButtons(hwId){
   });
 }
 
+document.getElementById('navHome').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromEssays').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromPlacement').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromProfile').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
