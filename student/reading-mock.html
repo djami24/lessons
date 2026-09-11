@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CEFR Reading Mock Test Djami Lessons</title>
+<title>CEFR Reading Mock Test — Djami Lessons</title>
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="stylesheet" href="../style.css">
 <style>
@@ -760,6 +760,88 @@ body.rm-contrast-yob .rm-qgroup-header { color: #ffe600; }
 body.rm-contrast-yob .rm-nav-btn.answered { background: #1a4a2a; border-color: #1FAE7A; color: #1FAE7A; }
 body.rm-contrast-yob .rm-nav-btn.current { background: #332b00; border-color: #ffe600; color: #ffe600; }
 
+/* --- Text Size Panel --- */
+.rm-textsize-panel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 300px;
+  max-width: 100vw;
+  background: #fff;
+  box-shadow: -6px 0 28px rgba(0,0,0,.18);
+  z-index: 1300;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+}
+.rm-textsize-panel.open { transform: translateX(0); }
+.rm-textsize-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1.5px solid #E7EBF4;
+  flex-shrink: 0;
+}
+.rm-textsize-panel-back {
+  background: none; border: none; cursor: pointer;
+  font-size: .9rem; font-weight: 700; color: #8892A6;
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 0;
+}
+.rm-textsize-panel-back:hover { color: #101B3D; }
+.rm-textsize-panel-title {
+  font-weight: 800; font-size: 1.05rem; color: #101B3D;
+}
+.rm-textsize-panel-close {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.1rem; color: #8892A6; width: 30px; height: 30px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+.rm-textsize-panel-close:hover { background: #F3F6FC; color: #101B3D; }
+.rm-textsize-list { flex: 1; padding: 8px 0; }
+.rm-textsize-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #F0F3F9;
+  cursor: pointer;
+  font-size: .95rem; font-weight: 500; color: #101B3D;
+  transition: background .12s;
+  background: none; border-left: none; border-right: none; border-top: none;
+  width: 100%; text-align: left;
+}
+.rm-textsize-item:last-child { border-bottom: none; }
+.rm-textsize-item:hover { background: #F8FAFE; }
+.rm-textsize-item.active { background: #F3F6FC; font-weight: 700; }
+.rm-textsize-check {
+  color: #101B3D; font-size: 1rem; opacity: 0;
+  transition: opacity .15s;
+}
+.rm-textsize-item.active .rm-textsize-check { opacity: 1; }
+
+/* Text size toggle button in header */
+.rm-textsize-toggle {
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.2);
+  color: #fff; border-radius: 10px;
+  width: 34px; height: 34px;
+  font-size: .95rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+  flex-shrink: 0;
+}
+.rm-textsize-toggle:hover { background: rgba(255,255,255,.22); }
+
+/* Text size body classes */
+body.rm-text-large .rm-passage-body { font-size: 1.08rem !important; line-height: 2 !important; }
+body.rm-text-xlarge .rm-passage-body { font-size: 1.22rem !important; line-height: 2.1 !important; }
+body.rm-text-large .rm-mc-option,
+body.rm-text-large .rm-tf-btn,
+body.rm-text-large .rm-q-label { font-size: .96rem !important; }
+body.rm-text-xlarge .rm-mc-option,
+body.rm-text-xlarge .rm-tf-btn,
+body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
+
 /* --- Contrast panel --- */
 .rm-contrast-panel {
   position: fixed;
@@ -864,6 +946,7 @@ body.rm-contrast-yob .rm-nav-btn.current { background: #332b00; border-color: #f
   </div>
   <div class="rm-header-right">
     <span class="rm-preview-badge" id="rmPreviewBadge" style="display:none;">PREVIEW</span>
+    <button class="rm-textsize-toggle" id="rmTextsizeToggle" title="Matn o'lchami">T</button>
     <button class="rm-contrast-toggle" id="rmContrastToggle" title="Kontrast rejimi">Aa</button>
     <button class="rm-notes-toggle" id="rmNotesToggle" title="Izohlarim">
       <span>🖊</span>
@@ -968,6 +1051,29 @@ body.rm-contrast-yob .rm-nav-btn.current { background: #332b00; border-color: #f
     <button class="rm-contrast-item" data-contrast="yob">
       <span>Yellow on black</span>
       <span class="rm-contrast-check">&#10003;</span>
+    </button>
+  </div>
+</div>
+
+<!-- Text Size Panel -->
+<div id="rmTextsizePanel" class="rm-textsize-panel">
+  <div class="rm-textsize-panel-head">
+    <button class="rm-textsize-panel-back" id="rmTextsizeBack">&#8249; Orqaga</button>
+    <span class="rm-textsize-panel-title">Text size</span>
+    <button class="rm-textsize-panel-close" id="rmTextsizeClose">&#x2715;</button>
+  </div>
+  <div class="rm-textsize-list">
+    <button class="rm-textsize-item active" data-textsize="regular">
+      <span>Regular</span>
+      <span class="rm-textsize-check">&#10003;</span>
+    </button>
+    <button class="rm-textsize-item" data-textsize="large">
+      <span>Large</span>
+      <span class="rm-textsize-check">&#10003;</span>
+    </button>
+    <button class="rm-textsize-item" data-textsize="xlarge">
+      <span>Extra large</span>
+      <span class="rm-textsize-check">&#10003;</span>
     </button>
   </div>
 </div>
@@ -1770,6 +1876,62 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Boshlang'ich render
   updateNotesPanel();
+})();
+</script>
+
+<script>
+// ================================================================
+// TEXT SIZE — Panel Logic
+// ================================================================
+(function() {
+  const STORAGE_KEY = 'rm_text_size';
+  const SIZES = ['regular', 'large', 'xlarge'];
+  let _current = 'regular';
+
+  const panel      = document.getElementById('rmTextsizePanel');
+  const toggleBtn  = document.getElementById('rmTextsizeToggle');
+  const closeBtn   = document.getElementById('rmTextsizeClose');
+  const backBtn    = document.getElementById('rmTextsizeBack');
+  const items      = document.querySelectorAll('.rm-textsize-item');
+
+  // Restore saved preference
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && SIZES.includes(saved)) applySize(saved, false);
+  } catch(e) {}
+
+  // Toggle panel
+  toggleBtn.addEventListener('click', () => panel.classList.toggle('open'));
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+  backBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+  // Click outside closes
+  document.addEventListener('mousedown', (e) => {
+    if (!panel.contains(e.target) && e.target !== toggleBtn) {
+      panel.classList.remove('open');
+    }
+  });
+
+  // Size selection
+  items.forEach(btn => {
+    btn.addEventListener('click', () => {
+      applySize(btn.dataset.textsize, true);
+      setTimeout(() => panel.classList.remove('open'), 220);
+    });
+  });
+
+  function applySize(size, save) {
+    document.body.classList.remove('rm-text-large', 'rm-text-xlarge');
+    if (size === 'large') document.body.classList.add('rm-text-large');
+    else if (size === 'xlarge') document.body.classList.add('rm-text-xlarge');
+
+    items.forEach(btn => btn.classList.toggle('active', btn.dataset.textsize === size));
+    _current = size;
+
+    if (save) {
+      try { localStorage.setItem(STORAGE_KEY, size); } catch(e) {}
+    }
+  }
 })();
 </script>
 
