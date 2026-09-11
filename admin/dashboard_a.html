@@ -281,11 +281,15 @@
         <ul class="admin-nav-sub" id="navEnglishLessonsSub">
           <li><a href="#" id="navLevels">📚 Darslar (General English)</a></li>
           <li><a href="#" id="navIelts">🎧 IELTS</a></li>
-          <li><a href="#" id="navCefr">🗂️ CEFR</a></li>
-          <li><a href="#" id="navCefrMocks" style="padding-left:2.2em;">📖 Reading</a></li>
-          <li><a href="#" id="navCefrSpeaking" style="padding-left:2.2em;">🎙️ Speaking</a></li>
           <li><a href="#" id="navWriting">✍️ Writing</a></li>
           <li><a href="#" id="navEssays">📝 Insholar</a></li>
+        </ul>
+      </li>
+      <li class="admin-nav-group" id="navCefrGroup">
+        <a href="#" id="navCefr" class="admin-nav-parent">🎓 CEFR <span class="nav-caret">▾</span></a>
+        <ul class="admin-nav-sub" id="navCefrSub">
+          <li><a href="#" id="navCefrMocks">📖 Reading</a></li>
+          <li><a href="#" id="navCefrSpeaking">🎙️ Speaking</a></li>
         </ul>
       </li>
       <li><a href="#" id="navStudents">🎓 O‘quvchilar</a></li>
@@ -2952,7 +2956,10 @@ document.getElementById('courseSectionsGrid').addEventListener('click', (e) => {
 });
 
 document.getElementById('navIelts').addEventListener('click', (e) => { e.preventDefault(); openCourseSections('ielts'); });
-document.getElementById('navCefr').addEventListener('click', (e) => { e.preventDefault(); openCourseSections('cefr'); });
+document.getElementById('navCefr').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('navCefrGroup').classList.toggle('open');
+});
 
 // ---------- Render: topic list inside a section ----------
 
@@ -3413,7 +3420,7 @@ function switchView(view){
   document.getElementById('view-gradebook').hidden = view !== 'gradebook';
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
-  document.getElementById('navCefr').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'cefr');
+  document.getElementById('navCefr').classList.toggle('active', view === 'reading-mocks' || view === 'reading-mock-builder' || view === 'speaking-menu');
   document.getElementById('navWriting').classList.toggle('active', view === 'writing-tracks' || view === 'writing-items');
   document.getElementById('navEssays').classList.toggle('active', view === 'essays');
   {
