@@ -4752,7 +4752,7 @@ function openCefrWriting() {
     const course = getWritingCourse();
     const cefrTrackData = course && course.tracks && course.tracks.cefr;
     if (!cefrTrackData) {
-      renderCefrWritingFallback('Writing kursi yuklanmadi. Qayta urinib ko\'ring.');
+      renderCefrWritingFallback("Writing kursi yuklanmadi. Qayta urinib ko'ring.");
       switchView('cefr-writing');
       return;
     }
@@ -4761,7 +4761,7 @@ function openCefrWriting() {
     renderCefrWritingFolders(cefrTrackData.folders || []);
     switchView('cefr-writing');
   } else if (status === 'pending') {
-    renderCefrWritingFallback('⏳ To\'lov tekshirilmoqda. Admin tasdiqlashini kuting.');
+    renderCefrWritingFallback("\u23F3 To'lov tekshirilmoqda. Admin tasdiqlashini kuting.");
     switchView('cefr-writing');
   } else {
     // To'lov sahifasiga o'tamiz
@@ -4778,7 +4778,7 @@ function renderCefrWritingFolders(folders) {
   const el = document.getElementById('cefrWritingContent');
   if (!el) return;
   if (!folders || folders.length === 0) {
-    el.innerHTML = '<p style="padding:32px 0;color:#64748b;text-align:center;">Hali savol qo\'shilmagan. Admindan so'rang.</p>';
+    el.innerHTML = `<p style="padding:32px 0;color:#64748b;text-align:center;">Hali savol qo'shilmagan. Admindan so\u2019rang.</p>`;
     return;
   }
   // Breadcrumb
@@ -4820,13 +4820,13 @@ function renderCefrWritingFolders(folders) {
       <div class="lesson-icon">${isQuestion ? '📝' : '📁'}</div>
       <div style="flex:1;min-width:0;">
         <div class="lesson-title">${escapeHtml(node.title||'Nomsiz')}</div>
-        ${isQuestion ? `<div style="font-size:.78rem;color:#64748b;">${node.timer ? node.timer+' daqiqa' : 'Insho topshirig\'i'}</div>` : count}
+        ${isQuestion ? `<div style="font-size:.78rem;color:#64748b;">${node.timer ? node.timer+' daqiqa' : "Insho topshirig'i"}</div>` : count}
       </div>
-      ${locked ? '<span style="font-size:.9rem;">🔒</span>' : (isQuestion ? '<span style="font-size:.8rem;color:#a33ab0;font-weight:600;">Yozish →</span>' : '<span style="font-size:.8rem;color:#64748b;">Ochish →</span>')}
+      ${locked ? '<span style="font-size:.9rem;">\uD83D\uDD12</span>' : (isQuestion ? '<span style="font-size:.8rem;color:#a33ab0;font-weight:600;">Yozish \u2192</span>' : '<span style="font-size:.8rem;color:#64748b;">Ochish \u2192</span>')}
     </div>`;
   }).join('');
 
-  el.innerHTML = breadcrumbHtml + `<div class="lesson-list">${items || '<p style="padding:24px;color:#64748b;">Bu papka bo\'sh.</p>'}</div>`;
+  el.innerHTML = breadcrumbHtml + `<div class="lesson-list">${items || "<p style='padding:24px;color:#64748b;'>Bu papka bo'sh.</p>"}</div>`;
 }
 
 function cefrWritingOpenFolder(nodeId) {
@@ -4860,12 +4860,12 @@ function openCefrSpeaking() {
     const course = getCourse('cefr');
     const section = course && course.sections && course.sections.speaking;
     if (!section) {
-      renderCefrSpeakingFallback('Speaking bo\'limi yuklanmadi yoki hali mavzu qo\'shilmagan.');
+      renderCefrSpeakingFallback("Speaking bo'limi yuklanmadi yoki hali mavzu qo'shilmagan.");
       switchView('cefr-speaking');
       return;
     }
     if (section.locked) {
-      renderCefrSpeakingFallback('🔒 ' + (section.lockedMessage || 'Bu bo\'lim hozircha yopiq.'));
+      renderCefrSpeakingFallback('\uD83D\uDD12 ' + (section.lockedMessage || "Bu bo'lim hozircha yopiq."));
       switchView('cefr-speaking');
       return;
     }
@@ -4874,7 +4874,7 @@ function openCefrSpeaking() {
     const el = document.getElementById('cefrSpeakingContent');
     if (!el) return;
     if (topics.length === 0) {
-      el.innerHTML = '<p style="padding:32px 0;color:#64748b;text-align:center;">Hali speaking mavzusi qo\'shilmagan. Admindan so'rang.</p>';
+      el.innerHTML = `<p style="padding:32px 0;color:#64748b;text-align:center;">Hali speaking mavzusi qo'shilmagan. Admindan so\u2019rang.</p>`;
     } else {
       el.innerHTML = `<div class="lesson-list">${topics.map((t, i) => `
         <div class="lesson-row is-clickable" data-cefr-speaking-topic="${t.id}">
@@ -4900,7 +4900,7 @@ function openCefrSpeaking() {
     }
     switchView('cefr-speaking');
   } else if (status === 'pending') {
-    renderCefrSpeakingFallback('⏳ To\'lov tekshirilmoqda. Admin tasdiqlashini kuting.');
+    renderCefrSpeakingFallback("\u23F3 To'lov tekshirilmoqda. Admin tasdiqlashini kuting.");
     switchView('cefr-speaking');
   } else {
     openCoursePaymentView('cefr');
