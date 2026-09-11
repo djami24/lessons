@@ -1649,6 +1649,42 @@
               </select>
             </label>
           </div>
+
+          <!-- Mock rejimi -->
+          <div style="margin-top:20px;border-top:1.5px solid var(--adm-line,var(--line));padding-top:18px;">
+            <div style="font-size:.85rem;font-weight:700;color:var(--adm-gray,var(--gray));margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em;">Mock rejimi</div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;" id="rmModeCards">
+              <label id="rmModeCard-full" style="flex:1;min-width:200px;display:flex;align-items:flex-start;gap:12px;border:2px solid var(--adm-blue,#2F6FED);border-radius:14px;padding:14px 16px;cursor:pointer;background:rgba(47,111,237,.05);transition:border-color .15s,background .15s;">
+                <input type="radio" name="rmMockMode" value="full_mock" id="rmModeRadioFull" style="margin-top:3px;accent-color:var(--adm-blue,#2F6FED);">
+                <div>
+                  <div style="font-weight:700;font-size:.95rem;color:var(--adm-ink,#101B3D);">Full Mock</div>
+                  <div style="font-size:.8rem;color:var(--adm-gray,#8892A6);margin-top:3px;">5 ta part — to'liq CEFR Reading testi. Talaba barcha 5 partni yechadi.</div>
+                </div>
+              </label>
+              <label id="rmModeCard-single" style="flex:1;min-width:200px;display:flex;align-items:flex-start;gap:12px;border:2px solid var(--adm-line,#E7EBF4);border-radius:14px;padding:14px 16px;cursor:pointer;background:#fff;transition:border-color .15s,background .15s;">
+                <input type="radio" name="rmMockMode" value="single_part" id="rmModeRadioSingle" style="margin-top:3px;accent-color:var(--adm-blue,#2F6FED);">
+                <div>
+                  <div style="font-weight:700;font-size:.95rem;color:var(--adm-ink,#101B3D);">Alohida Part</div>
+                  <div style="font-size:.8rem;color:var(--adm-gray,#8892A6);margin-top:3px;">Faqat 1 ta part — talaba bitta partni alohida mashq qiladi.</div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Qaysi part ekanligi (faqat single_part rejimida ko'rinadi) -->
+            <div id="rmSinglePartRow" style="display:none;margin-top:14px;">
+              <label class="oj-label" style="max-width:220px;">
+                Qaysi part?
+                <select class="oj-select" id="rmSinglePartIndex">
+                  <option value="0">Part 1</option>
+                  <option value="1">Part 2</option>
+                  <option value="2">Part 3</option>
+                  <option value="3">Part 4</option>
+                  <option value="4">Part 5</option>
+                </select>
+              </label>
+              <div style="font-size:.78rem;color:var(--adm-gray,#8892A6);margin-top:6px;">Faqat tanlangan partning ma'lumotini to'ldirish kerak.</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -8191,6 +8227,8 @@ let _rmEditingId = null; // null = new, string = existing mock id
 const _rmPassageDefaults = () => ({ title: '', content: '', imageUrl: '', questionGroups: [] });
 const _rmState = {
   title: '', description: '', testType: 'academic', duration: 60, status: 'draft',
+  mockMode: 'full_mock',      // 'full_mock' | 'single_part'
+  singlePartIndex: 0,         // 0-4, faqat single_part rejimida ishlatiladi
   passages: [_rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults()]
 };
 
@@ -8253,18 +8291,26 @@ function rmRenderMockList() {
     const dateStr = created ? created.toLocaleDateString('uz-UZ') : '—';
     const totalQ = m.totalQuestions || 0;
     const typeLabel = m.testType === 'general' ? 'General Training' : 'Academic';
+    const modeLabel = m.mockMode === 'single_part'
+      ? `Part ${(m.singlePartIndex != null ? m.singlePartIndex + 1 : 1)}`
+      : 'Full Mock';
+    const modeIcon = m.mockMode === 'single_part' ? '📄' : '📖';
+    const modeBadge = m.mockMode === 'single_part'
+      ? `<span class="rm-badge" style="background:rgba(240,146,61,.12);color:#c07020;border:1px solid rgba(240,146,61,.3);">${modeLabel}</span>`
+      : `<span class="rm-badge" style="background:rgba(47,111,237,.1);color:#1a4fbb;border:1px solid rgba(47,111,237,.25);">Full Mock</span>`;
     const statusBadge = m.status === 'published'
       ? '<span class="rm-badge rm-badge-pub">Nashr etilgan</span>'
       : '<span class="rm-badge rm-badge-draft">Qoralama</span>';
     return `<div class="rm-mock-row">
       <div class="rm-mock-info">
-        <div class="rm-mock-icon">📖</div>
+        <div class="rm-mock-icon">${modeIcon}</div>
         <div>
           <div class="rm-mock-title">${escapeHtml(m.title || 'Nomsiz mock')}</div>
           <div class="rm-mock-meta">${typeLabel} · ${m.duration || 60} daqiqa · ${totalQ} savol · Yaratildi: ${dateStr}</div>
         </div>
       </div>
       <div class="rm-mock-actions">
+        ${modeBadge}
         ${statusBadge}
         <button class="btn btn-ghost btn-sm" onclick="rmEditMock('${m.id}')">Tahrirlash</button>
         <button class="btn btn-ghost btn-sm" onclick="rmPreviewMock('${m.id}')">Preview</button>
@@ -8285,6 +8331,7 @@ document.getElementById('rmOpenCreateBtn').addEventListener('click', () => {
 function rmResetBuilderState() {
   Object.assign(_rmState, {
     title: '', description: '', testType: 'academic', duration: 60, status: 'draft',
+    mockMode: 'full_mock', singlePartIndex: 0,
     passages: [_rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults(), _rmPassageDefaults()]
   });
 }
@@ -8296,7 +8343,13 @@ function rmOpenBuilder(titleText) {
   document.getElementById('rmTestType').value = _rmState.testType;
   document.getElementById('rmDuration').value = _rmState.duration;
   document.getElementById('rmStatus').value = _rmState.status;
+  // Mock rejimi
+  document.getElementById('rmModeRadioFull').checked = (_rmState.mockMode !== 'single_part');
+  document.getElementById('rmModeRadioSingle').checked = (_rmState.mockMode === 'single_part');
+  document.getElementById('rmSinglePartIndex').value = _rmState.singlePartIndex || 0;
+  rmUpdateModeUI(_rmState.mockMode);
   // Render passage tabs
+  rmUpdatePassageTabs();
   [0, 1, 2, 3, 4].forEach(i => rmRenderPassageTab(i));
   // Activate first tab
   rmActivateTab('basic');
@@ -8317,12 +8370,64 @@ document.getElementById('rmTabs').addEventListener('click', (e) => {
   rmActivateTab(tab.dataset.tab);
 });
 
+// ---- Mode UI helpers ----
+function rmUpdateModeUI(mode) {
+  const isSingle = mode === 'single_part';
+  document.getElementById('rmSinglePartRow').style.display = isSingle ? '' : 'none';
+
+  // Card border styling
+  const fullCard = document.getElementById('rmModeCard-full');
+  const singleCard = document.getElementById('rmModeCard-single');
+  if (fullCard) {
+    fullCard.style.borderColor = isSingle ? 'var(--adm-line,#E7EBF4)' : 'var(--adm-blue,#2F6FED)';
+    fullCard.style.background = isSingle ? '#fff' : 'rgba(47,111,237,.05)';
+  }
+  if (singleCard) {
+    singleCard.style.borderColor = isSingle ? 'var(--adm-blue,#2F6FED)' : 'var(--adm-line,#E7EBF4)';
+    singleCard.style.background = isSingle ? 'rgba(47,111,237,.05)' : '#fff';
+  }
+  rmUpdatePassageTabs();
+}
+
+function rmUpdatePassageTabs() {
+  rmSyncBasicInfo();
+  const isSingle = _rmState.mockMode === 'single_part';
+  const spi = _rmState.singlePartIndex || 0;
+  const tabBtns = document.querySelectorAll('#rmTabs .rm-tab[data-tab^="passage-"]');
+  tabBtns.forEach(btn => {
+    const idx = parseInt(btn.dataset.tab.replace('passage-', ''));
+    btn.style.display = (isSingle && idx !== spi) ? 'none' : '';
+  });
+}
+
+// Listen to mockMode radio changes
+document.querySelectorAll('input[name="rmMockMode"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    rmUpdateModeUI(radio.value);
+    if (radio.value === 'single_part') {
+      const spi = parseInt(document.getElementById('rmSinglePartIndex').value) || 0;
+      rmActivateTab('passage-' + spi);
+    } else {
+      rmActivateTab('passage-0');
+    }
+  });
+});
+
+// Listen to singlePartIndex select change
+document.getElementById('rmSinglePartIndex').addEventListener('change', (e) => {
+  _rmState.singlePartIndex = parseInt(e.target.value) || 0;
+  rmUpdatePassageTabs();
+  rmActivateTab('passage-' + _rmState.singlePartIndex);
+});
+
 function rmSyncBasicInfo() {
   _rmState.title = document.getElementById('rmTitle').value.trim();
   _rmState.description = document.getElementById('rmDescription').value.trim();
   _rmState.testType = document.getElementById('rmTestType').value;
   _rmState.duration = parseInt(document.getElementById('rmDuration').value) || 60;
   _rmState.status = document.getElementById('rmStatus').value;
+  _rmState.mockMode = document.querySelector('input[name="rmMockMode"]:checked')?.value || 'full_mock';
+  _rmState.singlePartIndex = parseInt(document.getElementById('rmSinglePartIndex').value) || 0;
 }
 
 // ---- Render passage tab content ----
@@ -8851,6 +8956,8 @@ async function rmSaveMock(status) {
     testType: _rmState.testType,
     duration: _rmState.duration,
     status: status || _rmState.status,
+    mockMode: _rmState.mockMode || 'full_mock',
+    singlePartIndex: _rmState.mockMode === 'single_part' ? (_rmState.singlePartIndex || 0) : null,
     totalQuestions: rmCountTotalQuestions(),
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   };
@@ -8868,7 +8975,10 @@ async function rmSaveMock(status) {
 
     // Save passages
     const batch = db.batch();
-    for (let pi = 0; pi < 5; pi++) {
+    const passagesToSave = _rmState.mockMode === 'single_part'
+      ? [_rmState.singlePartIndex || 0]
+      : [0, 1, 2, 3, 4];
+    for (let pi of passagesToSave) {
       const p = _rmState.passages[pi];
       const passRef = rmPassagesRef(mockId).doc('passage-' + (pi + 1));
       batch.set(passRef, {
@@ -8917,11 +9027,16 @@ async function rmEditMock(mockId) {
     const d = mockDoc.data();
     Object.assign(_rmState, {
       title: d.title || '', description: d.description || '',
-      testType: d.testType || 'academic', duration: d.duration || 60, status: d.status || 'draft'
+      testType: d.testType || 'academic', duration: d.duration || 60, status: d.status || 'draft',
+      mockMode: d.mockMode || 'full_mock',
+      singlePartIndex: d.singlePartIndex != null ? d.singlePartIndex : 0
     });
 
     // Load passages
-    for (let pi = 0; pi < 5; pi++) {
+    const passageIndicesToLoad = _rmState.mockMode === 'single_part'
+      ? [_rmState.singlePartIndex]
+      : [0, 1, 2, 3, 4];
+    for (let pi of passageIndicesToLoad) {
       const passDoc = await rmPassagesRef(mockId).doc('passage-' + (pi + 1)).get();
       if (passDoc.exists) {
         const pd = passDoc.data();
