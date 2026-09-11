@@ -1606,44 +1606,13 @@
         <div>
           <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;">🎓 CEFR › 🎙️ Speaking</div>
           <h1>Speaking</h1>
-          <p>CEFR Speaking mavzulari va mashqlarini yarating va boshqaring.</p>
-        </div>
-        <div style="display:flex;gap:.6em;flex-wrap:wrap;align-items:center;">
-          <button class="btn btn-ghost btn-sm" id="speakingLockToggleBtn" onclick="speakingToggleLock()">🔒 Qulflash</button>
-          <button class="btn btn-amber" onclick="openSpeakingTopics()">📂 Mavzularni boshqarish</button>
+          <p>CEFR Speaking mashqlarini yarating va boshqaring.</p>
         </div>
       </div>
-
-      <!-- Stats row -->
-      <div class="oj-stats-row" style="margin-bottom:20px;" id="speakingStatsRow">
-        <div class="oj-stat-card">
-          <div class="oj-stat-val" id="speakingStatTopics">—</div>
-          <div class="oj-stat-label">Jami mavzu</div>
-        </div>
-        <div class="oj-stat-card">
-          <div class="oj-stat-val" id="speakingStatTimers">—</div>
-          <div class="oj-stat-label">Taymerli mavzu</div>
-        </div>
-        <div class="oj-stat-card">
-          <div class="oj-stat-val" id="speakingStatStatus">—</div>
-          <div class="oj-stat-label">Holat</div>
-        </div>
-      </div>
-
-      <!-- Lock banner -->
-      <div id="speakingLockBanner" hidden
-        style="background:#fdf1dc;border:1.5px solid #eec27f;color:#8a5a12;border-radius:10px;padding:12px 16px;font-size:.87rem;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
-        🔒 <span id="speakingLockBannerText">Bu bo'lim hozirda qulflangan.</span>
-        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="speakingToggleLock()">Ochish</button>
-      </div>
-
-      <!-- Topics preview list -->
-      <div style="background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:14px;overflow:hidden;">
-        <div style="padding:14px 18px;border-bottom:1.5px solid var(--adm-line,var(--line));display:flex;align-items:center;justify-content:space-between;">
-          <span style="font-weight:700;font-size:.95rem;">Mavzular ro'yxati</span>
-          <button class="btn btn-amber btn-sm" onclick="openSpeakingTopics()">+ Mavzu qo'shish / boshqarish</button>
-        </div>
-        <div id="speakingTopicsPreview" style="padding:8px 0;min-height:80px;"></div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;text-align:center;gap:14px;background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:18px;margin-top:8px;">
+        <span style="font-size:3rem;">🎙️</span>
+        <div style="font-weight:800;font-size:1.1rem;color:var(--adm-ink,#101b3d);">Tez kunda</div>
+        <div style="font-size:.9rem;color:var(--adm-gray,var(--gray));max-width:320px;line-height:1.6;">Speaking bo'limi hozirda tayyorlanmoqda. Tez orada CEFR speaking mashqlari bu yerda paydo bo'ladi.</div>
       </div>
     </section>
 
@@ -3102,18 +3071,10 @@ document.getElementById('deleteCurrentTopicFolder').addEventListener('click', ()
 
 document.getElementById('backToCourseSections').addEventListener('click', (e) => {
   e.preventDefault();
+  state.activeSectionId = null;
   state.topicPath = [];
-  // Speaking bo'limi — speaking-menu ga qaytamiz
-  if (state._speakingReturnView === 'speaking-menu') {
-    state._speakingReturnView = null;
-    state.activeSectionId = null;
-    renderSpeakingMenu();
-    switchView('speaking-menu');
-  } else {
-    state.activeSectionId = null;
-    renderCourseSectionsGrid();
-    switchView('course-sections');
-  }
+  renderCourseSectionsGrid();
+  switchView('course-sections');
 });
 
 // ---------- Topic: add / edit / save / delete / move ----------
@@ -8337,94 +8298,8 @@ document.getElementById('navCefrMocks').addEventListener('click', (e) => {
 
 document.getElementById('navCefrSpeaking').addEventListener('click', (e) => {
   e.preventDefault();
-  renderSpeakingMenu();
   switchView('speaking-menu');
 });
-
-// ================================================================
-// SPEAKING MENU — render & helpers
-// ================================================================
-function renderSpeakingMenu() {
-  const course = state.courses['cefr'];
-  const section = course && course.sections && course.sections.speaking;
-  const topics = section ? flattenLeaves(section.topics || []) : [];
-  const locked = section && section.locked;
-
-  // Stats
-  document.getElementById('speakingStatTopics').textContent = topics.length;
-  document.getElementById('speakingStatTimers').textContent = topics.filter(t => t.timerSeconds > 0).length;
-  document.getElementById('speakingStatStatus').textContent = locked ? '🔒 Qulflangan' : '✅ Ochiq';
-
-  // Lock button
-  const lockBtn = document.getElementById('speakingLockToggleBtn');
-  if (lockBtn) lockBtn.textContent = locked ? '🔓 Ochish' : '🔒 Qulflash';
-
-  // Lock banner
-  const banner = document.getElementById('speakingLockBanner');
-  if (banner) {
-    banner.hidden = !locked;
-    const bannerText = document.getElementById('speakingLockBannerText');
-    if (bannerText) bannerText.textContent = (section && section.lockedMessage) || 'Bu bo'lim hozirda qulflangan.';
-  }
-
-  // Topics preview
-  const el = document.getElementById('speakingTopicsPreview');
-  if (!el) return;
-  if (topics.length === 0) {
-    el.innerHTML = `<div class="oj-empty" style="padding:32px 24px;">
-      <div class="oj-empty-icon">🎙️</div>
-      <h3>Hali mavzu yo'q</h3>
-      <p>"Mavzu qo'shish / boshqarish" tugmasini bosib mavzu qo'shing.</p>
-    </div>`;
-  } else {
-    el.innerHTML = topics.slice(0, 8).map((t, i) => `
-      <div style="display:flex;align-items:center;gap:14px;padding:11px 18px;border-bottom:1px solid var(--adm-line,var(--line));">
-        <span style="font-size:.78rem;font-weight:800;color:var(--adm-blue,#2F6FED);min-width:22px;">${String(i+1).padStart(2,'0')}</span>
-        <span style="flex:1;font-size:.9rem;font-weight:600;">${escH(t.title||'Nomsiz')}</span>
-        ${t.timerSeconds ? `<span style="font-size:.75rem;color:var(--gray);background:rgba(47,111,237,.08);padding:3px 9px;border-radius:20px;">⏱️ ${Math.round(t.timerSeconds/60*10)/10} daqiqa</span>` : ''}
-        ${t.material ? `<span style="font-size:.75rem;color:#2e6f6e;">🔗 Link</span>` : ''}
-      </div>`).join('') +
-      (topics.length > 8 ? `<div style="padding:10px 18px;font-size:.83rem;color:var(--gray);">… va yana ${topics.length - 8} ta mavzu</div>` : '');
-  }
-}
-
-function openSpeakingTopics() {
-  // CEFR Speaking section — course-topics viewiga o'tamiz
-  if (!state.courses['cefr']) {
-    showToast('CEFR kursi ma\'lumotlari yuklanmadi. Biroz kuting.', true);
-    return;
-  }
-  if (!state.courses['cefr'].sections) state.courses['cefr'].sections = {};
-  if (!state.courses['cefr'].sections.speaking) {
-    state.courses['cefr'].sections.speaking = { locked: false, lockedMessage: '', topics: [] };
-  }
-  state.activeCourseId = 'cefr';
-  state.activeSectionId = 'speaking';
-  state.topicPath = [];
-  state._speakingReturnView = 'speaking-menu';
-  renderCourseTopicsList();
-  switchView('course-topics');
-}
-
-function speakingToggleLock() {
-  const course = state.courses['cefr'];
-  if (!course) { showToast('CEFR kursi yuklanmadi.', true); return; }
-  if (!course.sections) course.sections = {};
-  if (!course.sections.speaking) course.sections.speaking = { locked: false, lockedMessage: '', topics: [] };
-  const section = course.sections.speaking;
-  if (!section.locked) {
-    const msg = prompt('Qulflash xabari (talabaga ko'rsatiladi):', section.lockedMessage || 'Bu bo'lim hozircha yopiq.');
-    if (msg === null) return;
-    section.locked = true;
-    section.lockedMessage = msg || 'Bu bo'lim hozircha yopiq.';
-  } else {
-    section.locked = false;
-    section.lockedMessage = '';
-  }
-  db.collection('courses').doc('cefr').update({ sections: course.sections })
-    .then(() => { showToast(section.locked ? 'Speaking qulflandi.' : 'Speaking ochildi.'); renderSpeakingMenu(); })
-    .catch(err => showToast('Xatolik: ' + err.message, true));
-}
 
 // ---- Load mock list ----
 async function rmLoadMocks() {
