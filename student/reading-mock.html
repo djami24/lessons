@@ -1136,6 +1136,7 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
         <div class="rm-nav-legend-item"><div class="rm-nav-legend-dot" style="background:var(--adm-blue,#2F6FED);"></div> Joriy</div>
         <div class="rm-nav-legend-item"><div class="rm-nav-legend-dot" style="background:var(--adm-orange,#F0923D);"></div> Belgilangan</div>
         <div class="rm-nav-legend-item"><div class="rm-nav-legend-dot" style="border:1.5px solid var(--adm-line,#E7EBF4);background:#fff;"></div> Javobsiz</div>
+        <button id="rmResetBtn" style="margin-left:auto;background:none;border:1.5px solid #E74C3C;color:#E74C3C;border-radius:8px;padding:3px 12px;font-size:.72rem;font-weight:700;cursor:pointer;transition:background .15s,color .15s;" title="Barcha javoblarni tozalash">🗑 Tozalash</button>
       </div>
     </div>
   </div>
@@ -1343,6 +1344,7 @@ function renderUI() {
   else document.getElementById('rmTimerBox').textContent = '60:00';
 
   initExitModal();
+  initResetBtn();
   if (!IS_PREVIEW) initBookmark();
 }
 
@@ -1633,6 +1635,29 @@ function restoreAnswers() {
     const saved = sessionStorage.getItem('rm_answers_' + MOCK_ID);
     if (saved) { Object.assign(rmState.answers, JSON.parse(saved)); }
   } catch(e) {}
+}
+
+// ---- Reset answers ----
+function initResetBtn() {
+  const btn = document.getElementById('rmResetBtn');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    if (!confirm('Barcha javoblarni tozalash va qaytadan boshlashni xohlaysizmi?')) return;
+    // Javoblarni va flaglarni tozala
+    rmState.answers = {};
+    rmState.flagged = new Set();
+    // SessionStorage ni tozala
+    try { sessionStorage.removeItem('rm_answers_' + MOCK_ID); } catch(e) {}
+    // UI ni qayta render qil
+    renderCurrentPassage();
+    renderNavPalette();
+    updateProgress();
+    // Timerni qayta boshlash
+    if (!IS_PREVIEW) {
+      rmState.timerSec = (rmState.mock.duration || 60) * 60;
+      startTimer();
+    }
+  });
 }
 
 // ---- Submit ----
