@@ -1103,13 +1103,30 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 <!-- Exit Confirm Modal -->
 <div class="rm-exit-overlay" id="rmExitOverlay">
   <div class="rm-exit-card">
-    <div class="rm-exit-icon">⚠️</div>
+    <div class="rm-exit-icon" style="font-size:1.4rem;background:rgba(217,142,63,.12);color:#D98E3F;">!</div>
     <h2 class="rm-exit-title">Testdan chiqish</h2>
     <p class="rm-exit-desc">Nima qilmoqchisiz?</p>
     <div class="rm-exit-actions" style="flex-direction:column;gap:10px;">
-      <button class="rm-exit-leave" id="rmExitFinish" style="background:#1FAE7A;">✅ Testni yakunlash</button>
-      <button class="rm-exit-leave" id="rmExitLeave">🚪 Saqlamasdan chiqish</button>
-      <button class="rm-exit-stay" id="rmExitStay">← Qolish</button>
+      <button class="rm-exit-leave" id="rmExitFinish" style="background:#1FAE7A;">Testni yakunlash</button>
+      <button class="rm-exit-leave" id="rmExitLeave">Saqlamasdan chiqish</button>
+      <button class="rm-exit-stay" id="rmExitStay">Qolish</button>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Confirm Modal -->
+<div id="rmConfirmOverlay" style="
+  position:fixed;inset:0;background:rgba(8,14,32,.55);
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  z-index:3000;display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity .2s;">
+  <div style="background:#fff;border-radius:20px;padding:28px 28px 22px;max-width:360px;width:100%;
+    box-shadow:0 24px 60px rgba(0,0,0,.22);text-align:center;
+    transform:translateY(10px) scale(.97);transition:transform .2s cubic-bezier(.4,0,.2,1);" id="rmConfirmCard">
+    <div style="font-size:1.05rem;font-weight:700;color:#101B3D;margin-bottom:10px;" id="rmConfirmMsg"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button id="rmConfirmCancel" style="flex:1;padding:12px;border:1.5px solid #e2e8f0;border-radius:12px;background:#fff;font-size:.95rem;font-weight:700;color:#374151;cursor:pointer;">Yo'q</button>
+      <button id="rmConfirmOk" style="flex:1;padding:12px;border:none;border-radius:12px;background:#1FAE7A;font-size:.95rem;font-weight:700;color:#fff;cursor:pointer;">Ha, davom etish</button>
     </div>
   </div>
 </div>
@@ -1694,21 +1711,18 @@ function initResetBtn() {
   const btn = document.getElementById('rmResetBtn');
   if (!btn) return;
   btn.addEventListener('click', () => {
-    if (!confirm('Barcha javoblarni tozalash va qaytadan boshlashni xohlaysizmi?')) return;
-    // Javoblarni va flaglarni tozala
-    rmState.answers = {};
-    rmState.flagged = new Set();
-    // SessionStorage ni tozala
-    try { sessionStorage.removeItem('rm_answers_' + MOCK_ID); } catch(e) {}
-    // UI ni qayta render qil
-    renderCurrentPassage();
-    renderNavPalette();
-    updateProgress();
-    // Timerni qayta boshlash
-    if (!IS_PREVIEW) {
-      rmState.timerSec = (rmState.mock.duration || 60) * 60;
-      startTimer();
-    }
+    rmConfirm('Barcha javoblarni tozalab, qaytadan boshlashni xohlaysizmi?', () => {
+      rmState.answers = {};
+      rmState.flagged = new Set();
+      try { sessionStorage.removeItem('rm_answers_' + MOCK_ID); } catch(e) {}
+      renderCurrentPassage();
+      renderNavPalette();
+      updateProgress();
+      if (!IS_PREVIEW) {
+        rmState.timerSec = (rmState.mock.duration || 60) * 60;
+        startTimer();
+      }
+    });
   });
 }
 
@@ -1865,11 +1879,15 @@ function initExitModal() {
       const total = rmState.passages.reduce((s, p) => s + p.groups.reduce((s2, g) => s2 + g.questions.length, 0), 0);
       const answered = Object.keys(rmState.answers).filter(k => rmState.answers[k]).length;
       const unanswered = total - answered;
-      if (unanswered > 0 && !confirm(`${unanswered} ta savol javobsiz qoldi. Baribir yakunlaysizmi?`)) {
-        resumeTimerAfterModal();
-        return;
+      if (unanswered > 0) {
+        rmConfirm(`${unanswered} ta savol javobsiz qoldi. Baribir yakunlaysizmi?`, () => {
+          submitTest(false);
+        }, () => {
+          resumeTimerAfterModal();
+        });
+      } else {
+        submitTest(false);
       }
-      submitTest(false);
     });
   }
 
@@ -1944,8 +1962,39 @@ function setBookmarkState(btn, isSaved) {
   }
 }
 
-// ---- Init ----
-document.addEventListener('DOMContentLoaded', async () => {
+// ---- Custom Confirm Modal ----
+function rmConfirm(message, onOk, onCancel) {
+  const overlay = document.getElementById('rmConfirmOverlay');
+  const card    = document.getElementById('rmConfirmCard');
+  const msgEl   = document.getElementById('rmConfirmMsg');
+  const okBtn   = document.getElementById('rmConfirmOk');
+  const cancelBtn = document.getElementById('rmConfirmCancel');
+  if (!overlay) return;
+
+  msgEl.textContent = message;
+  overlay.style.opacity = '1';
+  overlay.style.pointerEvents = 'all';
+  card.style.transform = 'translateY(0) scale(1)';
+
+  function close() {
+    overlay.style.opacity = '0';
+    overlay.style.pointerEvents = 'none';
+    card.style.transform = 'translateY(10px) scale(.97)';
+    okBtn.replaceWith(okBtn.cloneNode(true));
+    cancelBtn.replaceWith(cancelBtn.cloneNode(true));
+    // re-bind after clone
+    document.getElementById('rmConfirmOk').addEventListener('click', () => {});
+    document.getElementById('rmConfirmCancel').addEventListener('click', () => {});
+  }
+
+  const freshOk = document.getElementById('rmConfirmOk');
+  const freshCancel = document.getElementById('rmConfirmCancel');
+
+  freshOk.onclick = () => { close(); if (onOk) onOk(); };
+  freshCancel.onclick = () => { close(); if (onCancel) onCancel(); };
+  overlay.onclick = (e) => { if (e.target === overlay) { close(); if (onCancel) onCancel(); } };
+}
+
   if (IS_PREVIEW) {
     restoreAnswers();
     await loadMock();
