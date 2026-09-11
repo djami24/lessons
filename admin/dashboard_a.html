@@ -3424,9 +3424,13 @@ function switchView(view){
   document.getElementById('navWriting').classList.toggle('active', view === 'writing-tracks' || view === 'writing-items');
   document.getElementById('navEssays').classList.toggle('active', view === 'essays');
   {
-    const englishActive = view === 'levels' || view === 'lessons' || view === 'course-sections' || view === 'course-topics' || view === 'writing-tracks' || view === 'writing-items' || view === 'essays';
+    const englishActive = view === 'levels' || view === 'lessons' || view === 'course-sections' || view === 'course-topics';
     document.getElementById('navEnglishLessons').classList.toggle('active', englishActive);
     if(englishActive) document.getElementById('navEnglishLessonsGroup').classList.add('open');
+  }
+  {
+    const cefrActive = view === 'reading-mocks' || view === 'reading-mock-builder' || view === 'speaking-menu' || view === 'writing-tracks' || view === 'writing-items' || view === 'essays';
+    if(cefrActive) document.getElementById('navCefrGroup').classList.add('open');
   }
   document.getElementById('navStudents').classList.toggle('active', view === 'students' || view === 'student-progress');
   document.getElementById('navBlogs').classList.toggle('active', view === 'blogs');
