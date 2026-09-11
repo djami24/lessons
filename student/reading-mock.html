@@ -497,6 +497,51 @@ body.rm-body {
   margin: 14px 0;
 }
 
+/* ---- Resize Divider ---- */
+.rm-divider {
+  width: 6px;
+  background: var(--adm-line, #E7EBF4);
+  cursor: col-resize;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+  z-index: 10;
+}
+.rm-divider:hover,
+.rm-divider.dragging { background: var(--adm-blue, #2F6FED); }
+.rm-divider-handle {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 40px;
+  background: #fff;
+  border: 1.5px solid var(--adm-line, #E7EBF4);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  font-size: .75rem;
+  color: var(--adm-gray, #8892A6);
+  line-height: 1;
+  pointer-events: none;
+  transition: border-color .15s, color .15s;
+  user-select: none;
+}
+.rm-divider:hover .rm-divider-handle,
+.rm-divider.dragging .rm-divider-handle {
+  border-color: var(--adm-blue, #2F6FED);
+  color: var(--adm-blue, #2F6FED);
+}
+@media (max-width: 768px) {
+  .rm-divider { display: none; }
+}
+
 /* ---- Loading ---- */
 .rm-loading-screen {
   position: fixed; inset: 0;
@@ -1115,15 +1160,22 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 <div class="rm-main" id="rmMain" style="display:none;">
 
   <!-- LEFT: Passage -->
-  <div class="rm-passage-panel">
+  <div class="rm-passage-panel" id="rmPassagePanel">
     <div class="rm-passage-tabs" id="rmPassageTabs"></div>
     <div id="rmPassageContent">
       <p style="color:var(--adm-gray);font-size:.9rem;">Part yuklanmoqda…</p>
     </div>
   </div>
 
+  <!-- DIVIDER -->
+  <div class="rm-divider" id="rmDivider">
+    <div class="rm-divider-handle">
+      <span>&#8249;</span><span>&#8250;</span>
+    </div>
+  </div>
+
   <!-- RIGHT: Questions -->
-  <div style="display:flex;flex-direction:column;flex:1 1 45%;max-width:520px;overflow:hidden;">
+  <div id="rmRightCol" style="display:flex;flex-direction:column;flex:1 1 45%;min-width:280px;overflow:hidden;">
     <div class="rm-questions-panel" id="rmQuestionsPanel">
     </div>
     <!-- Question nav palette (fixed at bottom of right column) -->
@@ -2296,6 +2348,60 @@ document.addEventListener('DOMContentLoaded', async () => {
       try { localStorage.setItem(STORAGE_KEY, theme); } catch(e) {}
     }
   }
+})();
+</script>
+<script>
+// ================================================================
+// DRAG DIVIDER — passage / questions panel resize
+// ================================================================
+(function() {
+  const divider     = document.getElementById('rmDivider');
+  const passPanel   = document.getElementById('rmPassagePanel');
+  const rightCol    = document.getElementById('rmRightCol');
+  const mainEl      = document.getElementById('rmMain');
+  if (!divider || !passPanel || !rightCol) return;
+
+  const MIN_W = 220;   // px — minimal kenglik
+  let dragging = false;
+  let startX   = 0;
+  let startW   = 0;
+
+  function onStart(e) {
+    dragging = true;
+    startX   = e.touches ? e.touches[0].clientX : e.clientX;
+    startW   = passPanel.getBoundingClientRect().width;
+    divider.classList.add('dragging');
+    document.body.style.cursor    = 'col-resize';
+    document.body.style.userSelect = 'none';
+    e.preventDefault();
+  }
+
+  function onMove(e) {
+    if (!dragging) return;
+    const cx     = e.touches ? e.touches[0].clientX : e.clientX;
+    const dx     = cx - startX;
+    const total  = mainEl.getBoundingClientRect().width;
+    let newW     = startW + dx;
+    newW = Math.max(MIN_W, Math.min(newW, total - MIN_W - 6));
+    // flex-basis ni o'rnatish
+    passPanel.style.flex = `0 0 ${newW}px`;
+    rightCol.style.flex  = `1 1 0`;
+  }
+
+  function onEnd() {
+    if (!dragging) return;
+    dragging = false;
+    divider.classList.remove('dragging');
+    document.body.style.cursor    = '';
+    document.body.style.userSelect = '';
+  }
+
+  divider.addEventListener('mousedown',  onStart);
+  divider.addEventListener('touchstart', onStart, { passive: false });
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('touchmove', onMove, { passive: false });
+  document.addEventListener('mouseup',   onEnd);
+  document.addEventListener('touchend',  onEnd);
 })();
 </script>
 </body>
