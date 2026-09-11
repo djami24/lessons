@@ -347,75 +347,167 @@ body.rm-body {
 .rm-result-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(10,18,40,.85);
+  background: rgba(8,14,32,.82);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 999;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 20px;
   overflow-y: auto;
 }
 .rm-result-card {
   background: #fff;
-  border-radius: 24px;
-  padding: 36px 40px;
-  max-width: 700px;
-  width: 100%;
-  box-shadow: 0 32px 80px rgba(0,0,0,.35);
-}
-.rm-result-title { font-size: 1.5rem; font-weight: 800; margin: 0 0 6px; color: var(--adm-ink, #101B3D); }
-.rm-result-sub { color: var(--adm-gray, #8892A6); font-size: .9rem; margin-bottom: 28px; }
-.rm-score-big {
-  text-align: center;
-  background: linear-gradient(135deg, rgba(47,111,237,.08), rgba(31,174,122,.08));
-  border: 1.5px solid var(--adm-line, #E7EBF4);
   border-radius: 20px;
-  padding: 28px;
-  margin-bottom: 20px;
+  padding: 28px 32px 24px;
+  max-width: 560px;
+  width: 100%;
+  box-shadow: 0 24px 60px rgba(0,0,0,.28);
 }
-.rm-score-num { font-size: 3.5rem; font-weight: 900; color: var(--adm-blue, #2F6FED); line-height: 1; }
-.rm-score-denom { font-size: 1.6rem; font-weight: 700; color: var(--adm-gray, #8892A6); }
-.rm-score-label { font-size: .9rem; color: var(--adm-gray, #8892A6); margin-top: 8px; }
+.rm-result-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+.rm-result-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0 0 3px;
+  color: #101B3D;
+  letter-spacing: -.01em;
+}
+.rm-result-sub {
+  color: #8892A6;
+  font-size: .82rem;
+  margin: 0;
+}
+.rm-score-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #F3F6FC;
+  border-radius: 16px;
+  padding: 18px 22px;
+  margin-bottom: 16px;
+}
+.rm-score-left {
+  flex: 1;
+  min-width: 0;
+}
+.rm-score-nums {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  line-height: 1;
+}
+.rm-score-num {
+  font-size: 2.8rem;
+  font-weight: 900;
+  color: #2F6FED;
+  letter-spacing: -.03em;
+}
+.rm-score-denom {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #C0C8D8;
+}
+.rm-score-label {
+  font-size: .75rem;
+  color: #8892A6;
+  margin-top: 4px;
+  font-weight: 500;
+}
 .rm-band-badge {
-  display: inline-block;
-  background: linear-gradient(135deg, var(--adm-blue, #2F6FED), #1FAE7A);
+  background: linear-gradient(135deg, #2F6FED 0%, #1FAE7A 100%);
   color: #fff;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 900;
   border-radius: 14px;
-  padding: 10px 24px;
-  margin-top: 12px;
-}
-.rm-passage-scores { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
-.rm-ps-card {
-  background: var(--adm-bg, #F3F6FC);
-  border-radius: 12px;
-  padding: 14px;
+  padding: 12px 20px;
   text-align: center;
-  border: 1.5px solid var(--adm-line, #E7EBF4);
+  min-width: 90px;
+  flex-shrink: 0;
+  line-height: 1;
 }
-.rm-ps-num { font-size: 1.4rem; font-weight: 800; color: var(--adm-ink, #101B3D); }
-.rm-ps-label { font-size: .75rem; color: var(--adm-gray, #8892A6); margin-top: 4px; }
-.rm-review-list { margin-top: 20px; max-height: 40vh; overflow-y: auto; }
+.rm-band-badge small {
+  display: block;
+  font-size: .6rem;
+  font-weight: 600;
+  opacity: .75;
+  letter-spacing: .04em;
+  margin-bottom: 3px;
+  text-transform: uppercase;
+}
+.rm-passage-scores {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.rm-ps-card {
+  background: #F8FAFE;
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+  border: 1.5px solid #E7EBF4;
+}
+.rm-ps-num {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #101B3D;
+  letter-spacing: -.01em;
+}
+.rm-ps-label {
+  font-size: .68rem;
+  color: #B0B8C9;
+  margin-top: 3px;
+  font-weight: 600;
+}
+.rm-review-list {
+  margin-top: 12px;
+  max-height: 32vh;
+  overflow-y: auto;
+  border-radius: 10px;
+}
 .rm-review-item {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  margin-bottom: 6px;
-  border: 1px solid var(--adm-line, #E7EBF4);
-  font-size: .86rem;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 5px;
+  border: 1px solid #E7EBF4;
+  font-size: .83rem;
 }
-.rm-review-item.correct { background: rgba(31,174,122,.06); border-color: rgba(31,174,122,.25); }
-.rm-review-item.wrong { background: rgba(231,76,60,.05); border-color: rgba(231,76,60,.2); }
-.rm-review-item.skipped { background: rgba(200,200,200,.08); }
-.rm-review-qnum { font-weight: 800; min-width: 30px; }
-.rm-review-status { font-weight: 700; }
+.rm-review-item.correct { background: rgba(31,174,122,.05); border-color: rgba(31,174,122,.22); }
+.rm-review-item.wrong { background: rgba(231,76,60,.04); border-color: rgba(231,76,60,.18); }
+.rm-review-item.skipped { background: rgba(200,200,200,.07); }
+.rm-review-qnum { font-weight: 800; min-width: 26px; color: #8892A6; }
+.rm-review-status { font-weight: 700; flex-shrink: 0; }
 .rm-review-status.correct { color: #1FAE7A; }
 .rm-review-status.wrong { color: #E74C3C; }
-.rm-review-status.skipped { color: var(--adm-gray, #8892A6); }
-.rm-result-actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+.rm-review-status.skipped { color: #C0C8D8; }
+.rm-result-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.rm-result-actions .btn {
+  flex: 1;
+  min-width: 120px;
+  text-align: center;
+  justify-content: center;
+}
+/* Divider inside result */
+.rm-result-divider {
+  border: none;
+  border-top: 1.5px solid #F0F3F9;
+  margin: 14px 0;
+}
 
 /* ---- Loading ---- */
 .rm-loading-screen {
@@ -440,8 +532,11 @@ body.rm-body {
   .rm-main { flex-direction: column; overflow: visible; height: auto; }
   .rm-passage-panel { border-right: none; border-bottom: 2px solid var(--adm-line, #E7EBF4); max-height: 50vh; }
   .rm-questions-panel { max-width: 100%; }
-  .rm-result-card { padding: 24px 20px; }
-  .rm-passage-scores { grid-template-columns: 1fr 1fr; }
+  .rm-result-card { padding: 20px 18px; max-width: 100%; }
+  .rm-passage-scores { grid-template-columns: 1fr 1fr 1fr; }
+  .rm-score-row { flex-direction: row; gap: 10px; padding: 14px 16px; }
+  .rm-score-num { font-size: 2.2rem; }
+  .rm-band-badge { min-width: 74px; font-size: 1.2rem; padding: 10px 14px; }
 }
 
 /* ---- Highlight & Note ---- */
@@ -669,26 +764,44 @@ body.rm-body {
 <!-- Result Overlay -->
 <div class="rm-result-overlay" id="rmResultOverlay" style="display:none;">
   <div class="rm-result-card">
-    <h2 class="rm-result-title">Test yakunlandi!</h2>
-    <p class="rm-result-sub" id="rmResultSub">Sizning natijalaringiz:</p>
 
-    <div class="rm-score-big">
-      <div><span class="rm-score-num" id="rmResultCorrect">0</span><span class="rm-score-denom"> / <span id="rmResultTotal">0</span></span></div>
-      <div class="rm-score-label">To'g'ri javoblar</div>
-      <div class="rm-band-badge">Ball: <span id="rmResultBand">—</span></div>
+    <div class="rm-result-head">
+      <div>
+        <h2 class="rm-result-title">Test yakunlandi!</h2>
+        <p class="rm-result-sub" id="rmResultSub">Natijalaringiz</p>
+      </div>
+    </div>
+
+    <div class="rm-score-row">
+      <div class="rm-score-left">
+        <div class="rm-score-nums">
+          <span class="rm-score-num" id="rmResultCorrect">0</span>
+          <span class="rm-score-denom">&thinsp;/ <span id="rmResultTotal">0</span></span>
+        </div>
+        <div class="rm-score-label">To'g'ri javoblar</div>
+      </div>
+      <div class="rm-band-badge">
+        <small>Ball</small>
+        <span id="rmResultBand">—</span>
+      </div>
     </div>
 
     <div class="rm-passage-scores" id="rmPassageScores"></div>
 
-    <details style="margin-top:16px;">
-      <summary style="cursor:pointer;font-weight:700;font-size:.9rem;color:var(--adm-blue,#2F6FED);">Javoblarni ko'rish</summary>
+    <hr class="rm-result-divider">
+
+    <details>
+      <summary style="cursor:pointer;font-weight:700;font-size:.85rem;color:#2F6FED;user-select:none;list-style:none;display:flex;align-items:center;gap:6px;">
+        <span style="font-size:.9rem;">📋</span> Javoblarni ko'rish
+      </summary>
       <div class="rm-review-list" id="rmReviewList"></div>
     </details>
 
     <div class="rm-result-actions">
-      <button class="btn btn-ghost" onclick="location.href='dashboard.html'">← Kabinentga qaytish</button>
+      <button class="btn btn-ghost" onclick="location.href='dashboard.html'">Kabinetga qaytish</button>
       <button class="btn btn-amber" onclick="location.reload()">Qaytadan urinish</button>
     </div>
+
   </div>
 </div>
 
