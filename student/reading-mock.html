@@ -87,19 +87,7 @@ body.rm-body {
   min-height: 10px;
 }
 
-/* ---- Submit button ---- */
-.rm-submit-btn {
-  background: #1FAE7A;
-  border: none;
-  color: #fff;
-  border-radius: 10px;
-  padding: 9px 18px;
-  font-weight: 700;
-  font-size: .88rem;
-  cursor: pointer;
-  transition: background .15s;
-}
-.rm-submit-btn:hover { background: #178a60; }
+
 .rm-preview-badge {
   background: rgba(251,191,36,.2);
   border: 1px solid rgba(251,191,36,.5);
@@ -1070,11 +1058,13 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 <!-- Exit Confirm Modal -->
 <div class="rm-exit-overlay" id="rmExitOverlay">
   <div class="rm-exit-card">
+    <div class="rm-exit-icon">⚠️</div>
     <h2 class="rm-exit-title">Testdan chiqish</h2>
-    <p class="rm-exit-desc">Haqiqatan ham chiqmoqchimisiz? Jarayoningiz saqlanmasligi mumkin.</p>
-    <div class="rm-exit-actions">
-      <button class="rm-exit-stay" id="rmExitStay">Qolish</button>
-      <button class="rm-exit-leave" id="rmExitLeave">Ha, chiqish</button>
+    <p class="rm-exit-desc">Nima qilmoqchisiz?</p>
+    <div class="rm-exit-actions" style="flex-direction:column;gap:10px;">
+      <button class="rm-exit-leave" id="rmExitFinish" style="background:#1FAE7A;">✅ Testni yakunlash</button>
+      <button class="rm-exit-leave" id="rmExitLeave">🚪 Saqlamasdan chiqish</button>
+      <button class="rm-exit-stay" id="rmExitStay">← Qolish</button>
     </div>
   </div>
 </div>
@@ -1117,7 +1107,7 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
       <span>Notes (<span id="rmNotesHeaderCount">0</span>)</span>
       <span class="rm-notes-dot" id="rmNotesDot"></span>
     </button>
-    <button class="rm-submit-btn" id="rmSubmitBtn">Testni yakunlash</button>
+
   </div>
 </header>
 
@@ -1648,12 +1638,7 @@ function restoreAnswers() {
 // ---- Submit ----
 document.getElementById('rmTimerToggle').addEventListener('click', toggleTimer);
 
-document.getElementById('rmSubmitBtn').addEventListener('click', () => {  const total = rmState.passages.reduce((s, p) => s + p.groups.reduce((s2, g) => s2 + g.questions.length, 0), 0);
-  const answered = Object.keys(rmState.answers).filter(k => rmState.answers[k]).length;
-  const unanswered = total - answered;
-  if (unanswered > 0 && !confirm(`${unanswered} ta savol javobsiz qoldi. Baribir yakunlaysizmi?`)) return;
-  submitTest(false);
-});
+// Submit — faqat exit modal orqali (rmExitFinish tugmasi)
 
 function normalizeAnswer(s) {
   return String(s || '').toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, ' ');
@@ -1767,40 +1752,61 @@ function showResults() {
 
 // ---- Exit Modal ----
 function initExitModal() {
-  const overlay = document.getElementById('rmExitOverlay');
-  const exitBtn  = document.getElementById('rmExitBtn');
-  const stayBtn  = document.getElementById('rmExitStay');
-  const leaveBtn = document.getElementById('rmExitLeave');
+  const overlay   = document.getElementById('rmExitOverlay');
+  const exitBtn   = document.getElementById('rmExitBtn');
+  const stayBtn   = document.getElementById('rmExitStay');
+  const leaveBtn  = document.getElementById('rmExitLeave');
+  const finishBtn = document.getElementById('rmExitFinish');
   if (!overlay || !exitBtn) return;
 
-  exitBtn.addEventListener('click', () => {
-    // Timerni pauza qil
+  function pauseTimerForModal() {
     if (!rmState.timerPaused && rmState.timerInterval) {
       clearInterval(rmState.timerInterval);
     }
+  }
+
+  function resumeTimerAfterModal() {
+    if (!rmState.timerPaused && !rmState.submitted && !IS_PREVIEW) {
+      startTimer();
+    }
+  }
+
+  exitBtn.addEventListener('click', () => {
+    pauseTimerForModal();
     overlay.classList.add('open');
   });
 
   stayBtn.addEventListener('click', () => {
     overlay.classList.remove('open');
-    // Agar timer pauza qilinmagan bo'lsa, davom ettir
-    if (!rmState.timerPaused && !rmState.submitted && !IS_PREVIEW) {
-      startTimer();
-    }
+    resumeTimerAfterModal();
   });
 
+  // Testni yakunlash — natijalarni ko'rsat
+  if (finishBtn) {
+    finishBtn.addEventListener('click', () => {
+      overlay.classList.remove('open');
+      const total = rmState.passages.reduce((s, p) => s + p.groups.reduce((s2, g) => s2 + g.questions.length, 0), 0);
+      const answered = Object.keys(rmState.answers).filter(k => rmState.answers[k]).length;
+      const unanswered = total - answered;
+      if (unanswered > 0 && !confirm(`${unanswered} ta savol javobsiz qoldi. Baribir yakunlaysizmi?`)) {
+        resumeTimerAfterModal();
+        return;
+      }
+      submitTest(false);
+    });
+  }
+
+  // Saqlamasdan chiqish — dashboard ga o'tish
   leaveBtn.addEventListener('click', () => {
     overlay.classList.remove('open');
-    submitTest(false);
+    location.href = 'dashboard.html';
   });
 
   // Overlay tashqarisini bosib yopish
   overlay.addEventListener('click', (e) => {
     if (e.target === overlay) {
       overlay.classList.remove('open');
-      if (!rmState.timerPaused && !rmState.submitted && !IS_PREVIEW) {
-        startTimer();
-      }
+      resumeTimerAfterModal();
     }
   });
 }
