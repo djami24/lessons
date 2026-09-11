@@ -819,6 +819,35 @@ body.rm-contrast-yob .rm-nav-btn.current { background: #332b00; border-color: #f
 }
 .rm-textsize-item.active .rm-textsize-check { opacity: 1; }
 
+/* ---- Bookmark (save) button in header ---- */
+.rm-bookmark-btn {
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.2);
+  color: rgba(255,255,255,.75);
+  border-radius: 10px;
+  padding: 7px 14px;
+  font-size: .85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background .15s, border-color .15s, color .15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.rm-bookmark-btn:hover {
+  background: rgba(255,255,255,.22);
+  color: #fff;
+}
+.rm-bookmark-btn.saved {
+  background: rgba(217,142,63,.18);
+  border-color: rgba(217,142,63,.55);
+  color: #D98E3F;
+}
+.rm-bookmark-btn .rm-bm-star { font-size: 1rem; transition: transform .2s; }
+.rm-bookmark-btn.saving { opacity: .6; pointer-events: none; }
+
 /* Text size toggle button in header */
 .rm-textsize-toggle {
   background: rgba(255,255,255,.1);
@@ -946,6 +975,10 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
   </div>
   <div class="rm-header-right">
     <span class="rm-preview-badge" id="rmPreviewBadge" style="display:none;">PREVIEW</span>
+    <button class="rm-bookmark-btn" id="rmBookmarkBtn" title="Saqlanganlarga qo'shish" style="display:none;">
+      <span class="rm-bm-star">☆</span>
+      <span class="rm-bm-label">Belgilash</span>
+    </button>
     <button class="rm-textsize-toggle" id="rmTextsizeToggle" title="Matn o'lchami">T</button>
     <button class="rm-contrast-toggle" id="rmContrastToggle" title="Kontrast rejimi">Aa</button>
     <button class="rm-notes-toggle" id="rmNotesToggle" title="Izohlarim">
@@ -1187,6 +1220,8 @@ function renderUI() {
 
   if (!IS_PREVIEW) startTimer();
   else document.getElementById('rmTimerBox').textContent = '60:00';
+
+  if (!IS_PREVIEW) initBookmark();
 }
 
 function renderPassageTabs() {
@@ -1596,6 +1631,62 @@ function showResults() {
   }).join('');
 
   document.getElementById('rmResultOverlay').style.display = '';
+}
+
+// ---- Bookmark (Saved Mocks) ----
+function initBookmark() {
+  const btn = document.getElementById('rmBookmarkBtn');
+  if (!btn) return;
+  btn.style.display = '';
+
+  const user = auth.currentUser;
+  if (!user || !MOCK_ID) return;
+
+  const savedRef = db.collection('students').doc(user.uid).collection('savedMocks').doc(MOCK_ID);
+
+  // Firestore'dan holat tekshirish
+  savedRef.get().then(doc => {
+    setBookmarkState(btn, doc.exists);
+  }).catch(() => {});
+
+  // Bosish logikasi
+  btn.addEventListener('click', async () => {
+    if (btn.classList.contains('saving')) return;
+    btn.classList.add('saving');
+    const isSaved = btn.classList.contains('saved');
+    try {
+      if (isSaved) {
+        await savedRef.delete();
+        setBookmarkState(btn, false);
+      } else {
+        await savedRef.set({
+          mockId: MOCK_ID,
+          title: rmState.mock.title || 'Reading Mock',
+          savedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          mockMode: rmState.mockMode || 'full_mock'
+        });
+        setBookmarkState(btn, true);
+      }
+    } catch(e) {
+      console.error('Bookmark error:', e);
+    } finally {
+      btn.classList.remove('saving');
+    }
+  });
+}
+
+function setBookmarkState(btn, isSaved) {
+  const star = btn.querySelector('.rm-bm-star');
+  const label = btn.querySelector('.rm-bm-label');
+  if (isSaved) {
+    btn.classList.add('saved');
+    if (star) star.textContent = '★';
+    if (label) label.textContent = 'Belgilangan';
+  } else {
+    btn.classList.remove('saved');
+    if (star) star.textContent = '☆';
+    if (label) label.textContent = 'Belgilash';
+  }
 }
 
 // ---- Init ----
