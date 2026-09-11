@@ -1995,16 +1995,18 @@ function rmConfirm(message, onOk, onCancel) {
   overlay.onclick = (e) => { if (e.target === overlay) { close(); if (onCancel) onCancel(); } };
 }
 
-  if (IS_PREVIEW) {
-    restoreAnswers();
-    await loadMock();
-  } else {
-    auth.onAuthStateChanged(async user => {
-      if (!user) { location.href = 'login.html'; return; }
+  (async () => {
+    if (IS_PREVIEW) {
       restoreAnswers();
       await loadMock();
-    });
-  }
+    } else {
+      auth.onAuthStateChanged(async user => {
+        if (!user) { location.href = 'login.html'; return; }
+        restoreAnswers();
+        await loadMock();
+      });
+    }
+  })();
 });
 </script>
 
