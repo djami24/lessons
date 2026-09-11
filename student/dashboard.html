@@ -1196,11 +1196,89 @@
         <h1>📖 Reading Mocks</h1>
         <p>CEFR reading mock testlari</p>
       </div>
-      <div style="display:flex;gap:8px;margin:12px 0 4px;">
-        <button id="rmFilterAll" onclick="rmSetFilter('all')" style="padding:8px 20px;border-radius:20px;border:1.5px solid #2563eb;background:#2563eb;color:#fff;font-weight:600;font-size:.9rem;cursor:pointer;">Barchasi</button>
-        <button id="rmFilterSaved" onclick="rmSetFilter('saved')" style="padding:8px 20px;border-radius:20px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#64748b;font-weight:600;font-size:.9rem;cursor:pointer;">★ Saqlangan</button>
+
+      <!-- Search + Filter bar -->
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;">
+        <div style="flex:1;position:relative;">
+          <span style="position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:1rem;pointer-events:none;">🔍</span>
+          <input id="rmSearchInput" type="text" placeholder="Qidirish..." oninput="rmRenderList()"
+            style="width:100%;padding:10px 14px 10px 38px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:.92rem;outline:none;background:#f8fafc;color:#0f172a;box-sizing:border-box;">
+        </div>
+        <button id="rmFilterPanelBtn" onclick="rmToggleFilterPanel()"
+          style="display:flex;align-items:center;gap:7px;padding:10px 18px;border:1.5px solid #e2e8f0;border-radius:12px;background:#f8fafc;color:#374151;font-weight:600;font-size:.9rem;cursor:pointer;transition:all .15s;white-space:nowrap;">
+          <span>⚙</span> Filter
+          <span id="rmFilterBadge" style="display:none;background:#2563eb;color:#fff;border-radius:20px;font-size:.72rem;font-weight:700;padding:1px 7px;margin-left:2px;">0</span>
+        </button>
       </div>
-      <div id="rmStudentList" style="display:grid;gap:14px;margin-top:8px;"></div>
+
+      <!-- Saved tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button id="rmTabAll" onclick="rmSetTab('all')"
+          style="padding:7px 18px;border-radius:20px;border:1.5px solid #2563eb;background:#2563eb;color:#fff;font-weight:600;font-size:.88rem;cursor:pointer;">Barchasi</button>
+        <button id="rmTabSaved" onclick="rmSetTab('saved')"
+          style="padding:7px 18px;border-radius:20px;border:1.5px solid #e2e8f0;background:#f8fafc;color:#64748b;font-weight:600;font-size:.88rem;cursor:pointer;">★ Saqlangan</button>
+      </div>
+
+      <!-- Filter panel (dropdown) -->
+      <div id="rmFilterPanel" style="display:none;background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:20px 22px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,.08);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <span style="font-weight:800;font-size:.95rem;color:#0f172a;">Filters</span>
+          <button onclick="rmResetFilters()" style="background:none;border:none;color:#2563eb;font-weight:600;font-size:.85rem;cursor:pointer;padding:0;">Reset</button>
+        </div>
+
+        <!-- Mock turi -->
+        <div style="margin-bottom:16px;">
+          <div style="font-size:.72rem;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;">MOCK TURI</div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:.9rem;color:#374151;">
+              <input type="radio" name="rmMockType" value="all" checked onchange="rmRenderList()" style="accent-color:#2563eb;"> Barchasi
+            </label>
+            <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:.9rem;color:#374151;">
+              <input type="radio" name="rmMockType" value="full_mock" onchange="rmRenderList()" style="accent-color:#2563eb;"> Full Mock (5 part)
+            </label>
+            <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-size:.9rem;color:#374151;">
+              <input type="radio" name="rmMockType" value="single_part" onchange="rmRenderList()" style="accent-color:#2563eb;"> Alohida Part
+            </label>
+          </div>
+        </div>
+
+        <!-- Parts -->
+        <div id="rmPartsFilter" style="margin-bottom:16px;">
+          <div style="font-size:.72rem;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;">PART</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem;color:#374151;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:6px 14px;">
+              <input type="checkbox" value="0" onchange="rmRenderList()" class="rmPartChk" style="accent-color:#2563eb;"> Part 1
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem;color:#374151;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:6px 14px;">
+              <input type="checkbox" value="1" onchange="rmRenderList()" class="rmPartChk" style="accent-color:#2563eb;"> Part 2
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem;color:#374151;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:6px 14px;">
+              <input type="checkbox" value="2" onchange="rmRenderList()" class="rmPartChk" style="accent-color:#2563eb;"> Part 3
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem;color:#374151;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:6px 14px;">
+              <input type="checkbox" value="3" onchange="rmRenderList()" class="rmPartChk" style="accent-color:#2563eb;"> Part 4
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem;color:#374151;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:6px 14px;">
+              <input type="checkbox" value="4" onchange="rmRenderList()" class="rmPartChk" style="accent-color:#2563eb;"> Part 5
+            </label>
+          </div>
+        </div>
+
+        <!-- Test turi (Academic/General) -->
+        <div>
+          <div style="font-size:.72rem;font-weight:800;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px;">TEST TURI</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem;color:#374151;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:6px 14px;">
+              <input type="checkbox" value="academic" onchange="rmRenderList()" class="rmTypeChk" style="accent-color:#2563eb;"> Academic
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:.88rem;color:#374151;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:6px 14px;">
+              <input type="checkbox" value="general" onchange="rmRenderList()" class="rmTypeChk" style="accent-color:#2563eb;"> General Training
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div id="rmStudentList" style="display:grid;gap:14px;margin-top:4px;"></div>
     </section>
   </main>
 </div>
@@ -4577,75 +4655,152 @@ document.getElementById('navReadingMocks').addEventListener('click', function(e)
 
 // Saqlangan mocklar
 var _rmSavedIds = new Set();
-var _rmCurrentFilter = 'all';
+var _rmCurrentTab = 'all';
 var _rmAllDocs = [];
+var _rmSavedIds = new Set();
+var _rmFilterOpen = false;
 
-function rmSetFilter(filter) {
-  _rmCurrentFilter = filter;
-  // Tugma stillari
-  var btnAll   = document.getElementById('rmFilterAll');
-  var btnSaved = document.getElementById('rmFilterSaved');
+function rmSetTab(tab) {
+  _rmCurrentTab = tab;
+  var btnAll   = document.getElementById('rmTabAll');
+  var btnSaved = document.getElementById('rmTabSaved');
   if (btnAll && btnSaved) {
-    if (filter === 'all') {
-      btnAll.style.background   = '#2563eb'; btnAll.style.color   = '#fff'; btnAll.style.borderColor   = '#2563eb';
+    if (tab === 'all') {
+      btnAll.style.background = '#2563eb'; btnAll.style.color = '#fff'; btnAll.style.borderColor = '#2563eb';
       btnSaved.style.background = '#f8fafc'; btnSaved.style.color = '#64748b'; btnSaved.style.borderColor = '#e2e8f0';
     } else {
       btnSaved.style.background = '#2563eb'; btnSaved.style.color = '#fff'; btnSaved.style.borderColor = '#2563eb';
-      btnAll.style.background   = '#f8fafc'; btnAll.style.color   = '#64748b'; btnAll.style.borderColor   = '#e2e8f0';
+      btnAll.style.background = '#f8fafc'; btnAll.style.color = '#64748b'; btnAll.style.borderColor = '#e2e8f0';
     }
   }
   rmRenderList();
 }
 
+function rmToggleFilterPanel() {
+  _rmFilterOpen = !_rmFilterOpen;
+  var panel = document.getElementById('rmFilterPanel');
+  var btn   = document.getElementById('rmFilterPanelBtn');
+  if (panel) panel.style.display = _rmFilterOpen ? '' : 'none';
+  if (btn) { btn.style.borderColor = _rmFilterOpen ? '#2563eb' : '#e2e8f0'; btn.style.background = _rmFilterOpen ? '#eff6ff' : '#f8fafc'; btn.style.color = _rmFilterOpen ? '#2563eb' : '#374151'; }
+}
+
+function rmGetFilters() {
+  var mockType = (document.querySelector('input[name="rmMockType"]:checked') || {}).value || 'all';
+  var parts    = Array.from(document.querySelectorAll('.rmPartChk:checked')).map(function(c){ return parseInt(c.value); });
+  var types    = Array.from(document.querySelectorAll('.rmTypeChk:checked')).map(function(c){ return c.value; });
+  var search   = (document.getElementById('rmSearchInput') || {}).value || '';
+  return { mockType: mockType, parts: parts, types: types, search: search.toLowerCase().trim() };
+}
+
+function rmUpdateFilterBadge() {
+  var f = rmGetFilters();
+  var count = 0;
+  if (f.mockType !== 'all') count++;
+  count += f.parts.length;
+  count += f.types.length;
+  var badge = document.getElementById('rmFilterBadge');
+  if (badge) { badge.style.display = count > 0 ? '' : 'none'; badge.textContent = count; }
+}
+
+function rmResetFilters() {
+  var radio = document.querySelector('input[name="rmMockType"][value="all"]');
+  if (radio) radio.checked = true;
+  document.querySelectorAll('.rmPartChk').forEach(function(c){ c.checked = false; });
+  document.querySelectorAll('.rmTypeChk').forEach(function(c){ c.checked = false; });
+  var s = document.getElementById('rmSearchInput');
+  if (s) s.value = '';
+  rmUpdateFilterBadge();
+  rmRenderList();
+}
+
+// Parts filter: faqat single_part tanlanganda ko'rinsin
+document.addEventListener('change', function(e) {
+  if (e.target && e.target.name === 'rmMockType') {
+    var partsDiv = document.getElementById('rmPartsFilter');
+    if (partsDiv) partsDiv.style.display = e.target.value === 'single_part' ? '' : 'none';
+    rmUpdateFilterBadge();
+    rmRenderList();
+  }
+  if (e.target && (e.target.classList.contains('rmPartChk') || e.target.classList.contains('rmTypeChk'))) {
+    rmUpdateFilterBadge();
+  }
+});
+
 function rmRenderList() {
   var el = document.getElementById('rmStudentList');
-  var docs = _rmCurrentFilter === 'saved'
-    ? _rmAllDocs.filter(function(d){ return _rmSavedIds.has(d.id); })
-    : _rmAllDocs;
+  if (!el) return;
+  var f = rmGetFilters();
+
+  var docs = _rmAllDocs.filter(function(d) {
+    var m = d.data();
+    // Tab filter
+    if (_rmCurrentTab === 'saved' && !_rmSavedIds.has(d.id)) return false;
+    // Search
+    if (f.search && !(m.title || '').toLowerCase().includes(f.search) && !(m.description || '').toLowerCase().includes(f.search)) return false;
+    // Mock turi
+    if (f.mockType !== 'all') {
+      var docMode = m.mockMode || 'full_mock';
+      if (docMode !== f.mockType) return false;
+    }
+    // Parts (faqat single_part uchun)
+    if (f.parts.length > 0 && (m.mockMode === 'single_part' || f.mockType === 'single_part')) {
+      var partIdx = m.singlePartIndex != null ? m.singlePartIndex : -1;
+      if (!f.parts.includes(partIdx)) return false;
+    }
+    // Test turi
+    if (f.types.length > 0) {
+      var ttype = m.testType || 'academic';
+      if (!f.types.includes(ttype)) return false;
+    }
+    return true;
+  });
 
   if (docs.length === 0) {
-    el.innerHTML = _rmCurrentFilter === 'saved'
-      ? '<p style="opacity:.5">Hozircha saqlangan mock test yo\u02bblq.</p>'
-      : '<p style="opacity:.5">Hozircha mock test mavjud emas.</p>';
+    el.innerHTML = '<p style="opacity:.5;margin-top:8px;">' + (_rmCurrentTab === 'saved' ? 'Saqlangan mock test topilmadi.' : 'Mock test topilmadi.') + '</p>';
     return;
   }
 
   el.innerHTML = docs.map(function(d) {
     var m = d.data();
     var id = d.id;
-    var badge = m.testType === 'general' ? 'General Training' : 'Academic';
-    var isSaved = _rmSavedIds.has(id);
-    var starBg  = isSaved ? '#fef9c3' : '#f8fafc';
-    var starBdr = isSaved ? '#eab308' : '#e2e8f0';
-    var starIco = isSaved ? '\u2605' : '\u2606';
-    var starTtl = isSaved ? 'Saqlangandan olib tashlash' : 'Saqlash';
-    var desc    = m.description ? '<p style="margin:6px 0 0;font-size:.82rem;color:#64748b;">' + m.description + '</p>' : '';
+    var isSaved  = _rmSavedIds.has(id);
+    var starBg   = isSaved ? '#fef9c3' : '#f8fafc';
+    var starBdr  = isSaved ? '#eab308' : '#e2e8f0';
+    var starIco  = isSaved ? '\u2605' : '\u2606';
+    var starTtl  = isSaved ? 'Saqlangandan olib tashlash' : 'Saqlash';
+    var typeBadge = m.testType === 'general' ? 'General Training' : 'Academic';
+    var modeBadge = m.mockMode === 'single_part'
+      ? ('Part ' + ((m.singlePartIndex != null ? m.singlePartIndex : 0) + 1))
+      : 'Full Mock';
+    var modeBadgeColor = m.mockMode === 'single_part' ? '#7c3aed' : '#0e7490';
+    var desc = m.description ? '<p style="margin:5px 0 0;font-size:.82rem;color:#64748b;">' + m.description + '</p>' : '';
     return [
-      '<div id="rmCard-' + id + '" style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">',
+      '<div id="rmCard-' + id + '" style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">',
         '<div style="flex:1;min-width:0;">',
-          '<span style="font-size:.7rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.08em">' + badge + '</span>',
-          '<h3 style="margin:5px 0 7px;font-size:1.05rem;color:#0f172a;">' + (m.title || 'Mock Test') + '</h3>',
+          '<div style="display:flex;gap:7px;align-items:center;margin-bottom:6px;flex-wrap:wrap;">',
+            '<span style="font-size:.7rem;font-weight:700;color:#2563eb;text-transform:uppercase;letter-spacing:.08em;background:#eff6ff;border-radius:6px;padding:2px 8px;">' + typeBadge + '</span>',
+            '<span style="font-size:.7rem;font-weight:700;color:' + modeBadgeColor + ';text-transform:uppercase;letter-spacing:.06em;background:' + modeBadgeColor + '18;border-radius:6px;padding:2px 8px;">' + modeBadge + '</span>',
+          '</div>',
+          '<h3 style="margin:0 0 5px;font-size:1.02rem;color:#0f172a;font-weight:700;">' + (m.title || 'Mock Test') + '</h3>',
           '<span style="font-size:.82rem;color:#64748b;">' + (m.duration || 60) + ' daqiqa &middot; ' + (m.totalQuestions || '?') + ' savol</span>',
           desc,
         '</div>',
         '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">',
           '<button id="rmSaveBtn-' + id + '" data-mockid="' + id + '" class="rm-save-btn" title="' + starTtl + '" style="background:' + starBg + ';border:1.5px solid ' + starBdr + ';border-radius:10px;padding:9px 14px;font-size:1.15rem;cursor:pointer;transition:all .2s;">' + starIco + '</button>',
-          '<a href="../student/reading-mock.html?mockId=' + id + '" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:.9rem;white-space:nowrap">Boshlash</a>',
+          '<a href="../student/reading-mock.html?mockId=' + id + '" style="display:inline-block;background:#2563eb;color:#fff;text-decoration:none;border-radius:10px;padding:10px 22px;font-weight:700;font-size:.9rem;white-space:nowrap;">Boshlash</a>',
         '</div>',
       '</div>'
     ].join('');
   }).join('');
 
-  // Event listenerlar qo'shish
   el.querySelectorAll('.rm-save-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      rmToggleSave(this.getAttribute('data-mockid'));
-    });
+    btn.addEventListener('click', function() { rmToggleSave(this.getAttribute('data-mockid')); });
   });
 }
 
 async function rmStudentLoad() {
   var el = document.getElementById('rmStudentList');
+  if (!el) return;
   el.innerHTML = '<p style="opacity:.5">Yuklanmoqda...</p>';
   try {
     _rmSavedIds = new Set();
@@ -4653,13 +4808,13 @@ async function rmStudentLoad() {
       try {
         var savedSnap = await db.collection('students').doc(currentUid).collection('savedMocks').get();
         savedSnap.forEach(function(d){ _rmSavedIds.add(d.id); });
-      } catch(e) { /* ruxsat yo\'q bo\'lsa ham davom et */ }
+      } catch(e) {}
     }
     var snap = await db.collection('reading_mocks').where('status','==','published').get();
     _rmAllDocs = snap.docs;
     rmRenderList();
   } catch(err) {
-    el.innerHTML = '<p style="color:#f87171">Xatolik: '+err.message+'</p>';
+    el.innerHTML = '<p style="color:#f87171">Xatolik: ' + err.message + '</p>';
   }
 }
 
@@ -4672,13 +4827,12 @@ async function rmToggleSave(mockId) {
       await ref.delete();
       _rmSavedIds.delete(mockId);
       if (btn) { btn.textContent = '☆'; btn.title = 'Saqlash'; btn.style.background = '#f8fafc'; btn.style.borderColor = '#e2e8f0'; }
-      // Saqlangan filterdayik — kartani olib tashla
-      if (_rmCurrentFilter === 'saved') {
+      if (_rmCurrentTab === 'saved') {
         var card = document.getElementById('rmCard-' + mockId);
         if (card) card.remove();
         var el = document.getElementById('rmStudentList');
-        if (el && el.children.length === 0) {
-          el.innerHTML = '<p style="opacity:.5">Hozircha saqlangan mock test yoʻlq.</p>';
+        if (el && el.querySelectorAll('[id^="rmCard-"]').length === 0) {
+          el.innerHTML = '<p style="opacity:.5">Saqlangan mock test topilmadi.</p>';
         }
       }
     } else {
