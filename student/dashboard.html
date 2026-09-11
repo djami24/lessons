@@ -483,7 +483,7 @@
       <li><a href="#" id="navPlacementTest">🧭 Darajani bilish testi</a></li>
       <li><a href="#" id="navCourses">📚 Kurslarim</a></li>
       <li><a href="#" id="navMyEssays">✍️ Insholarim</a></li>
-      <li><a href="#" id="navReadingMocks">📖 Reading Mocks</a></li>
+      <li><a href="#" id="navCEFR">🎓 CEFR</a></li>
       <li><a href="#" id="navWordGame">🎮 So‘z o‘yini</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
@@ -1191,10 +1191,35 @@
 
 
     <!-- ===== READING MOCKS ===== -->
-    <section id="view-reading-mocks" hidden>
+    <!-- ===== CEFR MENU ===== -->
+    <section id="view-cefr-menu" hidden>
       <div class="admin-header">
-        <h1>📖 Reading Mocks</h1>
-        <p>CEFR reading mock testlari</p>
+        <h1>🎓 CEFR</h1>
+        <p>CEFR bo'limlari</p>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:8px;">
+        <!-- Reading Mocks -->
+        <div onclick="switchView('reading-mocks');rmStudentLoad();" style="background:#fff;border:1.5px solid #e2e8f0;border-radius:18px;padding:28px 22px;cursor:pointer;transition:box-shadow .18s,border-color .18s;display:flex;flex-direction:column;gap:10px;align-items:flex-start;"
+          onmouseover="this.style.boxShadow='0 4px 20px rgba(37,99,235,.12)';this.style.borderColor='#2563eb'"
+          onmouseout="this.style.boxShadow='';this.style.borderColor='#e2e8f0'">
+          <span style="font-size:2rem;">📖</span>
+          <div>
+            <div style="font-weight:800;font-size:1.05rem;color:#101b3d;">Reading Mocks</div>
+            <div style="font-size:.84rem;color:#64748b;margin-top:3px;">CEFR reading mock testlari</div>
+          </div>
+          <span style="margin-top:auto;font-size:.8rem;color:#2563eb;font-weight:600;">Ochish →</span>
+        </div>
+        <!-- Kelajakda boshqa bo'limlar qo'shiladi -->
+      </div>
+    </section>
+
+    <section id="view-reading-mocks" hidden>
+      <div class="admin-header" style="display:flex;align-items:center;gap:10px;">
+        <button onclick="switchView('cefr-menu')" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:#64748b;padding:0;line-height:1;" title="Orqaga">←</button>
+        <div>
+          <h1>📖 Reading Mocks</h1>
+          <p>CEFR reading mock testlari</p>
+        </div>
       </div>
 
       <!-- Search + Filter bar -->
@@ -1634,7 +1659,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks'];
+const VIEWS = ['home', 'courses', 'payment', 'levels', 'lessons', 'lesson-detail', 'quiz', 'quiz-result', 'course-payment', 'course-sections', 'course-topics', 'topic-detail', 'writing-payment', 'writing-tracks', 'writing-folders', 'writing-question', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu'];
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
@@ -1665,7 +1690,8 @@ const STUDENT_VIEW_NAV_MAP = {
   'writing-question': 'navCourses',
   'my-essays': 'navMyEssays',
   'word-game': 'navWordGame',
-  'reading-mocks': 'navReadingMocks',
+  'reading-mocks': 'navCEFR',
+  'cefr-menu': 'navCEFR',
   'notifications': 'navNotifications',
   'chat': 'navChat'
 };
@@ -4641,16 +4667,15 @@ wgApplyVisibilitySetting();
 
 
 // ===== READING MOCKS - Student =====
-document.getElementById('navReadingMocks').addEventListener('click', function(e) {
+document.getElementById('navCEFR').addEventListener('click', function(e) {
   e.preventDefault();
   document.getElementById('navHome').classList.remove('active');
   document.getElementById('navCourses').classList.remove('active');
   document.getElementById('navMyEssays').classList.remove('active');
   document.getElementById('navPlacementTest').classList.remove('active');
   document.getElementById('navProfile').classList.remove('active');
-  document.getElementById('navReadingMocks').classList.add('active');
-  switchView('reading-mocks');
-  rmStudentLoad();
+  document.getElementById('navCEFR').classList.add('active');
+  switchView('cefr-menu');
 });
 
 // Saqlangan mocklar
