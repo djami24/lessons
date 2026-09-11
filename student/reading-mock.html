@@ -415,6 +415,92 @@ body.rm-body {
   .rm-result-card { padding: 24px 20px; }
   .rm-passage-scores { grid-template-columns: 1fr 1fr; }
 }
+
+/* ---- Highlight & Note ---- */
+.rm-highlight {
+  background: #ffe066;
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+}
+.rm-highlight.has-note {
+  background: #b3e0ff;
+  border-bottom: 2px solid #2563eb;
+}
+#rmSelPopup {
+  position: fixed;
+  z-index: 9999;
+  background: #1e293b;
+  border-radius: 10px;
+  padding: 6px 4px;
+  display: none;
+  align-items: center;
+  gap: 2px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+}
+#rmSelPopup button {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: .85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transition: background .15s;
+}
+#rmSelPopup button:hover { background: rgba(255,255,255,.15); }
+#rmSelPopup button span.ico { font-size: 1.1rem; }
+#rmSelPopup .sep { width: 1px; height: 32px; background: rgba(255,255,255,.2); margin: 0 2px; }
+#rmNoteModal {
+  display: none;
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,.4);
+  align-items: center; justify-content: center;
+}
+#rmNoteModal.open { display: flex; }
+#rmNoteModalBox {
+  background: #fff;
+  border-radius: 14px;
+  padding: 24px;
+  width: 360px;
+  max-width: 95vw;
+  box-shadow: 0 8px 32px rgba(0,0,0,.18);
+}
+#rmNoteModalBox h3 { margin: 0 0 12px; font-size: 1rem; color: #0f172a; }
+#rmNoteModalBox textarea {
+  width: 100%; box-sizing: border-box;
+  border: 1.5px solid #e2e8f0; border-radius: 8px;
+  padding: 10px; font-size: .9rem; resize: vertical;
+  min-height: 90px; outline: none; font-family: inherit;
+}
+#rmNoteModalBox textarea:focus { border-color: #2563eb; }
+.rm-note-actions { display: flex; gap: 8px; margin-top: 12px; justify-content: flex-end; }
+.rm-note-actions button {
+  padding: 8px 18px; border-radius: 8px; border: none;
+  font-size: .9rem; font-weight: 600; cursor: pointer;
+}
+.rm-note-cancel { background: #f1f5f9; color: #64748b; }
+.rm-note-save   { background: #2563eb; color: #fff; }
+.rm-note-delete { background: #fee2e2; color: #dc2626; margin-right: auto; }
+#rmHighlightPanel {
+  position: fixed; right: 0; top: 50%; transform: translateY(-50%);
+  z-index: 999;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 8px 6px;
+  background: #fff;
+  border-radius: 12px 0 0 12px;
+  box-shadow: -2px 0 12px rgba(0,0,0,.1);
+}
+#rmHighlightPanel button {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 2px solid transparent; cursor: pointer;
+  font-size: .8rem; font-weight: 700; transition: border .15s;
+}
+#rmHighlightPanel button:hover, #rmHighlightPanel button.active { border-color: #2563eb; }
 </style>
 </head>
 
@@ -973,5 +1059,206 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 </script>
 
+
+<!-- Selection Popup -->
+<div id="rmSelPopup">
+  <button id="rmPopHighlight"><span class="ico">🖊</span>Highlight</button>
+  <div class="sep"></div>
+  <button id="rmPopNote"><span class="ico">💬</span>Note</button>
+  <div class="sep"></div>
+  <button id="rmPopRemove" style="display:none"><span class="ico">✕</span>O'chirish</button>
+</div>
+
+<!-- Note Modal -->
+<div id="rmNoteModal">
+  <div id="rmNoteModalBox">
+    <h3>📝 Izoh qo'shish</h3>
+    <textarea id="rmNoteText" placeholder="Izohingizni yozing..."></textarea>
+    <div class="rm-note-actions">
+      <button class="rm-note-delete" id="rmNoteDelete" style="display:none">O'chirish</button>
+      <button class="rm-note-cancel" id="rmNoteCancel">Bekor qilish</button>
+      <button class="rm-note-save"   id="rmNoteSave">Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ HIGHLIGHT & NOTE ============
+(function() {
+  var highlights = {}; // id → { text, color, note }
+  var _pendingRange = null;
+  var _editingId = null;
+  var _hlColor = '#ffe066';
+  var popup = document.getElementById('rmSelPopup');
+
+  // Rang tanlash paneli
+  var panel = document.createElement('div');
+  panel.id = 'rmHighlightPanel';
+  panel.title = 'Rang tanlang';
+  var colors = ['#ffe066','#b3f0b3','#ffb3b3','#b3d9ff'];
+  colors.forEach(function(c) {
+    var btn = document.createElement('button');
+    btn.style.background = c;
+    btn.title = c;
+    if (c === _hlColor) btn.classList.add('active');
+    btn.addEventListener('click', function() {
+      _hlColor = c;
+      panel.querySelectorAll('button').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+    });
+    panel.appendChild(btn);
+  });
+  document.body.appendChild(panel);
+
+  function hidePopup() {
+    popup.style.display = 'none';
+    _pendingRange = null;
+    _editingId = null;
+    document.getElementById('rmPopRemove').style.display = 'none';
+  }
+
+  function showPopup(x, y) {
+    popup.style.display = 'flex';
+    var pw = popup.offsetWidth || 180;
+    var left = Math.min(x, window.innerWidth - pw - 10);
+    popup.style.left = Math.max(8, left) + 'px';
+    popup.style.top  = (y - 60) + 'px';
+  }
+
+  // Matn belgilanganida
+  document.addEventListener('mouseup', function(e) {
+    if (popup.contains(e.target)) return;
+    setTimeout(function() {
+      var sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !sel.toString().trim()) { hidePopup(); return; }
+      var range = sel.getRangeAt(0);
+      // Faqat passage matn ichida
+      var body = range.commonAncestorContainer;
+      var inPassage = false;
+      var node = body.nodeType === 3 ? body.parentNode : body;
+      while (node) {
+        if (node.classList && node.classList.contains('rm-passage-body')) { inPassage = true; break; }
+        node = node.parentNode;
+      }
+      if (!inPassage) { hidePopup(); return; }
+      _pendingRange = range.cloneRange();
+      _editingId = null;
+      document.getElementById('rmPopRemove').style.display = 'none';
+      var rect = range.getBoundingClientRect();
+      showPopup(rect.left + rect.width / 2 - 90, rect.top + window.scrollY);
+    }, 10);
+  });
+
+  document.addEventListener('mousedown', function(e) {
+    if (!popup.contains(e.target) && !e.target.classList.contains('rm-highlight')) hidePopup();
+  });
+
+  // Mavjud highlight bosish
+  document.addEventListener('click', function(e) {
+    var hl = e.target.closest ? e.target.closest('.rm-highlight') : null;
+    if (!hl) return;
+    _editingId = hl.dataset.hlid;
+    _pendingRange = null;
+    document.getElementById('rmPopRemove').style.display = '';
+    var rect = hl.getBoundingClientRect();
+    showPopup(rect.left + rect.width / 2 - 90, rect.top + window.scrollY);
+  });
+
+  // Highlight bosish
+  document.getElementById('rmPopHighlight').addEventListener('click', function() {
+    if (_editingId) {
+      // Rangni yangilash
+      var el = document.querySelector('[data-hlid="' + _editingId + '"]');
+      if (el) { el.style.background = _hlColor; highlights[_editingId].color = _hlColor; }
+      hidePopup(); return;
+    }
+    if (!_pendingRange) { hidePopup(); return; }
+    applyHighlight(_pendingRange, _hlColor, '');
+    window.getSelection().removeAllRanges();
+    hidePopup();
+  });
+
+  // Note bosish
+  document.getElementById('rmPopNote').addEventListener('click', function() {
+    openNoteModal(_editingId, _pendingRange);
+    hidePopup();
+  });
+
+  // O'chirish
+  document.getElementById('rmPopRemove').addEventListener('click', function() {
+    if (_editingId) removeHighlight(_editingId);
+    hidePopup();
+  });
+
+  // Note modal
+  function openNoteModal(hlId, range) {
+    var modal = document.getElementById('rmNoteModal');
+    var textarea = document.getElementById('rmNoteText');
+    var delBtn = document.getElementById('rmNoteDelete');
+    textarea.value = hlId && highlights[hlId] ? (highlights[hlId].note || '') : '';
+    delBtn.style.display = hlId ? '' : 'none';
+    modal.classList.add('open');
+    textarea.focus();
+
+    document.getElementById('rmNoteSave').onclick = function() {
+      var note = textarea.value.trim();
+      if (hlId) {
+        var el = document.querySelector('[data-hlid="' + hlId + '"]');
+        if (el) {
+          highlights[hlId].note = note;
+          if (note) { el.classList.add('has-note'); el.title = note; }
+          else { el.classList.remove('has-note'); el.removeAttribute('title'); }
+        }
+      } else if (range) {
+        applyHighlight(range, _hlColor, note);
+        window.getSelection().removeAllRanges();
+      }
+      modal.classList.remove('open');
+    };
+
+    document.getElementById('rmNoteCancel').onclick = function() {
+      modal.classList.remove('open');
+    };
+
+    document.getElementById('rmNoteDelete').onclick = function() {
+      if (hlId) removeHighlight(hlId);
+      modal.classList.remove('open');
+    };
+
+    modal.onclick = function(e) {
+      if (e.target === modal) modal.classList.remove('open');
+    };
+  }
+
+  function applyHighlight(range, color, note) {
+    var id = 'hl_' + Date.now();
+    var span = document.createElement('span');
+    span.className = 'rm-highlight' + (note ? ' has-note' : '');
+    span.dataset.hlid = id;
+    span.style.background = color;
+    if (note) span.title = note;
+    try {
+      range.surroundContents(span);
+      highlights[id] = { color: color, note: note };
+    } catch(e) {
+      // Ko'p elementlar bo'lsa
+      var frag = range.extractContents();
+      span.appendChild(frag);
+      range.insertNode(span);
+      highlights[id] = { color: color, note: note };
+    }
+  }
+
+  function removeHighlight(hlId) {
+    var el = document.querySelector('[data-hlid="' + hlId + '"]');
+    if (!el) return;
+    var parent = el.parentNode;
+    while (el.firstChild) parent.insertBefore(el.firstChild, el);
+    parent.removeChild(el);
+    parent.normalize();
+    delete highlights[hlId];
+  }
+})();
+</script>
 </body>
 </html>
