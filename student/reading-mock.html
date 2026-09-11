@@ -1030,13 +1030,27 @@ function setAnswer(key, value, pi) {
   updateNavBtn(key);
   updateProgress();
   autoSave();
-  // Re-render just the changed question block's num badge
+
   const [p, g, q] = key.replace(/p|g|q/g, ' ').trim().split(' ').map(Number);
   const block = document.getElementById(`rmQBlock-${p}-${g}-${q}`);
-  if (block) {
-    const badge = block.querySelector('.rm-q-num-badge');
-    if (badge) badge.classList.toggle('answered', !!value);
-  }
+  if (!block) return;
+
+  // Update badge
+  const badge = block.querySelector('.rm-q-num-badge');
+  if (badge) badge.classList.toggle('answered', !!value);
+
+  // Update MC options — remove 'selected' from all, add to chosen one
+  block.querySelectorAll('.rm-mc-option').forEach(el => {
+    const keyEl = el.querySelector('.rm-mc-key');
+    if (!keyEl) return;
+    const optKey = keyEl.textContent.replace('.', '').trim();
+    el.classList.toggle('selected', optKey === value);
+  });
+
+  // Update TF/YN buttons
+  block.querySelectorAll('.rm-tf-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.textContent.trim() === value);
+  });
 }
 
 function toggleMultiAnswer(key, optKey, pi) {
