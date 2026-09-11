@@ -59,6 +59,34 @@ body.rm-body {
 .rm-progress-text { font-size: .82rem; color: rgba(255,255,255,.7); }
 .rm-header-right { display: flex; gap: 8px; align-items: center; }
 
+/* ---- Timer Start/Pause button ---- */
+.rm-timer-toggle {
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.25);
+  color: #fff;
+  border-radius: 8px;
+  width: 34px; height: 34px;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s, border-color .15s;
+  flex-shrink: 0;
+}
+.rm-timer-toggle:hover { background: rgba(255,255,255,.28); }
+.rm-timer-toggle.paused {
+  background: rgba(251,191,36,.2);
+  border-color: rgba(251,191,36,.5);
+  color: #FBBF24;
+}
+.rm-timer-wrap {
+  display: flex; align-items: center; gap: 8px; justify-content: center;
+}
+.rm-timer-paused-label {
+  font-size: .62rem; color: #FBBF24; margin-top: 3px;
+  letter-spacing: .04em; font-weight: 700; text-align: center;
+  min-height: 10px;
+}
+
 /* ---- Submit button ---- */
 .rm-submit-btn {
   background: #1FAE7A;
@@ -586,8 +614,11 @@ body.rm-body {
   </div>
   <div class="rm-header-center">
     <div style="text-align:center;">
-      <div class="rm-timer-box" id="rmTimerBox">60:00</div>
-      <div style="font-size:.68rem;color:rgba(255,255,255,.5);margin-top:3px;">Qolgan vaqt</div>
+      <div class="rm-timer-wrap">
+        <div class="rm-timer-box" id="rmTimerBox">60:00</div>
+        <button class="rm-timer-toggle" id="rmTimerToggle" title="Pauza" style="display:none;">⏸</button>
+      </div>
+      <div class="rm-timer-paused-label" id="rmTimerPausedLabel"></div>
     </div>
     <div>
       <div class="rm-progress-text" id="rmProgressText">0 / 0 savol javoblandi</div>
@@ -685,6 +716,7 @@ const rmState = {
   currentPassageIdx: 0,
   timerSec: 3600,
   timerInterval: null,
+  timerPaused: false,
   submitted: false
 };
 
@@ -969,12 +1001,38 @@ function updateProgress() {
 // ---- Timer ----
 function startTimer() {
   clearInterval(rmState.timerInterval);
+  rmState.timerPaused = false;
   updateTimerDisplay();
+  const btn = document.getElementById('rmTimerToggle');
+  if (btn) { btn.style.display = ''; btn.textContent = '⏸'; btn.title = 'Pauza'; btn.classList.remove('paused'); }
+  const lbl = document.getElementById('rmTimerPausedLabel');
+  if (lbl) lbl.textContent = 'Qolgan vaqt';
   rmState.timerInterval = setInterval(() => {
-    rmState.timerSec--;
-    updateTimerDisplay();
-    if (rmState.timerSec <= 0) { clearInterval(rmState.timerInterval); submitTest(true); }
+    if (!rmState.timerPaused) {
+      rmState.timerSec--;
+      updateTimerDisplay();
+      if (rmState.timerSec <= 0) { clearInterval(rmState.timerInterval); submitTest(true); }
+    }
   }, 1000);
+}
+
+function toggleTimer() {
+  if (rmState.submitted) return;
+  if (rmState.timerPaused) {
+    // Resume
+    rmState.timerPaused = false;
+    const btn = document.getElementById('rmTimerToggle');
+    btn.textContent = '⏸'; btn.title = 'Pauza'; btn.classList.remove('paused');
+    const lbl = document.getElementById('rmTimerPausedLabel');
+    if (lbl) lbl.textContent = 'Qolgan vaqt';
+  } else {
+    // Pause
+    rmState.timerPaused = true;
+    const btn = document.getElementById('rmTimerToggle');
+    btn.textContent = '▶'; btn.title = 'Davom ettirish'; btn.classList.add('paused');
+    const lbl = document.getElementById('rmTimerPausedLabel');
+    if (lbl) lbl.textContent = '⏸ PAUZA';
+  }
 }
 
 function updateTimerDisplay() {
@@ -1003,8 +1061,9 @@ function restoreAnswers() {
 }
 
 // ---- Submit ----
-document.getElementById('rmSubmitBtn').addEventListener('click', () => {
-  const total = rmState.passages.reduce((s, p) => s + p.groups.reduce((s2, g) => s2 + g.questions.length, 0), 0);
+document.getElementById('rmTimerToggle').addEventListener('click', toggleTimer);
+
+document.getElementById('rmSubmitBtn').addEventListener('click', () => {  const total = rmState.passages.reduce((s, p) => s + p.groups.reduce((s2, g) => s2 + g.questions.length, 0), 0);
   const answered = Object.keys(rmState.answers).filter(k => rmState.answers[k]).length;
   const unanswered = total - answered;
   if (unanswered > 0 && !confirm(`${unanswered} ta savol javobsiz qoldi. Baribir yakunlaysizmi?`)) return;
