@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CEFR Reading Mock Test — Djami Lessons</title>
+<title>CEFR Reading Mock Test Djami Lessons</title>
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="stylesheet" href="../style.css">
 <style>
@@ -690,6 +690,149 @@ body.rm-body {
   position: absolute; top: -3px; right: -3px;
 }
 .rm-notes-dot.visible { display: block; }
+
+/* ================================================================
+   CONTRAST / ACCESSIBILITY THEMES
+   body.rm-contrast-* class switches override all key colors
+   ================================================================ */
+
+/* --- White on Black --- */
+body.rm-contrast-wob {
+  --adm-bg: #000;
+  --adm-ink: #fff;
+  --adm-gray: #ccc;
+  --adm-line: #444;
+  --adm-navy: #111;
+  --adm-blue: #7ab8ff;
+  --adm-orange: #ffb347;
+  --ink: #fff;
+  --font-body: inherit;
+}
+body.rm-contrast-wob .rm-passage-panel,
+body.rm-contrast-wob .rm-questions-panel { background: #111; color: #fff; }
+body.rm-contrast-wob .rm-passage-body { color: #fff; }
+body.rm-contrast-wob .rm-qgroup,
+body.rm-contrast-wob .rm-mc-option,
+body.rm-contrast-wob .rm-tf-btn,
+body.rm-contrast-wob .rm-text-input,
+body.rm-contrast-wob .rm-nav-panel,
+body.rm-contrast-wob .rm-nav-btn { background: #1a1a1a; color: #fff; border-color: #555; }
+body.rm-contrast-wob .rm-mc-option.selected { background: #1a3a6e; border-color: #7ab8ff; }
+body.rm-contrast-wob .rm-tf-btn.selected { background: #7ab8ff; color: #000; border-color: #7ab8ff; }
+body.rm-contrast-wob .rm-header { background: #000; border-bottom: 1px solid #444; }
+body.rm-contrast-wob .rm-timer-box { background: #222; color: #fff; }
+body.rm-contrast-wob .rm-result-card { background: #111; color: #fff; }
+body.rm-contrast-wob .rm-score-row { background: #1a1a1a; }
+body.rm-contrast-wob .rm-ps-card { background: #222; border-color: #555; }
+
+/* --- Yellow on Black --- */
+body.rm-contrast-yob {
+  --adm-bg: #000;
+  --adm-ink: #ffe600;
+  --adm-gray: #ccc;
+  --adm-line: #555;
+  --adm-navy: #111;
+  --adm-blue: #ffe600;
+  --adm-orange: #ffb347;
+  --ink: #ffe600;
+}
+body.rm-contrast-yob .rm-passage-panel,
+body.rm-contrast-yob .rm-questions-panel { background: #111; color: #ffe600; }
+body.rm-contrast-yob .rm-passage-body,
+body.rm-contrast-yob .rm-passage-title,
+body.rm-contrast-yob .rm-q-label { color: #ffe600; }
+body.rm-contrast-yob .rm-qgroup,
+body.rm-contrast-yob .rm-mc-option,
+body.rm-contrast-yob .rm-tf-btn,
+body.rm-contrast-yob .rm-text-input,
+body.rm-contrast-yob .rm-nav-panel,
+body.rm-contrast-yob .rm-nav-btn { background: #1a1a1a; color: #ffe600; border-color: #666; }
+body.rm-contrast-yob .rm-mc-option.selected { background: #332b00; border-color: #ffe600; }
+body.rm-contrast-yob .rm-tf-btn.selected { background: #ffe600; color: #000; border-color: #ffe600; }
+body.rm-contrast-yob .rm-header { background: #000; border-bottom: 1px solid #555; }
+body.rm-contrast-yob .rm-timer-box { background: #1a1a1a; color: #ffe600; border-color: #555; }
+body.rm-contrast-yob .rm-result-card { background: #111; color: #ffe600; }
+body.rm-contrast-yob .rm-score-row { background: #1a1a1a; }
+body.rm-contrast-yob .rm-ps-card { background: #222; border-color: #555; }
+body.rm-contrast-yob .rm-score-num { color: #ffe600; }
+body.rm-contrast-yob .rm-band-badge { background: linear-gradient(135deg, #ffe600, #ffb347); color: #000; }
+body.rm-contrast-yob .rm-qgroup-header { color: #ffe600; }
+body.rm-contrast-yob .rm-nav-btn.answered { background: #1a4a2a; border-color: #1FAE7A; color: #1FAE7A; }
+body.rm-contrast-yob .rm-nav-btn.current { background: #332b00; border-color: #ffe600; color: #ffe600; }
+
+/* --- Contrast panel --- */
+.rm-contrast-panel {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 300px;
+  max-width: 100vw;
+  background: #fff;
+  box-shadow: -6px 0 28px rgba(0,0,0,.18);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+}
+.rm-contrast-panel.open { transform: translateX(0); }
+.rm-contrast-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1.5px solid #E7EBF4;
+  flex-shrink: 0;
+}
+.rm-contrast-panel-back {
+  background: none; border: none; cursor: pointer;
+  font-size: .9rem; font-weight: 700; color: #8892A6;
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 0;
+}
+.rm-contrast-panel-back:hover { color: #101B3D; }
+.rm-contrast-panel-title {
+  font-weight: 800; font-size: 1.05rem; color: #101B3D;
+}
+.rm-contrast-panel-close {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.1rem; color: #8892A6; width: 30px; height: 30px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
+.rm-contrast-panel-close:hover { background: #F3F6FC; color: #101B3D; }
+.rm-contrast-list { flex: 1; padding: 8px 0; }
+.rm-contrast-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #F0F3F9;
+  cursor: pointer;
+  font-size: .95rem; font-weight: 500; color: #101B3D;
+  transition: background .12s;
+  background: none; border-left: none; border-right: none; border-top: none;
+  width: 100%; text-align: left;
+}
+.rm-contrast-item:last-child { border-bottom: none; }
+.rm-contrast-item:hover { background: #F8FAFE; }
+.rm-contrast-item.active { background: #F3F6FC; font-weight: 700; }
+.rm-contrast-check {
+  color: #2F6FED; font-size: 1rem; opacity: 0;
+  transition: opacity .15s;
+}
+.rm-contrast-item.active .rm-contrast-check { opacity: 1; }
+
+/* Contrast toggle button in header */
+.rm-contrast-toggle {
+  background: rgba(255,255,255,.1);
+  border: 1.5px solid rgba(255,255,255,.2);
+  color: #fff; border-radius: 10px;
+  width: 34px; height: 34px;
+  font-size: 1rem; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+  flex-shrink: 0;
+  title: "Kontrast rejimi";
+}
+.rm-contrast-toggle:hover { background: rgba(255,255,255,.22); }
+
 </style>
 </head>
 
@@ -721,6 +864,7 @@ body.rm-body {
   </div>
   <div class="rm-header-right">
     <span class="rm-preview-badge" id="rmPreviewBadge" style="display:none;">PREVIEW</span>
+    <button class="rm-contrast-toggle" id="rmContrastToggle" title="Kontrast rejimi">Aa</button>
     <button class="rm-notes-toggle" id="rmNotesToggle" title="Izohlarim">
       <span>🖊</span>
       <span>Notes (<span id="rmNotesHeaderCount">0</span>)</span>
@@ -802,6 +946,29 @@ body.rm-body {
       <button class="btn btn-amber" onclick="location.reload()">Qaytadan urinish</button>
     </div>
 
+  </div>
+</div>
+
+<!-- Contrast Panel -->
+<div id="rmContrastPanel" class="rm-contrast-panel">
+  <div class="rm-contrast-panel-head">
+    <button class="rm-contrast-panel-back" id="rmContrastBack">&#8249; Orqaga</button>
+    <span class="rm-contrast-panel-title">Kontrast</span>
+    <button class="rm-contrast-panel-close" id="rmContrastClose">&#x2715;</button>
+  </div>
+  <div class="rm-contrast-list">
+    <button class="rm-contrast-item active" data-contrast="default">
+      <span>Black on white</span>
+      <span class="rm-contrast-check">&#10003;</span>
+    </button>
+    <button class="rm-contrast-item" data-contrast="wob">
+      <span>White on black</span>
+      <span class="rm-contrast-check">&#10003;</span>
+    </button>
+    <button class="rm-contrast-item" data-contrast="yob">
+      <span>Yellow on black</span>
+      <span class="rm-contrast-check">&#10003;</span>
+    </button>
   </div>
 </div>
 
@@ -1603,6 +1770,76 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Boshlang'ich render
   updateNotesPanel();
+})();
+</script>
+
+<script>
+// ================================================================
+// CONTRAST / ACCESSIBILITY — Panel Logic
+// ================================================================
+(function() {
+  const STORAGE_KEY = 'rm_contrast_mode';
+  const THEMES = ['default', 'wob', 'yob'];
+  let _current = 'default';
+
+  const panel   = document.getElementById('rmContrastPanel');
+  const toggleBtn = document.getElementById('rmContrastToggle');
+  const closeBtn  = document.getElementById('rmContrastClose');
+  const backBtn   = document.getElementById('rmContrastBack');
+  const items     = document.querySelectorAll('.rm-contrast-item');
+
+  // Restore saved preference
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved && THEMES.includes(saved)) applyTheme(saved, false);
+  } catch(e) {}
+
+  // Toggle panel
+  toggleBtn.addEventListener('click', () => panel.classList.toggle('open'));
+  closeBtn.addEventListener('click', () => panel.classList.remove('open'));
+  backBtn.addEventListener('click', () => panel.classList.remove('open'));
+
+  // Click outside closes
+  document.addEventListener('mousedown', (e) => {
+    if (!panel.contains(e.target) && e.target !== toggleBtn) {
+      panel.classList.remove('open');
+    }
+  });
+
+  // Theme selection
+  items.forEach(btn => {
+    btn.addEventListener('click', () => {
+      applyTheme(btn.dataset.contrast, true);
+      // Small delay then close
+      setTimeout(() => panel.classList.remove('open'), 220);
+    });
+  });
+
+  function applyTheme(theme, save) {
+    // Remove all contrast classes
+    document.body.classList.remove('rm-contrast-wob', 'rm-contrast-yob');
+    if (theme === 'wob') document.body.classList.add('rm-contrast-wob');
+    else if (theme === 'yob') document.body.classList.add('rm-contrast-yob');
+
+    // Update active state
+    items.forEach(btn => btn.classList.toggle('active', btn.dataset.contrast === theme));
+    _current = theme;
+
+    // Toggle button visual feedback — active theme
+    if (theme === 'default') {
+      toggleBtn.style.background = '';
+      toggleBtn.style.borderColor = '';
+      toggleBtn.style.color = '';
+    } else {
+      toggleBtn.style.background = 'rgba(255,255,255,.28)';
+      toggleBtn.style.borderColor = 'rgba(255,255,255,.6)';
+    }
+
+    // Persist
+    if (save) {
+      try { localStorage.setItem(STORAGE_KEY, theme); } catch(e) {}
+    }
+  }
 })();
 </script>
 </body>
