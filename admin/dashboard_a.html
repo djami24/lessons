@@ -282,6 +282,8 @@
           <li><a href="#" id="navLevels">📚 Darslar (General English)</a></li>
           <li><a href="#" id="navIelts">🎧 IELTS</a></li>
           <li><a href="#" id="navCefr">🗂️ CEFR</a></li>
+          <li><a href="#" id="navCefrMocks" style="padding-left:2.2em;">📖 Reading</a></li>
+          <li><a href="#" id="navCefrSpeaking" style="padding-left:2.2em;">🎙️ Speaking</a></li>
           <li><a href="#" id="navWriting">✍️ Writing</a></li>
           <li><a href="#" id="navEssays">📝 Insholar</a></li>
         </ul>
@@ -298,7 +300,6 @@
       <li><a href="#" id="navChats"><span class="nav-icon-emoji">💬</span><span class="nav-label"> Chatlar</span><span id="navChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
       <li><a href="#" id="navParentChats"><span class="nav-icon-emoji">👪</span><span class="nav-label"> Ota-onalar</span><span id="navParentChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
       <li><a href="#" id="navActivityLog"><span class="nav-icon-emoji">🕵️</span><span class="nav-label"> Faollik jurnali</span></a></li>
-      <li><a href="#" id="navReadingMocks"><span class="nav-icon-emoji">📖</span><span class="nav-label"> Reading Mocks</span></a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -1577,6 +1578,7 @@
     <section id="view-reading-mocks" hidden>
       <div class="admin-header">
         <div>
+          <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;">🎓 CEFR › 📖 Reading</div>
           <h1>Reading Mocks</h1>
           <p>CEFR Reading Mock testlarini yarating, tahrirlang va boshqaring.</p>
         </div>
@@ -1591,6 +1593,22 @@
           <h3 style="margin:0 0 8px;color:var(--adm-ink,var(--ink));">Hali mock test yaratilmagan</h3>
           <p style="margin:0;font-size:.9rem;">"Yangi mock yaratish" tugmasini bosib birinchi mock testni yarating.</p>
         </div>
+      </div>
+    </section>
+
+    <!-- ===== SPEAKING MENU ===== -->
+    <section id="view-speaking-menu" hidden>
+      <div class="admin-header">
+        <div>
+          <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;">🎓 CEFR › 🎙️ Speaking</div>
+          <h1>Speaking</h1>
+          <p>CEFR Speaking mashqlarini yarating va boshqaring.</p>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;text-align:center;gap:14px;background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:18px;margin-top:8px;">
+        <span style="font-size:3rem;">🎙️</span>
+        <div style="font-weight:800;font-size:1.1rem;color:var(--adm-ink,#101b3d);">Tez kunda</div>
+        <div style="font-size:.9rem;color:var(--adm-gray,var(--gray));max-width:320px;line-height:1.6;">Speaking bo'limi hozirda tayyorlanmoqda. Tez orada CEFR speaking mashqlari bu yerda paydo bo'ladi.</div>
       </div>
     </section>
 
@@ -3420,7 +3438,9 @@ function switchView(view){
   document.getElementById('navActivityLog').classList.toggle('active', view === 'activity-log');
   document.getElementById('view-reading-mocks').hidden = view !== 'reading-mocks';
   document.getElementById('view-reading-mock-builder').hidden = view !== 'reading-mock-builder';
-  document.getElementById('navReadingMocks').classList.toggle('active', view === 'reading-mocks' || view === 'reading-mock-builder');
+  document.getElementById('view-speaking-menu').hidden = view !== 'speaking-menu';
+  document.getElementById('navCefrMocks').classList.toggle('active', view === 'reading-mocks' || view === 'reading-mock-builder');
+  document.getElementById('navCefrSpeaking').classList.toggle('active', view === 'speaking-menu');
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
@@ -8259,10 +8279,15 @@ function rmGroupsRef(mockId, passageId) { return db.collection('reading_mocks').
 function rmQuestionsRef(mockId, passageId, groupId) { return db.collection('reading_mocks').doc(mockId).collection('passages').doc(passageId).collection('groups').doc(groupId).collection('questions'); }
 
 // ---- Nav click ----
-document.getElementById('navReadingMocks').addEventListener('click', (e) => {
+document.getElementById('navCefrMocks').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('reading-mocks');
   rmLoadMocks();
+});
+
+document.getElementById('navCefrSpeaking').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('speaking-menu');
 });
 
 // ---- Load mock list ----
