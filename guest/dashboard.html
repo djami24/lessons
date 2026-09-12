@@ -456,27 +456,39 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script src="../firebase-config.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyAuYHKIftVKAbG2GfESGlTBHBQPJPsyelM",
+  authDomain: "lessons-26179.firebaseapp.com",
+  projectId: "lessons-26179",
+  storageBucket: "lessons-26179.firebasestorage.app",
+  messagingSenderId: "908675729948",
+  appId: "1:908675729948:web:d76fac773b4c42e4fc6dd9"
+};
+if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+const db = firebase.firestore();
+</script>
 <script>
 /* ============================================================
    GUEST DASHBOARD — Djami Lessons
    Faqat: CEFR darajani bilish testi + So'z o'yini
    ============================================================ */
 
-// ---- Auth gate: mehmon ma'lumotlarini tekshirish ----
-var guestData = null;
-try { guestData = JSON.parse(sessionStorage.getItem('djami_guest') || 'null'); } catch(e){}
-if (!guestData || !guestData.fullName) {
-  window.location.href = 'login.html';
-}
-document.getElementById('ghName').textContent = guestData ? guestData.fullName : 'Mehmon';
-document.getElementById('welcomeMsg').textContent = 'Xush kelibsiz, ' + (guestData ? guestData.firstName : 'Mehmon') + '! 👋';
-
 // ---- View management ----
 function showView(id) {
   document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+}
+
+// ---- Auth gate: mehmon ma'lumotlarini tekshirish ----
+var guestData = null;
+try { guestData = JSON.parse(sessionStorage.getItem('djami_guest') || 'null'); } catch(e){}
+if (!guestData || !guestData.fullName) {
+  window.location.href = 'login.html';
+} else {
+  document.getElementById('ghName').textContent = guestData.fullName;
+  document.getElementById('welcomeMsg').textContent = 'Xush kelibsiz, ' + guestData.firstName + '! 👋';
 }
 
 /* ============================================================
@@ -493,9 +505,11 @@ async function loadReadingMocks() {
   var container = document.getElementById('mockListContainer');
   container.innerHTML = '<div class="mock-loading">⏳ Yuklanmoqda…</div>';
   try {
-    var db = firebase.firestore();
-    var snap = await db.collection('reading_mocks').where('status', '==', 'published').orderBy('createdAt', 'desc').get();
-    _allMocks = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
+    var snap = await db.collection('reading_mocks').get();
+    _allMocks = snap.docs
+      .map(function(d){ return Object.assign({ id: d.id }, d.data()); })
+      .filter(function(m){ return m.status === 'published'; })
+      .sort(function(a,b){ return (b.createdAt && a.createdAt) ? b.createdAt.seconds - a.createdAt.seconds : 0; });
     if (!_allMocks.length) {
       container.innerHTML = '<div class="mock-empty"><div style="font-size:2.5rem;margin-bottom:10px;">📭</div><div style="font-weight:700;color:#1c212e;">Hali mock test yo\'q</div><div style="font-size:.85rem;margin-top:6px;">Admin hali mock test qo\'shmagan.</div></div>';
       return;
