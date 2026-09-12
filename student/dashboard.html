@@ -791,7 +791,50 @@
       <div class="quiz-result-box" id="wgResultBox" hidden></div>
     </section>
 
-        <!-- ===== LEVELS (General English, approved) ===== -->
+    
+    <!-- ===== NOTO'G'RI FE'LLAR O'YINI ===== -->
+    <section id="view-irr-verbs" hidden>
+      <a href="#" id="ivBackLink" class="back-link">← Bosh sahifaga</a>
+
+      <!-- STEP 1: level select -->
+      <div id="ivLevelBox">
+        <div class="admin-header">
+          <div>
+            <h1>🔀 Noto'g'ri fe'llar o'yini</h1>
+            <p>Darajangizni tanlang. Har darajada 5 ta o'yin bor, har birida 20 ta noto'g'ri fe'l.</p>
+          </div>
+        </div>
+        <div class="home-menu-grid" id="ivLevelGrid"></div>
+      </div>
+
+      <!-- STEP 2: game select -->
+      <div id="ivGameListBox" hidden>
+        <div class="admin-header">
+          <div>
+            <h1 id="ivLevelTitle"></h1>
+            <p>O'ynamoqchi bo'lgan o'yinni tanlang.</p>
+          </div>
+        </div>
+        <div class="home-menu-grid" id="ivGameGrid"></div>
+      </div>
+
+      <!-- STEP 3: play -->
+      <div class="quiz-box" id="ivPlayBox" hidden>
+        <p class="quiz-progress" id="ivProgress"></p>
+        <!-- savolning turi ko'rsatiladi -->
+        <div id="ivQuestionTypeLabel" style="text-align:center; margin-bottom:.5em; font-size:.9rem; color:var(--muted);"></div>
+        <div class="latest-hw-box" style="text-align:center; padding:1.6em 1em;">
+          <span class="latest-hw-eyebrow" id="ivQuestionEyebrow">Bu fe'lning to'g'ri shakli qaysi?</span>
+          <h1 id="ivWord" style="margin:.3em 0 .1em; font-size:2.1rem; color:#fff;"></h1>
+        </div>
+        <div class="quiz-options" id="ivOptions" style="margin-top:1.1em;"></div>
+      </div>
+
+      <!-- STEP 4: result -->
+      <div class="quiz-result-box" id="ivResultBox" hidden></div>
+    </section>
+
+    <!-- ===== LEVELS (General English, approved) ===== -->
         <!-- ===== LESSON LIST (inside a level) ===== -->
         <!-- ===== LESSON DETAIL ===== -->
         <!-- ===== PAYMENT GATE (IELTS / CEFR) ===== -->
@@ -1469,7 +1512,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
+const VIEWS = ['home', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'irr-verbs', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
@@ -1482,6 +1525,7 @@ const STUDENT_VIEW_NAV_MAP = {
   'placement-test': 'navPlacementTest',
   'my-essays': 'navMyEssays',
   'word-game': 'navWordGame',
+  'irr-verbs': 'navIrrVerbs',
   'reading-mocks': 'navCEFR',
   'cefr-menu': 'navCEFR',
   'cefr-writing': 'navCEFR',
@@ -1523,6 +1567,7 @@ function renderHomeView(){
   document.getElementById('navProfile').classList.remove('active');
   document.getElementById('navCEFR').classList.remove('active');
   document.getElementById('navWordGame').classList.remove('active');
+  if(document.getElementById('navIrrVerbs')) document.getElementById('navIrrVerbs').classList.remove('active');
   loadLatestHomework();
   renderGbResultBox();
   renderProgressBox();
@@ -3515,6 +3560,382 @@ async function wgApplyVisibilitySetting(){
   }
 }
 wgApplyVisibilitySetting();
+
+
+// ===== NOTO'G'RI FE'LLAR O'YINI (Irregular Verbs Game) =====
+// 3 ta shakl: base, past simple, past participle
+// O'yin turlari:
+//   1) base beriladi → past simple tanlanadi
+//   2) base beriladi → past participle tanlanadi  
+//   3) past simple beriladi → base tanlanadi
+
+const IV_DATA = {
+  basic: {
+    label: 'Asosiy (Basic)',
+    icon: '🌱',
+    color: '#2F6FED',
+    games: [
+      [ // Game 1
+        ['go','went','gone'], ['come','came','come'], ['do','did','done'], ['have','had','had'],
+        ['say','said','said'], ['get','got','got'], ['make','made','made'], ['see','saw','seen'],
+        ['take','took','taken'], ['know','knew','known'], ['give','gave','given'], ['find','found','found'],
+        ['think','thought','thought'], ['tell','told','told'], ['become','became','become'], ['show','showed','shown'],
+        ['feel','felt','felt'], ['leave','left','left'], ['keep','kept','kept'], ['begin','began','begun']
+      ],
+      [ // Game 2
+        ['bring','brought','brought'], ['buy','bought','bought'], ['catch','caught','caught'], ['choose','chose','chosen'],
+        ['drive','drove','driven'], ['eat','ate','eaten'], ['fall','fell','fallen'], ['fly','flew','flown'],
+        ['forget','forgot','forgotten'], ['grow','grew','grown'], ['hear','heard','heard'], ['hold','held','held'],
+        ['know','knew','known'], ['lead','led','led'], ['lose','lost','lost'], ['meet','met','met'],
+        ['pay','paid','paid'], ['read','read','read'], ['ride','rode','ridden'], ['run','ran','run']
+      ],
+      [ // Game 3
+        ['sell','sold','sold'], ['send','sent','sent'], ['sing','sang','sung'], ['sit','sat','sat'],
+        ['sleep','slept','slept'], ['speak','spoke','spoken'], ['spend','spent','spent'], ['stand','stood','stood'],
+        ['swim','swam','swum'], ['teach','taught','taught'], ['throw','threw','thrown'], ['understand','understood','understood'],
+        ['wake','woke','woken'], ['wear','wore','worn'], ['win','won','won'], ['write','wrote','written'],
+        ['break','broke','broken'], ['build','built','built'], ['burn','burned','burned'], ['cut','cut','cut']
+      ],
+      [ // Game 4
+        ['draw','drew','drawn'], ['dream','dreamed','dreamed'], ['drink','drank','drunk'], ['fight','fought','fought'],
+        ['hide','hid','hidden'], ['hit','hit','hit'], ['hurt','hurt','hurt'], ['let','let','let'],
+        ['lie','lay','lain'], ['light','lit','lit'], ['mean','meant','meant'], ['put','put','put'],
+        ['ring','rang','rung'], ['rise','rose','risen'], ['shake','shook','shaken'], ['shoot','shot','shot'],
+        ['shut','shut','shut'], ['slide','slid','slid'], ['steal','stole','stolen'], ['stick','stuck','stuck']
+      ],
+      [ // Game 5
+        ['sting','stung','stung'], ['strike','struck','struck'], ['sweep','swept','swept'], ['swing','swung','swung'],
+        ['tear','tore','torn'], ['think','thought','thought'], ['wake','woke','woken'], ['weep','wept','wept'],
+        ['blow','blew','blown'], ['bite','bit','bitten'], ['feed','fed','fed'], ['feel','felt','felt'],
+        ['forbid','forbade','forbidden'], ['freeze','froze','frozen'], ['grind','ground','ground'], ['hang','hung','hung'],
+        ['kneel','knelt','knelt'], ['lay','laid','laid'], ['lean','leaned','leaned'], ['leap','leaped','leaped']
+      ]
+    ]
+  },
+  intermediate: {
+    label: 'Intermediate',
+    icon: '📗',
+    color: '#1FAE7A',
+    games: [
+      [ // Game 1
+        ['arise','arose','arisen'], ['awake','awoke','awoken'], ['bear','bore','borne'], ['beat','beat','beaten'],
+        ['bind','bound','bound'], ['bleed','bled','bled'], ['breed','bred','bred'], ['broadcast','broadcast','broadcast'],
+        ['burst','burst','burst'], ['cast','cast','cast'], ['cling','clung','clung'], ['cost','cost','cost'],
+        ['creep','crept','crept'], ['deal','dealt','dealt'], ['dig','dug','dug'], ['dive','dove','dived'],
+        ['draw','drew','drawn'], ['dwell','dwelt','dwelt'], ['fall','fell','fallen'], ['flee','fled','fled']
+      ],
+      [ // Game 2
+        ['fling','flung','flung'], ['forbear','forbore','forborne'], ['forecast','forecast','forecast'], ['foretell','foretold','foretold'],
+        ['forgive','forgave','forgiven'], ['forsake','forsook','forsaken'], ['go','went','gone'], ['have','had','had'],
+        ['hear','heard','heard'], ['hold','held','held'], ['hurt','hurt','hurt'], ['input','inputted','inputted'],
+        ['keep','kept','kept'], ['knit','knitted','knitted'], ['know','knew','known'], ['lay','laid','laid'],
+        ['lead','led','led'], ['lean','leant','leant'], ['learn','learned','learned'], ['leave','left','left']
+      ],
+      [ // Game 3
+        ['lend','lent','lent'], ['let','let','let'], ['lie','lay','lain'], ['light','lit','lit'],
+        ['lose','lost','lost'], ['make','made','made'], ['mean','meant','meant'], ['meet','met','met'],
+        ['mislay','mislaid','mislaid'], ['mislead','misled','misled'], ['mistake','mistook','mistaken'], ['misunderstand','misunderstood','misunderstood'],
+        ['outdo','outdid','outdone'], ['outgrow','outgrew','outgrown'], ['outrun','outran','outrun'], ['overcome','overcame','overcome'],
+        ['overhear','overheard','overheard'], ['oversee','oversaw','overseen'], ['overtake','overtook','overtaken'], ['overthrow','overthrew','overthrown']
+      ],
+      [ // Game 4
+        ['partake','partook','partaken'], ['prove','proved','proven'], ['rebuild','rebuilt','rebuilt'], ['redo','redid','redone'],
+        ['remake','remade','remade'], ['rewrite','rewrote','rewritten'], ['rid','rid','rid'], ['ring','rang','rung'],
+        ['rise','rose','risen'], ['run','ran','run'], ['saw','sawed','sawn'], ['see','saw','seen'],
+        ['seek','sought','sought'], ['set','set','set'], ['sew','sewed','sewn'], ['shake','shook','shaken'],
+        ['shed','shed','shed'], ['show','showed','shown'], ['shrink','shrank','shrunk'], ['shut','shut','shut']
+      ],
+      [ // Game 5
+        ['sink','sank','sunk'], ['sit','sat','sat'], ['slay','slew','slain'], ['sleep','slept','slept'],
+        ['sling','slung','slung'], ['slink','slunk','slunk'], ['slit','slit','slit'], ['smell','smelled','smelled'],
+        ['sneak','snuck','snuck'], ['sow','sowed','sown'], ['speak','spoke','spoken'], ['speed','sped','sped'],
+        ['spell','spelled','spelled'], ['spin','spun','spun'], ['spit','spat','spat'], ['split','split','split'],
+        ['spoil','spoiled','spoiled'], ['spread','spread','spread'], ['spring','sprang','sprung'], ['stand','stood','stood']
+      ]
+    ]
+  },
+  advanced: {
+    label: 'Advanced',
+    icon: '📘',
+    color: '#7C5CFC',
+    games: [
+      [ // Game 1 — kam ishlatiladigan murakkab fe'llar
+        ['abide','abode','abode'], ['accost','accosted','accosted'], ['befall','befell','befallen'], ['beget','begot','begotten'],
+        ['bespeak','bespoke','bespoken'], ['bestride','bestrode','bestridden'], ['bet','bet','bet'], ['bid','bid','bid'],
+        ['cleave','clove','cloven'], ['clothe','clad','clad'], ['crow','crew','crowed'], ['dare','durst','dared'],
+        ['engrave','engraved','engraven'], ['engulf','engulfed','engulfed'], ['forbid','forbade','forbidden'], ['foresee','foresaw','foreseen'],
+        ['forswear','forswore','forsworn'], ['gainsay','gainsaid','gainsaid'], ['geld','gelded','gelded'], ['gird','girt','girt']
+      ],
+      [ // Game 2
+        ['hamstring','hamstrung','hamstrung'], ['heave','hove','hoven'], ['hew','hewed','hewn'], ['inlay','inlaid','inlaid'],
+        ['interbreed','interbred','interbred'], ['interweave','interwove','interwoven'], ['offset','offset','offset'], ['outbid','outbid','outbid'],
+        ['outfight','outfought','outfought'], ['outshine','outshone','outshone'], ['overcast','overcast','overcast'], ['overeat','overate','overeaten'],
+        ['overhang','overhung','overhung'], ['overleap','overleapt','overleapt'], ['overlie','overlay','overlain'], ['overrun','overran','overrun'],
+        ['overshoot','overshot','overshot'], ['oversleep','overslept','overslept'], ['overthrow','overthrew','overthrown'], ['plead','pled','pled']
+      ],
+      [ // Game 3
+        ['prepay','prepaid','prepaid'], ['recast','recast','recast'], ['relay','relaid','relaid'], ['reset','reset','reset'],
+        ['retell','retold','retold'], ['rethink','rethought','rethought'], ['rewind','rewound','rewound'], ['shear','sheared','shorn'],
+        ['shoe','shod','shod'], ['sight-read','sight-read','sight-read'], ['slay','slew','slain'], ['slide','slid','slid'],
+        ['smite','smote','smitten'], ['spin','spun','spun'], ['spit','spat','spat'], ['split','split','split'],
+        ['spill','spilled','spilled'], ['stave','stove','stoven'], ['stink','stank','stunk'], ['stride','strode','stridden']
+      ],
+      [ // Game 4
+        ['strive','strove','striven'], ['sublet','sublet','sublet'], ['swear','swore','sworn'], ['sweep','swept','swept'],
+        ['swell','swelled','swollen'], ['swing','swung','swung'], ['take','took','taken'], ['teach','taught','taught'],
+        ['tear','tore','torn'], ['tell','told','told'], ['think','thought','thought'], ['thrive','throve','thriven'],
+        ['throw','threw','thrown'], ['tread','trod','trodden'], ['typecast','typecast','typecast'], ['unbind','unbound','unbound'],
+        ['undercut','undercut','undercut'], ['undergo','underwent','undergone'], ['underlie','underlay','underlain'], ['underpay','underpaid','underpaid']
+      ],
+      [ // Game 5
+        ['undersell','undersold','undersold'], ['understand','understood','understood'], ['undertake','undertook','undertaken'], ['underwrite','underwrote','underwritten'],
+        ['undo','undid','undone'], ['unwind','unwound','unwound'], ['uphold','upheld','upheld'], ['upset','upset','upset'],
+        ['wake','woke','woken'], ['waylay','waylaid','waylaid'], ['weave','wove','woven'], ['wed','wed','wed'],
+        ['weep','wept','wept'], ['wet','wet','wet'], ['win','won','won'], ['withdraw','withdrew','withdrawn'],
+        ['withhold','withheld','withheld'], ['withstand','withstood','withstood'], ['wring','wrung','wrung'], ['write','wrote','written']
+      ]
+    ]
+  }
+};
+
+const IV_LEVEL_ORDER = ['basic', 'intermediate', 'advanced'];
+
+// O'yin turi: [savol turi, savol matni, to'g'ri javob indeksi, variantlar indeksi]
+// [0] = base → past simple  | [1] = base → past participle | [2] = past simple → base
+const IV_QUESTION_TYPES = [
+  { label: 'Past Simple', eyebrow: "Bu fe'lning Past Simple shakli qaysi?", qIdx: 0, aIdx: 1 },
+  { label: 'Past Participle', eyebrow: "Bu fe'lning Past Participle shakli qaysi?", qIdx: 0, aIdx: 2 },
+  { label: 'Base Form', eyebrow: "Bu Past Simple'ning asosiy shakli (base form) qaysi?", qIdx: 1, aIdx: 0 }
+];
+
+let ivCurrentLevel = null;
+let ivCurrentGameIndex = null;
+let ivQuestions = [];
+let ivIndex = 0;
+let ivScore = 0;
+let ivAnswered = false;
+let ivCurrentQType = null;
+
+function ivShuffle(arr){
+  const a = arr.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function ivScoreKey(levelId, gameIndex){
+  return 'efIrrVerbsBest_' + currentUid + '_' + levelId + '_' + gameIndex;
+}
+
+function ivHideAllBoxes(){
+  document.getElementById('ivLevelBox').hidden = true;
+  document.getElementById('ivGameListBox').hidden = true;
+  document.getElementById('ivPlayBox').hidden = true;
+  document.getElementById('ivResultBox').hidden = true;
+}
+
+// ---- STEP 1: level select ----
+function ivShowLevels(){
+  ivHideAllBoxes();
+  document.getElementById('ivLevelBox').hidden = false;
+  ivCurrentLevel = null;
+  ivCurrentGameIndex = null;
+
+  const grid = document.getElementById('ivLevelGrid');
+  grid.innerHTML = '';
+  IV_LEVEL_ORDER.forEach(levelId => {
+    const level = IV_DATA[levelId];
+    const card = document.createElement('a');
+    card.href = '#';
+    card.className = 'home-menu-card';
+    card.innerHTML = `
+      <div class="home-menu-top">
+        <span class="home-menu-icon" style="background:${level.color}22; color:${level.color};">${level.icon}</span>
+        <span class="home-menu-arrow">→</span>
+      </div>
+      <h3 class="home-menu-title">${level.label}</h3>
+      <p class="home-menu-desc">5 ta o'yin · har birida 20 ta fe'l</p>
+    `;
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      ivShowGames(levelId);
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ---- STEP 2: game select ----
+function ivShowGames(levelId){
+  ivHideAllBoxes();
+  document.getElementById('ivGameListBox').hidden = false;
+  ivCurrentLevel = levelId;
+  ivCurrentGameIndex = null;
+
+  const level = IV_DATA[levelId];
+  document.getElementById('ivLevelTitle').textContent = level.icon + ' ' + level.label;
+
+  const grid = document.getElementById('ivGameGrid');
+  grid.innerHTML = '';
+  level.games.forEach((verbs, i) => {
+    const best = localStorage.getItem(ivScoreKey(levelId, i));
+    const card = document.createElement('a');
+    card.href = '#';
+    card.className = 'home-menu-card';
+    card.innerHTML = `
+      <div class="home-menu-top">
+        <span class="home-menu-icon" style="background:${level.color}22; color:${level.color};">${i + 1}</span>
+        <span class="home-menu-arrow">→</span>
+      </div>
+      <h3 class="home-menu-title">O'yin ${i + 1}</h3>
+      <p class="home-menu-desc">${best ? ('🏆 Eng yaxshi natija: ' + best + ' / ' + (verbs.length * 2)) : (verbs.length + ' ta fe'l · 3 xil savol turi')}</p>
+    `;
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      ivStart(levelId, i);
+    });
+    grid.appendChild(card);
+  });
+}
+
+// ---- STEP 3: play ----
+function ivStart(levelId, gameIndex){
+  ivHideAllBoxes();
+  document.getElementById('ivPlayBox').hidden = false;
+
+  ivCurrentLevel = levelId;
+  ivCurrentGameIndex = gameIndex;
+
+  // Har bir fe'l uchun 2 ta savol yaratamiz: past simple va past participle
+  const verbs = IV_DATA[levelId].games[gameIndex];
+  const allQ = [];
+  verbs.forEach(verb => {
+    // Tasodifiy 2 ta savol turi tanlanadi (base→past, base→pp)
+    const types = ivShuffle([0, 1]);
+    types.slice(0, 2).forEach(typeIdx => {
+      allQ.push({ verb, typeIdx });
+    });
+  });
+  ivQuestions = ivShuffle(allQ);
+  ivIndex = 0;
+  ivScore = 0;
+  ivRenderQuestion();
+}
+
+function ivRenderQuestion(){
+  ivAnswered = false;
+  const { verb, typeIdx } = ivQuestions[ivIndex];
+  const qType = IV_QUESTION_TYPES[typeIdx];
+  ivCurrentQType = qType;
+
+  document.getElementById('ivProgress').textContent =
+    'Savol ' + (ivIndex + 1) + ' / ' + ivQuestions.length + '   ·   Ball: ' + ivScore;
+  document.getElementById('ivQuestionEyebrow').textContent = qType.eyebrow;
+  document.getElementById('ivWord').textContent = verb[qType.qIdx];
+
+  const correct = verb[qType.aIdx];
+
+  // Variantlar: shu level'dagi boshqa fe'llarning bir xil pozitsiyasidan
+  const allVerbs = IV_DATA[ivCurrentLevel].games[ivCurrentGameIndex];
+  const others = ivShuffle(
+    allVerbs.filter(v => v[qType.aIdx] !== correct && v[qType.aIdx] !== verb[qType.qIdx])
+  ).slice(0, 3).map(v => v[qType.aIdx]);
+
+  const options = ivShuffle([correct, ...others]);
+
+  const box = document.getElementById('ivOptions');
+  box.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'wg-option';
+    btn.textContent = opt;
+    btn.addEventListener('click', () => ivSelectAnswer(btn, opt, correct));
+    box.appendChild(btn);
+  });
+}
+
+function ivSelectAnswer(btn, chosen, correct){
+  if(ivAnswered) return;
+  ivAnswered = true;
+  const allBtns = document.querySelectorAll('#ivOptions .wg-option');
+  allBtns.forEach(b => { b.disabled = true; });
+
+  if(chosen === correct){
+    ivScore++;
+    btn.classList.add('wg-correct');
+  } else {
+    btn.classList.add('wg-wrong');
+    allBtns.forEach(b => { if(b.textContent === correct) b.classList.add('wg-correct'); });
+  }
+
+  setTimeout(() => {
+    ivIndex++;
+    if(ivIndex < ivQuestions.length){
+      ivRenderQuestion();
+    } else {
+      ivShowResult();
+    }
+  }, 900);
+}
+
+// ---- STEP 4: result ----
+function ivShowResult(){
+  document.getElementById('ivPlayBox').hidden = true;
+  const box = document.getElementById('ivResultBox');
+  box.hidden = false;
+
+  const key = ivScoreKey(ivCurrentLevel, ivCurrentGameIndex);
+  const prevBest = parseInt(localStorage.getItem(key) || '0', 10);
+  const isNewBest = ivScore > prevBest;
+  if(isNewBest) localStorage.setItem(key, String(ivScore));
+
+  const pct = ivScore / ivQuestions.length;
+  let msg = '';
+  if(pct >= 0.9) msg = "Zo'r natija! 🎉";
+  else if(pct >= 0.6) msg = "Yaxshi natija! 👍";
+  else msg = "Yana urinib ko'ring — mashq qilaversangiz yaxshilanadi.";
+
+  const level = IV_DATA[ivCurrentLevel];
+  const hasNextGame = ivCurrentGameIndex < level.games.length - 1;
+
+  box.innerHTML =
+    '<p class="eyebrow">Natija — ' + level.label + ' · O'yin ' + (ivCurrentGameIndex + 1) + '</p>' +
+    '<div class="quiz-result-score" style="font-size:2rem; display:inline-block; padding:.2em .7em; border-radius:10px; margin:.3em 0 .5em; background:rgba(46,111,110,.1); color:var(--teal-deep);">' + ivScore + ' / ' + ivQuestions.length + '</div>' +
+    '<p style="font-weight:700; font-size:1.05rem;">' + msg + (isNewBest ? ' 🏆 Yangi rekord!' : '') + '</p>' +
+    '<div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:1em;">' +
+      '<button type="button" class="btn btn-amber" id="ivRetryBtn">🔁 Qayta o'ynash</button>' +
+      (hasNextGame ? '<button type="button" class="btn btn-amber" id="ivNextGameBtn">➡️ Keyingi o'yin</button>' : '') +
+      '<button type="button" class="btn btn-ghost" id="ivBackToGamesBtn">← O'yinlar ro'yxati</button>' +
+    '</div>';
+
+  document.getElementById('ivRetryBtn').addEventListener('click', () => ivStart(ivCurrentLevel, ivCurrentGameIndex));
+  if(hasNextGame){
+    document.getElementById('ivNextGameBtn').addEventListener('click', () => ivStart(ivCurrentLevel, ivCurrentGameIndex + 1));
+  }
+  document.getElementById('ivBackToGamesBtn').addEventListener('click', () => ivShowGames(ivCurrentLevel));
+}
+
+// ---- Navigation ----
+document.getElementById('navIrrVerbs').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('irr-verbs');
+  ivShowLevels();
+});
+
+document.getElementById('ivBackLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  const onGames = !document.getElementById('ivGameListBox').hidden;
+  const onPlay  = !document.getElementById('ivPlayBox').hidden;
+  if(onPlay){
+    ivShowGames(ivCurrentLevel);
+  } else if(onGames){
+    ivShowLevels();
+  } else {
+    renderHomeView();
+  }
+});
 
 
 // ===== READING MOCKS - Student =====
