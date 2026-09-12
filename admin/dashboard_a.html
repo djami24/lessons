@@ -247,6 +247,40 @@
 .rm-badge-draft{background:rgba(200,200,200,.25);color:var(--adm-gray,var(--gray));}
 .rm-del-btn{color:#e74c3c!important;border-color:rgba(231,76,60,.3)!important;}
 .rm-del-btn:hover{background:rgba(231,76,60,.1)!important;border-color:#e74c3c!important;}
+
+/* ===== READING MOCK ATTEMPTS MODAL ===== */
+.rma-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;}
+.rma-modal{background:var(--paper,#fff);border-radius:20px;width:100%;max-width:820px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.22);overflow:hidden;}
+.rma-header{padding:20px 24px 16px;border-bottom:1.5px solid var(--adm-line,var(--line));display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-shrink:0;}
+.rma-title{font-size:1.08rem;font-weight:800;color:var(--adm-ink,#101B3D);margin:0 0 3px;}
+.rma-sub{font-size:.8rem;color:var(--adm-gray,#8892A6);margin:0;}
+.rma-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--adm-gray,#8892A6);line-height:1;padding:4px;border-radius:8px;flex-shrink:0;transition:background .15s,color .15s;}
+.rma-close:hover{background:rgba(0,0,0,.07);color:var(--adm-ink,#101B3D);}
+.rma-stats-row{display:flex;gap:12px;padding:14px 24px;background:var(--adm-bg,#F3F6FC);border-bottom:1.5px solid var(--adm-line,var(--line));flex-wrap:wrap;flex-shrink:0;}
+.rma-stat{background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:12px;padding:10px 16px;text-align:center;min-width:90px;}
+.rma-stat-val{font-size:1.4rem;font-weight:800;color:var(--adm-ink,#101B3D);}
+.rma-stat-label{font-size:.72rem;color:var(--adm-gray,#8892A6);margin-top:2px;font-weight:600;}
+.rma-filter-row{display:flex;align-items:center;gap:8px;padding:12px 24px;border-bottom:1.5px solid var(--adm-line,var(--line));flex-shrink:0;flex-wrap:wrap;}
+.rma-search{flex:1;min-width:160px;padding:.55em .85em;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;font-size:.85rem;background:var(--adm-bg,#F3F6FC);color:var(--adm-ink,#101B3D);outline:none;transition:border-color .15s;}
+.rma-search:focus{border-color:var(--adm-blue,#2F6FED);}
+.rma-body{overflow-y:auto;flex:1;padding:16px 24px;}
+.rma-table{width:100%;border-collapse:collapse;font-size:.85rem;}
+.rma-table th{text-align:left;padding:9px 12px;font-size:.73rem;font-weight:700;color:var(--adm-gray,#8892A6);border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;text-transform:uppercase;letter-spacing:.03em;}
+.rma-table td{padding:10px 12px;border-bottom:1px solid var(--adm-line,var(--line));vertical-align:middle;}
+.rma-table tr:last-child td{border-bottom:none;}
+.rma-table tr:hover td{background:rgba(47,111,237,.035);}
+.rma-avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#3fbfbf);color:#fff;font-size:.8rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rma-name-cell{display:flex;align-items:center;gap:9px;}
+.rma-score-pill{display:inline-flex;align-items:center;justify-content:center;padding:3px 10px;border-radius:20px;font-size:.8rem;font-weight:700;}
+.rma-score-good{background:rgba(31,174,122,.14);color:#1FAE7A;}
+.rma-score-mid{background:rgba(240,146,61,.14);color:#c07020;}
+.rma-score-low{background:rgba(231,76,60,.12);color:#c0392b;}
+.rma-time-cell{font-family:var(--font-mono,monospace);font-size:.8rem;color:var(--adm-gray,#8892A6);}
+.rma-auto-badge{font-size:.7rem;background:rgba(231,76,60,.1);color:#c0392b;border-radius:8px;padding:2px 7px;font-weight:700;margin-left:4px;}
+.rma-empty{text-align:center;padding:48px 24px;color:var(--adm-gray,#8892A6);}
+.rma-loading{text-align:center;padding:40px;color:var(--adm-gray,#8892A6);font-size:.9rem;}
+.rma-footer{padding:14px 24px;border-top:1.5px solid var(--adm-line,var(--line));display:flex;justify-content:flex-end;flex-shrink:0;}
+
 .rm-tab{padding:.7em 1.2em;background:none;border:none;border-bottom:3px solid transparent;font-size:.88rem;font-weight:600;color:var(--adm-gray,var(--gray));cursor:pointer;transition:color .15s,border-color .15s;margin-bottom:-2px;border-radius:0;}
 .rm-tab:hover{color:var(--adm-ink,var(--ink));}
 .rm-tab.active{color:var(--adm-blue,#2F6FED);border-bottom-color:var(--adm-blue,#2F6FED);}
@@ -8348,6 +8382,7 @@ function rmRenderMockList() {
       <div class="rm-mock-actions">
         ${modeBadge}
         ${statusBadge}
+        <button class="btn btn-ghost btn-sm" style="color:var(--adm-blue,#2F6FED);border-color:rgba(47,111,237,.3);" onclick="rmaOpen('${m.id}', ${JSON.stringify(escapeHtml(m.title || 'Nomsiz mock'))})">👥 Urinishlar</button>
         <button class="btn btn-ghost btn-sm" onclick="rmEditMock('${m.id}')">Tahrirlash</button>
         <button class="btn btn-ghost btn-sm" onclick="rmPreviewMock('${m.id}')">Preview</button>
         <button class="btn btn-ghost btn-sm" onclick="rmDuplicateMock('${m.id}')">Nusxa</button>
@@ -9130,6 +9165,191 @@ function rmPreviewMock(mockId) {
   window.open('../student/reading-mock.html?mockId=' + mockId + '&preview=1', '_blank');
 }
 
+// ============================================================
+//  READING MOCK ATTEMPTS — Admin panel
+// ============================================================
+let _rmaCurrentMockId = null;
+let _rmaAttempts = [];         // raw docs fetched from Firestore
+let _rmaStudentMap = {};       // uid → { name, email } from state.students
+
+// Band hisoblash (reading mock talablar bilan bir xil)
+function rmaBand(correct, total) {
+  if (!total) return '—';
+  const pct = correct / total;
+  if (pct >= 0.90) return 'C2';
+  if (pct >= 0.80) return 'C1';
+  if (pct >= 0.65) return 'B2';
+  if (pct >= 0.50) return 'B1';
+  if (pct >= 0.35) return 'A2';
+  return 'A1';
+}
+
+// Vaqtni "ddd:ss" formatga
+function rmaFmtTime(seconds) {
+  if (!seconds && seconds !== 0) return '—';
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+// Modalni ochish
+async function rmaOpen(mockId, mockTitle) {
+  _rmaCurrentMockId = mockId;
+  _rmaAttempts = [];
+
+  // Student map qurish
+  _rmaStudentMap = {};
+  if (state && state.students) {
+    state.students.forEach(s => {
+      _rmaStudentMap[s.id] = { name: s.name || '', email: s.email || '' };
+    });
+  }
+
+  document.getElementById('rmaModalTitle').textContent = mockTitle || 'Reading Mock';
+  document.getElementById('rmaModalSub').textContent = 'Ushbu mock testni yechgan talabalar';
+  document.getElementById('rmaLoading').style.display = '';
+  document.getElementById('rmaContent').style.display = 'none';
+  document.getElementById('rmaSearch').value = '';
+  document.getElementById('rmaSort').value = 'date-desc';
+  document.getElementById('rmaTotalAttempts').textContent = '—';
+  document.getElementById('rmaUniqueStudents').textContent = '—';
+  document.getElementById('rmaAvgScore').textContent = '—';
+  document.getElementById('rmaAvgTime').textContent = '—';
+  document.getElementById('rmaOverlay').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  try {
+    const snap = await db.collection('reading_mock_attempts')
+      .where('mockId', '==', mockId)
+      .orderBy('submittedAt', 'desc')
+      .get();
+
+    _rmaAttempts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    rmaCalcStats();
+    rmaFilterRender();
+    document.getElementById('rmaLoading').style.display = 'none';
+    document.getElementById('rmaContent').style.display = '';
+  } catch (err) {
+    document.getElementById('rmaLoading').textContent = 'Xatolik: ' + err.message;
+  }
+}
+
+function rmaClose() {
+  document.getElementById('rmaOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+  _rmaCurrentMockId = null;
+  _rmaAttempts = [];
+}
+
+function rmaCalcStats() {
+  const total = _rmaAttempts.length;
+  const uniqueUids = new Set(_rmaAttempts.map(a => a.studentId).filter(Boolean));
+
+  // Natijani hisoblash (javoblar to'g'riligi bo'yicha)
+  // Attempts'da score saqlanmagan — answers obyektidan hisoblash mumkin emas
+  // lekin timeSpent mavjud; score uchun correctCount yoki pct ga qaraymiz
+  let scoreSum = 0, scoreCount = 0;
+  let timeSum = 0, timeCount = 0;
+  _rmaAttempts.forEach(a => {
+    if (typeof a.correctCount === 'number' && typeof a.totalQuestions === 'number') {
+      scoreSum += (a.correctCount / (a.totalQuestions || 1)) * 100;
+      scoreCount++;
+    }
+    if (typeof a.timeSpent === 'number') { timeSum += a.timeSpent; timeCount++; }
+  });
+
+  document.getElementById('rmaTotalAttempts').textContent = total;
+  document.getElementById('rmaUniqueStudents').textContent = uniqueUids.size;
+  document.getElementById('rmaAvgScore').textContent = scoreCount
+    ? Math.round(scoreSum / scoreCount) + '%'
+    : '—';
+  document.getElementById('rmaAvgTime').textContent = timeCount
+    ? rmaFmtTime(Math.round(timeSum / timeCount))
+    : '—';
+}
+
+function rmaFilterRender() {
+  const q = (document.getElementById('rmaSearch').value || '').toLowerCase().trim();
+  const sort = document.getElementById('rmaSort').value;
+
+  let list = _rmaAttempts.filter(a => {
+    if (!q) return true;
+    const st = _rmaStudentMap[a.studentId] || {};
+    return (st.name || '').toLowerCase().includes(q) ||
+           (st.email || '').toLowerCase().includes(q) ||
+           (a.studentId || '').toLowerCase().includes(q);
+  });
+
+  list = list.slice().sort((x, y) => {
+    if (sort === 'date-desc') return (y.submittedAt?.toMillis?.() || 0) - (x.submittedAt?.toMillis?.() || 0);
+    if (sort === 'date-asc')  return (x.submittedAt?.toMillis?.() || 0) - (y.submittedAt?.toMillis?.() || 0);
+    const xs = x.totalQuestions ? (x.correctCount / x.totalQuestions) : -1;
+    const ys = y.totalQuestions ? (y.correctCount / y.totalQuestions) : -1;
+    if (sort === 'score-desc') return ys - xs;
+    if (sort === 'score-asc')  return xs - ys;
+    return 0;
+  });
+
+  const tbody = document.getElementById('rmaTableBody');
+  const empty = document.getElementById('rmaEmpty');
+
+  if (!list.length) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = list.map((a, idx) => {
+    const st = _rmaStudentMap[a.studentId] || {};
+    const displayName = st.name || st.email || a.studentId || 'Noma\'lum';
+    const initials = displayName.split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase() || '?';
+
+    // Natija
+    let scoreHtml = '—';
+    if (typeof a.correctCount === 'number' && typeof a.totalQuestions === 'number') {
+      const pct = Math.round((a.correctCount / (a.totalQuestions || 1)) * 100);
+      const cls = pct >= 65 ? 'rma-score-good' : pct >= 40 ? 'rma-score-mid' : 'rma-score-low';
+      scoreHtml = `<span class="rma-score-pill ${cls}">${a.correctCount}/${a.totalQuestions}</span>`;
+    }
+
+    // Band — stored or computed
+    const band = a.band || ((typeof a.correctCount === 'number' && typeof a.totalQuestions === 'number')
+      ? rmaBand(a.correctCount, a.totalQuestions) : '—');
+
+    // Sana
+    let dateStr = '—';
+    if (a.submittedAt) {
+      const d = a.submittedAt.toDate ? a.submittedAt.toDate() : new Date(a.submittedAt);
+      dateStr = d.toLocaleDateString('uz-UZ') + ' ' + d.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    const autoTag = a.autoSubmit ? '<span class="rma-auto-badge">auto</span>' : '';
+
+    return `<tr>
+      <td style="color:var(--adm-gray,#8892A6);font-size:.8rem;">${idx + 1}</td>
+      <td>
+        <div class="rma-name-cell">
+          <div class="rma-avatar">${initials}</div>
+          <div>
+            <div style="font-weight:600;font-size:.88rem;">${escapeHtml(displayName)}</div>
+            ${st.email && st.name ? `<div style="font-size:.73rem;color:var(--adm-gray,#8892A6);">${escapeHtml(st.email)}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td>${scoreHtml}</td>
+      <td><span style="font-weight:700;font-size:.85rem;">${band}</span></td>
+      <td class="rma-time-cell">${rmaFmtTime(a.timeSpent)}${autoTag}</td>
+      <td style="font-size:.8rem;color:var(--adm-gray,#8892A6);white-space:nowrap;">${dateStr}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ESC klavishi bilan yopish
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('rmaOverlay').style.display !== 'none') rmaClose();
+});
+
 
 </script>
 
@@ -9139,6 +9359,60 @@ function rmPreviewMock(mockId) {
 
 <div class="powered-by">
   <span>powered by <b>Djami</b></span>
+</div>
+
+<!-- ===== READING MOCK ATTEMPTS MODAL ===== -->
+<div class="rma-overlay" id="rmaOverlay" style="display:none;" onclick="if(event.target===this)rmaClose()">
+  <div class="rma-modal">
+    <div class="rma-header">
+      <div>
+        <p class="rma-title" id="rmaModalTitle">Reading Mock — Urinishlar</p>
+        <p class="rma-sub" id="rmaModalSub">Ushbu mock testni yechgan talabalar</p>
+      </div>
+      <button class="rma-close" onclick="rmaClose()">✕</button>
+    </div>
+    <div class="rma-stats-row" id="rmaStatsRow">
+      <div class="rma-stat"><div class="rma-stat-val" id="rmaTotalAttempts">—</div><div class="rma-stat-label">Jami urinish</div></div>
+      <div class="rma-stat"><div class="rma-stat-val" id="rmaUniqueStudents">—</div><div class="rma-stat-label">Talaba</div></div>
+      <div class="rma-stat"><div class="rma-stat-val" id="rmaAvgScore">—</div><div class="rma-stat-label">O'rtacha natija</div></div>
+      <div class="rma-stat"><div class="rma-stat-val" id="rmaAvgTime">—</div><div class="rma-stat-label">O'rtacha vaqt</div></div>
+    </div>
+    <div class="rma-filter-row">
+      <input class="rma-search" type="text" id="rmaSearch" placeholder="Talaba nomi yoki email bo'yicha qidirish…" oninput="rmaFilterRender()">
+      <select class="oj-select" id="rmaSort" style="font-size:.82rem;padding:.45em .7em;" onchange="rmaFilterRender()">
+        <option value="date-desc">Yangi — eski</option>
+        <option value="date-asc">Eski — yangi</option>
+        <option value="score-desc">Yuqori natija</option>
+        <option value="score-asc">Past natija</option>
+      </select>
+    </div>
+    <div class="rma-body">
+      <div class="rma-loading" id="rmaLoading">Yuklanmoqda…</div>
+      <div id="rmaContent" style="display:none;">
+        <table class="rma-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Talaba</th>
+              <th>Natija</th>
+              <th>Band</th>
+              <th>Vaqt sarfi</th>
+              <th>Sana</th>
+            </tr>
+          </thead>
+          <tbody id="rmaTableBody"></tbody>
+        </table>
+        <div class="rma-empty" id="rmaEmpty" style="display:none;">
+          <div style="font-size:2.5rem;margin-bottom:10px;">📭</div>
+          <div style="font-weight:700;color:var(--adm-ink,#101B3D);margin-bottom:4px;">Hali hech kim yechmagan</div>
+          <div style="font-size:.85rem;">Ushbu mock test hali hech qaysi talaba tomonidan yechildi.</div>
+        </div>
+      </div>
+    </div>
+    <div class="rma-footer">
+      <button class="btn btn-ghost btn-sm" onclick="rmaClose()">Yopish</button>
+    </div>
+  </div>
 </div>
 
 </body>
