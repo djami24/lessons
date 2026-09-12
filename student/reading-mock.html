@@ -1252,7 +1252,7 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
     </details>
 
     <div class="rm-result-actions">
-      <button class="btn btn-ghost" onclick="location.href='dashboard.html'">Kabinetga qaytish</button>
+      <button class="btn btn-ghost" onclick="location.href='../guest/dashboard.html'">Kabinetga qaytish</button>
       <button class="btn btn-primary" onclick="location.reload()" style="background:var(--adm-blue,#2F6FED);color:#fff;border:none;">Qaytadan urinish</button>
     </div>
 
@@ -1393,7 +1393,7 @@ async function loadMock() {
 }
 
 function showError(msg) {
-  document.getElementById('rmLoadingScreen').innerHTML = `<div style="text-align:center;padding:40px;"><div style="font-size:2rem;margin-bottom:14px;">⚠️</div><h3 style="color:var(--adm-ink,#101B3D);margin:0 0 8px;">${esc(msg)}</h3><a href="dashboard.html" class="btn btn-ghost" style="margin-top:16px;">← Kabinetga qaytish</a></div>`;
+  document.getElementById('rmLoadingScreen').innerHTML = `<div style="text-align:center;padding:40px;"><div style="font-size:2rem;margin-bottom:14px;">⚠️</div><h3 style="color:var(--adm-ink,#101B3D);margin:0 0 8px;">${esc(msg)}</h3><a href="../guest/dashboard.html" class="btn btn-ghost" style="margin-top:16px;">← Kabinetga qaytish</a></div>`;
 }
 
 // ---- Render UI ----
@@ -1912,7 +1912,7 @@ function initExitModal() {
   // Saqlamasdan chiqish — dashboard ga o'tish
   leaveBtn.addEventListener('click', () => {
     overlay.classList.remove('open');
-    location.href = 'dashboard.html';
+    location.href = '../guest/dashboard.html';
   });
 
   // Overlay tashqarisini bosib yopish
