@@ -25,6 +25,15 @@
   .role-card-box h1{ font-size: 1.5rem; margin-bottom:.2em; }
   .role-card-box > p{ color:var(--gray); margin-bottom: 1.6em; }
   .role-choice-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .role-guest-btn{
+    display:flex; align-items:center; justify-content:center; gap:.5em;
+    width:100%; margin-top:1em; padding:.85em 1em;
+    border: 1.5px dashed var(--line); border-radius: var(--radius-m);
+    background: transparent; cursor:pointer; color: var(--gray);
+    font-size:.92rem; font-weight:600; text-decoration:none;
+    transition: border-color .18s, color .18s, background .18s;
+  }
+  .role-guest-btn:hover{ border-color: var(--teal); color: var(--teal); background: rgba(46,111,110,.05); }
   .role-choice{
     display:flex; flex-direction:column; align-items:center; gap:.5em;
     border: 1.5px solid var(--line); border-radius: var(--radius-m);
@@ -73,6 +82,10 @@
         <p class="role-choice-sub">Farzandingiz ta’limini kuzatish</p>
       </a>
     </div>
+
+    <a href="guest/login.html" class="role-guest-btn" id="roleGuest">
+      👤 Mehmon sifatida kirish
+    </a>
 
     <p class="role-signin-row" id="roleSigninRow">
       Hisobingiz yo‘qmi? <a href="student/register.html">Talaba sifatida</a> yoki
