@@ -780,7 +780,7 @@
           <input type="text" id="tgBotToken" placeholder="1234567890:ABCdef..." autocomplete="off" style="max-width:420px;">
         </label>
         <label class="field" style="margin-top:.8em;">
-          <span>Sayt URL <span style="font-weight:400;color:var(--gray);">(blog havolasi shu URL asosida tuziladi)</span></span>
+          <span>Sayt URL <span style="font-weight:400;color:var(--gray);">(blog havolasi va Reading Mock "Link nusxalash" tugmasi shu URL asosida tuziladi)</span></span>
           <input type="text" id="tgSiteUrl" placeholder="https://djamilessons.netlify.app" style="max-width:420px;">
         </label>
         <div style="margin-top:1em;">
@@ -8496,6 +8496,7 @@ function rmRenderMockList() {
         ${statusBadge}
         <button class="btn btn-ghost btn-sm" onclick="rmEditMock('${m.id}')">Tahrirlash</button>
         <button class="btn btn-ghost btn-sm" onclick="rmPreviewMock('${m.id}')">Preview</button>
+        <button class="btn btn-ghost btn-sm" onclick="rmCopyMockLink('${m.id}', ${m.status === 'published' ? 'true' : 'false'})">🔗 Link nusxalash</button>
         <button class="btn btn-ghost btn-sm" onclick="rmDuplicateMock('${m.id}')">Nusxa</button>
         <button class="btn btn-ghost btn-sm rm-del-btn" onclick="rmDeleteMock('${m.id}', '${escapeHtml(m.title || '')}')">O'chirish</button>
       </div>
@@ -9274,6 +9275,46 @@ async function rmDuplicateMock(mockId) {
 // ---- Preview mock ----
 function rmPreviewMock(mockId) {
   window.open('../student/reading-mock.html?mockId=' + mockId + '&preview=1', '_blank');
+}
+
+// ---- Mock linkini nusxalash (Telegramda ulashish uchun) ----
+// Link avval mehmon ro'yxatdan o'tish sahifasiga tushmaydi — to'g'ridan-to'g'ri
+// mock sahifasiga yo'naltiriladi, lekin reading-mock.html o'zi ro'yxatdan
+// o'tilmaganini aniqlab, avtomatik ravishda ../guest/login.html'ga (va u yerdan
+// ro'yxatdan o'tgach yana shu mockka) yo'naltiradi. Shu sababli Telegramdagi
+// bitta link ham chiroyli preview beradi, ham har doim to'g'ri ishlaydi.
+function rmGetSiteBaseUrl() {
+  try {
+    var s = JSON.parse(localStorage.getItem('efTgBotSettings') || '{}');
+    if (s && s.siteUrl) return s.siteUrl.replace(/\/+$/, '');
+  } catch(e) {}
+  // Zaxira variant: "Telegram Bot sozlamalari" bo'limida "Sayt URL" kiritilmagan bo'lsa
+  return location.origin.replace(/\/+$/, '');
+}
+
+async function rmCopyMockLink(mockId, isPublished) {
+  var base = rmGetSiteBaseUrl();
+  var link = base + '/student/reading-mock.html?mockId=' + mockId + '&guest=1';
+
+  try {
+    await navigator.clipboard.writeText(link);
+  } catch (e) {
+    // Zaxira: eski brauzerlar uchun
+    var ta = document.createElement('textarea');
+    ta.value = link;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch(e2) {}
+    document.body.removeChild(ta);
+  }
+
+  if (!isPublished) {
+    showToast('Link nusxalandi, lekin mock hali "Qoralama" holatida — avval nashr eting, aks holda talabalar xato ko\'radi.', true);
+  } else {
+    showToast('Link nusxalandi! Endi Telegramga joylashtiring.');
+  }
 }
 
 // ============================================================
