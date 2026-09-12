@@ -454,6 +454,7 @@
 </div><!-- /guest-content -->
 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
 <script>
@@ -493,7 +494,7 @@ async function loadReadingMocks() {
   container.innerHTML = '<div class="mock-loading">⏳ Yuklanmoqda…</div>';
   try {
     var db = firebase.firestore();
-    var snap = await db.collection('reading_mocks').orderBy('createdAt', 'desc').get();
+    var snap = await db.collection('reading_mocks').where('status', '==', 'published').orderBy('createdAt', 'desc').get();
     _allMocks = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
     if (!_allMocks.length) {
       container.innerHTML = '<div class="mock-empty"><div style="font-size:2.5rem;margin-bottom:10px;">📭</div><div style="font-weight:700;color:#1c212e;">Hali mock test yo\'q</div><div style="font-size:.85rem;margin-top:6px;">Admin hali mock test qo\'shmagan.</div></div>';
