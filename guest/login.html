@@ -131,6 +131,19 @@ function enterAsGuest() {
 
   try { sessionStorage.setItem('djami_guest', JSON.stringify(guestData)); } catch(e){}
 
+  // Agar link ?redirect=... bilan kelgan bo'lsa (masalan, Telegram'da
+  // ulashilgan mock link), ro'yxatdan o'tgach aynan o'sha sahifaga qaytariladi.
+  // Xavfsizlik uchun faqat saytning o'zidagi nisbiy manzillarga ruxsat beriladi
+  // (boshqa domenlarga yo'naltirishning oldi olinadi).
+  var redirectTarget = 'dashboard.html';
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var r = params.get('redirect');
+    if (r && !/^([a-z]+:)?\/\//i.test(r) && r.indexOf('\\') === -1) {
+      redirectTarget = r;
+    }
+  } catch(e){}
+
   // Firestore'ga faollik yozish
   try {
     if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
@@ -146,7 +159,7 @@ function enterAsGuest() {
     }
   } catch(e){}
 
-  window.location.href = 'dashboard.html';
+  window.location.href = redirectTarget;
 }
 
 // Enter tugmasi bilan ham ishlaydi
