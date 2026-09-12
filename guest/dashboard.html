@@ -77,6 +77,74 @@
   .ub-btn:hover { background: #c47c30; }
   .ub-text { flex: 1; min-width: 180px; }
 
+  /* ---- CEFR Folder card chips ---- */
+  .cefr-folder-card { border-color: #d0e0ff; }
+  .cefr-folder-card:hover { border-color: #2f5fd8; }
+  .cefr-folder-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .cefr-chip { font-size: .72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+  .cefr-chip-reading  { background: #eaf1ff; color: #2f5fd8; }
+  .cefr-chip-speaking { background: #fff0f0; color: #c0392b; }
+  .cefr-chip-writing  { background: #f0fef4; color: #187a4e; }
+
+  /* ======================== CEFR FOLDER ======================== */
+  .cefr-folder-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 20px; }
+  .cefr-section-card {
+    background: #fff; border: 1.5px solid #e2e5ec; border-radius: 16px;
+    padding: 22px 20px; cursor: pointer; text-decoration: none; color: inherit;
+    display: flex; align-items: center; gap: 18px;
+    transition: border-color .18s, box-shadow .18s, transform .15s;
+    box-shadow: 0 1px 3px rgba(20,25,40,.05);
+  }
+  .cefr-section-card:hover { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(20,25,40,.1); }
+  .cefr-section-icon { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+  .cefr-section-body { flex: 1; }
+  .cefr-section-title { font-size: 16px; font-weight: 800; color: #1c212e; margin: 0 0 4px; }
+  .cefr-section-sub { font-size: 13px; color: #6b7484; margin: 0; line-height: 1.4; }
+  .cefr-section-arrow { font-size: 1.1rem; color: #9aa2b1; }
+
+  /* ======================== READING MOCK LIST ======================== */
+  .mock-list { display: flex; flex-direction: column; gap: 12px; }
+  .mock-item {
+    background: #fff; border: 1.5px solid #e2e5ec; border-radius: 14px;
+    padding: 18px 18px; cursor: pointer; display: flex; align-items: center; gap: 14px;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .mock-item:hover { border-color: #2f5fd8; box-shadow: 0 3px 12px rgba(47,95,240,.1); }
+  .mock-item-icon { width: 42px; height: 42px; border-radius: 10px; background: #eaf1ff; color: #2f5fd8; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+  .mock-item-body { flex: 1; }
+  .mock-item-title { font-size: 14px; font-weight: 700; color: #1c212e; margin: 0 0 2px; }
+  .mock-item-meta { font-size: 12px; color: #9aa2b1; }
+  .mock-item-arrow { font-size: .95rem; color: #c0c8d8; }
+  .mock-loading { text-align: center; padding: 40px; color: #9aa2b1; font-size: .9rem; }
+  .mock-empty { text-align: center; padding: 50px 24px; color: #9aa2b1; }
+
+  /* ======================== READING MOCK EXAM ======================== */
+  .exam-header { background: #0E1836; color: #fff; border-radius: 14px; padding: 18px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .exam-title-txt { font-size: 16px; font-weight: 800; }
+  .exam-timer { font-size: 1.1rem; font-weight: 800; color: #D98E3F; background: rgba(255,255,255,.1); border-radius: 8px; padding: 6px 14px; }
+  .exam-passage { background: #fff; border: 1.5px solid #e2e5ec; border-radius: 14px; padding: 22px 20px; margin-bottom: 18px; font-size: .93rem; line-height: 1.75; color: #2d3748; }
+  .exam-passage h3 { font-size: 15px; font-weight: 800; color: #1c212e; margin: 0 0 12px; }
+  .exam-questions { display: flex; flex-direction: column; gap: 18px; margin-bottom: 24px; }
+  .exam-q-block { background: #fff; border: 1.5px solid #e2e5ec; border-radius: 12px; padding: 16px 18px; }
+  .exam-q-num { font-size: .72rem; font-weight: 700; color: #9aa2b1; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+  .exam-q-text { font-size: .95rem; font-weight: 700; color: #1c212e; margin-bottom: 12px; }
+  .exam-options { display: flex; flex-direction: column; gap: 8px; }
+  .exam-opt { width: 100%; text-align: left; padding: 10px 14px; border: 1.5px solid #e2e5ec; border-radius: 10px; background: #fff; font-size: .9rem; cursor: pointer; font-family: 'Inter', sans-serif; transition: border-color .12s, background .12s; }
+  .exam-opt:hover:not(:disabled) { border-color: #2f5fd8; background: #eaf1ff; }
+  .exam-opt.selected { border-color: #2f5fd8; background: #eaf1ff; color: #2f5fd8; font-weight: 700; }
+  .exam-opt.correct  { border-color: #22b573 !important; background: #e7f8f0 !important; color: #187a4e; font-weight: 700; }
+  .exam-opt.wrong    { border-color: #e0455a !important; background: #fdeaec !important; color: #c0392b; font-weight: 700; }
+  .exam-opt:disabled { cursor: default; }
+  .btn-submit-exam { background: #2f5fd8; color: #fff; border: none; border-radius: 12px; padding: 14px 32px; font-size: 1rem; font-weight: 800; cursor: pointer; width: 100%; transition: background .15s; }
+  .btn-submit-exam:hover { background: #2451c1; }
+  .btn-submit-exam:disabled { background: #a0b0d0; cursor: not-allowed; }
+
+  /* Exam result */
+  .exam-result { background: #fff; border: 1.5px solid #e2e5ec; border-radius: 16px; padding: 32px 24px; text-align: center; }
+  .exam-result-score { font-size: 2.6rem; font-weight: 900; color: #2f5fd8; }
+  .exam-result-msg { font-size: 1rem; font-weight: 700; color: #1c212e; margin: 8px 0 6px; }
+  .exam-result-band { display: inline-block; font-size: .85rem; font-weight: 700; padding: 4px 14px; border-radius: 20px; background: #eaf1ff; color: #2f5fd8; margin-bottom: 20px; }
+
   /* ======================== VIEWS ======================== */
   .view { display: none; }
   .view.active { display: block; }
@@ -208,10 +276,15 @@
     </div>
 
     <div class="menu-grid">
-      <a href="#" class="menu-card" onclick="showView('viewCEFR'); return false;">
+      <a href="#" class="menu-card cefr-folder-card" onclick="showView('viewCEFRFolder'); return false;">
         <div class="mc-icon" style="background:#eaf1ff; color:#2f5fd8;">🎓</div>
-        <div class="mc-title">CEFR Darajani bilish</div>
-        <p class="mc-sub">Ingliz tili darajangizni test orqali aniqlang: A1 dan C2 gacha.</p>
+        <div class="mc-title">CEFR</div>
+        <p class="mc-sub">Reading Mock, Speaking va Writing bo'limlaridan foydalaning.</p>
+        <div class="cefr-folder-chips">
+          <span class="cefr-chip cefr-chip-reading">📖 Reading</span>
+          <span class="cefr-chip cefr-chip-speaking">🎙️ Speaking</span>
+          <span class="cefr-chip cefr-chip-writing">✍️ Writing</span>
+        </div>
         <div class="mc-arrow">→</div>
       </a>
       <a href="#" class="menu-card" onclick="showView('viewWordGame'); wgShowLevels(); return false;">
@@ -228,6 +301,84 @@
         <p>Reading mock testlari, kurslar, uy vazifalari va ko'proq narsalardan foydalanish uchun ro'yxatdan o'ting.</p>
       </div>
       <a href="../student/register.html" class="ub-btn">Ro'yxatdan o'tish →</a>
+    </div>
+  </div>
+
+  <!-- ===== VIEW: CEFR FOLDER ===== -->
+  <div class="view" id="viewCEFRFolder">
+    <a href="#" class="back-link" onclick="showView('viewHome'); return false;">← Bosh sahifaga</a>
+    <h2 style="font-size:20px;font-weight:800;color:#1c212e;margin:0 0 6px;">🎓 CEFR</h2>
+    <p style="font-size:13px;color:#6b7484;margin:0 0 20px;">O'rganmoqchi bo'lgan bo'limni tanlang.</p>
+    <div class="cefr-folder-grid">
+      <a href="#" class="cefr-section-card" onclick="showView('viewReadingMockList'); loadReadingMocks(); return false;">
+        <div class="cefr-section-icon" style="background:#eaf1ff;color:#2f5fd8;">📖</div>
+        <div class="cefr-section-body">
+          <div class="cefr-section-title">Reading Mock</div>
+          <p class="cefr-section-sub">CEFR darajasidagi reading mock testlarini yeching va natijangizni bilib oling.</p>
+        </div>
+        <div class="cefr-section-arrow">→</div>
+      </a>
+      <a href="#" class="cefr-section-card" onclick="showView('viewSpeaking'); return false;">
+        <div class="cefr-section-icon" style="background:#fff0f0;color:#c0392b;">🎙️</div>
+        <div class="cefr-section-body">
+          <div class="cefr-section-title">Speaking</div>
+          <p class="cefr-section-sub">CEFR speaking savollari bilan og'zaki ingliz tilingizni mashq qiling.</p>
+        </div>
+        <div class="cefr-section-arrow">→</div>
+      </a>
+      <a href="#" class="cefr-section-card" onclick="showView('viewWriting'); return false;">
+        <div class="cefr-section-icon" style="background:#f0fef4;color:#187a4e;">✍️</div>
+        <div class="cefr-section-body">
+          <div class="cefr-section-title">Writing</div>
+          <p class="cefr-section-sub">Writing topshiriqlarini bajaring va yozish ko'nikmasini rivojlantiring.</p>
+        </div>
+        <div class="cefr-section-arrow">→</div>
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== VIEW: READING MOCK LIST ===== -->
+  <div class="view" id="viewReadingMockList">
+    <a href="#" class="back-link" onclick="showView('viewCEFRFolder'); return false;">← CEFR</a>
+    <h2 style="font-size:20px;font-weight:800;color:#1c212e;margin:0 0 6px;">📖 Reading Mock</h2>
+    <p style="font-size:13px;color:#6b7484;margin:0 0 18px;">Mock testni tanlang va boshlang.</p>
+    <div id="mockListContainer">
+      <div class="mock-loading">⏳ Yuklanmoqda…</div>
+    </div>
+  </div>
+
+  <!-- ===== VIEW: READING MOCK EXAM ===== -->
+  <div class="view" id="viewReadingExam">
+    <a href="#" class="back-link" id="examBackBtn" onclick="exitExam(); return false;">← Testlar ro'yxati</a>
+    <div class="exam-header">
+      <div class="exam-title-txt" id="examTitle">—</div>
+      <div class="exam-timer" id="examTimer">60:00</div>
+    </div>
+    <div class="exam-passage" id="examPassage"></div>
+    <div class="exam-questions" id="examQuestions"></div>
+    <button class="btn-submit-exam" id="btnSubmitExam" onclick="submitExam()">✅ Natijani ko'rish</button>
+    <div id="examResultBox" style="display:none;"></div>
+  </div>
+
+  <!-- ===== VIEW: SPEAKING ===== -->
+  <div class="view" id="viewSpeaking">
+    <a href="#" class="back-link" onclick="showView('viewCEFRFolder'); return false;">← CEFR</a>
+    <div style="background:#fff;border:1.5px solid #e2e5ec;border-radius:16px;padding:40px 24px;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:12px;">🎙️</div>
+      <div style="font-size:18px;font-weight:800;color:#1c212e;margin-bottom:8px;">Speaking bo'limi</div>
+      <p style="font-size:14px;color:#6b7484;max-width:340px;margin:0 auto 24px;line-height:1.6;">Bu bo'lim hozirda tayyorlanmoqda. Tez orada CEFR speaking mashqlari bu yerda paydo bo'ladi.</p>
+      <div style="display:inline-block;background:#fff0f0;color:#c0392b;font-size:.85rem;font-weight:700;padding:8px 20px;border-radius:20px;">🔔 Tez kunda</div>
+    </div>
+  </div>
+
+  <!-- ===== VIEW: WRITING ===== -->
+  <div class="view" id="viewWriting">
+    <a href="#" class="back-link" onclick="showView('viewCEFRFolder'); return false;">← CEFR</a>
+    <div style="background:#fff;border:1.5px solid #e2e5ec;border-radius:16px;padding:40px 24px;text-align:center;">
+      <div style="font-size:3rem;margin-bottom:12px;">✍️</div>
+      <div style="font-size:18px;font-weight:800;color:#1c212e;margin-bottom:8px;">Writing bo'limi</div>
+      <p style="font-size:14px;color:#6b7484;max-width:340px;margin:0 auto 24px;line-height:1.6;">Bu bo'lim hozirda tayyorlanmoqda. Tez orada CEFR writing topshiriqlari bu yerda paydo bo'ladi.</p>
+      <div style="display:inline-block;background:#f0fef4;color:#187a4e;font-size:.85rem;font-weight:700;padding:8px 20px;border-radius:20px;">🔔 Tez kunda</div>
     </div>
   </div>
 
@@ -325,6 +476,191 @@ function showView(id) {
   document.querySelectorAll('.view').forEach(function(v){ v.classList.remove('active'); });
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+}
+
+/* ============================================================
+   READING MOCK — Firestore dan yuklab ochish
+   ============================================================ */
+var _allMocks = [];
+var _currentMock = null;
+var _examAnswers = {};
+var _examTimerInterval = null;
+var _examTimeLeft = 0;
+var _examSubmitted = false;
+
+async function loadReadingMocks() {
+  var container = document.getElementById('mockListContainer');
+  container.innerHTML = '<div class="mock-loading">⏳ Yuklanmoqda…</div>';
+  try {
+    var db = firebase.firestore();
+    var snap = await db.collection('reading_mocks').orderBy('createdAt', 'desc').get();
+    _allMocks = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
+    if (!_allMocks.length) {
+      container.innerHTML = '<div class="mock-empty"><div style="font-size:2.5rem;margin-bottom:10px;">📭</div><div style="font-weight:700;color:#1c212e;">Hali mock test yo\'q</div><div style="font-size:.85rem;margin-top:6px;">Admin hali mock test qo\'shmagan.</div></div>';
+      return;
+    }
+    var html = '<div class="mock-list">';
+    _allMocks.forEach(function(mock, i) {
+      var qCount = (mock.questions && mock.questions.length) || 0;
+      var mins = mock.duration || 60;
+      html += '<div class="mock-item" onclick="openMock(\'' + mock.id + '\')">' +
+        '<div class="mock-item-icon">📄</div>' +
+        '<div class="mock-item-body">' +
+          '<div class="mock-item-title">' + escGuest(mock.title || 'Nomsiz mock') + '</div>' +
+          '<div class="mock-item-meta">' + qCount + ' ta savol · ' + mins + ' daqiqa</div>' +
+        '</div>' +
+        '<div class="mock-item-arrow">→</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = '<div class="mock-loading" style="color:#c0392b;">Xatolik: ' + e.message + '</div>';
+  }
+}
+
+function openMock(mockId) {
+  var mock = _allMocks.find(function(m){ return m.id === mockId; });
+  if (!mock) return;
+  _currentMock = mock;
+  _examAnswers = {};
+  _examSubmitted = false;
+
+  document.getElementById('examTitle').textContent = mock.title || 'Reading Mock';
+  document.getElementById('examResultBox').style.display = 'none';
+  document.getElementById('btnSubmitExam').style.display = 'block';
+
+  // Passage
+  var passageEl = document.getElementById('examPassage');
+  if (mock.passage) {
+    passageEl.style.display = '';
+    passageEl.innerHTML = '<h3>📝 Matn</h3>' + escGuest(mock.passage).replace(/\n/g, '<br>');
+  } else {
+    passageEl.style.display = 'none';
+  }
+
+  // Questions
+  var questions = mock.questions || [];
+  var qHtml = '';
+  questions.forEach(function(q, qi) {
+    var opts = q.options || [];
+    qHtml += '<div class="exam-q-block" id="examQ' + qi + '">' +
+      '<div class="exam-q-num">Savol ' + (qi+1) + ' / ' + questions.length + '</div>' +
+      '<div class="exam-q-text">' + escGuest(q.question || q.text || '') + '</div>' +
+      '<div class="exam-options" id="examOpts' + qi + '">';
+    opts.forEach(function(opt, oi) {
+      qHtml += '<button class="exam-opt" onclick="selectOpt(' + qi + ',' + oi + ',this)">' + escGuest(opt) + '</button>';
+    });
+    qHtml += '</div></div>';
+  });
+  document.getElementById('examQuestions').innerHTML = qHtml;
+
+  // Timer
+  clearInterval(_examTimerInterval);
+  _examTimeLeft = (mock.duration || 60) * 60;
+  updateTimerDisplay();
+  _examTimerInterval = setInterval(function() {
+    _examTimeLeft--;
+    updateTimerDisplay();
+    if (_examTimeLeft <= 0) { clearInterval(_examTimerInterval); submitExam(true); }
+  }, 1000);
+
+  showView('viewReadingExam');
+}
+
+function updateTimerDisplay() {
+  var m = Math.floor(_examTimeLeft / 60);
+  var s = _examTimeLeft % 60;
+  var txt = m + ':' + (s < 10 ? '0' : '') + s;
+  var el = document.getElementById('examTimer');
+  el.textContent = txt;
+  el.style.color = _examTimeLeft < 120 ? '#e0455a' : '#D98E3F';
+}
+
+function selectOpt(qi, oi, btn) {
+  if (_examSubmitted) return;
+  var opts = document.querySelectorAll('#examOpts' + qi + ' .exam-opt');
+  opts.forEach(function(b){ b.classList.remove('selected'); });
+  btn.classList.add('selected');
+  _examAnswers[qi] = oi;
+}
+
+function exitExam() {
+  clearInterval(_examTimerInterval);
+  _examSubmitted = false;
+  showView('viewReadingMockList');
+}
+
+async function submitExam(autoSubmit) {
+  if (_examSubmitted) return;
+  _examSubmitted = true;
+  clearInterval(_examTimerInterval);
+  document.getElementById('btnSubmitExam').disabled = true;
+
+  var questions = (_currentMock && _currentMock.questions) || [];
+  var correct = 0;
+  questions.forEach(function(q, qi) {
+    var chosen = _examAnswers[qi];
+    var correctIdx = q.correctIndex !== undefined ? q.correctIndex : q.answer;
+    var opts = document.querySelectorAll('#examOpts' + qi + ' .exam-opt');
+    opts.forEach(function(b){ b.disabled = true; });
+    if (chosen !== undefined) {
+      if (chosen === correctIdx) {
+        opts[chosen].classList.add('correct');
+        correct++;
+      } else {
+        opts[chosen].classList.add('wrong');
+        if (correctIdx !== undefined && opts[correctIdx]) opts[correctIdx].classList.add('correct');
+      }
+    } else {
+      if (correctIdx !== undefined && opts[correctIdx]) opts[correctIdx].classList.add('correct');
+    }
+  });
+
+  var total = questions.length;
+  var pct = total ? Math.round((correct / total) * 100) : 0;
+  var msg = pct >= 80 ? 'Ajoyib! 🎉' : pct >= 60 ? 'Yaxshi natija! 👍' : 'Yana urinib ko\'ring! 💪';
+
+  // Band hisoblash (IELTS/CEFR approximation)
+  var band = pct >= 90 ? 'C2' : pct >= 75 ? 'C1' : pct >= 60 ? 'B2' : pct >= 45 ? 'B1' : pct >= 30 ? 'A2' : 'A1';
+
+  var resBox = document.getElementById('examResultBox');
+  resBox.style.display = 'block';
+  resBox.innerHTML = '<div class="exam-result">' +
+    '<div class="exam-result-score">' + correct + ' / ' + total + '</div>' +
+    '<div class="exam-result-msg">' + msg + '</div>' +
+    '<div class="exam-result-band">Taxminiy daraja: ' + band + '</div>' +
+    '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:6px;">' +
+      '<button class="btn-s" onclick="exitExam()">← Testlar ro\'yxati</button>' +
+      '<button class="btn-p" onclick="openMock(\'' + (_currentMock ? _currentMock.id : '') + '\')">🔁 Qayta yechish</button>' +
+    '</div>' +
+  '</div>';
+
+  // Firestore ga yozish — mehmon urinishi
+  try {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+      var db = firebase.firestore();
+      await db.collection('guest_cefr_attempts').add({
+        role: 'guest',
+        type: 'reading_mock',
+        guestName: guestData ? guestData.fullName : 'Mehmon',
+        guestPhone: guestData ? (guestData.phone || '') : '',
+        mockId: _currentMock ? _currentMock.id : '',
+        mockTitle: _currentMock ? (_currentMock.title || '') : '',
+        correctCount: correct,
+        totalQuestions: total,
+        score: pct,
+        band: band,
+        autoSubmit: autoSubmit ? true : false,
+        at: firebase.firestore.FieldValue.serverTimestamp(),
+        ua: navigator.userAgent
+      });
+    }
+  } catch(e) {}
+}
+
+function escGuest(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 /* ============================================================
