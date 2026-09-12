@@ -1771,13 +1771,27 @@ function submitTest(autoSubmit) {
 
   if (IS_PREVIEW) { showResults(); return; }
 
-  // Save to Firestore
+  // Save to Firestore — natijani ham hisoblash
   const user = auth.currentUser;
   if (user) {
+    let _saveCorrect = 0, _saveTotal = 0;
+    rmState.passages.forEach((p, pi) => {
+      p.groups.forEach((g, gi) => {
+        g.questions.forEach((q, qi) => {
+          const key = answerKey(pi, gi, qi);
+          const userAns = rmState.answers[key] || '';
+          if (checkAnswer(userAns, q, g.questionType)) _saveCorrect++;
+          _saveTotal++;
+        });
+      });
+    });
     db.collection('reading_mock_attempts').add({
       mockId: MOCK_ID,
       studentId: user.uid,
       answers: rmState.answers,
+      correctCount: _saveCorrect,
+      totalQuestions: _saveTotal,
+      band: getBand(_saveCorrect),
       submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
       autoSubmit: !!autoSubmit,
       timeSpent: (rmState.mock.duration * 60) - rmState.timerSec
