@@ -5,6 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
 <title>CEFR Reading Mock Test — Djami Lessons</title>
 <link rel="icon" href="../favicon.ico" sizes="any">
+
+<!-- ===== Telegram/Facebook uchun chiroyli link preview (Open Graph) =====
+     DIQQAT: quyidagi domenni o'zingizning haqiqiy sayt manzilingizga almashtiring
+     (hozircha admin panelda "Sayt URL" maydonida ko'rsatilgan domendan olindi).
+     og:image hozircha logotipga ishora qiladi — agar 1200x630 o'lchamdagi
+     alohida banner rasm qo'ysangiz, preview yanada chiroyli chiqadi. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Djami Lessons">
+<meta property="og:title" content="CEFR Reading Mock Test — Djami Lessons">
+<meta property="og:description" content="Ingliz tili reading (o'qish) darajangizni bilib oling — CEFR formatidagi mock testda o'zingizni sinab ko'ring.">
+<meta property="og:image" content="https://djamilessons.netlify.app/assets/logo.png">
+<meta property="og:url" content="https://djamilessons.netlify.app/student/reading-mock.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CEFR Reading Mock Test — Djami Lessons">
+<meta name="twitter:description" content="Ingliz tili reading (o'qish) darajangizni bilib oling — CEFR formatidagi mock testda o'zingizni sinab ko'ring.">
+<meta name="twitter:image" content="https://djamilessons.netlify.app/assets/logo.png">
+<!-- ===== /Open Graph ===== -->
+
 <link rel="stylesheet" href="../style.css">
 <style>
 /* ============================================================
@@ -1319,7 +1337,19 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 const urlParams = new URLSearchParams(location.search);
 const MOCK_ID = urlParams.get('mockId');
 const IS_PREVIEW = urlParams.get('preview') === '1';
-const IS_GUEST = urlParams.get('guest') === '1';
+
+// ---- Mehmon (guest) sessiyasini tekshirish ----
+// Avvalgi versiyada faqat ?guest=1 parametriga ishonilardi (har kim shu
+// parametrni URL'ga qo'shib, ro'yxatdan o'tmasdan kira olardi). Endi haqiqiy
+// mehmon ma'lumoti (sessionStorage'dagi djami_guest) ham tekshiriladi.
+function _rmGetGuestInfo() {
+  try {
+    const g = JSON.parse(sessionStorage.getItem('djami_guest') || 'null');
+    return (g && g.fullName) ? g : null;
+  } catch(e) { return null; }
+}
+const GUEST_INFO = _rmGetGuestInfo();
+const IS_GUEST = urlParams.get('guest') === '1' || !!GUEST_INFO;
 
 // ---- State ----
 const rmState = {
@@ -2052,7 +2082,20 @@ function rmConfirm(message, onOk, onCancel) {
 }
 
   (async () => {
-    if (IS_PREVIEW || IS_GUEST) {
+    if (IS_PREVIEW) {
+      restoreAnswers();
+      await loadMock();
+      return;
+    }
+    if (IS_GUEST) {
+      if (!GUEST_INFO) {
+        // Link ?guest=1 bilan ochilgan, lekin hali ro'yxatdan o'tilmagan —
+        // avval mehmon sifatida ro'yxatdan o'tish sahifasiga yuboramiz,
+        // ro'yxatdan o'tgach aynan shu mockka qaytadi.
+        const backUrl = location.pathname + location.search;
+        location.href = '../guest/login.html?redirect=' + encodeURIComponent(backUrl);
+        return;
+      }
       restoreAnswers();
       await loadMock();
     } else {
