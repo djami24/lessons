@@ -26,8 +26,21 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
-const auth = firebase.auth();
 const db = firebase.firestore();
+
+// firebase.auth mavjudligini tekshirib keyin chaqiramiz
+// (ba'zi sahifalarda firebase-auth-compat.js yuklanmasligi mumkin)
+let auth;
+if (typeof firebase.auth === 'function') {
+  auth = firebase.auth();
+} else {
+  // Auth SDK yuklanmagan sahifalar uchun stub
+  auth = {
+    currentUser: null,
+    onAuthStateChanged: function(cb) { cb(null); return function() {}; },
+    signOut: function() { return Promise.resolve(); }
+  };
+}
 
 // Secondary app — used ONLY when admin creates a new student account.
 // Creating a user with the client SDK automatically signs that user in;
