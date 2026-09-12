@@ -1624,60 +1624,118 @@
       <div class="admin-header">
         <div>
           <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;">🎓 CEFR › 📊 Urinishlar</div>
-          <h1>Reading Mock Urinishlari</h1>
-          <p>Barcha talabalarning reading mock yechish tarixi.</p>
+          <h1>Urinishlar</h1>
+          <p>Talabalar va mehmonlarning CEFR reading mock yechish tarixi.</p>
         </div>
-        <button class="btn btn-ghost btn-sm" id="rmaPageRefreshBtn" onclick="rmaPageLoad()">🔄 Yangilash</button>
+        <button class="btn btn-ghost btn-sm" id="rmaPageRefreshBtn" onclick="rmaTabRefresh()">🔄 Yangilash</button>
       </div>
 
-      <!-- Stats row -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;margin-bottom:22px;" id="rmaPageStatsRow">
-        <div class="oj-stat-card"><div class="oj-stat-val" id="rmaPageTotalAttempts">—</div><div class="oj-stat-label">Jami urinish</div></div>
-        <div class="oj-stat-card"><div class="oj-stat-val" id="rmaPageUnique">—</div><div class="oj-stat-label">Talaba</div></div>
-        <div class="oj-stat-card"><div class="oj-stat-val" id="rmaPageMocks">—</div><div class="oj-stat-label">Mock tur</div></div>
-        <div class="oj-stat-card"><div class="oj-stat-val" id="rmaPageAvgScore">—</div><div class="oj-stat-label">O'rtacha natija</div></div>
+      <!-- Tab switcher -->
+      <div style="display:flex;gap:8px;margin-bottom:22px;">
+        <button id="rmaTabStudents" onclick="rmaSetTab('students')" class="btn btn-primary btn-sm" style="border-radius:10px;font-size:.85rem;">📚 Talabalar</button>
+        <button id="rmaTabGuests" onclick="rmaSetTab('guests')" class="btn btn-ghost btn-sm" style="border-radius:10px;font-size:.85rem;">🌐 Mehmonlar</button>
       </div>
 
-      <!-- Filters -->
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
-        <input class="rma-search" type="text" id="rmaPageSearch" placeholder="Talaba nomi / email…" oninput="rmaPageFilter()" style="max-width:240px;">
-        <select class="oj-select" id="rmaPageMockFilter" style="font-size:.83rem;" onchange="rmaPageFilter()">
-          <option value="">Barcha mocklar</option>
-        </select>
-        <select class="oj-select" id="rmaPageSort" style="font-size:.83rem;" onchange="rmaPageFilter()">
-          <option value="date-desc">Yangi → eski</option>
-          <option value="date-asc">Eski → yangi</option>
-          <option value="score-desc">Yuqori natija</option>
-          <option value="score-asc">Past natija</option>
-        </select>
-        <span id="rmaPageCount" style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-left:4px;"></span>
-      </div>
+      <!-- ---- STUDENTS TAB ---- -->
+      <div id="rmaStudentsTab">
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;margin-bottom:22px;" id="rmaPageStatsRow">
+          <div class="oj-stat-card"><div class="oj-stat-val" id="rmaPageTotalAttempts">—</div><div class="oj-stat-label">Jami urinish</div></div>
+          <div class="oj-stat-card"><div class="oj-stat-val" id="rmaPageUnique">—</div><div class="oj-stat-label">Talaba</div></div>
+          <div class="oj-stat-card"><div class="oj-stat-val" id="rmaPageMocks">—</div><div class="oj-stat-label">Mock tur</div></div>
+          <div class="oj-stat-card"><div class="oj-stat-val" id="rmaPageAvgScore">—</div><div class="oj-stat-label">O'rtacha natija</div></div>
+        </div>
 
-      <!-- Table -->
-      <div style="background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:16px;overflow:hidden;">
-        <div id="rmaPageLoading" style="text-align:center;padding:48px;color:var(--adm-gray,var(--gray));">Yuklanmoqda…</div>
-        <div id="rmaPageContent" style="display:none;overflow-x:auto;">
-          <table class="rma-table" style="min-width:640px;">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Talaba</th>
-                <th>Mock nomi</th>
-                <th>Natija</th>
-                <th>Band</th>
-                <th>Vaqt sarfi</th>
-                <th>Sana</th>
-              </tr>
-            </thead>
-            <tbody id="rmaPageTableBody"></tbody>
-          </table>
-          <div id="rmaPageEmpty" style="display:none;text-align:center;padding:56px 24px;color:var(--adm-gray,var(--gray));">
-            <div style="font-size:2.5rem;margin-bottom:10px;">📭</div>
-            <div style="font-weight:700;color:var(--adm-ink,#101B3D);margin-bottom:4px;">Hali urinish yo'q</div>
-            <div style="font-size:.85rem;">Hali hech qaysi talaba reading mock yechildi.</div>
+        <!-- Filters -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
+          <input class="rma-search" type="text" id="rmaPageSearch" placeholder="Talaba nomi / email…" oninput="rmaPageFilter()" style="max-width:240px;">
+          <select class="oj-select" id="rmaPageMockFilter" style="font-size:.83rem;" onchange="rmaPageFilter()">
+            <option value="">Barcha mocklar</option>
+          </select>
+          <select class="oj-select" id="rmaPageSort" style="font-size:.83rem;" onchange="rmaPageFilter()">
+            <option value="date-desc">Yangi → eski</option>
+            <option value="date-asc">Eski → yangi</option>
+            <option value="score-desc">Yuqori natija</option>
+            <option value="score-asc">Past natija</option>
+          </select>
+          <span id="rmaPageCount" style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-left:4px;"></span>
+        </div>
+
+        <!-- Table -->
+        <div style="background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:16px;overflow:hidden;">
+          <div id="rmaPageLoading" style="text-align:center;padding:48px;color:var(--adm-gray,var(--gray));">Yuklanmoqda…</div>
+          <div id="rmaPageContent" style="display:none;overflow-x:auto;">
+            <table class="rma-table" style="min-width:640px;">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Talaba</th>
+                  <th>Mock nomi</th>
+                  <th>Natija</th>
+                  <th>Band</th>
+                  <th>Vaqt sarfi</th>
+                  <th>Sana</th>
+                </tr>
+              </thead>
+              <tbody id="rmaPageTableBody"></tbody>
+            </table>
+            <div id="rmaPageEmpty" style="display:none;text-align:center;padding:56px 24px;color:var(--adm-gray,var(--gray));">
+              <div style="font-size:2.5rem;margin-bottom:10px;">📭</div>
+              <div style="font-weight:700;color:var(--adm-ink,#101B3D);margin-bottom:4px;">Hali urinish yo'q</div>
+              <div style="font-size:.85rem;">Hali hech qaysi talaba reading mock yechildi.</div>
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- ---- GUESTS TAB ---- -->
+      <div id="rmaGuestsTab" style="display:none;">
+        <!-- Stats row -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;margin-bottom:22px;">
+          <div class="oj-stat-card"><div class="oj-stat-val" id="gmaTotal">—</div><div class="oj-stat-label">Jami urinish</div></div>
+          <div class="oj-stat-card"><div class="oj-stat-val" id="gmaUnique">—</div><div class="oj-stat-label">Mehmon</div></div>
+          <div class="oj-stat-card"><div class="oj-stat-val" id="gmaAvgScore">—</div><div class="oj-stat-label">O'rtacha %</div></div>
+          <div class="oj-stat-card"><div class="oj-stat-val" id="gmaTopBand">—</div><div class="oj-stat-label">Eng ko'p daraja</div></div>
+        </div>
+
+        <!-- Filters -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
+          <input class="rma-search" type="text" id="gmaSearch" placeholder="Mehmon ismi / telefon…" oninput="gmaFilter()" style="max-width:240px;">
+          <select class="oj-select" id="gmaSort" style="font-size:.83rem;" onchange="gmaFilter()">
+            <option value="date-desc">Yangi → eski</option>
+            <option value="date-asc">Eski → yangi</option>
+            <option value="score-desc">Yuqori natija</option>
+            <option value="score-asc">Past natija</option>
+          </select>
+          <span id="gmaCount" style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-left:4px;"></span>
+        </div>
+
+        <!-- Table -->
+        <div style="background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:16px;overflow:hidden;">
+          <div id="gmaLoading" style="text-align:center;padding:48px;color:var(--adm-gray,var(--gray));">Yuklanmoqda…</div>
+          <div id="gmaContent" style="display:none;overflow-x:auto;">
+            <table class="rma-table" style="min-width:620px;">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Mehmon</th>
+                  <th>Mock nomi</th>
+                  <th>Natija</th>
+                  <th>Daraja</th>
+                  <th>Sana</th>
+                </tr>
+              </thead>
+              <tbody id="gmaTableBody"></tbody>
+            </table>
+            <div id="gmaEmpty" style="display:none;text-align:center;padding:56px 24px;color:var(--adm-gray,var(--gray));">
+              <div style="font-size:2.5rem;margin-bottom:10px;">📭</div>
+              <div style="font-weight:700;color:var(--adm-ink,#101B3D);margin-bottom:4px;">Hali mehmon urinishi yo'q</div>
+              <div style="font-size:.85rem;">Mehmonlar CEFR reading mock yechganda bu yerda ko'rinadi.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
     <!-- ===== SPEAKING MENU ===== -->
@@ -8381,7 +8439,7 @@ document.getElementById('navCefrMocks').addEventListener('click', (e) => {
 document.getElementById('navCefrAttempts').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('reading-attempts');
-  rmaPageLoad();
+  rmaTabRefresh();
 });
 
 document.getElementById('navCefrSpeaking').addEventListener('click', (e) => {
@@ -9216,6 +9274,150 @@ async function rmDuplicateMock(mockId) {
 // ---- Preview mock ----
 function rmPreviewMock(mockId) {
   window.open('../student/reading-mock.html?mockId=' + mockId + '&preview=1', '_blank');
+}
+
+// ============================================================
+//  URINISHLAR — Tab boshqaruvi (Talabalar / Mehmonlar)
+// ============================================================
+let _rmaCurrentTab = 'students';
+
+function rmaSetTab(tab) {
+  _rmaCurrentTab = tab;
+  const isStudents = tab === 'students';
+  document.getElementById('rmaStudentsTab').style.display = isStudents ? '' : 'none';
+  document.getElementById('rmaGuestsTab').style.display = isStudents ? 'none' : '';
+  document.getElementById('rmaTabStudents').className = isStudents ? 'btn btn-primary btn-sm' : 'btn btn-ghost btn-sm';
+  document.getElementById('rmaTabStudents').style.borderRadius = '10px';
+  document.getElementById('rmaTabStudents').style.fontSize = '.85rem';
+  document.getElementById('rmaTabGuests').className = isStudents ? 'btn btn-ghost btn-sm' : 'btn btn-primary btn-sm';
+  document.getElementById('rmaTabGuests').style.borderRadius = '10px';
+  document.getElementById('rmaTabGuests').style.fontSize = '.85rem';
+  if (isStudents) { rmaPageLoad(); } else { gmaLoad(); }
+}
+
+function rmaTabRefresh() {
+  if (_rmaCurrentTab === 'students') rmaPageLoad();
+  else gmaLoad();
+}
+
+/* ============================================================
+   GUEST CEFR ATTEMPTS
+   ============================================================ */
+let _gmaAllAttempts = [];
+
+async function gmaLoad() {
+  document.getElementById('gmaLoading').style.display = '';
+  document.getElementById('gmaContent').style.display = 'none';
+  document.getElementById('gmaTotal').textContent = '—';
+  document.getElementById('gmaUnique').textContent = '—';
+  document.getElementById('gmaAvgScore').textContent = '—';
+  document.getElementById('gmaTopBand').textContent = '—';
+  try {
+    const snap = await db.collection('guest_cefr_attempts').orderBy('at', 'desc').get();
+    _gmaAllAttempts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+    // Stats
+    const uniqueNames = new Set(_gmaAllAttempts.map(a => a.guestName).filter(Boolean));
+    let scoreSum = 0, scoreCount = 0;
+    const bandCounts = {};
+    _gmaAllAttempts.forEach(a => {
+      if (typeof a.score === 'number') { scoreSum += a.score; scoreCount++; }
+      if (a.band) bandCounts[a.band] = (bandCounts[a.band] || 0) + 1;
+    });
+    const topBand = Object.entries(bandCounts).sort((x,y) => y[1]-x[1])[0];
+    document.getElementById('gmaTotal').textContent = _gmaAllAttempts.length;
+    document.getElementById('gmaUnique').textContent = uniqueNames.size;
+    document.getElementById('gmaAvgScore').textContent = scoreCount ? Math.round(scoreSum / scoreCount) + '%' : '—';
+    document.getElementById('gmaTopBand').textContent = topBand ? topBand[0] : '—';
+
+    document.getElementById('gmaLoading').style.display = 'none';
+    document.getElementById('gmaContent').style.display = '';
+    gmaFilter();
+  } catch (err) {
+    document.getElementById('gmaLoading').textContent = 'Xatolik: ' + err.message;
+  }
+}
+
+function gmaFilter() {
+  const q = (document.getElementById('gmaSearch').value || '').toLowerCase().trim();
+  const sort = document.getElementById('gmaSort').value;
+
+  let list = _gmaAllAttempts.filter(a => {
+    if (!q) return true;
+    return (a.guestName || '').toLowerCase().includes(q) ||
+           (a.guestPhone || '').toLowerCase().includes(q) ||
+           (a.mockTitle || '').toLowerCase().includes(q);
+  });
+
+  list = list.slice().sort((x, y) => {
+    if (sort === 'date-desc') return (y.at?.toMillis?.() || 0) - (x.at?.toMillis?.() || 0);
+    if (sort === 'date-asc')  return (x.at?.toMillis?.() || 0) - (y.at?.toMillis?.() || 0);
+    if (sort === 'score-desc') return (y.score || 0) - (x.score || 0);
+    if (sort === 'score-asc')  return (x.score || 0) - (y.score || 0);
+    return 0;
+  });
+
+  document.getElementById('gmaCount').textContent = list.length + ' ta natija';
+
+  const tbody = document.getElementById('gmaTableBody');
+  const empty = document.getElementById('gmaEmpty');
+
+  if (!list.length) {
+    tbody.innerHTML = '';
+    empty.style.display = '';
+    return;
+  }
+  empty.style.display = 'none';
+
+  tbody.innerHTML = list.map((a, idx) => {
+    const name = escapeHtml(a.guestName || 'Noma\'lum');
+    const phone = a.guestPhone ? `<div style="font-size:.72rem;color:var(--adm-gray,#8892A6);">${escapeHtml(a.guestPhone)}</div>` : '';
+    const initials = (a.guestName || '?').split(' ').filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const mockTitle = escapeHtml(a.mockTitle || a.mockId || '—');
+
+    // Score pill
+    let scoreHtml = '—';
+    if (typeof a.correctCount === 'number' && typeof a.totalQuestions === 'number') {
+      const pct = a.score || Math.round((a.correctCount / (a.totalQuestions || 1)) * 100);
+      const cls = pct >= 65 ? 'rma-score-good' : pct >= 40 ? 'rma-score-mid' : 'rma-score-low';
+      scoreHtml = `<span class="rma-score-pill ${cls}">${a.correctCount}/${a.totalQuestions} <span style="opacity:.7;font-weight:600;">(${pct}%)</span></span>`;
+    } else if (typeof a.score === 'number') {
+      const pct = a.score;
+      const cls = pct >= 65 ? 'rma-score-good' : pct >= 40 ? 'rma-score-mid' : 'rma-score-low';
+      scoreHtml = `<span class="rma-score-pill ${cls}">${pct}%</span>`;
+    }
+
+    // Date
+    let dateStr = '—';
+    if (a.at) {
+      const d = a.at.toDate ? a.at.toDate() : new Date(a.at);
+      dateStr = d.toLocaleDateString('uz-UZ') + ' ' + d.toLocaleTimeString('uz-UZ', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Band badge color
+    const bandColors = { A1:'#e7f8f0', A2:'#eaf1ff', B1:'#fff6e6', B2:'#f1ecfe', C1:'#fdeaec', C2:'#0E1836' };
+    const bandTextColors = { A1:'#187a4e', A2:'#2451c1', B1:'#a15c00', B2:'#5a3dc0', C1:'#c0392b', C2:'#D98E3F' };
+    const band = a.band || '—';
+    const bandBg = bandColors[band] || '#f1f5f9';
+    const bandTxt = bandTextColors[band] || '#374151';
+
+    return `<tr>
+      <td style="color:var(--adm-gray,#8892A6);font-size:.8rem;">${idx + 1}</td>
+      <td>
+        <div class="rma-name-cell">
+          <div class="rma-avatar" style="background:#f1ecfe;color:#7c5cf0;">${initials}</div>
+          <div>
+            <div style="font-weight:600;font-size:.88rem;">${name}</div>
+            ${phone}
+          </div>
+        </div>
+      </td>
+      <td style="font-size:.85rem;font-weight:600;max-width:180px;">${mockTitle}</td>
+      <td>${scoreHtml}</td>
+      <td><span style="font-weight:800;font-size:.85rem;padding:3px 10px;border-radius:12px;background:${bandBg};color:${bandTxt};">${band}</span></td>
+      <td style="font-size:.78rem;color:var(--adm-gray,#8892A6);white-space:nowrap;">${dateStr}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ============================================================
