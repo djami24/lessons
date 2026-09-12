@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mehmon kirish — Djami Lessons</title>
+<link rel="icon" href="../favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon/favicon-16x16.png">
+<link rel="apple-touch-icon" href="../assets/favicon/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .guest-body{
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background: var(--paper-2); padding: 40px 20px;
+  }
+  .guest-wrap{ width:100%; max-width: 460px; text-align:center; }
+  .guest-wrap .brand{ justify-content:center; display:inline-flex; margin-bottom:1.4em; text-decoration:none; }
+  .guest-card{
+    background: var(--white); border-radius: var(--radius-l); box-shadow: var(--shadow-pop);
+    padding: 2.4em 2.2em 2.6em;
+  }
+  .guest-icon{
+    width:72px; height:72px; border-radius:50%;
+    background: rgba(46,111,110,.1); color: var(--teal);
+    display:flex; align-items:center; justify-content:center;
+    font-size:2rem; margin: 0 auto 1.1em;
+  }
+  .guest-card h1{ font-size:1.4rem; margin-bottom:.25em; color: var(--ink); }
+  .guest-card > p{ color:var(--gray); margin-bottom:1.8em; font-size:.9rem; }
+  .guest-field{ margin-bottom:1em; text-align:left; }
+  .guest-field label{ display:block; font-weight:700; font-size:.85rem; color:var(--ink); margin-bottom:.4em; }
+  .guest-field input{
+    width:100%; padding:.8em 1em; border:1.5px solid var(--line); border-radius: var(--radius-m);
+    font-size:.95rem; color: var(--ink); background: var(--paper-2);
+    outline:none; transition: border-color .18s, box-shadow .18s; box-sizing:border-box;
+  }
+  .guest-field input:focus{ border-color: var(--teal); box-shadow: 0 0 0 3px rgba(46,111,110,.1); }
+  .guest-field input.is-error{ border-color: #e53e3e; }
+  .guest-error{ color:#e53e3e; font-size:.8rem; margin-top:.3em; display:none; }
+  .guest-field.has-error .guest-error{ display:block; }
+  .guest-field.has-error input{ border-color:#e53e3e; }
+  .guest-note{
+    display:flex; align-items:flex-start; gap:.6em;
+    background: rgba(46,111,110,.07); border-radius: var(--radius-m);
+    padding:.9em 1em; margin-bottom:1.6em; text-align:left;
+    border: 1px solid rgba(46,111,110,.15);
+  }
+  .guest-note-icon{ font-size:1rem; flex-shrink:0; margin-top:1px; }
+  .guest-note-text{ font-size:.82rem; color:var(--gray); line-height:1.5; }
+  .guest-note-text strong{ color: var(--teal); }
+  .btn-guest-enter{
+    width:100%; padding:.9em 1em; border:none; border-radius: var(--radius-m);
+    background: var(--teal); color:#fff; font-size:1rem; font-weight:800;
+    cursor:pointer; transition: background .18s, transform .12s;
+  }
+  .btn-guest-enter:hover{ background: var(--teal-deep,#236160); transform:translateY(-1px); }
+  .btn-guest-enter:active{ transform:translateY(0); }
+  .guest-back{ margin-top:1.2em; font-size:.85rem; color:var(--gray); }
+  .guest-back a{ color:var(--amber-deep); font-weight:700; text-decoration:none; }
+  .guest-back a:hover{ text-decoration:underline; }
+</style>
+</head>
+<body class="guest-body">
+
+<div class="guest-wrap">
+  <a href="../kirish.html" class="brand">
+    <span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span>
+    <span data-site-brand-name>Djami Lessons</span>
+  </a>
+
+  <div class="guest-card">
+    <div class="guest-icon">👤</div>
+    <h1>Mehmon sifatida kiring</h1>
+    <p>Ismi-familiyangizni kiriting va davom eting.</p>
+
+    <div class="guest-field" id="fieldFirstName">
+      <label for="guestFirstName">Ism</label>
+      <input type="text" id="guestFirstName" placeholder="Masalan: Alisher" autocomplete="given-name" maxlength="50">
+      <div class="guest-error">Iltimos, ismingizni kiriting.</div>
+    </div>
+
+    <div class="guest-field" id="fieldLastName">
+      <label for="guestLastName">Familiya</label>
+      <input type="text" id="guestLastName" placeholder="Masalan: Navoiy" autocomplete="family-name" maxlength="50">
+      <div class="guest-error">Iltimos, familiyangizni kiriting.</div>
+    </div>
+
+    <div class="guest-note">
+      <span class="guest-note-icon">ℹ️</span>
+      <div class="guest-note-text">
+        Mehmon sifatida faqat <strong>CEFR darajani bilish testi</strong> va <strong>So'z o'yini</strong>ga kirishingiz mumkin.
+        Barcha imkoniyatlardan foydalanish uchun <a href="../student/register.html" style="color:var(--amber-deep);font-weight:700;">ro'yxatdan o'ting</a>.
+      </div>
+    </div>
+
+    <button class="btn-guest-enter" onclick="enterAsGuest()">Kirish →</button>
+
+    <div class="guest-back">
+      <a href="../kirish.html">← Orqaga</a>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<script>
+function enterAsGuest() {
+  var firstName = document.getElementById('guestFirstName').value.trim();
+  var lastName  = document.getElementById('guestLastName').value.trim();
+  var f1 = document.getElementById('fieldFirstName');
+  var f2 = document.getElementById('fieldLastName');
+  var ok = true;
+
+  f1.classList.remove('has-error');
+  f2.classList.remove('has-error');
+
+  if (!firstName) { f1.classList.add('has-error'); ok = false; }
+  if (!lastName)  { f2.classList.add('has-error'); ok = false; }
+  if (!ok) return;
+
+  var guestData = {
+    firstName: firstName,
+    lastName: lastName,
+    fullName: firstName + ' ' + lastName,
+    enteredAt: Date.now()
+  };
+
+  try { sessionStorage.setItem('djami_guest', JSON.stringify(guestData)); } catch(e){}
+
+  // Firestore'ga faollik yozish
+  try {
+    if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+      var db = firebase.firestore();
+      db.collection('activity_log').add({
+        role: 'guest',
+        action: 'guest_login',
+        name: guestData.fullName,
+        at: firebase.firestore.FieldValue.serverTimestamp(),
+        ua: navigator.userAgent,
+        page: 'guest/login.html'
+      }).catch(function(){});
+    }
+  } catch(e){}
+
+  window.location.href = 'dashboard.html';
+}
+
+// Enter tugmasi bilan ham ishlaydi
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Enter') enterAsGuest();
+});
+</script>
+
+</body>
+</html>
