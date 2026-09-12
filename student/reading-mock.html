@@ -1319,6 +1319,7 @@ body.rm-text-xlarge .rm-q-label { font-size: 1.05rem !important; }
 const urlParams = new URLSearchParams(location.search);
 const MOCK_ID = urlParams.get('mockId');
 const IS_PREVIEW = urlParams.get('preview') === '1';
+const IS_GUEST = urlParams.get('guest') === '1';
 
 // ---- State ----
 const rmState = {
@@ -1769,7 +1770,7 @@ function submitTest(autoSubmit) {
   rmState.submitted = true;
   clearInterval(rmState.timerInterval);
 
-  if (IS_PREVIEW) { showResults(); return; }
+  if (IS_PREVIEW || IS_GUEST) { showResults(); return; }
 
   // Save to Firestore — natijani ham hisoblash
   const user = auth.currentUser;
@@ -2013,7 +2014,7 @@ function rmConfirm(message, onOk, onCancel) {
 }
 
   (async () => {
-    if (IS_PREVIEW) {
+    if (IS_PREVIEW || IS_GUEST) {
       restoreAnswers();
       await loadMock();
     } else {
