@@ -1770,7 +1770,45 @@ function submitTest(autoSubmit) {
   rmState.submitted = true;
   clearInterval(rmState.timerInterval);
 
-  if (IS_PREVIEW || IS_GUEST) { showResults(); return; }
+  if (IS_PREVIEW) { showResults(); return; }
+
+  if (IS_GUEST) {
+    // Guest natijasini guest_cefr_attempts ga yozish
+    try {
+      let _gCorrect = 0, _gTotal = 0;
+      rmState.passages.forEach((p, pi) => {
+        p.groups.forEach((g, gi) => {
+          g.questions.forEach((q, qi) => {
+            const key = answerKey(pi, gi, qi);
+            const userAns = rmState.answers[key] || '';
+            if (checkAnswer(userAns, q, g.questionType)) _gCorrect++;
+            _gTotal++;
+          });
+        });
+      });
+      let guestInfo = {};
+      try { guestInfo = JSON.parse(sessionStorage.getItem('djami_guest') || '{}'); } catch(e) {}
+      const pct = _gTotal ? Math.round((_gCorrect / _gTotal) * 100) : 0;
+      const band = getBand(_gCorrect);
+      db.collection('guest_cefr_attempts').add({
+        role: 'guest',
+        type: 'reading_mock',
+        guestName: guestInfo.fullName || 'Mehmon',
+        guestPhone: guestInfo.phone || '',
+        mockId: MOCK_ID,
+        mockTitle: rmState.mock?.title || '',
+        correctCount: _gCorrect,
+        totalQuestions: _gTotal,
+        score: pct,
+        band: band,
+        autoSubmit: !!autoSubmit,
+        at: firebase.firestore.FieldValue.serverTimestamp(),
+        ua: navigator.userAgent
+      }).catch(() => {});
+    } catch(e) {}
+    showResults();
+    return;
+  }
 
   // Save to Firestore — natijani ham hisoblash
   const user = auth.currentUser;
