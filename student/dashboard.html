@@ -442,6 +442,15 @@
   /* Strelka belgisini o'chirish */
   .back-link::before { content: '' !important; display: none !important; }
   .back-link { padding-left: 0 !important; }
+
+  /* Sidebar menyu bandi bosilganda ("So'z o'yini" va h.k.) ko'k rangga
+     o'tmayotgan edi — .active klassi JS orqali qo'shilsa ham, shu yerda
+     majburiy ko'k fon beramiz (Bosh Sahifa'dagi kabi). */
+  .admin-nav a.active {
+    background: var(--blue-500, #3b6ff0) !important;
+    color: #fff !important;
+    border-radius: 10px !important;
+  }
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -757,7 +766,7 @@
     <!-- ===== PAYMENT GATE (General English, not approved yet) ===== -->
     <!-- ===== SO'Z O'YINI (vocabulary game) ===== -->
     <section id="view-word-game" hidden>
-      <a href="#" id="wgBackLink" class="back-link">Orqaga</a>
+      <button type="button" id="wgBackLink" style="background:#f1f5f9;border:none;cursor:pointer;font-size:.85rem;font-weight:700;color:#374151;padding:8px 16px;border-radius:10px;transition:background .15s;white-space:nowrap;margin-bottom:1em;" onmouseover="this.style.background='#e2e8f0'" onmouseout="this.style.background='#f1f5f9'">← Orqaga</button>
 
       <!-- STEP 0: asosiy menu -->
       <div id="wgMainMenuBox">
