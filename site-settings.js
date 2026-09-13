@@ -484,6 +484,30 @@
     setText('[data-testimonial-4-name]', data.testimonial4Name);
     setText('[data-testimonial-4-role]', data.testimonial4Role);
     setText('[data-testimonial-4-text]', data.testimonial4Text);
+
+    // Talabalar fikri — rasm linklarini o'rnatish
+    // Admin panelda testimonial1Photo ... testimonial4Photo sifatida saqlanadi
+    function setPhoto(attr, url) {
+      var imgs = document.querySelectorAll('[' + attr + ']');
+      imgs.forEach(function(img) {
+        if (!url) return;
+        img.src = url;
+        // Fallbackni yashir
+        var fallback = img.nextElementSibling;
+        if (fallback && fallback.classList.contains('tsl-photo-fallback')) {
+          fallback.style.display = 'none';
+        }
+        img.style.display = 'block';
+        img.onerror = function() {
+          this.style.display = 'none';
+          if (fallback) fallback.style.display = 'flex';
+        };
+      });
+    }
+    setPhoto('data-testimonial-1-photo', data.testimonial1Photo);
+    setPhoto('data-testimonial-2-photo', data.testimonial2Photo);
+    setPhoto('data-testimonial-3-photo', data.testimonial3Photo);
+    setPhoto('data-testimonial-4-photo', data.testimonial4Photo);
   }
 
   const SETTINGS_CACHE_KEY = 'efSiteSettingsCache';
