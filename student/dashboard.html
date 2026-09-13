@@ -3574,6 +3574,12 @@ function wgShowResult(){
 document.getElementById('navWordGame').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('word-game');
+  document.getElementById('navHome').classList.remove('active');
+  document.getElementById('navMyEssays').classList.remove('active');
+  document.getElementById('navPlacementTest').classList.remove('active');
+  document.getElementById('navProfile').classList.remove('active');
+  document.getElementById('navCEFR').classList.remove('active');
+  document.getElementById('navWordGame').classList.add('active');
   wgShowMainMenu();
 });
 
