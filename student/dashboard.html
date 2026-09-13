@@ -3625,8 +3625,7 @@ wgApplyVisibilitySetting();
 // ---- Word game asosiy menu card handlers ----
 document.getElementById('wgGoVocab').addEventListener('click', (e) => {
   e.preventDefault();
-  wgHideAllBoxes();
-  document.getElementById('wgLevelBox').hidden = false;
+  wgShowLevels();
 });
 
 document.getElementById('wgGoIrrVerbs').addEventListener('click', (e) => {
