@@ -484,7 +484,6 @@
       <li><a href="#" id="navMyEssays">✍️ Insholarim</a></li>
       <li><a href="#" id="navCEFR">🎓 CEFR</a></li>
       <li><a href="#" id="navWordGame">🎮 So‘z o‘yini</a></li>
-      <li><a href="#" id="navIrrVerbs">🔀 Noto’g’ri fe’llar</a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -756,84 +755,108 @@
     <section id="view-word-game" hidden>
       <a href="#" id="wgBackLink" class="back-link">← Bosh sahifaga</a>
 
-      <!-- STEP 1: level select -->
-      <div id="wgLevelBox">
-        <div class="admin-header">
-          <div>
-            <h1>🎮 So‘z o‘yini</h1>
-            <p>Darajangizni tanlang. Har darajada 5 ta o‘yin bor, har birida 20 tadan yangi so‘z.</p>
-          </div>
+      <!-- STEP 0: asosiy menu -->
+      <div id="wgMainMenuBox">
+        <div class="admin-header"><div>
+          <h1>🎮 O’yinlar</h1>
+          <p>Qaysi o’yinni o’ynamoqchisiz?</p>
+        </div></div>
+        <div class="home-menu-grid">
+          <a href="#" class="home-menu-card" id="wgGoVocab">
+            <div class="home-menu-top">
+              <span class="home-menu-icon" style="background:#2F6FED22;color:#2F6FED;">📚</span>
+              <span class="home-menu-arrow">→</span>
+            </div>
+            <h3 class="home-menu-title">So’z o’yini</h3>
+            <p class="home-menu-desc">Inglizcha so’zlar va ularning tarjimasini o’rgan</p>
+          </a>
+          <a href="#" class="home-menu-card" id="wgGoIrrVerbs">
+            <div class="home-menu-top">
+              <span class="home-menu-icon" style="background:#7C5CFC22;color:#7C5CFC;">🔀</span>
+              <span class="home-menu-arrow">→</span>
+            </div>
+            <h3 class="home-menu-title">Noto’g’ri fe’llar</h3>
+            <p class="home-menu-desc">Irregular verb shakllarini va tarjimasini mashq qiling</p>
+          </a>
         </div>
+      </div>
+
+      <!-- ── SO'Z O'YINI ── -->
+      <div id="wgLevelBox" hidden>
+        <div class="admin-header"><div>
+          <h1>📚 So’z o’yini</h1>
+          <p>Darajangizni tanlang. Har darajada 5 ta o’yin bor, har birida 20 tadan yangi so’z.</p>
+        </div></div>
         <div class="home-menu-grid" id="wgLevelGrid"></div>
       </div>
-
-      <!-- STEP 2: game select (within the chosen level) -->
       <div id="wgGameListBox" hidden>
-        <div class="admin-header">
-          <div>
-            <h1 id="wgLevelTitle"></h1>
-            <p>O‘ynamoqchi bo‘lgan o‘yinni tanlang.</p>
-          </div>
-        </div>
+        <div class="admin-header"><div>
+          <h1 id="wgLevelTitle"></h1>
+          <p>O’ynamoqchi bo’lgan o’yinni tanlang.</p>
+        </div></div>
         <div class="home-menu-grid" id="wgGameGrid"></div>
       </div>
-
-      <!-- STEP 3: play -->
       <div class="quiz-box" id="wgPlayBox" hidden>
         <p class="quiz-progress" id="wgProgress"></p>
-        <div class="latest-hw-box" style="text-align:center; padding:1.6em 1em;">
-          <span class="latest-hw-eyebrow">Bu so‘zning tarjimasi qaysi?</span>
-          <h1 id="wgWord" style="margin:.3em 0 .1em; font-size:2.1rem; color:#fff;"></h1>
+        <div class="latest-hw-box" style="text-align:center;padding:1.6em 1em;">
+          <span class="latest-hw-eyebrow">Bu so’zning tarjimasi qaysi?</span>
+          <h1 id="wgWord" style="margin:.3em 0 .1em;font-size:2.1rem;color:#fff;"></h1>
         </div>
         <div class="quiz-options" id="wgOptions" style="margin-top:1.1em;"></div>
       </div>
-
-      <!-- STEP 4: result -->
       <div class="quiz-result-box" id="wgResultBox" hidden></div>
-    </section>
 
-    
-    <!-- ===== NOTO'G'RI FE'LLAR O'YINI ===== -->
-    <section id="view-irr-verbs" hidden>
-      <a href="#" id="ivBackLink" class="back-link">← Bosh sahifaga</a>
-
-      <!-- STEP 1: level select -->
-      <div id="ivLevelBox">
-        <div class="admin-header">
-          <div>
-            <h1>🔀 Noto'g'ri fe'llar o'yini</h1>
-            <p>Darajangizni tanlang. Har darajada 5 ta o'yin bor, har birida 20 ta noto'g'ri fe'l.</p>
-          </div>
+      <!-- ── NOTO'G'RI FE'LLAR ── -->
+      <div id="ivTypeBox" hidden>
+        <div class="admin-header"><div>
+          <h1>🔀 Noto’g’ri fe’llar</h1>
+          <p>O’yin turini tanlang.</p>
+        </div></div>
+        <div class="home-menu-grid">
+          <a href="#" class="home-menu-card" id="ivGoForms">
+            <div class="home-menu-top">
+              <span class="home-menu-icon" style="background:#7C5CFC22;color:#7C5CFC;">🔀</span>
+              <span class="home-menu-arrow">→</span>
+            </div>
+            <h3 class="home-menu-title">Fe’l shakllari</h3>
+            <p class="home-menu-desc">Base → Past Simple → Past Participle shakllarini top</p>
+          </a>
+          <a href="#" class="home-menu-card" id="ivGoTranslate">
+            <div class="home-menu-top">
+              <span class="home-menu-icon" style="background:#1FAE7A22;color:#1FAE7A;">🌐</span>
+              <span class="home-menu-arrow">→</span>
+            </div>
+            <h3 class="home-menu-title">Tarjima o’yini</h3>
+            <p class="home-menu-desc">Fe’llarning o’zbekcha tarjimasini top</p>
+          </a>
         </div>
+      </div>
+      <div id="ivLevelBox" hidden>
+        <div class="admin-header"><div>
+          <h1 id="ivLevelBoxTitle">🔀 Daraja tanlang</h1>
+          <p>Darajangizni tanlang. Har darajada 5 ta o’yin bor, har birida 20 ta fe’l.</p>
+        </div></div>
         <div class="home-menu-grid" id="ivLevelGrid"></div>
       </div>
-
-      <!-- STEP 2: game select -->
       <div id="ivGameListBox" hidden>
-        <div class="admin-header">
-          <div>
-            <h1 id="ivLevelTitle"></h1>
-            <p>O'ynamoqchi bo'lgan o'yinni tanlang.</p>
-          </div>
-        </div>
+        <div class="admin-header"><div>
+          <h1 id="ivLevelTitle"></h1>
+          <p>O’ynamoqchi bo’lgan o’yinni tanlang.</p>
+        </div></div>
         <div class="home-menu-grid" id="ivGameGrid"></div>
       </div>
-
-      <!-- STEP 3: play -->
       <div class="quiz-box" id="ivPlayBox" hidden>
         <p class="quiz-progress" id="ivProgress"></p>
-        <!-- savolning turi ko'rsatiladi -->
-        <div id="ivQuestionTypeLabel" style="text-align:center; margin-bottom:.5em; font-size:.9rem; color:var(--muted);"></div>
-        <div class="latest-hw-box" style="text-align:center; padding:1.6em 1em;">
-          <span class="latest-hw-eyebrow" id="ivQuestionEyebrow">Bu fe'lning to'g'ri shakli qaysi?</span>
-          <h1 id="ivWord" style="margin:.3em 0 .1em; font-size:2.1rem; color:#fff;"></h1>
+        <div class="latest-hw-box" style="text-align:center;padding:1.6em 1em;">
+          <span class="latest-hw-eyebrow" id="ivQuestionEyebrow">Savolga javob bering</span>
+          <h1 id="ivWord" style="margin:.3em 0 .1em;font-size:2.1rem;color:#fff;"></h1>
         </div>
         <div class="quiz-options" id="ivOptions" style="margin-top:1.1em;"></div>
       </div>
-
-      <!-- STEP 4: result -->
       <div class="quiz-result-box" id="ivResultBox" hidden></div>
+
     </section>
+
 
     <!-- ===== LEVELS (General English, approved) ===== -->
         <!-- ===== LESSON LIST (inside a level) ===== -->
@@ -1513,7 +1536,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'irr-verbs', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
+const VIEWS = ['home', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
@@ -1526,7 +1549,6 @@ const STUDENT_VIEW_NAV_MAP = {
   'placement-test': 'navPlacementTest',
   'my-essays': 'navMyEssays',
   'word-game': 'navWordGame',
-  'irr-verbs': 'navIrrVerbs',
   'reading-mocks': 'navCEFR',
   'cefr-menu': 'navCEFR',
   'cefr-writing': 'navCEFR',
@@ -1568,7 +1590,6 @@ function renderHomeView(){
   document.getElementById('navProfile').classList.remove('active');
   document.getElementById('navCEFR').classList.remove('active');
   document.getElementById('navWordGame').classList.remove('active');
-  if(document.getElementById('navIrrVerbs')) document.getElementById('navIrrVerbs').classList.remove('active');
   loadLatestHomework();
   renderGbResultBox();
   renderProgressBox();
@@ -3357,10 +3378,27 @@ function wgScoreKey(levelId, gameIndex){
 }
 
 function wgHideAllBoxes(){
+  document.getElementById('wgMainMenuBox').hidden = true;
   document.getElementById('wgLevelBox').hidden = true;
   document.getElementById('wgGameListBox').hidden = true;
   document.getElementById('wgPlayBox').hidden = true;
   document.getElementById('wgResultBox').hidden = true;
+  document.getElementById('ivTypeBox').hidden = true;
+  document.getElementById('ivLevelBox').hidden = true;
+  document.getElementById('ivGameListBox').hidden = true;
+  document.getElementById('ivPlayBox').hidden = true;
+  document.getElementById('ivResultBox').hidden = true;
+}
+
+// ---- STEP 0: Asosiy menu ----
+function wgShowMainMenu(){
+  wgHideAllBoxes();
+  document.getElementById('wgMainMenuBox').hidden = false;
+}
+
+function wgShowIrrVerbsMenu(){
+  wgHideAllBoxes();
+  document.getElementById('ivTypeBox').hidden = false;
 }
 
 // ---- STEP 1: level select ----
@@ -3532,17 +3570,35 @@ function wgShowResult(){
 document.getElementById('navWordGame').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('word-game');
-  wgShowLevels();
+  wgShowMainMenu();
 });
 
 document.getElementById('wgBackLink').addEventListener('click', (e) => {
   e.preventDefault();
-  const onGames = !document.getElementById('wgGameListBox').hidden;
-  const onPlay = !document.getElementById('wgPlayBox').hidden;
-  if(onPlay){
+  const onMainMenu  = !document.getElementById('wgMainMenuBox').hidden;
+  const onIvType    = !document.getElementById('ivTypeBox').hidden;
+  const onIvLevels  = !document.getElementById('ivLevelBox').hidden;
+  const onIvGames   = !document.getElementById('ivGameListBox').hidden;
+  const onIvPlay    = !document.getElementById('ivPlayBox').hidden;
+  const onIvResult  = !document.getElementById('ivResultBox').hidden;
+  const onWgLevels  = !document.getElementById('wgLevelBox').hidden;
+  const onWgGames   = !document.getElementById('wgGameListBox').hidden;
+  const onWgPlay    = !document.getElementById('wgPlayBox').hidden;
+
+  if(onIvPlay || onIvResult){
+    ivShowGames(ivCurrentLevel);
+  } else if(onIvGames){
+    ivShowLevels();
+  } else if(onIvLevels){
+    wgShowIrrVerbsMenu();
+  } else if(onIvType){
+    wgShowMainMenu();
+  } else if(onWgPlay){
     wgShowGames(wgCurrentLevel);
-  } else if(onGames){
+  } else if(onWgGames){
     wgShowLevels();
+  } else if(onWgLevels){
+    wgShowMainMenu();
   } else {
     renderHomeView();
   }
@@ -3562,6 +3618,34 @@ async function wgApplyVisibilitySetting(){
 }
 wgApplyVisibilitySetting();
 
+// ---- Word game asosiy menu card handlers ----
+document.getElementById('wgGoVocab').addEventListener('click', (e) => {
+  e.preventDefault();
+  wgHideAllBoxes();
+  document.getElementById('wgLevelBox').hidden = false;
+});
+
+document.getElementById('wgGoIrrVerbs').addEventListener('click', (e) => {
+  e.preventDefault();
+  wgShowIrrVerbsMenu();
+});
+
+document.getElementById('ivGoForms').addEventListener('click', (e) => {
+  e.preventDefault();
+  // Fe'l shakllari: mavjud ivShowLevels bilan, mode = 'forms'
+  ivCurrentMode = 'forms';
+  document.getElementById('ivLevelBoxTitle').textContent = '🔀 Fe’l shakllari — Daraja tanlang';
+  ivShowLevels();
+});
+
+document.getElementById('ivGoTranslate').addEventListener('click', (e) => {
+  e.preventDefault();
+  // Tarjima o'yini
+  ivCurrentMode = 'translate';
+  document.getElementById('ivLevelBoxTitle').textContent = '🌐 Tarjima o’yini — Daraja tanlang';
+  ivShowLevels();
+});
+
 
 // ===== NOTO'G'RI FE'LLAR O'YINI (Irregular Verbs Game) =====
 // 3 ta shakl: base, past simple, past participle
@@ -3577,127 +3661,131 @@ const IV_DATA = {
     color: '#2F6FED',
     games: [
       [ // Game 1
-        ['go','went','gone'], ['come','came','come'], ['do','did','done'], ['have','had','had'],
-        ['say','said','said'], ['get','got','got'], ['make','made','made'], ['see','saw','seen'],
-        ['take','took','taken'], ['know','knew','known'], ['give','gave','given'], ['find','found','found'],
-        ['think','thought','thought'], ['tell','told','told'], ['become','became','become'], ['show','showed','shown'],
-        ['feel','felt','felt'], ['leave','left','left'], ['keep','kept','kept'], ['begin','began','begun']
+        ['go','went','gone','bormoq'], ['come','came','come','kelmoq'], ['do','did','done','qilmoq'], ['have','had','had','ega bo’lmoq'],
+        ['say','said','said','aytmoq'], ['get','got','got','olmoq'], ['make','made','made','yasaydigan'], ['see','saw','seen','ko’rmoq'],
+        ['take','took','taken','olmoq'], ['know','knew','known','bilmoq'], ['give','gave','given','bermoq'], ['find','found','found','topmoq'],
+        ['think','thought','thought','o’ylamoq'], ['tell','told','told','aytmoq'], ['become','became','become','bo’lmoq'], ['show','showed','shown','ko’rsatmoq'],
+        ['feel','felt','felt','his qilmoq'], ['leave','left','left','ketmoq'], ['keep','kept','kept','saqlamoq'], ['begin','began','begun','boshlamoq']
       ],
       [ // Game 2
-        ['bring','brought','brought'], ['buy','bought','bought'], ['catch','caught','caught'], ['choose','chose','chosen'],
-        ['drive','drove','driven'], ['eat','ate','eaten'], ['fall','fell','fallen'], ['fly','flew','flown'],
-        ['forget','forgot','forgotten'], ['grow','grew','grown'], ['hear','heard','heard'], ['hold','held','held'],
-        ['know','knew','known'], ['lead','led','led'], ['lose','lost','lost'], ['meet','met','met'],
-        ['pay','paid','paid'], ['read','read','read'], ['ride','rode','ridden'], ['run','ran','run']
+        ['bring','brought','brought','olib kelmoq'], ['buy','bought','bought','sotib olmoq'], ['catch','caught','caught','ushlаmoq'], ['choose','chose','chosen','tanlаmoq'],
+        ['drive','drove','driven','haydаmoq'], ['eat','ate','eaten','yemoq'], ['fall','fell','fallen','yiqilmoq'], ['fly','flew','flown','uchmoq'],
+        ['forget','forgot','forgotten','unutmoq'], ['grow','grew','grown','o’smoq'], ['hear','heard','heard','eshitmoq'], ['hold','held','held','ushlаb turmoq'],
+        ['know','knew','known','bilmoq'], ['lead','led','led','boshqаrmoq'], ['lose','lost','lost','yo’qotmoq'], ['meet','met','met','uchrаshmoq'],
+        ['pay','paid','paid','to’lamoq'], ['read','read','read','o’qimoq'], ['ride','rode','ridden','minmoq'], ['run','ran','run','yugurmоq']
       ],
       [ // Game 3
-        ['sell','sold','sold'], ['send','sent','sent'], ['sing','sang','sung'], ['sit','sat','sat'],
-        ['sleep','slept','slept'], ['speak','spoke','spoken'], ['spend','spent','spent'], ['stand','stood','stood'],
-        ['swim','swam','swum'], ['teach','taught','taught'], ['throw','threw','thrown'], ['understand','understood','understood'],
-        ['wake','woke','woken'], ['wear','wore','worn'], ['win','won','won'], ['write','wrote','written'],
-        ['break','broke','broken'], ['build','built','built'], ['burn','burned','burned'], ['cut','cut','cut']
+        ['sell','sold','sold','sotmoq'], ['send','sent','sent','yubormoq'], ['sing','sang','sung','qo’shiq aytmoq'], ['sit','sat','sat','o’tirmoq'],
+        ['sleep','slept','slept','uxlamoq'], ['speak','spoke','spoken','gapirmoq'], ['spend','spent','spent','sarflamoq'], ['stand','stood','stood','turmoq'],
+        ['swim','swam','swum','suzmoq'], ['teach','taught','taught','o’qitmoq'], ['throw','threw','thrown','otmoq'], ['understand','understood','understood','tushunmoq'],
+        ['wake','woke','woken','uyg’onmoq'], ['wear','wore','worn','kiymoq'], ['win','won','won','g’alaba qilmoq'], ['write','wrote','written','yozmoq'],
+        ['break','broke','broken','sindirrmoq'], ['build','built','built','qurmoq'], ['burn','burned','burned','yonmoq'], ['cut','cut','cut','kesmoq']
       ],
       [ // Game 4
-        ['draw','drew','drawn'], ['dream','dreamed','dreamed'], ['drink','drank','drunk'], ['fight','fought','fought'],
-        ['hide','hid','hidden'], ['hit','hit','hit'], ['hurt','hurt','hurt'], ['let','let','let'],
-        ['lie','lay','lain'], ['light','lit','lit'], ['mean','meant','meant'], ['put','put','put'],
-        ['ring','rang','rung'], ['rise','rose','risen'], ['shake','shook','shaken'], ['shoot','shot','shot'],
-        ['shut','shut','shut'], ['slide','slid','slid'], ['steal','stole','stolen'], ['stick','stuck','stuck']
+        ['draw','drew','drawn','chizmoq'], ['dream','dreamed','dreamed','orzu qilmoq'], ['drink','drank','drunk','ichmoq'], ['fight','fought','fought','kurashmoq'],
+        ['hide','hid','hidden','yashirmoq'], ['hit','hit','hit','urmoq'], ['hurt','hurt','hurt','og’ritmoq'], ['let','let','let','ruxsat bermoq'],
+        ['lie','lay','lain','yotmoq'], ['light','lit','lit','yoqmoq'], ['mean','meant','meant','anglatmoq'], ['put','put','put','qo’ymoq'],
+        ['ring','rang','rung','jirrildamoq'], ['rise','rose','risen','ko’tarilmoq'], ['shake','shook','shaken','silkitmoq'], ['shoot','shot','shot','otmoq (o’q)'],
+        ['shut','shut','shut','yopmoq'], ['slide','slid','slid','sirg’anmoq'], ['steal','stole','stolen','o’g’irlamoq'], ['stick','stuck','stuck','yopishmoq']
       ],
       [ // Game 5
-        ['sting','stung','stung'], ['strike','struck','struck'], ['sweep','swept','swept'], ['swing','swung','swung'],
-        ['tear','tore','torn'], ['think','thought','thought'], ['wake','woke','woken'], ['weep','wept','wept'],
-        ['blow','blew','blown'], ['bite','bit','bitten'], ['feed','fed','fed'], ['feel','felt','felt'],
-        ['forbid','forbade','forbidden'], ['freeze','froze','frozen'], ['grind','ground','ground'], ['hang','hung','hung'],
-        ['kneel','knelt','knelt'], ['lay','laid','laid'], ['lean','leaned','leaned'], ['leap','leaped','leaped']
+        ['sting','stung','stung','chaqmoq'], ['strike','struck','struck','urmoq'], ['sweep','swept','swept','supurmoq'], ['swing','swung','swung','tebranmoq'],
+        ['tear','tore','torn','yirtmoq'], ['think','thought','thought','o’ylamoq'], ['wake','woke','woken','uyg’onmoq'], ['weep','wept','wept','yig’lamoq'],
+        ['blow','blew','blown','puflаmoq'], ['bite','bit','bitten','tishlаmoq'], ['feed','fed','fed','ovqatlantirmoq'], ['feel','felt','felt','his qilmoq'],
+        ['forbid','forbade','forbidden','man etmoq'], ['freeze','froze','frozen','muzlatmoq'], ['grind','ground','ground','maydalаmoq'], ['hang','hung','hung','osmoq'],
+        ['kneel','knelt','knelt','cho’kkalab o’tirmoq'], ['lay','laid','laid','yotqizmoq'], ['lean','leaned','leaned','suyamoq'], ['leap','leaped','leaped','sakramoq']
       ]
     ]
   },
+
   intermediate: {
     label: 'Intermediate',
     icon: '📗',
     color: '#1FAE7A',
     games: [
       [ // Game 1
-        ['arise','arose','arisen'], ['awake','awoke','awoken'], ['bear','bore','borne'], ['beat','beat','beaten'],
-        ['bind','bound','bound'], ['bleed','bled','bled'], ['breed','bred','bred'], ['broadcast','broadcast','broadcast'],
-        ['burst','burst','burst'], ['cast','cast','cast'], ['cling','clung','clung'], ['cost','cost','cost'],
-        ['creep','crept','crept'], ['deal','dealt','dealt'], ['dig','dug','dug'], ['dive','dove','dived'],
-        ['draw','drew','drawn'], ['dwell','dwelt','dwelt'], ['fall','fell','fallen'], ['flee','fled','fled']
+        ['arise','arose','arisen','paydo bo’lmoq'], ['awake','awoke','awoken','uyg’onmoq'], ['bear','bore','borne','ko’tarmoq'], ['beat','beat','beaten','umoq'],
+        ['bind','bound','bound','bog’lamoq'], ['bleed','bled','bled','qon ketmoq'], ['breed','bred','bred','ko’paytimoq'], ['broadcast','broadcast','broadcast','efirga uzatmoq'],
+        ['burst','burst','burst','portlamoq'], ['cast','cast','cast','otmoq'], ['cling','clung','clung','yopishib olmoq'], ['cost','cost','cost','turmoq (narx)'],
+        ['creep','crept','crept','emaklamoq'], ['deal','dealt','dealt','muomala qilmoq'], ['dig','dug','dug','qazimоq'], ['dive','dove','dived','sho’ng’imoq'],
+        ['draw','drew','drawn','chizmoq'], ['dwell','dwelt','dwelt','yashаmoq'], ['fall','fell','fallen','yiqilmoq'], ['flee','fled','fled','qochmoq']
       ],
       [ // Game 2
-        ['fling','flung','flung'], ['forbear','forbore','forborne'], ['forecast','forecast','forecast'], ['foretell','foretold','foretold'],
-        ['forgive','forgave','forgiven'], ['forsake','forsook','forsaken'], ['go','went','gone'], ['have','had','had'],
-        ['hear','heard','heard'], ['hold','held','held'], ['hurt','hurt','hurt'], ['input','inputted','inputted'],
-        ['keep','kept','kept'], ['knit','knitted','knitted'], ['know','knew','known'], ['lay','laid','laid'],
-        ['lead','led','led'], ['lean','leant','leant'], ['learn','learned','learned'], ['leave','left','left']
+        ['fling','flung','flung','otib yubormoq'], ['forbear','forbore','forborne','chidamoq'], ['forecast','forecast','forecast','bashorat qilmoq'], ['foretell','foretold','foretold','oldindan aytmoq'],
+        ['forgive','forgave','forgiven','kechirmoq'], ['forsake','forsook','forsaken','tark etmoq'], ['go','went','gone','bormoq'], ['have','had','had','ega bo’lmoq'],
+        ['hear','heard','heard','eshitmoq'], ['hold','held','held','ushlаb turmoq'], ['hurt','hurt','hurt','og’ritmoq'], ['input','inputted','inputted','kiritmoq'],
+        ['keep','kept','kept','saqlamoq'], ['knit','knitted','knitted','to’qimoq'], ['know','knew','known','bilmoq'], ['lay','laid','laid','yotqizmoq'],
+        ['lead','led','led','boshqarmoq'], ['lean','leant','leant','suyamoq'], ['learn','learned','learned','o’rganmoq'], ['leave','left','left','ketmoq']
       ],
       [ // Game 3
-        ['lend','lent','lent'], ['let','let','let'], ['lie','lay','lain'], ['light','lit','lit'],
-        ['lose','lost','lost'], ['make','made','made'], ['mean','meant','meant'], ['meet','met','met'],
-        ['mislay','mislaid','mislaid'], ['mislead','misled','misled'], ['mistake','mistook','mistaken'], ['misunderstand','misunderstood','misunderstood'],
-        ['outdo','outdid','outdone'], ['outgrow','outgrew','outgrown'], ['outrun','outran','outrun'], ['overcome','overcame','overcome'],
-        ['overhear','overheard','overheard'], ['oversee','oversaw','overseen'], ['overtake','overtook','overtaken'], ['overthrow','overthrew','overthrown']
+        ['lend','lent','lent','qarz bermoq'], ['let','let','let','ruxsat bermoq'], ['lie','lay','lain','yotmoq'], ['light','lit','lit','yoqmoq'],
+        ['lose','lost','lost','yo’qotmoq'], ['make','made','made','yasamoq'], ['mean','meant','meant','anglatmoq'], ['meet','met','met','uchrashmоq'],
+        ['mislay','mislaid','mislaid','g’am qilmoq'], ['mislead','misled','misled','chalg’itmoq'], ['mistake','mistook','mistaken','adashmoq'], ['misunderstand','misunderstood','misunderstood','noto’g’ri tushunmoq'],
+        ['outdo','outdid','outdone','ustun chiqmoq'], ['outgrow','outgrew','outgrown','o’sib o’tmoq'], ['outrun','outran','outrun','qochib ketmoq'], ['overcome','overcame','overcome','yengmoq'],
+        ['overhear','overheard','overheard','tasodifan eshitmoq'], ['oversee','oversaw','overseen','nazorat qilmoq'], ['overtake','overtook','overtaken','quvib yetmoq'], ['overthrow','overthrew','overthrown','ag’darib tashlаmoq']
       ],
       [ // Game 4
-        ['partake','partook','partaken'], ['prove','proved','proven'], ['rebuild','rebuilt','rebuilt'], ['redo','redid','redone'],
-        ['remake','remade','remade'], ['rewrite','rewrote','rewritten'], ['rid','rid','rid'], ['ring','rang','rung'],
-        ['rise','rose','risen'], ['run','ran','run'], ['saw','sawed','sawn'], ['see','saw','seen'],
-        ['seek','sought','sought'], ['set','set','set'], ['sew','sewed','sewn'], ['shake','shook','shaken'],
-        ['shed','shed','shed'], ['show','showed','shown'], ['shrink','shrank','shrunk'], ['shut','shut','shut']
+        ['partake','partook','partaken','ishtirok etmoq'], ['prove','proved','proven','isbotlamoq'], ['rebuild','rebuilt','rebuilt','qayta qurmoq'], ['redo','redid','redone','qayta qilmoq'],
+        ['remake','remade','remade','qayta yasamoq'], ['rewrite','rewrote','rewritten','qayta yozmoq'], ['rid','rid','rid','xalos qilmoq'], ['ring','rang','rung','jirrildamoq'],
+        ['rise','rose','risen','ko’tarilmoq'], ['run','ran','run','yugurmoq'], ['saw','sawed','sawn','arra bilan kesmoq'], ['see','saw','seen','ko’rmoq'],
+        ['seek','sought','sought','qidirmoq'], ['set','set','set','qo’ymoq'], ['sew','sewed','sewn','tikmoq'], ['shake','shook','shaken','silkitmoq'],
+        ['shed','shed','shed','to’kmoq'], ['show','showed','shown','ko’rsatmoq'], ['shrink','shrank','shrunk','kichraymoq'], ['shut','shut','shut','yopmoq']
       ],
       [ // Game 5
-        ['sink','sank','sunk'], ['sit','sat','sat'], ['slay','slew','slain'], ['sleep','slept','slept'],
-        ['sling','slung','slung'], ['slink','slunk','slunk'], ['slit','slit','slit'], ['smell','smelled','smelled'],
-        ['sneak','snuck','snuck'], ['sow','sowed','sown'], ['speak','spoke','spoken'], ['speed','sped','sped'],
-        ['spell','spelled','spelled'], ['spin','spun','spun'], ['spit','spat','spat'], ['split','split','split'],
-        ['spoil','spoiled','spoiled'], ['spread','spread','spread'], ['spring','sprang','sprung'], ['stand','stood','stood']
+        ['sink','sank','sunk','cho’kmoq'], ['sit','sat','sat','o’tirmoq'], ['slay','slew','slain','o’ldirmoq'], ['sleep','slept','slept','uxlamoq'],
+        ['sling','slung','slung','otmoq'], ['slink','slunk','slunk','yashirincha ketmoq'], ['slit','slit','slit','kesib ochmoq'], ['smell','smelled','smelled','hidlamoq'],
+        ['sneak','snuck','snuck','yashirincha kirmoq'], ['sow','sowed','sown','ekmoq'], ['speak','spoke','spoken','gapirmoq'], ['speed','sped','sped','tezlashmoq'],
+        ['spell','spelled','spelled','harflab yozmoq'], ['spin','spun','spun','aylantimoq'], ['spit','spat','spat','tupurmoq'], ['split','split','split','bo’lmoq'],
+        ['spoil','spoiled','spoiled','buzmoq'], ['spread','spread','spread','yoymoq'], ['spring','sprang','sprung','sakramoq'], ['stand','stood','stood','turmoq']
       ]
     ]
   },
+
   advanced: {
     label: 'Advanced',
     icon: '📘',
     color: '#7C5CFC',
     games: [
-      [ // Game 1 — kam ishlatiladigan murakkab fe'llar
-        ['abide','abode','abode'], ['accost','accosted','accosted'], ['befall','befell','befallen'], ['beget','begot','begotten'],
-        ['bespeak','bespoke','bespoken'], ['bestride','bestrode','bestridden'], ['bet','bet','bet'], ['bid','bid','bid'],
-        ['cleave','clove','cloven'], ['clothe','clad','clad'], ['crow','crew','crowed'], ['dare','durst','dared'],
-        ['engrave','engraved','engraven'], ['engulf','engulfed','engulfed'], ['forbid','forbade','forbidden'], ['foresee','foresaw','foreseen'],
-        ['forswear','forswore','forsworn'], ['gainsay','gainsaid','gainsaid'], ['geld','gelded','gelded'], ['gird','girt','girt']
+      [ // Game 1
+        ['abide','abode','abode','chidamoq'], ['befall','befell','befallen','sodir bo’lmoq'], ['beget','begot','begotten','tug’dirmoq'], ['bespeak','bespoke','bespoken','bildirmoq'],
+        ['bestride','bestrode','bestridden','minib o’tirmoq'], ['bet','bet','bet','garov tikmoq'], ['bid','bid','bid','taklif qilmoq'], ['cleave','clove','cloven','yormoq'],
+        ['clothe','clad','clad','kiyintirmoq'], ['crow','crew','crowed','qichqirmoq'], ['dare','durst','dared','botinmoq'], ['engrave','engraved','engraven','o’ymoq'],
+        ['forbid','forbade','forbidden','man etmoq'], ['foresee','foresaw','foreseen','oldindan ko’rmoq'], ['forswear','forswore','forsworn','qasamdan voz kechmoq'], ['gainsay','gainsaid','gainsaid','inkor etmoq'],
+        ['geld','gelded','gelded','axtalаmoq'], ['gird','girt','girt','belbog’lamoq'], ['hamstring','hamstrung','hamstrung','zaiflashtirmoq'], ['heave','hove','hoven','ko’tarmoq']
       ],
       [ // Game 2
-        ['hamstring','hamstrung','hamstrung'], ['heave','hove','hoven'], ['hew','hewed','hewn'], ['inlay','inlaid','inlaid'],
-        ['interbreed','interbred','interbred'], ['interweave','interwove','interwoven'], ['offset','offset','offset'], ['outbid','outbid','outbid'],
-        ['outfight','outfought','outfought'], ['outshine','outshone','outshone'], ['overcast','overcast','overcast'], ['overeat','overate','overeaten'],
-        ['overhang','overhung','overhung'], ['overleap','overleapt','overleapt'], ['overlie','overlay','overlain'], ['overrun','overran','overrun'],
-        ['overshoot','overshot','overshot'], ['oversleep','overslept','overslept'], ['overthrow','overthrew','overthrown'], ['plead','pled','pled']
+        ['hew','hewed','hewn','chopmoq'], ['inlay','inlaid','inlaid','qo’ymoq'], ['interbreed','interbred','interbred','chatishmoq'], ['interweave','interwove','interwoven','to’qmoq'],
+        ['offset','offset','offset','qoplаmoq'], ['outbid','outbid','outbid','ko’proq taklif qilmoq'], ['outfight','outfought','outfought','yengmoq'], ['outshine','outshone','outshone','ustun turmoq'],
+        ['overcast','overcast','overcast','bulutli bo’lmoq'], ['overeat','overate','overeaten','ko’p yemoq'], ['overhang','overhung','overhung','osilib turmoq'], ['overlie','overlay','overlain','ustiga yotmoq'],
+        ['overrun','overran','overrun','bosib o’tmoq'], ['overshoot','overshot','overshot','maqsaddan o’tmoq'], ['oversleep','overslept','overslept','uyquda qolmoq'], ['overthrow','overthrew','overthrown','ag’darib tashlаmoq'],
+        ['plead','pled','pled','iltimos qilmoq'], ['prepay','prepaid','prepaid','oldindan to’lamoq'], ['recast','recast','recast','qayta quymoq'], ['relay','relaid','relaid','qayta yotqizmoq']
       ],
       [ // Game 3
-        ['prepay','prepaid','prepaid'], ['recast','recast','recast'], ['relay','relaid','relaid'], ['reset','reset','reset'],
-        ['retell','retold','retold'], ['rethink','rethought','rethought'], ['rewind','rewound','rewound'], ['shear','sheared','shorn'],
-        ['shoe','shod','shod'], ['sight-read','sight-read','sight-read'], ['slay','slew','slain'], ['slide','slid','slid'],
-        ['smite','smote','smitten'], ['spin','spun','spun'], ['spit','spat','spat'], ['split','split','split'],
-        ['spill','spilled','spilled'], ['stave','stove','stoven'], ['stink','stank','stunk'], ['stride','strode','stridden']
+        ['reset','reset','reset','qayta o’rnatmoq'], ['retell','retold','retold','qayta aytmoq'], ['rethink','rethought','rethought','qayta o’ylamoq'], ['rewind','rewound','rewound','orqaga o’ramoq'],
+        ['shear','sheared','shorn','qirqmoq'], ['shoe','shod','shod','taqalab qo’ymoq'], ['slay','slew','slain','o’ldirmoq'], ['slide','slid','slid','sirg’anmoq'],
+        ['smite','smote','smitten','urmoq'], ['spin','spun','spun','aylantimoq'], ['spit','spat','spat','tupurmoq'], ['split','split','split','bo’lmoq'],
+        ['spoil','spoiled','spoiled','buzmoq'], ['stave','stove','stoven','yorib o’tmoq'], ['stink','stank','stunk','sasish'], ['stride','strode','stridden','katta qadam bilan yurmoq'],
+        ['strive','strove','striven','intilmoq'], ['sublet','sublet','sublet','quyi ijaraga bermoq'], ['swear','swore','sworn','qasam ichmoq'], ['sweep','swept','swept','supurmoq']
       ],
       [ // Game 4
-        ['strive','strove','striven'], ['sublet','sublet','sublet'], ['swear','swore','sworn'], ['sweep','swept','swept'],
-        ['swell','swelled','swollen'], ['swing','swung','swung'], ['take','took','taken'], ['teach','taught','taught'],
-        ['tear','tore','torn'], ['tell','told','told'], ['think','thought','thought'], ['thrive','throve','thriven'],
-        ['throw','threw','thrown'], ['tread','trod','trodden'], ['typecast','typecast','typecast'], ['unbind','unbound','unbound'],
-        ['undercut','undercut','undercut'], ['undergo','underwent','undergone'], ['underlie','underlay','underlain'], ['underpay','underpaid','underpaid']
+        ['swell','swelled','swollen','shishmoq'], ['swing','swung','swung','tebranmoq'], ['take','took','taken','olmoq'], ['teach','taught','taught','o’qitmoq'],
+        ['tear','tore','torn','yirtmoq'], ['tell','told','told','aytmoq'], ['think','thought','thought','o’ylamoq'], ['thrive','throve','thriven','gullab yashnаmoq'],
+        ['throw','threw','thrown','otmoq'], ['tread','trod','trodden','bosmoq'], ['typecast','typecast','typecast','rol belgilamoq'], ['unbind','unbound','unbound','yechmoq'],
+        ['undercut','undercut','undercut','raqobat qilmoq'], ['undergo','underwent','undergone','boshidan o’tkazmoq'], ['underlie','underlay','underlain','asosida yotmoq'], ['underpay','underpaid','underpaid','kam to’lamoq'],
+        ['undersell','undersold','undersold','arzon sotmoq'], ['understand','understood','understood','tushunmoq'], ['undertake','undertook','undertaken','zimmasiga olmoq'], ['underwrite','underwrote','underwritten','kafillik qilmoq']
       ],
       [ // Game 5
-        ['undersell','undersold','undersold'], ['understand','understood','understood'], ['undertake','undertook','undertaken'], ['underwrite','underwrote','underwritten'],
-        ['undo','undid','undone'], ['unwind','unwound','unwound'], ['uphold','upheld','upheld'], ['upset','upset','upset'],
-        ['wake','woke','woken'], ['waylay','waylaid','waylaid'], ['weave','wove','woven'], ['wed','wed','wed'],
-        ['weep','wept','wept'], ['wet','wet','wet'], ['win','won','won'], ['withdraw','withdrew','withdrawn'],
-        ['withhold','withheld','withheld'], ['withstand','withstood','withstood'], ['wring','wrung','wrung'], ['write','wrote','written']
+        ['undo','undid','undone','bekor qilmoq'], ['unwind','unwound','unwound','bo’shаshmoq'], ['uphold','upheld','upheld','qo’llab-quvvatlamoq'], ['upset','upset','upset','xafa qilmoq'],
+        ['wake','woke','woken','uyg’onmoq'], ['waylay','waylaid','waylaid','pistirma qurmoq'], ['weave','wove','woven','to’qmoq'], ['wed','wed','wed','uylаnmoq'],
+        ['weep','wept','wept','yig’lamoq'], ['wet','wet','wet','ho’llamoq'], ['win','won','won','yutmoq'], ['withdraw','withdrew','withdrawn','olib ketmoq'],
+        ['withhold','withheld','withheld','ushlab qolmoq'], ['withstand','withstood','withstood','bardosh bermoq'], ['wring','wrung','wrung','burаmoq'], ['write','wrote','written','yozmoq'],
+        ['arise','arose','arisen','paydo bo’lmoq'], ['forbear','forbore','forborne','o’zini tiymoq'], ['forsake','forsook','forsaken','tark etmoq'], ['partake','partook','partaken','ishtirok etmoq']
       ]
     ]
   }
 };
+
+const IV_LEVEL_ORDER
 
 const IV_LEVEL_ORDER = ['basic', 'intermediate', 'advanced'];
 
@@ -3709,6 +3797,7 @@ const IV_QUESTION_TYPES = [
   { label: 'Base Form', eyebrow: "Bu Past Simple'ning asosiy shakli (base form) qaysi?", qIdx: 1, aIdx: 0 }
 ];
 
+let ivCurrentMode = 'forms'; // 'forms' yoki 'translate'
 let ivCurrentLevel = null;
 let ivCurrentGameIndex = null;
 let ivQuestions = [];
@@ -3727,19 +3816,12 @@ function ivShuffle(arr){
 }
 
 function ivScoreKey(levelId, gameIndex){
-  return 'efIrrVerbsBest_' + currentUid + '_' + levelId + '_' + gameIndex;
+  return 'efIrrVerbsBest_' + ivCurrentMode + '_' + currentUid + '_' + levelId + '_' + gameIndex;
 }
 
-function ivHideAllBoxes(){
-  document.getElementById('ivLevelBox').hidden = true;
-  document.getElementById('ivGameListBox').hidden = true;
-  document.getElementById('ivPlayBox').hidden = true;
-  document.getElementById('ivResultBox').hidden = true;
-}
-
-// ---- STEP 1: level select ----
+// ---- IV STEP 1: level select ----
 function ivShowLevels(){
-  ivHideAllBoxes();
+  wgHideAllBoxes();
   document.getElementById('ivLevelBox').hidden = false;
   ivCurrentLevel = null;
   ivCurrentGameIndex = null;
@@ -3769,7 +3851,7 @@ function ivShowLevels(){
 
 // ---- STEP 2: game select ----
 function ivShowGames(levelId){
-  ivHideAllBoxes();
+  wgHideAllBoxes();
   document.getElementById('ivGameListBox').hidden = false;
   ivCurrentLevel = levelId;
   ivCurrentGameIndex = null;
@@ -3781,6 +3863,7 @@ function ivShowGames(levelId){
   grid.innerHTML = '';
   level.games.forEach((verbs, i) => {
     const best = localStorage.getItem(ivScoreKey(levelId, i));
+    const maxScore = ivCurrentMode === 'translate' ? verbs.length : verbs.length * 2;
     const card = document.createElement('a');
     card.href = '#';
     card.className = 'home-menu-card';
@@ -3790,7 +3873,7 @@ function ivShowGames(levelId){
         <span class="home-menu-arrow">→</span>
       </div>
       <h3 class="home-menu-title">O'yin ${i + 1}</h3>
-      <p class="home-menu-desc">${best ? ('🏆 Eng yaxshi natija: ' + best + ' / ' + (verbs.length * 2)) : (verbs.length + ' ta fe\u2019l · 3 xil savol turi')}</p>
+      <p class="home-menu-desc">${best ? ('🏆 Eng yaxshi natija: ' + best + ' / ' + maxScore) : (verbs.length + (ivCurrentMode === 'translate' ? ' ta fe’l · tarjima' : ' ta fe’l · shakl'))}</p>
     `;
     card.addEventListener('click', (e) => {
       e.preventDefault();
@@ -3802,23 +3885,29 @@ function ivShowGames(levelId){
 
 // ---- STEP 3: play ----
 function ivStart(levelId, gameIndex){
-  ivHideAllBoxes();
+  wgHideAllBoxes();
   document.getElementById('ivPlayBox').hidden = false;
 
   ivCurrentLevel = levelId;
   ivCurrentGameIndex = gameIndex;
 
-  // Har bir fe'l uchun 2 ta savol yaratamiz: past simple va past participle
   const verbs = IV_DATA[levelId].games[gameIndex];
-  const allQ = [];
-  verbs.forEach(verb => {
-    // Tasodifiy 2 ta savol turi tanlanadi (base→past, base→pp)
-    const types = ivShuffle([0, 1]);
-    types.slice(0, 2).forEach(typeIdx => {
-      allQ.push({ verb, typeIdx });
+
+  if(ivCurrentMode === 'translate'){
+    // Tarjima o'yini: har bir fe'l uchun 1 ta savol (base → uz)
+    ivQuestions = ivShuffle(verbs);
+  } else {
+    // Fe'l shakllari: har bir fe'l uchun 2 ta savol
+    const allQ = [];
+    verbs.forEach(verb => {
+      const types = ivShuffle([0, 1]);
+      types.slice(0, 2).forEach(typeIdx => {
+        allQ.push({ verb, typeIdx });
+      });
     });
-  });
-  ivQuestions = ivShuffle(allQ);
+    ivQuestions = ivShuffle(allQ);
+  }
+
   ivIndex = 0;
   ivScore = 0;
   ivRenderQuestion();
@@ -3826,23 +3915,34 @@ function ivStart(levelId, gameIndex){
 
 function ivRenderQuestion(){
   ivAnswered = false;
-  const { verb, typeIdx } = ivQuestions[ivIndex];
-  const qType = IV_QUESTION_TYPES[typeIdx];
-  ivCurrentQType = qType;
+  const allVerbs = IV_DATA[ivCurrentLevel].games[ivCurrentGameIndex];
 
   document.getElementById('ivProgress').textContent =
     'Savol ' + (ivIndex + 1) + ' / ' + ivQuestions.length + '   ·   Ball: ' + ivScore;
-  document.getElementById('ivQuestionEyebrow').textContent = qType.eyebrow;
-  document.getElementById('ivWord').textContent = verb[qType.qIdx];
 
-  const correct = verb[qType.aIdx];
+  let questionText, correct, others;
 
-  // Variantlar: shu level'dagi boshqa fe'llarning bir xil pozitsiyasidan
-  const allVerbs = IV_DATA[ivCurrentLevel].games[ivCurrentGameIndex];
-  const others = ivShuffle(
-    allVerbs.filter(v => v[qType.aIdx] !== correct && v[qType.aIdx] !== verb[qType.qIdx])
-  ).slice(0, 3).map(v => v[qType.aIdx]);
+  if(ivCurrentMode === 'translate'){
+    // Tarjima o'yini: inglizcha base form beriladi → o'zbekcha tanlanadi
+    const verb = ivQuestions[ivIndex];
+    questionText = verb[0]; // base form
+    correct = verb[3];      // o'zbekcha tarjima
+    document.getElementById('ivQuestionEyebrow').textContent = "Bu fe'lning o'zbekcha ma'nosi qaysi?";
+    others = ivShuffle(allVerbs.filter(v => v[3] !== correct)).slice(0, 3).map(v => v[3]);
+  } else {
+    // Fe'l shakllari o'yini
+    const { verb, typeIdx } = ivQuestions[ivIndex];
+    const qType = IV_QUESTION_TYPES[typeIdx];
+    ivCurrentQType = qType;
+    questionText = verb[qType.qIdx];
+    correct = verb[qType.aIdx];
+    document.getElementById('ivQuestionEyebrow').textContent = qType.eyebrow;
+    others = ivShuffle(
+      allVerbs.filter(v => v[qType.aIdx] !== correct && v[qType.aIdx] !== verb[qType.qIdx])
+    ).slice(0, 3).map(v => v[qType.aIdx]);
+  }
 
+  document.getElementById('ivWord').textContent = questionText;
   const options = ivShuffle([correct, ...others]);
 
   const box = document.getElementById('ivOptions');
@@ -3919,25 +4019,7 @@ function ivShowResult(){
   document.getElementById('ivBackToGamesBtn').addEventListener('click', () => ivShowGames(ivCurrentLevel));
 }
 
-// ---- Navigation ----
-document.getElementById('navIrrVerbs').addEventListener('click', (e) => {
-  e.preventDefault();
-  switchView('irr-verbs');
-  ivShowLevels();
-});
-
-document.getElementById('ivBackLink').addEventListener('click', (e) => {
-  e.preventDefault();
-  const onGames = !document.getElementById('ivGameListBox').hidden;
-  const onPlay  = !document.getElementById('ivPlayBox').hidden;
-  if(onPlay){
-    ivShowGames(ivCurrentLevel);
-  } else if(onGames){
-    ivShowLevels();
-  } else {
-    renderHomeView();
-  }
-});
+// ---- Irr Verbs navigation handled by wgBackLink ----
 
 
 // ===== READING MOCKS - Student =====
