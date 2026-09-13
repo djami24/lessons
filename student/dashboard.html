@@ -753,7 +753,7 @@
     <!-- ===== PAYMENT GATE (General English, not approved yet) ===== -->
     <!-- ===== SO'Z O'YINI (vocabulary game) ===== -->
     <section id="view-word-game" hidden>
-      <a href="#" id="wgBackLink" class="back-link">← Bosh sahifaga</a>
+      <a href="#" id="wgBackLink" class="back-link">Bosh sahifaga</a>
 
       <!-- STEP 0: asosiy menu -->
       <div id="wgMainMenuBox">
@@ -873,7 +873,7 @@
         <!-- ===== WRITING: question detail + essay form ===== -->
         <!-- ===== MY ESSAYS ===== -->
     <section id="view-my-essays" hidden>
-      <a href="#" id="backToHomeFromEssays" class="back-link">← Bosh sahifaga</a>
+      <a href="#" id="backToHomeFromEssays" class="back-link">Bosh sahifaga</a>
       <div class="admin-header">
         <div>
           <h1>Insholarim</h1>
@@ -889,7 +889,7 @@
 
     <!-- ===== PLACEMENT TEST (Darajani bilish testi) ===== -->
     <section id="view-placement-test" hidden>
-      <a href="#" id="backToHomeFromPlacement" class="back-link">← Bosh sahifaga</a>
+      <a href="#" id="backToHomeFromPlacement" class="back-link">Bosh sahifaga</a>
       <div class="admin-header">
         <div>
           <h1>Darajani bilish testi</h1>
@@ -916,7 +916,7 @@
 
     <!-- ===== PROFILE (student's own profile) ===== -->
     <section id="view-profile" hidden>
-      <a href="#" id="backToHomeFromProfile" class="back-link">← Bosh sahifaga</a>
+      <a href="#" id="backToHomeFromProfile" class="back-link">Bosh sahifaga</a>
       <div class="admin-header">
         <div>
           <h1>Mening profilim</h1>
@@ -960,7 +960,7 @@
 
     <!-- ===== NOTIFICATIONS VIEW ===== -->
     <section id="view-notifications" hidden>
-      <a href="#" id="backToHomeFromNotif" class="back-link">← Bosh sahifaga</a>
+      <a href="#" id="backToHomeFromNotif" class="back-link">Bosh sahifaga</a>
       <div class="admin-header">
         <div>
           <h1>🔔 Bildirishnomalar</h1>
@@ -975,7 +975,7 @@
 
     <!-- ===== CHAT VIEW ===== -->
     <section id="view-chat" hidden>
-      <a href="#" id="backToHomeFromChat" class="back-link">← Bosh sahifaga</a>
+      <a href="#" id="backToHomeFromChat" class="back-link">Bosh sahifaga</a>
       <div class="admin-header chat-page-header">
         <div>
           <h1>💬 O‘qituvchi bilan chat</h1>
@@ -2441,7 +2441,7 @@ function renderPlacementResult(result){
     ${result.levelComment ? `<div class="placement-level-comment">${escapeHtml(result.levelComment)}</div>` : ''}
     <div class="quiz-result-actions">
       <button type="button" class="btn btn-amber" id="retryPlacementTestBtn">Qayta topshirish</button>
-      <button type="button" class="btn btn-ghost" id="backToCoursesFromPlacementBtn">← Orqaga</button>
+      <button type="button" class="btn btn-ghost" id="backToCoursesFromPlacementBtn">Orqaga</button>
     </div>
   `;
   document.getElementById('retryPlacementTestBtn').addEventListener('click', () => {
@@ -3555,7 +3555,7 @@ function wgShowResult(){
     '<div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:1em;">' +
       '<button type="button" class="btn btn-amber" id="wgRetryBtn">🔁 Qayta o‘ynash</button>' +
       (hasNextGame ? '<button type="button" class="btn btn-amber" id="wgNextGameBtn">➡️ Keyingi o‘yin</button>' : '') +
-      '<button type="button" class="btn btn-ghost" id="wgBackToGamesBtn">← O‘yinlar ro‘yxati</button>' +
+      '<button type="button" class="btn btn-ghost" id="wgBackToGamesBtn">O‘yinlar ro‘yxati</button>' +
     '</div>';
 
   document.getElementById('wgRetryBtn').addEventListener('click', () => wgStart(wgCurrentLevel, wgCurrentGameIndex));
@@ -4007,7 +4007,7 @@ function ivShowResult(){
     `<div style="display:flex; gap:.6em; flex-wrap:wrap; margin-top:1em;">`,
     `<button type="button" class="btn btn-amber" id="ivRetryBtn">🔁 Qayta o’ynash</button>`,
     hasNextGame ? `<button type="button" class="btn btn-amber" id="ivNextGameBtn">➡️ Keyingi o’yin</button>` : '',
-    `<button type="button" class="btn btn-ghost" id="ivBackToGamesBtn">← O’yinlar ro’yxati</button>`,
+    `<button type="button" class="btn btn-ghost" id="ivBackToGamesBtn">O’yinlar ro’yxati</button>`,
     `</div>`
   ].join('');
 
