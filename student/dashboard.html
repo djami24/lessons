@@ -1550,6 +1550,19 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 // ---------- View switching ----------
 
 const VIEWS = ['home', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
+
+// Bir vaqtning o'zida faqat bitta sidebar bandi ko'k (active) bo'lishi uchun:
+// avval BARCHA bandlardan 'active' klassini olib tashlaydi, so'ng kerakli
+// bandga qo'shadi. Har joyda alohida remove/add yozish o'rniga shuni chaqirish
+// kifoya — shu tufayli "Insholarim", "CEFR", "So'z o'yini" bir vaqtda ko'k
+// bo'lib qolish muammosi oldini olinadi.
+function setActiveNav(activeId){
+  document.querySelectorAll('.admin-nav a').forEach(a => a.classList.remove('active'));
+  if(activeId){
+    const el = document.getElementById(activeId);
+    if(el) el.classList.add('active');
+  }
+}
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
@@ -1597,12 +1610,7 @@ function renderHomeView(){
     if(pageTitleEl) pageTitleEl.textContent = state.student.name || 'Talaba';
   }
   switchView('home');
-  document.getElementById('navHome').classList.add('active');
-  document.getElementById('navMyEssays').classList.remove('active');
-  document.getElementById('navPlacementTest').classList.remove('active');
-  document.getElementById('navProfile').classList.remove('active');
-  document.getElementById('navCEFR').classList.remove('active');
-  document.getElementById('navWordGame').classList.remove('active');
+  setActiveNav('navHome');
   loadLatestHomework();
   renderGbResultBox();
   renderProgressBox();
@@ -2289,10 +2297,7 @@ document.getElementById('navProfile').addEventListener('click', (e) => {
 // ---------- My essays (all submissions across all questions) ----------
 
 function renderMyEssays(){
-  document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navMyEssays').classList.add('active');
-  document.getElementById('navPlacementTest').classList.remove('active');
-  document.getElementById('navProfile').classList.remove('active');
+  setActiveNav('navMyEssays');
   const list = document.getElementById('myEssaysList');
   const empty = document.getElementById('myEssaysEmpty');
   if(state.mySubmissions.length === 0){
@@ -2325,10 +2330,7 @@ function renderMyEssays(){
 // The student's own last result is saved on their own student doc as `placementResult: {score,total,level,takenAt}`.
 
 async function openPlacementTestView(){
-  document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navMyEssays').classList.remove('active');
-  document.getElementById('navPlacementTest').classList.add('active');
-  document.getElementById('navProfile').classList.remove('active');
+  setActiveNav('navPlacementTest');
 
   if(!state.placementTestConfig){
     try{
@@ -2503,10 +2505,7 @@ const AVATAR_EMOJIS = [
 ];
 
 function renderProfile(){
-  document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navMyEssays').classList.remove('active');
-  document.getElementById('navPlacementTest').classList.remove('active');
-  document.getElementById('navProfile').classList.add('active');
+  setActiveNav('navProfile');
 
   document.getElementById('profileName').value = state.student.name || '';
   document.getElementById('profilePhone').value = state.student.phone || '';
@@ -3583,12 +3582,7 @@ function wgShowResult(){
 document.getElementById('navWordGame').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('word-game');
-  document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navMyEssays').classList.remove('active');
-  document.getElementById('navPlacementTest').classList.remove('active');
-  document.getElementById('navProfile').classList.remove('active');
-  document.getElementById('navCEFR').classList.remove('active');
-  document.getElementById('navWordGame').classList.add('active');
+  setActiveNav('navWordGame');
   wgShowMainMenu();
 });
 
@@ -4042,11 +4036,7 @@ function ivShowResult(){
 // ===== READING MOCKS - Student =====
 document.getElementById('navCEFR').addEventListener('click', function(e) {
   e.preventDefault();
-  document.getElementById('navHome').classList.remove('active');
-  document.getElementById('navMyEssays').classList.remove('active');
-  document.getElementById('navPlacementTest').classList.remove('active');
-  document.getElementById('navProfile').classList.remove('active');
-  document.getElementById('navCEFR').classList.add('active');
+  setActiveNav('navCEFR');
   switchView('cefr-menu');
 });
 
