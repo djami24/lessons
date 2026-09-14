@@ -189,13 +189,14 @@
     grid-template-columns: 1.15fr 0.85fr;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 8px 40px -12px rgba(20,33,61,.35);
+    box-shadow: 0 4px 32px -8px rgba(20,33,61,.13), 0 1px 4px rgba(20,33,61,.06);
+    border: 1px solid var(--line);
   }
 
   /* CHAP tomon */
   .tsl-left {
-    background: #0f1117;
-    color: #fff;
+    background: #ffffff;
+    color: var(--ink);
     padding: 2.4em 2.6em;
     display: flex;
     flex-direction: column;
@@ -217,13 +218,13 @@
     font-family: var(--font-display);
     font-weight: 700;
     font-size: .85rem;
-    color: rgba(255,255,255,.7);
+    color: var(--ink-soft);
     letter-spacing: .02em;
   }
   .tsl-quote {
     font-size: .97rem;
     line-height: 1.72;
-    color: rgba(255,255,255,.88);
+    color: var(--ink);
     margin: 0;
     flex: 1;
     display: -webkit-box;
@@ -238,16 +239,7 @@
     margin-top: auto;
   }
   .tsl-avatar {
-    flex: none;
-    width: 42px; height: 42px;
-    border-radius: 50%;
-    background: rgba(217,142,63,.22);
-    border: 1.5px solid rgba(217,142,63,.45);
-    color: var(--amber);
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: .85rem;
+    display: none;
   }
   .tsl-person-info {
     display: flex;
@@ -256,12 +248,12 @@
   }
   .tsl-name {
     font-size: .92rem;
-    color: #fff;
+    color: var(--ink);
     font-weight: 700;
   }
   .tsl-role {
     font-size: .76rem;
-    color: rgba(255,255,255,.5);
+    color: var(--gray);
     font-family: var(--font-mono);
     display: none; /* badges orqali ko'rinadi */
   }
@@ -281,21 +273,21 @@
     white-space: nowrap;
   }
   .tsl-badge-cert {
-    background: rgba(46,111,110,.25);
-    color: #6ecfcd;
-    border: 1px solid rgba(46,111,110,.4);
+    background: rgba(46,111,110,.10);
+    color: var(--teal-deep);
+    border: 1px solid rgba(46,111,110,.25);
   }
   .tsl-badge-time {
-    background: rgba(255,255,255,.08);
-    color: rgba(255,255,255,.7);
-    border: 1px solid rgba(255,255,255,.14);
+    background: var(--paper-2);
+    color: var(--gray);
+    border: 1px solid var(--line);
   }
 
   /* O'NG tomon — portret rasm (3:4 proporsiya, sertifikat rasmdek) */
   .tsl-right {
     position: relative;
     overflow: hidden;
-    background: #1a2435;
+    background: var(--paper-2);
     aspect-ratio: 3 / 4;
     min-height: 360px;
   }
@@ -323,8 +315,8 @@
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 4rem;
-    color: rgba(255,255,255,.18);
-    background: linear-gradient(155deg, #1c2e50, #0f1117);
+    color: var(--amber);
+    background: linear-gradient(155deg, #f0f4ff, #e8f0fd);
     letter-spacing: -.02em;
     pointer-events: none;
   }
