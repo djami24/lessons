@@ -366,20 +366,40 @@
 
   /* Mobil */
   @media (max-width: 700px) {
-    .tsl-card { grid-template-columns: 1fr; }
-    .tsl-right {
-      aspect-ratio: 3 / 4;
-      min-height: 200px;
-      max-height: 280px;
-      order: -1; /* rasm yuqorida */
+    .tsl-card {
+      grid-template-columns: 1.1fr 0.9fr;
+      border-radius: 16px;
+      min-height: 280px;
     }
-    .tsl-left { padding: 1.8em 1.5em; }
-    .tsl-quote { -webkit-line-clamp: 5; }
-    .tsl-carousel-wrap { gap: .4em; }
-    .tsl-nav-btn { width: 34px; height: 34px; font-size: 1.1rem; }
+    .tsl-right {
+      display: block;
+      order: unset;
+      aspect-ratio: unset;
+      min-height: 280px;
+      max-height: unset;
+      height: 100%;
+    }
+    .tsl-left {
+      padding: 1.2em 1em;
+      gap: .7em;
+    }
+    .tsl-brand { font-size: .75rem; }
+    .tsl-quote {
+      -webkit-line-clamp: unset;
+      display: block;
+      font-size: .82rem;
+      line-height: 1.65;
+    }
+    .tsl-name { font-size: .82rem; }
+    .tsl-badge { font-size: .68rem; padding: .3em .7em; }
+    .tsl-avatar { width: 34px; height: 34px; font-size: .75rem; }
+    .tsl-carousel-wrap { gap: .3em; }
+    .tsl-nav-btn { width: 32px; height: 32px; font-size: 1rem; }
   }
   @media (max-width: 480px) {
-    .tsl-left { padding: 1.4em 1.2em; }
+    .tsl-left { padding: 1em .9em; }
+    .tsl-quote { font-size: .8rem; }
+    .tsl-name { font-size: .8rem; }
   }
   /* ══════════ /TESTIMONIALS ══════════ */
   </style>
