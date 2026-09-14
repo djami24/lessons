@@ -1058,40 +1058,28 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>💬 Talabalar fikri (4 ta kartochka)</h3>
-        <p style="font-size:.85rem; color:var(--gray); margin:0 0 1.2em;">Bosh sahifadagi "Talabalar fikri" bo'limidagi kartochkalarni tahrirlang.</p>
+        <h3>💬 Talabalar fikri</h3>
+        <p style="font-size:.85rem; color:var(--gray); margin:0 0 1.2em;">
+          Bosh sahifadagi "Talabalar fikri" bo'limini boshqaring. Istalgancha qo'shish va o'chirish mumkin.
+        </p>
 
-        <div style="display:flex; flex-direction:column; gap:1.4em;">
+        <!-- Ro'yxat -->
+        <div id="tslAdminList" style="display:flex; flex-direction:column; gap:.7em; margin-bottom:1.2em;"></div>
 
-          <div style="background:var(--paper-2); border-radius:var(--radius-s); padding:1.2em 1.4em;">
-            <p style="font-weight:700; font-size:.9rem; margin:0 0 .8em; color:var(--teal);">1-talaba (yashil karta)</p>
-            <label class="field"><span>Ism</span><input type="text" id="settingTestimonial1Name" placeholder="Baxodirova Shaxlo"></label>
-            <label class="field"><span>Daraja / natija</span><input type="text" id="settingTestimonial1Role" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat"></label>
-            <label class="field"><span>Izoh matni</span><textarea id="settingTestimonial1Text" rows="3" placeholder="Talabaning fikri…"></textarea></label>
+        <!-- Yangi qo'shish / tahrirlash formasi -->
+        <div id="tslAdminForm" style="background:var(--paper-2); border-radius:var(--radius-m); padding:1.4em; display:none; flex-direction:column; gap:.9em;">
+          <p id="tslFormTitle" style="font-weight:700; font-size:.95rem; margin:0; color:var(--ink);">Yangi talaba</p>
+          <label class="field"><span>Ism Familiya</span><input type="text" id="tslFName" placeholder="Baxodirova Shaxlo"></label>
+          <label class="field"><span>Daraja ✦ Muddat &nbsp;<small style="font-weight:400;color:var(--gray)">(✦ belgisi bilan ajrating)</small></span><input type="text" id="tslFRole" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat"></label>
+          <label class="field"><span>Fikr matni</span><textarea id="tslFText" rows="3" placeholder="Talabaning fikri…"></textarea></label>
+          <label class="field"><span>📷 Rasm havolasi (URL, ixtiyoriy)</span><input type="url" id="tslFPhoto" placeholder="https://...rasm.jpg"></label>
+          <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+            <button type="button" class="btn btn-amber btn-sm" id="tslFormSave">Saqlash</button>
+            <button type="button" class="btn btn-ghost btn-sm" id="tslFormCancel">Bekor qilish</button>
           </div>
-
-          <div style="background:var(--paper-2); border-radius:var(--radius-s); padding:1.2em 1.4em;">
-            <p style="font-weight:700; font-size:.9rem; margin:0 0 .8em; color:var(--ink);">2-talaba (oq karta)</p>
-            <label class="field"><span>Ism</span><input type="text" id="settingTestimonial2Name" placeholder="Mirmuhsinova Honzoda"></label>
-            <label class="field"><span>Daraja / natija</span><input type="text" id="settingTestimonial2Role" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat"></label>
-            <label class="field"><span>Izoh matni</span><textarea id="settingTestimonial2Text" rows="3" placeholder="Talabaning fikri…"></textarea></label>
-          </div>
-
-          <div style="background:var(--paper-2); border-radius:var(--radius-s); padding:1.2em 1.4em;">
-            <p style="font-weight:700; font-size:.9rem; margin:0 0 .8em; color:#1d2e50;">3-talaba (to'q ko'k karta)</p>
-            <label class="field"><span>Ism</span><input type="text" id="settingTestimonial3Name" placeholder="Rahmonova Hafizabonu"></label>
-            <label class="field"><span>Daraja / natija</span><input type="text" id="settingTestimonial3Role" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat"></label>
-            <label class="field"><span>Izoh matni</span><textarea id="settingTestimonial3Text" rows="3" placeholder="Talabaning fikri…"></textarea></label>
-          </div>
-
-          <div style="background:var(--paper-2); border-radius:var(--radius-s); padding:1.2em 1.4em;">
-            <p style="font-weight:700; font-size:.9rem; margin:0 0 .8em; color:var(--teal-deep);">4-talaba (to'liq kenglik karta)</p>
-            <label class="field"><span>Ism</span><input type="text" id="settingTestimonial4Name" placeholder="Abdurahmonova Muslima"></label>
-            <label class="field"><span>Daraja / natija</span><input type="text" id="settingTestimonial4Role" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat ichida"></label>
-            <label class="field"><span>Izoh matni</span><textarea id="settingTestimonial4Text" rows="4" placeholder="Talabaning fikri…"></textarea></label>
-          </div>
-
         </div>
+
+        <button type="button" class="btn btn-outline btn-sm" id="tslAddBtn" style="margin-top:.4em; align-self:flex-start;">+ Yangi talaba qo'shish</button>
 
         <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
 
@@ -4913,21 +4901,8 @@ function fillSiteSettingsForm(data){
   document.getElementById('settingBlogHeading').value = data.blogHeading || '';
   document.getElementById('settingRatingLabel').value = data.ratingLabel || '';
 
-  document.getElementById('settingTestimonial1Name').value = data.testimonial1Name || '';
-  document.getElementById('settingTestimonial1Role').value = data.testimonial1Role || '';
-  document.getElementById('settingTestimonial1Text').value = data.testimonial1Text || '';
-
-  document.getElementById('settingTestimonial2Name').value = data.testimonial2Name || '';
-  document.getElementById('settingTestimonial2Role').value = data.testimonial2Role || '';
-  document.getElementById('settingTestimonial2Text').value = data.testimonial2Text || '';
-
-  document.getElementById('settingTestimonial3Name').value = data.testimonial3Name || '';
-  document.getElementById('settingTestimonial3Role').value = data.testimonial3Role || '';
-  document.getElementById('settingTestimonial3Text').value = data.testimonial3Text || '';
-
-  document.getElementById('settingTestimonial4Name').value = data.testimonial4Name || '';
-  document.getElementById('settingTestimonial4Role').value = data.testimonial4Role || '';
-  document.getElementById('settingTestimonial4Text').value = data.testimonial4Text || '';
+  // Talabalar fikri — dinamik ro'yxat
+  tslAdminLoadList(data.testimonials || []);
 }
 
 const certificatesEditor = document.getElementById('certificatesEditor');
@@ -5300,6 +5275,169 @@ async function notifyAbsentStudent(student, dateStr, note){
 })();
 // ===== /MAINTENANCE MODE LOGIC =====
 
+/* ══════════════════════════════════════════════════════════
+   TALABALAR FIKRI — dinamik CRUD (admin panel)
+   Ma'lumotlar settings/site.testimonials (massiv) da saqlanadi
+   ══════════════════════════════════════════════════════════ */
+(function() {
+  var list = [];      // joriy massiv
+  var editIdx = -1;   // -1 = yangi, >=0 = tahrirlash
+
+  var listEl    = document.getElementById('tslAdminList');
+  var formEl    = document.getElementById('tslAdminForm');
+  var formTitle = document.getElementById('tslFormTitle');
+  var addBtn    = document.getElementById('tslAddBtn');
+  var saveBtn   = document.getElementById('tslFormSave');
+  var cancelBtn = document.getElementById('tslFormCancel');
+  var fName     = document.getElementById('tslFName');
+  var fRole     = document.getElementById('tslFRole');
+  var fText     = document.getElementById('tslFText');
+  var fPhoto    = document.getElementById('tslFPhoto');
+
+  if (!listEl || !formEl) return;
+
+  // Tashqaridan chaqiriladigan funksiyalar
+  window.tslAdminLoadList = function(arr) {
+    list = Array.isArray(arr) ? arr.map(function(t){ return Object.assign({}, t); }) : [];
+    renderList();
+  };
+  window.tslAdminGetList = function() {
+    return list.slice();
+  };
+
+  function renderList() {
+    if (!list.length) {
+      listEl.innerHTML = '<p style="color:var(--gray);font-size:.88rem;padding:.5em 0;">Hali hech qanday talaba qo'shilmagan.</p>';
+      return;
+    }
+    listEl.innerHTML = '';
+    list.forEach(function(t, i) {
+      var row = document.createElement('div');
+      row.style.cssText = 'display:flex;align-items:center;gap:.8em;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-s);padding:.75em 1em;';
+
+      // Avatar
+      var av = document.createElement('div');
+      av.style.cssText = 'flex:none;width:38px;height:38px;border-radius:50%;background:rgba(46,111,110,.12);color:var(--teal-deep);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;overflow:hidden;';
+      if (t.photo) {
+        var img = document.createElement('img');
+        img.src = t.photo; img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+        img.onerror = function(){ this.style.display='none'; av.textContent = initials(t.name); };
+        av.appendChild(img);
+      } else {
+        av.textContent = initials(t.name);
+      }
+
+      // Info
+      var info = document.createElement('div');
+      info.style.cssText = 'flex:1;min-width:0;';
+      info.innerHTML = '<strong style="font-size:.9rem;display:block;">' + esc(t.name||'Nomsiz') + '</strong>' +
+        '<span style="font-size:.78rem;color:var(--gray);">' + esc(t.role||'') + '</span>';
+
+      // Tartib (yuqori/pastga)
+      var upBtn = mkBtn('↑', 'Yuqoriga', function(){
+        if (i === 0) return;
+        var tmp = list[i-1]; list[i-1] = list[i]; list[i] = tmp;
+        renderList();
+      });
+      var dnBtn = mkBtn('↓', 'Pastga', function(){
+        if (i === list.length-1) return;
+        var tmp = list[i+1]; list[i+1] = list[i]; list[i] = tmp;
+        renderList();
+      });
+
+      // Tahrirlash
+      var edBtn = mkBtn('✏️', 'Tahrirlash', function(){ openEdit(i); });
+      edBtn.style.cssText += 'color:var(--teal-deep);';
+
+      // O'chirish
+      var delBtn = mkBtn('🗑', 'O'chirish', function(){
+        if (!confirm('"' + (t.name||'Talaba') + '" ni o'chirishni xohlaysizmi?')) return;
+        list.splice(i, 1);
+        renderList();
+      });
+      delBtn.style.cssText += 'color:var(--danger);';
+
+      row.append(av, info, upBtn, dnBtn, edBtn, delBtn);
+      listEl.appendChild(row);
+    });
+  }
+
+  function mkBtn(icon, title, fn) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.title = title;
+    b.textContent = icon;
+    b.style.cssText = 'background:none;border:none;cursor:pointer;font-size:1rem;padding:.25em .35em;border-radius:6px;flex:none;transition:background .15s;';
+    b.addEventListener('mouseenter', function(){ this.style.background='var(--paper-2)'; });
+    b.addEventListener('mouseleave', function(){ this.style.background='none'; });
+    b.addEventListener('click', fn);
+    return b;
+  }
+
+  function initials(name) {
+    if (!name) return '?';
+    var p = name.trim().split(/\s+/);
+    return p.length >= 2 ? (p[0][0]+p[1][0]).toUpperCase() : name[0].toUpperCase();
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function openAdd() {
+    editIdx = -1;
+    formTitle.textContent = '+ Yangi talaba';
+    fName.value = ''; fRole.value = ''; fText.value = ''; fPhoto.value = '';
+    formEl.style.display = 'flex';
+    addBtn.style.display = 'none';
+    fName.focus();
+  }
+
+  function openEdit(i) {
+    editIdx = i;
+    var t = list[i];
+    formTitle.textContent = 'Tahrirlash — ' + (t.name || '');
+    fName.value  = t.name  || '';
+    fRole.value  = t.role  || '';
+    fText.value  = t.text  || '';
+    fPhoto.value = t.photo || '';
+    formEl.style.display = 'flex';
+    addBtn.style.display = 'none';
+    fName.focus();
+  }
+
+  function closeForm() {
+    formEl.style.display = 'none';
+    addBtn.style.display = '';
+    editIdx = -1;
+  }
+
+  addBtn.addEventListener('click', openAdd);
+  cancelBtn.addEventListener('click', closeForm);
+
+  saveBtn.addEventListener('click', function() {
+    var name = fName.value.trim();
+    if (!name) { fName.focus(); return; }
+    var entry = {
+      name:  name,
+      role:  fRole.value.trim(),
+      text:  fText.value.trim(),
+      photo: fPhoto.value.trim()
+    };
+    if (editIdx >= 0) {
+      list[editIdx] = entry;
+    } else {
+      list.push(entry);
+    }
+    renderList();
+    closeForm();
+  });
+
+  renderList();
+})();
+
 document.getElementById('siteSettingsReset').addEventListener('click', () => {
   if(confirm("Sayt sozlamalarini standart holatga qaytarmoqchimisiz? (Saqlash tugmasini bosmaguningizcha oʼzgarish qoʼllanmaydi.)")){
     fillSiteSettingsForm(DEFAULT_SITE_SETTINGS);
@@ -5380,21 +5518,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     blogHeading: document.getElementById('settingBlogHeading').value.trim(),
     ratingLabel: document.getElementById('settingRatingLabel').value.trim(),
 
-    testimonial1Name: document.getElementById('settingTestimonial1Name').value.trim(),
-    testimonial1Role: document.getElementById('settingTestimonial1Role').value.trim(),
-    testimonial1Text: document.getElementById('settingTestimonial1Text').value.trim(),
-
-    testimonial2Name: document.getElementById('settingTestimonial2Name').value.trim(),
-    testimonial2Role: document.getElementById('settingTestimonial2Role').value.trim(),
-    testimonial2Text: document.getElementById('settingTestimonial2Text').value.trim(),
-
-    testimonial3Name: document.getElementById('settingTestimonial3Name').value.trim(),
-    testimonial3Role: document.getElementById('settingTestimonial3Role').value.trim(),
-    testimonial3Text: document.getElementById('settingTestimonial3Text').value.trim(),
-
-    testimonial4Name: document.getElementById('settingTestimonial4Name').value.trim(),
-    testimonial4Role: document.getElementById('settingTestimonial4Role').value.trim(),
-    testimonial4Text: document.getElementById('settingTestimonial4Text').value.trim()
+    testimonials: tslAdminGetList()
   };
 
   try{
