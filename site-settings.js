@@ -471,43 +471,94 @@
     setText('[data-site-blog-heading]', data.blogHeading);
     setText('[data-site-rating-label]', data.ratingLabel);
 
-    // Talabalar fikri — testimonials
-    setText('[data-testimonial-1-name]', data.testimonial1Name);
-    setText('[data-testimonial-1-role]', data.testimonial1Role);
-    setText('[data-testimonial-1-text]', data.testimonial1Text);
-    setText('[data-testimonial-2-name]', data.testimonial2Name);
-    setText('[data-testimonial-2-role]', data.testimonial2Role);
-    setText('[data-testimonial-2-text]', data.testimonial2Text);
-    setText('[data-testimonial-3-name]', data.testimonial3Name);
-    setText('[data-testimonial-3-role]', data.testimonial3Role);
-    setText('[data-testimonial-3-text]', data.testimonial3Text);
-    setText('[data-testimonial-4-name]', data.testimonial4Name);
-    setText('[data-testimonial-4-role]', data.testimonial4Role);
-    setText('[data-testimonial-4-text]', data.testimonial4Text);
+    // ── Talabalar fikri — dinamik slaydlar ──────────────────────────
+    // data.testimonials — massiv: [{name, role, text, photo, initials}, ...]
+    // Yoki eski format: testimonial1Name, testimonial1Role, ... ham qo'llab-quvvatlanadi
+    (function buildTestimonials() {
+      var track = document.getElementById('tslTrack');
+      var dotsWrap = document.getElementById('tslDots');
+      if (!track) return;
 
-    // Talabalar fikri — rasm linklarini o'rnatish
-    // Admin panelda testimonial1Photo ... testimonial4Photo sifatida saqlanadi
-    function setPhoto(attr, url) {
-      var imgs = document.querySelectorAll('[' + attr + ']');
-      imgs.forEach(function(img) {
-        if (!url) return;
-        img.src = url;
-        // Fallbackni yashir
-        var fallback = img.nextElementSibling;
-        if (fallback && fallback.classList.contains('tsl-photo-fallback')) {
-          fallback.style.display = 'none';
+      // Massivni yig'amiz — yangi format (data.testimonials[]) yoki eski (testimonial1Name...)
+      var list = [];
+      if (Array.isArray(data.testimonials) && data.testimonials.length) {
+        list = data.testimonials;
+      } else {
+        // Eski format bilan orqaga moslik
+        for (var i = 1; i <= 20; i++) {
+          var name = data['testimonial' + i + 'Name'];
+          var role = data['testimonial' + i + 'Role'];
+          var text = data['testimonial' + i + 'Text'];
+          var photo = data['testimonial' + i + 'Photo'] || '';
+          if (!name && !text) break;
+          list.push({ name: name || '', role: role || '', text: text || '', photo: photo, initials: '' });
         }
-        img.style.display = 'block';
-        img.onerror = function() {
-          this.style.display = 'none';
-          if (fallback) fallback.style.display = 'flex';
-        };
+      }
+      if (!list.length) return;
+
+      // Initialni avtomatik hosil qilish
+      function getInitials(name) {
+        if (!name) return '?';
+        var parts = name.trim().split(/\s+/);
+        if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+        return name[0].toUpperCase();
+      }
+
+      // HTML qurish
+      track.innerHTML = '';
+      if (dotsWrap) dotsWrap.innerHTML = '';
+
+      list.forEach(function(t, i) {
+        var initials = t.initials || getInitials(t.name);
+        var role = t.role || '';
+        var parts = role.split('\u2756').map(function(s){ return s.trim(); });
+        var cert = parts[0] || '';
+        var time = parts[1] || '';
+        var photoHtml = t.photo
+          ? '<img class="tsl-photo" src="' + t.photo.replace(/"/g,'&quot;') + '" alt="' + (t.name||'').replace(/"/g,'&quot;') + '" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">'
+          : '';
+        var slide = document.createElement('div');
+        slide.className = 'tsl-slide' + (i === 0 ? ' is-active' : '');
+        slide.setAttribute('data-slide', String(i));
+        slide.innerHTML =
+          '<div class="tsl-card">' +
+            '<div class="tsl-left">' +
+              '<div class="tsl-logo-row"><span class="tsl-logo-dot"></span><span class="tsl-brand">Djami Lessons</span></div>' +
+              '<p class="tsl-quote">' + (t.text || '') + '</p>' +
+              '<div class="tsl-person">' +
+                '<div class="tsl-avatar">' + initials + '</div>' +
+                '<div class="tsl-person-info">' +
+                  '<strong class="tsl-name">' + (t.name || '') + '</strong>' +
+                  '<span class="tsl-role" style="display:none">' + role + '</span>' +
+                '</div>' +
+              '</div>' +
+              '<div class="tsl-badges">' +
+                (cert ? '<span class="tsl-badge tsl-badge-cert">\uD83C\uDFC6 ' + cert + '</span>' : '') +
+                (time ? '<span class="tsl-badge tsl-badge-time">' + time + '</span>' : '') +
+              '</div>' +
+            '</div>' +
+            '<div class="tsl-right">' +
+              '<div class="tsl-photo-wrap">' +
+                photoHtml +
+                '<div class="tsl-photo-fallback" style="' + (t.photo ? 'display:none' : '') + '">' + initials + '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        track.appendChild(slide);
+
+        // Dot
+        if (dotsWrap) {
+          var dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'tsl-dot' + (i === 0 ? ' is-active' : '');
+          dot.setAttribute('aria-label', (i+1) + '-fikr');
+          dotsWrap.appendChild(dot);
+        }
       });
-    }
-    setPhoto('data-testimonial-1-photo', data.testimonial1Photo);
-    setPhoto('data-testimonial-2-photo', data.testimonial2Photo);
-    setPhoto('data-testimonial-3-photo', data.testimonial3Photo);
-    setPhoto('data-testimonial-4-photo', data.testimonial4Photo);
+
+      // Carousel ni qayta ishga tushirish
+      if (window._tslInit) window._tslInit();
+    })();
   }
 
   const SETTINGS_CACHE_KEY = 'efSiteSettingsCache';
