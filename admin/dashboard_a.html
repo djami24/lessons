@@ -5350,8 +5350,8 @@ async function notifyAbsentStudent(student, dateStr, note){
       edBtn.style.cssText += 'color:var(--teal-deep);';
 
       // O'chirish
-      var delBtn = mkBtn('🗑', 'O'chirish', function(){
-        if (!confirm('"' + (t.name||'Talaba') + '" ni o'chirishni xohlaysizmi?')) return;
+      var delBtn = mkBtn('🗑', 'O\'chirish', function(){
+        if (!confirm('"' + (t.name||'Talaba') + '" ni o\'chirishni xohlaysizmi?')) return;
         list.splice(i, 1);
         renderList();
       });
