@@ -515,7 +515,7 @@
         var cert = parts[0] || '';
         var time = parts[1] || '';
         var photoHtml = t.photo
-          ? '<img class="tsl-photo" src="' + t.photo.replace(/"/g,'&quot;') + '" alt="' + (t.name||'').replace(/"/g,'&quot;') + '" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">'
+          ? ('<img class="tsl-photo" src="' + t.photo.replace(/"/g,'&quot;') + '" alt="' + (t.name||'').replace(/"/g,'&quot;') + '" loading="lazy" onerror="this.style.display=&quot;none&quot;;if(this.nextElementSibling)this.nextElementSibling.style.display=&quot;flex&quot;">')
           : '';
         var slide = document.createElement('div');
         slide.className = 'tsl-slide' + (i === 0 ? ' is-active' : '');
