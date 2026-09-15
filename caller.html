@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caller — Djami Lessons</title>
+  <style>
+    :root {
+      --ink:       #1a2035;
+      --ink-soft:  #4a5568;
+      --gray:      #718096;
+      --amber:     #d98e3f;
+      --teal:      #2e6f6e;
+      --line:      #e8edf5;
+      --paper:     #f5f7fb;
+      --paper-2:   #eef1f8;
+      --red:       #e53e3e;
+      --red-bg:    #fff5f5;
+      --red-line:  #fed7d7;
+      --green:     #2e7d52;
+      --green-bg:  #f0fff4;
+      --green-line:#c6f6d5;
+      --blue:      #2F6FED;
+      --blue-bg:   #ebf0fd;
+      --font:      -apple-system, 'Inter', sans-serif;
+      --radius:    14px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font);
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      gap: 12px;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-icon {
+      width: 36px; height: 36px;
+      background: var(--ink);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex: none;
+    }
+    .header-title {
+      font-weight: 700;
+      font-size: .97rem;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+    .header-sub {
+      font-size: .72rem;
+      color: var(--gray);
+      display: block;
+    }
+    .badge {
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: .78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-red   { background: var(--red); color: #fff; }
+    .badge-green { background: var(--green); color: #fff; }
+    .badge-gray  { background: var(--paper-2); color: var(--gray); border: 1px solid var(--line); }
+
+    /* ── CONTAINER ── */
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px 14px 100px;
+    }
+
+    /* ── SECTION LABEL ── */
+    .section-label {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .09em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin: 22px 0 9px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: #fff;
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius);
+      padding: 15px;
+      margin-bottom: 10px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .card:last-child { margin-bottom: 0; }
+    .card.is-overdue {
+      border-color: var(--red-line);
+      background: var(--red-bg);
+    }
+    .card.is-done {
+      border-color: var(--green-line);
+      background: var(--green-bg);
+    }
+
+    /* top row */
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 11px;
+    }
+    .student-name {
+      font-weight: 700;
+      font-size: .97rem;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+    .student-meta {
+      font-size: .78rem;
+      color: var(--gray);
+    }
+
+    /* timer */
+    .timer { text-align: right; flex: none; }
+    .timer-val {
+      font-size: .83rem;
+      font-weight: 700;
+      color: var(--amber);
+      white-space: nowrap;
+    }
+    .timer-val.urgent { color: var(--red); }
+    .timer-val.over   { color: var(--red); }
+    .timer-val.done   { color: var(--green); }
+    .timer-lbl {
+      display: block;
+      font-size: .68rem;
+      color: var(--gray);
+      margin-top: 1px;
+    }
+
+    /* overdue pill */
+    .overdue-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--red-line);
+      color: var(--red);
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: .72rem;
+      font-weight: 700;
+      margin-bottom: 9px;
+    }
+
+    /* call button */
+    .btn-call {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      text-decoration: none;
+      font-family: var(--font);
+      transition: opacity .15s;
+    }
+    .btn-call:active { opacity: .82; }
+
+    /* note form */
+    .note-form {
+      margin-top: 9px;
+      display: none;
+    }
+    .note-form.open { display: block; }
+    .note-form textarea {
+      width: 100%;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: .88rem;
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--paper);
+      resize: none;
+      min-height: 80px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .note-form textarea:focus { border-color: var(--blue); }
+    .note-form textarea::placeholder { color: var(--gray); }
+    .btn-save {
+      margin-top: 8px;
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 11px 16px;
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      font-family: var(--font);
+      transition: opacity .15s;
+    }
+    .btn-save:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-save:active:not(:disabled) { opacity: .82; }
+
+    /* done result */
+    .done-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: var(--green-bg);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: .84rem;
+      color: var(--green);
+      margin-top: 4px;
+    }
+    .done-note .note-body { color: var(--ink-soft); flex: 1; }
+    .done-time { font-size: .72rem; color: var(--gray); margin-top: 4px; }
+
+    /* loading */
+    .loader {
+      text-align: center;
+      padding: 64px 20px;
+      color: var(--gray);
+    }
+    .spinner {
+      width: 34px; height: 34px;
+      border: 3px solid var(--line);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin .65s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* empty */
+    .empty {
+      text-align: center;
+      padding: 52px 20px;
+      color: var(--gray);
+    }
+    .empty-icon { font-size: 2.8rem; margin-bottom: 12px; }
+    .empty strong { display: block; color: var(--ink); font-size: 1rem; margin-bottom: 5px; }
+    .empty small { font-size: .85rem; }
+
+    /* divider after call btn */
+    .divider-or {
+      text-align: center;
+      font-size: .72rem;
+      color: var(--gray);
+      margin: 6px 0;
+      position: relative;
+    }
+    .divider-or::before, .divider-or::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 38%;
+      height: 1px;
+      background: var(--line);
+    }
+    .divider-or::before { left: 0; }
+    .divider-or::after  { right: 0; }
+  </style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-left">
+    <div class="header-icon">📞</div>
+    <div>
+      <div class="header-title">Caller</div>
+      <span class="header-sub">Djami Lessons</span>
+    </div>
+  </div>
+  <span class="badge badge-gray" id="pendingBadge">yuklanmoqda…</span>
+</header>
+
+<div class="container">
+
+  <!-- Loading -->
+  <div id="loaderEl">
+    <div class="loader">
+      <div class="spinner"></div>
+      Yuklanmoqda…
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div id="contentEl" style="display:none">
+
+    <!-- PENDING -->
+    <div class="section-label">⏳ Qo'ng'iroq qilinishi kerak</div>
+    <div id="pendingList"></div>
+    <div id="pendingEmpty" class="empty" style="display:none">
+      <div class="empty-icon">🎉</div>
+      <strong>Hammasi bajarildi!</strong>
+      <small>Kutilayotgan qo'ng'iroq yo'q</small>
+    </div>
+
+    <!-- DONE -->
+    <div class="section-label" style="margin-top:30px">✅ Bajarilganlar</div>
+    <div id="doneList"></div>
+    <div id="doneEmpty" style="padding:10px 0;color:var(--gray);font-size:.85rem;text-align:center;display:none">
+      Hali bajarilgan qo'ng'iroq yo'q
+    </div>
+
+  </div>
+</div>
+
+<!-- Firebase compat SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+const DEADLINE_MS = 24 * 60 * 60 * 1000; // 24 soat
+
+function timeLeft(markedAt) {
+  if (!markedAt) return { text: '—', urgent: false, over: false };
+  const elapsed = Date.now() - markedAt.toMillis();
+  const left = DEADLINE_MS - elapsed;
+  if (left <= 0) return { text: 'Muddati o\'tdi!', urgent: true, over: true };
+  const h = Math.floor(left / 3600000);
+  const m = Math.floor((left % 3600000) / 60000);
+  return {
+    text: `${h}s ${m}d qoldi`,
+    urgent: h < 3,
+    over: false
+  };
+}
+
+function fmtDate(ts) {
+  if (!ts) return '';
+  const d = new Date(ts.toMillis());
+  return d.toLocaleString('uz-UZ', {
+    day: '2-digit', month: '2-digit',
+    hour: '2-digit', minute: '2-digit'
+  });
+}
+
+function esc(str) {
+  return String(str || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+// ── DOM refs ─────────────────────────────────────────────────────────────────
+const loaderEl    = document.getElementById('loaderEl');
+const contentEl   = document.getElementById('contentEl');
+const pendingList = document.getElementById('pendingList');
+const doneList    = document.getElementById('doneList');
+const pendingBadge = document.getElementById('pendingBadge');
+const pendingEmpty = document.getElementById('pendingEmpty');
+const doneEmpty   = document.getElementById('doneEmpty');
+
+// ── Pending card ──────────────────────────────────────────────────────────────
+function makePendingCard(id, data) {
+  const tl = timeLeft(data.markedAt);
+  const card = document.createElement('div');
+  card.className = 'card' + (tl.over ? ' is-overdue' : '');
+  card.id = 'card-' + id;
+
+  card.innerHTML = `
+    ${tl.over ? '<div class="overdue-pill">⚠️ 24 soat o\'tdi — admin ko\'radi!</div>' : ''}
+    <div class="card-top">
+      <div>
+        <div class="student-name">${esc(data.studentName)}</div>
+        <div class="student-meta">
+          📅 ${esc(data.lessonDate || '')}
+          ${data.studentPhone ? '&nbsp;·&nbsp;📱 ' + esc(data.studentPhone) : ''}
+        </div>
+      </div>
+      <div class="timer">
+        <div class="timer-val ${tl.urgent ? 'urgent' : ''}" id="tv-${id}">${tl.text}</div>
+        <span class="timer-lbl">muddati</span>
+      </div>
+    </div>
+
+    <a class="btn-call"
+       href="tel:${esc(data.studentPhone)}"
+       onclick="openNote('${id}')">
+      📞 Qo'ng'iroq qilish
+    </a>
+    <div class="divider-or">qo'ng'iroqdan so'ng</div>
+
+    <div class="note-form" id="nf-${id}">
+      <textarea id="nt-${id}"
+        placeholder="Izoh: kasalmi, safardami, uxlab qolganmi… (ixtiyoriy)"></textarea>
+      <button class="btn-save" onclick="saveCall('${id}')">
+        ✅ Tel qildim — Saqlash
+      </button>
+    </div>
+  `;
+  return card;
+}
+
+// ── Done card ─────────────────────────────────────────────────────────────────
+function makeDoneCard(id, data) {
+  const card = document.createElement('div');
+  card.className = 'card is-done';
+  card.id = 'card-' + id;
+  card.innerHTML = `
+    <div class="card-top">
+      <div>
+        <div class="student-name">${esc(data.studentName)}</div>
+        <div class="student-meta">📅 ${esc(data.lessonDate || '')}</div>
+      </div>
+      <div class="timer">
+        <div class="timer-val done">✅ Tel qilindi</div>
+        <span class="timer-lbl">${fmtDate(data.calledAt)}</span>
+      </div>
+    </div>
+    <div class="done-note">
+      📝 <span class="note-body">${esc(data.note) || '<em style="opacity:.6">Izoh yo\'q</em>'}</span>
+    </div>
+  `;
+  return card;
+}
+
+// ── Global actions ────────────────────────────────────────────────────────────
+window.openNote = function(id) {
+  // Qo'ng'iroq bosishdan keyin 600ms to'xtatib formni ochadi
+  setTimeout(function() {
+    var nf = document.getElementById('nf-' + id);
+    if (nf) { nf.classList.add('open'); }
+  }, 600);
+};
+
+window.saveCall = async function(id) {
+  var ntEl   = document.getElementById('nt-' + id);
+  var btn    = document.querySelector('#card-' + id + ' .btn-save');
+  var note   = ntEl ? ntEl.value.trim() : '';
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Saqlanmoqda…'; }
+  try {
+    await db.collection('callQueue').doc(id).update({
+      status:   'called',
+      calledAt: firebase.firestore.FieldValue.serverTimestamp(),
+      note:     note
+    });
+    // onSnapshot yangilab qo'yadi
+  } catch(e) {
+    alert('Xatolik: ' + e.message);
+    if (btn) { btn.disabled = false; btn.textContent = '✅ Tel qildim — Saqlash'; }
+  }
+};
+
+// ── Real-time listener ────────────────────────────────────────────────────────
+var timerInterval = null;
+var snapCache = {};
+
+db.collection('callQueue')
+  .orderBy('markedAt', 'asc')
+  .onSnapshot(function(snap) {
+    loaderEl.style.display = 'none';
+    contentEl.style.display = 'block';
+
+    pendingList.innerHTML = '';
+    doneList.innerHTML   = '';
+    snapCache = {};
+
+    var pendingCount = 0;
+
+    snap.forEach(function(d) {
+      var data = d.data();
+      snapCache[d.id] = data;
+      if (data.status === 'called') {
+        doneList.appendChild(makeDoneCard(d.id, data));
+      } else {
+        pendingList.appendChild(makePendingCard(d.id, data));
+        pendingCount++;
+      }
+    });
+
+    // Badges
+    pendingBadge.textContent = pendingCount + ' ta kutilmoqda';
+    pendingBadge.className   = 'badge ' + (pendingCount > 0 ? 'badge-red' : 'badge-green');
+    pendingEmpty.style.display = pendingCount === 0 ? 'block' : 'none';
+    doneEmpty.style.display    = (snap.size - pendingCount) === 0 ? 'block' : 'none';
+
+    // Timer yangilash
+    clearInterval(timerInterval);
+    timerInterval = setInterval(function() {
+      Object.keys(snapCache).forEach(function(id) {
+        var data = snapCache[id];
+        if (data.status !== 'called') {
+          var tl  = timeLeft(data.markedAt);
+          var el  = document.getElementById('tv-' + id);
+          if (el) {
+            el.textContent = tl.text;
+            el.className   = 'timer-val' + (tl.urgent ? ' urgent' : '');
+          }
+        }
+      });
+    }, 60 * 1000);
+  }, function(err) {
+    loaderEl.innerHTML = '<div class="loader" style="color:var(--red)">⚠️ Xatolik: ' + err.message + '</div>';
+  });
+</script>
+</body>
+</html>
