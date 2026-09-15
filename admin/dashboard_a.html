@@ -3624,6 +3624,7 @@ function switchView(view){
   document.getElementById('navParentChats').classList.toggle('active', view === 'parent-chats');
   document.getElementById('view-activity-log').hidden = view !== 'activity-log';
   document.getElementById('navActivityLog').classList.toggle('active', view === 'activity-log');
+  document.getElementById('view-caller').hidden = view !== 'caller';
   document.getElementById('navCaller').classList.toggle('active', view === 'caller');
   document.getElementById('view-reading-mocks').hidden = view !== 'reading-mocks';
   document.getElementById('view-reading-mock-builder').hidden = view !== 'reading-mock-builder';
