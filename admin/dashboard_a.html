@@ -1909,6 +1909,9 @@
         <label style="margin-top:10px;">Talaba ID (ixtiyoriy)
           <input type="text" id="ojStudentIdInput" placeholder="Masalan: ali01 (bo'sh qoldirsangiz avtomatik yaratiladi)" maxlength="40">
         </label>
+        <label style="margin-top:10px;">Telefon raqam (ixtiyoriy)
+          <input type="tel" id="ojStudentPhoneInput" placeholder="+998 90 123 45 67">
+        </label>
         <p style="font-size:.78rem; color:var(--gray); margin:4px 0 0;">Talaba shu ID orqali o'z bosh sahifasidagi "O'quv jarayoni" kartochkasiga natijalarini chiqaradi. ID’ni talabaga bering.</p>
       </div>
 
@@ -6262,6 +6265,25 @@ async function loadOjStudents(groupId, groupName, days) {
           await db.collection('oquv_progress').doc(sid).collection('entries').doc(today)
             .set(Object.assign({ date: today }, fields), { merge: true });
           flashSaved();
+
+          // "Kelmadi" bosilsa callQueue ga yoz
+          if (fields.attended === 'no') {
+            db.collection('callQueue').doc(sid + '_' + today).set({
+              studentId:    sid,
+              studentName:  s.name  || '',
+              studentPhone: s.phone || '',
+              lessonDate:   today,
+              markedAt:     firebase.firestore.FieldValue.serverTimestamp(),
+              status:       'pending',
+              calledAt:     null,
+              note:         null
+            }).catch(function(e){ console.warn('callQueue write failed:', e); });
+          }
+          // "Keldi" yoki "Kech qoldi" bosilsa callQueue dan chiqarib tashla
+          if (fields.attended === 'yes' || fields.attended === 'late' || fields.attended === '') {
+            db.collection('callQueue').doc(sid + '_' + today).delete()
+              .catch(function(){});
+          }
         } catch(err) { console.error('Quick save failed:', err); flashError(); }
       }
 
@@ -6432,6 +6454,7 @@ function ojSetMode(mode) {
 document.getElementById('openAddOquvStudent').addEventListener('click', () => {
   document.getElementById('ojStudentNameInput').value = '';
   document.getElementById('ojStudentIdInput').value = '';
+  document.getElementById('ojStudentPhoneInput').value = '';
   document.getElementById('ojBulkNamesInput').value = '';
   document.getElementById('ojBulkCount').textContent = '0 ta ism';
   document.getElementById('ojStudentError').hidden = true;
@@ -6458,6 +6481,7 @@ document.getElementById('ojStudentSaveBtn').addEventListener('click', async () =
 
   if (_ojAddMode === 'one') {
     const name = document.getElementById('ojStudentNameInput').value.trim();
+    const phone = document.getElementById('ojStudentPhoneInput').value.trim();
     if (!name) { err.textContent = 'Ism kiritilmagan.'; err.hidden = false; return; }
     let customId = document.getElementById('ojStudentIdInput').value.trim();
     if (customId && !/^[A-Za-z0-9_-]+$/.test(customId)) {
@@ -6479,8 +6503,8 @@ document.getElementById('ojStudentSaveBtn').addEventListener('click', async () =
       } else {
         id = await ojGenUniqueCode();
       }
-      await col.doc(id).set({ name, createdAt: ts });
-      await db.collection('oquv_progress').doc(id).set({ name, group: _ojActiveGroupName, groupId: _ojActiveGroupId, createdAt: ts }, { merge: true });
+      await col.doc(id).set({ name, phone: phone || '', createdAt: ts });
+      await db.collection('oquv_progress').doc(id).set({ name, phone: phone || '', group: _ojActiveGroupName, groupId: _ojActiveGroupId, createdAt: ts }, { merge: true });
       closeModal('modalAddOquvStudent');
       loadOjStudents(_ojActiveGroupId, _ojActiveGroupName);
     } catch(e) { err.textContent = 'Saqlashda xatolik.'; err.hidden = false; }
