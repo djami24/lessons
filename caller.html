@@ -181,24 +181,58 @@
 
     /* call button */
     .btn-call {
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
       background: var(--blue);
       color: #fff;
       border: none;
-      border-radius: 10px;
-      padding: 11px 16px;
-      font-size: .88rem;
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-size: .8rem;
       font-weight: 600;
       cursor: pointer;
-      width: 100%;
       text-decoration: none;
       font-family: var(--font);
-      transition: opacity .15s;
+      transition: opacity .15s, transform .1s;
+      white-space: nowrap;
     }
-    .btn-call:active { opacity: .82; }
+    .btn-call:active { opacity: .82; transform: scale(.97); }
+
+    /* action chips row */
+    .card-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    /* chip: Tel qildim */
+    .chip-done {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1.5px solid var(--green-line);
+      border-radius: 20px;
+      padding: 6px 13px;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: background .15s, transform .1s;
+      white-space: nowrap;
+    }
+    .chip-done:hover { background: var(--green-line); }
+    .chip-done:active { transform: scale(.97); }
+    .chip-done.active {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+    }
 
     /* note form */
     .note-form {
@@ -211,33 +245,50 @@
       border: 1.5px solid var(--line);
       border-radius: 10px;
       padding: 10px 12px;
-      font-size: .88rem;
+      font-size: .85rem;
       font-family: var(--font);
       color: var(--ink);
       background: var(--paper);
       resize: none;
-      min-height: 80px;
+      min-height: 72px;
       outline: none;
       transition: border-color .2s;
     }
     .note-form textarea:focus { border-color: var(--blue); }
     .note-form textarea::placeholder { color: var(--gray); }
+    .note-form-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 7px;
+    }
     .btn-save {
-      margin-top: 8px;
+      flex: 1;
       background: var(--green);
       color: #fff;
       border: none;
       border-radius: 10px;
-      padding: 11px 16px;
-      font-size: .88rem;
+      padding: 9px 14px;
+      font-size: .85rem;
       font-weight: 600;
       cursor: pointer;
-      width: 100%;
       font-family: var(--font);
       transition: opacity .15s;
     }
     .btn-save:disabled { opacity: .5; cursor: not-allowed; }
     .btn-save:active:not(:disabled) { opacity: .82; }
+    .btn-cancel {
+      background: var(--paper-2);
+      color: var(--gray);
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: .85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: opacity .15s;
+    }
+    .btn-cancel:active { opacity: .75; }
 
     /* done result */
     .done-note {
@@ -253,6 +304,20 @@
     }
     .done-note .note-body { color: var(--ink-soft); flex: 1; }
     .done-time { font-size: .72rem; color: var(--gray); margin-top: 4px; }
+
+    /* student meta extras */
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 2px 7px;
+      font-size: .72rem;
+      color: var(--ink-soft);
+      font-weight: 500;
+    }
 
     /* loading */
     .loader {
@@ -280,24 +345,6 @@
     .empty strong { display: block; color: var(--ink); font-size: 1rem; margin-bottom: 5px; }
     .empty small { font-size: .85rem; }
 
-    /* divider after call btn */
-    .divider-or {
-      text-align: center;
-      font-size: .72rem;
-      color: var(--gray);
-      margin: 6px 0;
-      position: relative;
-    }
-    .divider-or::before, .divider-or::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      width: 38%;
-      height: 1px;
-      background: var(--line);
-    }
-    .divider-or::before { left: 0; }
-    .divider-or::after  { right: 0; }
   </style>
 </head>
 <body>
@@ -400,14 +447,22 @@ function makePendingCard(id, data) {
   card.className = 'card' + (tl.over ? ' is-overdue' : '');
   card.id = 'card-' + id;
 
+  const groupPill = data.groupName
+    ? `<span class="meta-pill">👥 ${esc(data.groupName)}</span>`
+    : '';
+  const phonePill = data.studentPhone
+    ? `<a class="meta-pill" href="tel:${esc(data.studentPhone)}" style="text-decoration:none;color:var(--blue);border-color:var(--blue-bg)">📱 ${esc(data.studentPhone)}</a>`
+    : '';
+
   card.innerHTML = `
     ${tl.over ? '<div class="overdue-pill">⚠️ 24 soat o\'tdi — admin ko\'radi!</div>' : ''}
     <div class="card-top">
       <div>
         <div class="student-name">${esc(data.studentName)}</div>
-        <div class="student-meta">
-          📅 ${esc(data.lessonDate || '')}
-          ${data.studentPhone ? '&nbsp;·&nbsp;📱 ' + esc(data.studentPhone) : ''}
+        <div class="student-meta" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:4px">
+          <span class="meta-pill">📅 ${esc(data.lessonDate || '')}</span>
+          ${groupPill}
+          ${phonePill}
         </div>
       </div>
       <div class="timer">
@@ -416,19 +471,26 @@ function makePendingCard(id, data) {
       </div>
     </div>
 
-    <a class="btn-call"
-       href="tel:${esc(data.studentPhone)}"
-       onclick="openNote('${id}')">
-      📞 Qo'ng'iroq qilish
-    </a>
-    <div class="divider-or">qo'ng'iroqdan so'ng</div>
+    <div class="card-actions">
+      <a class="btn-call"
+         href="tel:${esc(data.studentPhone)}"
+         onclick="return handleCallClick(event, '${id}')">
+        📞 Qo'ng'iroq qilish
+      </a>
+      <button class="chip-done" id="chip-${id}" onclick="toggleNote('${id}')">
+        ✅ Tel qildim
+      </button>
+    </div>
 
     <div class="note-form" id="nf-${id}">
       <textarea id="nt-${id}"
         placeholder="Izoh: kasalmi, safardami, uxlab qolganmi… (ixtiyoriy)"></textarea>
-      <button class="btn-save" onclick="saveCall('${id}')">
-        ✅ Tel qildim — Saqlash
-      </button>
+      <div class="note-form-actions">
+        <button class="btn-cancel" onclick="cancelNote('${id}')">Bekor</button>
+        <button class="btn-save" id="bs-${id}" onclick="saveCall('${id}')">
+          ✅ Saqlash
+        </button>
+      </div>
     </div>
   `;
   return card;
@@ -458,18 +520,48 @@ function makeDoneCard(id, data) {
 }
 
 // ── Global actions ────────────────────────────────────────────────────────────
-window.openNote = function(id) {
-  // Qo'ng'iroq bosishdan keyin 600ms to'xtatib formni ochadi
+
+// Qo'ng'iroq tugmasi bosilganda — tel ilovasini ochib, izoh formini ham ko'rsatadi
+window.handleCallClick = function(e, id) {
+  // tel: havolasini ishlataveradi (default davom etadi)
   setTimeout(function() {
-    var nf = document.getElementById('nf-' + id);
-    if (nf) { nf.classList.add('open'); }
-  }, 600);
+    var nf   = document.getElementById('nf-' + id);
+    var chip = document.getElementById('chip-' + id);
+    if (nf)   { nf.classList.add('open'); }
+    if (chip) { chip.classList.add('active'); }
+  }, 500);
+  return true; // tel: havolasi ishlaydi
+};
+
+// "Tel qildim" chip: form ochish/yopish toggle
+window.toggleNote = function(id) {
+  var nf   = document.getElementById('nf-' + id);
+  var chip = document.getElementById('chip-' + id);
+  if (!nf) return;
+  var isOpen = nf.classList.contains('open');
+  if (isOpen) {
+    nf.classList.remove('open');
+    if (chip) chip.classList.remove('active');
+  } else {
+    nf.classList.add('open');
+    if (chip) chip.classList.add('active');
+    var ta = document.getElementById('nt-' + id);
+    if (ta) ta.focus();
+  }
+};
+
+// "Bekor" tugmasi
+window.cancelNote = function(id) {
+  var nf   = document.getElementById('nf-' + id);
+  var chip = document.getElementById('chip-' + id);
+  if (nf)   { nf.classList.remove('open'); }
+  if (chip) { chip.classList.remove('active'); }
 };
 
 window.saveCall = async function(id) {
-  var ntEl   = document.getElementById('nt-' + id);
-  var btn    = document.querySelector('#card-' + id + ' .btn-save');
-  var note   = ntEl ? ntEl.value.trim() : '';
+  var ntEl = document.getElementById('nt-' + id);
+  var btn  = document.getElementById('bs-' + id);
+  var note = ntEl ? ntEl.value.trim() : '';
 
   if (btn) { btn.disabled = true; btn.textContent = 'Saqlanmoqda…'; }
   try {
@@ -481,7 +573,7 @@ window.saveCall = async function(id) {
     // onSnapshot yangilab qo'yadi
   } catch(e) {
     alert('Xatolik: ' + e.message);
-    if (btn) { btn.disabled = false; btn.textContent = '✅ Tel qildim — Saqlash'; }
+    if (btn) { btn.disabled = false; btn.textContent = '✅ Saqlash'; }
   }
 };
 
