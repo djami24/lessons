@@ -6,25 +6,28 @@
   <title>Caller — Djami Lessons</title>
   <style>
     :root {
-      --ink:       #1a2035;
-      --ink-soft:  #4a5568;
-      --gray:      #718096;
-      --amber:     #d98e3f;
-      --teal:      #2e6f6e;
-      --line:      #e8edf5;
-      --paper:     #f5f7fb;
-      --paper-2:   #eef1f8;
-      --red:       #e53e3e;
-      --red-bg:    #fff5f5;
-      --red-line:  #fed7d7;
-      --green:     #2e7d52;
-      --green-bg:  #f0fff4;
-      --green-line:#c6f6d5;
-      --blue:      #2F6FED;
-      --blue-bg:   #ebf0fd;
-      --font:      -apple-system, 'Inter', sans-serif;
-      --radius:    14px;
+      --ink:       #0f172a;
+      --ink-soft:  #475569;
+      --gray:      #94a3b8;
+      --line:      #e2e8f0;
+      --paper:     #f8fafc;
+      --white:     #ffffff;
+      --red:       #ef4444;
+      --red-bg:    #fef2f2;
+      --red-line:  #fecaca;
+      --green:     #16a34a;
+      --green-bg:  #f0fdf4;
+      --green-line:#bbf7d0;
+      --blue:      #2563eb;
+      --blue-bg:   #eff6ff;
+      --blue-soft: #93c5fd;
+      --amber:     #d97706;
+      --amber-bg:  #fffbeb;
+      --amber-line:#fde68a;
+      --font: -apple-system, 'Inter', 'Segoe UI', sans-serif;
+      --radius: 10px;
     }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -37,296 +40,344 @@
 
     /* ── HEADER ── */
     .header {
-      background: #fff;
+      background: var(--white);
       border-bottom: 1px solid var(--line);
-      padding: 12px 18px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       position: sticky;
       top: 0;
       z-index: 20;
-      gap: 12px;
     }
-    .header-left {
+    .header-brand {
       display: flex;
       align-items: center;
       gap: 10px;
     }
     .header-icon {
-      width: 36px; height: 36px;
+      width: 34px; height: 34px;
       background: var(--ink);
-      border-radius: 10px;
+      border-radius: 8px;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem;
-      flex: none;
+      font-size: 1rem;
     }
     .header-title {
       font-weight: 700;
-      font-size: .97rem;
+      font-size: 1rem;
       color: var(--ink);
-      line-height: 1.1;
+      line-height: 1;
     }
     .header-sub {
       font-size: .72rem;
       color: var(--gray);
       display: block;
+      margin-top: 2px;
     }
     .badge {
       border-radius: 20px;
-      padding: 4px 12px;
+      padding: 5px 14px;
       font-size: .78rem;
       font-weight: 700;
-      white-space: nowrap;
     }
     .badge-red   { background: var(--red); color: #fff; }
     .badge-green { background: var(--green); color: #fff; }
-    .badge-gray  { background: var(--paper-2); color: var(--gray); border: 1px solid var(--line); }
+    .badge-gray  { background: var(--line); color: var(--gray); }
 
-    /* ── CONTAINER ── */
-    .container {
-      max-width: 600px;
+    /* ── MAIN ── */
+    .main {
+      max-width: 1100px;
       margin: 0 auto;
-      padding: 16px 14px 100px;
+      padding: 24px 20px 80px;
     }
 
-    /* ── SECTION LABEL ── */
-    .section-label {
-      font-size: .72rem;
-      font-weight: 700;
-      letter-spacing: .09em;
-      text-transform: uppercase;
-      color: var(--gray);
-      margin: 22px 0 9px;
+    /* ── TABS ── */
+    .tabs {
       display: flex;
       align-items: center;
       gap: 6px;
+      margin-bottom: 18px;
     }
-    .section-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--line);
+    .tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 16px;
+      border-radius: 8px;
+      font-size: .83rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1.5px solid var(--line);
+      background: var(--white);
+      color: var(--ink-soft);
+      transition: all .15s;
+      user-select: none;
+    }
+    .tab.active {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+    .tab:not(.active):hover {
+      background: var(--blue-bg);
+      border-color: var(--blue-soft);
+      color: var(--blue);
     }
 
-    /* ── CARD ── */
-    .card {
-      background: #fff;
+    /* ── TABLE WRAPPER ── */
+    .table-wrap {
+      background: var(--white);
       border: 1.5px solid var(--line);
       border-radius: var(--radius);
-      padding: 15px;
-      margin-bottom: 10px;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .card:last-child { margin-bottom: 0; }
-    .card.is-overdue {
-      border-color: var(--red-line);
-      background: var(--red-bg);
-    }
-    .card.is-done {
-      border-color: var(--green-line);
-      background: var(--green-bg);
+      overflow: hidden;
     }
 
-    /* top row */
-    .card-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 11px;
+    /* ── TABLE ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .875rem;
     }
-    .student-name {
+    thead tr {
+      background: var(--paper);
+      border-bottom: 1.5px solid var(--line);
+    }
+    thead th {
+      text-align: left;
+      padding: 11px 14px;
+      font-size: .72rem;
       font-weight: 700;
-      font-size: .97rem;
-      color: var(--ink);
-      margin-bottom: 3px;
-    }
-    .student-meta {
-      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
       color: var(--gray);
-    }
-
-    /* timer */
-    .timer { text-align: right; flex: none; }
-    .timer-val {
-      font-size: .83rem;
-      font-weight: 700;
-      color: var(--amber);
       white-space: nowrap;
     }
-    .timer-val.urgent { color: var(--red); }
-    .timer-val.over   { color: var(--red); }
-    .timer-val.done   { color: var(--green); }
-    .timer-lbl {
-      display: block;
-      font-size: .68rem;
-      color: var(--gray);
-      margin-top: 1px;
+    thead th:first-child { width: 44px; text-align: center; }
+    tbody tr {
+      border-bottom: 1px solid var(--line);
+      transition: background .1s;
     }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: var(--paper); }
+    tbody tr.row-overdue { background: var(--red-bg); }
+    tbody tr.row-overdue:hover { background: #fde8e8; }
+    tbody tr.row-done { background: var(--green-bg); }
+    tbody tr.row-done:hover { background: #e3fae6; }
+    td {
+      padding: 12px 14px;
+      vertical-align: middle;
+    }
+    td:first-child { text-align: center; color: var(--gray); font-size: .8rem; font-weight: 500; }
 
-    /* overdue pill */
-    .overdue-pill {
+    /* ── CELLS ── */
+    .cell-name {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .cell-phone a {
+      color: var(--blue);
+      text-decoration: none;
+      font-weight: 500;
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      background: var(--red-line);
-      color: var(--red);
+    }
+    .cell-phone a:hover { text-decoration: underline; }
+    .cell-dash { color: var(--gray); }
+    .cell-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--paper);
+      border: 1px solid var(--line);
       border-radius: 6px;
-      padding: 2px 8px;
-      font-size: .72rem;
-      font-weight: 700;
-      margin-bottom: 9px;
+      padding: 3px 8px;
+      font-size: .78rem;
+      color: var(--ink-soft);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+    .cell-date {
+      color: var(--ink-soft);
+      font-size: .83rem;
     }
 
-    /* call button */
+    /* status pill */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border-radius: 20px;
+      padding: 4px 10px;
+      font-size: .75rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .status-pending {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border: 1px solid var(--amber-line);
+    }
+    .status-done {
+      background: var(--green-bg);
+      color: var(--green);
+      border: 1px solid var(--green-line);
+    }
+    .status-overdue {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red-line);
+    }
+
+    /* izoh */
+    .cell-note {
+      color: var(--gray);
+      font-style: italic;
+      font-size: .82rem;
+    }
+    .cell-note.has-note {
+      color: var(--ink-soft);
+      font-style: normal;
+    }
+
+    /* timer */
+    .cell-timer {
+      font-size: .82rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .timer-normal { color: var(--amber); }
+    .timer-urgent { color: var(--red); }
+    .timer-done   { color: var(--green); font-size: .78rem; font-weight: 400; font-style: normal; }
+
+    /* ── ACTIONS ── */
+    .cell-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
     .btn-call {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 6px;
+      gap: 5px;
       background: var(--blue);
       color: #fff;
       border: none;
-      border-radius: 20px;
-      padding: 7px 14px;
-      font-size: .8rem;
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: .78rem;
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
       font-family: var(--font);
-      transition: opacity .15s, transform .1s;
+      transition: opacity .15s;
       white-space: nowrap;
     }
-    .btn-call:active { opacity: .82; transform: scale(.97); }
+    .btn-call:active { opacity: .8; }
 
-    /* action chips row */
-    .card-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-
-    /* chip: Tel qildim */
-    .chip-done {
+    .btn-done {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      background: var(--green-bg);
+      gap: 4px;
+      background: var(--white);
       color: var(--green);
       border: 1.5px solid var(--green-line);
-      border-radius: 20px;
-      padding: 6px 13px;
+      border-radius: 7px;
+      padding: 5px 11px;
+      font-size: .78rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .btn-done:hover { background: var(--green-bg); }
+    .btn-done.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+    .btn-delete {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--white);
+      color: var(--gray);
+      border: 1.5px solid var(--line);
+      border-radius: 7px;
+      padding: 5px 9px;
+      font-size: .85rem;
+      cursor: pointer;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+    .btn-delete:hover { background: var(--red-bg); color: var(--red); border-color: var(--red-line); }
+
+    /* ── NOTE POPUP ── */
+    .note-row { display: none; }
+    .note-row.open { display: table-row; }
+    .note-row td {
+      padding: 0 14px 12px 44px;
+      background: var(--paper);
+    }
+    .note-inner {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .note-inner textarea {
+      flex: 1;
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: .83rem;
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--white);
+      resize: none;
+      min-height: 60px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .note-inner textarea:focus { border-color: var(--blue); }
+    .note-inner textarea::placeholder { color: var(--gray); }
+    .note-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .btn-save {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 8px 14px;
       font-size: .8rem;
       font-weight: 600;
       cursor: pointer;
       font-family: var(--font);
-      transition: background .15s, transform .1s;
+      transition: opacity .15s;
       white-space: nowrap;
     }
-    .chip-done:hover { background: var(--green-line); }
-    .chip-done:active { transform: scale(.97); }
-    .chip-done.active {
-      background: var(--green);
-      color: #fff;
-      border-color: var(--green);
-    }
-
-    /* note form */
-    .note-form {
-      margin-top: 9px;
-      display: none;
-    }
-    .note-form.open { display: block; }
-    .note-form textarea {
-      width: 100%;
-      border: 1.5px solid var(--line);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: .85rem;
-      font-family: var(--font);
-      color: var(--ink);
-      background: var(--paper);
-      resize: none;
-      min-height: 72px;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .note-form textarea:focus { border-color: var(--blue); }
-    .note-form textarea::placeholder { color: var(--gray); }
-    .note-form-actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 7px;
-    }
-    .btn-save {
-      flex: 1;
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      padding: 9px 14px;
-      font-size: .85rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: var(--font);
-      transition: opacity .15s;
-    }
     .btn-save:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-save:active:not(:disabled) { opacity: .82; }
-    .btn-cancel {
-      background: var(--paper-2);
+    .btn-cancel-note {
+      background: var(--paper);
       color: var(--gray);
       border: 1.5px solid var(--line);
-      border-radius: 10px;
-      padding: 9px 14px;
-      font-size: .85rem;
+      border-radius: 7px;
+      padding: 7px 14px;
+      font-size: .8rem;
       font-weight: 600;
       cursor: pointer;
       font-family: var(--font);
-      transition: opacity .15s;
-    }
-    .btn-cancel:active { opacity: .75; }
-
-    /* done result */
-    .done-note {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-      background: var(--green-bg);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-size: .84rem;
-      color: var(--green);
-      margin-top: 4px;
-    }
-    .done-note .note-body { color: var(--ink-soft); flex: 1; }
-    .done-time { font-size: .72rem; color: var(--gray); margin-top: 4px; }
-
-    /* student meta extras */
-    .meta-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-      background: var(--paper-2);
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      padding: 2px 7px;
-      font-size: .72rem;
-      color: var(--ink-soft);
-      font-weight: 500;
+      white-space: nowrap;
     }
 
-    /* loading */
+    /* ── LOADER / EMPTY ── */
     .loader {
       text-align: center;
-      padding: 64px 20px;
+      padding: 60px 20px;
       color: var(--gray);
     }
     .spinner {
-      width: 34px; height: 34px;
+      width: 32px; height: 32px;
       border: 3px solid var(--line);
       border-top-color: var(--blue);
       border-radius: 50%;
@@ -334,23 +385,21 @@
       margin: 0 auto 14px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* empty */
-    .empty {
+    .empty-row td {
       text-align: center;
-      padding: 52px 20px;
+      padding: 44px 20px;
       color: var(--gray);
+      font-size: .9rem;
     }
-    .empty-icon { font-size: 2.8rem; margin-bottom: 12px; }
-    .empty strong { display: block; color: var(--ink); font-size: 1rem; margin-bottom: 5px; }
-    .empty small { font-size: .85rem; }
-
+    .empty-icon { font-size: 2rem; margin-bottom: 10px; }
+    .empty-title { font-weight: 600; color: var(--ink); margin-bottom: 4px; }
   </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header class="header">
-  <div class="header-left">
+  <div class="header-brand">
     <div class="header-icon">📞</div>
     <div>
       <div class="header-title">Caller</div>
@@ -360,60 +409,68 @@
   <span class="badge badge-gray" id="pendingBadge">yuklanmoqda…</span>
 </header>
 
-<div class="container">
+<div class="main">
 
-  <!-- Loading -->
-  <div id="loaderEl">
-    <div class="loader">
-      <div class="spinner"></div>
-      Yuklanmoqda…
-    </div>
+  <!-- TABS -->
+  <div class="tabs">
+    <div class="tab active" data-tab="all" onclick="switchTab('all')">Barchasi</div>
+    <div class="tab" data-tab="pending" onclick="switchTab('pending')">⏳ Kutilmoqda</div>
+    <div class="tab" data-tab="done" onclick="switchTab('done')">✅ Tel qilindi</div>
   </div>
 
-  <!-- Content -->
-  <div id="contentEl" style="display:none">
-
-    <!-- PENDING -->
-    <div class="section-label">⏳ Qo'ng'iroq qilinishi kerak</div>
-    <div id="pendingList"></div>
-    <div id="pendingEmpty" class="empty" style="display:none">
-      <div class="empty-icon">🎉</div>
-      <strong>Hammasi bajarildi!</strong>
-      <small>Kutilayotgan qo'ng'iroq yo'q</small>
-    </div>
-
-    <!-- DONE -->
-    <div class="section-label" style="margin-top:30px">✅ Bajarilganlar</div>
-    <div id="doneList"></div>
-    <div id="doneEmpty" style="padding:10px 0;color:var(--gray);font-size:.85rem;text-align:center;display:none">
-      Hali bajarilgan qo'ng'iroq yo'q
-    </div>
-
+  <!-- LOADER -->
+  <div id="loaderEl" class="loader">
+    <div class="spinner"></div>
+    Yuklanmoqda…
   </div>
+
+  <!-- TABLE -->
+  <div id="tableWrap" class="table-wrap" style="display:none">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Talaba</th>
+          <th>Tel raqam</th>
+          <th>Guruh</th>
+          <th>Dars sanasi</th>
+          <th>Holat</th>
+          <th>Izoh</th>
+          <th>Muddat</th>
+          <th>Amal</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+        <!-- rows injected here -->
+      </tbody>
+    </table>
+  </div>
+
 </div>
 
-<!-- Firebase compat SDK -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 
 <script>
-// ── Helpers ──────────────────────────────────────────────────────────────────
+// ── Constants ─────────────────────────────────────────────────────────────────
+const DEADLINE_MS = 24 * 60 * 60 * 1000;
+let currentTab = 'all';
+let snapCache  = {};
+let allDocs    = [];
+let timerInterval = null;
 
-const DEADLINE_MS = 24 * 60 * 60 * 1000; // 24 soat
-
+// ── Helpers ───────────────────────────────────────────────────────────────────
 function timeLeft(markedAt) {
-  if (!markedAt) return { text: '—', urgent: false, over: false };
+  if (!markedAt) return { text: '—', cls: 'timer-normal', over: false };
   const elapsed = Date.now() - markedAt.toMillis();
   const left = DEADLINE_MS - elapsed;
-  if (left <= 0) return { text: 'Muddati o\'tdi!', urgent: true, over: true };
+  if (left <= 0) return { text: "Muddati o'tdi!", cls: 'timer-urgent', over: true };
   const h = Math.floor(left / 3600000);
   const m = Math.floor((left % 3600000) / 60000);
-  return {
-    text: `${h}s ${m}d qoldi`,
-    urgent: h < 3,
-    over: false
-  };
+  const urgent = h < 3;
+  return { text: `${h}s ${m}d qoldi`, cls: urgent ? 'timer-urgent' : 'timer-normal', over: false };
 }
 
 function fmtDate(ts) {
@@ -431,137 +488,172 @@ function esc(str) {
     .replace(/"/g,'&quot;');
 }
 
-// ── DOM refs ─────────────────────────────────────────────────────────────────
-const loaderEl    = document.getElementById('loaderEl');
-const contentEl   = document.getElementById('contentEl');
-const pendingList = document.getElementById('pendingList');
-const doneList    = document.getElementById('doneList');
-const pendingBadge = document.getElementById('pendingBadge');
-const pendingEmpty = document.getElementById('pendingEmpty');
-const doneEmpty   = document.getElementById('doneEmpty');
-
-// ── Pending card ──────────────────────────────────────────────────────────────
-function makePendingCard(id, data) {
-  const tl = timeLeft(data.markedAt);
-  const card = document.createElement('div');
-  card.className = 'card' + (tl.over ? ' is-overdue' : '');
-  card.id = 'card-' + id;
-
-  const groupPill = data.groupName
-    ? `<span class="meta-pill">👥 ${esc(data.groupName)}</span>`
-    : '';
-  const phonePill = data.studentPhone
-    ? `<a class="meta-pill" href="tel:${esc(data.studentPhone)}" style="text-decoration:none;color:var(--blue);border-color:var(--blue-bg)">📱 ${esc(data.studentPhone)}</a>`
-    : '';
-
-  card.innerHTML = `
-    ${tl.over ? '<div class="overdue-pill">⚠️ 24 soat o\'tdi — admin ko\'radi!</div>' : ''}
-    <div class="card-top">
-      <div>
-        <div class="student-name">${esc(data.studentName)}</div>
-        <div class="student-meta" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:4px">
-          <span class="meta-pill">📅 ${esc(data.lessonDate || '')}</span>
-          ${groupPill}
-          ${phonePill}
-        </div>
-      </div>
-      <div class="timer">
-        <div class="timer-val ${tl.urgent ? 'urgent' : ''}" id="tv-${id}">${tl.text}</div>
-        <span class="timer-lbl">muddati</span>
-      </div>
-    </div>
-
-    <div class="card-actions">
-      <a class="btn-call"
-         href="tel:${esc(data.studentPhone)}"
-         onclick="return handleCallClick(event, '${id}')">
-        📞 Qo'ng'iroq qilish
-      </a>
-      <button class="chip-done" id="chip-${id}" onclick="toggleNote('${id}')">
-        ✅ Tel qildim
-      </button>
-    </div>
-
-    <div class="note-form" id="nf-${id}">
-      <textarea id="nt-${id}"
-        placeholder="Izoh: kasalmi, safardami, uxlab qolganmi… (ixtiyoriy)"></textarea>
-      <div class="note-form-actions">
-        <button class="btn-cancel" onclick="cancelNote('${id}')">Bekor</button>
-        <button class="btn-save" id="bs-${id}" onclick="saveCall('${id}')">
-          ✅ Saqlash
-        </button>
-      </div>
-    </div>
-  `;
-  return card;
+// ── Tab switch ────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  renderTable();
 }
 
-// ── Done card ─────────────────────────────────────────────────────────────────
-function makeDoneCard(id, data) {
-  const card = document.createElement('div');
-  card.className = 'card is-done';
-  card.id = 'card-' + id;
-  card.innerHTML = `
-    <div class="card-top">
-      <div>
-        <div class="student-name">${esc(data.studentName)}</div>
-        <div class="student-meta">📅 ${esc(data.lessonDate || '')}</div>
-      </div>
-      <div class="timer">
-        <div class="timer-val done">✅ Tel qilindi</div>
-        <span class="timer-lbl">${fmtDate(data.calledAt)}</span>
-      </div>
-    </div>
-    <div class="done-note">
-      📝 <span class="note-body">${esc(data.note) || '<em style="opacity:.6">Izoh yo\'q</em>'}</span>
-    </div>
-  `;
-  return card;
+// ── Render ────────────────────────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  let filtered = allDocs;
+  if (currentTab === 'pending') filtered = allDocs.filter(d => d.data.status !== 'called');
+  if (currentTab === 'done')    filtered = allDocs.filter(d => d.data.status === 'called');
+
+  if (filtered.length === 0) {
+    const emptyMsg = currentTab === 'done'
+      ? { icon: '📋', title: 'Hali tel qilingan yo\'q', sub: 'Bajarilgan qo\'ng\'iroqlar shu yerda ko\'rinadi' }
+      : { icon: '🎉', title: 'Hammasi bajarildi!', sub: 'Kutilayotgan qo\'ng\'iroq yo\'q' };
+    tbody.innerHTML = `
+      <tr class="empty-row">
+        <td colspan="9">
+          <div class="empty-icon">${emptyMsg.icon}</div>
+          <div class="empty-title">${emptyMsg.title}</div>
+          <div>${emptyMsg.sub}</div>
+        </td>
+      </tr>`;
+    return;
+  }
+
+  filtered.forEach((doc, idx) => {
+    const { id, data } = doc;
+    const isDone   = data.status === 'called';
+    const tl       = isDone ? null : timeLeft(data.markedAt);
+    const isOverdue = tl && tl.over;
+
+    const rowCls  = isDone ? 'row-done' : (isOverdue ? 'row-overdue' : '');
+    const noteRowId = 'nr-' + id;
+
+    // phone cell
+    const phone = data.studentPhone
+      ? `<a href="tel:${esc(data.studentPhone)}">📱 ${esc(data.studentPhone)}</a>`
+      : `<span class="cell-dash">—</span>`;
+
+    // group cell
+    const group = data.groupName
+      ? `<span class="cell-group">👥 ${esc(data.groupName)}</span>`
+      : `<span class="cell-dash">—</span>`;
+
+    // status
+    let statusHtml;
+    if (isDone) {
+      statusHtml = `<span class="status-pill status-done">✅ Tel qilindi</span>`;
+    } else if (isOverdue) {
+      statusHtml = `<span class="status-pill status-overdue">⚠️ Muddati o'tdi</span>`;
+    } else {
+      statusHtml = `<span class="status-pill status-pending">⏳ Kutilmoqda</span>`;
+    }
+
+    // note cell
+    let noteHtml;
+    if (isDone) {
+      noteHtml = data.note
+        ? `<span class="cell-note has-note">${esc(data.note)}</span>`
+        : `<span class="cell-note">Izoh yo'q</span>`;
+    } else {
+      noteHtml = `<span class="cell-note">Izoh yo'q</span>`;
+    }
+
+    // timer cell
+    let timerHtml;
+    if (isDone) {
+      timerHtml = `<span class="cell-timer timer-done">${fmtDate(data.calledAt)}</span>`;
+    } else {
+      timerHtml = `<span class="cell-timer ${tl.cls}" id="tv-${id}">${tl.text}</span>`;
+    }
+
+    // actions
+    let actionsHtml;
+    if (isDone) {
+      actionsHtml = `
+        <button class="btn-delete" onclick="deleteDoc('${id}')" title="O'chirish">🗑</button>`;
+    } else {
+      actionsHtml = `
+        <div class="cell-actions">
+          <a class="btn-call" href="tel:${esc(data.studentPhone)}"
+             onclick="openNote('${id}'); return true;">📞 Qo'ng'iroq</a>
+          <button class="btn-done" id="chip-${id}" onclick="toggleNote('${id}')">✅ Tel qildim</button>
+          <button class="btn-delete" onclick="deleteDoc('${id}')" title="O'chirish">🗑</button>
+        </div>`;
+    }
+
+    // Main row
+    const tr = document.createElement('tr');
+    tr.className = rowCls;
+    tr.id = 'row-' + id;
+    tr.innerHTML = `
+      <td>${idx + 1}</td>
+      <td class="cell-name">${esc(data.studentName)}</td>
+      <td class="cell-phone">${phone}</td>
+      <td>${group}</td>
+      <td class="cell-date">${esc(data.lessonDate || '')}</td>
+      <td>${statusHtml}</td>
+      <td>${noteHtml}</td>
+      <td>${timerHtml}</td>
+      <td>${actionsHtml}</td>
+    `;
+    tbody.appendChild(tr);
+
+    // Note row (for pending only)
+    if (!isDone) {
+      const ntr = document.createElement('tr');
+      ntr.className = 'note-row';
+      ntr.id = noteRowId;
+      ntr.innerHTML = `
+        <td colspan="9">
+          <div class="note-inner">
+            <textarea id="nt-${id}" placeholder="Izoh: kasalmi, safardami, javob bermadimi… (ixtiyoriy)"></textarea>
+            <div class="note-btns">
+              <button class="btn-save" id="bs-${id}" onclick="saveCall('${id}')">✅ Saqlash</button>
+              <button class="btn-cancel-note" onclick="cancelNote('${id}')">Bekor</button>
+            </div>
+          </div>
+        </td>`;
+      tbody.appendChild(ntr);
+    }
+  });
 }
 
-// ── Global actions ────────────────────────────────────────────────────────────
-
-// Qo'ng'iroq tugmasi bosilganda — tel ilovasini ochib, izoh formini ham ko'rsatadi
-window.handleCallClick = function(e, id) {
-  // tel: havolasini ishlataveradi (default davom etadi)
-  setTimeout(function() {
-    var nf   = document.getElementById('nf-' + id);
-    var chip = document.getElementById('chip-' + id);
-    if (nf)   { nf.classList.add('open'); }
-    if (chip) { chip.classList.add('active'); }
-  }, 500);
-  return true; // tel: havolasi ishlaydi
+// ── Actions ───────────────────────────────────────────────────────────────────
+window.openNote = function(id) {
+  setTimeout(() => {
+    const nr   = document.getElementById('nr-' + id);
+    const chip = document.getElementById('chip-' + id);
+    if (nr)   nr.classList.add('open');
+    if (chip) chip.classList.add('active');
+  }, 400);
 };
 
-// "Tel qildim" chip: form ochish/yopish toggle
 window.toggleNote = function(id) {
-  var nf   = document.getElementById('nf-' + id);
-  var chip = document.getElementById('chip-' + id);
-  if (!nf) return;
-  var isOpen = nf.classList.contains('open');
-  if (isOpen) {
-    nf.classList.remove('open');
-    if (chip) chip.classList.remove('active');
-  } else {
-    nf.classList.add('open');
-    if (chip) chip.classList.add('active');
-    var ta = document.getElementById('nt-' + id);
+  const nr   = document.getElementById('nr-' + id);
+  const chip = document.getElementById('chip-' + id);
+  if (!nr) return;
+  const isOpen = nr.classList.contains('open');
+  nr.classList.toggle('open', !isOpen);
+  if (chip) chip.classList.toggle('active', !isOpen);
+  if (!isOpen) {
+    const ta = document.getElementById('nt-' + id);
     if (ta) ta.focus();
   }
 };
 
-// "Bekor" tugmasi
 window.cancelNote = function(id) {
-  var nf   = document.getElementById('nf-' + id);
-  var chip = document.getElementById('chip-' + id);
-  if (nf)   { nf.classList.remove('open'); }
-  if (chip) { chip.classList.remove('active'); }
+  const nr   = document.getElementById('nr-' + id);
+  const chip = document.getElementById('chip-' + id);
+  if (nr)   nr.classList.remove('open');
+  if (chip) chip.classList.remove('active');
 };
 
 window.saveCall = async function(id) {
-  var ntEl = document.getElementById('nt-' + id);
-  var btn  = document.getElementById('bs-' + id);
-  var note = ntEl ? ntEl.value.trim() : '';
+  const ntEl = document.getElementById('nt-' + id);
+  const btn  = document.getElementById('bs-' + id);
+  const note = ntEl ? ntEl.value.trim() : '';
 
   if (btn) { btn.disabled = true; btn.textContent = 'Saqlanmoqda…'; }
   try {
@@ -570,63 +662,64 @@ window.saveCall = async function(id) {
       calledAt: firebase.firestore.FieldValue.serverTimestamp(),
       note:     note
     });
-    // onSnapshot yangilab qo'yadi
   } catch(e) {
     alert('Xatolik: ' + e.message);
     if (btn) { btn.disabled = false; btn.textContent = '✅ Saqlash'; }
   }
 };
 
-// ── Real-time listener ────────────────────────────────────────────────────────
-var timerInterval = null;
-var snapCache = {};
+window.deleteDoc = async function(id) {
+  if (!confirm("Bu yozuvni o'chirishni tasdiqlaysizmi?")) return;
+  try {
+    await db.collection('callQueue').doc(id).delete();
+  } catch(e) {
+    alert('Xatolik: ' + e.message);
+  }
+};
 
+// ── Real-time ─────────────────────────────────────────────────────────────────
 db.collection('callQueue')
   .orderBy('markedAt', 'asc')
   .onSnapshot(function(snap) {
-    loaderEl.style.display = 'none';
-    contentEl.style.display = 'block';
+    document.getElementById('loaderEl').style.display = 'none';
+    document.getElementById('tableWrap').style.display = 'block';
 
-    pendingList.innerHTML = '';
-    doneList.innerHTML   = '';
     snapCache = {};
-
-    var pendingCount = 0;
+    allDocs   = [];
 
     snap.forEach(function(d) {
-      var data = d.data();
+      const data = d.data();
       snapCache[d.id] = data;
-      if (data.status === 'called') {
-        doneList.appendChild(makeDoneCard(d.id, data));
-      } else {
-        pendingList.appendChild(makePendingCard(d.id, data));
-        pendingCount++;
-      }
+      allDocs.push({ id: d.id, data });
     });
 
-    // Badges
-    pendingBadge.textContent = pendingCount + ' ta kutilmoqda';
-    pendingBadge.className   = 'badge ' + (pendingCount > 0 ? 'badge-red' : 'badge-green');
-    pendingEmpty.style.display = pendingCount === 0 ? 'block' : 'none';
-    doneEmpty.style.display    = (snap.size - pendingCount) === 0 ? 'block' : 'none';
+    // Badge
+    const pendingCount = allDocs.filter(d => d.data.status !== 'called').length;
+    const badge = document.getElementById('pendingBadge');
+    badge.textContent = pendingCount + ' ta kutilmoqda';
+    badge.className   = 'badge ' + (pendingCount > 0 ? 'badge-red' : 'badge-green');
 
-    // Timer yangilash
+    renderTable();
+
+    // Timer
     clearInterval(timerInterval);
     timerInterval = setInterval(function() {
       Object.keys(snapCache).forEach(function(id) {
-        var data = snapCache[id];
+        const data = snapCache[id];
         if (data.status !== 'called') {
-          var tl  = timeLeft(data.markedAt);
-          var el  = document.getElementById('tv-' + id);
+          const tl = timeLeft(data.markedAt);
+          const el = document.getElementById('tv-' + id);
           if (el) {
             el.textContent = tl.text;
-            el.className   = 'timer-val' + (tl.urgent ? ' urgent' : '');
+            el.className   = 'cell-timer ' + tl.cls;
           }
         }
       });
-    }, 60 * 1000);
+    }, 60000);
+
   }, function(err) {
-    loaderEl.innerHTML = '<div class="loader" style="color:var(--red)">⚠️ Xatolik: ' + err.message + '</div>';
+    document.getElementById('loaderEl').innerHTML =
+      `<div style="color:var(--red)">⚠️ Xatolik: ${err.message}</div>`;
   });
 </script>
 </body>
