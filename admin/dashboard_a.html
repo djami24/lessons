@@ -4268,6 +4268,20 @@ document.getElementById('progressEntryForm').addEventListener('submit', async (e
       if(absentStudent){
         if(typeof notifyAbsentStudent === 'function') notifyAbsentStudent(absentStudent, entryData.date, entryData.note);
         if(typeof logAbsentToSheet === 'function') logAbsentToSheet(absentStudent, entryData.date, entryData.note);
+
+        // ── Caller sahifasi uchun callQueue ga yozish ──
+        var callDocId = state.progressStudentId + '_' + dateStr;
+        db.collection('callQueue').doc(callDocId).set({
+          studentId:   state.progressStudentId,
+          studentName: absentStudent.name   || '',
+          studentPhone:absentStudent.phone  || '',
+          lessonDate:  dateStr,
+          markedAt:    firebase.firestore.FieldValue.serverTimestamp(),
+          status:      'pending',
+          calledAt:    null,
+          note:        null
+        }).catch(function(e){ console.warn('callQueue write failed:', e); });
+        // ─────────────────────────────────────────────
       }
     }
   } catch(err){
