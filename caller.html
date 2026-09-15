@@ -606,16 +606,22 @@ window.deleteDoc = async function(id) {
 
 // ── Phone fallback: oquv_progress dan phone olish ─────────────────────────────
 async function enrichWithPhone(docs) {
-  // Faqat phone yo'q bo'lgan yozuvlar uchun oquv_progress dan phone oladi
-  const missing = docs.filter(d => !d.data.studentPhone && d.data.studentId);
+  // Phone yo'q YOKI bo'sh bo'lgan barcha yozuvlar uchun oquv_progress dan phone oladi
+  const missing = docs.filter(d => !d.data.studentPhone);
   if (!missing.length) return docs;
   await Promise.all(missing.map(async function(d) {
     try {
-      const prog = await db.collection('oquv_progress').doc(d.data.studentId).get();
+      // studentId field dan yoki doc ID dan ajratib olamiz (format: studentId_YYYY-MM-DD)
+      const sid = d.data.studentId || d.id.replace(/_\d{4}-\d{2}-\d{2}$/, '');
+      if (!sid) return;
+      const prog = await db.collection('oquv_progress').doc(sid).get();
       if (prog.exists && prog.data().phone) {
         d.data.studentPhone = prog.data().phone;
-        // callQueue da ham yangilab qo'yish (bir marta)
-        db.collection('callQueue').doc(d.id).update({ studentPhone: prog.data().phone }).catch(function(){});
+        // callQueue da ham saqlash (keyingi yuklashda tezroq bo'lsin)
+        db.collection('callQueue').doc(d.id).update({
+          studentPhone: prog.data().phone,
+          studentId: sid
+        }).catch(function(){});
       }
     } catch(e) {}
   }));
