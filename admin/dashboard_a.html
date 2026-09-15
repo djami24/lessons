@@ -9836,6 +9836,142 @@ function rmaPageFilter() {
 }
 
 
+
+// ===== CALLER — Admin monitoring (global scope) =====
+var _callerUnsubscribe = null;
+var _callerData = [];
+var _callerFilter = 'all';
+var _callerLoaded = false;
+var _callerTimerInterval = null;
+var CALLER_DEADLINE_MS = 24 * 60 * 60 * 1000;
+
+function callerTimeLeftStr(markedAt) {
+  if (!markedAt) return '—';
+  var left = CALLER_DEADLINE_MS - (Date.now() - markedAt.toMillis());
+  if (left <= 0) return '<span style="color:#e53e3e;font-weight:700;">Muddati o'tdi!</span>';
+  var h = Math.floor(left / 3600000);
+  var m = Math.floor((left % 3600000) / 60000);
+  var color = h < 3 ? '#e53e3e' : '#d98e3f';
+  return '<span style="color:' + color + ';font-weight:700;">' + h + 's ' + m + 'd qoldi</span>';
+}
+
+function callerFmtTs(ts) {
+  if (!ts) return '—';
+  return new Date(ts.toMillis()).toLocaleString('uz-UZ', {
+    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
+  });
+}
+
+function callerEsc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderCaller() {
+  var tbody    = document.getElementById('callerTableBody');
+  var empty    = document.getElementById('callerEmpty');
+  var table    = document.getElementById('callerTable');
+  var loader   = document.getElementById('callerLoading');
+  var badge    = document.getElementById('callerPendingBadge');
+  var delBtn   = document.getElementById('callerDeleteAllDoneBtn');
+  var navBadge = document.getElementById('navCallerBadge');
+  if (!tbody) return;
+  if (loader) loader.style.display = 'none';
+
+  var filtered = _callerFilter === 'all' ? _callerData
+    : _callerData.filter(function(r) {
+        return _callerFilter === 'pending' ? r.data.status !== 'called' : r.data.status === 'called';
+      });
+
+  var pendingCount = _callerData.filter(function(r) { return r.data.status !== 'called'; }).length;
+  var doneCount    = _callerData.filter(function(r) { return r.data.status === 'called'; }).length;
+
+  if (badge)    { badge.style.display = pendingCount > 0 ? '' : 'none'; badge.textContent = pendingCount + ' kutilmoqda'; }
+  if (navBadge) { navBadge.hidden = pendingCount === 0; navBadge.textContent = pendingCount; }
+  if (delBtn)   { delBtn.style.display = doneCount > 0 ? '' : 'none'; }
+
+  if (filtered.length === 0) {
+    if (empty) empty.style.display = 'block';
+    if (table) table.style.display = 'none';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  if (table) table.style.display = '';
+
+  tbody.innerHTML = filtered.map(function(r, i) {
+    var d = r.data;
+    var isPending = d.status !== 'called';
+    var statusBadge = isPending
+      ? '<span style="background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:12px;padding:2px 10px;font-size:.75rem;font-weight:700;">⏳ Kutilmoqda</span>'
+      : '<span style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;border-radius:12px;padding:2px 10px;font-size:.75rem;font-weight:700;">✅ Tel qilindi</span>';
+    var rowStyle = (isPending && d.markedAt && (Date.now() - d.markedAt.toMillis() > CALLER_DEADLINE_MS))
+      ? 'background:#fff5f5;' : '';
+    return '<tr style="' + rowStyle + '">'
+      + '<td>' + (i+1) + '</td>'
+      + '<td><strong>' + callerEsc(d.studentName) + '</strong></td>'
+      + '<td>' + (d.studentPhone ? '<a href="tel:' + callerEsc(d.studentPhone) + '" style="color:var(--adm-blue,#2F6FED);text-decoration:none;">📱 ' + callerEsc(d.studentPhone) + '</a>' : '—') + '</td>'
+      + '<td>' + callerEsc(d.groupName || '—') + '</td>'
+      + '<td>' + callerEsc(d.lessonDate || '—') + '</td>'
+      + '<td>' + statusBadge + '</td>'
+      + '<td style="max-width:180px;word-break:break-word;">' + (d.note ? callerEsc(d.note) : '<em style="opacity:.5">Izoh yo'q</em>') + '</td>'
+      + '<td>' + (isPending ? callerTimeLeftStr(d.markedAt) : callerFmtTs(d.calledAt)) + '</td>'
+      + '<td><button onclick="callerDeleteDoc('' + r.id + '')" style="background:none;border:1px solid #e53e3e;border-radius:6px;color:#e53e3e;cursor:pointer;padding:3px 8px;font-size:.75rem;">🗑️</button></td>'
+      + '</tr>';
+  }).join('');
+}
+
+function loadCaller() {
+  if (_callerLoaded) return;
+  _callerLoaded = true;
+  var loader = document.getElementById('callerLoading');
+  if (loader) loader.style.display = 'block';
+  if (_callerUnsubscribe) _callerUnsubscribe();
+  _callerUnsubscribe = db.collection('callQueue')
+    .orderBy('markedAt', 'desc')
+    .onSnapshot(function(snap) {
+      _callerData = snap.docs.map(function(d) { return { id: d.id, data: d.data() }; });
+      renderCaller();
+      clearInterval(_callerTimerInterval);
+      _callerTimerInterval = setInterval(function() {
+        if (_callerData.some(function(r) { return r.data.status !== 'called'; })) renderCaller();
+      }, 60000);
+    }, function(err) {
+      var loader = document.getElementById('callerLoading');
+      if (loader) loader.innerHTML = '<span style="color:#e53e3e;">⚠️ Xatolik: ' + err.message + '</span>';
+    });
+}
+
+function callerDeleteDoc(id) {
+  if (!confirm('Bu yozuvni o'chirasizmi?')) return;
+  db.collection('callQueue').doc(id).delete().catch(function(e) { alert('Xatolik: ' + e.message); });
+}
+
+document.getElementById('navCaller').addEventListener('click', function(e) {
+  e.preventDefault();
+  switchView('caller');
+  loadCaller();
+});
+
+document.querySelectorAll('[data-caller-filter]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    _callerFilter = btn.dataset.callerFilter;
+    document.querySelectorAll('[data-caller-filter]').forEach(function(b) {
+      b.classList.toggle('active', b === btn);
+    });
+    renderCaller();
+  });
+});
+
+document.getElementById('callerDeleteAllDoneBtn').addEventListener('click', function() {
+  var done = _callerData.filter(function(r) { return r.data.status === 'called'; });
+  if (!done.length) return;
+  if (!confirm(done.length + ' ta bajarilgan yozuvni o'chirasizmi?')) return;
+  var batch = db.batch();
+  done.forEach(function(r) { batch.delete(db.collection('callQueue').doc(r.id)); });
+  batch.commit().catch(function(e) { alert('Xatolik: ' + e.message); });
+});
+
+
+
 </script>
 
 <!-- PDF hisobotlarini chizish uchun ekrandan tashqaridagi vaqtinchalik joy
@@ -9847,184 +9983,6 @@ function rmaPageFilter() {
 </div>
 
 
-
-<!-- ===== CALLER — Admin monitoring ===== -->
-<script>
-(function() {
-  // ── State ──
-  let callerUnsubscribe = null;
-  let callerData = [];
-  let callerFilter = 'all';
-  let callerLoaded = false;
-
-  // ── Helpers ──
-  const DEADLINE_MS = 24 * 60 * 60 * 1000;
-
-  function timeLeftStr(markedAt) {
-    if (!markedAt) return '—';
-    const left = DEADLINE_MS - (Date.now() - markedAt.toMillis());
-    if (left <= 0) return '<span style="color:#e53e3e;font-weight:700;">Muddati o'tdi!</span>';
-    const h = Math.floor(left / 3600000);
-    const m = Math.floor((left % 3600000) / 60000);
-    const color = h < 3 ? '#e53e3e' : '#d98e3f';
-    return `<span style="color:${color};font-weight:700;">${h}s ${m}d qoldi</span>`;
-  }
-
-  function fmtTs(ts) {
-    if (!ts) return '—';
-    return new Date(ts.toMillis()).toLocaleString('uz-UZ', {
-      day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-    });
-  }
-
-  function esc(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  // ── Render ──
-  function renderCaller() {
-    const tbody  = document.getElementById('callerTableBody');
-    const empty  = document.getElementById('callerEmpty');
-    const table  = document.getElementById('callerTable');
-    const loader = document.getElementById('callerLoading');
-    const badge  = document.getElementById('callerPendingBadge');
-    const delBtn = document.getElementById('callerDeleteAllDoneBtn');
-    const navBadge = document.getElementById('navCallerBadge');
-
-    if (!tbody) return;
-    loader.style.display = 'none';
-
-    const filtered = callerFilter === 'all'
-      ? callerData
-      : callerData.filter(r => callerFilter === 'pending'
-          ? r.data.status !== 'called'
-          : r.data.status === 'called');
-
-    const pendingCount = callerData.filter(r => r.data.status !== 'called').length;
-    const doneCount    = callerData.filter(r => r.data.status === 'called').length;
-
-    // Header badge
-    if (pendingCount > 0) {
-      badge.style.display = '';
-      badge.textContent   = pendingCount + ' kutilmoqda';
-    } else {
-      badge.style.display = 'none';
-    }
-
-    // Nav badge
-    if (navBadge) {
-      navBadge.hidden = pendingCount === 0;
-      navBadge.textContent = pendingCount;
-    }
-
-    // Delete all done btn
-    delBtn.style.display = doneCount > 0 ? '' : 'none';
-
-    if (filtered.length === 0) {
-      empty.style.display = 'block';
-      table.style.display = 'none';
-      return;
-    }
-    empty.style.display = 'none';
-    table.style.display = '';
-
-    tbody.innerHTML = filtered.map((r, i) => {
-      const d = r.data;
-      const isPending = d.status !== 'called';
-      const statusBadge = isPending
-        ? '<span style="background:#fff3cd;color:#856404;border:1px solid #ffc107;border-radius:12px;padding:2px 10px;font-size:.75rem;font-weight:700;">⏳ Kutilmoqda</span>'
-        : '<span style="background:#d4edda;color:#155724;border:1px solid #c3e6cb;border-radius:12px;padding:2px 10px;font-size:.75rem;font-weight:700;">✅ Tel qilindi</span>';
-
-      const rowStyle = isPending && d.markedAt && (Date.now() - d.markedAt.toMillis() > DEADLINE_MS)
-        ? 'background:#fff5f5;'
-        : '';
-
-      return `<tr style="${rowStyle}">
-        <td>${i + 1}</td>
-        <td><strong>${esc(d.studentName)}</strong></td>
-        <td>${d.studentPhone
-          ? `<a href="tel:${esc(d.studentPhone)}" style="color:var(--adm-blue,#2F6FED);text-decoration:none;">📱 ${esc(d.studentPhone)}</a>`
-          : '—'}</td>
-        <td>${esc(d.groupName || '—')}</td>
-        <td>${esc(d.lessonDate || '—')}</td>
-        <td>${statusBadge}</td>
-        <td style="max-width:200px;word-break:break-word;">${esc(d.note || '') || '<em style="opacity:.5">Izoh yo'q</em>'}</td>
-        <td>${isPending ? timeLeftStr(d.markedAt) : fmtTs(d.calledAt)}</td>
-        <td>
-          <button onclick="callerDeleteDoc('${r.id}')"
-            style="background:none;border:1px solid #e53e3e;border-radius:6px;color:#e53e3e;cursor:pointer;padding:3px 8px;font-size:.75rem;">
-            🗑️
-          </button>
-        </td>
-      </tr>`;
-    }).join('');
-  }
-
-  // ── Load (start real-time listener) ──
-  function loadCaller() {
-    if (callerLoaded) return;
-    callerLoaded = true;
-
-    document.getElementById('callerLoading').style.display = 'block';
-    document.getElementById('callerEmpty').style.display   = 'none';
-    document.getElementById('callerTable').style.display   = 'none';
-
-    if (callerUnsubscribe) callerUnsubscribe();
-
-    callerUnsubscribe = db.collection('callQueue')
-      .orderBy('markedAt', 'desc')
-      .onSnapshot(snap => {
-        callerData = snap.docs.map(d => ({ id: d.id, data: d.data() }));
-        renderCaller();
-        // Live-update timer every minute for pending entries
-        clearInterval(window._callerTimerInterval);
-        window._callerTimerInterval = setInterval(() => {
-          if (callerData.some(r => r.data.status !== 'called')) renderCaller();
-        }, 60000);
-      }, err => {
-        document.getElementById('callerLoading').innerHTML =
-          '<span style="color:#e53e3e;">⚠️ Xatolik: ' + err.message + '</span>';
-      });
-  }
-
-  // ── Public: delete single doc ──
-  window.callerDeleteDoc = async function(id) {
-    if (!confirm('Bu yozuvni o'chirasizmi?')) return;
-    try {
-      await db.collection('callQueue').doc(id).delete();
-    } catch(e) { alert('Xatolik: ' + e.message); }
-  };
-
-  // ── Nav click ──
-  document.getElementById('navCaller').addEventListener('click', e => {
-    e.preventDefault();
-    switchView('caller');
-    loadCaller();
-  });
-
-  // ── Filter tabs ──
-  document.querySelectorAll('[data-caller-filter]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      callerFilter = btn.dataset.callerFilter;
-      document.querySelectorAll('[data-caller-filter]').forEach(b =>
-        b.classList.toggle('active', b === btn));
-      renderCaller();
-    });
-  });
-
-  // ── Delete all done ──
-  document.getElementById('callerDeleteAllDoneBtn').addEventListener('click', async () => {
-    const done = callerData.filter(r => r.data.status === 'called');
-    if (!done.length) return;
-    if (!confirm(done.length + ' ta bajarilgan yozuvni o'chirasizmi?')) return;
-    const batch = db.batch();
-    done.forEach(r => batch.delete(db.collection('callQueue').doc(r.id)));
-    try { await batch.commit(); }
-    catch(e) { alert('Xatolik: ' + e.message); }
-  });
-
-})();
-</script>
 
 </body>
 </html>
