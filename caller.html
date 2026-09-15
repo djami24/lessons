@@ -310,65 +310,31 @@
     }
     .btn-delete:hover { background: var(--red-bg); color: var(--red); border-color: var(--red-line); }
 
-    /* ── NOTE POPUP ── */
-    .note-row { display: none; }
-    .note-row.open { display: table-row; }
-    .note-row td {
-      padding: 0 14px 12px 44px;
-      background: var(--paper);
-    }
-    .note-inner {
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-    }
-    .note-inner textarea {
-      flex: 1;
+    /* ── INLINE NOTE TEXTAREA ── */
+    .td-note { min-width: 160px; max-width: 260px; }
+    .inline-note-wrap { width: 100%; }
+    .inline-note-ta {
+      width: 100%;
+      min-height: 34px;
+      max-height: 120px;
       border: 1.5px solid var(--line);
-      border-radius: 8px;
-      padding: 9px 12px;
-      font-size: .83rem;
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-size: .82rem;
       font-family: var(--font);
       color: var(--ink);
-      background: var(--white);
-      resize: none;
-      min-height: 60px;
-      outline: none;
-      transition: border-color .2s;
-    }
-    .note-inner textarea:focus { border-color: var(--blue); }
-    .note-inner textarea::placeholder { color: var(--gray); }
-    .note-btns {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .btn-save {
-      background: var(--green);
-      color: #fff;
-      border: none;
-      border-radius: 7px;
-      padding: 8px 14px;
-      font-size: .8rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: var(--font);
-      transition: opacity .15s;
-      white-space: nowrap;
-    }
-    .btn-save:disabled { opacity: .5; cursor: not-allowed; }
-    .btn-cancel-note {
       background: var(--paper);
-      color: var(--gray);
-      border: 1.5px solid var(--line);
-      border-radius: 7px;
-      padding: 7px 14px;
-      font-size: .8rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: var(--font);
-      white-space: nowrap;
+      resize: none;
+      overflow: hidden;
+      outline: none;
+      transition: border-color .2s, background .2s;
+      display: block;
     }
+    .inline-note-ta:focus {
+      border-color: var(--blue);
+      background: var(--white);
+    }
+    .inline-note-ta::placeholder { color: var(--gray); }
 
     /* ── LOADER / EMPTY ── */
     .loader {
@@ -550,14 +516,19 @@ function renderTable() {
       statusHtml = `<span class="status-pill status-pending">⏳ Kutilmoqda</span>`;
     }
 
-    // note cell
+    // note cell — pending uchun inline textarea, done uchun matn
     let noteHtml;
     if (isDone) {
       noteHtml = data.note
         ? `<span class="cell-note has-note">${esc(data.note)}</span>`
         : `<span class="cell-note">Izoh yo'q</span>`;
     } else {
-      noteHtml = `<span class="cell-note">Izoh yo'q</span>`;
+      noteHtml = `
+        <div class="inline-note-wrap" id="inw-${id}">
+          <textarea class="inline-note-ta" id="nt-${id}"
+            placeholder="Izoh yozing…"
+            oninput="autoResize(this)">${esc(data.note || '')}</textarea>
+        </div>`;
     }
 
     // timer cell
@@ -576,9 +547,7 @@ function renderTable() {
     } else {
       actionsHtml = `
         <div class="cell-actions">
-          <a class="btn-call" href="tel:${esc(data.studentPhone)}"
-             onclick="openNote('${id}'); return true;">📞 Qo'ng'iroq</a>
-          <button class="btn-done" id="chip-${id}" onclick="toggleNote('${id}')">✅ Tel qildim</button>
+          <button class="btn-done" id="chip-${id}" onclick="saveCall('${id}')">✅ Tel qildim</button>
           <button class="btn-delete" onclick="deleteDoc('${id}')" title="O'chirish">🗑</button>
         </div>`;
     }
@@ -594,65 +563,23 @@ function renderTable() {
       <td>${group}</td>
       <td class="cell-date">${esc(data.lessonDate || '')}</td>
       <td>${statusHtml}</td>
-      <td>${noteHtml}</td>
+      <td class="td-note">${noteHtml}</td>
       <td>${timerHtml}</td>
       <td>${actionsHtml}</td>
     `;
     tbody.appendChild(tr);
-
-    // Note row (for pending only)
-    if (!isDone) {
-      const ntr = document.createElement('tr');
-      ntr.className = 'note-row';
-      ntr.id = noteRowId;
-      ntr.innerHTML = `
-        <td colspan="9">
-          <div class="note-inner">
-            <textarea id="nt-${id}" placeholder="Izoh: kasalmi, safardami, javob bermadimi… (ixtiyoriy)"></textarea>
-            <div class="note-btns">
-              <button class="btn-save" id="bs-${id}" onclick="saveCall('${id}')">✅ Saqlash</button>
-              <button class="btn-cancel-note" onclick="cancelNote('${id}')">Bekor</button>
-            </div>
-          </div>
-        </td>`;
-      tbody.appendChild(ntr);
-    }
   });
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
-window.openNote = function(id) {
-  setTimeout(() => {
-    const nr   = document.getElementById('nr-' + id);
-    const chip = document.getElementById('chip-' + id);
-    if (nr)   nr.classList.add('open');
-    if (chip) chip.classList.add('active');
-  }, 400);
-};
-
-window.toggleNote = function(id) {
-  const nr   = document.getElementById('nr-' + id);
-  const chip = document.getElementById('chip-' + id);
-  if (!nr) return;
-  const isOpen = nr.classList.contains('open');
-  nr.classList.toggle('open', !isOpen);
-  if (chip) chip.classList.toggle('active', !isOpen);
-  if (!isOpen) {
-    const ta = document.getElementById('nt-' + id);
-    if (ta) ta.focus();
-  }
-};
-
-window.cancelNote = function(id) {
-  const nr   = document.getElementById('nr-' + id);
-  const chip = document.getElementById('chip-' + id);
-  if (nr)   nr.classList.remove('open');
-  if (chip) chip.classList.remove('active');
+window.autoResize = function(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
 };
 
 window.saveCall = async function(id) {
   const ntEl = document.getElementById('nt-' + id);
-  const btn  = document.getElementById('bs-' + id);
+  const btn  = document.getElementById('chip-' + id);
   const note = ntEl ? ntEl.value.trim() : '';
 
   if (btn) { btn.disabled = true; btn.textContent = 'Saqlanmoqda…'; }
@@ -664,7 +591,7 @@ window.saveCall = async function(id) {
     });
   } catch(e) {
     alert('Xatolik: ' + e.message);
-    if (btn) { btn.disabled = false; btn.textContent = '✅ Saqlash'; }
+    if (btn) { btn.disabled = false; btn.textContent = '✅ Tel qildim'; }
   }
 };
 
@@ -677,10 +604,28 @@ window.deleteDoc = async function(id) {
   }
 };
 
+// ── Phone fallback: oquv_progress dan phone olish ─────────────────────────────
+async function enrichWithPhone(docs) {
+  // Faqat phone yo'q bo'lgan yozuvlar uchun oquv_progress dan phone oladi
+  const missing = docs.filter(d => !d.data.studentPhone && d.data.studentId);
+  if (!missing.length) return docs;
+  await Promise.all(missing.map(async function(d) {
+    try {
+      const prog = await db.collection('oquv_progress').doc(d.data.studentId).get();
+      if (prog.exists && prog.data().phone) {
+        d.data.studentPhone = prog.data().phone;
+        // callQueue da ham yangilab qo'yish (bir marta)
+        db.collection('callQueue').doc(d.id).update({ studentPhone: prog.data().phone }).catch(function(){});
+      }
+    } catch(e) {}
+  }));
+  return docs;
+}
+
 // ── Real-time ─────────────────────────────────────────────────────────────────
 db.collection('callQueue')
   .orderBy('markedAt', 'asc')
-  .onSnapshot(function(snap) {
+  .onSnapshot(async function(snap) {
     document.getElementById('loaderEl').style.display = 'none';
     document.getElementById('tableWrap').style.display = 'block';
 
@@ -692,6 +637,9 @@ db.collection('callQueue')
       snapCache[d.id] = data;
       allDocs.push({ id: d.id, data });
     });
+
+    // Phone yo'q bo'lgan eski yozuvlar uchun fallback
+    await enrichWithPhone(allDocs);
 
     // Badge
     const pendingCount = allDocs.filter(d => d.data.status !== 'called').length;
