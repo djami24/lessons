@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anketa — Djami Lessons</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue: #2F6FED;
+    --green: #1FAE7A;
+    --red: #e74c3c;
+    --gray: #8892A6;
+    --line: #e5e9f0;
+    --ink: #1a1a2e;
+    --paper: #ffffff;
+    --surface: #f5f7fb;
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    opacity: .7;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--gray);
+  }
+
+  .card {
+    background: var(--paper);
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(0,0,0,.08);
+    width: 100%;
+    max-width: 520px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, var(--blue) 0%, #60a5fa 100%);
+    color: #fff;
+    padding: 32px 28px 28px;
+    text-align: center;
+  }
+
+  .card-header .icon {
+    width: 64px;
+    height: 64px;
+    background: rgba(255,255,255,.18);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 14px;
+  }
+
+  .card-header h1 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .card-header p {
+    opacity: .85;
+    font-size: .85rem;
+    margin-bottom: 12px;
+  }
+
+  .guruh-badge {
+    display: inline-block;
+    background: rgba(255,255,255,.2);
+    border-radius: 20px;
+    padding: 5px 16px;
+    font-size: .85rem;
+    font-weight: 700;
+  }
+
+  .card-body {
+    padding: 28px;
+  }
+
+  .field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .field-group.full { grid-template-columns: 1fr; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .field label {
+    font-size: .73rem;
+    font-weight: 700;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+
+  .field label .req { color: var(--red); }
+
+  .field input {
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: inherit;
+    font-size: .9rem;
+    color: var(--ink);
+    background: var(--surface);
+    outline: none;
+    transition: border-color .15s;
+    width: 100%;
+  }
+
+  .field input:focus { border-color: var(--blue); background: #fff; }
+  .field input.error { border-color: var(--red); }
+
+  .field .err {
+    font-size: .72rem;
+    color: var(--red);
+    min-height: 16px;
+  }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--gray);
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin: 4px 0 8px;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  .btn-submit {
+    width: 100%;
+    padding: 14px;
+    background: var(--green);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: background .15s, transform .1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-submit:hover { background: #179a6c; }
+  .btn-submit:active { transform: scale(.98); }
+  .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+  /* SUCCESS screen */
+  .success-screen {
+    display: none;
+    padding: 48px 28px;
+    text-align: center;
+  }
+
+  .success-circle {
+    width: 80px;
+    height: 80px;
+    background: rgba(31,174,122,.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    margin: 0 auto 20px;
+  }
+
+  .success-screen h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .success-screen p {
+    color: var(--gray);
+    font-size: .9rem;
+    line-height: 1.6;
+  }
+
+  /* ERROR screen */
+  .error-screen {
+    display: none;
+    padding: 48px 28px;
+    text-align: center;
+  }
+
+  .error-screen h2 { font-size: 1.1rem; margin-bottom: 8px; color: var(--red); }
+  .error-screen p { color: var(--gray); font-size: .85rem; }
+
+  /* LOADING */
+  .loading-screen {
+    padding: 48px 28px;
+    text-align: center;
+    color: var(--gray);
+    font-size: .9rem;
+  }
+
+  .spinner {
+    width: 36px;
+    height: 36px;
+    border: 3px solid var(--line);
+    border-top-color: var(--blue);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 480px) {
+    .field-group { grid-template-columns: 1fr; }
+    .card-header { padding: 24px 20px 20px; }
+    .card-body { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="logo">📚 Djami Lessons</div>
+
+<div class="card" id="mainCard">
+  <!-- LOADING -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="spinner"></div>
+    Yuklanmoqda…
+  </div>
+
+  <!-- ERROR screen -->
+  <div class="error-screen" id="errorScreen">
+    <div style="font-size:2.5rem;margin-bottom:16px;">❌</div>
+    <h2>Link noto'g'ri</h2>
+    <p>Ushbu link yaroqsiz yoki guruh topilmadi.<br>Administrator bilan bog'laning.</p>
+  </div>
+
+  <!-- FORM -->
+  <div id="formScreen" style="display:none;">
+    <div class="card-header">
+      <div class="icon">📋</div>
+      <h1>Talaba Ma'lumotlari</h1>
+      <p>Barcha majburiy maydonlarni to'ldiring</p>
+      <span class="guruh-badge" id="guruhBadge">—</span>
+    </div>
+
+    <div class="card-body">
+      <div class="field-group">
+        <div class="field">
+          <label>Ism <span class="req">*</span></label>
+          <input type="text" id="f_ism" placeholder="Ismi" autocomplete="given-name" />
+          <span class="err" id="err_ism"></span>
+        </div>
+        <div class="field">
+          <label>Familiya <span class="req">*</span></label>
+          <input type="text" id="f_familiya" placeholder="Familiyasi" autocomplete="family-name" />
+          <span class="err" id="err_familiya"></span>
+        </div>
+      </div>
+
+      <div class="field-group full">
+        <div class="field">
+          <label>Talabaning telefon raqami <span style="font-weight:400;text-transform:none;font-size:.75rem;">(ixtiyoriy)</span></label>
+          <input type="tel" id="f_tel_oz" placeholder="+998 90 123 45 67" maxlength="18" />
+        </div>
+      </div>
+
+      <div class="divider">Uyidagilarning telefon raqamlari</div>
+
+      <div class="field-group">
+        <div class="field">
+          <label>1-telefon raqam <span class="req">*</span></label>
+          <input type="tel" id="f_tel1" placeholder="+998 90 123 45 67" maxlength="18" />
+          <span class="err" id="err_tel1"></span>
+        </div>
+        <div class="field">
+          <label>2-telefon raqam <span class="req">*</span></label>
+          <input type="tel" id="f_tel2" placeholder="+998 91 234 56 78" maxlength="18" />
+          <span class="err" id="err_tel2"></span>
+        </div>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" onclick="formSaqlash()">
+        ✅ Tasdiqlash va Yuborish
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-circle">✅</div>
+    <h2>Muvaffaqiyatli yuborildi!</h2>
+    <p id="successText">Ma'lumotlaringiz saqlandi.</p>
+    <p style="margin-top:12px;font-size:.78rem;color:var(--gray);">Ushbu oynani yopishingiz mumkin.</p>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+
+<script>
+// ============================================================
+// URL parametrlarini o'qish
+// ============================================================
+const urlParams = new URLSearchParams(window.location.search);
+const guruhId  = urlParams.get('guruh');
+const guruhNom = urlParams.get('nom') ? decodeURIComponent(urlParams.get('nom')) : '';
+
+// ============================================================
+// Sahifani yuklash
+// ============================================================
+async function init() {
+  const loading = document.getElementById('loadingScreen');
+  const errorScr = document.getElementById('errorScreen');
+  const formScr  = document.getElementById('formScreen');
+
+  if (!guruhId) {
+    loading.style.display = 'none';
+    errorScr.style.display = 'block';
+    return;
+  }
+
+  try {
+    // Firestore'da guruhni tekshirish
+    const snap = await db.collection('anketa_guruhlar').doc(guruhId).get();
+    if (!snap.exists) {
+      loading.style.display = 'none';
+      errorScr.style.display = 'block';
+      return;
+    }
+    const guruh = snap.data();
+    document.getElementById('guruhBadge').textContent = '📚 ' + (guruh.nom || guruhNom);
+    document.title = 'Anketa — ' + (guruh.nom || guruhNom);
+    loading.style.display = 'none';
+    formScr.style.display = 'block';
+  } catch(e) {
+    // Firestore xatosi bo'lsa ham URL parametriga ishon
+    if (guruhNom) {
+      document.getElementById('guruhBadge').textContent = '📚 ' + guruhNom;
+      document.title = 'Anketa — ' + guruhNom;
+      loading.style.display = 'none';
+      formScr.style.display = 'block';
+    } else {
+      loading.style.display = 'none';
+      errorScr.style.display = 'block';
+    }
+  }
+}
+
+// Telefon raqam formatlash
+['f_tel_oz','f_tel1','f_tel2'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '');
+    if (v.startsWith('998')) v = '+' + v;
+    else if (v.startsWith('9')) v = '+998' + v;
+    this.value = v;
+  });
+});
+
+// ============================================================
+// Formni saqlash
+// ============================================================
+async function formSaqlash() {
+  const ism      = document.getElementById('f_ism').value.trim();
+  const familiya = document.getElementById('f_familiya').value.trim();
+  const telOz    = document.getElementById('f_tel_oz').value.trim();
+  const tel1     = document.getElementById('f_tel1').value.trim();
+  const tel2     = document.getElementById('f_tel2').value.trim();
+
+  // Xatolarni tozalash
+  ['err_ism','err_familiya','err_tel1','err_tel2'].forEach(id => {
+    document.getElementById(id).textContent = '';
+  });
+  ['f_ism','f_familiya','f_tel1','f_tel2'].forEach(id => {
+    document.getElementById(id).classList.remove('error');
+  });
+
+  let ok = true;
+  const err = (fieldId, errId, msg) => {
+    document.getElementById(errId).textContent = msg;
+    document.getElementById(fieldId).classList.add('error');
+    ok = false;
+  };
+
+  if (!ism)       err('f_ism', 'err_ism', 'Ism kiritilishi shart');
+  if (!familiya)  err('f_familiya', 'err_familiya', 'Familiya kiritilishi shart');
+  if (!tel1)      err('f_tel1', 'err_tel1', 'Birinchi telefon raqam shart');
+  else if (tel1.replace(/\D/g,'').length < 9) err('f_tel1', 'err_tel1', "Telefon raqam noto'g'ri");
+  if (!tel2)      err('f_tel2', 'err_tel2', 'Ikkinchi telefon raqam shart');
+  else if (tel2.replace(/\D/g,'').length < 9) err('f_tel2', 'err_tel2', "Telefon raqam noto'g'ri");
+
+  if (!ok) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Yuborilmoqda…';
+
+  const sana = new Date().toLocaleDateString('uz-UZ', { year:'numeric', month:'2-digit', day:'2-digit' });
+
+  const talaba = {
+    id:        Date.now().toString(),
+    guruhId:   guruhId,
+    guruhNom:  guruhNom,
+    ism, familiya,
+    telOz:     telOz || '—',
+    tel1, tel2,
+    sana,
+    yaratildi: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    await db.collection('anketa_talabalar').doc(talaba.id).set(talaba);
+    // Muvaffaqiyat
+    document.getElementById('formScreen').style.display = 'none';
+    const successScr = document.getElementById('successScreen');
+    successScr.style.display = 'block';
+    document.getElementById('successText').textContent =
+      ism + ' ' + familiya + ' — ma\'lumotlaringiz ' + guruhNom + ' guruhiga muvaffaqiyatli yuborildi!';
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = '✅ Tasdiqlash va Yuborish';
+    alert('Xatolik yuz berdi. Iltimos qayta urinib ko\'ring.\n\n' + e.message);
+  }
+}
+
+// Sahifani yuklash
+init();
+</script>
+</body>
+</html>
