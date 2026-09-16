@@ -10187,19 +10187,19 @@ function aGuruhRender() {
   container.innerHTML = list.map(g => {
     const son = talabalar.filter(t => t.guruhId === g.id).length;
     const isActive = aJoriyGuruh && aJoriyGuruh.id === g.id;
-    return \`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:\${isActive ? 'rgba(47,111,237,.08)' : 'var(--surface,#f8f9fa)'};border:1.5px solid \${isActive ? 'var(--adm-blue,#2F6FED)' : 'var(--adm-line,var(--line))'};border-radius:10px;transition:border-color .15s;cursor:pointer;" onclick="aGuruhTanla('\${g.id}')">
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:${isActive ? 'rgba(47,111,237,.08)' : 'var(--surface,#f8f9fa)'};border:1.5px solid ${isActive ? 'var(--adm-blue,#2F6FED)' : 'var(--adm-line,var(--line))'};border-radius:10px;transition:border-color .15s;cursor:pointer;" onclick="aGuruhTanla('${g.id}')">
       <div style="display:flex;align-items:center;gap:10px;">
         <div style="width:36px;height:36px;background:var(--adm-blue,#2F6FED);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;">🏫</div>
         <div>
-          <div style="font-weight:700;font-size:.9rem;">\${g.nom}</div>
-          <div style="font-size:.78rem;color:var(--adm-gray,#8892A6);">\${son} talaba</div>
+          <div style="font-weight:700;font-size:.9rem;">${g.nom}</div>
+          <div style="font-size:.78rem;color:var(--adm-gray,#8892A6);">${son} talaba</div>
         </div>
       </div>
       <div style="display:flex;gap:6px;" onclick="event.stopPropagation()">
-        <button class="btn btn-primary btn-sm" onclick="aGuruhTanlabAnketa('\${g.id}')" style="border-radius:8px;font-size:.8rem;">📝 Anketa</button>
-        <button class="btn btn-sm" onclick="aGuruhOchir('\${g.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.8rem;">🗑️</button>
+        <button class="btn btn-primary btn-sm" onclick="aGuruhTanlabAnketa('${g.id}')" style="border-radius:8px;font-size:.8rem;">📝 Anketa</button>
+        <button class="btn btn-sm" onclick="aGuruhOchir('${g.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.8rem;">🗑️</button>
       </div>
-    </div>\`;
+    </div>`;
   }).join('');
 }
 
@@ -10299,7 +10299,7 @@ function aAnketaSaqlash() {
   ADB.saqlaTalaba(talabalar);
   document.getElementById('aAnketaFormWrap').style.display = 'none';
   document.getElementById('aSuccessMsg').style.display = 'block';
-  document.getElementById('aSuccessText').textContent = \`\${ism} \${familiya} — ma'lumotlari \${aJoriyGuruh.nom} guruhiga saqlandi.\`;
+  document.getElementById('aSuccessText').textContent = `${ism} ${familiya} — ma'lumotlari ${aJoriyGuruh.nom} guruhiga saqlandi.`;
   aGuruhRender();
   showToast('Saqlandi!');
 }
@@ -10320,7 +10320,7 @@ function aStatsYangi() {
   if (sel) {
     const joriy = sel.value;
     sel.innerHTML = '<option value="">Barcha guruhlar</option>' +
-      guruhlar.map(g => \`<option value="\${g.id}" \${joriy===g.id?'selected':''}>\${g.nom}</option>\`).join('');
+      guruhlar.map(g => `<option value="${g.id}" ${joriy===g.id?'selected':''}>${g.nom}</option>`).join('');
   }
 }
 
@@ -10342,18 +10342,18 @@ function aJadvalChiz() {
     return;
   }
   if (empty) empty.style.display = 'none';
-  tbody.innerHTML = talabalar.map((t, i) => \`
+  tbody.innerHTML = talabalar.map((t, i) => `
     <tr>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));">\${i+1}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><span style="background:rgba(47,111,237,.1);color:var(--adm-blue,#2F6FED);padding:3px 8px;border-radius:6px;font-size:.78rem;font-weight:700;">\${t.guruhNom}</span></td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-weight:600;">\${t.ism} \${t.familiya}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">\${t.telOz}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">\${t.tel1}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">\${t.tel2}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));color:var(--adm-gray,#8892A6);font-size:.78rem;">\${t.sana}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><button class="btn btn-sm" onclick="aTalabaOchir('\${t.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.75rem;">🗑️</button></td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));">${i+1}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><span style="background:rgba(47,111,237,.1);color:var(--adm-blue,#2F6FED);padding:3px 8px;border-radius:6px;font-size:.78rem;font-weight:700;">${t.guruhNom}</span></td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-weight:600;">${t.ism} ${t.familiya}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${t.telOz}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${t.tel1}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${t.tel2}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));color:var(--adm-gray,#8892A6);font-size:.78rem;">${t.sana}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><button class="btn btn-sm" onclick="aTalabaOchir('${t.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.75rem;">🗑️</button></td>
     </tr>
-  \`).join('');
+  `).join('');
 }
 
 function aTalabaOchir(id) {
@@ -10388,7 +10388,7 @@ function anketaExcelYuklash() {
   ws['!cols'] = [{wch:4},{wch:12},{wch:16},{wch:16},{wch:18},{wch:18},{wch:18},{wch:12}];
   XLSX.utils.book_append_sheet(wb, ws, 'Talabalar');
   const nom = gF ? (ADB.guruhlar().find(g=>g.id===gF)||{nom:'guruh'}).nom : 'barcha';
-  XLSX.writeFile(wb, \`talabalar_\${nom}_\${new Date().toLocaleDateString('uz-UZ').replace(/\./g,'-')}.xlsx\`);
+  XLSX.writeFile(wb, `talabalar_${nom}_${new Date().toLocaleDateString('uz-UZ').replace(/\./g,'-')}.xlsx`);
   showToast('📥 Excel fayl yuklab olindi!');
 }
 
