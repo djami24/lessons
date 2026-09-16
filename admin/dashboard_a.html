@@ -10132,15 +10132,57 @@ document.getElementById('navAnketa').addEventListener('click', function(e) {
   aGuruhRender();
 });
 
-// Anketa storage
+// ============================================================
+// ANKETA — Firestore + localStorage hybrid storage
+// Guruhlar: Firestore anketa_guruhlar (+ localStorage cache)
+// Talabalar: Firestore anketa_talabalar (+ localStorage cache)
+// ============================================================
 const ADB = {
+  // --- LOCAL CACHE (sync read) ---
   guruhlar: () => JSON.parse(localStorage.getItem('anketa_guruhlar') || '[]'),
   talabalar: () => JSON.parse(localStorage.getItem('anketa_talabalar') || '[]'),
   saqlaGuruh: (d) => localStorage.setItem('anketa_guruhlar', JSON.stringify(d)),
   saqlaTalaba: (d) => localStorage.setItem('anketa_talabalar', JSON.stringify(d)),
+
+  // --- FIRESTORE (async) ---
+  async fsGuruhQosh(guruh) {
+    try {
+      await db.collection('anketa_guruhlar').doc(guruh.id).set(guruh);
+    } catch(e) { console.warn('Firestore guruh saqlash xatosi:', e); }
+  },
+  async fsGuruhOchir(id) {
+    try {
+      await db.collection('anketa_guruhlar').doc(id).delete();
+    } catch(e) { console.warn('Firestore guruh ochirish xatosi:', e); }
+  },
+  async fsSyncGuruhlar() {
+    try {
+      const snap = await db.collection('anketa_guruhlar').orderBy('yaratildi').get();
+      const list = snap.docs.map(d => d.data());
+      localStorage.setItem('anketa_guruhlar', JSON.stringify(list));
+      return list;
+    } catch(e) { console.warn('Firestore guruhlar sync xatosi:', e); return ADB.guruhlar(); }
+  },
+  async fsSyncTalabalar() {
+    try {
+      const snap = await db.collection('anketa_talabalar').orderBy('yaratildi', 'desc').get();
+      const list = snap.docs.map(d => d.data());
+      localStorage.setItem('anketa_talabalar', JSON.stringify(list));
+      return list;
+    } catch(e) { console.warn('Firestore talabalar sync xatosi:', e); return ADB.talabalar(); }
+  }
 };
 
 let aJoriyGuruh = null;
+
+// Sahifa ochilganda Firestore'dan sinxronlashtir
+(async function aInitSync() {
+  try {
+    await ADB.fsSyncGuruhlar();
+    await ADB.fsSyncTalabalar();
+    aGuruhRender();
+  } catch(e) {}
+})();
 
 function anketaSwitchTab(t) {
   ['guruh','anketa','malumot'].forEach(n => {
@@ -10157,7 +10199,7 @@ function anketaSwitchTab(t) {
   if (t === 'malumot') { aStatsYangi(); aJadvalChiz(); }
 }
 
-function aGuruhQosh() {
+async function aGuruhQosh() {
   const inp = document.getElementById('aGuruhNomi');
   const nom = inp.value.trim();
   if (!nom) { showToast('Guruh nomini kiriting', 'warn'); return; }
@@ -10165,10 +10207,13 @@ function aGuruhQosh() {
   if (guruhlar.find(g => g.nom.toLowerCase() === nom.toLowerCase())) {
     showToast('Bu nom bilan guruh mavjud', 'warn'); return;
   }
-  guruhlar.push({ id: Date.now().toString(), nom });
+  const yangiGuruh = { id: Date.now().toString(), nom, yaratildi: Date.now() };
+  guruhlar.push(yangiGuruh);
   ADB.saqlaGuruh(guruhlar);
   inp.value = '';
   aGuruhRender();
+  // Firestore'ga ham saqlash
+  await ADB.fsGuruhQosh(yangiGuruh);
   showToast('Guruh yaratildi: ' + nom);
 }
 
@@ -10197,6 +10242,7 @@ function aGuruhRender() {
       </div>
       <div style="display:flex;gap:6px;" onclick="event.stopPropagation()">
         <button class="btn btn-primary btn-sm" onclick="aGuruhTanlabAnketa('${g.id}')" style="border-radius:8px;font-size:.8rem;">📝 Anketa</button>
+        <button class="btn btn-sm" onclick="aGuruhLinkNusxa('${g.id}','${g.nom.replace(/'/g,'&#39;')}')" style="background:rgba(47,111,237,.1);color:var(--adm-blue,#2F6FED);border:1.5px solid rgba(47,111,237,.25);border-radius:8px;font-size:.8rem;" title="Talabaga yuboriladigan link">🔗 Link</button>
         <button class="btn btn-sm" onclick="aGuruhOchir('${g.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.8rem;">🗑️</button>
       </div>
     </div>`;
@@ -10214,12 +10260,21 @@ function aGuruhTanlabAnketa(id) {
   anketaSwitchTab('anketa');
 }
 
-function aGuruhOchir(id) {
+async function aGuruhOchir(id) {
   if (!confirm("Bu guruhni o'chirmoqchimisiz? Guruh ichidagi talabalar ham o'chadi!")) return;
   ADB.saqlaGuruh(ADB.guruhlar().filter(g => g.id !== id));
   ADB.saqlaTalaba(ADB.talabalar().filter(t => t.guruhId !== id));
   if (aJoriyGuruh && aJoriyGuruh.id === id) aJoriyGuruh = null;
   aGuruhRender();
+  // Firestore'dan o'chirish
+  await ADB.fsGuruhOchir(id);
+  // Firestore'dan talabalarni ham o'chirish
+  try {
+    const snap = await db.collection('anketa_talabalar').where('guruhId','==',id).get();
+    const batch = db.batch();
+    snap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+  } catch(e) { console.warn('Firestore talabalar ochirish:', e); }
   showToast("Guruh o'chirildi");
 }
 
@@ -10306,7 +10361,61 @@ function aAnketaSaqlash() {
 
 function aYangiTalaba() { aFormTozala(); }
 
-function aStatsYangi() {
+// Guruh uchun anketa linkini clipboard'ga nusxalash
+function aGuruhLinkNusxa(id, nom) {
+  // anketa-form.html shu dashboard bilan bir papkada bo'lishi kerak
+  const base = window.location.href.replace(/\/[^/]*$/, '');
+  const link = base + '/anketa-form.html?guruh=' + encodeURIComponent(id) + '&nom=' + encodeURIComponent(nom);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(link).then(() => {
+      showToast('🔗 Link nusxalandi! Talabaga yuboring.');
+      aLinkModalKor(link, nom);
+    }).catch(() => { aLinkModalKor(link, nom); });
+  } else {
+    aLinkModalKor(link, nom);
+  }
+}
+
+// Link ko'rsatish modali
+function aLinkModalKor(link, nom) {
+  let modal = document.getElementById('aLinkModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'aLinkModal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px;';
+    modal.innerHTML = `
+      <div style="background:var(--paper,#fff);border-radius:20px;padding:32px 28px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
+        <div style="text-align:center;margin-bottom:20px;">
+          <div style="width:56px;height:56px;background:rgba(47,111,237,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 12px;">🔗</div>
+          <h3 style="margin:0 0 4px;font-size:1.1rem;font-weight:700;" id="aLinkModalTitle">Anketa linki</h3>
+          <p style="margin:0;font-size:.83rem;color:var(--adm-gray,#8892A6);">Ushbu linkni talabaga TG orqali yuboring</p>
+        </div>
+        <div style="background:var(--surface,#f8f9fa);border:1.5px solid var(--adm-line,var(--line));border-radius:12px;padding:12px 14px;margin-bottom:16px;word-break:break-all;font-size:.8rem;font-family:monospace;color:var(--adm-ink,#1a1a2e);" id="aLinkModalUrl"></div>
+        <div style="display:flex;gap:10px;">
+          <button onclick="aLinkKopir()" class="btn btn-primary btn-sm" style="flex:1;border-radius:10px;">📋 Nusxalash</button>
+          <button onclick="document.getElementById('aLinkModal').remove()" class="btn btn-ghost btn-sm" style="border-radius:10px;">Yopish</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  }
+  document.getElementById('aLinkModalTitle').textContent = '🔗 ' + nom + ' — Anketa linki';
+  document.getElementById('aLinkModalUrl').textContent = link;
+}
+
+function aLinkKopir() {
+  const url = document.getElementById('aLinkModalUrl').textContent;
+  navigator.clipboard.writeText(url).then(() => showToast('📋 Nusxalandi!')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = url; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); ta.remove(); showToast('📋 Nusxalandi!');
+  });
+}
+
+async function aStatsYangi() {
+  // Firestore'dan sinxronlashtir, keyin ko'rsat
+  await ADB.fsSyncGuruhlar();
+  await ADB.fsSyncTalabalar();
   const talabalar = ADB.talabalar();
   const guruhlar = ADB.guruhlar();
   const bugun = new Date().toLocaleDateString('uz-UZ', { year:'numeric', month:'2-digit', day:'2-digit' });
@@ -10322,6 +10431,7 @@ function aStatsYangi() {
     sel.innerHTML = '<option value="">Barcha guruhlar</option>' +
       guruhlar.map(g => `<option value="${g.id}" ${joriy===g.id?'selected':''}>${g.nom}</option>`).join('');
   }
+  aJadvalChiz();
 }
 
 function aJadvalChiz() {
