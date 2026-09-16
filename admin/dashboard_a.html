@@ -324,6 +324,7 @@
       <li><a href="#" id="navParentChats"><span class="nav-icon-emoji">👪</span><span class="nav-label"> Ota-onalar</span><span id="navParentChatsBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
       <li><a href="#" id="navActivityLog"><span class="nav-icon-emoji">🕵️</span><span class="nav-label"> Faollik jurnali</span></a></li>
       <li><a href="#" id="navCaller"><span class="nav-icon-emoji">📞</span><span class="nav-label"> Caller</span><span id="navCallerBadge" class="notif-badge" hidden style="margin-left:.5em;">0</span></a></li>
+      <li><a href="#" id="navAnketa"><span class="nav-icon-emoji">📋</span><span class="nav-label"> Guruh Anketa</span></a></li>
       <li><a href="../index.html" target="_blank">🌐 Saytni ko‘rish</a></li>
     </ul>
     <div class="admin-user">
@@ -1892,6 +1893,156 @@
       </div>
     </section>
 
+
+    <!-- ===== GURUH ANKETA ===== -->
+    <section id="view-anketa" hidden>
+      <div class="oj-header">
+        <div>
+          <h1>📋 Guruh Anketa</h1>
+          <p>Guruhlar yarating va talabalar ma'lumotlarini to'plang</p>
+        </div>
+        <button class="btn btn-sm" onclick="anketaExcelYuklash()" style="background:var(--adm-green,#1FAE7A);color:#fff;border-radius:10px;font-size:.85rem;">📥 Excel yuklash</button>
+      </div>
+
+      <!-- ANKETA TABS -->
+      <div style="display:flex;gap:4px;background:var(--paper);border-radius:14px;padding:5px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:24px;">
+        <button class="anketa-tab active" id="atab-guruh" onclick="anketaSwitchTab('guruh')" style="flex:1;padding:9px 16px;border:none;border-radius:10px;background:var(--adm-blue,#2F6FED);color:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;">🏫 Guruhlar</button>
+        <button class="anketa-tab" id="atab-anketa" onclick="anketaSwitchTab('anketa')" style="flex:1;padding:9px 16px;border:none;border-radius:10px;background:none;color:var(--adm-gray,#8892A6);cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;">📝 Anketa</button>
+        <button class="anketa-tab" id="atab-malumot" onclick="anketaSwitchTab('malumot')" style="flex:1;padding:9px 16px;border:none;border-radius:10px;background:none;color:var(--adm-gray,#8892A6);cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;">📊 Ma'lumotlar</button>
+      </div>
+
+      <!-- GURUHLAR TAB -->
+      <div id="atab-content-guruh">
+        <div style="background:var(--paper);border-radius:16px;border:1.5px solid var(--adm-line,var(--line));overflow:hidden;">
+          <div style="padding:18px 24px;border-bottom:1px solid var(--adm-line,var(--line));display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-weight:700;font-size:1rem;">Yangi guruh yaratish</div>
+          </div>
+          <div style="padding:24px;">
+            <div style="display:flex;gap:10px;">
+              <input type="text" id="aGuruhNomi" placeholder="Guruh nomini kiriting (masalan: CS-101, A-guruh...)" style="flex:1;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;padding:10px 14px;font-family:inherit;font-size:14px;color:var(--adm-ink,var(--ink));background:var(--surface,#f8f9fa);outline:none;" />
+              <button class="btn btn-primary btn-sm" onclick="aGuruhQosh()" style="white-space:nowrap;border-radius:10px;">➕ Guruh qo'shish</button>
+            </div>
+            <div id="aGuruhList" style="display:flex;flex-direction:column;gap:8px;margin-top:16px;"></div>
+            <div id="aGuruhEmpty" style="display:none;text-align:center;padding:40px 20px;color:var(--adm-gray,#8892A6);">
+              <div style="font-size:2.5rem;margin-bottom:12px;">🏫</div>
+              <p>Hali guruh yaratilmagan.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANKETA TAB -->
+      <div id="atab-content-anketa" style="display:none;">
+        <div id="aGuruhTanlanmagan" style="background:var(--paper);border-radius:16px;border:1.5px solid var(--adm-line,var(--line));padding:48px 20px;text-align:center;display:none;">
+          <div style="font-size:2.5rem;margin-bottom:12px;">👆</div>
+          <div style="font-size:1rem;font-weight:700;margin-bottom:8px;">Guruh tanlanmagan</div>
+          <div style="color:var(--adm-gray,#8892A6);font-size:.9rem;margin-bottom:20px;">Anketa to'ldirish uchun avval "Guruhlar" bo'limidan guruh tanlang.</div>
+          <button class="btn btn-primary btn-sm" onclick="anketaSwitchTab('guruh')" style="border-radius:10px;">Guruhlarga o'tish</button>
+        </div>
+        <div id="aAnketaWrap" style="display:none;">
+          <div style="background:var(--paper);border-radius:16px;border:1.5px solid var(--adm-line,var(--line));overflow:hidden;">
+            <div style="background:linear-gradient(135deg,var(--adm-blue,#2F6FED) 0%,#60a5fa 100%);color:#fff;padding:28px 32px;text-align:center;">
+              <h2 style="font-size:1.4rem;font-weight:700;margin:0 0 6px;">📋 Talaba Ma'lumotlari</h2>
+              <p style="opacity:.85;font-size:.88rem;margin:0 0 10px;">Barcha majburiy maydonlarni to'ldiring</p>
+              <span id="aAnketaGuruhNomi" style="display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 14px;font-size:.85rem;font-weight:600;">—</span>
+            </div>
+            <div style="padding:24px;" id="aAnketaFormWrap">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;">
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <label style="font-size:.78rem;font-weight:700;color:var(--adm-gray,#8892A6);text-transform:uppercase;letter-spacing:.04em;">Ism <span style="color:#e74c3c;">*</span></label>
+                  <input class="oj-input" type="text" id="af_ism" placeholder="Talaba ismi" style="width:100%;" />
+                  <span style="font-size:.75rem;color:#e74c3c;" id="aerr_ism"></span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <label style="font-size:.78rem;font-weight:700;color:var(--adm-gray,#8892A6);text-transform:uppercase;letter-spacing:.04em;">Familiya <span style="color:#e74c3c;">*</span></label>
+                  <input class="oj-input" type="text" id="af_familiya" placeholder="Talaba familiyasi" style="width:100%;" />
+                  <span style="font-size:.75rem;color:#e74c3c;" id="aerr_familiya"></span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;grid-column:1/-1;">
+                  <label style="font-size:.78rem;font-weight:700;color:var(--adm-gray,#8892A6);text-transform:uppercase;letter-spacing:.04em;">Talabaning telefon raqami <span style="font-size:.72rem;font-weight:400;text-transform:none;color:var(--adm-gray,#8892A6);">(ixtiyoriy)</span></label>
+                  <input class="oj-input" type="tel" id="af_tel_oz" placeholder="+998 __ ___ __ __" maxlength="18" style="width:100%;" />
+                </div>
+                <div style="grid-column:1/-1;display:flex;align-items:center;gap:12px;color:var(--adm-gray,#8892A6);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">
+                  <span style="flex:1;height:1px;background:var(--adm-line,var(--line));"></span>
+                  Uyidagilarning telefon raqamlari
+                  <span style="flex:1;height:1px;background:var(--adm-line,var(--line));"></span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <label style="font-size:.78rem;font-weight:700;color:var(--adm-gray,#8892A6);text-transform:uppercase;letter-spacing:.04em;">1-telefon raqam <span style="color:#e74c3c;">*</span></label>
+                  <input class="oj-input" type="tel" id="af_tel1" placeholder="+998 __ ___ __ __" maxlength="18" style="width:100%;" />
+                  <span style="font-size:.75rem;color:#e74c3c;" id="aerr_tel1"></span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <label style="font-size:.78rem;font-weight:700;color:var(--adm-gray,#8892A6);text-transform:uppercase;letter-spacing:.04em;">2-telefon raqam <span style="color:#e74c3c;">*</span></label>
+                  <input class="oj-input" type="tel" id="af_tel2" placeholder="+998 __ ___ __ __" maxlength="18" style="width:100%;" />
+                  <span style="font-size:.75rem;color:#e74c3c;" id="aerr_tel2"></span>
+                </div>
+              </div>
+              <div style="margin-top:24px;display:flex;gap:10px;justify-content:flex-end;">
+                <button class="btn btn-ghost btn-sm" onclick="aFormTozala()" style="border-radius:10px;">🔄 Tozalash</button>
+                <button class="btn btn-sm" onclick="aAnketaSaqlash()" style="background:var(--adm-green,#1FAE7A);color:#fff;border-radius:10px;font-weight:700;">✅ Tasdiqlash va Saqlash</button>
+              </div>
+            </div>
+            <div id="aSuccessMsg" style="display:none;text-align:center;padding:40px 20px;">
+              <div style="width:64px;height:64px;background:rgba(31,174,122,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 16px;">✅</div>
+              <h3 style="font-size:1.1rem;font-weight:700;margin:0 0 6px;">Saqlandi!</h3>
+              <p id="aSuccessText" style="color:var(--adm-gray,#8892A6);font-size:.88rem;"></p>
+              <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                <button class="btn btn-primary btn-sm" onclick="aYangiTalaba()" style="border-radius:10px;">➕ Yangi talaba</button>
+                <button class="btn btn-ghost btn-sm" onclick="anketaSwitchTab('malumot')" style="border-radius:10px;">📊 Ma'lumotlarni ko'rish</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MA'LUMOTLAR TAB -->
+      <div id="atab-content-malumot" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+          <div class="oj-stat-card"><div class="oj-stat-val" id="aStatJami">0</div><div class="oj-stat-label">Jami talabalar</div></div>
+          <div class="oj-stat-card"><div class="oj-stat-val" id="aStatGuruh">0</div><div class="oj-stat-label">Guruhlar soni</div></div>
+          <div class="oj-stat-card"><div class="oj-stat-val" id="aStatBugun">0</div><div class="oj-stat-label">Bugun qo'shildi</div></div>
+        </div>
+        <div style="background:var(--paper);border-radius:16px;border:1.5px solid var(--adm-line,var(--line));overflow:hidden;">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--adm-line,var(--line));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+            <div style="font-weight:700;font-size:1rem;">📊 Barcha talabalar</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" onclick="anketaExcelYuklash()" style="border-radius:10px;">📥 Excel</button>
+              <button class="btn btn-sm" onclick="aHammasniOchir()" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:10px;">🗑️ Barchasini o'chirish</button>
+            </div>
+          </div>
+          <div style="padding:16px 20px;">
+            <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+              <select id="aFilterGuruh" onchange="aJadvalChiz()" style="border:1.5px solid var(--adm-line,var(--line));border-radius:10px;padding:8px 12px;font-family:inherit;font-size:.85rem;color:var(--adm-ink,var(--ink));background:var(--surface,#f8f9fa);outline:none;">
+                <option value="">Barcha guruhlar</option>
+              </select>
+              <input type="text" id="aFilterQidiruv" placeholder="🔍 Ism yoki raqam..." oninput="aJadvalChiz()" style="flex:1;min-width:160px;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;padding:8px 12px;font-family:inherit;font-size:.85rem;color:var(--adm-ink,var(--ink));background:var(--surface,#f8f9fa);outline:none;" />
+            </div>
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:.85rem;" id="aMainTable">
+                <thead>
+                  <tr>
+                    <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;color:var(--adm-gray,#8892A6);border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;">#</th>
+                    <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;color:var(--adm-gray,#8892A6);border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;">Guruh</th>
+                    <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;color:var(--adm-gray,#8892A6);border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;">Ism Familiya</th>
+                    <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;color:var(--adm-gray,#8892A6);border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;">Talaba teli</th>
+                    <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;color:var(--adm-gray,#8892A6);border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;">Uy teli 1</th>
+                    <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;color:var(--adm-gray,#8892A6);border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;">Uy teli 2</th>
+                    <th style="text-align:left;padding:10px 14px;font-size:.73rem;font-weight:700;color:var(--adm-gray,#8892A6);border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;">Sana</th>
+                    <th style="padding:10px 14px;border-bottom:2px solid var(--adm-line,var(--line));"></th>
+                  </tr>
+                </thead>
+                <tbody id="aMainTbody"></tbody>
+              </table>
+              <div id="aTableEmpty" style="display:none;text-align:center;padding:48px 20px;color:var(--adm-gray,#8892A6);">
+                <div style="font-size:2.5rem;margin-bottom:12px;">📋</div>
+                <p>Ma'lumot yo'q.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 </div>
 
@@ -2371,6 +2522,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-functions-compat.js"></script>
 <!-- Talaba statistikasini PDF qilib yuklab olish uchun (1 oylik hisobot) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="../firebase-config.js"></script>
@@ -3626,6 +3778,8 @@ function switchView(view){
   document.getElementById('navActivityLog').classList.toggle('active', view === 'activity-log');
   document.getElementById('view-caller').hidden = view !== 'caller';
   document.getElementById('navCaller').classList.toggle('active', view === 'caller');
+  document.getElementById('view-anketa').hidden = view !== 'anketa';
+  document.getElementById('navAnketa').classList.toggle('active', view === 'anketa');
   document.getElementById('view-reading-mocks').hidden = view !== 'reading-mocks';
   document.getElementById('view-reading-mock-builder').hidden = view !== 'reading-mock-builder';
   document.getElementById('view-reading-attempts').hidden = view !== 'reading-attempts';
@@ -9970,6 +10124,276 @@ document.getElementById('navCaller').addEventListener('click', function(e) {
   switchView('caller');
   loadCaller();
 });
+
+// ===== GURUH ANKETA =====
+document.getElementById('navAnketa').addEventListener('click', function(e) {
+  e.preventDefault();
+  switchView('anketa');
+  aGuruhRender();
+});
+
+// Anketa storage
+const ADB = {
+  guruhlar: () => JSON.parse(localStorage.getItem('anketa_guruhlar') || '[]'),
+  talabalar: () => JSON.parse(localStorage.getItem('anketa_talabalar') || '[]'),
+  saqlaGuruh: (d) => localStorage.setItem('anketa_guruhlar', JSON.stringify(d)),
+  saqlaTalaba: (d) => localStorage.setItem('anketa_talabalar', JSON.stringify(d)),
+};
+
+let aJoriyGuruh = null;
+
+function anketaSwitchTab(t) {
+  ['guruh','anketa','malumot'].forEach(n => {
+    const el = document.getElementById('atab-content-' + n);
+    if (el) el.style.display = n === t ? 'block' : 'none';
+  });
+  document.querySelectorAll('.anketa-tab').forEach((el, i) => {
+    const isActive = ['guruh','anketa','malumot'][i] === t;
+    el.style.background = isActive ? 'var(--adm-blue,#2F6FED)' : 'none';
+    el.style.color = isActive ? '#fff' : 'var(--adm-gray,#8892A6)';
+  });
+  if (t === 'guruh') aGuruhRender();
+  if (t === 'anketa') aAnketaRender();
+  if (t === 'malumot') { aStatsYangi(); aJadvalChiz(); }
+}
+
+function aGuruhQosh() {
+  const inp = document.getElementById('aGuruhNomi');
+  const nom = inp.value.trim();
+  if (!nom) { showToast('Guruh nomini kiriting', 'warn'); return; }
+  const guruhlar = ADB.guruhlar();
+  if (guruhlar.find(g => g.nom.toLowerCase() === nom.toLowerCase())) {
+    showToast('Bu nom bilan guruh mavjud', 'warn'); return;
+  }
+  guruhlar.push({ id: Date.now().toString(), nom });
+  ADB.saqlaGuruh(guruhlar);
+  inp.value = '';
+  aGuruhRender();
+  showToast('Guruh yaratildi: ' + nom);
+}
+
+function aGuruhRender() {
+  const list = ADB.guruhlar();
+  const talabalar = ADB.talabalar();
+  const container = document.getElementById('aGuruhList');
+  const empty = document.getElementById('aGuruhEmpty');
+  if (!container) return;
+  if (list.length === 0) {
+    container.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  container.innerHTML = list.map(g => {
+    const son = talabalar.filter(t => t.guruhId === g.id).length;
+    const isActive = aJoriyGuruh && aJoriyGuruh.id === g.id;
+    return \`<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:\${isActive ? 'rgba(47,111,237,.08)' : 'var(--surface,#f8f9fa)'};border:1.5px solid \${isActive ? 'var(--adm-blue,#2F6FED)' : 'var(--adm-line,var(--line))'};border-radius:10px;transition:border-color .15s;cursor:pointer;" onclick="aGuruhTanla('\${g.id}')">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;background:var(--adm-blue,#2F6FED);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;">🏫</div>
+        <div>
+          <div style="font-weight:700;font-size:.9rem;">\${g.nom}</div>
+          <div style="font-size:.78rem;color:var(--adm-gray,#8892A6);">\${son} talaba</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;" onclick="event.stopPropagation()">
+        <button class="btn btn-primary btn-sm" onclick="aGuruhTanlabAnketa('\${g.id}')" style="border-radius:8px;font-size:.8rem;">📝 Anketa</button>
+        <button class="btn btn-sm" onclick="aGuruhOchir('\${g.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.8rem;">🗑️</button>
+      </div>
+    </div>\`;
+  }).join('');
+}
+
+function aGuruhTanla(id) {
+  const g = ADB.guruhlar().find(g => g.id === id);
+  aJoriyGuruh = g || null;
+  aGuruhRender();
+}
+
+function aGuruhTanlabAnketa(id) {
+  aGuruhTanla(id);
+  anketaSwitchTab('anketa');
+}
+
+function aGuruhOchir(id) {
+  if (!confirm("Bu guruhni o'chirmoqchimisiz? Guruh ichidagi talabalar ham o'chadi!")) return;
+  ADB.saqlaGuruh(ADB.guruhlar().filter(g => g.id !== id));
+  ADB.saqlaTalaba(ADB.talabalar().filter(t => t.guruhId !== id));
+  if (aJoriyGuruh && aJoriyGuruh.id === id) aJoriyGuruh = null;
+  aGuruhRender();
+  showToast("Guruh o'chirildi");
+}
+
+function aAnketaRender() {
+  const noGuruh = document.getElementById('aGuruhTanlanmagan');
+  const wrap = document.getElementById('aAnketaWrap');
+  if (!aJoriyGuruh) {
+    if (noGuruh) noGuruh.style.display = 'block';
+    if (wrap) wrap.style.display = 'none';
+  } else {
+    if (noGuruh) noGuruh.style.display = 'none';
+    if (wrap) wrap.style.display = 'block';
+    const badge = document.getElementById('aAnketaGuruhNomi');
+    if (badge) badge.textContent = '📚 ' + aJoriyGuruh.nom;
+    aFormTozala();
+  }
+}
+
+function aFormTozala() {
+  ['af_ism','af_familiya','af_tel_oz','af_tel1','af_tel2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.value = ''; el.style.borderColor = ''; }
+  });
+  ['aerr_ism','aerr_familiya','aerr_tel1','aerr_tel2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '';
+  });
+  const fw = document.getElementById('aAnketaFormWrap');
+  const sm = document.getElementById('aSuccessMsg');
+  if (fw) fw.style.display = 'block';
+  if (sm) sm.style.display = 'none';
+}
+
+['af_tel_oz','af_tel1','af_tel2'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '');
+    if (v.startsWith('998')) v = '+' + v;
+    else if (v.startsWith('9')) v = '+998' + v;
+    this.value = v;
+  });
+});
+
+function aAnketaSaqlash() {
+  const ism = document.getElementById('af_ism').value.trim();
+  const familiya = document.getElementById('af_familiya').value.trim();
+  const telOz = document.getElementById('af_tel_oz').value.trim();
+  const tel1 = document.getElementById('af_tel1').value.trim();
+  const tel2 = document.getElementById('af_tel2').value.trim();
+  let ok = true;
+  const err = (id, msg) => {
+    document.getElementById(id).textContent = msg;
+    ok = false;
+  };
+  document.getElementById('aerr_ism').textContent = '';
+  document.getElementById('aerr_familiya').textContent = '';
+  document.getElementById('aerr_tel1').textContent = '';
+  document.getElementById('aerr_tel2').textContent = '';
+  if (!ism) err('aerr_ism', 'Ism kiritilishi shart');
+  if (!familiya) err('aerr_familiya', 'Familiya kiritilishi shart');
+  if (!tel1) err('aerr_tel1', 'Birinchi telefon raqam shart');
+  else if (tel1.length < 9) err('aerr_tel1', "Telefon raqam noto'g'ri");
+  if (!tel2) err('aerr_tel2', 'Ikkinchi telefon raqam shart');
+  else if (tel2.length < 9) err('aerr_tel2', "Telefon raqam noto'g'ri");
+  if (!ok) return;
+  const talabalar = ADB.talabalar();
+  talabalar.push({
+    id: Date.now().toString(),
+    guruhId: aJoriyGuruh.id,
+    guruhNom: aJoriyGuruh.nom,
+    ism, familiya,
+    telOz: telOz || '—',
+    tel1, tel2,
+    sana: new Date().toLocaleDateString('uz-UZ', { year:'numeric', month:'2-digit', day:'2-digit' })
+  });
+  ADB.saqlaTalaba(talabalar);
+  document.getElementById('aAnketaFormWrap').style.display = 'none';
+  document.getElementById('aSuccessMsg').style.display = 'block';
+  document.getElementById('aSuccessText').textContent = \`\${ism} \${familiya} — ma'lumotlari \${aJoriyGuruh.nom} guruhiga saqlandi.\`;
+  aGuruhRender();
+  showToast('Saqlandi!');
+}
+
+function aYangiTalaba() { aFormTozala(); }
+
+function aStatsYangi() {
+  const talabalar = ADB.talabalar();
+  const guruhlar = ADB.guruhlar();
+  const bugun = new Date().toLocaleDateString('uz-UZ', { year:'numeric', month:'2-digit', day:'2-digit' });
+  const sj = document.getElementById('aStatJami');
+  const sg = document.getElementById('aStatGuruh');
+  const sb = document.getElementById('aStatBugun');
+  if (sj) sj.textContent = talabalar.length;
+  if (sg) sg.textContent = guruhlar.length;
+  if (sb) sb.textContent = talabalar.filter(t => t.sana === bugun).length;
+  const sel = document.getElementById('aFilterGuruh');
+  if (sel) {
+    const joriy = sel.value;
+    sel.innerHTML = '<option value="">Barcha guruhlar</option>' +
+      guruhlar.map(g => \`<option value="\${g.id}" \${joriy===g.id?'selected':''}>\${g.nom}</option>\`).join('');
+  }
+}
+
+function aJadvalChiz() {
+  let talabalar = ADB.talabalar();
+  const gF = document.getElementById('aFilterGuruh') ? document.getElementById('aFilterGuruh').value : '';
+  const qF = document.getElementById('aFilterQidiruv') ? document.getElementById('aFilterQidiruv').value.toLowerCase() : '';
+  if (gF) talabalar = talabalar.filter(t => t.guruhId === gF);
+  if (qF) talabalar = talabalar.filter(t =>
+    (t.ism+' '+t.familiya).toLowerCase().includes(qF) ||
+    t.tel1.includes(qF) || t.tel2.includes(qF) || t.telOz.includes(qF)
+  );
+  const tbody = document.getElementById('aMainTbody');
+  const empty = document.getElementById('aTableEmpty');
+  if (!tbody) return;
+  if (talabalar.length === 0) {
+    tbody.innerHTML = '';
+    if (empty) empty.style.display = 'block';
+    return;
+  }
+  if (empty) empty.style.display = 'none';
+  tbody.innerHTML = talabalar.map((t, i) => \`
+    <tr>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));">\${i+1}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><span style="background:rgba(47,111,237,.1);color:var(--adm-blue,#2F6FED);padding:3px 8px;border-radius:6px;font-size:.78rem;font-weight:700;">\${t.guruhNom}</span></td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-weight:600;">\${t.ism} \${t.familiya}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">\${t.telOz}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">\${t.tel1}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">\${t.tel2}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));color:var(--adm-gray,#8892A6);font-size:.78rem;">\${t.sana}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><button class="btn btn-sm" onclick="aTalabaOchir('\${t.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.75rem;">🗑️</button></td>
+    </tr>
+  \`).join('');
+}
+
+function aTalabaOchir(id) {
+  if (!confirm("Bu talabani o'chirmoqchimisiz?")) return;
+  ADB.saqlaTalaba(ADB.talabalar().filter(t => t.id !== id));
+  aStatsYangi(); aJadvalChiz();
+  showToast("O'chirildi");
+}
+
+function aHammasniOchir() {
+  if (!confirm("Barcha talabalarni o'chirmoqchimisiz? Bu amalni qaytarib bo'lmaydi!")) return;
+  ADB.saqlaTalaba([]);
+  aStatsYangi(); aJadvalChiz();
+  showToast("Barchasi o'chirildi");
+}
+
+function anketaExcelYuklash() {
+  if (typeof XLSX === 'undefined') {
+    showToast('XLSX kutubxonasi yuklanmagan', 'warn');
+    return;
+  }
+  const gF = document.getElementById('aFilterGuruh') ? document.getElementById('aFilterGuruh').value : '';
+  const qF = document.getElementById('aFilterQidiruv') ? document.getElementById('aFilterQidiruv').value.toLowerCase() : '';
+  let data = ADB.talabalar();
+  if (gF) data = data.filter(t => t.guruhId === gF);
+  if (qF) data = data.filter(t => (t.ism+' '+t.familiya).toLowerCase().includes(qF) || t.tel1.includes(qF) || t.tel2.includes(qF));
+  if (data.length === 0) { showToast("Ma'lumot yo'q", 'warn'); return; }
+  const rows = [['#','Guruh','Ism','Familiya','Talaba telefoni','Uy teli 1','Uy teli 2','Sana']];
+  data.forEach((t,i) => rows.push([i+1, t.guruhNom, t.ism, t.familiya, t.telOz, t.tel1, t.tel2, t.sana]));
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:4},{wch:12},{wch:16},{wch:16},{wch:18},{wch:18},{wch:18},{wch:12}];
+  XLSX.utils.book_append_sheet(wb, ws, 'Talabalar');
+  const nom = gF ? (ADB.guruhlar().find(g=>g.id===gF)||{nom:'guruh'}).nom : 'barcha';
+  XLSX.writeFile(wb, \`talabalar_\${nom}_\${new Date().toLocaleDateString('uz-UZ').replace(/\./g,'-')}.xlsx\`);
+  showToast('📥 Excel fayl yuklab olindi!');
+}
+
+document.getElementById('aGuruhNomi').addEventListener('keydown', e => { if (e.key === 'Enter') aGuruhQosh(); });
+
 
 document.querySelectorAll('[data-caller-filter]').forEach(function(btn) {
   btn.addEventListener('click', function() {
