@@ -1801,8 +1801,9 @@ body.admin-theme .admin-sidebar{
   background: #ffffff;
   width: 272px;
   padding: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   border-right: 1px solid #e4e8f0;
   box-shadow: 2px 0 14px rgba(16,27,61,.06);
 }
@@ -1826,6 +1827,9 @@ body.admin-theme .admin-sidebar .brand:hover{ background: #f8f9fc; }
 body.admin-theme .admin-nav{
   padding: .65em .8em .8em;
   gap: 1px;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 body.admin-theme .admin-nav a{
   border-radius: 9px;
@@ -1861,9 +1865,13 @@ body.admin-theme .admin-user{
   justify-content: space-between;
   gap: .6em;
   margin-top: 0;
+  flex-shrink: 0;
 }
 body.admin-theme .admin-user::before{ content: none; }
-body.admin-theme .admin-user-name{ font-size: .78rem; font-weight: 700; color: #1a2d52; word-break: break-all; }
+body.admin-theme .admin-user-name{
+  font-size: .78rem; font-weight: 700; color: #1a2d52;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;
+}
 body.admin-theme .admin-user-role{ color: #a0aec0; }
 body.admin-theme .logout-btn{
   margin-left: auto;
@@ -1994,21 +2002,14 @@ body.admin-theme .modal-box{ border-radius: 18px; }
      mobile sizing here, scoped to admin-theme, so it actually takes over. */
   body.admin-theme .admin-sidebar{
     width:100%; padding:.9em 1.1em; height:auto; position:relative;
-    flex-direction: column; align-items: stretch;
   }
   body.admin-theme .admin-sidebar .brand{ margin-bottom:0; }
-  body.admin-theme .admin-nav{
-    flex-direction: row; flex-wrap: wrap; width: 100%; gap: .5em; flex: none;
-    padding: .4em 0;
-  }
 
   /* admin-user (avatar + logout) was fully hidden on mobile (display:none),
      which meant there was no way to log out from a phone. Show it as a
-     compact row instead of hiding it. It must come AFTER the nav list,
-     separated by a subtle top border so it reads as a footer row. */
+     compact row instead of hiding it. */
   body.admin-theme .admin-user{
     display:flex; width:100%; margin-top:.4em; padding:.7em .9em;
-    border-top: 1px solid #eef1f7;
   }
 
   /* "Xabar yuborish" (Broadcast) and "Chatlar" (Chats) — move them out of
