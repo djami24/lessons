@@ -382,6 +382,7 @@
     <div class="tab active" data-tab="all" onclick="switchTab('all')">Barchasi</div>
     <div class="tab" data-tab="pending" onclick="switchTab('pending')">⏳ Kutilmoqda</div>
     <div class="tab" data-tab="done" onclick="switchTab('done')">✅ Tel qilindi</div>
+    <div class="tab" data-tab="anketa" onclick="switchTab('anketa')">📋 Anketa</div>
   </div>
 
   <!-- LOADER -->
@@ -410,6 +411,51 @@
         <!-- rows injected here -->
       </tbody>
     </table>
+  </div>
+
+  <!-- ANKETA TABLE -->
+  <div id="anketaWrap" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <input type="text" id="anketaSearch" placeholder="Ism yoki guruh bo'yicha qidirish…"
+          oninput="renderAnketa()"
+          style="border:1.5px solid var(--line);border-radius:8px;padding:8px 14px;font-size:.83rem;font-family:var(--font);color:var(--ink);outline:none;width:240px;transition:border-color .15s;"
+          onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--line)'">
+        <select id="anketaGuruhFilter" onchange="renderAnketa()"
+          style="border:1.5px solid var(--line);border-radius:8px;padding:8px 12px;font-size:.83rem;font-family:var(--font);color:var(--ink);outline:none;cursor:pointer;background:var(--white);transition:border-color .15s;"
+          onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--line)'">
+          <option value="">Barcha guruhlar</option>
+        </select>
+      </div>
+      <span id="anketaCount" style="font-size:.78rem;color:var(--gray);font-weight:600;white-space:nowrap;"></span>
+    </div>
+
+    <div id="anketaLoaderEl" class="loader">
+      <div class="spinner"></div>
+      Anketa ma'lumotlari yuklanmoqda…
+    </div>
+
+    <div id="anketaTableWrap" class="table-wrap" style="display:none;">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Ism Familiya</th>
+            <th>Talabaning tel</th>
+            <th>1-uy tel</th>
+            <th>2-uy tel</th>
+            <th>Guruh</th>
+            <th>Sana</th>
+          </tr>
+        </thead>
+        <tbody id="anketaBody"></tbody>
+      </table>
+    </div>
+    <div id="anketaEmpty" style="display:none;text-align:center;padding:44px 20px;color:var(--gray);">
+      <div style="font-size:2rem;margin-bottom:10px;">📋</div>
+      <div style="font-weight:600;color:var(--ink);margin-bottom:4px;">Ma'lumot topilmadi</div>
+      <div style="font-size:.85rem;">Hali anketa to'ldirilmagan yoki qidiruvga mos yozuv yo'q</div>
+    </div>
   </div>
 
 </div>
@@ -460,7 +506,17 @@ function switchTab(tab) {
   document.querySelectorAll('.tab').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === tab);
   });
-  renderTable();
+
+  const isAnketa = tab === 'anketa';
+  document.getElementById('loaderEl').style.display    = 'none';
+  document.getElementById('tableWrap').style.display   = isAnketa ? 'none' : (allDocs.length >= 0 ? 'block' : 'none');
+  document.getElementById('anketaWrap').style.display  = isAnketa ? 'block' : 'none';
+
+  if (isAnketa) {
+    if (!anketaLoaded) loadAnketa();
+  } else {
+    renderTable();
+  }
 }
 
 // ── Render ────────────────────────────────────────────────────────────────────
@@ -628,12 +684,103 @@ async function enrichWithPhone(docs) {
   return docs;
 }
 
+// ── Anketa ────────────────────────────────────────────────────────────────────
+let anketaDocs  = [];
+let anketaLoaded = false;
+
+async function loadAnketa() {
+  const loader     = document.getElementById('anketaLoaderEl');
+  const tableWrap  = document.getElementById('anketaTableWrap');
+  const emptyEl    = document.getElementById('anketaEmpty');
+
+  loader.style.display    = 'block';
+  tableWrap.style.display = 'none';
+  emptyEl.style.display   = 'none';
+
+  try {
+    const snap = await db.collection('anketa_talabalar').orderBy('yaratildi', 'desc').get();
+    anketaDocs = snap.docs.map(d => d.data());
+    anketaLoaded = true;
+
+    // Guruh filter ni to'ldirish
+    const guruhlar = [...new Set(anketaDocs.map(d => d.guruhNom).filter(Boolean))].sort();
+    const sel = document.getElementById('anketaGuruhFilter');
+    sel.innerHTML = '<option value="">Barcha guruhlar</option>';
+    guruhlar.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g; opt.textContent = g;
+      sel.appendChild(opt);
+    });
+  } catch(e) {
+    loader.innerHTML = `<div style="color:var(--red)">Xatolik: ${esc(e.message)}</div>`;
+    return;
+  }
+
+  loader.style.display = 'none';
+  renderAnketa();
+}
+
+window.renderAnketa = function() {
+  const tableWrap = document.getElementById('anketaTableWrap');
+  const emptyEl   = document.getElementById('anketaEmpty');
+  const tbody     = document.getElementById('anketaBody');
+  const countEl   = document.getElementById('anketaCount');
+  const search    = (document.getElementById('anketaSearch').value || '').trim().toLowerCase();
+  const guruh     = document.getElementById('anketaGuruhFilter').value;
+
+  let filtered = anketaDocs;
+  if (guruh)  filtered = filtered.filter(d => d.guruhNom === guruh);
+  if (search) filtered = filtered.filter(d => {
+    const fullName = ((d.ism || '') + ' ' + (d.familiya || '')).toLowerCase();
+    return fullName.includes(search) || (d.guruhNom || '').toLowerCase().includes(search);
+  });
+
+  countEl.textContent = filtered.length + ' ta talaba';
+
+  if (!filtered.length) {
+    tableWrap.style.display = 'none';
+    emptyEl.style.display   = 'block';
+    return;
+  }
+
+  emptyEl.style.display   = 'none';
+  tableWrap.style.display = 'block';
+
+  tbody.innerHTML = filtered.map((d, i) => {
+    const fullName = esc((d.ism || '') + ' ' + (d.familiya || ''));
+    const telOz = d.telOz && d.telOz !== '—'
+      ? `<a href="tel:${esc(d.telOz)}" style="color:var(--blue);text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:3px;">📱 ${esc(d.telOz)}</a>`
+      : `<span style="color:var(--gray);">—</span>`;
+    const tel1 = d.tel1
+      ? `<a href="tel:${esc(d.tel1)}" style="color:var(--blue);text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:3px;">📞 ${esc(d.tel1)}</a>`
+      : `<span style="color:var(--gray);">—</span>`;
+    const tel2 = d.tel2
+      ? `<a href="tel:${esc(d.tel2)}" style="color:var(--blue);text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:3px;">📞 ${esc(d.tel2)}</a>`
+      : `<span style="color:var(--gray);">—</span>`;
+    const guruhHtml = d.guruhNom
+      ? `<span class="cell-group">${esc(d.guruhNom)}</span>`
+      : `<span style="color:var(--gray);">—</span>`;
+
+    return `<tr>
+      <td>${i + 1}</td>
+      <td class="cell-name">${fullName}</td>
+      <td class="cell-phone">${telOz}</td>
+      <td class="cell-phone">${tel1}</td>
+      <td class="cell-phone">${tel2}</td>
+      <td>${guruhHtml}</td>
+      <td class="cell-date">${esc(d.sana || '')}</td>
+    </tr>`;
+  }).join('');
+};
+
 // ── Real-time ─────────────────────────────────────────────────────────────────
 db.collection('callQueue')
   .orderBy('markedAt', 'asc')
   .onSnapshot(async function(snap) {
     document.getElementById('loaderEl').style.display = 'none';
-    document.getElementById('tableWrap').style.display = 'block';
+    if (currentTab !== 'anketa') {
+      document.getElementById('tableWrap').style.display = 'block';
+    }
 
     snapCache = {};
     allDocs   = [];
