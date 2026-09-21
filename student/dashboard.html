@@ -501,7 +501,7 @@
     </ul>
     <div class="admin-user">
       <div style="display:flex; align-items:center; gap:.7em;">
-        <span class="sidebar-avatar" id="sidebarAvatar">🙂</span>
+        <span class="sidebar-avatar" id="sidebarAvatar" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--blue-50,#eaf1ff);color:var(--blue-600,#2f5fd8);font-size:15px;font-weight:700;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
         <div>
           <div class="admin-user-name" id="sidebarUsername">o‘quvchi</div>
           <div class="admin-user-role">O‘quvchi</div>
@@ -1304,7 +1304,17 @@ async function enterDashboard(){
   document.getElementById('idGateScreen').hidden = true;
 
   document.getElementById('sidebarUsername').textContent = state.student.name || state.student.email;
-  document.getElementById('sidebarAvatar').textContent = state.student.avatarEmoji || '🙂';
+  (function(){
+    var av = document.getElementById('sidebarAvatar');
+    if(!av) return;
+    var name = state.student.name || state.student.email || '';
+    var initial = name.trim().charAt(0).toUpperCase();
+    if(initial){
+      av.textContent = initial;
+    } else {
+      av.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+    }
+  })();
   document.getElementById('appShell').hidden = false;
 
   // Profil kartochkasini to'ldirish (yangi dizayn uchun)
@@ -2523,7 +2533,16 @@ emojiGrid.addEventListener('click', async (e) => {
   if(!btn) return;
   const emoji = btn.dataset.emoji;
   document.getElementById('profileAvatarBig').textContent = emoji;
-  document.getElementById('sidebarAvatar').textContent = emoji;
+  // Sidebar: faqat SVG/initial ko'rsatiladi, emoji ishlatilmaydi
+  (function(){
+    var av = document.getElementById('sidebarAvatar');
+    if(!av) return;
+    var name = (state.student && state.student.name) || (state.student && state.student.email) || '';
+    var initial = name.trim().charAt(0).toUpperCase();
+    if(initial){ av.textContent = initial; } else {
+      av.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+    }
+  })();
   emojiGrid.hidden = true;
   try{
     await db.collection('students').doc(currentUid).update({ avatarEmoji: emoji });
