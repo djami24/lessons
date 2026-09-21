@@ -357,7 +357,8 @@
       color: var(--gray);
       font-size: .9rem;
     }
-    .empty-icon { font-size: 2rem; margin-bottom: 10px; }
+    .empty-icon { display:flex; align-items:center; justify-content:center; margin-bottom: 10px; }
+    .empty-icon svg { width:32px; height:32px; color:var(--gray); }
     .empty-title { font-weight: 600; color: var(--ink); margin-bottom: 4px; }
   </style>
 </head>
@@ -366,7 +367,7 @@
 <!-- HEADER -->
 <header class="header">
   <div class="header-brand">
-    <div class="header-icon">📞</div>
+    <div class="header-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
     <div>
       <div class="header-title">Caller</div>
       <span class="header-sub">Djami Lessons</span>
@@ -380,9 +381,9 @@
   <!-- TABS -->
   <div class="tabs">
     <div class="tab active" data-tab="all" onclick="switchTab('all')">Barchasi</div>
-    <div class="tab" data-tab="pending" onclick="switchTab('pending')">⏳ Kutilmoqda</div>
-    <div class="tab" data-tab="done" onclick="switchTab('done')">✅ Tel qilindi</div>
-    <div class="tab" data-tab="anketa" onclick="switchTab('anketa')">📋 Anketa</div>
+    <div class="tab" data-tab="pending" onclick="switchTab('pending')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg> Kutilmoqda</div>
+    <div class="tab" data-tab="done" onclick="switchTab('done')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Tel qilindi</div>
+    <div class="tab" data-tab="anketa" onclick="switchTab('anketa')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg> Anketa</div>
   </div>
 
   <!-- LOADER -->
@@ -452,7 +453,7 @@
       </table>
     </div>
     <div id="anketaEmpty" style="display:none;text-align:center;padding:44px 20px;color:var(--gray);">
-      <div style="font-size:2rem;margin-bottom:10px;">📋</div>
+      <div style="display:flex;align-items:center;justify-content:center;margin-bottom:10px;"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg></div>
       <div style="font-weight:600;color:var(--ink);margin-bottom:4px;">Ma'lumot topilmadi</div>
       <div style="font-size:.85rem;">Hali anketa to'ldirilmagan yoki qidiruvga mos yozuv yo'q</div>
     </div>
@@ -530,8 +531,8 @@ function renderTable() {
 
   if (filtered.length === 0) {
     const emptyMsg = currentTab === 'done'
-      ? { icon: '📋', title: 'Hali tel qilingan yo\'q', sub: 'Bajarilgan qo\'ng\'iroqlar shu yerda ko\'rinadi' }
-      : { icon: '🎉', title: 'Hammasi bajarildi!', sub: 'Kutilayotgan qo\'ng\'iroq yo\'q' };
+      ? { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>', title: 'Hali tel qilingan yo\'q', sub: 'Bajarilgan qo\'ng\'iroqlar shu yerda ko\'rinadi' }
+      : { icon: '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"/><path d="m9 12 2 2 4-4"/></svg>', title: 'Hammasi bajarildi!', sub: 'Kutilayotgan qo\'ng\'iroq yo\'q' };
     tbody.innerHTML = `
       <tr class="empty-row">
         <td colspan="9">
@@ -554,22 +555,22 @@ function renderTable() {
 
     // phone cell
     const phone = data.studentPhone
-      ? `<a href="tel:${esc(data.studentPhone)}">📱 ${esc(data.studentPhone)}</a>`
+      ? `<a href="tel:${esc(data.studentPhone)}"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> ${esc(data.studentPhone)}</a>`
       : `<span class="cell-dash">—</span>`;
 
     // group cell
     const group = data.groupName
-      ? `<span class="cell-group">👥 ${esc(data.groupName)}</span>`
+      ? `<span class="cell-group"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> ${esc(data.groupName)}</span>`
       : `<span class="cell-dash">—</span>`;
 
     // status
     let statusHtml;
     if (isDone) {
-      statusHtml = `<span class="status-pill status-done">✅ Tel qilindi</span>`;
+      statusHtml = `<span class="status-pill status-done"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Tel qilindi</span>`;
     } else if (isOverdue) {
-      statusHtml = `<span class="status-pill status-overdue">⚠️ Muddati o'tdi</span>`;
+      statusHtml = `<span class="status-pill status-overdue"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Muddati o'tdi</span>`;
     } else {
-      statusHtml = `<span class="status-pill status-pending">⏳ Kutilmoqda</span>`;
+      statusHtml = `<span class="status-pill status-pending"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg> Kutilmoqda</span>`;
     }
 
     // note cell — pending uchun inline textarea, done uchun matn
@@ -599,12 +600,12 @@ function renderTable() {
     let actionsHtml;
     if (isDone) {
       actionsHtml = `
-        <button class="btn-delete" onclick="deleteDoc('${id}')" title="O'chirish">🗑</button>`;
+        <button class="btn-delete" onclick="deleteDoc('${id}')" title="O'chirish"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>`;
     } else {
       actionsHtml = `
         <div class="cell-actions">
-          <button class="btn-done" id="chip-${id}" onclick="saveCall('${id}')">✅ Tel qildim</button>
-          <button class="btn-delete" onclick="deleteDoc('${id}')" title="O'chirish">🗑</button>
+          <button class="btn-done" id="chip-${id}" onclick="saveCall('${id}')"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Tel qildim</button>
+          <button class="btn-delete" onclick="deleteDoc('${id}')" title="O'chirish"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
         </div>`;
     }
 
@@ -647,7 +648,7 @@ window.saveCall = async function(id) {
     });
   } catch(e) {
     alert('Xatolik: ' + e.message);
-    if (btn) { btn.disabled = false; btn.textContent = '✅ Tel qildim'; }
+    if (btn) { btn.disabled = false; btn.textContent = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Tel qildim'; }
   }
 };
 
@@ -749,13 +750,13 @@ window.renderAnketa = function() {
   tbody.innerHTML = filtered.map((d, i) => {
     const fullName = esc((d.ism || '') + ' ' + (d.familiya || ''));
     const telOz = d.telOz && d.telOz !== '—'
-      ? `<a href="tel:${esc(d.telOz)}" style="color:var(--blue);text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:3px;">📱 ${esc(d.telOz)}</a>`
+      ? `<a href="tel:${esc(d.telOz)}" style="color:var(--blue);text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:3px;"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> ${esc(d.telOz)}</a>`
       : `<span style="color:var(--gray);">—</span>`;
     const tel1 = d.tel1
-      ? `<a href="tel:${esc(d.tel1)}" style="color:var(--blue);text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:3px;">📞 ${esc(d.tel1)}</a>`
+      ? `<a href="tel:${esc(d.tel1)}" style="color:var(--blue);text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:3px;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> ${esc(d.tel1)}</a>`
       : `<span style="color:var(--gray);">—</span>`;
     const tel2 = d.tel2
-      ? `<a href="tel:${esc(d.tel2)}" style="color:var(--blue);text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:3px;">📞 ${esc(d.tel2)}</a>`
+      ? `<a href="tel:${esc(d.tel2)}" style="color:var(--blue);text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:3px;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> ${esc(d.tel2)}</a>`
       : `<span style="color:var(--gray);">—</span>`;
     const guruhHtml = d.guruhNom
       ? `<span class="cell-group">${esc(d.guruhNom)}</span>`
@@ -820,7 +821,7 @@ db.collection('callQueue')
 
   }, function(err) {
     document.getElementById('loaderEl').innerHTML =
-      `<div style="color:var(--red)">⚠️ Xatolik: ${err.message}</div>`;
+      `<div style="color:var(--red)"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Xatolik: ${err.message}</div>`;
   });
 </script>
 </body>
