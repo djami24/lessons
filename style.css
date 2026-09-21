@@ -462,13 +462,36 @@ footer a:hover{ color: var(--amber); }
   border-color: #dde5ff;
 }
 
+/* SVG icon alignment inside nav links */
+.admin-nav a svg,
+.admin-nav .admin-nav-parent svg{
+  flex-shrink: 0;
+  opacity: .65;
+  transition: opacity .15s;
+}
+.admin-nav a:hover svg,
+.admin-nav a.active svg,
+.admin-nav .admin-nav-parent:hover svg{ opacity: 1; }
+
+/* Divider between nav groups */
+.admin-nav .nav-divider{
+  height: 1px;
+  background: #eef1f7;
+  margin: 5px 4px;
+  pointer-events: none;
+}
+
 /* Sub-nav items */
 .admin-nav-sub a{
   font-size: .85em;
   color: #718096;
   padding: .55em .8em;
   border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: .5em;
 }
+.admin-nav-sub a svg{ flex-shrink: 0; opacity: .55; }
 .admin-nav-sub a:hover{
   background: #f5f7ff;
   color: #3451d1;
