@@ -1863,7 +1863,15 @@ body.admin-theme .admin-user{
   margin-top: 0;
 }
 body.admin-theme .admin-user::before{ content: none; }
-body.admin-theme .admin-user-name{ font-size: .78rem; font-weight: 700; color: #1a2d52; word-break: break-all; }
+body.admin-theme .admin-user-name{
+  font-size: .78rem;
+  font-weight: 700;
+  color: #1a2d52;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
+}
 body.admin-theme .admin-user-role{ color: #a0aec0; }
 body.admin-theme .logout-btn{
   margin-left: auto;
