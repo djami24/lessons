@@ -783,6 +783,7 @@
           <p>Bosh sahifada ko‘rsatiladigan so‘nggi 3 ta blog shu yerdan boshqariladi — rasm havolasi va matnni kiriting.</p>
         </div>
         <button class="btn btn-amber" id="openAddBlog">+ Yangi blog qo‘shish</button>
+        <button class="btn btn-ghost" id="reloadBlogs">🔄 Yangilash</button>
       </div>
 
       <div class="blog-admin-grid" id="blogsGrid"></div>
@@ -4789,6 +4790,22 @@ function openBlogModal(blogId){
 
 document.getElementById('openAddBlog').addEventListener('click', () => openBlogModal(null));
 
+document.getElementById('reloadBlogs').addEventListener('click', async () => {
+  const btn = document.getElementById('reloadBlogs');
+  btn.disabled = true;
+  btn.textContent = 'Yuklanmoqda…';
+  try {
+    await loadBlogs();
+    renderBlogsGrid();
+    showToast('Bloglar yangilandi.');
+  } catch(err) {
+    showToast('Yangilashda xatolik: ' + (err.message || err), true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🔄 Yangilash';
+  }
+});
+
 document.getElementById('blogsGrid').addEventListener('click', async (e) => {
   const editBtn = e.target.closest('[data-edit-blog]');
   if(editBtn){ openBlogModal(editBtn.dataset.editBlog); return; }
@@ -4801,10 +4818,19 @@ document.getElementById('blogsGrid').addEventListener('click', async (e) => {
     const id = delBtn.dataset.deleteBlog;
     const blog = state.blogs.find(b => b.id === id);
     if(!confirm(`“${blog ? blog.title : 'Bu blog'}” o‘chirilsinmi? Bu amalni ortga qaytarib bo‘lmaydi.`)) return;
-    await db.collection('blogs').doc(id).delete();
-    state.blogs = state.blogs.filter(b => b.id !== id);
-    renderBlogsGrid();
-    showToast('Blog o‘chirildi.');
+    delBtn.disabled = true;
+    delBtn.textContent = '‘…';
+    try {
+      await db.collection('blogs').doc(id).delete();
+      state.blogs = state.blogs.filter(b => b.id !== id);
+      renderBlogsGrid();
+      showToast("Blog o‘chirildi.");
+    } catch(err) {
+      console.error('Blog delete error:', err);
+      delBtn.disabled = false;
+      delBtn.textContent = "O‘chirish";
+      showToast("O‘chirishda xatolik: " + (err.message || err), true);
+    }
   }
 });
 
