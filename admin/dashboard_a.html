@@ -4767,11 +4767,11 @@ function renderBlogsGrid(){
       <img src="${escapeHtml(b.imageUrl || '')}" alt="" class="blog-admin-thumb" onerror="this.style.display='none'">
       <div class="blog-admin-card-body">
         <p class="blog-admin-card-title">${escapeHtml(b.title || 'Nomsiz blog')}</p>
-        <div class="blog-admin-card-actions">
-          <button type="button" class="btn btn-ghost btn-sm" data-edit-blog="${b.id}">Tahrirlash</button>
-          <button type="button" class="btn btn-sm" style="background:rgba(231,76,60,.1);color:#e74c3c;border:1.5px solid rgba(231,76,60,.3);border-radius:8px;" data-delete-blog="${b.id}">🗑️ O‘chirish</button>
-          <button type="button" class="btn btn-ghost btn-sm" data-view-comments="${b.id}">💬 Izohlar</button>
-          <button type="button" class="btn btn-tg btn-sm" data-tg-blog="${b.id}">✈️ Telegram</button>
+        <div class="blog-admin-card-actions" style="display:flex;flex-wrap:wrap;gap:5px;">
+          <button type="button" class="btn btn-ghost" style="font-size:.72rem;padding:4px 9px;border-radius:7px;" data-edit-blog="${b.id}">✏️ Tahrirlash</button>
+          <button type="button" class="btn" style="font-size:.72rem;padding:4px 9px;border-radius:7px;background:rgba(231,76,60,.1);color:#e74c3c;border:1.5px solid rgba(231,76,60,.3);" data-delete-blog="${b.id}">🗑️ O‘chirish</button>
+          <button type="button" class="btn btn-ghost" style="font-size:.72rem;padding:4px 9px;border-radius:7px;" data-view-comments="${b.id}">💬 Izohlar</button>
+          <button type="button" class="btn btn-tg" style="font-size:.72rem;padding:4px 9px;border-radius:7px;" data-tg-blog="${b.id}">✈️ Telegram</button>
         </div>
       </div>
     </div>`).join('');
