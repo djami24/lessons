@@ -4769,9 +4769,9 @@ function renderBlogsGrid(){
         <p class="blog-admin-card-title">${escapeHtml(b.title || 'Nomsiz blog')}</p>
         <div class="blog-admin-card-actions">
           <button type="button" class="btn btn-ghost btn-sm" data-edit-blog="${b.id}">Tahrirlash</button>
+          <button type="button" class="btn btn-sm" style="background:rgba(231,76,60,.1);color:#e74c3c;border:1.5px solid rgba(231,76,60,.3);border-radius:8px;" data-delete-blog="${b.id}">🗑️ O‘chirish</button>
           <button type="button" class="btn btn-ghost btn-sm" data-view-comments="${b.id}">💬 Izohlar</button>
           <button type="button" class="btn btn-tg btn-sm" data-tg-blog="${b.id}">✈️ Telegram</button>
-          <button type="button" class="btn btn-ghost btn-sm" data-delete-blog="${b.id}">O‘chirish</button>
         </div>
       </div>
     </div>`).join('');
