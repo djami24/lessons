@@ -1356,6 +1356,8 @@ body.admin-theme:not(.light-mode) .notif-popup-body { color: #9aa1b8; }
 .site-footer-cols{ display:flex; gap: 3.2em; flex-wrap:wrap; }
 .site-footer-col-title{ color: var(--footer-text); font-family: var(--font-body); font-size:.76rem; text-transform:uppercase; letter-spacing:.09em; font-weight:700; margin: 0 0 1.1em; }
 .site-footer-col a{ display:block; color: color-mix(in srgb, var(--footer-text) 72%, transparent); text-decoration:none; font-size:.9rem; margin-bottom:.75em; transition: color .15s var(--ease); }
+.site-footer-col .footer-contact-links{ display:flex; flex-direction:column; gap:10px; }
+.site-footer-col .footer-contact-links a{ display:inline-flex; align-items:center; gap:6px; margin-bottom:0; }
 .site-footer-col a:hover{ color: var(--amber); }
 
 .site-footer-rating-wrap{ display:flex; justify-content:flex-start; }
