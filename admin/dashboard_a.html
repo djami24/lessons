@@ -276,10 +276,14 @@
 .rm-q-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
 .rm-q-num{font-weight:700;font-size:.82rem;color:var(--adm-blue,#2F6FED);}
 
+
+/* SVG ikonlar (emoji o'rniga) */
+.ic{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.2em;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;overflow:visible}
 </style>
 </head>
 
 <body class="admin-theme">
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false"><symbol id="i-alarm" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M5 3L2 6M22 6l-3-3"/></symbol><symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></symbol><symbol id="i-align-center" viewBox="0 0 24 24"><path d="M21 6H3M17 12H7M19 18H5"/></symbol><symbol id="i-align-left" viewBox="0 0 24 24"><path d="M21 6H3M15 12H3M17 18H3"/></symbol><symbol id="i-align-right" viewBox="0 0 24 24"><path d="M21 6H3M21 12H9M21 18H7"/></symbol><symbol id="i-anchor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M12 22V8M5 12H2a10 10 0 0 0 20 0h-3"/></symbol><symbol id="i-arrow-down" viewBox="0 0 24 24"><path d="M12 5v14M19 12l-7 7-7-7"/></symbol><symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></symbol><symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></symbol><symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></symbol><symbol id="i-backpack" viewBox="0 0 24 24"><path d="M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M8 21v-5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5M8 10h8"/></symbol><symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M4.9 4.9l14.2 14.2"/></symbol><symbol id="i-bar-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M8 17v-6M13 17V7M18 17v-9"/></symbol><symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0"/></symbol><symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol><symbol id="i-book-open" viewBox="0 0 24 24"><path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z"/><path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z"/></symbol><symbol id="i-books" viewBox="0 0 24 24"><path d="M4 3v18M9 3v18"/><path d="M14 5.5l4.5-1L22 19.5l-4.5 1z"/></symbol><symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol><symbol id="i-calendar-days" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/></symbol><symbol id="i-camera" viewBox="0 0 24 24"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></symbol><symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol><symbol id="i-check-check" viewBox="0 0 24 24"><path d="M18 6L7 17l-5-5"/><path d="M22 10l-7.5 7.5L13 16"/></symbol><symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l3 3 5-6"/></symbol><symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol><symbol id="i-cloud-sun" viewBox="0 0 24 24"><path d="M12 2v2M4.9 4.9l1.4 1.4M20 12h2M19.1 4.9l-1.4 1.4M15.9 12.6a4 4 0 0 0-5.9-4.1M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6z"/></symbol><symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16.2 7.8l-2.1 6.3-6.3 2.1 2.1-6.3z"/></symbol><symbol id="i-credit-card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></symbol><symbol id="i-diamond" viewBox="0 0 24 24"><path d="M12 2l10 10-10 10L2 12z" fill="currentColor" stroke="none"/></symbol><symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></symbol><symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></symbol><symbol id="i-file-text" viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></symbol><symbol id="i-film" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="2.2"/><path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5"/></symbol><symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/></symbol><symbol id="i-folder-open" viewBox="0 0 24 24"><path d="M6 14l1.5-2.9A2 2 0 0 1 9.2 10H20a2 2 0 0 1 1.9 2.5l-1.5 6a2 2 0 0 1-1.9 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.7.9l.8 1.2a2 2 0 0 0 1.7.9H18a2 2 0 0 1 2 2v2"/></symbol><symbol id="i-gamepad" viewBox="0 0 24 24"><path d="M6 12h4M8 10v4M15 13h.01M18 11h.01"/><rect x="2" y="6" width="20" height="12" rx="4"/></symbol><symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol><symbol id="i-graduation-cap" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M22 10v6M6 12v5c3 3 9 3 12 0v-5"/></symbol><symbol id="i-hash" viewBox="0 0 24 24"><path d="M4 9h16M4 15h16M10 3L8 21M16 3l-2 18"/></symbol><symbol id="i-help-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></symbol><symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></symbol><symbol id="i-hourglass" viewBox="0 0 24 24"><path d="M5 22h14M5 2h14M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4A2 2 0 0 0 17 6.2V2"/></symbol><symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/></symbol><symbol id="i-inbox" viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></symbol><symbol id="i-key" viewBox="0 0 24 24"><circle cx="7.5" cy="15.5" r="5.5"/><path d="M11.4 11.6L21 2M16 7l3 3M18.5 4.5l2 2"/></symbol><symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol><symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol><symbol id="i-log-in" viewBox="0 0 24 24"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></symbol><symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol><symbol id="i-megaphone" viewBox="0 0 24 24"><path d="M3 11v3a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></symbol><symbol id="i-message" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol><symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 18v4"/></symbol><symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></symbol><symbol id="i-newspaper" viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></symbol><symbol id="i-palette" viewBox="0 0 24 24"><circle cx="13.5" cy="6.5" r=".6"/><circle cx="17.5" cy="10.5" r=".6"/><circle cx="8.5" cy="7.5" r=".6"/><circle cx="6.5" cy="12.5" r=".6"/><path d="M12 2a10 10 0 0 0 0 20 1.7 1.7 0 0 0 1.7-1.7c0-.5-.2-.9-.5-1.2a1.7 1.7 0 0 1 1.2-2.9H16a6 6 0 0 0 6-6c0-5-4.5-8.2-10-8.2z"/></symbol><symbol id="i-paperclip" viewBox="0 0 24 24"><path d="M21.4 11.1l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></symbol><symbol id="i-party" viewBox="0 0 24 24"><path d="M4 20l4.5-12.5 8 8z"/><path d="M14 4v2M20 10h2M18 6l1.5-1.5M10 2h.01M21 17h.01"/></symbol><symbol id="i-pencil" viewBox="0 0 24 24"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z"/><path d="M15 5l4 4"/></symbol><symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></symbol><symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.8a2 2 0 0 1-1.1 1.8l-1.8.9A2 2 0 0 0 5 15.2V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.8a2 2 0 0 0-1.1-1.8l-1.8-.9a2 2 0 0 1-1.1-1.8V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></symbol><symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol><symbol id="i-pointer" viewBox="0 0 24 24"><path d="M3 3l7 17 2.5-7.5L20 10z"/></symbol><symbol id="i-refresh" viewBox="0 0 24 24"><path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/><path d="M16 16h5v5"/></symbol><symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></symbol><symbol id="i-reply" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol><symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/></symbol><symbol id="i-school" viewBox="0 0 24 24"><path d="M14 22v-4a2 2 0 1 0-4 0v4"/><path d="M18 10l4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2"/><path d="M18 5v17M6 5v17M4 6l8-4 8 4"/><circle cx="12" cy="9" r="2"/></symbol><symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></symbol><symbol id="i-send" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></symbol><symbol id="i-smartphone" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M12 18h.01"/></symbol><symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/></symbol><symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 3v4M17 5h4M5 17v4M3 19h4"/></symbol><symbol id="i-square" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2" fill="currentColor" stroke="none"/></symbol><symbol id="i-square-pen" viewBox="0 0 24 24"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></symbol><symbol id="i-tag" viewBox="0 0 24 24"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z"/><path d="M7 7h.01"/></symbol><symbol id="i-timer" viewBox="0 0 24 24"><path d="M10 2h4M12 14l3-3"/><circle cx="12" cy="14" r="8"/></symbol><symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6"/></symbol><symbol id="i-trending-up" viewBox="0 0 24 24"><path d="M22 7l-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></symbol><symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol><symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></symbol><symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z"/></symbol><symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></symbol><symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></symbol></svg>
 
 <div class="site-marquee" data-site-marquee style="display:none">
   <div class="site-marquee-track"><span data-site-marquee-text></span></div>
@@ -439,10 +443,10 @@
     <section id="view-home">
       <div class="oj-header">
         <div>
-          <h1>🏠 Bosh sahifa</h1>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-home"></use></svg> Bosh sahifa</h1>
           <p id="homeDateLine">—</p>
         </div>
-        <button class="btn btn-ghost btn-sm" id="homeRefreshBtn">🔄 Yangilash</button>
+        <button class="btn btn-ghost btn-sm" id="homeRefreshBtn"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg> Yangilash</button>
       </div>
 
       <div class="home-stat-row" id="homeTopStatRow"></div>
@@ -450,24 +454,24 @@
       <div class="home-cols">
         <div class="home-section-card">
           <div class="home-section-head">
-            <h3 class="home-col-title">📅 Bugungi darslar</h3>
-            <a href="#" class="home-see-all" id="homeSeeAllToday">Barchasi →</a>
+            <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Bugungi darslar</h3>
+            <a href="#" class="home-see-all" id="homeSeeAllToday">Barchasi <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg></a>
           </div>
           <div id="homeTodayGroups" class="home-lesson-list"></div>
           <div id="homeTodayEmpty" class="oj-empty" style="display:none; padding:24px;">
-            <div class="oj-empty-icon">🌤️</div>
+            <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"></use></svg></div>
             <p>Bugun hech qaysi guruhda dars yo'q.</p>
           </div>
         </div>
 
         <div class="home-section-card">
           <div class="home-section-head">
-            <h3 class="home-col-title">📅 Ertangi darslar</h3>
-            <a href="#" class="home-see-all" id="homeSeeAllTomorrow">Barchasi →</a>
+            <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Ertangi darslar</h3>
+            <a href="#" class="home-see-all" id="homeSeeAllTomorrow">Barchasi <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg></a>
           </div>
           <div id="homeTomorrowGroups" class="home-lesson-list"></div>
           <div id="homeTomorrowEmpty" class="oj-empty" style="display:none; padding:24px;">
-            <div class="oj-empty-icon">🌤️</div>
+            <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"></use></svg></div>
             <p>Ertaga hech qaysi guruhda dars yo'q.</p>
           </div>
         </div>
@@ -477,17 +481,17 @@
       <div class="today-row" style="margin-bottom:24px;">
         <div class="home-section-card today-hw-section" style="margin-bottom:0;">
           <div class="home-section-head">
-            <h3 class="home-col-title">📝 Bugungi guruh — Uy vazifalari</h3>
+            <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-square-pen"></use></svg> Bugungi guruh — Uy vazifalari</h3>
             <span style="display:flex;align-items:center;gap:8px;">
               <span class="today-hw-refreshed" id="todayHwRefreshedAt"></span>
-              <button class="btn btn-ghost btn-sm" id="todayHwRefreshBtn" title="Yangilash">🔄</button>
+              <button class="btn btn-ghost btn-sm" id="todayHwRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
             </span>
           </div>
           <p id="todayHwSubline" style="margin:-6px 0 12px; color:var(--adm-gray,var(--gray)); font-size:.82rem;"></p>
           <div class="today-hw-grid" id="todayHwGrid"></div>
-          <div id="todayHwLoading" class="today-hw-loading">⏳ Yuklanmoqda…</div>
+          <div id="todayHwLoading" class="today-hw-loading"><svg class="ic" aria-hidden="true"><use href="#i-hourglass"></use></svg> Yuklanmoqda…</div>
           <div id="todayHwEmpty" class="oj-empty" style="display:none; padding:24px;">
-            <div class="oj-empty-icon">📅</div>
+            <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg></div>
             <p>Bugun hech qaysi guruhda dars yo'q yoki ma'lumot kiritilmagan.</p>
           </div>
         </div>
@@ -495,7 +499,7 @@
         <!-- So'nggi kiritilgan uy vazifasi matni — alohida kartochkalarda, talaba profilidagi kabi -->
         <div class="home-section-card today-assign-section" style="margin-bottom:0;">
           <div class="home-section-head">
-            <h3 class="home-col-title">📚 Guruhlarning so'nggi uy vazifalari</h3>
+            <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-books"></use></svg> Guruhlarning so'nggi uy vazifalari</h3>
           </div>
           <div class="today-assign-grid" id="todayAssignGrid"></div>
         </div>
@@ -503,18 +507,18 @@
 
       <div class="home-section-card" style="margin-bottom:24px;">
         <div class="home-section-head">
-          <h3 class="home-col-title">📊 Kecha bo'lib o'tgan darslar</h3>
+          <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> Kecha bo'lib o'tgan darslar</h3>
         </div>
         <p id="homeYesterdayGroupsLine" style="margin:-6px 0 16px; color:var(--adm-gray,var(--gray)); font-size:.85rem;"></p>
         <div class="home-mini-row" id="homeYesterdayStatRow"></div>
         <div id="homeYesterdayEmpty" class="oj-empty" style="display:none; padding:24px;">
-          <div class="oj-empty-icon">🌤️</div>
+          <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"></use></svg></div>
           <p>Kecha hech qaysi guruhda dars bo'lmagan.</p>
         </div>
       </div>
 
       <div class="home-cta-wrap">
-        <button class="btn btn-primary" id="homeGoToStats">📈 To'liq statistikani ko'rish →</button>
+        <button class="btn btn-primary" id="homeGoToStats"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> To'liq statistikani ko'rish <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg></button>
       </div>
     </section>
 
@@ -522,7 +526,7 @@
     <section id="view-stats" hidden>
       <div class="oj-header">
         <div>
-          <h1>📈 Statistika</h1>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Statistika</h1>
           <p>Guruhlar bo'yicha davomat va uy vazifa ko'rsatkichlari.</p>
         </div>
         <div class="oj-days-preset-row" id="statsPeriodPicker">
@@ -543,7 +547,7 @@
         </table>
       </div>
       <div id="statsEmpty" class="oj-empty" style="display:none;">
-        <div class="oj-empty-icon">📂</div>
+        <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-folder-open"></use></svg></div>
         <h3>Ma'lumot yo'q</h3>
         <p>Hali "O'quv jarayoni" bo'limida guruh va talaba yaratilmagan.</p>
       </div>
@@ -566,7 +570,7 @@
 
     <!-- ===== LESSON LIST (inside one level) ===== -->
     <section id="view-lessons" hidden>
-      <a href="#" id="backToLevels" class="back-link">← Darajalarga qaytish</a>
+      <a href="#" id="backToLevels" class="back-link"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Darajalarga qaytish</a>
       <div class="breadcrumb-trail" id="lessonBreadcrumb"></div>
       <div class="admin-header">
         <div>
@@ -574,8 +578,8 @@
           <p id="lessonsLevelSub">0 ta dars</p>
         </div>
         <div style="display:flex; gap:.6em; flex-wrap:wrap;">
-          <button class="btn btn-danger" id="deleteCurrentLessonFolder" hidden>🗑️ Bu papkani o‘chirish</button>
-          <button class="btn btn-ghost" id="openAddLessonFolder">📁 Yangi papka</button>
+          <button class="btn btn-danger" id="deleteCurrentLessonFolder" hidden><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> Bu papkani o‘chirish</button>
+          <button class="btn btn-ghost" id="openAddLessonFolder"><svg class="ic" aria-hidden="true"><use href="#i-folder"></use></svg> Yangi papka</button>
           <button class="btn btn-amber" id="openAddLesson">+ Yangi dars qo‘shish</button>
         </div>
       </div>
@@ -596,7 +600,7 @@
 
     <!-- ===== COURSE TOPICS (inside Listening / Reading / Speaking) ===== -->
     <section id="view-course-topics" hidden>
-      <a href="#" id="backToCourseSections" class="back-link">← Bo‘limlarga qaytish</a>
+      <a href="#" id="backToCourseSections" class="back-link"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Bo‘limlarga qaytish</a>
       <div class="breadcrumb-trail" id="topicBreadcrumb"></div>
       <div class="admin-header">
         <div>
@@ -604,8 +608,8 @@
           <p id="courseTopicsSub">0 ta mavzu</p>
         </div>
         <div style="display:flex; gap:.6em; flex-wrap:wrap;">
-          <button class="btn btn-danger" id="deleteCurrentTopicFolder" hidden>🗑️ Bu papkani o‘chirish</button>
-          <button class="btn btn-ghost" id="openAddTopicFolder">📁 Yangi papka</button>
+          <button class="btn btn-danger" id="deleteCurrentTopicFolder" hidden><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> Bu papkani o‘chirish</button>
+          <button class="btn btn-ghost" id="openAddTopicFolder"><svg class="ic" aria-hidden="true"><use href="#i-folder"></use></svg> Yangi papka</button>
           <button class="btn btn-amber" id="openAddTopic">+ Yangi mavzu qo‘shish</button>
         </div>
       </div>
@@ -625,7 +629,7 @@
 
     <!-- ===== WRITING FOLDERS / QUESTIONS (inside CEFR or IELTS) ===== -->
     <section id="view-writing-items" hidden>
-      <a href="#" id="backToWritingTracks" class="back-link">← Writing bo‘limlariga qaytish</a>
+      <a href="#" id="backToWritingTracks" class="back-link"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Writing bo‘limlariga qaytish</a>
       <div class="breadcrumb-trail" id="writingBreadcrumb"></div>
       <div class="admin-header">
         <div>
@@ -633,8 +637,8 @@
           <p id="writingItemsSub">0 ta savol</p>
         </div>
         <div style="display:flex; gap:.6em; flex-wrap:wrap;">
-          <button class="btn btn-danger" id="deleteCurrentWritingFolder" hidden>🗑️ Bu papkani o‘chirish</button>
-          <button class="btn btn-ghost" id="openAddWritingFolder">📁 Yangi papka</button>
+          <button class="btn btn-danger" id="deleteCurrentWritingFolder" hidden><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> Bu papkani o‘chirish</button>
+          <button class="btn btn-ghost" id="openAddWritingFolder"><svg class="ic" aria-hidden="true"><use href="#i-folder"></use></svg> Yangi papka</button>
           <button class="btn btn-amber" id="openAddWritingQuestion">+ Yangi savol qo‘shish</button>
         </div>
       </div>
@@ -651,8 +655,8 @@
       </div>
 
       <div style="display:flex; gap:.6em; margin-bottom:1.2em; flex-wrap:wrap;">
-        <button class="btn btn-sm" data-essays-filter="pending">⏳ Kutilmoqda</button>
-        <button class="btn btn-sm" data-essays-filter="graded">✅ Baholangan</button>
+        <button class="btn btn-sm" data-essays-filter="pending"><svg class="ic" aria-hidden="true"><use href="#i-hourglass"></use></svg> Kutilmoqda</button>
+        <button class="btn btn-sm" data-essays-filter="graded"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Baholangan</button>
         <button class="btn btn-sm" data-essays-filter="all">Hammasi</button>
       </div>
 
@@ -684,7 +688,7 @@
         <div style="position:relative; flex:1; min-width:240px; max-width:420px;">
           <input type="text" id="studentSearchInput" placeholder="Ism, email yoki telefon bo‘yicha qidirish…"
             style="width:100%; padding:.75em 1em .75em 2.4em; border-radius:var(--radius-s); border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:.95rem;">
-          <span style="position:absolute; left:.85em; top:50%; transform:translateY(-50%); opacity:.55;">🔍</span>
+          <span style="position:absolute; left:.85em; top:50%; transform:translateY(-50%); opacity:.55;"><svg class="ic" aria-hidden="true"><use href="#i-search"></use></svg></span>
         </div>
         <span id="studentSearchCount" style="color:var(--gray); font-size:.85rem; white-space:nowrap;"></span>
       </div>
@@ -702,7 +706,7 @@
 
     <!-- ===== STUDENT PROGRESS (davomat / uy vazifa / kunlik baho) ===== -->
     <section id="view-student-progress" hidden>
-      <a href="#" id="backToStudentsFromProgress" class="back-link">← O‘quvchilarga qaytish</a>
+      <a href="#" id="backToStudentsFromProgress" class="back-link"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> O‘quvchilarga qaytish</a>
       <div class="admin-header">
         <div>
           <h1 id="progressStudentName">O‘quvchi</h1>
@@ -721,15 +725,15 @@
           <label style="flex:1; min-width:160px;">Davomat
             <select id="progressAttendedInput">
               <option value="">— Belgilanmagan</option>
-              <option value="yes">✅ Keldi</option>
-              <option value="no">🚫 Kelmadi</option>
+              <option value="yes">Keldi</option>
+              <option value="no">Kelmadi</option>
             </select>
           </label>
           <label style="flex:1; min-width:160px;">Uy vazifa
             <select id="progressHomeworkInput">
               <option value="">— Belgilanmagan</option>
-              <option value="yes">✅ Qildi</option>
-              <option value="no">🕓 Qilmadi</option>
+              <option value="yes">Qildi</option>
+              <option value="no">Qilmadi</option>
             </select>
           </label>
           <label style="flex:1; min-width:160px;">Kunlik baho
@@ -783,7 +787,7 @@
           <p>Bosh sahifada ko‘rsatiladigan so‘nggi 3 ta blog shu yerdan boshqariladi — rasm havolasi va matnni kiriting.</p>
         </div>
         <button class="btn btn-amber" id="openAddBlog">+ Yangi blog qo‘shish</button>
-        <button class="btn btn-ghost" id="reloadBlogs">🔄 Yangilash</button>
+        <button class="btn btn-ghost" id="reloadBlogs"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg> Yangilash</button>
       </div>
 
       <div class="blog-admin-grid" id="blogsGrid"></div>
@@ -842,7 +846,7 @@
       <div class="home-section-card" id="maintenanceModeCard" style="margin-bottom:28px; border:2px solid var(--adm-line,var(--line));">
         <div class="home-section-head" style="margin-bottom:12px;">
           <div>
-            <h2 style="margin:0 0 4px; font-size:1.1rem;">&#x1F527; Texnik ishlar rejimi</h2>
+            <h2 style="margin:0 0 4px; font-size:1.1rem;"><svg class="ic" aria-hidden="true"><use href="#i-wrench"></use></svg> Texnik ishlar rejimi</h2>
             <p style="margin:0; color:var(--gray); font-size:.85rem;">Yoqilganda, saytga kirgan ota-onalar va talabalar &ldquo;Sayt takomillashtirilmoqda&rdquo; sahifasini ko&lsquo;radi. Admin paneli ishlashda davom etadi.</p>
           </div>
           <div style="display:flex; align-items:center; gap:.6em; flex-shrink:0;">
@@ -870,7 +874,7 @@
       <div class="home-section-card" id="telegramBotCard" style="margin-bottom:28px;">
         <div class="home-section-head" style="margin-bottom:12px;">
           <div>
-            <h2 style="margin:0 0 4px; font-size:1.1rem;">&#x2708;&#xFE0F; Telegram Bot sozlamalari</h2>
+            <h2 style="margin:0 0 4px; font-size:1.1rem;"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram Bot sozlamalari</h2>
             <p style="margin:0; color:var(--gray); font-size:.85rem;">Blog postlarini bir vaqtda 4 tagacha kanal yoki guruhga yuborish mumkin. Guruh uchun chat_id raqam kiriting (masalan: <code>-1009876543210</code>).</p>
           </div>
         </div>
@@ -905,13 +909,13 @@
         </div>
         <div style="margin-top:1.2em; padding-top:1em; border-top:1px dashed var(--line);">
           <label class="field">
-            <span>🚫 "Kelmadi" xabari uchun Chat ID <span style="font-weight:400;color:var(--gray);">(o'quvchi davomatda "Kelmadi" deb belgilansa, shu chatga yuboriladi — masalan ishchingizning shaxsiy yoki guruh chat_id'si)</span></span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> "Kelmadi" xabari uchun Chat ID <span style="font-weight:400;color:var(--gray);">(o'quvchi davomatda "Kelmadi" deb belgilansa, shu chatga yuboriladi — masalan ishchingizning shaxsiy yoki guruh chat_id'si)</span></span>
             <input type="text" id="tgAbsentChatId" placeholder="@username yoki -1009876543210" style="max-width:420px;">
           </label>
         </div>
         <div style="margin-top:1.2em; padding-top:1em; border-top:1px dashed var(--line);">
           <label class="field">
-            <span>📊 "Kelmadi" — Google Sheets Web App URL <span style="font-weight:400;color:var(--gray);">(o'quvchi davomatda "Kelmadi" deb belgilansa, shu qatorga avtomatik yoziladi — Apps Script'ni deploy qilgach /exec havolasini shu yerga qo'ying)</span></span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> "Kelmadi" — Google Sheets Web App URL <span style="font-weight:400;color:var(--gray);">(o'quvchi davomatda "Kelmadi" deb belgilansa, shu qatorga avtomatik yoziladi — Apps Script'ni deploy qilgach /exec havolasini shu yerga qo'ying)</span></span>
             <input type="text" id="tgSheetScriptUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec" style="max-width:520px;">
           </label>
         </div>
@@ -926,7 +930,7 @@
 
       <form class="modal-form" id="siteSettingsForm" style="max-width:640px;">
 
-        <h3 style="margin-top:0;">🎨 Ranglar</h3>
+        <h3 style="margin-top:0;"><svg class="ic" aria-hidden="true"><use href="#i-palette"></use></svg> Ranglar</h3>
 
         <div class="field">
           <span>Asosiy rang (tugmalar, urg‘u)</span>
@@ -985,7 +989,7 @@
         </div>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>🏷️ Brend</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-tag"></use></svg> Brend</h3>
 
         <label class="field">
           <span>Sayt nomi (brend)</span>
@@ -1003,7 +1007,7 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>💳 To‘lov ma’lumotlari</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-credit-card"></use></svg> To‘lov ma’lumotlari</h3>
         <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">O‘quvchi kurs sotib olganda, to‘lov sahifasida shu karta raqami va egasi ismi ko‘rsatiladi.</p>
         <div style="display:grid; grid-template-columns:2fr 1fr; gap:1em;">
           <label class="field"><span>Karta raqami</span><input type="text" id="settingCardNumber" placeholder="8600 1234 5678 9012"></label>
@@ -1011,7 +1015,7 @@
         </div>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>🎮 So‘z o‘yini</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-gamepad"></use></svg> So‘z o‘yini</h3>
         <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">Talaba profilining bosh sahifasidagi "So‘z o‘yini" bo‘limini vaqtincha yashirish uchun belgini olib tashlang.</p>
         <div style="display:flex; align-items:center; gap:.7em; font-weight:700; font-size:.85rem;">
           <input type="checkbox" id="settingWordGameEnabled" style="width:19px; height:19px; accent-color: var(--teal); flex:none; cursor:pointer;">
@@ -1019,7 +1023,7 @@
         </div>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>🧭 Yuqori panel (barcha sahifalarda)</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-compass"></use></svg> Yuqori panel (barcha sahifalarda)</h3>
 
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
           <label class="field"><span>"Bosh sahifa" havolasi</span><input type="text" id="settingNavHomeLabel" placeholder="Bosh sahifa"></label>
@@ -1040,7 +1044,7 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>📢 Yugurma yozuv (bosh sahifa, admin, talaba va ota-ona panellarida, eng tepada)</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg> Yugurma yozuv (bosh sahifa, admin, talaba va ota-ona panellarida, eng tepada)</h3>
         <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">Chapdan o‘ngga qarab uzluksiz suzib turadigan yozuv. Matnni o‘chirmasdan ham, pastdagi belgi orqali xohlagan payt yoqib/o‘chirib qo‘yishingiz mumkin.</p>
         <div style="display:flex; align-items:center; gap:.7em; font-weight:700; font-size:.85rem; margin-bottom:1em;">
           <input type="checkbox" id="settingMarqueeEnabled" style="width:19px; height:19px; accent-color: var(--teal); flex:none; cursor:pointer;">
@@ -1052,7 +1056,7 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>🏠 Bosh sahifa — Hero qismi</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-home"></use></svg> Bosh sahifa — Hero qismi</h3>
 
         <label class="field">
           <span>Eyebrow matni (sarlavha ustidagi kichik yozuv)</span>
@@ -1090,7 +1094,7 @@
         <button type="button" class="btn btn-ghost btn-sm" id="addCertificateBtn" style="align-self:flex-start; margin-top:.4em;">+ Sertifikat rasmi qo‘shish</button>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>📖 Kurslar bo‘limi</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg> Kurslar bo‘limi</h3>
 
         <label class="field">
           <span>Bo‘lim eyebrow matni</span>
@@ -1113,7 +1117,7 @@
         </div>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>⚓ Footer</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-anchor"></use></svg> Footer</h3>
 
         <label class="field">
           <span>Footer tavsifi <span style="font-weight:400; color:var(--gray);">(logotip ostidagi qisqa matn)</span></span>
@@ -1131,7 +1135,7 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>✨ "Nega biz" bloklari</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-sparkles"></use></svg> "Nega biz" bloklari</h3>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
           <label class="field"><span>1-blok sarlavhasi</span><input type="text" id="settingFeature1Title" placeholder="Sifatli kontent"></label>
@@ -1145,7 +1149,7 @@
         </div>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>📰 Blog va baholash bo‘limlari</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-newspaper"></use></svg> Blog va baholash bo‘limlari</h3>
 
         <label class="field">
           <span>Blog bo‘limi sarlavhasi</span>
@@ -1157,7 +1161,7 @@
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3>💬 Talabalar fikri</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-message"></use></svg> Talabalar fikri</h3>
         <p style="font-size:.85rem; color:var(--gray); margin:0 0 1.2em;">
           Bosh sahifadagi "Talabalar fikri" bo'limini boshqaring. Istalgancha qo'shish va o'chirish mumkin.
         </p>
@@ -1171,7 +1175,7 @@
           <label class="field"><span>Ism Familiya</span><input type="text" id="tslFName" placeholder="Baxodirova Shaxlo"></label>
           <label class="field"><span>Daraja ✦ Muddat &nbsp;<small style="font-weight:400;color:var(--gray)">(✦ belgisi bilan ajrating)</small></span><input type="text" id="tslFRole" placeholder="CEFR — B2 sertifikati ✦ Qisqa muddat"></label>
           <label class="field"><span>Fikr matni</span><textarea id="tslFText" rows="3" placeholder="Talabaning fikri…"></textarea></label>
-          <label class="field"><span>📷 Rasm havolasi (URL, ixtiyoriy)</span><input type="url" id="tslFPhoto" placeholder="https://...rasm.jpg"></label>
+          <label class="field"><span><svg class="ic" aria-hidden="true"><use href="#i-camera"></use></svg> Rasm havolasi (URL, ixtiyoriy)</span><input type="url" id="tslFPhoto" placeholder="https://...rasm.jpg"></label>
           <div style="display:flex; gap:.6em; flex-wrap:wrap;">
             <button type="button" class="btn btn-amber btn-sm" id="tslFormSave">Saqlash</button>
             <button type="button" class="btn btn-ghost btn-sm" id="tslFormCancel">Bekor qilish</button>
@@ -1193,7 +1197,7 @@
     <section id="view-kundalik" hidden>
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
         <div>
-          <h1 style="margin:0 0 4px;">📅 Kundalik — Uy vazifalari</h1>
+          <h1 style="margin:0 0 4px;"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Kundalik — Uy vazifalari</h1>
           <p style="margin:0; color:var(--gray); font-size:14px;">Guruh papkasini oching, sana bo'yicha uy vazifalari qo'shing. Ro'yxat "Guruhlar" bo'limidagi guruhlar bilan avtomatik bir xil — yangi guruhni shu yerdan ham qo'shishingiz mumkin.</p>
         </div>
         <button class="btn btn-primary" id="openAddKundalikGroup">+ Yangi guruh</button>
@@ -1207,7 +1211,7 @@
       <!-- Homework list for a group -->
       <div id="kundalikHwView" style="display:none;">
         <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-          <button class="btn btn-ghost btn-sm" id="kundalikBackToGroups">← Guruhlar</button>
+          <button class="btn btn-ghost btn-sm" id="kundalikBackToGroups"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Guruhlar</button>
           <h2 style="margin:0;" id="kundalikActiveGroupName">Guruh</h2>
         </div>
         <div style="margin-bottom:16px;">
@@ -1226,7 +1230,7 @@
     <section id="view-gradebook" hidden>
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
         <div>
-          <h1 style="margin:0 0 4px;">📊 Test natijalar</h1>
+          <h1 style="margin:0 0 4px;"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> Test natijalar</h1>
           <p style="margin:0; color:var(--gray); font-size:14px;">Bu yerda kiritilgan natijalar <code>natijalar.html</code> ochiq sahifasida hammaga ko‘rinadi.</p>
         </div>
       </div>
@@ -1284,7 +1288,7 @@
 
         <div id="gbGroupTableWrap" style="display:none; margin-top:16px;">
           <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
-            <button class="btn btn-ghost btn-sm" id="gbBackToGroupsBtn">← Guruhlar</button>
+            <button class="btn btn-ghost btn-sm" id="gbBackToGroupsBtn"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Guruhlar</button>
             <span style="font-weight:700;" id="gbGroupTableTitle"></span>
           </div>
 
@@ -1315,7 +1319,7 @@
     <section id="view-broadcast" hidden>
       <div class="admin-header">
         <div>
-          <h1>📢 Xabar yuborish</h1>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg> Xabar yuborish</h1>
           <p>Barcha talabalar profilidagi bildirishnomalar bo‘limiga xabar yuboring.</p>
         </div>
       </div>
@@ -1338,14 +1342,14 @@
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typeNotifLabel">
               <input type="radio" name="broadcastType" value="notification" id="typeNotif" checked style="accent-color:#2563eb;">
               <span>
-                <span style="font-weight:600;font-size:13px;">&#128276; Bildirishnoma</span><br>
+                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true"><use href="#i-bell"></use></svg> Bildirishnoma</span><br>
                 <span style="font-size:11px;color:var(--gray);">Pastda o&#39;ng tomonda kichik popup</span>
               </span>
             </label>
             <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typePopupLabel">
               <input type="radio" name="broadcastType" value="popup" id="typePopup" style="accent-color:#2563eb;">
               <span>
-                <span style="font-weight:600;font-size:13px;">&#128227; Katta Popup</span><br>
+                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg> Katta Popup</span><br>
                 <span style="font-size:11px;color:var(--gray);">Ekran o&#39;rtasida modal oyna</span>
               </span>
             </label>
@@ -1367,12 +1371,12 @@
     <section id="view-parent-chats" hidden>
       <div class="admin-header chat-page-header">
         <div>
-          <h1>👪 Ota-onalar</h1>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg> Ota-onalar</h1>
           <p>Ota-onalar bilan muloqot va xabar almashish.</p>
         </div>
         <div class="chat-header-actions">
           <div class="chat-search-box">
-            <span class="chat-search-box-icon">🔍</span>
+            <span class="chat-search-box-icon"><svg class="ic" aria-hidden="true"><use href="#i-search"></use></svg></span>
             <input type="text" id="parentChatListSearchInput" placeholder="Qidirish...">
           </div>
         </div>
@@ -1392,7 +1396,7 @@
           <div class="chat-messages" id="adminParentChatMessages"></div>
           <div class="chat-input-row">
             <textarea id="adminParentChatInput" class="chat-textarea" placeholder="Javob yozing..." rows="1" maxlength="1000"></textarea>
-            <button class="chat-send-btn" id="adminParentChatSendBtn" title="Yuborish">➤</button>
+            <button class="chat-send-btn" id="adminParentChatSendBtn" title="Yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg></button>
           </div>
         </div>
       </div>
@@ -1402,15 +1406,15 @@
     <section id="view-chats" hidden>
       <div class="admin-header chat-page-header">
         <div>
-          <h1>💬 Xabarlar</h1>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-message"></use></svg> Xabarlar</h1>
           <p>Talabalar bilan muloqot va xabar almashish.</p>
         </div>
         <div class="chat-header-actions">
           <div class="chat-search-box">
-            <span class="chat-search-box-icon">🔍</span>
+            <span class="chat-search-box-icon"><svg class="ic" aria-hidden="true"><use href="#i-search"></use></svg></span>
             <input type="text" id="chatListSearchInput" placeholder="Qidirish...">
           </div>
-          <button class="btn btn-amber" id="openNewChatBtn"><span>✈️</span> Yangi xabar</button>
+          <button class="btn btn-amber" id="openNewChatBtn"><span><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg></span> Yangi xabar</button>
         </div>
       </div>
       <div class="chat-grid">
@@ -1438,15 +1442,15 @@
               <div class="chat-reply-preview-label">Javob: <span id="adminChatReplyPreviewName"></span></div>
               <div class="chat-reply-preview-text" id="adminChatReplyPreviewText"></div>
             </div>
-            <button type="button" class="chat-reply-preview-close" id="adminChatReplyPreviewClose" title="Bekor qilish">✕</button>
+            <button type="button" class="chat-reply-preview-close" id="adminChatReplyPreviewClose" title="Bekor qilish"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>
           </div>
           <div class="chat-input-row">
             <div class="chat-emoji-wrap">
-              <button type="button" class="chat-emoji-btn" id="adminChatEmojiBtn" title="Emoji">😊</button>
+              <button type="button" class="chat-emoji-btn" id="adminChatEmojiBtn" title="Emoji"><svg class="ic" aria-hidden="true"><use href="#i-smile"></use></svg></button>
               <div class="chat-emoji-panel" id="adminChatEmojiPanel" hidden></div>
             </div>
             <textarea id="adminChatInput" class="chat-textarea" placeholder="Javob yozing..." rows="1" maxlength="1000"></textarea>
-            <button class="chat-send-btn" id="adminChatSendBtn" title="Yuborish">➤</button>
+            <button class="chat-send-btn" id="adminChatSendBtn" title="Yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg></button>
           </div>
         </div>
       </div>
@@ -1456,14 +1460,14 @@
     <section id="view-oquv-groups" hidden>
       <div class="oj-header">
         <div>
-          <h1>📖 O'quv jarayoni</h1>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg> O'quv jarayoni</h1>
           <p>Guruh yarating, ichiga talabalar qo'shing va har bir talabaning kunlik jarayonini kuzating.</p>
         </div>
         <button class="btn btn-primary" id="openAddOquvGroup">+ Guruh qo'shish</button>
       </div>
       <div id="ojGroupsGrid" class="oj-groups-grid"></div>
       <div id="ojGroupsEmpty" class="oj-empty" style="display:none;">
-        <div class="oj-empty-icon">📂</div>
+        <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-folder-open"></use></svg></div>
         <h3>Hali guruh yo'q</h3>
         <p>Birinchi guruhni yaratib, talabalar qo'shing.</p>
       </div>
@@ -1472,28 +1476,28 @@
     <!-- ===== O'QUV JARAYONI: Students in a group ===== -->
     <section id="view-oquv-students" hidden>
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
-        <button class="btn btn-ghost btn-sm" id="ojBackToGroups">← Guruhlar</button>
+        <button class="btn btn-ghost btn-sm" id="ojBackToGroups"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Guruhlar</button>
         <div>
           <h1 style="margin:0; font-size:1.4rem;" id="ojGroupTitle">Guruh</h1>
           <p style="margin:0; color:var(--gray); font-size:.85rem;" id="ojGroupSub">0 talaba</p>
           <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupDaysLine"></p>
         </div>
-        <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn" style="margin-left:auto;">📋 Hammasini nusxalash</button>
-        <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn">📄 Guruh statistikasi (PDF, 30 kun)</button>
+        <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn" style="margin-left:auto;"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Hammasini nusxalash</button>
+        <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Guruh statistikasi (PDF, 30 kun)</button>
         <button class="btn btn-primary" id="openAddOquvStudent">+ Talaba qo'shish</button>
       </div>
       <div id="ojScheduleBanner" class="oj-schedule-banner" hidden></div>
       <p style="color:var(--gray); font-size:.85rem; margin:-10px 0 16px;">Ro'yxatda <strong id="ojTodayLabel"></strong> uchun davomat, uy vazifa va bahoni belgilang. To'liq tarixni ko'rish yoki tahrirlash uchun talaba ismiga bosing.</p>
       <div class="oj-days-preset-row" id="ojStudentFilterRow" style="margin-bottom:14px;">
         <button type="button" class="btn btn-ghost btn-sm oj-filter-btn active" data-oj-filter="all">Barchasi <span class="oj-filter-count" id="ojFilterCountAll">0</span></button>
-        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="attended">✅ Darsga kelganlar <span class="oj-filter-count" id="ojFilterCountAttended">0</span></button>
-        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="absent">🚫 Darsga kelmaganlar <span class="oj-filter-count" id="ojFilterCountAbsent">0</span></button>
-        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="hw-done">✅ Uy vazifa qilganlar <span class="oj-filter-count" id="ojFilterCountHwDone">0</span></button>
-        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="hw-undone">🕓 Uy vazifa qilmaganlar <span class="oj-filter-count" id="ojFilterCountHwUndone">0</span></button>
+        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="attended"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Darsga kelganlar <span class="oj-filter-count" id="ojFilterCountAttended">0</span></button>
+        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="absent"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Darsga kelmaganlar <span class="oj-filter-count" id="ojFilterCountAbsent">0</span></button>
+        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="hw-done"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Uy vazifa qilganlar <span class="oj-filter-count" id="ojFilterCountHwDone">0</span></button>
+        <button type="button" class="btn btn-ghost btn-sm oj-filter-btn" data-oj-filter="hw-undone"><svg class="ic" aria-hidden="true"><use href="#i-clock"></use></svg> Uy vazifa qilmaganlar <span class="oj-filter-count" id="ojFilterCountHwUndone">0</span></button>
       </div>
       <div id="ojStudentsGrid" class="oj-students-list"></div>
       <div id="ojStudentsEmpty" class="oj-empty" style="display:none;">
-        <div class="oj-empty-icon">🎓</div>
+        <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg></div>
         <h3>Hali talaba yo'q</h3>
         <p>Bu guruhga talaba qo'shing.</p>
       </div>
@@ -1502,7 +1506,7 @@
     <!-- ===== O'QUV JARAYONI: Student progress ===== -->
     <section id="view-oquv-progress" hidden>
       <div style="display:flex; align-items:center; gap:12px; margin-bottom:28px; flex-wrap:wrap;">
-        <button class="btn btn-ghost btn-sm" id="ojBackToStudents">← Talabalar</button>
+        <button class="btn btn-ghost btn-sm" id="ojBackToStudents"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Talabalar</button>
         <div class="oj-student-badge">
           <div class="oj-student-avatar" id="ojProgressAvatar">A</div>
           <div>
@@ -1515,7 +1519,7 @@
           <code id="ojProgressIdVal" style="background:var(--surface,#f4f4f4); padding:4px 9px; border-radius:6px; font-weight:700;"></code>
           <button type="button" class="btn btn-ghost btn-sm" id="ojCopyIdBtn">Nusxalash</button>
         </div>
-        <button type="button" class="btn btn-ghost btn-sm" id="ojStudentPdfBtn" style="margin-left:auto;">📄 PDF yuklash (30 kun)</button>
+        <button type="button" class="btn btn-ghost btn-sm" id="ojStudentPdfBtn" style="margin-left:auto;"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> PDF yuklash (30 kun)</button>
       </div>
 
       <!-- Stats row -->
@@ -1539,7 +1543,7 @@
       </div>
 
       <!-- Weekly / monthly stats -->
-      <p class="oj-month-stats-title">📅 Oxirgi 7 kun</p>
+      <p class="oj-month-stats-title"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Oxirgi 7 kun</p>
       <div class="oj-stats-row oj-month-stats-row">
         <div class="oj-stat-card">
           <div class="oj-stat-val" id="ojWeekStatHw">—</div>
@@ -1555,7 +1559,7 @@
         </div>
       </div>
 
-      <p class="oj-month-stats-title">🗓️ Oxirgi 30 kun</p>
+      <p class="oj-month-stats-title"><svg class="ic" aria-hidden="true"><use href="#i-calendar-days"></use></svg> Oxirgi 30 kun</p>
       <div class="oj-stats-row oj-month-stats-row">
         <div class="oj-stat-card">
           <div class="oj-stat-val" id="ojMonthStatHw">—</div>
@@ -1577,54 +1581,54 @@
         <input type="hidden" id="ojEntryEditingId" value="">
         <div class="oj-form-grid">
           <label class="oj-label">
-            <span>📅 Sana</span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Sana</span>
             <input type="date" id="ojDateInput" required class="oj-input">
           </label>
           <label class="oj-label">
-            <span>👤 Davomat</span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-user"></use></svg> Davomat</span>
             <select id="ojAttendedInput" class="oj-select">
               <option value="">— Belgilanmagan</option>
-              <option value="yes">✅ Keldi</option>
-              <option value="late">⏰ Kech qoldi</option>
-              <option value="no">🚫 Kelmadi</option>
+              <option value="yes">Keldi</option>
+              <option value="late">Kech qoldi</option>
+              <option value="no">Kelmadi</option>
             </select>
           </label>
           <label class="oj-label">
-            <span>📝 Uy vazifa</span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-square-pen"></use></svg> Uy vazifa</span>
             <select id="ojHomeworkInput" class="oj-select">
               <option value="">— Belgilanmagan</option>
-              <option value="yes">✅ Qildi</option>
-              <option value="no">🕓 Qilmadi</option>
-              <option value="partial">🔶 Ma'lum foizini qildi</option>
+              <option value="yes">Qildi</option>
+              <option value="no">Qilmadi</option>
+              <option value="partial">Ma'lum foizini qildi</option>
             </select>
           </label>
           <label class="oj-label" id="ojHwPercentWrap" style="display:none;">
-            <span>🔶 Necha foiz bajardi</span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-diamond"></use></svg> Necha foiz bajardi</span>
             <input type="number" min="0" max="100" id="ojHwPercentInput" class="oj-input" placeholder="Masalan: 60">
           </label>
           <label class="oj-label" id="ojHwMissingWrap" style="grid-column:1/-1; display:none;">
-            <span>📌 Bajarilmagan uy vazifa</span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-pin"></use></svg> Bajarilmagan uy vazifa</span>
             <input type="text" id="ojHwMissingInput" class="oj-input" placeholder="Masalan: 3-mashq, insho…">
           </label>
           <label class="oj-label">
-            <span>🚫 Jazolandi</span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Jazolandi</span>
             <select id="ojPunishedInput" class="oj-select">
               <option value="">— Yo'q</option>
-              <option value="yes">🚫 Ha, jazolandi</option>
+              <option value="yes">Ha, jazolandi</option>
             </select>
           </label>
           <label class="oj-label" id="ojPunishCountWrap" style="display:none;">
-            <span>🔢 Nechta jazo</span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-hash"></use></svg> Nechta jazo</span>
             <input type="number" min="0" step="1" id="ojPunishCountInput" class="oj-input" placeholder="Masalan: 2">
           </label>
           <label class="oj-label" style="grid-column:1/-1;">
-            <span>💬 Izoh (ixtiyoriy)</span>
+            <span><svg class="ic" aria-hidden="true"><use href="#i-message"></use></svg> Izoh (ixtiyoriy)</span>
             <textarea id="ojNoteInput" rows="2" class="oj-textarea" placeholder="Masalan: darsda faol ishtirok etdi…"></textarea>
           </label>
         </div>
         <div style="display:flex; gap:.8em; align-items:center; margin-top:14px; flex-wrap:wrap;">
-          <button class="btn btn-primary" id="ojSaveBtn">💾 Saqlash</button>
-          <button type="button" class="btn btn-ghost btn-sm" id="ojCancelEditBtn" hidden>✕ Bekor qilish</button>
+          <button class="btn btn-primary" id="ojSaveBtn"><svg class="ic" aria-hidden="true"><use href="#i-save"></use></svg> Saqlash</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="ojCancelEditBtn" hidden><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg> Bekor qilish</button>
           <span class="save-status" id="ojSaveStatus"></span>
         </div>
       </div>
@@ -1632,7 +1636,7 @@
       <!-- Entries timeline -->
       <div id="ojEntriesList" class="oj-entries-list"></div>
       <div id="ojEntriesEmpty" class="oj-empty" style="display:none; margin-top:24px;">
-        <div class="oj-empty-icon">📋</div>
+        <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg></div>
         <h3>Hali yozuv yo'q</h3>
         <p>Yuqoridagi forma orqali birinchi yozuvni qo'shing.</p>
       </div>
@@ -1642,18 +1646,18 @@
     <section id="view-activity-log" hidden>
       <div class="oj-header">
         <div>
-          <h1>🕵️ Faollik jurnali</h1>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-eye"></use></svg> Faollik jurnali</h1>
           <p><span class="actlog-live-dot"></span>Talabalar va ota-onalarning kirish/ro'yxatdan o'tishi — real vaqtda yangilanadi.</p>
         </div>
-        <button class="btn btn-ghost btn-sm" id="actlogRefreshBtn">🔄 Yangilash</button>
+        <button class="btn btn-ghost btn-sm" id="actlogRefreshBtn"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg> Yangilash</button>
       </div>
 
       <div class="actlog-filter-row">
         <button class="actlog-filter-btn active" data-actlog-filter="all">Barchasi</button>
-        <button class="actlog-filter-btn" data-actlog-filter="student">🎓 Talabalar</button>
-        <button class="actlog-filter-btn" data-actlog-filter="parent">👪 Ota-onalar</button>
-        <button class="actlog-filter-btn" data-actlog-filter="login">🔑 Kirish</button>
-        <button class="actlog-filter-btn" data-actlog-filter="register">✅ Ro'yxatdan o'tish</button>
+        <button class="actlog-filter-btn" data-actlog-filter="student"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg> Talabalar</button>
+        <button class="actlog-filter-btn" data-actlog-filter="parent"><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg> Ota-onalar</button>
+        <button class="actlog-filter-btn" data-actlog-filter="login"><svg class="ic" aria-hidden="true"><use href="#i-key"></use></svg> Kirish</button>
+        <button class="actlog-filter-btn" data-actlog-filter="register"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Ro'yxatdan o'tish</button>
       </div>
 
       <p id="actlogStatusLine" style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:10px;"></p>
@@ -1674,10 +1678,10 @@
           <tbody id="actlogTableBody"></tbody>
         </table>
         <div id="actlogEmpty" class="actlog-empty" style="display:none;">
-          <div style="font-size:2.5rem;margin-bottom:10px;">📋</div>
+          <div style="font-size:2.5rem;margin-bottom:10px;"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg></div>
           <p>Hali faollik yozuvi yo'q.</p>
         </div>
-        <p id="actlogLoading" style="text-align:center;padding:24px;color:var(--adm-gray,var(--gray));">⏳ Yuklanmoqda…</p>
+        <p id="actlogLoading" style="text-align:center;padding:24px;color:var(--adm-gray,var(--gray));"><svg class="ic" aria-hidden="true"><use href="#i-hourglass"></use></svg> Yuklanmoqda…</p>
       </div>
       <div style="text-align:center;margin-top:16px;">
         <button class="btn btn-ghost btn-sm" id="actlogLoadMoreBtn" style="display:none;">Ko'proq yuklash</button>
@@ -1688,7 +1692,7 @@
     <section id="view-reading-mocks" hidden>
       <div class="admin-header">
         <div>
-          <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;">🎓 CEFR › 📖 Reading</div>
+          <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg> CEFR › <svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg> Reading</div>
           <h1>Reading Mocks</h1>
           <p>CEFR Reading Mock testlarini yarating, tahrirlang va boshqaring.</p>
         </div>
@@ -1699,7 +1703,7 @@
         <p id="rmLoading" style="color:var(--adm-gray,var(--gray));padding:24px 0;">Yuklanmoqda…</p>
         <div id="rmGrid" style="display:flex;flex-direction:column;gap:12px;"></div>
         <div id="rmEmpty" style="display:none;text-align:center;padding:60px 24px;color:var(--adm-gray,var(--gray));">
-          <div style="font-size:3rem;margin-bottom:14px;">📖</div>
+          <div style="font-size:3rem;margin-bottom:14px;"><svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg></div>
           <h3 style="margin:0 0 8px;color:var(--adm-ink,var(--ink));">Hali mock test yaratilmagan</h3>
           <p style="margin:0;font-size:.9rem;">"Yangi mock yaratish" tugmasini bosib birinchi mock testni yarating.</p>
         </div>
@@ -1710,17 +1714,17 @@
     <section id="view-reading-attempts" hidden>
       <div class="admin-header">
         <div>
-          <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;">🎓 CEFR › 📊 Urinishlar</div>
+          <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg> CEFR › <svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> Urinishlar</div>
           <h1>Urinishlar</h1>
           <p>Talabalar va mehmonlarning CEFR reading mock yechish tarixi.</p>
         </div>
-        <button class="btn btn-ghost btn-sm" id="rmaPageRefreshBtn" onclick="rmaTabRefresh()">🔄 Yangilash</button>
+        <button class="btn btn-ghost btn-sm" id="rmaPageRefreshBtn" onclick="rmaTabRefresh()"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg> Yangilash</button>
       </div>
 
       <!-- Tab switcher -->
       <div style="display:flex;gap:8px;margin-bottom:22px;">
-        <button id="rmaTabStudents" onclick="rmaSetTab('students')" class="btn btn-primary btn-sm" style="border-radius:10px;font-size:.85rem;">📚 Talabalar</button>
-        <button id="rmaTabGuests" onclick="rmaSetTab('guests')" class="btn btn-ghost btn-sm" style="border-radius:10px;font-size:.85rem;">🌐 Mehmonlar</button>
+        <button id="rmaTabStudents" onclick="rmaSetTab('students')" class="btn btn-primary btn-sm" style="border-radius:10px;font-size:.85rem;"><svg class="ic" aria-hidden="true"><use href="#i-books"></use></svg> Talabalar</button>
+        <button id="rmaTabGuests" onclick="rmaSetTab('guests')" class="btn btn-ghost btn-sm" style="border-radius:10px;font-size:.85rem;"><svg class="ic" aria-hidden="true"><use href="#i-globe"></use></svg> Mehmonlar</button>
       </div>
 
       <!-- ---- STUDENTS TAB ---- -->
@@ -1740,8 +1744,8 @@
             <option value="">Barcha mocklar</option>
           </select>
           <select class="oj-select" id="rmaPageSort" style="font-size:.83rem;" onchange="rmaPageFilter()">
-            <option value="date-desc">Yangi → eski</option>
-            <option value="date-asc">Eski → yangi</option>
+            <option value="date-desc">Yangidan eskiga</option>
+            <option value="date-asc">Eskidan yangiga</option>
             <option value="score-desc">Yuqori natija</option>
             <option value="score-asc">Past natija</option>
           </select>
@@ -1767,7 +1771,7 @@
               <tbody id="rmaPageTableBody"></tbody>
             </table>
             <div id="rmaPageEmpty" style="display:none;text-align:center;padding:56px 24px;color:var(--adm-gray,var(--gray));">
-              <div style="font-size:2.5rem;margin-bottom:10px;">📭</div>
+              <div style="font-size:2.5rem;margin-bottom:10px;"><svg class="ic" aria-hidden="true"><use href="#i-inbox"></use></svg></div>
               <div style="font-weight:700;color:var(--adm-ink,#101B3D);margin-bottom:4px;">Hali urinish yo'q</div>
               <div style="font-size:.85rem;">Hali hech qaysi talaba reading mock yechildi.</div>
             </div>
@@ -1789,8 +1793,8 @@
         <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
           <input class="rma-search" type="text" id="gmaSearch" placeholder="Mehmon ismi / telefon…" oninput="gmaFilter()" style="max-width:240px;">
           <select class="oj-select" id="gmaSort" style="font-size:.83rem;" onchange="gmaFilter()">
-            <option value="date-desc">Yangi → eski</option>
-            <option value="date-asc">Eski → yangi</option>
+            <option value="date-desc">Yangidan eskiga</option>
+            <option value="date-asc">Eskidan yangiga</option>
             <option value="score-desc">Yuqori natija</option>
             <option value="score-asc">Past natija</option>
           </select>
@@ -1815,7 +1819,7 @@
               <tbody id="gmaTableBody"></tbody>
             </table>
             <div id="gmaEmpty" style="display:none;text-align:center;padding:56px 24px;color:var(--adm-gray,var(--gray));">
-              <div style="font-size:2.5rem;margin-bottom:10px;">📭</div>
+              <div style="font-size:2.5rem;margin-bottom:10px;"><svg class="ic" aria-hidden="true"><use href="#i-inbox"></use></svg></div>
               <div style="font-weight:700;color:var(--adm-ink,#101B3D);margin-bottom:4px;">Hali mehmon urinishi yo'q</div>
               <div style="font-size:.85rem;">Mehmonlar CEFR reading mock yechganda bu yerda ko'rinadi.</div>
             </div>
@@ -1829,13 +1833,13 @@
     <section id="view-speaking-menu" hidden>
       <div class="admin-header">
         <div>
-          <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;">🎓 CEFR › 🎙️ Speaking</div>
+          <div style="font-size:.82rem;color:var(--adm-gray,var(--gray));margin-bottom:4px;"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg> CEFR › <svg class="ic" aria-hidden="true"><use href="#i-mic"></use></svg> Speaking</div>
           <h1>Speaking</h1>
           <p>CEFR Speaking mashqlarini yarating va boshqaring.</p>
         </div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;text-align:center;gap:14px;background:var(--paper,#fff);border:1.5px solid var(--adm-line,var(--line));border-radius:18px;margin-top:8px;">
-        <span style="font-size:3rem;">🎙️</span>
+        <span style="font-size:3rem;"><svg class="ic" aria-hidden="true"><use href="#i-mic"></use></svg></span>
         <div style="font-weight:800;font-size:1.1rem;color:var(--adm-ink,#101b3d);">Tez kunda</div>
         <div style="font-size:.9rem;color:var(--adm-gray,var(--gray));max-width:320px;line-height:1.6;">Speaking bo'limi hozirda tayyorlanmoqda. Tez orada CEFR speaking mashqlari bu yerda paydo bo'ladi.</div>
       </div>
@@ -1845,7 +1849,7 @@
     <section id="view-reading-mock-builder" hidden>
       <div class="admin-header" style="margin-bottom:0;">
         <div>
-          <button class="btn btn-ghost btn-sm" id="rmBuilderBack" style="margin-bottom:8px;">← Orqaga</button>
+          <button class="btn btn-ghost btn-sm" id="rmBuilderBack" style="margin-bottom:8px;"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Orqaga</button>
           <h1 id="rmBuilderTitle">Yangi Mock Test</h1>
           <p id="rmBuilderSub">Asosiy ma'lumotlarni to'ldiring, so'ng har bir partni qo'shing.</p>
         </div>
@@ -1949,24 +1953,24 @@
     <section id="view-caller" hidden>
       <div class="oj-header">
         <div>
-          <h1>📞 Caller</h1>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-phone"></use></svg> Caller</h1>
           <p>Kelmagan talabalar qo'ng'iroq ro'yxati — real vaqtda yangilanadi.</p>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <span id="callerPendingBadge" style="background:#e53e3e;color:#fff;border-radius:20px;padding:4px 12px;font-size:.8rem;font-weight:700;display:none;">0 kutilmoqda</span>
-          <button class="btn btn-ghost btn-sm" id="callerDeleteAllDoneBtn" style="display:none;">🗑️ Bajarilganlarni tozalash</button>
+          <button class="btn btn-ghost btn-sm" id="callerDeleteAllDoneBtn" style="display:none;"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> Bajarilganlarni tozalash</button>
         </div>
       </div>
 
       <div class="actlog-filter-row" style="margin-bottom:16px;">
         <button class="actlog-filter-btn active" data-caller-filter="all">Barchasi</button>
-        <button class="actlog-filter-btn" data-caller-filter="pending">⏳ Kutilmoqda</button>
-        <button class="actlog-filter-btn" data-caller-filter="called">✅ Tel qilindi</button>
+        <button class="actlog-filter-btn" data-caller-filter="pending"><svg class="ic" aria-hidden="true"><use href="#i-hourglass"></use></svg> Kutilmoqda</button>
+        <button class="actlog-filter-btn" data-caller-filter="called"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Tel qilindi</button>
       </div>
 
-      <div id="callerLoading" style="text-align:center;padding:40px;color:var(--adm-gray,var(--gray));">⏳ Yuklanmoqda…</div>
+      <div id="callerLoading" style="text-align:center;padding:40px;color:var(--adm-gray,var(--gray));"><svg class="ic" aria-hidden="true"><use href="#i-hourglass"></use></svg> Yuklanmoqda…</div>
       <div id="callerEmpty" class="actlog-empty" style="display:none;text-align:center;padding:40px;">
-        <div style="font-size:2.5rem;margin-bottom:10px;">🎉</div>
+        <div style="font-size:2.5rem;margin-bottom:10px;"><svg class="ic" aria-hidden="true"><use href="#i-party"></use></svg></div>
         <p>Hozircha qo'ng'iroq ro'yxati bo'sh.</p>
       </div>
 
@@ -1995,17 +1999,17 @@
     <section id="view-anketa" hidden>
       <div class="oj-header">
         <div>
-          <h1>📋 Guruh Anketa</h1>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Guruh Anketa</h1>
           <p>Guruhlar yarating va talabalar ma'lumotlarini to'plang</p>
         </div>
-        <button class="btn btn-sm" onclick="anketaExcelYuklash()" style="background:var(--adm-green,#1FAE7A);color:#fff;border-radius:10px;font-size:.85rem;">📥 Excel yuklash</button>
+        <button class="btn btn-sm" onclick="anketaExcelYuklash()" style="background:var(--adm-green,#1FAE7A);color:#fff;border-radius:10px;font-size:.85rem;"><svg class="ic" aria-hidden="true"><use href="#i-download"></use></svg> Excel yuklash</button>
       </div>
 
       <!-- ANKETA TABS -->
       <div style="display:flex;gap:4px;background:var(--paper);border-radius:14px;padding:5px;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:24px;">
-        <button class="anketa-tab active" id="atab-guruh" onclick="anketaSwitchTab('guruh')" style="flex:1;padding:9px 16px;border:none;border-radius:10px;background:var(--adm-blue,#2F6FED);color:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;">🏫 Guruhlar</button>
-        <button class="anketa-tab" id="atab-anketa" onclick="anketaSwitchTab('anketa')" style="flex:1;padding:9px 16px;border:none;border-radius:10px;background:none;color:var(--adm-gray,#8892A6);cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;">📝 Anketa</button>
-        <button class="anketa-tab" id="atab-malumot" onclick="anketaSwitchTab('malumot')" style="flex:1;padding:9px 16px;border:none;border-radius:10px;background:none;color:var(--adm-gray,#8892A6);cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;">📊 Ma'lumotlar</button>
+        <button class="anketa-tab active" id="atab-guruh" onclick="anketaSwitchTab('guruh')" style="flex:1;padding:9px 16px;border:none;border-radius:10px;background:var(--adm-blue,#2F6FED);color:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;"><svg class="ic" aria-hidden="true"><use href="#i-school"></use></svg> Guruhlar</button>
+        <button class="anketa-tab" id="atab-anketa" onclick="anketaSwitchTab('anketa')" style="flex:1;padding:9px 16px;border:none;border-radius:10px;background:none;color:var(--adm-gray,#8892A6);cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;"><svg class="ic" aria-hidden="true"><use href="#i-square-pen"></use></svg> Anketa</button>
+        <button class="anketa-tab" id="atab-malumot" onclick="anketaSwitchTab('malumot')" style="flex:1;padding:9px 16px;border:none;border-radius:10px;background:none;color:var(--adm-gray,#8892A6);cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:7px;"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> Ma'lumotlar</button>
       </div>
 
       <!-- GURUHLAR TAB -->
@@ -2017,11 +2021,11 @@
           <div style="padding:24px;">
             <div style="display:flex;gap:10px;">
               <input type="text" id="aGuruhNomi" placeholder="Guruh nomini kiriting (masalan: CS-101, A-guruh...)" style="flex:1;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;padding:10px 14px;font-family:inherit;font-size:14px;color:var(--adm-ink,var(--ink));background:var(--surface,#f8f9fa);outline:none;" />
-              <button class="btn btn-primary btn-sm" onclick="aGuruhQosh()" style="white-space:nowrap;border-radius:10px;">➕ Guruh qo'shish</button>
+              <button class="btn btn-primary btn-sm" onclick="aGuruhQosh()" style="white-space:nowrap;border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-plus"></use></svg> Guruh qo'shish</button>
             </div>
             <div id="aGuruhList" style="display:flex;flex-direction:column;gap:8px;margin-top:16px;"></div>
             <div id="aGuruhEmpty" style="display:none;text-align:center;padding:40px 20px;color:var(--adm-gray,#8892A6);">
-              <div style="font-size:2.5rem;margin-bottom:12px;">🏫</div>
+              <div style="font-size:2.5rem;margin-bottom:12px;"><svg class="ic" aria-hidden="true"><use href="#i-school"></use></svg></div>
               <p>Hali guruh yaratilmagan.</p>
             </div>
           </div>
@@ -2031,7 +2035,7 @@
       <!-- ANKETA TAB -->
       <div id="atab-content-anketa" style="display:none;">
         <div id="aGuruhTanlanmagan" style="background:var(--paper);border-radius:16px;border:1.5px solid var(--adm-line,var(--line));padding:48px 20px;text-align:center;display:none;">
-          <div style="font-size:2.5rem;margin-bottom:12px;">👆</div>
+          <div style="font-size:2.5rem;margin-bottom:12px;"><svg class="ic" aria-hidden="true"><use href="#i-pointer"></use></svg></div>
           <div style="font-size:1rem;font-weight:700;margin-bottom:8px;">Guruh tanlanmagan</div>
           <div style="color:var(--adm-gray,#8892A6);font-size:.9rem;margin-bottom:20px;">Anketa to'ldirish uchun avval "Guruhlar" bo'limidan guruh tanlang.</div>
           <button class="btn btn-primary btn-sm" onclick="anketaSwitchTab('guruh')" style="border-radius:10px;">Guruhlarga o'tish</button>
@@ -2039,7 +2043,7 @@
         <div id="aAnketaWrap" style="display:none;">
           <div style="background:var(--paper);border-radius:16px;border:1.5px solid var(--adm-line,var(--line));overflow:hidden;">
             <div style="background:linear-gradient(135deg,var(--adm-blue,#2F6FED) 0%,#60a5fa 100%);color:#fff;padding:28px 32px;text-align:center;">
-              <h2 style="font-size:1.4rem;font-weight:700;margin:0 0 6px;">📋 Talaba Ma'lumotlari</h2>
+              <h2 style="font-size:1.4rem;font-weight:700;margin:0 0 6px;"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Talaba Ma'lumotlari</h2>
               <p style="opacity:.85;font-size:.88rem;margin:0 0 10px;">Barcha majburiy maydonlarni to'ldiring</p>
               <span id="aAnketaGuruhNomi" style="display:inline-block;background:rgba(255,255,255,.2);border-radius:20px;padding:4px 14px;font-size:.85rem;font-weight:600;">—</span>
             </div>
@@ -2076,17 +2080,17 @@
                 </div>
               </div>
               <div style="margin-top:24px;display:flex;gap:10px;justify-content:flex-end;">
-                <button class="btn btn-ghost btn-sm" onclick="aFormTozala()" style="border-radius:10px;">🔄 Tozalash</button>
-                <button class="btn btn-sm" onclick="aAnketaSaqlash()" style="background:var(--adm-green,#1FAE7A);color:#fff;border-radius:10px;font-weight:700;">✅ Tasdiqlash va Saqlash</button>
+                <button class="btn btn-ghost btn-sm" onclick="aFormTozala()" style="border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg> Tozalash</button>
+                <button class="btn btn-sm" onclick="aAnketaSaqlash()" style="background:var(--adm-green,#1FAE7A);color:#fff;border-radius:10px;font-weight:700;"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Tasdiqlash va Saqlash</button>
               </div>
             </div>
             <div id="aSuccessMsg" style="display:none;text-align:center;padding:40px 20px;">
-              <div style="width:64px;height:64px;background:rgba(31,174,122,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 16px;">✅</div>
+              <div style="width:64px;height:64px;background:rgba(31,174,122,.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 16px;"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg></div>
               <h3 style="font-size:1.1rem;font-weight:700;margin:0 0 6px;">Saqlandi!</h3>
               <p id="aSuccessText" style="color:var(--adm-gray,#8892A6);font-size:.88rem;"></p>
               <div style="margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-                <button class="btn btn-primary btn-sm" onclick="aYangiTalaba()" style="border-radius:10px;">➕ Yangi talaba</button>
-                <button class="btn btn-ghost btn-sm" onclick="anketaSwitchTab('malumot')" style="border-radius:10px;">📊 Ma'lumotlarni ko'rish</button>
+                <button class="btn btn-primary btn-sm" onclick="aYangiTalaba()" style="border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-plus"></use></svg> Yangi talaba</button>
+                <button class="btn btn-ghost btn-sm" onclick="anketaSwitchTab('malumot')" style="border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> Ma'lumotlarni ko'rish</button>
               </div>
             </div>
           </div>
@@ -2102,10 +2106,10 @@
         </div>
         <div style="background:var(--paper);border-radius:16px;border:1.5px solid var(--adm-line,var(--line));overflow:hidden;">
           <div style="padding:16px 20px;border-bottom:1px solid var(--adm-line,var(--line));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
-            <div style="font-weight:700;font-size:1rem;">📊 Barcha talabalar</div>
+            <div style="font-weight:700;font-size:1rem;"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> Barcha talabalar</div>
             <div style="display:flex;gap:8px;">
-              <button class="btn btn-ghost btn-sm" onclick="anketaExcelYuklash()" style="border-radius:10px;">📥 Excel</button>
-              <button class="btn btn-sm" onclick="aHammasniOchir()" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:10px;">🗑️ Barchasini o'chirish</button>
+              <button class="btn btn-ghost btn-sm" onclick="anketaExcelYuklash()" style="border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-download"></use></svg> Excel</button>
+              <button class="btn btn-sm" onclick="aHammasniOchir()" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> Barchasini o'chirish</button>
             </div>
           </div>
           <div style="padding:16px 20px;">
@@ -2113,7 +2117,7 @@
               <select id="aFilterGuruh" onchange="aJadvalChiz()" style="border:1.5px solid var(--adm-line,var(--line));border-radius:10px;padding:8px 12px;font-family:inherit;font-size:.85rem;color:var(--adm-ink,var(--ink));background:var(--surface,#f8f9fa);outline:none;">
                 <option value="">Barcha guruhlar</option>
               </select>
-              <input type="text" id="aFilterQidiruv" placeholder="🔍 Ism yoki raqam..." oninput="aJadvalChiz()" style="flex:1;min-width:160px;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;padding:8px 12px;font-family:inherit;font-size:.85rem;color:var(--adm-ink,var(--ink));background:var(--surface,#f8f9fa);outline:none;" />
+              <input type="text" id="aFilterQidiruv" placeholder="Ism yoki raqam..." oninput="aJadvalChiz()" style="flex:1;min-width:160px;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;padding:8px 12px;font-family:inherit;font-size:.85rem;color:var(--adm-ink,var(--ink));background:var(--surface,#f8f9fa);outline:none;" />
             </div>
             <div style="overflow-x:auto;">
               <table style="width:100%;border-collapse:collapse;font-size:.85rem;" id="aMainTable">
@@ -2132,7 +2136,7 @@
                 <tbody id="aMainTbody"></tbody>
               </table>
               <div id="aTableEmpty" style="display:none;text-align:center;padding:48px 20px;color:var(--adm-gray,#8892A6);">
-                <div style="font-size:2.5rem;margin-bottom:12px;">📋</div>
+                <div style="font-size:2.5rem;margin-bottom:12px;"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg></div>
                 <p>Ma'lumot yo'q.</p>
               </div>
             </div>
@@ -2372,12 +2376,12 @@
         <input type="url" id="topicMaterial" placeholder="https://…">
       </label>
       <label class="field">
-        <span>Tavsif / vazifa <span style="font-weight:400; color:var(--gray);">(rasm shu yerga, 🖼️ tugmasi orqali qo‘shilsa, sahifaning o‘zida ko‘rinadi)</span></span>
+        <span>Tavsif / vazifa <span style="font-weight:400; color:var(--gray);">(rasm shu yerga, <svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> tugmasi orqali qo‘shilsa, sahifaning o‘zida ko‘rinadi)</span></span>
         <div class="rte-toolbar" data-rte-toolbar="topicDescription"></div>
         <div class="rte-editor" id="topicDescription" contenteditable="true" data-placeholder="Mavzu haqida, o‘quvchi bajarishi kerak bo‘lgan vazifa…"></div>
       </label>
       <div class="field" id="topicTimerField" hidden>
-        <span>⏱️ Taymer sozlamalari</span>
+        <span><svg class="ic" aria-hidden="true"><use href="#i-timer"></use></svg> Taymer sozlamalari</span>
         <div style="display:flex; align-items:center; gap:.8em; margin-top:.5em; margin-bottom:.7em;">
           <label style="display:flex; align-items:center; gap:.45em; cursor:pointer; font-weight:400;">
             <input type="checkbox" id="topicTimerEnabled" style="width:16px;height:16px;cursor:pointer;">
@@ -2464,7 +2468,7 @@
     </div>
 
     <div style="display:flex; align-items:center; gap:.6em; margin:.2em 0 1.4em; flex-wrap:wrap;">
-      <span style="color:var(--gray); font-size:.85rem;">📞</span>
+      <span style="color:var(--gray); font-size:.85rem;"><svg class="ic" aria-hidden="true"><use href="#i-phone"></use></svg></span>
       <input type="tel" id="studentDetailPhoneInput" placeholder="Telefon raqam kiritilmagan"
         style="flex:1; min-width:180px; padding:.5em .8em; border-radius:var(--radius-s); border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:.9rem;">
       <button type="button" class="btn btn-ghost btn-sm" id="saveStudentPhoneBtn">Saqlash</button>
@@ -2502,7 +2506,7 @@
     </div>
 
     <div class="modal-actions" style="justify-content:space-between; margin-bottom:.8em;">
-      <button type="button" class="btn btn-amber btn-sm" id="openStudentProgressBtn">📈 O‘quv jarayoni</button>
+      <button type="button" class="btn btn-amber btn-sm" id="openStudentProgressBtn"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> O‘quv jarayoni</button>
     </div>
 
     <div class="modal-actions" style="justify-content:space-between;">
@@ -2546,7 +2550,7 @@
         <div class="rte-editor" id="writingQuestionText" contenteditable="true" data-placeholder="Insho mavzusi, shartlari va talablarini shu yerga yozing…"></div>
       </label>
       <label class="field">
-        <span>⏱️ Tavsiya etilgan vaqt (daqiqada) <span style="font-weight:400; color:var(--gray);">(ixtiyoriy — faqat ma’lumot uchun, majburiy taymer emas)</span></span>
+        <span><svg class="ic" aria-hidden="true"><use href="#i-timer"></use></svg> Tavsiya etilgan vaqt (daqiqada) <span style="font-weight:400; color:var(--gray);">(ixtiyoriy — faqat ma’lumot uchun, majburiy taymer emas)</span></span>
         <input type="number" id="writingQuestionTimer" min="0" step="1" placeholder="Masalan: 40">
       </label>
       <p id="editWritingQuestionError" class="form-error" role="alert" hidden></p>
@@ -2603,7 +2607,7 @@
     <div style="position:relative; margin-bottom:1em;">
       <input type="text" id="newChatSearchInput" placeholder="Ism yoki email bo‘yicha qidirish…"
         style="width:100%; padding:.75em 1em .75em 2.4em; border-radius:var(--radius-s); border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:.95rem;">
-      <span style="position:absolute; left:.85em; top:50%; transform:translateY(-50%); opacity:.55;">🔍</span>
+      <span style="position:absolute; left:.85em; top:50%; transform:translateY(-50%); opacity:.55;"><svg class="ic" aria-hidden="true"><use href="#i-search"></use></svg></span>
     </div>
     <div id="newChatStudentList" style="max-height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:.5em;"></div>
     <div class="modal-actions">
@@ -2625,6 +2629,27 @@
 <script src="../firebase-config.js"></script>
 <script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
+<script>
+/* ===== SVG ikonlar (emoji o'rniga) ===== */
+var ICON_INNER = {"alarm": "<circle cx=\"12\" cy=\"13\" r=\"8\"/><path d=\"M12 9v4l2 2M5 3L2 6M22 6l-3-3\"/>", "alert-triangle": "<path d=\"M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z\"/><path d=\"M12 9v4M12 17h.01\"/>", "align-center": "<path d=\"M21 6H3M17 12H7M19 18H5\"/>", "align-left": "<path d=\"M21 6H3M15 12H3M17 18H3\"/>", "align-right": "<path d=\"M21 6H3M21 12H9M21 18H7\"/>", "anchor": "<circle cx=\"12\" cy=\"5\" r=\"3\"/><path d=\"M12 22V8M5 12H2a10 10 0 0 0 20 0h-3\"/>", "arrow-down": "<path d=\"M12 5v14M19 12l-7 7-7-7\"/>", "arrow-left": "<path d=\"M19 12H5M12 19l-7-7 7-7\"/>", "arrow-right": "<path d=\"M5 12h14M12 5l7 7-7 7\"/>", "arrow-up": "<path d=\"M12 19V5M5 12l7-7 7 7\"/>", "backpack": "<path d=\"M4 10a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z\"/><path d=\"M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M8 21v-5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v5M8 10h8\"/>", "ban": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M4.9 4.9l14.2 14.2\"/>", "bar-chart": "<path d=\"M3 3v18h18\"/><path d=\"M8 17v-6M13 17V7M18 17v-9\"/>", "bell": "<path d=\"M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0\"/>", "book": "<path d=\"M4 19.5A2.5 2.5 0 0 1 6.5 17H20\"/><path d=\"M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z\"/>", "book-open": "<path d=\"M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z\"/><path d=\"M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z\"/>", "books": "<path d=\"M4 3v18M9 3v18\"/><path d=\"M14 5.5l4.5-1L22 19.5l-4.5 1z\"/>", "calendar": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18\"/>", "calendar-days": "<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01\"/>", "camera": "<path d=\"M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z\"/><circle cx=\"12\" cy=\"13\" r=\"3\"/>", "check": "<path d=\"M20 6L9 17l-5-5\"/>", "check-check": "<path d=\"M18 6L7 17l-5-5\"/><path d=\"M22 10l-7.5 7.5L13 16\"/>", "check-circle": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M8 12.5l3 3 5-6\"/>", "clipboard": "<rect x=\"8\" y=\"2\" width=\"8\" height=\"4\" rx=\"1\"/><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\"/>", "clock": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>", "cloud-sun": "<path d=\"M12 2v2M4.9 4.9l1.4 1.4M20 12h2M19.1 4.9l-1.4 1.4M15.9 12.6a4 4 0 0 0-5.9-4.1M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6z\"/>", "compass": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M16.2 7.8l-2.1 6.3-6.3 2.1 2.1-6.3z\"/>", "credit-card": "<rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20\"/>", "diamond": "<path d=\"M12 2l10 10-10 10L2 12z\" fill=\"currentColor\" stroke=\"none\"/>", "download": "<path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3\"/>", "eye": "<path d=\"M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/>", "file-text": "<path d=\"M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z\"/><path d=\"M14 2v6h6M16 13H8M16 17H8M10 9H8\"/>", "film": "<rect x=\"2\" y=\"2\" width=\"20\" height=\"20\" rx=\"2.2\"/><path d=\"M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 17h5M17 7h5\"/>", "folder": "<path d=\"M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9l-.8-1.2A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z\"/>", "folder-open": "<path d=\"M6 14l1.5-2.9A2 2 0 0 1 9.2 10H20a2 2 0 0 1 1.9 2.5l-1.5 6a2 2 0 0 1-1.9 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.7.9l.8 1.2a2 2 0 0 0 1.7.9H18a2 2 0 0 1 2 2v2\"/>", "gamepad": "<path d=\"M6 12h4M8 10v4M15 13h.01M18 11h.01\"/><rect x=\"2\" y=\"6\" width=\"20\" height=\"12\" rx=\"4\"/>", "globe": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z\"/>", "graduation-cap": "<path d=\"M22 10L12 5 2 10l10 5 10-5z\"/><path d=\"M22 10v6M6 12v5c3 3 9 3 12 0v-5\"/>", "hash": "<path d=\"M4 9h16M4 15h16M10 3L8 21M16 3l-2 18\"/>", "help-circle": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01\"/>", "home": "<path d=\"M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z\"/>", "hourglass": "<path d=\"M5 22h14M5 2h14M17 22v-4.2a2 2 0 0 0-.6-1.4L12 12l-4.4 4.4a2 2 0 0 0-.6 1.4V22M7 2v4.2a2 2 0 0 0 .6 1.4L12 12l4.4-4.4A2 2 0 0 0 17 6.2V2\"/>", "image": "<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><circle cx=\"9\" cy=\"9\" r=\"2\"/><path d=\"M21 15l-3.1-3.1a2 2 0 0 0-2.8 0L6 21\"/>", "inbox": "<path d=\"M22 12h-6l-2 3h-4l-2-3H2\"/><path d=\"M5.5 5.1L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z\"/>", "key": "<circle cx=\"7.5\" cy=\"15.5\" r=\"5.5\"/><path d=\"M11.4 11.6L21 2M16 7l3 3M18.5 4.5l2 2\"/>", "link": "<path d=\"M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7\"/><path d=\"M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7\"/>", "lock": "<rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/>", "log-in": "<path d=\"M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3\"/>", "map-pin": "<path d=\"M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z\"/><circle cx=\"12\" cy=\"10\" r=\"3\"/>", "megaphone": "<path d=\"M3 11v3a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z\"/><path d=\"M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13\"/>", "message": "<path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/>", "mic": "<rect x=\"9\" y=\"2\" width=\"6\" height=\"12\" rx=\"3\"/><path d=\"M19 10v1a7 7 0 0 1-14 0v-1M12 18v4\"/>", "monitor": "<rect x=\"2\" y=\"3\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M8 21h8M12 17v4\"/>", "newspaper": "<path d=\"M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2\"/><path d=\"M18 14h-8M15 18h-5M10 6h8v4h-8z\"/>", "palette": "<circle cx=\"13.5\" cy=\"6.5\" r=\".6\"/><circle cx=\"17.5\" cy=\"10.5\" r=\".6\"/><circle cx=\"8.5\" cy=\"7.5\" r=\".6\"/><circle cx=\"6.5\" cy=\"12.5\" r=\".6\"/><path d=\"M12 2a10 10 0 0 0 0 20 1.7 1.7 0 0 0 1.7-1.7c0-.5-.2-.9-.5-1.2a1.7 1.7 0 0 1 1.2-2.9H16a6 6 0 0 0 6-6c0-5-4.5-8.2-10-8.2z\"/>", "paperclip": "<path d=\"M21.4 11.1l-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5\"/>", "party": "<path d=\"M4 20l4.5-12.5 8 8z\"/><path d=\"M14 4v2M20 10h2M18 6l1.5-1.5M10 2h.01M21 17h.01\"/>", "pencil": "<path d=\"M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z\"/><path d=\"M15 5l4 4\"/>", "phone": "<path d=\"M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z\"/>", "pin": "<path d=\"M12 17v5\"/><path d=\"M9 10.8a2 2 0 0 1-1.1 1.8l-1.8.9A2 2 0 0 0 5 15.2V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.8a2 2 0 0 0-1.1-1.8l-1.8-.9a2 2 0 0 1-1.1-1.8V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z\"/>", "plus": "<path d=\"M12 5v14M5 12h14\"/>", "pointer": "<path d=\"M3 3l7 17 2.5-7.5L20 10z\"/>", "refresh": "<path d=\"M21 12a9 9 0 0 0-15-6.7L3 8\"/><path d=\"M3 3v5h5\"/><path d=\"M3 12a9 9 0 0 0 15 6.7l3-2.7\"/><path d=\"M16 16h5v5\"/>", "repeat": "<path d=\"M17 2l4 4-4 4\"/><path d=\"M3 11v-1a4 4 0 0 1 4-4h14M7 22l-4-4 4-4\"/><path d=\"M21 13v1a4 4 0 0 1-4 4H3\"/>", "reply": "<path d=\"M9 14L4 9l5-5\"/><path d=\"M4 9h10.5a5.5 5.5 0 0 1 0 11H11\"/>", "save": "<path d=\"M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z\"/><path d=\"M17 21v-8H7v8M7 3v5h8\"/>", "school": "<path d=\"M14 22v-4a2 2 0 1 0-4 0v4\"/><path d=\"M18 10l4 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8l4-2\"/><path d=\"M18 5v17M6 5v17M4 6l8-4 8 4\"/><circle cx=\"12\" cy=\"9\" r=\"2\"/>", "search": "<circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"M21 21l-4.3-4.3\"/>", "send": "<path d=\"M22 2L11 13M22 2l-7 20-4-9-9-4z\"/>", "smartphone": "<rect x=\"5\" y=\"2\" width=\"14\" height=\"20\" rx=\"2\"/><path d=\"M12 18h.01\"/>", "smile": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01\"/>", "sparkles": "<path d=\"M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z\"/><path d=\"M19 3v4M17 5h4M5 17v4M3 19h4\"/>", "square": "<rect x=\"5\" y=\"5\" width=\"14\" height=\"14\" rx=\"2\" fill=\"currentColor\" stroke=\"none\"/>", "square-pen": "<path d=\"M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7\"/><path d=\"M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z\"/>", "tag": "<path d=\"M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L2 12V2h10l8.6 8.6a2 2 0 0 1 0 2.8z\"/><path d=\"M7 7h.01\"/>", "timer": "<path d=\"M10 2h4M12 14l3-3\"/><circle cx=\"12\" cy=\"14\" r=\"8\"/>", "trash": "<path d=\"M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6\"/>", "trending-up": "<path d=\"M22 7l-8.5 8.5-5-5L2 17\"/><path d=\"M16 7h6v6\"/>", "user": "<path d=\"M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\"/><circle cx=\"12\" cy=\"7\" r=\"4\"/>", "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/><path d=\"M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8\"/>", "wrench": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z\"/>", "x": "<path d=\"M18 6L6 18M6 6l12 12\"/>", "x-circle": "<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M15 9l-6 6M9 9l6 6\"/>"};
+function svgIcon(name){
+  return '<svg class="ic" aria-hidden="true"><use href="#i-' + name + '"></use></svg>';
+}
+function svgStandalone(name, color, size){
+  size = size || 12; color = color || '#000';
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="' + color + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:' + color + ';vertical-align:-2px;display:inline-block;">' + (ICON_INNER[name] || '') + '</svg>';
+}
+/* textContent kabi xavfsiz: matn escape qilinadi, faqat {{ikon-nomi}} belgilari SVG ga aylanadi */
+function setIconText(el, str){
+  if(!el) return;
+  el.textContent = '';
+  String(str == null ? '' : str).split(/(\{\{[a-z0-9-]+\}\})/).forEach(function(part){
+    var m = part.match(/^\{\{([a-z0-9-]+)\}\}$/);
+    if(m && ICON_INNER[m[1]]) el.insertAdjacentHTML('beforeend', svgIcon(m[1]));
+    else if(part) el.appendChild(document.createTextNode(part));
+  });
+}
+</script>
 <script>
 /* ============================================================
    Djami Lessons — Admin dashboard logic (Firestore-backed)
@@ -2827,16 +2852,16 @@ const RTE_BUTTONS = [
   { cmd: 'italic', icon: '<i>I</i>', title: 'Qiya (Italic)' },
   { cmd: 'underline', icon: '<u>U</u>', title: 'Tagi chizilgan' },
   { sep: true },
-  { cmd: 'justifyLeft', icon: '⇤', title: 'Chapga tekislash' },
-  { cmd: 'justifyCenter', icon: '≡', title: 'Markazga tekislash' },
-  { cmd: 'justifyRight', icon: '⇥', title: 'O‘ngga tekislash' },
+  { cmd: 'justifyLeft', icon: '<svg class="ic" aria-hidden="true"><use href="#i-align-left"></use></svg>', title: 'Chapga tekislash' },
+  { cmd: 'justifyCenter', icon: '<svg class="ic" aria-hidden="true"><use href="#i-align-center"></use></svg>', title: 'Markazga tekislash' },
+  { cmd: 'justifyRight', icon: '<svg class="ic" aria-hidden="true"><use href="#i-align-right"></use></svg>', title: 'O‘ngga tekislash' },
   { sep: true },
   { cmd: 'insertUnorderedList', icon: '•', title: 'Belgili ro‘yxat' },
   { cmd: 'insertOrderedList', icon: '1.', title: 'Raqamli ro‘yxat' },
   { sep: true },
-  { cmd: 'insertImage', icon: '🖼️', title: 'Rasm qo‘shish (havola orqali)' },
+  { cmd: 'insertImage', icon: '<svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg>', title: 'Rasm qo‘shish (havola orqali)' },
   { sep: true },
-  { cmd: 'removeFormat', icon: '✕', title: 'Formatni tozalash' }
+  { cmd: 'removeFormat', icon: '<svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg>', title: 'Formatni tozalash' }
 ];
 
 function buildRteToolbar(editorId){
@@ -2954,7 +2979,7 @@ function renderLevelsOverview(){
         <div class="folder-body">
           <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:.6em;">
             <span class="tag">Daraja ${lvl.order}</span>
-            ${locked ? '<span class="badge-soon">🔒 Qulflangan</span>' : ''}
+            ${locked ? '<span class="badge-soon"><svg class="ic" aria-hidden="true"><use href="#i-lock"></use></svg> Qulflangan</span>' : ''}
           </div>
           <h3 class="level-title">${escapeHtml(lvl.name)}</h3>
           <p class="level-sub">${stats.count} ta dars · ${stats.quiz} ta test savoli</p>
@@ -3103,7 +3128,7 @@ function renderWritingTracksGrid(){
         <div class="folder-body">
           <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:.6em;">
             <span class="tag">Writing</span>
-            ${locked ? '<span class="badge-soon">🔒 Qulflangan</span>' : ''}
+            ${locked ? '<span class="badge-soon"><svg class="ic" aria-hidden="true"><use href="#i-lock"></use></svg> Qulflangan</span>' : ''}
           </div>
           <h3 class="level-title">${t.name}</h3>
           <p class="level-sub">${countLeavesDeep(data.folders).count} ta savol</p>
@@ -3169,13 +3194,13 @@ function renderWritingItemsList(){
       const childCount = (item.children || []).length;
       return `
       <div class="lesson-row folder-row" data-open-writing-folder-item="${item.id}">
-        <div class="lesson-index">📁</div>
+        <div class="lesson-index"><svg class="ic" aria-hidden="true"><use href="#i-folder"></use></svg></div>
         <div class="lesson-main">
           <div class="lesson-row-top">
             <span class="lesson-title">${escapeHtml(item.title || 'Nomsiz papka')}</span>
             <div class="lesson-actions">
-              <button class="btn btn-ghost btn-sm" data-move-writing-item="up" data-item-id="${item.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-              <button class="btn btn-ghost btn-sm" data-move-writing-item="down" data-item-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
+              <button class="btn btn-ghost btn-sm" data-move-writing-item="up" data-item-id="${item.id}" ${i === 0 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"></use></svg></button>
+              <button class="btn btn-ghost btn-sm" data-move-writing-item="down" data-item-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"></use></svg></button>
               <button class="btn btn-ghost btn-sm" data-rename-writing-folder="${item.id}">Nomini o‘zgartirish</button>
               <button class="btn btn-danger btn-sm" data-delete-writing-folder="${item.id}">O‘chirish</button>
             </div>
@@ -3192,15 +3217,15 @@ function renderWritingItemsList(){
         <div class="lesson-row-top">
           <span class="lesson-title">${escapeHtml(q.title || 'Nomsiz savol')}</span>
           <div class="lesson-actions">
-            <button class="btn btn-ghost btn-sm" data-move-writing-item="up" data-item-id="${q.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-            <button class="btn btn-ghost btn-sm" data-move-writing-item="down" data-item-id="${q.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
+            <button class="btn btn-ghost btn-sm" data-move-writing-item="up" data-item-id="${q.id}" ${i === 0 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"></use></svg></button>
+            <button class="btn btn-ghost btn-sm" data-move-writing-item="down" data-item-id="${q.id}" ${i === items.length - 1 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"></use></svg></button>
             <button class="btn btn-ghost btn-sm" data-edit-writing-question="${q.id}">Tahrirlash</button>
             <button class="btn btn-danger btn-sm" data-delete-writing-question="${q.id}">O‘chirish</button>
           </div>
         </div>
         <div class="lesson-meta">
-          ${q.text ? '<span class="tag">📝 Matn bor</span>' : ''}
-          ${q.timerMinutes ? `<span class="tag">⏱️ ${q.timerMinutes} daqiqa (tavsiya)</span>` : ''}
+          ${q.text ? '<span class="tag"><svg class="ic" aria-hidden="true"><use href="#i-square-pen"></use></svg> Matn bor</span>' : ''}
+          ${q.timerMinutes ? `<span class="tag"><svg class="ic" aria-hidden="true"><use href="#i-timer"></use></svg> ${q.timerMinutes} daqiqa (tavsiya)</span>` : ''}
         </div>
       </div>
     </div>`;
@@ -3362,8 +3387,8 @@ function renderCourseSectionsGrid(){
         <div class="folder-tab"></div>
         <div class="folder-body">
           <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:.6em;">
-            <span class="tag">${s.hasTimer ? '⏱️ Taymerli bo‘lim' : 'Bo‘lim'}</span>
-            ${locked ? '<span class="badge-soon">🔒 Qulflangan</span>' : ''}
+            <span class="tag">${s.hasTimer ? '<svg class="ic" aria-hidden="true"><use href="#i-timer"></use></svg> Taymerli bo‘lim' : 'Bo‘lim'}</span>
+            ${locked ? '<span class="badge-soon"><svg class="ic" aria-hidden="true"><use href="#i-lock"></use></svg> Qulflangan</span>' : ''}
           </div>
           <h3 class="level-title">${s.name}</h3>
           <p class="level-sub">${countLeavesDeep(data.topics).count} ta mavzu</p>
@@ -3424,13 +3449,13 @@ function renderCourseTopicsList(){
       const childCount = (item.children || []).length;
       return `
       <div class="lesson-row folder-row" data-open-folder-item="${item.id}">
-        <div class="lesson-index">📁</div>
+        <div class="lesson-index"><svg class="ic" aria-hidden="true"><use href="#i-folder"></use></svg></div>
         <div class="lesson-main">
           <div class="lesson-row-top">
             <span class="lesson-title">${escapeHtml(item.title || 'Nomsiz papka')}</span>
             <div class="lesson-actions">
-              <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${item.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-              <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
+              <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${item.id}" ${i === 0 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"></use></svg></button>
+              <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"></use></svg></button>
               <button class="btn btn-ghost btn-sm" data-rename-folder="${item.id}">Nomini o‘zgartirish</button>
               <button class="btn btn-danger btn-sm" data-delete-folder="${item.id}">O‘chirish</button>
             </div>
@@ -3447,16 +3472,16 @@ function renderCourseTopicsList(){
         <div class="lesson-row-top">
           <span class="lesson-title">${escapeHtml(t.title || 'Nomsiz mavzu')}</span>
           <div class="lesson-actions">
-            <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${t.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-            <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${t.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
+            <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${t.id}" ${i === 0 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"></use></svg></button>
+            <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${t.id}" ${i === items.length - 1 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"></use></svg></button>
             <button class="btn btn-ghost btn-sm" data-edit-topic="${t.id}">Tahrirlash</button>
             <button class="btn btn-danger btn-sm" data-delete-topic="${t.id}">O‘chirish</button>
           </div>
         </div>
         <div class="lesson-meta">
-          ${t.material ? '<span class="tag">📎 Material bor</span>' : ''}
-          ${t.description ? '<span class="tag">📝 Tavsif bor</span>' : ''}
-          ${t.timerSeconds >= 10 ? `<span class="tag">⏱️ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa${t.timerFixed ? ' 🔒 Majburiy' : ' (talaba o\'zgartira oladi)'}</span>` : ''}
+          ${t.material ? '<span class="tag"><svg class="ic" aria-hidden="true"><use href="#i-paperclip"></use></svg> Material bor</span>' : ''}
+          ${t.description ? '<span class="tag"><svg class="ic" aria-hidden="true"><use href="#i-square-pen"></use></svg> Tavsif bor</span>' : ''}
+          ${t.timerSeconds >= 10 ? `<span class="tag"><svg class="ic" aria-hidden="true"><use href="#i-timer"></use></svg> ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa${t.timerFixed ? ' <svg class="ic" aria-hidden="true"><use href="#i-lock"></use></svg> Majburiy' : ' (talaba o\'zgartira oladi)'}</span>` : ''}
         </div>
       </div>
     </div>`;
@@ -3693,13 +3718,13 @@ function renderLessonList(){
       const childCount = (item.children || []).length;
       return `
       <div class="lesson-row folder-row" data-open-folder-item="${item.id}">
-        <div class="lesson-index">📁</div>
+        <div class="lesson-index"><svg class="ic" aria-hidden="true"><use href="#i-folder"></use></svg></div>
         <div class="lesson-main">
           <div class="lesson-row-top">
             <span class="lesson-title">${escapeHtml(item.title || 'Nomsiz papka')}</span>
             <div class="lesson-actions">
-              <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${item.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-              <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
+              <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${item.id}" ${i === 0 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"></use></svg></button>
+              <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${item.id}" ${i === items.length - 1 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"></use></svg></button>
               <button class="btn btn-ghost btn-sm" data-rename-folder="${item.id}">Nomini o‘zgartirish</button>
               <button class="btn btn-danger btn-sm" data-delete-folder="${item.id}">O‘chirish</button>
             </div>
@@ -3716,18 +3741,18 @@ function renderLessonList(){
           <div class="lesson-row-top">
             <span class="lesson-title">${escapeHtml(lesson.title || 'Nomsiz dars')}</span>
             <div class="lesson-actions">
-              <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${lesson.id}" ${i === 0 ? 'disabled' : ''}>↑</button>
-              <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${lesson.id}" ${i === items.length - 1 ? 'disabled' : ''}>↓</button>
+              <button class="btn btn-ghost btn-sm" data-move-item="up" data-item-id="${lesson.id}" ${i === 0 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-up"></use></svg></button>
+              <button class="btn btn-ghost btn-sm" data-move-item="down" data-item-id="${lesson.id}" ${i === items.length - 1 ? 'disabled' : ''}><svg class="ic" aria-hidden="true"><use href="#i-arrow-down"></use></svg></button>
               <button class="btn btn-ghost btn-sm" data-edit-lesson="${lesson.id}">Tahrirlash</button>
               <button class="btn btn-danger btn-sm" data-delete-lesson="${lesson.id}">O‘chirish</button>
             </div>
           </div>
           <div class="lesson-meta">
             <span class="tag">${(lesson.quiz || []).length} ta test savoli</span>
-            ${lesson.video ? '<span class="tag">🎬 Video bor</span>' : ''}
-            ${lesson.material ? '<span class="tag">📎 Material bor</span>' : ''}
-            ${lesson.homework ? '<span class="tag">📝 Uy vazifasi bor</span>' : ''}
-            ${lesson.homeworkAnswer ? '<span class="tag">✅ Javoblar bor</span>' : ''}
+            ${lesson.video ? '<span class="tag"><svg class="ic" aria-hidden="true"><use href="#i-film"></use></svg> Video bor</span>' : ''}
+            ${lesson.material ? '<span class="tag"><svg class="ic" aria-hidden="true"><use href="#i-paperclip"></use></svg> Material bor</span>' : ''}
+            ${lesson.homework ? '<span class="tag"><svg class="ic" aria-hidden="true"><use href="#i-square-pen"></use></svg> Uy vazifasi bor</span>' : ''}
+            ${lesson.homeworkAnswer ? '<span class="tag"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Javoblar bor</span>' : ''}
           </div>
         </div>
       </div>`;
@@ -3976,7 +4001,7 @@ document.querySelectorAll('.modal-overlay').forEach(overlay => {
 let toastTimer = null;
 function showToast(msg, isError = false){
   const toast = document.getElementById('toast');
-  toast.textContent = msg;
+  setIconText(toast, msg);
   toast.classList.toggle('toast-error', isError);
   toast.classList.add('show');
   clearTimeout(toastTimer);
@@ -4222,7 +4247,7 @@ document.getElementById('addFolderForm').addEventListener('submit', async (e) =>
 const STATUS_LABELS = {
   none: '<span class="tag">To‘lov yo‘q</span>',
   pending: '<span class="tag" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">Kutilmoqda</span>',
-  approved: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Tasdiqlangan ✓</span>'
+  approved: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Tasdiqlangan <svg class="ic" aria-hidden="true"><use href="#i-check"></use></svg></span>'
 };
 
 const COURSE_PAYMENT_ROWS = [
@@ -4428,7 +4453,7 @@ document.getElementById('openStudentProgressBtn').addEventListener('click', asyn
 
 async function openStudentProgress(student){
   state.progressStudentId = student.id;
-  document.getElementById('progressStudentName').textContent = `📈 ${student.name} — o‘quv jarayoni`;
+  setIconText(document.getElementById('progressStudentName'), `{{trending-up}} ${student.name} — o‘quv jarayoni`);
   resetProgressForm();
   switchView('student-progress');
   await loadProgressEntries();
@@ -4453,8 +4478,8 @@ async function loadProgressEntries(){
   renderProgressEntries();
 }
 
-const ATTEND_LABEL = { yes: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">✅ Keldi</span>', no: '<span class="tag" style="background:rgba(192,57,43,.12); color:#c0392b;">🚫 Kelmadi</span>' };
-const HW_LABEL = { yes: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">✅ Qildi</span>', no: '<span class="tag" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">🕓 Qilmadi</span>' };
+const ATTEND_LABEL = { yes: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Keldi</span>', no: '<span class="tag" style="background:rgba(192,57,43,.12); color:#c0392b;"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Kelmadi</span>' };
+const HW_LABEL = { yes: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Qildi</span>', no: '<span class="tag" style="background:rgba(217,142,63,.18); color:var(--amber-deep);"><svg class="ic" aria-hidden="true"><use href="#i-clock"></use></svg> Qilmadi</span>' };
 
 function progressBoolToKey(v){ return v === true ? 'yes' : v === false ? 'no' : ''; }
 
@@ -4621,7 +4646,7 @@ document.querySelectorAll('[data-essays-filter]').forEach(btn => {
 
 const ESSAY_STATUS_LABELS = {
   pending: '<span class="tag" style="background:rgba(217,142,63,.18); color:var(--amber-deep);">Kutilmoqda</span>',
-  graded: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Baholangan ✓</span>'
+  graded: '<span class="tag" style="background:rgba(46,111,110,.15); color:var(--teal-deep);">Baholangan <svg class="ic" aria-hidden="true"><use href="#i-check"></use></svg></span>'
 };
 
 function renderEssaysList(){
@@ -4768,10 +4793,10 @@ function renderBlogsGrid(){
       <div class="blog-admin-card-body">
         <p class="blog-admin-card-title">${escapeHtml(b.title || 'Nomsiz blog')}</p>
         <div class="blog-admin-card-actions" style="display:flex;flex-wrap:wrap;gap:5px;">
-          <button type="button" class="btn btn-ghost" style="font-size:.72rem;padding:4px 9px;border-radius:7px;" data-edit-blog="${b.id}">✏️ Tahrirlash</button>
-          <button type="button" class="btn" style="font-size:.72rem;padding:4px 9px;border-radius:7px;background:rgba(231,76,60,.1);color:#e74c3c;border:1.5px solid rgba(231,76,60,.3);" data-delete-blog="${b.id}">🗑️ O‘chirish</button>
-          <button type="button" class="btn btn-ghost" style="font-size:.72rem;padding:4px 9px;border-radius:7px;" data-view-comments="${b.id}">💬 Izohlar</button>
-          <button type="button" class="btn btn-tg" style="font-size:.72rem;padding:4px 9px;border-radius:7px;" data-tg-blog="${b.id}">✈️ Telegram</button>
+          <button type="button" class="btn btn-ghost" style="font-size:.72rem;padding:4px 9px;border-radius:7px;" data-edit-blog="${b.id}"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg> Tahrirlash</button>
+          <button type="button" class="btn" style="font-size:.72rem;padding:4px 9px;border-radius:7px;background:rgba(231,76,60,.1);color:#e74c3c;border:1.5px solid rgba(231,76,60,.3);" data-delete-blog="${b.id}"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> O‘chirish</button>
+          <button type="button" class="btn btn-ghost" style="font-size:.72rem;padding:4px 9px;border-radius:7px;" data-view-comments="${b.id}"><svg class="ic" aria-hidden="true"><use href="#i-message"></use></svg> Izohlar</button>
+          <button type="button" class="btn btn-tg" style="font-size:.72rem;padding:4px 9px;border-radius:7px;" data-tg-blog="${b.id}"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
         </div>
       </div>
     </div>`).join('');
@@ -4802,7 +4827,7 @@ document.getElementById('reloadBlogs').addEventListener('click', async () => {
     showToast('Yangilashda xatolik: ' + (err.message || err), true);
   } finally {
     btn.disabled = false;
-    btn.textContent = '🔄 Yangilash';
+    setIconText(btn, '{{refresh}} Yangilash');
   }
 });
 
@@ -5031,7 +5056,7 @@ function renderPlacementLevelsEditor(){
       <input type="number" min="0" data-lfield="min" placeholder="Min" value="${lvl.min !== undefined ? lvl.min : ''}">
       <span class="placement-level-sep">dan</span>
       <input type="number" min="0" data-lfield="max" placeholder="Max" value="${lvl.max !== undefined ? lvl.max : ''}">
-      <span class="placement-level-sep">tagacha to‘g‘ri →</span>
+      <span class="placement-level-sep">tagacha to‘g‘ri <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg></span>
       <input type="text" data-lfield="label" placeholder="Daraja nomi (masalan: B1 Elementary)" value="${escapeHtml(lvl.label || '')}">
       <button type="button" class="btn btn-ghost btn-sm" data-remove-placement-level="${li}">O‘chirish</button>
       <textarea data-lfield="comment" placeholder="Bu darajaga izoh (talaba natija bilan birga shu izohni ko‘radi)…" rows="2" style="width:100%; margin-top:.5em; font-family:inherit; font-size:.9rem; padding:.6em .7em; border-radius:var(--radius-s); border:1.5px solid var(--line);">${escapeHtml(lvl.comment || '')}</textarea>
@@ -5096,7 +5121,7 @@ document.getElementById('savePlacementTestBtn').addEventListener('click', async 
     state.placementLevels = cleanedLevels;
     renderPlacementQuestionsEditor();
     renderPlacementLevelsEditor();
-    statusEl.textContent = 'Saqlandi ✓';
+    setIconText(statusEl, 'Saqlandi {{check}}');
   } catch(err){
     statusEl.textContent = '';
     showToast('Saqlashda xatolik yuz berdi. Qayta urinib ko‘ring.', true);
@@ -5413,7 +5438,7 @@ async function notifyAbsentStudent(student, dateStr, note){
         xhr.onerror = function(){ reject(new Error('Tarmoq xatosi')); };
         xhr.send(payload);
       });
-      showToast('"Kelmadi" xabari Telegramga yuborildi ✓');
+      showToast('"Kelmadi" xabari Telegramga yuborildi {{check}}');
     } catch(err) {
       console.warn('Kelmadi xabari yuborilmadi:', err);
       showToast('Diqqat: xabar yuborilmadi — ' + (err.message || 'Xatolik'));
@@ -5456,7 +5481,7 @@ async function notifyAbsentStudent(student, dateStr, note){
         xhr.onerror = function(){ reject(new Error('Tarmoq xatosi')); };
         xhr.send(payload);
       });
-      showToast('"Kelmadi" Google Sheets\'ga yozildi ✓');
+      showToast('"Kelmadi" Google Sheets\'ga yozildi {{check}}');
     } catch(err) {
       console.warn('Sheets yozuvi amalga oshmadi:', err);
       showToast('Diqqat: Sheets\'ga yozilmadi — ' + (err.message || 'Xatolik'));
@@ -5599,13 +5624,13 @@ async function notifyAbsentStudent(student, dateStr, note){
         maintenanceMode: toggle.checked,
         maintenanceMessage: msgInput.value.trim()
       }, { merge: true });
-      saveStatus.textContent = toggle.checked
-        ? '✅ Texnik rejim yoqildi — tashrif buyuruvchilar "takomillashtirilmoqda" sahifasini ko\'radi.'
-        : '✅ Texnik rejim o\'chirildi — sayt odatdagidek ishlaydi.';
+      setIconText(saveStatus, toggle.checked
+        ? '{{check-circle}} Texnik rejim yoqildi — tashrif buyuruvchilar "takomillashtirilmoqda" sahifasini ko\'radi.'
+        : '{{check-circle}} Texnik rejim o\'chirildi — sayt odatdagidek ishlaydi.');
       saveStatus.style.color = '#2e6f6e';
       setTimeout(() => { saveStatus.textContent = ''; }, 4000);
     } catch(err){
-      saveStatus.textContent = '❌ Saqlashda xatolik. Qayta urinib ko\'ring.';
+      setIconText(saveStatus, '{{x-circle}} Saqlashda xatolik. Qayta urinib ko\'ring.');
       saveStatus.style.color = '#c0392b';
     } finally {
       saveBtn.disabled = false;
@@ -5678,23 +5703,23 @@ async function notifyAbsentStudent(student, dateStr, note){
         '<span style="font-size:.78rem;color:var(--gray);">' + esc(t.role||'') + '</span>';
 
       // Tartib (yuqori/pastga)
-      var upBtn = mkBtn('↑', 'Yuqoriga', function(){
+      var upBtn = mkBtn('arrow-up', 'Yuqoriga', function(){
         if (i === 0) return;
         var tmp = list[i-1]; list[i-1] = list[i]; list[i] = tmp;
         renderList();
       });
-      var dnBtn = mkBtn('↓', 'Pastga', function(){
+      var dnBtn = mkBtn('arrow-down', 'Pastga', function(){
         if (i === list.length-1) return;
         var tmp = list[i+1]; list[i+1] = list[i]; list[i] = tmp;
         renderList();
       });
 
       // Tahrirlash
-      var edBtn = mkBtn('✏️', 'Tahrirlash', function(){ openEdit(i); });
+      var edBtn = mkBtn('pencil', 'Tahrirlash', function(){ openEdit(i); });
       edBtn.style.cssText += 'color:var(--teal-deep);';
 
       // O'chirish
-      var delBtn = mkBtn('🗑', 'O\'chirish', function(){
+      var delBtn = mkBtn('trash', 'O\'chirish', function(){
         if (!confirm('"' + (t.name||'Talaba') + '" ni o\'chirishni xohlaysizmi?')) return;
         list.splice(i, 1);
         renderList();
@@ -5710,7 +5735,7 @@ async function notifyAbsentStudent(student, dateStr, note){
     var b = document.createElement('button');
     b.type = 'button';
     b.title = title;
-    b.textContent = icon;
+    b.innerHTML = svgIcon(icon);
     b.style.cssText = 'background:none;border:none;cursor:pointer;font-size:1rem;padding:.25em .35em;border-radius:6px;flex:none;transition:background .15s;';
     b.addEventListener('mouseenter', function(){ this.style.background='var(--paper-2)'; });
     b.addEventListener('mouseleave', function(){ this.style.background='none'; });
@@ -5923,7 +5948,7 @@ async function loadKundalikGroups() {
     window._kundalikGroupsCache = {};
     snap.docs.forEach(d => { window._kundalikGroupsCache[d.id] = d.data(); });
     listEl.innerHTML = '<table class="data-table"><thead><tr><th>Guruh nomi</th><th>Amallar</th></tr></thead><tbody>' +
-      snap.docs.map(d => '<tr><td><strong>' + escapeHtml(d.data().name || d.id) + '</strong></td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-amber btn-sm" onclick="openKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">📂 Ochish</button><button class="btn btn-ghost btn-sm" onclick="editKundalikGroup(\'' + d.id + '\')">✏️ Tahrirlash</button><button class="btn btn-danger btn-sm" onclick="deleteKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')">🗑️ O\'chirish</button></td></tr>').join('') +
+      snap.docs.map(d => '<tr><td><strong>' + escapeHtml(d.data().name || d.id) + '</strong></td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-amber btn-sm" onclick="openKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')"><svg class="ic" aria-hidden="true"><use href="#i-folder-open"></use></svg> Ochish</button><button class="btn btn-ghost btn-sm" onclick="editKundalikGroup(\'' + d.id + '\')"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg> Tahrirlash</button><button class="btn btn-danger btn-sm" onclick="deleteKundalikGroup(\'' + d.id + '\',\'' + escapeHtml(d.data().name||d.id) + '\')"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> O\'chirish</button></td></tr>').join('') +
       '</tbody></table>';
   } catch (err) {
     listEl.innerHTML = '<p style="color:var(--error);font-size:14px;">Yuklab bo\u02bclmadi.</p>';
@@ -5975,7 +6000,7 @@ async function loadKundalikHw(groupId) {
       const dateStr = d.sana ? (typeof d.sana.toDate === 'function'
         ? d.sana.toDate().toLocaleDateString('uz-UZ',{day:'numeric',month:'short',year:'numeric'})
         : d.sana) : '\u2014';
-      return '<tr><td style="white-space:nowrap;">' + escapeHtml(dateStr) + '</td><td>' + escapeHtml(d.sarlavha||'') + '</td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-ghost btn-sm" onclick="editHwItem(\'' + doc.id + '\')">✏️ Tahrirlash</button><button class="btn btn-danger btn-sm" onclick="deleteHwItem(\'' + doc.id + '\',\'' + escapeHtml(d.sarlavha||'') + '\')">O\u02bcchirish</button></td></tr>';
+      return '<tr><td style="white-space:nowrap;">' + escapeHtml(dateStr) + '</td><td>' + escapeHtml(d.sarlavha||'') + '</td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-ghost btn-sm" onclick="editHwItem(\'' + doc.id + '\')"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg> Tahrirlash</button><button class="btn btn-danger btn-sm" onclick="deleteHwItem(\'' + doc.id + '\',\'' + escapeHtml(d.sarlavha||'') + '\')">O\u02bcchirish</button></td></tr>';
     }).join('');
   } catch (err) {
     tbody.innerHTML = '<tr><td colspan="3" style="color:var(--error);">Yuklab bo\u02bclmadi.</td></tr>';
@@ -6082,7 +6107,7 @@ async function deleteKundalikGroup(groupId, groupName) {
 }
 
 // ============================================================
-// O'QUV JARAYONI — Groups → Students → Progress
+// O'QUV JARAYONI — Groups <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg> Students <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg> Progress
 // Firestore structure:
 //   oquv_groups/{groupId}        { name, createdAt }
 //   oquv_groups/{groupId}/students/{studentId}  { name, createdAt }
@@ -6191,10 +6216,10 @@ function homeRenderLessonCards(containerId, emptyId, groups, dayKey){
     const card = document.createElement('div');
     card.className = 'home-lesson-card';
     card.innerHTML = `
-      <div class="home-lesson-icon">📖</div>
+      <div class="home-lesson-icon"><svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg></div>
       <div>
         <div class="home-lesson-name">${escHtml(g.name)}</div>
-        <div class="home-lesson-meta">${g.time ? '🕐 ' + escHtml(g.time) : 'Vaqt kiritilmagan'}</div>
+        <div class="home-lesson-meta">${g.time ? '<svg class="ic" aria-hidden="true"><use href="#i-clock"></use></svg> ' + escHtml(g.time) : 'Vaqt kiritilmagan'}</div>
       </div>
       <div class="home-lesson-count">${count}<span>talaba</span></div>`;
     card.addEventListener('click', () => loadOjStudents(g.id, g.name, g.days || []));
@@ -6217,25 +6242,25 @@ async function loadHomeStats(){
 
   document.getElementById('homeTopStatRow').innerHTML = `
     <div class="home-stat-card home-stat-blue">
-      <div class="home-stat-icon">📘</div>
+      <div class="home-stat-icon"><svg class="ic" aria-hidden="true"><use href="#i-book"></use></svg></div>
       <div class="home-stat-num">${todayInfo.groups.length}</div>
       <div class="home-stat-label">Bugungi darslar</div>
       ${homeSparklineSvg('#2F6FED')}
     </div>
     <div class="home-stat-card home-stat-purple">
-      <div class="home-stat-icon">🧑‍🎓</div>
+      <div class="home-stat-icon"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg></div>
       <div class="home-stat-num">${todayInfo.total}</div>
       <div class="home-stat-label">Bugun keladigan talaba</div>
       ${homeSparklineSvg('#7C5CFC')}
     </div>
     <div class="home-stat-card home-stat-green">
-      <div class="home-stat-icon">📅</div>
+      <div class="home-stat-icon"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg></div>
       <div class="home-stat-num">${tomorrowInfo.groups.length}</div>
       <div class="home-stat-label">Ertangi darslar</div>
       ${homeSparklineSvg('#1FAE7A')}
     </div>
     <div class="home-stat-card home-stat-orange">
-      <div class="home-stat-icon">🎒</div>
+      <div class="home-stat-icon"><svg class="ic" aria-hidden="true"><use href="#i-backpack"></use></svg></div>
       <div class="home-stat-num">${tomorrowInfo.total}</div>
       <div class="home-stat-label">Ertaga keladigan talaba</div>
       ${homeSparklineSvg('#F0923D')}
@@ -6274,17 +6299,17 @@ async function loadHomeStats(){
   });
 
   row.innerHTML = `
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-blue">👥</div><div class="home-mini-num">${allStudents.length}</div><div class="home-mini-label">Jami talaba</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-green">✅</div><div class="home-mini-num">${attended}</div><div class="home-mini-label">Keldi</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-orange">⏰</div><div class="home-mini-num">${late}</div><div class="home-mini-label">Kech qoldi</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-red">🚫</div><div class="home-mini-num">${absent}</div><div class="home-mini-label">Kelmadi</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-green">🏠</div><div class="home-mini-num">${hwYes}</div><div class="home-mini-label">Uy vazifa qilgan</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-orange">🔶</div><div class="home-mini-num">${hwPartial}</div><div class="home-mini-label">Qisman qilgan</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-red">◼️</div><div class="home-mini-num">${hwNo}</div><div class="home-mini-label">Qilmagan</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-purple">❔</div><div class="home-mini-num">${noMark}</div><div class="home-mini-label">Belgilanmagan</div></div>`;
+    <div class="home-mini-card"><div class="home-mini-icon home-mini-blue"><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg></div><div class="home-mini-num">${allStudents.length}</div><div class="home-mini-label">Jami talaba</div></div>
+    <div class="home-mini-card"><div class="home-mini-icon home-mini-green"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg></div><div class="home-mini-num">${attended}</div><div class="home-mini-label">Keldi</div></div>
+    <div class="home-mini-card"><div class="home-mini-icon home-mini-orange"><svg class="ic" aria-hidden="true"><use href="#i-alarm"></use></svg></div><div class="home-mini-num">${late}</div><div class="home-mini-label">Kech qoldi</div></div>
+    <div class="home-mini-card"><div class="home-mini-icon home-mini-red"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg></div><div class="home-mini-num">${absent}</div><div class="home-mini-label">Kelmadi</div></div>
+    <div class="home-mini-card"><div class="home-mini-icon home-mini-green"><svg class="ic" aria-hidden="true"><use href="#i-home"></use></svg></div><div class="home-mini-num">${hwYes}</div><div class="home-mini-label">Uy vazifa qilgan</div></div>
+    <div class="home-mini-card"><div class="home-mini-icon home-mini-orange"><svg class="ic" aria-hidden="true"><use href="#i-diamond"></use></svg></div><div class="home-mini-num">${hwPartial}</div><div class="home-mini-label">Qisman qilgan</div></div>
+    <div class="home-mini-card"><div class="home-mini-icon home-mini-red"><svg class="ic" aria-hidden="true"><use href="#i-square"></use></svg></div><div class="home-mini-num">${hwNo}</div><div class="home-mini-label">Qilmagan</div></div>
+    <div class="home-mini-card"><div class="home-mini-icon home-mini-purple"><svg class="ic" aria-hidden="true"><use href="#i-help-circle"></use></svg></div><div class="home-mini-num">${noMark}</div><div class="home-mini-label">Belgilanmagan</div></div>`;
 }
 
-// "Barchasi →" links jump straight into O'quv jarayoni's group list.
+// "Barchasi" links jump straight into O'quv jarayoni's group list.
 document.getElementById('homeSeeAllToday').addEventListener('click', (e) => {
   e.preventDefault(); switchView('oquv-groups'); loadOjGroups();
 });
@@ -6390,14 +6415,14 @@ async function loadOjGroups() {
       const card = document.createElement('div');
       card.className = 'oj-group-card';
       card.innerHTML = `
-        <div class="oj-group-card-icon">👥</div>
+        <div class="oj-group-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg></div>
         <div>
           <div class="oj-group-card-name">${escHtml(g.name)}</div>
           <div class="oj-group-card-meta">Guruh${g.time ? ` · ${escHtml(g.time)}` : ''}</div>
           ${daysLabel ? `<div class="oj-group-card-days">${OJ_DAY_ORDER.filter(d => (g.days||[]).includes(d)).map(d => `<span class="oj-day-chip">${OJ_DAY_LABELS[d]}</span>`).join('')}</div>` : ''}
         </div>
-        <button class="oj-group-card-edit" title="Tahrirlash" data-gid="${doc.id}">✏️</button>
-        <button class="oj-group-card-del" title="O'chirish" data-gid="${doc.id}">🗑</button>`;
+        <button class="oj-group-card-edit" title="Tahrirlash" data-gid="${doc.id}"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg></button>
+        <button class="oj-group-card-del" title="O'chirish" data-gid="${doc.id}"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></button>`;
       card.addEventListener('click', (e) => {
         if (e.target.closest('.oj-group-card-del') || e.target.closest('.oj-group-card-edit')) return;
         loadOjStudents(doc.id, g.name, g.days || []);
@@ -6483,7 +6508,7 @@ async function loadOjStudents(groupId, groupName, days) {
   _ojActiveGroupId = groupId;
   _ojActiveGroupName = groupName;
   if (days !== undefined) _ojActiveGroupDays = days || [];
-  document.getElementById('ojGroupTitle').textContent = '👥 ' + groupName;
+  setIconText(document.getElementById('ojGroupTitle'), '{{users}} ' + groupName);
   switchView('oquv-students');
   const grid = document.getElementById('ojStudentsGrid');
   const empty = document.getElementById('ojStudentsEmpty');
@@ -6494,13 +6519,13 @@ async function loadOjStudents(groupId, groupName, days) {
 
   const daysLine = document.getElementById('ojGroupDaysLine');
   const daysLabel = ojDaysToLabel(_ojActiveGroupDays);
-  daysLine.textContent = daysLabel ? `📅 Dars kunlari: ${daysLabel}` : '';
+  setIconText(daysLine, daysLabel ? `{{calendar}} Dars kunlari: ${daysLabel}` : '');
 
   const banner = document.getElementById('ojScheduleBanner');
   const todayKey = OJ_JSDAY_TO_KEY[new Date(today + 'T00:00:00').getDay()];
   if (_ojActiveGroupDays.length && !_ojActiveGroupDays.includes(todayKey)) {
     banner.hidden = false;
-    banner.textContent = `⚠ Bugun (${OJ_DAY_LABELS[todayKey]}) — bu guruhning odatdagi dars kuni emas (${daysLabel}). Baribir belgilashingiz mumkin.`;
+    setIconText(banner, `{{alert-triangle}} Bugun (${OJ_DAY_LABELS[todayKey]}) — bu guruhning odatdagi dars kuni emas (${daysLabel}). Baribir belgilashingiz mumkin.`);
   } else {
     banner.hidden = true;
   }
@@ -6543,30 +6568,30 @@ async function loadOjStudents(groupId, groupName, days) {
             <div class="oj-row-name">${escHtml(s.name)}</div>
             <div class="oj-row-id">
               <span>ID: ${sid}</span>
-              <button type="button" class="oj-copy-id-btn" title="ID nusxalash" style="border:none; background:none; cursor:pointer; padding:0; font-size:.8rem; line-height:1;">📋</button>
+              <button type="button" class="oj-copy-id-btn" title="ID nusxalash" style="border:none; background:none; cursor:pointer; padding:0; font-size:.8rem; line-height:1;"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg></button>
             </div>
           </div>
         </div>
         <div class="oj-row-controls">
           <div class="oj-toggle-group" data-field="attended">
-            <button type="button" class="oj-toggle-btn ${attendVal === 'yes' ? 'active-yes' : ''}" data-val="yes">✅ Keldi</button>
-            <button type="button" class="oj-toggle-btn ${attendVal === 'late' ? 'active-late' : ''}" data-val="late">⏰ Kech qoldi</button>
-            <button type="button" class="oj-toggle-btn ${attendVal === 'no' ? 'active-no' : ''}" data-val="no">🚫 Kelmadi</button>
+            <button type="button" class="oj-toggle-btn ${attendVal === 'yes' ? 'active-yes' : ''}" data-val="yes"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Keldi</button>
+            <button type="button" class="oj-toggle-btn ${attendVal === 'late' ? 'active-late' : ''}" data-val="late"><svg class="ic" aria-hidden="true"><use href="#i-alarm"></use></svg> Kech qoldi</button>
+            <button type="button" class="oj-toggle-btn ${attendVal === 'no' ? 'active-no' : ''}" data-val="no"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Kelmadi</button>
           </div>
           <div class="oj-toggle-group" data-field="homeworkDone">
-            <button type="button" class="oj-toggle-btn ${hwVal === 'yes' ? 'active-yes' : ''}" data-val="yes">✅ UV qildi</button>
-            <button type="button" class="oj-toggle-btn ${hwVal === 'no' ? 'active-no' : ''}" data-val="no">🕓 Qilmadi</button>
-            <button type="button" class="oj-toggle-btn ${hwVal === 'partial' ? 'active-partial' : ''}" data-val="partial">🔶 Foiz qildi</button>
+            <button type="button" class="oj-toggle-btn ${hwVal === 'yes' ? 'active-yes' : ''}" data-val="yes"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> UV qildi</button>
+            <button type="button" class="oj-toggle-btn ${hwVal === 'no' ? 'active-no' : ''}" data-val="no"><svg class="ic" aria-hidden="true"><use href="#i-clock"></use></svg> Qilmadi</button>
+            <button type="button" class="oj-toggle-btn ${hwVal === 'partial' ? 'active-partial' : ''}" data-val="partial"><svg class="ic" aria-hidden="true"><use href="#i-diamond"></use></svg> Foiz qildi</button>
           </div>
           <div class="oj-hw-partial" data-hw-partial ${hwVal === 'partial' ? '' : 'hidden'}>
             <input type="number" min="0" max="100" class="oj-hw-percent" data-field="homeworkPercent" placeholder="%">
             <input type="text" class="oj-hw-missing" data-field="homeworkMissing" placeholder="Bajarmagan uy vazifasi…">
           </div>
-          <button type="button" class="oj-punish-btn${punishedVal ? ' is-active' : ''}" data-punish-btn title="Jazolandi deb belgilash">🚫 Jazolandi</button>
+          <button type="button" class="oj-punish-btn${punishedVal ? ' is-active' : ''}" data-punish-btn title="Jazolandi deb belgilash"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Jazolandi</button>
           <input type="number" min="0" step="1" class="oj-row-grade" data-field="punishCount" placeholder="Nechta jazo" ${punishedVal ? '' : 'hidden'}>
           <span class="oj-row-save"></span>
         </div>
-        <button class="oj-row-del" title="O'chirish">✕</button>`;
+        <button class="oj-row-del" title="O'chirish"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>`;
       row.querySelector('[data-field="homeworkPercent"]').value = entry.homeworkPercent || '';
       row.querySelector('[data-field="homeworkMissing"]').value = entry.homeworkMissing || '';
       row.querySelector('[data-field="punishCount"]').value = punishCountVal;
@@ -6577,15 +6602,15 @@ async function loadOjStudents(groupId, groupName, days) {
         e.stopPropagation();
         const btn = e.currentTarget;
         copyTextToClipboard(sid, () => {
-          const original = btn.textContent;
-          btn.textContent = '✓';
-          setTimeout(() => { btn.textContent = original; }, 1400);
+          const original = btn.innerHTML;
+          setIconText(btn, '{{check}}');
+          setTimeout(() => { btn.innerHTML = original; }, 1400);
         });
       });
 
       const saveIndicator = row.querySelector('.oj-row-save');
-      function flashSaved(){ saveIndicator.textContent = '✓'; setTimeout(() => { saveIndicator.textContent = ''; }, 1400); }
-      function flashError(){ saveIndicator.textContent = '⚠'; setTimeout(() => { saveIndicator.textContent = ''; }, 2200); }
+      function flashSaved(){ setIconText(saveIndicator, '{{check}}'); setTimeout(() => { saveIndicator.textContent = ''; }, 1400); }
+      function flashError(){ setIconText(saveIndicator, '{{alert-triangle}}'); setTimeout(() => { saveIndicator.textContent = ''; }, 2200); }
 
       async function ojQuickSave(fields){
         try {
@@ -6942,24 +6967,24 @@ function renderOjEntries() {
   _ojProgressEntries.forEach(entry => {
     const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : entry.attended === false || entry.attended === 'no' ? 'no' : entry.attended === 'late' ? 'late' : '';
     const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : entry.homeworkDone === false || entry.homeworkDone === 'no' ? 'no' : entry.homeworkDone === 'partial' ? 'partial' : '';
-    const attendBadge = attendVal === 'yes' ? '<span class="oj-badge oj-badge-yes">✅ Keldi</span>' : attendVal === 'late' ? '<span class="oj-badge oj-badge-partial">⏰ Kech qoldi</span>' : attendVal === 'no' ? '<span class="oj-badge oj-badge-no">🚫 Kelmadi</span>' : '<span class="oj-badge oj-badge-pending">—</span>';
-    const hwBadge = hwVal === 'yes' ? '<span class="oj-badge oj-badge-yes">✅ Qildi</span>' : hwVal === 'no' ? '<span class="oj-badge oj-badge-no">🕓 Qilmadi</span>' : hwVal === 'partial' ? `<span class="oj-badge oj-badge-partial">🔶 ${entry.homeworkPercent || 0}% qildi</span>` : '<span class="oj-badge oj-badge-pending">—</span>';
+    const attendBadge = attendVal === 'yes' ? '<span class="oj-badge oj-badge-yes"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Keldi</span>' : attendVal === 'late' ? '<span class="oj-badge oj-badge-partial"><svg class="ic" aria-hidden="true"><use href="#i-alarm"></use></svg> Kech qoldi</span>' : attendVal === 'no' ? '<span class="oj-badge oj-badge-no"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Kelmadi</span>' : '<span class="oj-badge oj-badge-pending">—</span>';
+    const hwBadge = hwVal === 'yes' ? '<span class="oj-badge oj-badge-yes"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Qildi</span>' : hwVal === 'no' ? '<span class="oj-badge oj-badge-no"><svg class="ic" aria-hidden="true"><use href="#i-clock"></use></svg> Qilmadi</span>' : hwVal === 'partial' ? `<span class="oj-badge oj-badge-partial"><svg class="ic" aria-hidden="true"><use href="#i-diamond"></use></svg> ${entry.homeworkPercent || 0}% qildi</span>` : '<span class="oj-badge oj-badge-pending">—</span>';
     const gradePill = entry.punishCount ? `<span class="oj-grade-pill">${entry.punishCount}</span>` : '<span style="color:var(--gray); font-size:.85rem;">—</span>';
     const card = document.createElement('div');
     card.className = 'oj-entry-card';
     card.style.gridTemplateColumns = 'auto 1fr 1fr auto auto';
     card.innerHTML = `
-      <div class="oj-entry-date">📅 ${entry.date}</div>
+      <div class="oj-entry-date"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> ${entry.date}</div>
       <div>${attendBadge}</div>
       <div>${hwBadge}</div>
       <div>${gradePill}</div>
       <div class="oj-entry-actions">
-        <button class="btn btn-ghost btn-sm" data-eid="${entry.id}" data-action="edit">✏️</button>
-        <button class="btn btn-danger btn-sm" data-eid="${entry.id}" data-action="del">🗑</button>
+        <button class="btn btn-ghost btn-sm" data-eid="${entry.id}" data-action="edit"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg></button>
+        <button class="btn btn-danger btn-sm" data-eid="${entry.id}" data-action="del"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></button>
       </div>
-      ${hwVal === 'partial' && entry.homeworkMissing ? `<div class="oj-entry-note">📌 Bajarmagan: ${escHtml(entry.homeworkMissing)}</div>` : ''}
-      ${entry.punished === true ? `<div class="oj-entry-note" style="color:#c0392b; font-weight:700;">🚫 Jazolandi</div>` : ''}
-      ${entry.note ? `<div class="oj-entry-note">💬 ${escHtml(entry.note)}</div>` : ''}`;
+      ${hwVal === 'partial' && entry.homeworkMissing ? `<div class="oj-entry-note"><svg class="ic" aria-hidden="true"><use href="#i-pin"></use></svg> Bajarmagan: ${escHtml(entry.homeworkMissing)}</div>` : ''}
+      ${entry.punished === true ? `<div class="oj-entry-note" style="color:#c0392b; font-weight:700;"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Jazolandi</div>` : ''}
+      ${entry.note ? `<div class="oj-entry-note"><svg class="ic" aria-hidden="true"><use href="#i-message"></use></svg> ${escHtml(entry.note)}</div>` : ''}`;
     list.appendChild(card);
   });
 
@@ -7048,13 +7073,13 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
   const note = document.getElementById('ojNoteInput').value.trim();
   const status = document.getElementById('ojSaveStatus');
   const editingId = document.getElementById('ojEntryEditingId').value;
-  if (!date) { status.textContent = '⚠ Sanani kiriting'; return; }
+  if (!date) { setIconText(status, '{{alert-triangle}} Sanani kiriting'); return; }
   status.textContent = 'Saqlanmoqda…';
   try {
     const docId = editingId || date;
     await db.collection('oquv_progress').doc(_ojActiveStudentId)
       .collection('entries').doc(docId).set({ date, attended, homeworkDone, homeworkPercent, homeworkMissing, punished, punishCount, note });
-    status.textContent = '✅ Saqlandi!';
+    setIconText(status, '{{check-circle}} Saqlandi!');
     document.getElementById('ojEntryEditingId').value = '';
     document.getElementById('ojAttendedInput').value = '';
     document.getElementById('ojHomeworkInput').value = '';
@@ -7068,7 +7093,7 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
     document.getElementById('ojCancelEditBtn').hidden = true;
     setTimeout(() => status.textContent = '', 2500);
     loadOjProgressEntries();
-  } catch(err) { status.textContent = '❌ Xatolik'; }
+  } catch(err) { setIconText(status, '{{x-circle}} Xatolik'); }
 });
 
 async function ojDeleteEntry(entryId) {
@@ -7100,9 +7125,9 @@ document.getElementById('ojCopyIdBtn').addEventListener('click', () => {
   const id = document.getElementById('ojProgressIdVal').textContent.trim();
   if (!id) return;
   copyTextToClipboard(id, () => {
-    const original = btn.textContent;
-    btn.textContent = '✓ Nusxalandi';
-    setTimeout(() => { btn.textContent = original; }, 1800);
+    const original = btn.innerHTML;
+    setIconText(btn, '{{check}} Nusxalandi');
+    setTimeout(() => { btn.innerHTML = original; }, 1800);
   });
 });
 
@@ -7114,9 +7139,9 @@ document.getElementById('ojCopyAllIdsBtn').addEventListener('click', () => {
   if (!_ojActiveGroupStudents.length) return;
   const text = _ojActiveGroupStudents.map(s => `${s.name} — ${s.id}`).join('\n');
   copyTextToClipboard(text, () => {
-    const original = btn.textContent;
-    btn.textContent = '✓ Nusxalandi';
-    setTimeout(() => { btn.textContent = original; }, 1800);
+    const original = btn.innerHTML;
+    setIconText(btn, '{{check}} Nusxalandi');
+    setTimeout(() => { btn.innerHTML = original; }, 1800);
   });
 });
 
@@ -7556,7 +7581,7 @@ document.getElementById('broadcastSendBtn').addEventListener('click', async () =
     document.getElementById('broadcastTitle').value = '';
     document.getElementById('broadcastBody').value = '';
     document.getElementById('broadcastImageUrl').value = '';
-    statusEl.textContent = '✅ Xabar muvaffaqiyatli yuborildi!';
+    setIconText(statusEl, '{{check-circle}} Xabar muvaffaqiyatli yuborildi!');
     loadBroadcastHistory();
   } catch(err){
     statusEl.textContent = 'Xatolik: ' + err.message;
@@ -7722,7 +7747,7 @@ function renderChatStudentList(docs, filter){
             ${unread > 0 ? `<span class="chat-item-unread">${unread}</span>` : ''}
           </div>
         </div>
-        <button type="button" class="chat-item-del" data-del-chat="${doc.id}" data-student-name="${escapeHtml(name)}" title="Chatni o‘chirish" onclick="event.stopPropagation()">🗑️</button>
+        <button type="button" class="chat-item-del" data-del-chat="${doc.id}" data-student-name="${escapeHtml(name)}" title="Chatni o‘chirish" onclick="event.stopPropagation()"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></button>
       </div>`;
     div.querySelector('.chat-item-body').addEventListener('click', () => openAdminChat(doc.id, name));
     div.querySelector('.chat-item-del').addEventListener('click', (e) => {
@@ -7738,7 +7763,7 @@ function renderAdminChatTypingRow(chatColor){
   row.className = 'chat-typing-row';
   row.id = 'adminChatTypingRow';
   row.hidden = true;
-  row.innerHTML = `<div class="chat-msg-avatar" style="background:${chatColor};">👤</div>
+  row.innerHTML = `<div class="chat-msg-avatar" style="background:${chatColor};"><svg class="ic" aria-hidden="true"><use href="#i-user"></use></svg></div>
     <div class="chat-typing-bubble"><span></span><span></span><span></span></div>`;
   return row;
 }
@@ -7799,7 +7824,7 @@ function openAdminChat(chatId, studentName){
         // single tick = sent but not yet read by the student, double
         // (blue) tick = the student has opened the chat and seen it.
         const ticks = isTeacher
-          ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '✓✓' : '✓'}</span>`
+          ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '<svg class="ic" aria-hidden="true"><use href="#i-check-check"></use></svg>' : '<svg class="ic" aria-hidden="true"><use href="#i-check"></use></svg>'}</span>`
           : '';
         const avatarHtml = !isTeacher
           ? `<div class="chat-msg-avatar" style="background:${chatColor};">${escapeHtml((resolvedName.trim().charAt(0) || 'T').toUpperCase())}</div>`
@@ -7815,7 +7840,7 @@ function openAdminChat(chatId, studentName){
             <div class="chat-msg-meta">${time} ${ticks}</div>
           </div>
           <div class="chat-msg-actions">
-            <button type="button" class="chat-msg-action-btn chat-msg-reply-btn" title="Javob berish">↩</button>
+            <button type="button" class="chat-msg-action-btn chat-msg-reply-btn" title="Javob berish"><svg class="ic" aria-hidden="true"><use href="#i-reply"></use></svg></button>
           </div>
         </div>`);
       });
@@ -7935,7 +7960,7 @@ function playMsgSound(){
   } catch(e){}
 }
 
-// Live badge on the "💬 Chatlar" sidebar link — turns on the moment a
+// Live badge on the "Chatlar" sidebar link — turns on the moment a
 // student sends a message (their chat's unreadByTeacher goes above 0)
 // and turns off again the instant that chat is opened (openAdminChat
 // resets unreadByTeacher to 0), regardless of which page the admin is
@@ -8115,7 +8140,7 @@ function openAdminParentChat(code, parentName, childName){
         }
         const time = dateObj ? dateObj.toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' }) : '';
         const ticks = isTeacher
-          ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '✓✓' : '✓'}</span>`
+          ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '<svg class="ic" aria-hidden="true"><use href="#i-check-check"></use></svg>' : '<svg class="ic" aria-hidden="true"><use href="#i-check"></use></svg>'}</span>`
           : '';
         const avatarHtml = !isTeacher
           ? `<div class="chat-msg-avatar" style="background:${chatColor};">${escapeHtml((parentName.trim().charAt(0) || 'O').toUpperCase())}</div>`
@@ -8182,7 +8207,7 @@ async function sendAdminParentChatMsg(){
   }
 }
 
-// Live badge on the "👪 Ota-onalar" sidebar link.
+// Live badge on the "Ota-onalar" sidebar link.
 function startParentChatUnreadListener(){
   let _initialized = false;
   let _prevSize = 0;
@@ -8241,7 +8266,7 @@ function renderTodayAssignmentCards(cardData){
       return `
         <div class="today-assign-card">
           <div class="today-assign-card-head">
-            <div class="today-assign-icon">📭</div>
+            <div class="today-assign-icon"><svg class="ic" aria-hidden="true"><use href="#i-inbox"></use></svg></div>
             <div>
               <div class="today-assign-eyebrow">${escHtml(g.name)}</div>
               <div class="today-assign-group">So'nggi vazifa</div>
@@ -8249,7 +8274,7 @@ function renderTodayAssignmentCards(cardData){
           </div>
           <div class="today-assign-empty">Bu guruh uchun hali uy vazifasi kiritilmagan.</div>
           <div class="today-assign-footer">
-            <span style="color:var(--adm-amber,#D4780A);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};">➕ Qo'shish</span>
+            <span style="color:var(--adm-amber,#D4780A);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};"><svg class="ic" aria-hidden="true"><use href="#i-plus"></use></svg> Qo'shish</span>
           </div>
         </div>`;
     }
@@ -8260,7 +8285,7 @@ function renderTodayAssignmentCards(cardData){
       return `
       <div class="today-assign-card">
         <div class="today-assign-card-head">
-          <div class="today-assign-icon">📗</div>
+          <div class="today-assign-icon"><svg class="ic" aria-hidden="true"><use href="#i-book"></use></svg></div>
           <div>
             <div class="today-assign-eyebrow">${escHtml(g.name)}</div>
           </div>
@@ -8269,7 +8294,7 @@ function renderTodayAssignmentCards(cardData){
         <h3 class="today-assign-title">${escHtml(hw.sarlavha || 'Uy vazifasi')}</h3>
         <div class="today-assign-text">${hw.matn || ''}</div>
         <div class="today-assign-footer">
-          <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};">✏️ Tahrirlash</span>
+          <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg> Tahrirlash</span>
         </div>
       </div>`;
     }).join('');
@@ -8339,29 +8364,29 @@ async function loadTodayHomeworkCards(){
     card.className = 'today-hw-card';
     card.innerHTML = `
       <div class="today-hw-card-head">
-        <div class="today-hw-card-icon">📖</div>
+        <div class="today-hw-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg></div>
         <div>
           <div class="today-hw-card-name">${escHtml(g.name)}</div>
-          <div class="today-hw-card-time">${g.time ? '🕐 ' + escHtml(g.time) : 'Vaqt kiritilmagan'} · ${total} talaba</div>
+          <div class="today-hw-card-time">${g.time ? '<svg class="ic" aria-hidden="true"><use href="#i-clock"></use></svg> ' + escHtml(g.time) : 'Vaqt kiritilmagan'} · ${total} talaba</div>
         </div>
       </div>
       <div class="today-hw-card-stats">
         <div class="today-hw-stat green" style="cursor:pointer;" onclick="showTodayAttendanceList('${escHtml(g.id)}','yes')" title="Kelgan talabalarni ko'rish">
           <div class="today-hw-stat-num">${attended}</div>
-          <div class="today-hw-stat-label">✅ Keldi</div>
+          <div class="today-hw-stat-label"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Keldi</div>
         </div>
         <div class="today-hw-stat red" style="cursor:pointer;" onclick="showTodayAttendanceList('${escHtml(g.id)}','no')" title="Kelmagan talabalarni ko'rish">
           <div class="today-hw-stat-num">${absent}</div>
-          <div class="today-hw-stat-label">🚫 Kelmadi</div>
+          <div class="today-hw-stat-label"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Kelmadi</div>
         </div>
         <div class="today-hw-stat orange" style="cursor:pointer;" onclick="showTodayAttendanceList('${escHtml(g.id)}','hw-no')" title="Uy vazifa qilmaganlarni ko'rish">
           <div class="today-hw-stat-num">${hwNo}</div>
-          <div class="today-hw-stat-label">📚 Uy vazifa qilmadi</div>
+          <div class="today-hw-stat-label"><svg class="ic" aria-hidden="true"><use href="#i-books"></use></svg> Uy vazifa qilmadi</div>
         </div>
       </div>
       <div class="today-hw-card-footer">
-        <span>${notMarked > 0 ? `⏳ ${notMarked} ta hali belgilanmagan` : '✅ Hammasi belgilangan'}</span>
-        <span class="today-hw-view-btn" data-group-id="${escHtml(g.id)}" style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;">Ko'rish →</span>
+        <span>${notMarked > 0 ? `<svg class="ic" aria-hidden="true"><use href="#i-hourglass"></use></svg> ${notMarked} ta hali belgilanmagan` : '<svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Hammasi belgilangan'}</span>
+        <span class="today-hw-view-btn" data-group-id="${escHtml(g.id)}" style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;">Ko'rish <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg></span>
       </div>`;
     grid.appendChild(card);
   });
@@ -8401,7 +8426,7 @@ function showTodayAttendanceList(groupId, kind){
     return false;
   });
 
-  const titleMap = { yes: '✅ Kelgan talabalar', no: '🚫 Kelmagan talabalar', 'hw-no': '📚 Uy vazifa qilmagan talabalar' };
+  const titleMap = { yes: '<svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Kelgan talabalar', no: '<svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Kelmagan talabalar', 'hw-no': '<svg class="ic" aria-hidden="true"><use href="#i-books"></use></svg> Uy vazifa qilmagan talabalar' };
   document.getElementById('attendanceListTitle').textContent = titleMap[kind] || 'Ro\u2018yxat';
   document.getElementById('attendanceListSub').textContent = `${escHtml(data.groupName)} — ${matches.length} ta talaba`;
 
@@ -8416,7 +8441,7 @@ function showTodayAttendanceList(groupId, kind){
       const isPunished = e.punished === true;
       const punishCount = Number(e.punishCount) || 0;
       const punishBadge = isPunished
-        ? `<span style="margin-left:auto; display:inline-flex; align-items:center; gap:4px; background:rgba(192,57,43,.12); color:#c0392b; font-weight:700; font-size:.78rem; padding:3px 8px; border-radius:999px;">🚫 ${punishCount > 0 ? punishCount + ' marta jazo' : 'Jazolangan'}</span>`
+        ? `<span style="margin-left:auto; display:inline-flex; align-items:center; gap:4px; background:rgba(192,57,43,.12); color:#c0392b; font-weight:700; font-size:.78rem; padding:3px 8px; border-radius:999px;"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> ${punishCount > 0 ? punishCount + ' marta jazo' : 'Jazolangan'}</span>`
         : '';
       return `
       <div style="display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--line); border-radius:var(--radius-s);">
@@ -8481,12 +8506,12 @@ function actlogFormatDate(ts){
 
 function actlogDeviceParse(ua){
   if(!ua) return '—';
-  if(/iPhone|iPad|iPod/i.test(ua)) return '📱 iOS';
-  if(/Android/i.test(ua)) return '📱 Android';
-  if(/Windows/i.test(ua)) return '🖥️ Windows';
-  if(/Mac OS X/i.test(ua)) return '🖥️ Mac';
-  if(/Linux/i.test(ua)) return '🖥️ Linux';
-  return '🌐 Noma\'lum';
+  if(/iPhone|iPad|iPod/i.test(ua)) return svgIcon('smartphone') + ' iOS';
+  if(/Android/i.test(ua)) return svgIcon('smartphone') + ' Android';
+  if(/Windows/i.test(ua)) return svgIcon('monitor') + ' Windows';
+  if(/Mac OS X/i.test(ua)) return svgIcon('monitor') + ' Mac';
+  if(/Linux/i.test(ua)) return svgIcon('monitor') + ' Linux';
+  return svgIcon('globe') + ' Noma\'lum';
 }
 
 // Qurilma + brauzer + (mavjud bo'lsa) taxminiy joylashuvni bitta katakda
@@ -8498,12 +8523,12 @@ function actlogDeviceCell(doc){
   var line1 = parts.join(' · ');
   var line2 = '';
   if(doc.city || doc.country){
-    line2 = '<br><span style="font-size:.74rem;color:var(--adm-gray,var(--gray));">📍 ' +
+    line2 = '<br><span style="font-size:.74rem;color:var(--adm-gray,var(--gray));"><svg class="ic" aria-hidden="true"><use href="#i-map-pin"></use></svg> ' +
       escHtml([doc.city, doc.country].filter(Boolean).join(', ')) + '</span>';
   }
   if(doc.role === 'guest'){
     line2 += '<br><span style="font-size:.72rem;color:var(--adm-gray,var(--gray));">' +
-      (doc.isReturning ? '🔁 Qaytgan mehmon' : '🆕 Birinchi tashrif') + '</span>';
+      (doc.isReturning ? '<svg class="ic" aria-hidden="true"><use href="#i-repeat"></use></svg> Qaytgan mehmon' : '<svg class="ic" aria-hidden="true"><use href="#i-sparkles"></use></svg> Birinchi tashrif') + '</span>';
   }
   return line1 + line2;
 }
@@ -8535,14 +8560,14 @@ function renderActivityLogTable(){
 
   body.innerHTML = filtered.map((doc, i) => {
     let roleBadge;
-    if(doc.role === 'student') roleBadge = '<span class="actlog-role-badge actlog-role-student">🎓 Talaba</span>';
-    else if(doc.role === 'parent') roleBadge = '<span class="actlog-role-badge actlog-role-parent">👪 Ota-ona</span>';
-    else roleBadge = '<span class="actlog-role-badge actlog-role-guest">🌐 Mehmon</span>';
+    if(doc.role === 'student') roleBadge = '<span class="actlog-role-badge actlog-role-student"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg> Talaba</span>';
+    else if(doc.role === 'parent') roleBadge = '<span class="actlog-role-badge actlog-role-parent"><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg> Ota-ona</span>';
+    else roleBadge = '<span class="actlog-role-badge actlog-role-guest"><svg class="ic" aria-hidden="true"><use href="#i-globe"></use></svg> Mehmon</span>';
 
     let actionBadge;
-    if(doc.action === 'login') actionBadge = '<span class="actlog-action-badge actlog-action-login">🔑 Kirdi</span>';
-    else if(doc.action === 'register') actionBadge = '<span class="actlog-action-badge actlog-action-register">✅ Ro\'yxatdan o\'tdi</span>';
-    else actionBadge = '<span class="actlog-action-badge actlog-action-visit">👣 Saytga kirdi</span>';
+    if(doc.action === 'login') actionBadge = '<span class="actlog-action-badge actlog-action-login"><svg class="ic" aria-hidden="true"><use href="#i-key"></use></svg> Kirdi</span>';
+    else if(doc.action === 'register') actionBadge = '<span class="actlog-action-badge actlog-action-register"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Ro\'yxatdan o\'tdi</span>';
+    else actionBadge = '<span class="actlog-action-badge actlog-action-visit"><svg class="ic" aria-hidden="true"><use href="#i-log-in"></use></svg> Saytga kirdi</span>';
 
     // Mehmon yozuvlarida ism/email bo'lmaydi — o'rniga qaysi sahifaga
     // kirganini ko'rsatamiz.
@@ -8551,7 +8576,7 @@ function renderActivityLogTable(){
       : `<strong>${escHtml(doc.name || '—')}</strong>${doc.email ? '<br><span style="font-size:.75rem;color:var(--adm-gray,var(--gray));">'+escHtml(doc.email)+'</span>' : ''}`;
 
     const deleteCell = doc.uid
-      ? `<button type="button" class="btn btn-danger btn-sm" data-actlog-delete-uid="${escHtml(doc.uid)}" data-actlog-delete-role="${escHtml(doc.role||'')}" data-actlog-delete-name="${escHtml(doc.name||doc.email||'Foydalanuvchi')}">🗑️ O'chirish</button>`
+      ? `<button type="button" class="btn btn-danger btn-sm" data-actlog-delete-uid="${escHtml(doc.uid)}" data-actlog-delete-role="${escHtml(doc.role||'')}" data-actlog-delete-name="${escHtml(doc.name||doc.email||'Foydalanuvchi')}"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> O'chirish</button>`
       : '—';
     return `<tr>
       <td style="color:var(--adm-gray,var(--gray));font-size:.8rem;">${i+1}</td>
@@ -8600,7 +8625,7 @@ document.getElementById('actlogTableBody').addEventListener('click', async (e) =
     console.error('Activity log delete error:', err);
     showToast('O\'chirishda xatolik yuz berdi.', true);
     btn.disabled = false;
-    btn.textContent = '🗑️ O\'chirish';
+    btn.textContent = '<svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> O\'chirish';
   }
 });
 
@@ -8658,8 +8683,8 @@ startTodayHwAutoRefresh();
 // PDF HISOBOT — har bir talabaning oxirgi 30 kunlik statistikasi
 // (davomat, uy vazifa, jazo, kunlik yozuvlar) PDF fayl sifatida
 // yuklab olinadi. Ikki joydan ishlatiladi:
-//   1) Bitta talaba sahifasida — "📄 PDF yuklash (30 kun)" tugmasi.
-//   2) Guruh ro'yxati sahifasida — "📄 Guruh statistikasi (PDF)"
+//   1) Bitta talaba sahifasida — "PDF yuklash (30 kun)" tugmasi.
+//   2) Guruh ro'yxati sahifasida — "Guruh statistikasi (PDF)"
 //      tugmasi — guruhdagi HAR BIR talaba uchun alohida sahifada,
 //      bitta PDF faylga jamlanadi.
 // Kutubxonalar: html2canvas (HTML'ni rasmga oladi) + jsPDF (rasmlarni
@@ -8724,13 +8749,13 @@ function ojStatCardHtml(value, label) {
 function ojBuildStudentReportHtml(studentName, groupName, studentId, stats) {
   const periodLabel = ojFormatDateUz(stats.cutoffStr) + ' — ' + ojFormatDateUz(stats.todayStr);
   const rows = stats.periodEntries.map(e => {
-    const attendVal = e.attended === true || e.attended === 'yes' ? '✅ Keldi'
-      : e.attended === 'late' ? '⏰ Kech qoldi'
-      : (e.attended === false || e.attended === 'no') ? '🚫 Kelmadi' : '—';
-    const hwVal = e.homeworkDone === true || e.homeworkDone === 'yes' ? '✅ Qildi'
-      : (e.homeworkDone === false || e.homeworkDone === 'no') ? '🕓 Qilmadi'
-      : e.homeworkDone === 'partial' ? ('🔶 ' + (e.homeworkPercent ? e.homeworkPercent + '%' : 'qisman')) : '—';
-    const punish = (e.punished === 'yes' || Number(e.punishCount) > 0) ? ('🚫 ' + (e.punishCount || 1)) : '—';
+    const attendVal = e.attended === true || e.attended === 'yes' ? svgStandalone('check-circle', '#1FAE7A') + ' Keldi'
+      : e.attended === 'late' ? svgStandalone('alarm', '#d98e3f') + ' Kech qoldi'
+      : (e.attended === false || e.attended === 'no') ? svgStandalone('ban', '#c0392b') + ' Kelmadi' : '—';
+    const hwVal = e.homeworkDone === true || e.homeworkDone === 'yes' ? svgStandalone('check-circle', '#1FAE7A') + ' Qildi'
+      : (e.homeworkDone === false || e.homeworkDone === 'no') ? svgStandalone('clock', '#d98e3f') + ' Qilmadi'
+      : e.homeworkDone === 'partial' ? (svgStandalone('diamond', '#d98e3f') + ' ' + (e.homeworkPercent ? e.homeworkPercent + '%' : 'qisman')) : '—';
+    const punish = (e.punished === 'yes' || Number(e.punishCount) > 0) ? (svgStandalone('ban', '#c0392b') + ' ' + (e.punishCount || 1)) : '—';
     const note = e.note ? escapeHtml(e.note) : '—';
     return '<tr>' +
       '<td style="padding:6px 8px;border-bottom:1px solid #eee;white-space:nowrap;">' + escapeHtml(ojFormatDateUz(e.date)) + '</td>' +
@@ -8824,7 +8849,7 @@ const ojStudentPdfBtnEl = document.getElementById('ojStudentPdfBtn');
 if (ojStudentPdfBtnEl) {
   ojStudentPdfBtnEl.addEventListener('click', async () => {
     const btn = ojStudentPdfBtnEl;
-    const original = btn.textContent;
+    const original = btn.innerHTML;
     btn.disabled = true; btn.textContent = 'Tayyorlanmoqda…';
     try {
       const stats = ojComputeMonthlyStats(_ojProgressEntries, 30);
@@ -8837,7 +8862,7 @@ if (ojStudentPdfBtnEl) {
       console.error(err);
       alert('PDF yaratishda xatolik yuz berdi.');
     } finally {
-      btn.disabled = false; btn.textContent = original;
+      btn.disabled = false; btn.innerHTML = original;
     }
   });
 }
@@ -8848,7 +8873,7 @@ if (ojGroupPdfBtnEl) {
   ojGroupPdfBtnEl.addEventListener('click', async () => {
     const btn = ojGroupPdfBtnEl;
     if (!_ojActiveGroupStudents.length) { alert('Bu guruhda hali talaba yo\'q.'); return; }
-    const original = btn.textContent;
+    const original = btn.innerHTML;
     btn.disabled = true;
     try {
       const { jsPDF } = window.jspdf;
@@ -8870,7 +8895,7 @@ if (ojGroupPdfBtnEl) {
       console.error(err);
       alert('PDF yaratishda xatolik yuz berdi.');
     } finally {
-      btn.disabled = false; btn.textContent = original;
+      btn.disabled = false; btn.innerHTML = original;
     }
   });
 }
@@ -8966,7 +8991,7 @@ function rmRenderMockList() {
     const modeLabel = m.mockMode === 'single_part'
       ? `Part ${(m.singlePartIndex != null ? m.singlePartIndex + 1 : 1)}`
       : 'Full Mock';
-    const modeIcon = m.mockMode === 'single_part' ? '📄' : '📖';
+    const modeIcon = m.mockMode === 'single_part' ? '<svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg>' : '<svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg>';
     const modeBadge = m.mockMode === 'single_part'
       ? `<span class="rm-badge" style="background:rgba(240,146,61,.12);color:#c07020;border:1px solid rgba(240,146,61,.3);">${modeLabel}</span>`
       : `<span class="rm-badge" style="background:rgba(47,111,237,.1);color:#1a4fbb;border:1px solid rgba(47,111,237,.25);">Full Mock</span>`;
@@ -8986,7 +9011,7 @@ function rmRenderMockList() {
         ${statusBadge}
         <button class="btn btn-ghost btn-sm" onclick="rmEditMock('${m.id}')">Tahrirlash</button>
         <button class="btn btn-ghost btn-sm" onclick="rmPreviewMock('${m.id}')">Preview</button>
-        <button class="btn btn-ghost btn-sm" onclick="rmCopyMockLink('${m.id}', ${m.status === 'published' ? 'true' : 'false'})">🔗 Link nusxalash</button>
+        <button class="btn btn-ghost btn-sm" onclick="rmCopyMockLink('${m.id}', ${m.status === 'published' ? 'true' : 'false'})"><svg class="ic" aria-hidden="true"><use href="#i-link"></use></svg> Link nusxalash</button>
         <button class="btn btn-ghost btn-sm" onclick="rmDuplicateMock('${m.id}')">Nusxa</button>
         <button class="btn btn-ghost btn-sm rm-del-btn" onclick="rmDeleteMock('${m.id}', '${escapeHtml(m.title || '')}')">O'chirish</button>
       </div>
@@ -9955,8 +9980,8 @@ function gmaFilter() {
 //  READING MOCK ATTEMPTS — To'liq sahifa (barcha urinishlar)
 // ============================================================
 let _rmaAllAttempts = [];   // barcha fetched attempts
-let _rmaMockMap = {};        // mockId → { title, testType }
-let _rmaStudentMap = {};     // uid → { name, email }
+let _rmaMockMap = {};        // mockId -> { title, testType }
+let _rmaStudentMap = {};     // uid -> { name, email }
 
 function rmaFmtTime(seconds) {
   if (!seconds && seconds !== 0) return '—';
@@ -10356,16 +10381,16 @@ function aGuruhRender() {
     const isActive = aJoriyGuruh && aJoriyGuruh.id === g.id;
     return `<div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:${isActive ? 'rgba(47,111,237,.08)' : 'var(--surface,#f8f9fa)'};border:1.5px solid ${isActive ? 'var(--adm-blue,#2F6FED)' : 'var(--adm-line,var(--line))'};border-radius:10px;transition:border-color .15s;cursor:pointer;" onclick="aGuruhTanla('${g.id}')">
       <div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:36px;height:36px;background:var(--adm-blue,#2F6FED);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;">🏫</div>
+        <div style="width:36px;height:36px;background:var(--adm-blue,#2F6FED);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.95rem;"><svg class="ic" aria-hidden="true"><use href="#i-school"></use></svg></div>
         <div>
           <div style="font-weight:700;font-size:.9rem;">${g.nom}</div>
           <div style="font-size:.78rem;color:var(--adm-gray,#8892A6);">${son} talaba</div>
         </div>
       </div>
       <div style="display:flex;gap:6px;" onclick="event.stopPropagation()">
-        <button class="btn btn-primary btn-sm" onclick="aGuruhTanlabAnketa('${g.id}')" style="border-radius:8px;font-size:.8rem;">📝 Anketa</button>
-        <button class="btn btn-sm" onclick="aGuruhLinkNusxa('${g.id}','${g.nom.replace(/'/g,'&#39;')}')" style="background:rgba(47,111,237,.1);color:var(--adm-blue,#2F6FED);border:1.5px solid rgba(47,111,237,.25);border-radius:8px;font-size:.8rem;" title="Talabaga yuboriladigan link">🔗 Link</button>
-        <button class="btn btn-sm" onclick="aGuruhOchir('${g.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.8rem;">🗑️</button>
+        <button class="btn btn-primary btn-sm" onclick="aGuruhTanlabAnketa('${g.id}')" style="border-radius:8px;font-size:.8rem;"><svg class="ic" aria-hidden="true"><use href="#i-square-pen"></use></svg> Anketa</button>
+        <button class="btn btn-sm" onclick="aGuruhLinkNusxa('${g.id}','${g.nom.replace(/'/g,'&#39;')}')" style="background:rgba(47,111,237,.1);color:var(--adm-blue,#2F6FED);border:1.5px solid rgba(47,111,237,.25);border-radius:8px;font-size:.8rem;" title="Talabaga yuboriladigan link"><svg class="ic" aria-hidden="true"><use href="#i-link"></use></svg> Link</button>
+        <button class="btn btn-sm" onclick="aGuruhOchir('${g.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.8rem;"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></button>
       </div>
     </div>`;
   }).join('');
@@ -10410,7 +10435,7 @@ function aAnketaRender() {
     if (noGuruh) noGuruh.style.display = 'none';
     if (wrap) wrap.style.display = 'block';
     const badge = document.getElementById('aAnketaGuruhNomi');
-    if (badge) badge.textContent = '📚 ' + aJoriyGuruh.nom;
+    if (badge) setIconText(badge, '{{books}} ' + aJoriyGuruh.nom);
     aFormTozala();
   }
 }
@@ -10490,7 +10515,7 @@ function aGuruhLinkNusxa(id, nom) {
   const link = base + '/anketa-form.html?guruh=' + encodeURIComponent(id) + '&nom=' + encodeURIComponent(nom);
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(link).then(() => {
-      showToast('🔗 Link nusxalandi! Talabaga yuboring.');
+      showToast('{{link}} Link nusxalandi! Talabaga yuboring.');
       aLinkModalKor(link, nom);
     }).catch(() => { aLinkModalKor(link, nom); });
   } else {
@@ -10508,29 +10533,29 @@ function aLinkModalKor(link, nom) {
     modal.innerHTML = `
       <div style="background:var(--paper,#fff);border-radius:20px;padding:32px 28px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.2);">
         <div style="text-align:center;margin-bottom:20px;">
-          <div style="width:56px;height:56px;background:rgba(47,111,237,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 12px;">🔗</div>
+          <div style="width:56px;height:56px;background:rgba(47,111,237,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 12px;"><svg class="ic" aria-hidden="true"><use href="#i-link"></use></svg></div>
           <h3 style="margin:0 0 4px;font-size:1.1rem;font-weight:700;" id="aLinkModalTitle">Anketa linki</h3>
           <p style="margin:0;font-size:.83rem;color:var(--adm-gray,#8892A6);">Ushbu linkni talabaga TG orqali yuboring</p>
         </div>
         <div style="background:var(--surface,#f8f9fa);border:1.5px solid var(--adm-line,var(--line));border-radius:12px;padding:12px 14px;margin-bottom:16px;word-break:break-all;font-size:.8rem;font-family:monospace;color:var(--adm-ink,#1a1a2e);" id="aLinkModalUrl"></div>
         <div style="display:flex;gap:10px;">
-          <button onclick="aLinkKopir()" class="btn btn-primary btn-sm" style="flex:1;border-radius:10px;">📋 Nusxalash</button>
+          <button onclick="aLinkKopir()" class="btn btn-primary btn-sm" style="flex:1;border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Nusxalash</button>
           <button onclick="document.getElementById('aLinkModal').remove()" class="btn btn-ghost btn-sm" style="border-radius:10px;">Yopish</button>
         </div>
       </div>`;
     document.body.appendChild(modal);
     modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
   }
-  document.getElementById('aLinkModalTitle').textContent = '🔗 ' + nom + ' — Anketa linki';
+  setIconText(document.getElementById('aLinkModalTitle'), '{{link}} ' + nom + ' — Anketa linki');
   document.getElementById('aLinkModalUrl').textContent = link;
 }
 
 function aLinkKopir() {
   const url = document.getElementById('aLinkModalUrl').textContent;
-  navigator.clipboard.writeText(url).then(() => showToast('📋 Nusxalandi!')).catch(() => {
+  navigator.clipboard.writeText(url).then(() => showToast('{{clipboard}} Nusxalandi!')).catch(() => {
     const ta = document.createElement('textarea');
     ta.value = url; document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); ta.remove(); showToast('📋 Nusxalandi!');
+    document.execCommand('copy'); ta.remove(); showToast('{{clipboard}} Nusxalandi!');
   });
 }
 
@@ -10583,7 +10608,7 @@ function aJadvalChiz() {
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${t.tel1}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${t.tel2}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));color:var(--adm-gray,#8892A6);font-size:.78rem;">${t.sana}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><button class="btn btn-sm" onclick="aTalabaOchir('${t.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.75rem;">🗑️</button></td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><button class="btn btn-sm" onclick="aTalabaOchir('${t.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.75rem;"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></button></td>
     </tr>
   `).join('');
 }
@@ -10621,7 +10646,7 @@ function anketaExcelYuklash() {
   XLSX.utils.book_append_sheet(wb, ws, 'Talabalar');
   const nom = gF ? (ADB.guruhlar().find(g=>g.id===gF)||{nom:'guruh'}).nom : 'barcha';
   XLSX.writeFile(wb, `talabalar_${nom}_${new Date().toLocaleDateString('uz-UZ').replace(/\./g,'-')}.xlsx`);
-  showToast('📥 Excel fayl yuklab olindi!');
+  showToast('{{download}} Excel fayl yuklab olindi!');
 }
 
 document.getElementById('aGuruhNomi').addEventListener('keydown', e => { if (e.key === 'Enter') aGuruhQosh(); });
