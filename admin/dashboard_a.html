@@ -8427,7 +8427,7 @@ function showTodayAttendanceList(groupId, kind){
   });
 
   const titleMap = { yes: '<svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Kelgan talabalar', no: '<svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Kelmagan talabalar', 'hw-no': '<svg class="ic" aria-hidden="true"><use href="#i-books"></use></svg> Uy vazifa qilmagan talabalar' };
-  document.getElementById('attendanceListTitle').textContent = titleMap[kind] || 'Ro\u2018yxat';
+  document.getElementById('attendanceListTitle').innerHTML = titleMap[kind] || 'Ro\u2018yxat';
   document.getElementById('attendanceListSub').textContent = `${escHtml(data.groupName)} — ${matches.length} ta talaba`;
 
   const body = document.getElementById('attendanceListBody');
@@ -8625,7 +8625,7 @@ document.getElementById('actlogTableBody').addEventListener('click', async (e) =
     console.error('Activity log delete error:', err);
     showToast('O\'chirishda xatolik yuz berdi.', true);
     btn.disabled = false;
-    btn.textContent = '<svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> O\'chirish';
+    btn.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> O\'chirish';
   }
 });
 
