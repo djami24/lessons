@@ -581,7 +581,8 @@
         <div class="st-controls">
           <select id="statsGroupFilter" class="st-select"><option value="">Barcha guruhlar</option></select>
           <div class="oj-days-preset-row" id="statsPeriodPicker">
-            <button class="btn btn-ghost btn-sm stats-period-btn active" data-days="L12" title="Har bir guruhning oxirgi 12 ta darsi">1 oy · 12 dars</button>
+            <button class="btn btn-ghost btn-sm stats-period-btn active" data-days="M" title="Har bir guruhning joriy o'quv oyi (guruh ichidagi «Yangi oyni boshlash» sanasidan) — o'tgan oy bilan solishtiriladi">📅 O'quv oyi</button>
+            <button class="btn btn-ghost btn-sm stats-period-btn" data-days="L12" title="Har bir guruhning oxirgi 12 ta darsi">12 dars</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="7">7 kun</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="30">30 kun</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="90">90 kun</button>
@@ -630,6 +631,8 @@
             <button class="btn btn-ghost btn-sm" id="stTopCopyBtn" title="Matnni nusxalash">Nusxa</button></span></div>
           <div id="stTop"></div><div class="st-more" id="stTopPub"></div></div>
       </div>
+
+      <div class="st-grid" id="stMovers"></div>
 
       <div id="statsEmpty" class="oj-empty" style="display:none;">
         <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-folder-open"></use></svg></div>
@@ -1566,8 +1569,10 @@
           <h1 style="margin:0; font-size:1.4rem;" id="ojGroupTitle">Guruh</h1>
           <p style="margin:0; color:var(--gray); font-size:.85rem;" id="ojGroupSub">0 talaba</p>
           <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupDaysLine"></p>
+          <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupMonthLine"></p>
         </div>
-        <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn" style="margin-left:auto;"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Hammasini nusxalash</button>
+        <button class="btn btn-amber" id="ojNewMonthBtn" style="margin-left:auto;" title="Yangi o'quv oyini boshlash — statistika shu sanadan boshidan hisoblanadi">📅 Yangi oyni boshlash</button>
+        <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Hammasini nusxalash</button>
         <select class="st-select rp-month-select" title="Hisobot oyi"></select>
         <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
         <button class="btn btn-primary" id="openAddOquvStudent">+ Talaba qo'shish</button>
@@ -2376,6 +2381,22 @@
     <p id="commentsAdminEmpty" style="color:var(--gray); font-size:.9rem;" hidden>Bu blogda hali izohlar yo‘q.</p>
     <div class="modal-actions">
       <button type="button" class="btn btn-ghost" data-close-modal="modalBlogComments">Yopish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Yangi o'quv oyini boshlash ===== -->
+<div class="modal-overlay" id="modalNewMonth" hidden>
+  <div class="modal-box" style="max-width:460px;">
+    <h3 id="newMonthTitle">Yangi oyni boshlash</h3>
+    <p class="modal-sub" id="newMonthInfo"></p>
+    <label class="field"><span>Yangi oy boshlanish sanasi</span><input type="date" id="newMonthDate"></label>
+    <p style="font-size:.82rem;color:var(--gray);margin:6px 0 0;">Bu sanadan boshlab davomat, uy vazifa, kech qolish va jazolar <b>yangi oy</b> hisobida boshidan sanaladi. Eski ma'lumotlar o'chmaydi — statistikada «o'tgan oy» sifatida solishtiriladi.</p>
+    <div class="modal-actions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+      <button type="button" class="btn btn-ghost" id="newMonthUndo" hidden>↩ Oxirgi oyni bekor qilish</button>
+      <span style="flex:1"></span>
+      <button type="button" class="btn btn-ghost" data-close-modal="modalNewMonth">Bekor qilish</button>
+      <button type="button" class="btn btn-primary" id="newMonthConfirm">Boshlash</button>
     </div>
   </div>
 </div>
@@ -4055,7 +4076,7 @@ document.querySelectorAll('.stats-period-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.stats-period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    _statsPeriodDays = btn.dataset.days === 'L12' ? 'L12' : Number(btn.dataset.days);
+    _statsPeriodDays = (btn.dataset.days === 'L12' || btn.dataset.days === 'M') ? btn.dataset.days : Number(btn.dataset.days);
     loadStatsPage(_statsPeriodDays);
   });
 });
@@ -6402,7 +6423,7 @@ document.getElementById('homeSeeAllTomorrow').addEventListener('click', (e) => {
 // Ma'lumot manbai: oquv_progress/{studentId}/entries (davomat, uy vazifa, jazo).
 // Oxirgi 180 kun bir marta yuklanadi va 5 daqiqa keshlanadi, davr almashtirilganda
 // qayta so'rov yuborilmaydi (oldingi davr bilan solishtirish uchun ham shu ma'lumot ishlatiladi).
-let _statsPeriodDays = 'L12';   // 'L12' = har guruhning oxirgi 12 ta darsi (1 oylik kurs), yoki kunlar soni
+let _statsPeriodDays = 'M';   // 'L12' = har guruhning oxirgi 12 ta darsi (1 oylik kurs), yoki kunlar soni
 const ST_LESSONS = 12;
 let _statsData = null;
 let _statsModel = null;
@@ -6499,9 +6520,37 @@ function stLessonDates(g, end, skip, n){
   }
   return out.reverse();
 }
+// ----- O'quv oylari (guruh hujjatida `periods` massivi: [{start:'YYYY-MM-DD', end:'YYYY-MM-DD'|null, n:1}]) -----
+const UZ_MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
+function grpPeriods(g){
+  return ((g && g.periods) || []).filter(x => x && /^\d{4}-\d{2}-\d{2}$/.test(x.start)).slice().sort((a, b) => a.start < b.start ? -1 : 1);
+}
+function periodTitle(p){
+  const d = new Date(p.start + 'T00:00:00');
+  return UZ_MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+}
+function fmtDmy(str){ return str ? str.slice(8, 10) + '.' + str.slice(5, 7) + '.' + str.slice(0, 4) : ''; }
 // Har bir guruh uchun joriy va oldingi davr oynasi.
 function stWin(g, mode, today, rows){
   const tStr = stDate(today), none = { from:'9', to:'0', n:0 };
+  const cntL = (a, b) => { let n = 0; for (let d = new Date(a + 'T00:00:00'); stDate(d) <= b; d = stAdd(d, 1)) if ((g.days || []).includes(OJ_JSDAY_TO_KEY[d.getDay()])) n++; return n; };
+  if (mode === 'M') {
+    // O'QUV OYI: guruhda «Yangi oyni boshlash» bosilgan sanadan bugungacha; solishtirish — o'tgan o'quv oyi bilan.
+    const ps = grpPeriods(g), c = ps[ps.length - 1];
+    if (c) {
+      const p = ps[ps.length - 2];
+      const cFrom = c.start, cTo = c.end && c.end < tStr ? c.end : tStr;
+      let pFrom, pTo;
+      if (p) { pFrom = p.start; pTo = p.end || stDate(stAdd(new Date(cFrom + 'T00:00:00'), -1)); }
+      else {   // birinchi oy: o'tgan oy = boshlanish sanasidan bir oy oldingi davr (masalan 01.09 — 30.09)
+        const d0 = new Date(cFrom + 'T00:00:00');
+        pFrom = stDate(new Date(d0.getFullYear(), d0.getMonth() - 1, d0.getDate()));
+        pTo = stDate(stAdd(d0, -1));
+      }
+      return { from: cFrom, to: cTo, n: cntL(cFrom, cTo), pFrom, pTo, pn: cntL(pFrom, pTo), month: c, hasMonth: true };
+    }
+    mode = 'L12';   // bu guruhda hali yangi oy boshlanmagan — oxirgi 12 dars
+  }
   if (mode === 'L12') {
     // bugungi dars hali o'tmagan bo'lishi mumkin: faqat bugun uchun yozuv bo'lsagina hisoblaymiz
     const end = rows.some(r => r.gid === g.id && r.date === tStr) ? today : stAdd(today, -1);
@@ -6632,7 +6681,7 @@ async function loadStatsPage(days, force){
   const gset = new Set(groups.map(g => g.id));
   const all = data.rows.filter(r => gset.has(r.gid));
 
-  const isL = days === 'L12';
+  const isL = days === 'L12', isM = days === 'M';
   const today = new Date(), tStr = stDate(today);
   const wins = {}; groups.forEach(g => { wins[g.id] = stWin(g, days, today, all); });
   const cur = all.filter(r => { const w = wins[r.gid]; return w && r.date >= w.from && r.date <= w.to; });
@@ -6645,10 +6694,14 @@ async function loadStatsPage(days, force){
   const pComp = pExpected ? Math.min(100, Math.round(P.marked / pExpected * 100)) : null;
   const minFrom = groups.map(g => wins[g.id].from).sort()[0];
 
-  document.getElementById('statsSubline').textContent = isL
-    ? `${groups.length} ta guruh · ${studentCount} ta o'quvchi · har bir guruhning so'nggi ${ST_LESSONS} ta darsi (1 oylik kurs)`
+  const noMonthGroups = isM ? groups.filter(g => !wins[g.id].hasMonth) : [];
+  document.getElementById('statsSubline').textContent = isM
+    ? `${groups.length} ta guruh · ${studentCount} ta o'quvchi · joriy o'quv oyi (har guruhning «Yangi oyni boshlash» sanasidan) · o'tgan oy bilan solishtirilgan` +
+      (noMonthGroups.length ? ` · ${noMonthGroups.length} ta guruhda oy hali boshlanmagan (oxirgi ${ST_LESSONS} dars olindi)` : '')
+    : isL
+    ? `${groups.length} ta guruh · ${studentCount} ta o'quvchi · har bir guruhning so'nggi ${ST_LESSONS} ta darsi`
     : `${groups.length} ta guruh · ${studentCount} ta o'quvchi · so'nggi ${days} kun (${minFrom} — ${tStr})`;
-  const per = isL ? 'oldingi 12 dars' : 'oldingi davr';
+  const per = isM ? "o'tgan oy" : isL ? 'oldingi 12 dars' : 'oldingi davr';
 
   // ---- trend (bucket) ----
   const buckets = stBucketsRange(minFrom, today);
@@ -6693,7 +6746,7 @@ async function loadStatsPage(days, force){
     const w = wins[g.id], gc = cur.filter(r => r.gid === g.id), gp = prev.filter(r => r.gid === g.id);
     const a = stAgg(gc), p = stAgg(gp), ex = w.n * g.students.length;
     return { g, name: g.name, count: g.students.length, a, p, att: a.att, hw: a.hw, no: a.no, late: a.late, pun: a.pun,
-             held: new Set(gc.map(r => r.date)).size, lessons: w.n,
+             held: new Set(gc.map(r => r.date)).size, lessons: w.n, win: w,
              comp: ex ? Math.min(100, Math.round(a.marked / ex * 100)) : null, score: stScore(a) };
   });
   _statsRenderGroupTable(gRows);
@@ -6721,9 +6774,26 @@ async function loadStatsPage(days, force){
     const g = gInfo(el.dataset.gid); if (g.id) loadOjStudents(g.id, g.name, g.days || []);
   }));
 
+  // ---- talabalar: o'tgan davrga nisbatan o'zgarish ----
+  const prevBy = {}; prev.forEach(r => { (prevBy[r.sid] = prevBy[r.sid] || []).push(r); });
+  const movers = people.map(p => {
+    const pa = stAgg(prevBy[p.sid] || []), sc = stScore(p.a), psc = stScore(pa);
+    return { p, pa, sc, psc, d: (sc !== null && psc !== null && p.a.marked >= 3 && pa.marked >= 3) ? sc - psc : null };
+  }).filter(m => m.d !== null);
+  const mvRow = m => `<div class="st-person" data-gid="${m.p.gid}"><div style="flex:1;min-width:0"><div class="st-person-name">${escHtml(m.p.name)}</div>
+      <div class="st-person-meta">${escHtml(m.p.gname)} · davomat ${m.p.a.att === null ? '—' : m.p.a.att + '%'}${stDelta(m.p.a.att, m.pa.att, false, ' %')} · uy vazifa ${m.p.a.hw === null ? '—' : m.p.a.hw + '%'}${stDelta(m.p.a.hw, m.pa.hw, false, ' %')}</div></div>
+      <b style="color:${m.d > 0 ? ST_C.green : ST_C.red}">${m.d > 0 ? '▲ +' : '▼ '}${m.d}</b></div>`;
+  const up = movers.filter(m => m.d > 0).sort((x, y) => y.d - x.d).slice(0, 6), down = movers.filter(m => m.d < 0).sort((x, y) => x.d - y.d).slice(0, 6);
+  document.getElementById('stMovers').innerHTML =
+    `<div class="home-section-card"><h3 class="st-h">📈 Yaxshilanganlar <small>(ball, ${per}ga nisbatan)</small></h3>${up.length ? up.map(mvRow).join('') : '<div class="st-empty-mini">Solishtirish uchun ma\'lumot yetarli emas.</div>'}</div>` +
+    `<div class="home-section-card"><h3 class="st-h">📉 Pasayganlar <small>(ball, ${per}ga nisbatan)</small></h3>${down.length ? down.map(mvRow).join('') : '<div class="st-empty-mini">Pasayganlar yo\'q.</div>'}</div>`;
+  document.querySelectorAll('#stMovers .st-person').forEach(el => el.addEventListener('click', () => {
+    const g = gInfo(el.dataset.gid); if (g.id) loadOjStudents(g.id, g.name, g.days || []);
+  }));
+
   stPublishLeaderboard('sync');   // saytdagi reytingni shu ma'lumot bilan yangilaymiz
   _statsModel = { days, gRows, people, wins, riskAll, top, groupLabel: sel.value ? (groups[0] && groups[0].name) : 'Barcha guruhlar',
-    periodLabel: isL ? `1 oy (har guruhning oxirgi ${ST_LESSONS} darsi)` : `so'nggi ${days} kun` };
+    periodLabel: isM ? "joriy o'quv oyi" : isL ? `oxirgi ${ST_LESSONS} dars` : `so'nggi ${days} kun` };
 }
 
 function _statsRenderGroupTable(gRows){
@@ -6739,10 +6809,10 @@ function _statsRenderGroupTable(gRows){
   });
   const body = document.getElementById('statsGroupsBody');
   body.innerHTML = rows.map(r => `<tr data-gid="${r.g.id}">
-      <td><strong>${escHtml(r.name)}</strong></td><td>${r.count}</td><td>${r.lessons ? r.held + '/' + r.lessons : '—'}</td>
+      <td><strong>${escHtml(r.name)}</strong>${r.win && r.win.hasMonth ? `<br><small style="color:var(--gray)">${periodTitle(r.win.month)} · ${fmtDmy(r.win.from)} dan</small>` : ''}</td><td>${r.count}</td><td>${r.lessons ? r.held + '/' + r.lessons : '—'}</td>
       <td>${stBarCell(r.att, stDelta(r.a.att, r.p.att, false))}</td>
       <td>${stBarCell(r.hw, stDelta(r.a.hw, r.p.hw, false))}</td>
-      <td>${r.no}</td><td>${r.late}</td><td>${r.pun}</td>
+      <td>${r.no}${stDelta(r.a.no, r.p.no, true)}</td><td>${r.late}${stDelta(r.a.late, r.p.late, true)}</td><td>${r.pun}${stDelta(r.a.pun, r.p.pun, true)}</td>
       <td>${r.comp === null ? '—' : r.comp + '%'}</td><td>${stStatus(r.score)}</td></tr>`).join('');
   body.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => {
     const g = rows.find(r => r.g.id === tr.dataset.gid).g; loadOjStudents(g.id, g.name, g.days || []);
@@ -6765,7 +6835,7 @@ document.getElementById('statsExportBtn').addEventListener('click', () => {
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(_statsModel.people.map(p => ({
     'Talaba': p.name, 'Guruh': p.gname, 'Davomat %': p.a.att, 'Uy vazifa %': p.a.hw, 'Kelmadi': p.a.no, 'Kech qoldi': p.a.late,
     'Ketma-ket kelmagan': p.streak, 'Jazolangan': p.a.pun, 'Ball': p.sc, 'Izoh': p.reasons.join('; ') }))), 'Talabalar');
-  XLSX.writeFile(wb, (_statsModel.days === 'L12' ? 'statistika_12_dars.xlsx' : `statistika_${_statsModel.days}_kun.xlsx`));
+  XLSX.writeFile(wb, (_statsModel.days === 'M' ? 'statistika_oquv_oyi.xlsx' : _statsModel.days === 'L12' ? 'statistika_12_dars.xlsx' : `statistika_${_statsModel.days}_kun.xlsx`));
 });
 
 
@@ -7020,8 +7090,65 @@ document.getElementById('ojGroupSaveBtn').addEventListener('click', async () => 
 // ----- Students -----
 function ojTodayStr(){ return new Date().toISOString().slice(0,10); }
 
+// ---------- O'quv oyi (guruh ichida «Yangi oyni boshlash») ----------
+let _ojActiveGroupPeriods = [];
+function ojRenderMonthLine(){
+  const el = document.getElementById('ojGroupMonthLine'), ps = grpPeriods({ periods: _ojActiveGroupPeriods });
+  const c = ps[ps.length - 1];
+  el.textContent = c ? `📅 Joriy o'quv oyi: ${periodTitle(c)} (${c.n || ps.length}-oy) · ${fmtDmy(c.start)} dan` : "📅 O'quv oyi hali boshlanmagan — «Yangi oyni boshlash» ni bosing";
+  document.getElementById('ojNewMonthBtn').textContent = c ? '📅 Yangi oyni boshlash' : '📅 Oyni boshlash';
+}
+async function ojLoadPeriods(groupId){
+  _ojActiveGroupPeriods = [];
+  ojRenderMonthLine();
+  try {
+    const d = await db.collection('oquv_groups').doc(groupId).get();
+    if (groupId !== _ojActiveGroupId) return;
+    _ojActiveGroupPeriods = (d.exists && d.data().periods) || [];
+  } catch (e) { console.warn('periods load', e); }
+  ojRenderMonthLine();
+}
+document.getElementById('ojNewMonthBtn').addEventListener('click', () => {
+  const ps = grpPeriods({ periods: _ojActiveGroupPeriods }), c = ps[ps.length - 1];
+  document.getElementById('newMonthTitle').textContent = _ojActiveGroupName + ' — yangi oy';
+  document.getElementById('newMonthInfo').textContent = c
+    ? `Hozirgi oy: ${periodTitle(c)} (${fmtDmy(c.start)} dan). Yangi oy boshlanganda u yakunlanadi va statistikada «o'tgan oy» bo'ladi.`
+    : "Bu guruh uchun birinchi o'quv oyi. Shu sanadan oldingi bir oylik ma'lumotlar «o'tgan oy» sifatida solishtiriladi.";
+  document.getElementById('newMonthDate').value = ojTodayStr();
+  document.getElementById('newMonthUndo').hidden = !c;
+  openModal('modalNewMonth');
+});
+document.getElementById('newMonthConfirm').addEventListener('click', async () => {
+  const gid = _ojActiveGroupId, start = document.getElementById('newMonthDate').value;
+  if (!gid || !/^\d{4}-\d{2}-\d{2}$/.test(start)) { showToast('Sanani tanlang', true); return; }
+  const ps = grpPeriods({ periods: _ojActiveGroupPeriods }), last = ps[ps.length - 1];
+  if (last && start <= last.start) { showToast(`Yangi oy sanasi ${fmtDmy(last.start)} dan keyin bo'lishi kerak`, true); return; }
+  const next = ps.map(x => Object.assign({}, x));
+  if (last) next[next.length - 1].end = stDate(stAdd(new Date(start + 'T00:00:00'), -1));
+  next.push({ start, end: null, n: (last ? (last.n || ps.length) : 0) + 1 });
+  try {
+    await db.collection('oquv_groups').doc(gid).update({ periods: next });
+    _ojActiveGroupPeriods = next; _statsData = null;
+    ojRenderMonthLine(); closeModal('modalNewMonth');
+    showToast(`${periodTitle(next[next.length - 1])} oyi boshlandi — statistika ${fmtDmy(start)} dan hisoblanadi`);
+  } catch (e) { console.error(e); showToast('Saqlab bo\'lmadi', true); }
+});
+document.getElementById('newMonthUndo').addEventListener('click', async () => {
+  const gid = _ojActiveGroupId, ps = grpPeriods({ periods: _ojActiveGroupPeriods });
+  if (!gid || !ps.length) return;
+  if (!confirm(periodTitle(ps[ps.length - 1]) + ' oyini bekor qilasizmi? (davomat ma\'lumotlari o\'chmaydi)')) return;
+  const next = ps.slice(0, -1).map(x => Object.assign({}, x));
+  if (next.length) next[next.length - 1].end = null;
+  try {
+    await db.collection('oquv_groups').doc(gid).update({ periods: next });
+    _ojActiveGroupPeriods = next; _statsData = null;
+    ojRenderMonthLine(); closeModal('modalNewMonth'); showToast('Oy bekor qilindi');
+  } catch (e) { console.error(e); showToast('Saqlab bo\'lmadi', true); }
+});
+
 async function loadOjStudents(groupId, groupName, days) {
   _ojActiveGroupId = groupId;
+  ojLoadPeriods(groupId);
   _ojActiveGroupName = groupName;
   if (days !== undefined) _ojActiveGroupDays = days || [];
   setIconText(document.getElementById('ojGroupTitle'), '{{users}} ' + groupName);
