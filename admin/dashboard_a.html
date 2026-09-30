@@ -578,8 +578,9 @@
         <div class="st-controls">
           <select id="statsGroupFilter" class="st-select"><option value="">Barcha guruhlar</option></select>
           <div class="oj-days-preset-row" id="statsPeriodPicker">
+            <button class="btn btn-ghost btn-sm stats-period-btn active" data-days="L12" title="Har bir guruhning oxirgi 12 ta darsi">1 oy · 12 dars</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="7">7 kun</button>
-            <button class="btn btn-ghost btn-sm stats-period-btn active" data-days="30">30 kun</button>
+            <button class="btn btn-ghost btn-sm stats-period-btn" data-days="30">30 kun</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="90">90 kun</button>
           </div>
           <button class="btn btn-ghost btn-sm" id="statsRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
@@ -604,7 +605,7 @@
         <div class="table-wrap">
           <table class="data-table st-table">
             <thead><tr>
-              <th data-sort="name">Guruh</th><th data-sort="count">Talaba</th><th data-sort="att">Davomat</th><th data-sort="hw">Uy vazifa</th>
+              <th data-sort="name">Guruh</th><th data-sort="count">Talaba</th><th data-sort="held">Dars</th><th data-sort="att">Davomat</th><th data-sort="hw">Uy vazifa</th>
               <th data-sort="no">Kelmadi</th><th data-sort="late">Kech</th><th data-sort="pun">Jazo</th><th data-sort="comp">Belgilash</th><th data-sort="score">Holat</th>
             </tr></thead>
             <tbody id="statsGroupsBody"></tbody>
@@ -4046,7 +4047,7 @@ document.querySelectorAll('.stats-period-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.stats-period-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    _statsPeriodDays = Number(btn.dataset.days);
+    _statsPeriodDays = btn.dataset.days === 'L12' ? 'L12' : Number(btn.dataset.days);
     loadStatsPage(_statsPeriodDays);
   });
 });
@@ -6393,7 +6394,8 @@ document.getElementById('homeSeeAllTomorrow').addEventListener('click', (e) => {
 // Ma'lumot manbai: oquv_progress/{studentId}/entries (davomat, uy vazifa, jazo).
 // Oxirgi 180 kun bir marta yuklanadi va 5 daqiqa keshlanadi, davr almashtirilganda
 // qayta so'rov yuborilmaydi (oldingi davr bilan solishtirish uchun ham shu ma'lumot ishlatiladi).
-let _statsPeriodDays = 30;
+let _statsPeriodDays = 'L12';   // 'L12' = har guruhning oxirgi 12 ta darsi (1 oylik kurs), yoki kunlar soni
+const ST_LESSONS = 12;
 let _statsData = null;
 let _statsModel = null;
 let _statsToken = 0;
@@ -6444,6 +6446,43 @@ async function stFetch(force){
   )));
   _statsData = { ts: Date.now(), groups, rows };
   return _statsData;
+}
+
+
+// Guruh jadvali (haftada necha kun) bo'yicha oxirgi n ta dars sanasi; `skip` — eng yangi nechtasini o'tkazib yuborish.
+function stLessonDates(g, end, skip, n){
+  const keys = g.days || [], out = [];
+  if (!keys.length) return out;
+  let d = new Date(end), seen = 0, guard = 0;
+  while (out.length < n && guard++ < 500) {
+    if (keys.includes(OJ_JSDAY_TO_KEY[d.getDay()])) { if (seen >= skip) out.push(stDate(d)); seen++; }
+    d = stAdd(d, -1);
+  }
+  return out.reverse();
+}
+// Har bir guruh uchun joriy va oldingi davr oynasi.
+function stWin(g, mode, today, rows){
+  const tStr = stDate(today), none = { from:'9', to:'0', n:0 };
+  if (mode === 'L12') {
+    // bugungi dars hali o'tmagan bo'lishi mumkin: faqat bugun uchun yozuv bo'lsagina hisoblaymiz
+    const end = rows.some(r => r.gid === g.id && r.date === tStr) ? today : stAdd(today, -1);
+    const cur = stLessonDates(g, end, 0, ST_LESSONS), prev = stLessonDates(g, end, ST_LESSONS, ST_LESSONS);
+    if (cur.length) return { from: cur[0], to: tStr, n: cur.length,
+      pFrom: prev.length ? prev[0] : '9', pTo: prev.length ? stDate(stAdd(new Date(cur[0] + 'T00:00:00'), -1)) : '0', pn: prev.length };
+    mode = 30; // dars kunlari belgilanmagan guruh — 30 kunlik oyna
+  }
+  const from = stDate(stAdd(today, -(mode - 1))), pFrom = stDate(stAdd(today, -(2 * mode - 1))), pTo = stDate(stAdd(today, -mode));
+  const cnt = (a, b) => { let n = 0; for (let d = new Date(a + 'T00:00:00'); stDate(d) <= b; d = stAdd(d, 1)) if ((g.days || []).includes(OJ_JSDAY_TO_KEY[d.getDay()])) n++; return n; };
+  return { from, to: tStr, n: cnt(from, tStr), pFrom, pTo, pn: cnt(pFrom, pTo) };
+}
+function stBucketsRange(fromStr, today){
+  const start = new Date(fromStr + 'T00:00:00'), days = Math.round((today - start) / 86400000) + 1;
+  const step = days <= 8 ? 1 : 7, out = [];
+  for (let i = 0; i < days; i += step) {
+    const f = stAdd(start, i), t = stAdd(f, Math.min(step, days - i) - 1);
+    out.push({ from: stDate(f), to: stDate(t), label: step === 1 ? ST_WD[f.getDay()] : f.getDate() + '.' + stPad(f.getMonth()+1) });
+  }
+  return out;
 }
 
 function stExpected(groups, from, to){
@@ -6554,35 +6593,40 @@ async function loadStatsPage(days, force){
   const gset = new Set(groups.map(g => g.id));
   const all = data.rows.filter(r => gset.has(r.gid));
 
+  const isL = days === 'L12';
   const today = new Date(), tStr = stDate(today);
-  const from = stDate(stAdd(today, -(days - 1))), pFrom = stDate(stAdd(today, -(2 * days - 1))), pTo = stDate(stAdd(today, -days));
-  const cur = all.filter(r => r.date >= from && r.date <= tStr);
-  const prev = all.filter(r => r.date >= pFrom && r.date <= pTo);
+  const wins = {}; groups.forEach(g => { wins[g.id] = stWin(g, days, today, all); });
+  const cur = all.filter(r => { const w = wins[r.gid]; return w && r.date >= w.from && r.date <= w.to; });
+  const prev = all.filter(r => { const w = wins[r.gid]; return w && r.date >= w.pFrom && r.date <= w.pTo; });
   const A = stAgg(cur), P = stAgg(prev);
   const studentCount = groups.reduce((s,g) => s + g.students.length, 0);
-  const expected = stExpected(groups, from, tStr), pExpected = stExpected(groups, pFrom, pTo);
+  const expected = groups.reduce((s,g) => s + wins[g.id].n * g.students.length, 0);
+  const pExpected = groups.reduce((s,g) => s + wins[g.id].pn * g.students.length, 0);
   const comp = expected ? Math.min(100, Math.round(A.marked / expected * 100)) : null;
   const pComp = pExpected ? Math.min(100, Math.round(P.marked / pExpected * 100)) : null;
+  const minFrom = groups.map(g => wins[g.id].from).sort()[0];
 
-  document.getElementById('statsSubline').textContent =
-    `${groups.length} ta guruh · ${studentCount} ta o'quvchi · so'nggi ${days} kun (${from} — ${tStr})`;
+  document.getElementById('statsSubline').textContent = isL
+    ? `${groups.length} ta guruh · ${studentCount} ta o'quvchi · har bir guruhning so'nggi ${ST_LESSONS} ta darsi (1 oylik kurs)`
+    : `${groups.length} ta guruh · ${studentCount} ta o'quvchi · so'nggi ${days} kun (${minFrom} — ${tStr})`;
+  const per = isL ? 'oldingi 12 dars' : 'oldingi davr';
 
   // ---- trend (bucket) ----
-  const buckets = stBuckets(days, today);
+  const buckets = stBucketsRange(minFrom, today);
   const bAgg = buckets.map(b => stAgg(cur.filter(r => r.date >= b.from && r.date <= b.to)));
   const attS = bAgg.map(a => a.att), hwS = bAgg.map(a => a.hw);
 
   document.getElementById('statsTopStatRow').innerHTML =
     stKpi('Davomat', A.att === null ? '—' : A.att + '%', stDelta(A.att, P.att, false, ' %'), `${A.yes + A.late} / ${A.marked} ta dars`, stSpark(attS, ST_C.green), ST_C.green) +
     stKpi('Uy vazifa', A.hw === null ? '—' : A.hw + '%', stDelta(A.hw, P.hw, false, ' %'), `${A.hwFull} to'liq · ${A.hwPart} qisman`, stSpark(hwS, ST_C.blue), ST_C.blue) +
-    stKpi('Kelmadi', A.no, stDelta(A.no, P.no, true), `oldingi davr: ${P.no}`, stSpark(bAgg.map(a => a.no), ST_C.red), ST_C.red) +
-    stKpi('Kech qoldi', A.late, stDelta(A.late, P.late, true), `oldingi davr: ${P.late}`, stSpark(bAgg.map(a => a.late), ST_C.orange), ST_C.orange) +
+    stKpi('Kelmadi', A.no, stDelta(A.no, P.no, true), `${per}: ${P.no}`, stSpark(bAgg.map(a => a.no), ST_C.red), ST_C.red) +
+    stKpi('Kech qoldi', A.late, stDelta(A.late, P.late, true), `${per}: ${P.late}`, stSpark(bAgg.map(a => a.late), ST_C.orange), ST_C.orange) +
     stKpi('Jazolangan', A.pun, stDelta(A.pun, P.pun, true), A.punCnt ? `jami jazo: ${A.punCnt} ta` : 'jazo yo\'q', stSpark(bAgg.map(a => a.pun), ST_C.purple), ST_C.purple) +
-    stKpi('Belgilash', comp === null ? '—' : comp + '%', stDelta(comp, pComp, false, ' %'), 'jadvaldagi darslarning necha foizi kiritilgan', stSpark(bAgg.map(() => null), ST_C.gray), ST_C.gray);
+    stKpi('Belgilash', comp === null ? '—' : comp + '%', stDelta(comp, pComp, false, ' %'), `${A.marked} / ${expected} ta belgilangan`, stSpark(bAgg.map(() => null), ST_C.gray), ST_C.gray);
 
   document.getElementById('stTrend').innerHTML = stLine(buckets.map(b => b.label), [
     { name: 'Davomat %', color: ST_C.green, vals: attS }, { name: 'Uy vazifa %', color: ST_C.blue, vals: hwS }]) +
-    `<div class="st-note">${days <= 7 ? 'Har bir nuqta — bir kun.' : 'Har bir nuqta — bir hafta (sana — hafta boshi).'}</div>`;
+    `<div class="st-note">${buckets.length > 1 && buckets[0].from === buckets[0].to ? 'Har bir nuqta — bir kun.' : 'Har bir nuqta — bir hafta (sana — hafta boshi).'}</div>`;
 
   document.getElementById('stDonuts').innerHTML =
     stDonut('Davomat', [{ l:'Keldi', v:A.yes, c:ST_C.green }, { l:'Kech qoldi', v:A.late, c:ST_C.orange }, { l:'Kelmadi', v:A.no, c:ST_C.red }, { l:'Belgilanmagan', v:A.unm, c:ST_C.gray }]) +
@@ -6603,13 +6647,14 @@ async function loadStatsPage(days, force){
     ? '<div class="st-empty-mini">Guruhlarga dars kunlari belgilanmagan.</div>'
     : `<div class="st-comp-big" style="color:${stCol(comp)}">${comp}%</div>
        <div class="st-bar" style="width:100%;height:10px;margin:6px 0 10px"><i style="width:${comp}%;background:${stCol(comp)}"></i></div>
-       <div class="st-note" style="margin-top:0">Jadval bo'yicha <b>${expected}</b> ta o'quvchi-dars bo'lishi kerak edi, <b>${A.marked}</b> tasi uchun davomat belgilangan.${comp < 80 ? ' <b style="color:' + ST_C.red + '">Davomat to\'liq kiritilmagan — statistika aniq bo\'lmasligi mumkin.</b>' : ''}</div>`;
+       <div class="st-note" style="margin-top:0">Jadval bo'yicha <b>${expected}</b> ta o'quvchi-dars bo'lishi kerak edi${isL ? ` (${ST_LESSONS} dars × o'quvchi)` : ''}, <b>${A.marked}</b> tasi uchun davomat belgilangan.${comp < 80 ? ' <b style="color:' + ST_C.red + '">Davomat to\'liq kiritilmagan — statistika aniq bo\'lmasligi mumkin.</b>' : ''}</div>`;
 
   // ---- guruhlar jadvali ----
   const gRows = groups.map(g => {
-    const gc = cur.filter(r => r.gid === g.id), gp = prev.filter(r => r.gid === g.id);
-    const a = stAgg(gc), p = stAgg(gp), ex = stExpected([g], from, tStr);
+    const w = wins[g.id], gc = cur.filter(r => r.gid === g.id), gp = prev.filter(r => r.gid === g.id);
+    const a = stAgg(gc), p = stAgg(gp), ex = w.n * g.students.length;
     return { g, name: g.name, count: g.students.length, a, p, att: a.att, hw: a.hw, no: a.no, late: a.late, pun: a.pun,
+             held: new Set(gc.map(r => r.date)).size, lessons: w.n,
              comp: ex ? Math.min(100, Math.round(a.marked / ex * 100)) : null, score: stScore(a) };
   });
   _statsRenderGroupTable(gRows);
@@ -6632,7 +6677,7 @@ async function loadStatsPage(days, force){
   });
   const gInfo = id => data.groups.find(g => g.id === id) || {};
   const personRow = (p, right) => `<div class="st-person" data-gid="${p.gid}">${right.lead || ''}<div style="flex:1;min-width:0">
-      <div class="st-person-name">${escHtml(p.name)}</div><div class="st-person-meta">${escHtml(p.gname)} · davomat ${p.a.att === null ? '—' : p.a.att + '%'} · uy vazifa ${p.a.hw === null ? '—' : p.a.hw + '%'}</div>${right.body || ''}</div>${right.tail || ''}</div>`;
+      <div class="st-person-name">${escHtml(p.name)}</div><div class="st-person-meta">${escHtml(p.gname)} · keldi ${p.a.yes + p.a.late}${wins[p.gid] && wins[p.gid].n ? '/' + wins[p.gid].n : ''} · davomat ${p.a.att === null ? '—' : p.a.att + '%'} · uy vazifa ${p.a.hw === null ? '—' : p.a.hw + '%'}</div>${right.body || ''}</div>${right.tail || ''}</div>`;
 
   const risk = people.filter(p => p.reasons.length).sort((x,y) => y.sev - x.sev).slice(0, 8);
   document.getElementById('stRisk').innerHTML = risk.length
@@ -6648,7 +6693,7 @@ async function loadStatsPage(days, force){
     const g = gInfo(el.dataset.gid); if (g.id) loadOjStudents(g.id, g.name, g.days || []);
   }));
 
-  _statsModel = { days, gRows, people };
+  _statsModel = { days, gRows, people, wins };
 }
 
 function _statsRenderGroupTable(gRows){
@@ -6664,7 +6709,7 @@ function _statsRenderGroupTable(gRows){
   });
   const body = document.getElementById('statsGroupsBody');
   body.innerHTML = rows.map(r => `<tr data-gid="${r.g.id}">
-      <td><strong>${escHtml(r.name)}</strong></td><td>${r.count}</td>
+      <td><strong>${escHtml(r.name)}</strong></td><td>${r.count}</td><td>${r.lessons ? r.held + '/' + r.lessons : '—'}</td>
       <td>${stBarCell(r.att, stDelta(r.a.att, r.p.att, false))}</td>
       <td>${stBarCell(r.hw, stDelta(r.a.hw, r.p.hw, false))}</td>
       <td>${r.no}</td><td>${r.late}</td><td>${r.pun}</td>
@@ -6686,11 +6731,11 @@ document.getElementById('statsExportBtn').addEventListener('click', () => {
   if (!_statsModel || !window.XLSX) { alert('Avval statistika yuklanishini kuting.'); return; }
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(_statsModel.gRows.map(r => ({
-    'Guruh': r.name, 'Talaba': r.count, 'Davomat %': r.att, 'Uy vazifa %': r.hw, 'Kelmadi': r.no, 'Kech qoldi': r.late, 'Jazolangan': r.pun, 'Belgilash %': r.comp }))), 'Guruhlar');
+    'Guruh': r.name, 'Talaba': r.count, 'O\'tilgan darslar': r.held, 'Jadval bo\'yicha darslar': r.lessons, 'Davomat %': r.att, 'Uy vazifa %': r.hw, 'Kelmadi': r.no, 'Kech qoldi': r.late, 'Jazolangan': r.pun, 'Belgilash %': r.comp }))), 'Guruhlar');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(_statsModel.people.map(p => ({
     'Talaba': p.name, 'Guruh': p.gname, 'Davomat %': p.a.att, 'Uy vazifa %': p.a.hw, 'Kelmadi': p.a.no, 'Kech qoldi': p.a.late,
     'Ketma-ket kelmagan': p.streak, 'Jazolangan': p.a.pun, 'Ball': p.sc, 'Izoh': p.reasons.join('; ') }))), 'Talabalar');
-  XLSX.writeFile(wb, `statistika_${_statsModel.days}_kun.xlsx`);
+  XLSX.writeFile(wb, (_statsModel.days === 'L12' ? 'statistika_12_dars.xlsx' : `statistika_${_statsModel.days}_kun.xlsx`));
 });
 
 async function loadOjGroups() {
