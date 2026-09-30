@@ -6435,7 +6435,7 @@ function stBuildPeople(cur){
     if (a.hwN >= 3 && a.hw < 50) reasons.push(`Uy vazifa ${a.hw}%`);
     if (a.pun >= 2) reasons.push(`${a.pun} marta jazolangan`);
     const sev = streak * 25 + (a.att === null ? 0 : 100 - a.att) + (a.hw === null ? 0 : (100 - a.hw) / 2) + a.pun * 5;
-    const sc = a.att === null ? null : Math.round(0.6 * a.att + 0.4 * (a.hw === null ? a.att : a.hw));
+    const sc = a.att === null ? null : stScore(a);
     return { ...p, a, streak, reasons, sev, sc };
   });
 }
@@ -6469,7 +6469,12 @@ function stAgg(list){
   r.hw = r.hwN ? Math.round(r.hwSum / r.hwN) : null;
   return r;
 }
-function stScore(a){ const v = [a.att, a.hw].filter(x => x !== null); return v.length ? Math.round(v.reduce((s,x)=>s+x,0) / v.length) : null; }
+// Yagona ball formulasi: 60% davomat + 40% uy vazifa (jadval, xavf ro'yxati, top reyting va saytdagi reyting uchun bir xil).
+// Uy vazifa belgilanmagan bo'lsa — davomat o'zi olinadi; davomat belgilanmagan bo'lsa — uy vazifa (yoki null).
+function stScore(a){
+  if (a.att === null) return a.hw === null ? null : a.hw;
+  return Math.round(0.6 * a.att + 0.4 * (a.hw === null ? a.att : a.hw));
+}
 
 async function stFetch(force, back){
   back = back || 180;
