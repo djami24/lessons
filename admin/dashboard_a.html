@@ -1608,23 +1608,30 @@
         <span style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;"><select class="st-select rp-month-select" title="Hisobot oyi"></select><button type="button" class="btn btn-ghost btn-sm" id="ojStudentPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button></span>
       </div>
 
+      <!-- Oy tanlagich -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <button type="button" class="btn btn-ghost btn-sm" id="ojMonthPrev" title="Oldingi oy">&lsaquo;</button>
+        <select id="ojMonthSelect" class="st-select" style="min-width:170px;"></select>
+        <button type="button" class="btn btn-ghost btn-sm" id="ojMonthNext" title="Keyingi oy">&rsaquo;</button>
+        <span id="ojMonthInfo" style="font-size:.82rem;color:var(--gray);"></span>
+      </div>
       <!-- Stats row -->
       <div class="oj-stats-row" id="ojStatsRow">
         <div class="oj-stat-card">
           <div class="oj-stat-val" id="ojStatAttend">—</div>
-          <div class="oj-stat-label">Davomat</div>
+          <div class="oj-stat-label">Davomat</div><div id="ojStatAttendDelta" style="font-size:.72rem;min-height:1em;"></div>
         </div>
         <div class="oj-stat-card">
           <div class="oj-stat-val" id="ojStatHw">—</div>
-          <div class="oj-stat-label">Uy vazifa</div>
+          <div class="oj-stat-label">Uy vazifa</div><div id="ojStatHwDelta" style="font-size:.72rem;min-height:1em;"></div>
         </div>
         <div class="oj-stat-card">
           <div class="oj-stat-val" id="ojStatAvgGrade">—</div>
-          <div class="oj-stat-label">Jami jazo</div>
+          <div class="oj-stat-label">Jazo</div><div id="ojStatGradeDelta" style="font-size:.72rem;min-height:1em;"></div>
         </div>
         <div class="oj-stat-card">
           <div class="oj-stat-val" id="ojStatTotal">0</div>
-          <div class="oj-stat-label">Jami yozuv</div>
+          <div class="oj-stat-label">Belgilangan darslar</div>
         </div>
       </div>
 
@@ -1645,22 +1652,8 @@
         </div>
       </div>
 
-      <p class="oj-month-stats-title"><svg class="ic" aria-hidden="true"><use href="#i-calendar-days"></use></svg> Oxirgi 30 kun</p>
-      <div class="oj-stats-row oj-month-stats-row">
-        <div class="oj-stat-card">
-          <div class="oj-stat-val" id="ojMonthStatHw">—</div>
-          <div class="oj-stat-label">Uy vazifa %</div>
-        </div>
-        <div class="oj-stat-card">
-          <div class="oj-stat-val" id="ojMonthStatMissed">0</div>
-          <div class="oj-stat-label">Qoldirilgan dars</div>
-        </div>
-        <div class="oj-stat-card">
-          <div class="oj-stat-val" id="ojMonthStatLate">0</div>
-          <div class="oj-stat-label">Kech qolgan</div>
-        </div>
-      </div>
-
+      <p class="oj-month-stats-title"><svg class="ic" aria-hidden="true"><use href="#i-calendar-days"></use></svg> Oylar bo'yicha tarix <span style="font-weight:400;">(qatorni bossangiz shu oy ochiladi)</span></p>
+      <div class="table-wrap" style="margin-bottom:24px;"><table class="data-table"><thead><tr><th>Oy</th><th>Darslar</th><th>Davomat</th><th>Uy vazifa</th><th>Kelmadi</th><th>Kech</th><th>Jazo</th><th>Ball</th><th></th></tr></thead><tbody id="ojMonthHistoryBody"></tbody></table></div>
       <!-- Entry form - modern design -->
       <div class="oj-form-card">
         <h3 style="margin:0 0 18px; font-size:1rem; font-weight:600;">Yangi yozuv qo'shish</h3>
@@ -7434,6 +7427,7 @@ function toggleOjPunishExtras(val) {
 document.getElementById('ojPunishedInput').addEventListener('change', (e) => toggleOjPunishExtras(e.target.value));
 
 function openOjProgress(studentId, studentName) {
+  _ojMonthSel = '';   // har safar joriy oy statistikasi bilan ochiladi
   _ojActiveStudentId = studentId;
   _ojActiveStudentName = studentName;
   const initials = studentName.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
@@ -7470,26 +7464,105 @@ async function loadOjProgressEntries() {
   } catch(err) { list.innerHTML = '<p style="color:red;">Xatolik.</p>'; }
 }
 
+// ============================================================
+// O'QUV JARAYONI — OYLIK KO'RINISH
+// Talaba sahifasi har doim JORIY OY statistikasi bilan ochiladi, yangi oy
+// boshlanganda hisob avtomatik noldan boshlanadi. Eski oylar o'chmaydi:
+// yozuvlar sanasi bo'yicha saqlanadi, tepadagi oy tanlagich va "Oylar bo'yicha
+// tarix" jadvali orqali istalgan oyni ko'rish mumkin.
+// Hisob qoidalari "Statistika" sahifasi va PDF hisobot bilan bir xil
+// (davomat = keldi + kech / belgilanganlar; ball = 60% davomat + 40% uy vazifa).
+// ============================================================
+let _ojMonthSel = '';   // 'YYYY-MM' yoki 'all'
+
+function ojEntriesOfSelection(){
+  if (_ojMonthSel === 'all' || !_ojMonthSel) return _ojProgressEntries;
+  const r = rpRange(_ojMonthSel);
+  return _ojProgressEntries.filter(e => e.date && e.date >= r.from && e.date <= r.to);
+}
+
+function ojRenderMonthStats(){
+  const g = { id: _ojActiveGroupId, name: _ojActiveGroupName }, s = { id: _ojActiveStudentId, name: _ojActiveStudentName };
+  const norm = _ojProgressEntries.map(e => stNorm(e, g, s)).filter(Boolean);
+  const inM = ym => { const r = rpRange(ym); return norm.filter(x => x.date >= r.from && x.date <= r.to); };
+
+  // Oylar ro'yxati: joriy oydan eng birinchi yozuv oyigacha
+  const nowYm = rpYm(new Date());
+  const minYm = norm.reduce((m, x) => { const y = String(x.date).slice(0, 7); return /^\d{4}-\d{2}$/.test(y) && y < m ? y : m; }, nowYm);
+  const months = [];
+  for (let y = nowYm, guard = 0; y >= minYm && guard < 120; y = rpPrevYm(y), guard++) months.push(y);
+  if (!months.length) months.push(nowYm);
+  if (_ojMonthSel !== 'all' && !months.includes(_ojMonthSel)) _ojMonthSel = nowYm;   // yangi oy — avtomatik joriy oy
+
+  const sel = document.getElementById('ojMonthSelect');
+  sel.innerHTML = months.map(ym => '<option value="' + ym + '">' + rpLabel(ym) + (ym === nowYm ? ' (joriy)' : '') + '</option>').join('') + '<option value="all">Barcha oylar</option>';
+  sel.value = _ojMonthSel;
+  const idx = months.indexOf(_ojMonthSel);
+  document.getElementById('ojMonthPrev').disabled = _ojMonthSel === 'all' || idx === months.length - 1;   // eski oyga
+  document.getElementById('ojMonthNext').disabled = _ojMonthSel === 'all' || idx === 0;                   // yangi oyga
+
+  // Tanlangan oy (yoki hammasi) statistikasi + o'tgan oyga nisbatan farq
+  const isAll = _ojMonthSel === 'all';
+  const rows = isAll ? norm : inM(_ojMonthSel), a = stAgg(rows);
+  const p = isAll ? null : stAgg(inM(rpPrevYm(_ojMonthSel))), hp = !!(p && p.marked > 0);
+  const sched = isAll ? [] : rpSched(_ojActiveGroupDays, rpRange(_ojMonthSel));
+  document.getElementById('ojStatAttend').textContent = rpPct(a.att);
+  document.getElementById('ojStatHw').textContent = rpPct(a.hw);
+  document.getElementById('ojStatAvgGrade').textContent = a.punCnt;
+  document.getElementById('ojStatTotal').textContent = sched.length ? a.marked + ' / ' + sched.length : a.marked;
+  document.getElementById('ojStatAttendDelta').innerHTML = hp ? rpDelta(a.att, p.att, false, ' %') : '';
+  document.getElementById('ojStatHwDelta').innerHTML = hp ? rpDelta(a.hw, p.hw, false, ' %') : '';
+  document.getElementById('ojStatGradeDelta').innerHTML = hp ? rpDelta(a.punCnt, p.punCnt, true, '') : '';
+  document.getElementById('ojMonthInfo').textContent = isAll ? 'Barcha oylar bo\'yicha umumiy hisob'
+    : rpLabel(_ojMonthSel) + ' · jadval bo\'yicha ' + sched.length + ' ta dars' + (hp ? ' · farq — ' + rpLabel(rpPrevYm(_ojMonthSel)) + 'ga nisbatan' : '');
+
+  // Oylar bo'yicha tarix (arxiv)
+  const td = 'padding:8px 10px;';
+  document.getElementById('ojMonthHistoryBody').innerHTML = months.map(ym => {
+    const m = inM(ym), ag = stAgg(m), pa = stAgg(inM(rpPrevYm(ym))), h = pa.marked > 0, n = rpSched(_ojActiveGroupDays, rpRange(ym)).length, sc = stScore(ag);
+    const c = (v, pv) => '<b>' + rpPct(v) + '</b> <span style="font-size:.72rem;">' + (h ? rpDelta(v, pv, false, '') : '') + '</span>';
+    return '<tr data-ym="' + ym + '" style="cursor:pointer;' + (ym === _ojMonthSel ? 'background:rgba(47,111,237,.08);' : '') + '">' +
+      '<td style="' + td + '"><b>' + rpLabel(ym) + '</b>' + (ym === nowYm ? ' <span style="font-size:.72rem;color:var(--gray);">(joriy)</span>' : '') + '</td>' +
+      '<td style="' + td + '">' + ag.marked + (n ? ' / ' + n : '') + '</td><td style="' + td + '">' + c(ag.att, pa.att) + '</td><td style="' + td + '">' + c(ag.hw, pa.hw) + '</td>' +
+      '<td style="' + td + '">' + ag.no + '</td><td style="' + td + '">' + ag.late + '</td><td style="' + td + '">' + ag.punCnt + '</td>' +
+      '<td style="' + td + '"><b>' + (sc === null ? '—' : sc) + '</b></td>' +
+      '<td style="' + td + '"><button type="button" class="btn btn-ghost btn-sm" data-pdf="' + ym + '">PDF</button></td></tr>';
+  }).join('');
+  document.querySelectorAll('#ojMonthHistoryBody tr').forEach(tr => tr.addEventListener('click', e => {
+    if (e.target.closest('[data-pdf]')) return;
+    _ojMonthSel = tr.dataset.ym; renderOjEntries();
+  }));
+  document.querySelectorAll('#ojMonthHistoryBody [data-pdf]').forEach(b => b.addEventListener('click', () => {
+    _rpMonth = b.dataset.pdf;
+    document.querySelectorAll('.rp-month-select').forEach(o => { o.value = _rpMonth; });
+    document.getElementById('ojStudentPdfBtn').click();
+  }));
+}
+
+document.getElementById('ojMonthSelect').addEventListener('change', e => { _ojMonthSel = e.target.value; renderOjEntries(); });
+document.getElementById('ojMonthPrev').addEventListener('click', () => {   // eski oyga
+  const o = Array.from(document.getElementById('ojMonthSelect').options).map(x => x.value).filter(v => v !== 'all'), i = o.indexOf(_ojMonthSel);
+  if (i >= 0 && i < o.length - 1) { _ojMonthSel = o[i + 1]; renderOjEntries(); }
+});
+document.getElementById('ojMonthNext').addEventListener('click', () => {   // yangi oyga
+  const o = Array.from(document.getElementById('ojMonthSelect').options).map(x => x.value).filter(v => v !== 'all'), i = o.indexOf(_ojMonthSel);
+  if (i > 0) { _ojMonthSel = o[i - 1]; renderOjEntries(); }
+});
+
 function renderOjEntries() {
   const list = document.getElementById('ojEntriesList');
   const empty = document.getElementById('ojEntriesEmpty');
-  // Stats
-  const total = _ojProgressEntries.length;
-  const attended = _ojProgressEntries.filter(e => e.attended === true || e.attended === 'yes').length;
-  const hw = _ojProgressEntries.filter(e => e.homeworkDone === true || e.homeworkDone === 'yes').length;
-  const totalPunishCount = _ojProgressEntries.reduce((s,e)=> s + (Number(e.punishCount) || 0), 0);
-  document.getElementById('ojStatAttend').textContent = total ? Math.round(attended/total*100)+'%' : '—';
-  document.getElementById('ojStatHw').textContent = total ? Math.round(hw/total*100)+'%' : '—';
-  document.getElementById('ojStatAvgGrade').textContent = totalPunishCount;
-  document.getElementById('ojStatTotal').textContent = total;
-
+  // Oylik statistika (tanlangan oy) + oylar bo'yicha tarix
+  ojRenderMonthStats();
+  const shown = ojEntriesOfSelection();
+  const total = shown.length;
   ojRenderPeriodStats(7, 'ojWeekStatHw', 'ojWeekStatMissed', 'ojWeekStatLate');
-  ojRenderPeriodStats(30, 'ojMonthStatHw', 'ojMonthStatMissed', 'ojMonthStatLate');
+  const _emptyH3 = empty.querySelector('h3'); if (_emptyH3) _emptyH3.textContent = _ojProgressEntries.length ? 'Bu oyda yozuv yo\'q' : 'Hali yozuv yo\'q';
 
   if (!total) { list.innerHTML = ''; empty.style.display = 'block'; return; }
   empty.style.display = 'none';
   list.innerHTML = '';
-  _ojProgressEntries.forEach(entry => {
+  shown.forEach(entry => {
     const attendVal = entry.attended === true || entry.attended === 'yes' ? 'yes' : entry.attended === false || entry.attended === 'no' ? 'no' : entry.attended === 'late' ? 'late' : '';
     const hwVal = entry.homeworkDone === true || entry.homeworkDone === 'yes' ? 'yes' : entry.homeworkDone === false || entry.homeworkDone === 'no' ? 'no' : entry.homeworkDone === 'partial' ? 'partial' : '';
     const attendBadge = attendVal === 'yes' ? '<span class="oj-badge oj-badge-yes"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Keldi</span>' : attendVal === 'late' ? '<span class="oj-badge oj-badge-partial"><svg class="ic" aria-hidden="true"><use href="#i-alarm"></use></svg> Kech qoldi</span>' : attendVal === 'no' ? '<span class="oj-badge oj-badge-no"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Kelmadi</span>' : '<span class="oj-badge oj-badge-pending">—</span>';
@@ -7618,6 +7691,7 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
     document.getElementById('ojNoteInput').value = '';
     document.getElementById('ojCancelEditBtn').hidden = true;
     setTimeout(() => status.textContent = '', 2500);
+    if (_ojMonthSel !== 'all' && /^\d{4}-\d{2}/.test(date)) _ojMonthSel = date.slice(0, 7);
     loadOjProgressEntries();
   } catch(err) { setIconText(status, '{{x-circle}} Xatolik'); }
 });
