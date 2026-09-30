@@ -555,15 +555,20 @@
       </div>
 
       <div class="home-section-card" style="margin-bottom:24px;">
-        <div class="home-section-head">
-          <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> Kecha bo'lib o'tgan darslar</h3>
+        <div class="home-section-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Statistika</h3>
+          <span style="margin-left:auto;display:inline-flex;gap:8px;flex-wrap:wrap;">
+            <select id="homeStGroupFilter" class="st-select" title="Guruhni tanlang"><option value="">Barcha guruhlar</option></select>
+            <select class="st-select rp-month-select" id="homeStMonthSelect" title="Oyni tanlang"></select>
+          </span>
         </div>
-        <p id="homeYesterdayGroupsLine" style="margin:-6px 0 16px; color:var(--adm-gray,var(--gray)); font-size:.85rem;"></p>
-        <div class="home-mini-row" id="homeYesterdayStatRow"></div>
-        <div id="homeYesterdayEmpty" class="oj-empty" style="display:none; padding:24px;">
-          <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"></use></svg></div>
-          <p>Kecha hech qaysi guruhda dars bo'lmagan.</p>
+        <p id="homeStSubline" style="margin:-6px 0 14px; color:var(--adm-gray,var(--gray)); font-size:.85rem;"></p>
+        <div class="st-kpis" id="homeStKpis"></div>
+        <div class="st-grid st-grid-wide" style="margin-top:16px;">
+          <div class="home-section-card"><h3 class="st-h">Dinamika <small>(oldingi davr bilan solishtirganda)</small></h3><div id="homeStTrend"></div></div>
+          <div class="home-section-card"><h3 class="st-h">Taqsimot</h3><div id="homeStDonuts"></div></div>
         </div>
+        <p id="homeStLoading" style="color:var(--gray); text-align:center; padding:8px; margin:0;"></p>
       </div>
 
       <div class="home-cta-wrap">
@@ -4068,6 +4073,7 @@ document.getElementById('navStats').addEventListener('click', (e) => {
   switchView('stats');
   loadStatsPage(_statsPeriodDays);
 });
+document.getElementById('homeStGroupFilter').addEventListener('change', () => homeRenderStatsOverview());
 document.getElementById('homeGoToStats').addEventListener('click', () => {
   switchView('stats');
   loadStatsPage(_statsPeriodDays);
@@ -6367,47 +6373,51 @@ async function loadHomeStats(){
       ${homeSparklineSvg('#F0923D')}
     </div>`;
 
-  // ----- Yesterday: attendance & homework -----
-  const yGroups = groups.filter(g => (g.days || []).includes(yesterdayKey));
-  const yesterdayDate = ojDateStr(-1);
-  const empty = document.getElementById('homeYesterdayEmpty');
-  const line = document.getElementById('homeYesterdayGroupsLine');
-  const row = document.getElementById('homeYesterdayStatRow');
+  // ----- Statistika (tanlangan oy, barcha guruhlar) -----
+  homeRenderStatsOverview();
+}
 
-  if (!yGroups.length) {
-    empty.style.display = 'block';
-    row.innerHTML = '';
-    line.textContent = '';
-    return;
-  }
-  empty.style.display = 'none';
-  line.textContent = `${new Date(yesterdayDate + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long' })} — ${yGroups.map(g => g.name).join(', ')}`;
-
-  const allStudents = yGroups.flatMap(g => g.students);
-  const entries = await Promise.all(allStudents.map(s =>
-    db.collection('oquv_progress').doc(s.id).collection('entries').doc(yesterdayDate).get()
-      .then(d => d.exists ? d.data() : null).catch(() => null)
-  ));
-
-  let attended = 0, late = 0, absent = 0, noMark = 0;
-  let hwYes = 0, hwPartial = 0, hwNo = 0, hwNoMark = 0;
-  entries.forEach(e => {
-    if (!e) { noMark++; hwNoMark++; return; }
-    const a = e.attended === true || e.attended === 'yes' ? 'yes' : e.attended === 'late' ? 'late' : (e.attended === false || e.attended === 'no') ? 'no' : '';
-    if (a === 'yes') attended++; else if (a === 'late') late++; else if (a === 'no') absent++; else noMark++;
-    const h = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === 'partial' ? 'partial' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : '';
-    if (h === 'yes') hwYes++; else if (h === 'partial') hwPartial++; else if (h === 'no') hwNo++; else hwNoMark++;
-  });
-
-  row.innerHTML = `
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-blue"><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg></div><div class="home-mini-num">${allStudents.length}</div><div class="home-mini-label">Jami talaba</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-green"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg></div><div class="home-mini-num">${attended}</div><div class="home-mini-label">Keldi</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-orange"><svg class="ic" aria-hidden="true"><use href="#i-alarm"></use></svg></div><div class="home-mini-num">${late}</div><div class="home-mini-label">Kech qoldi</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-red"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg></div><div class="home-mini-num">${absent}</div><div class="home-mini-label">Kelmadi</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-green"><svg class="ic" aria-hidden="true"><use href="#i-home"></use></svg></div><div class="home-mini-num">${hwYes}</div><div class="home-mini-label">Uy vazifa qilgan</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-orange"><svg class="ic" aria-hidden="true"><use href="#i-diamond"></use></svg></div><div class="home-mini-num">${hwPartial}</div><div class="home-mini-label">Qisman qilgan</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-red"><svg class="ic" aria-hidden="true"><use href="#i-square"></use></svg></div><div class="home-mini-num">${hwNo}</div><div class="home-mini-label">Qilmagan</div></div>
-    <div class="home-mini-card"><div class="home-mini-icon home-mini-purple"><svg class="ic" aria-hidden="true"><use href="#i-help-circle"></use></svg></div><div class="home-mini-num">${noMark}</div><div class="home-mini-label">Belgilanmagan</div></div>`;
+// Bosh sahifadagi statistika: Statistika sahifasidagi yuqori qism (kartochkalar, dinamika, taqsimot) bilan bir xil hisob.
+async function homeRenderStatsOverview(force){
+  const load = document.getElementById('homeStLoading');
+  load.textContent = 'Yuklanmoqda…';
+  let data;
+  try { data = await stFetch(force); } catch (err) { console.error(err); load.textContent = 'Statistikani yuklab bo\'lmadi.'; return; }
+  load.textContent = '';
+  const gSel = document.getElementById('homeStGroupFilter'), gv = gSel.value;
+  gSel.innerHTML = '<option value="">Barcha guruhlar</option>' + data.groups.map(g => `<option value="${g.id}">${escHtml(g.name)}</option>`).join('');
+  gSel.value = data.groups.some(g => g.id === gv) ? gv : '';
+  const groups = gSel.value ? data.groups.filter(g => g.id === gSel.value) : data.groups, today = new Date(), tStr = stDate(today);
+  const selYm = _rpMonth || rpYm(today);
+  const wins = {}; groups.forEach(g => { wins[g.id] = stWin(g, 'M', today, data.rows); });
+  const cur = data.rows.filter(r => { const w = wins[r.gid]; return w && r.date >= w.from && r.date <= w.to; });
+  const prev = data.rows.filter(r => { const w = wins[r.gid]; return w && r.date >= w.pFrom && r.date <= w.pTo; });
+  const A = stAgg(cur), P = stAgg(prev);
+  const D = (...a) => A.marked === 0 ? '' : stDelta(...a);
+  const studentCount = groups.reduce((n, g) => n + g.students.length, 0);
+  const expected = groups.reduce((n, g) => n + wins[g.id].n * g.students.length, 0);
+  const pExpected = groups.reduce((n, g) => n + wins[g.id].pn * g.students.length, 0);
+  const comp = expected ? Math.min(100, Math.round(A.marked / expected * 100)) : null;
+  const pComp = pExpected ? Math.min(100, Math.round(P.marked / pExpected * 100)) : null;
+  const froms = groups.map(g => wins[g.id].from).filter(x => x !== '9').sort();
+  const minFrom = froms[0] || tStr, per = rpLabel(rpPrevYm(selYm));
+  document.getElementById('homeStSubline').textContent = `${groups.length} ta guruh · ${studentCount} ta o'quvchi · ${rpLabel(selYm)} oyi · ${per} bilan solishtirilgan`;
+  const buckets = stBucketsRange(minFrom, today);
+  const bAgg = buckets.map(b => stAgg(cur.filter(r => r.date >= b.from && r.date <= b.to)));
+  const attS = bAgg.map(a => a.att), hwS = bAgg.map(a => a.hw);
+  document.getElementById('homeStKpis').innerHTML =
+    stKpi('Davomat', A.att === null ? '—' : A.att + '%', D(A.att, P.att, false, ' %'), `${A.yes + A.late} / ${A.marked} ta dars`, stSpark(attS, ST_C.green), ST_C.green) +
+    stKpi('Uy vazifa', A.hw === null ? '—' : A.hw + '%', D(A.hw, P.hw, false, ' %'), `${A.hwFull} to'liq · ${A.hwPart} qisman`, stSpark(hwS, ST_C.blue), ST_C.blue) +
+    stKpi('Kelmadi', A.no, D(A.no, P.no, true), `${per}: ${P.no}`, stSpark(bAgg.map(a => a.no), ST_C.red), ST_C.red) +
+    stKpi('Kech qoldi', A.late, D(A.late, P.late, true), `${per}: ${P.late}`, stSpark(bAgg.map(a => a.late), ST_C.orange), ST_C.orange) +
+    stKpi('Jazolangan', A.pun, D(A.pun, P.pun, true), A.punCnt ? `jami jazo: ${A.punCnt} ta` : 'jazo yo\'q', stSpark(bAgg.map(a => a.pun), ST_C.purple), ST_C.purple) +
+    stKpi('Belgilash', comp === null ? '—' : comp + '%', D(comp, pComp, false, ' %'), `${A.marked} / ${expected} ta belgilangan`, stSpark(bAgg.map(() => null), ST_C.gray), ST_C.gray);
+  document.getElementById('homeStTrend').innerHTML = stLine(buckets.map(b => b.label), [
+    { name: 'Davomat %', color: ST_C.green, vals: attS }, { name: 'Uy vazifa %', color: ST_C.blue, vals: hwS }]) +
+    `<div class="st-note">${buckets.length > 1 && buckets[0].from === buckets[0].to ? 'Har bir nuqta — bir kun.' : 'Har bir nuqta — bir hafta (sana — hafta boshi).'}</div>`;
+  document.getElementById('homeStDonuts').innerHTML =
+    stDonut('Davomat', [{ l:'Keldi', v:A.yes, c:ST_C.green }, { l:'Kech qoldi', v:A.late, c:ST_C.orange }, { l:'Kelmadi', v:A.no, c:ST_C.red }, { l:'Belgilanmagan', v:A.unm, c:ST_C.gray }]) +
+    stDonut('Uy vazifa', [{ l:'To\'liq', v:A.hwFull, c:ST_C.green }, { l:'Qisman', v:A.hwPart, c:ST_C.orange }, { l:'Qilmagan', v:A.hwNo, c:ST_C.red }, { l:'Belgilanmagan', v:A.hwUnm, c:ST_C.gray }]);
 }
 
 // "Barchasi" links jump straight into O'quv jarayoni's group list.
@@ -9615,6 +9625,7 @@ function rpInitMonthSelects(){
     sel.addEventListener('change', () => {
       _rpMonth = sel.value; document.querySelectorAll('.rp-month-select').forEach(o => { o.value = _rpMonth; });
       const sv = document.getElementById('view-stats');
+      if (sel.id === 'homeStMonthSelect') { homeRenderStatsOverview(); return; }
       if (sv && !sv.hidden && sel.id === 'statsMonthSelect') {   // statistika sahifasida oy almashtirilsa — shu oy ko'rsatiladi
         document.querySelectorAll('.stats-period-btn').forEach(b => b.classList.toggle('active', b.dataset.days === 'M'));
         _statsPeriodDays = 'M'; loadStatsPage('M');
