@@ -112,12 +112,7 @@
     </div>
     <div class="lb-podium" id="lbPodium"></div>
     <div class="lb-list" id="lbList"></div>
-    <p class="lb-foot"><span id="lbFoot"></span>
-      <button type="button" class="lb-share" id="lbShare" data-html2canvas-ignore="true" aria-label="Reytingni Telegram orqali ulashish">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
-        <span id="lbShareTxt">Ulashish</span>
-      </button>
-    </p>
+    <p class="lb-foot" id="lbFoot"></p>
   </section>
 
   <style>
@@ -148,11 +143,7 @@
   .lb-row-name{font-weight:800;font-size:.92rem;color:#14213D;}
   .lb-row-meta{font-size:.74rem;color:#5B6472;}
   .lb-row-score{font-size:1.1rem;font-weight:800;color:#1F4E4D;}
-  .lb-foot{text-align:center;margin:12px 0 0;font-size:.74rem;color:#5B6472;line-height:2.2;}
-  .lb-share{display:inline-flex;align-items:center;gap:6px;margin-left:6px;padding:5px 13px;border:0;border-radius:999px;font:inherit;font-size:.74rem;font-weight:800;letter-spacing:.02em;color:#fff;cursor:pointer;background:linear-gradient(135deg,#2AABEE,#229ED9);box-shadow:0 6px 14px -6px rgba(34,158,217,.8);transition:transform .15s,box-shadow .15s,opacity .15s;vertical-align:middle;}
-  .lb-share:hover{transform:translateY(-1px);box-shadow:0 9px 18px -7px rgba(34,158,217,.9);}
-  .lb-share:active{transform:scale(.97);}
-  .lb-share[disabled]{opacity:.7;cursor:wait;transform:none;}
+  .lb-foot{text-align:center;margin:12px 0 0;font-size:.74rem;color:#5B6472;}
   @media (max-width:720px){
     .lb-section{margin-top:1.4em;padding:0 12px;}
     .lb-head{margin-bottom:14px;}
@@ -579,68 +570,6 @@
     }
     sec.hidden = false;
 
-    /* ── Ulashish: rasm (telefonda ulashish oynasi orqali Telegram) yoki Telegram havolasi ── */
-    var shareBtn = document.getElementById('lbShare'), shareTxt = document.getElementById('lbShareTxt');
-    function shareText() {
-      var lines = ['Eng faol o\'quvchilar' + (d.period ? ' — ' + d.period : '')];
-      top.slice(0, 5).forEach(function (p, i) { lines.push((i + 1) + '. ' + p.name + ' (' + p.group + ') — ' + p.score + ' ball'); });
-      return lines.join('\n');
-    }
-    function openTelegram() {
-      var url = location.origin + location.pathname;
-      window.open('https://t.me/share/url?url=' + encodeURIComponent(url) + '&text=' + encodeURIComponent(shareText()), '_blank', 'noopener');
-    }
-    function loadH2C() {
-      if (window.html2canvas) return Promise.resolve();
-      return new Promise(function (ok, no) {
-        var sc = document.createElement('script');
-        sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-        sc.onload = ok; sc.onerror = no; document.head.appendChild(sc);
-      });
-    }
-    function setBusy(b) { shareBtn.disabled = b; shareTxt.textContent = b ? 'Tayyorlanmoqda…' : 'Ulashish'; }
-    function flash(msg) { shareTxt.textContent = msg; setTimeout(function () { shareTxt.textContent = 'Ulashish'; }, 6000); }
-    shareBtn.addEventListener('click', function () {
-      var canFiles = false;
-      try { canFiles = !!(navigator.canShare && navigator.canShare({ files: [new File([''], 'a.png', { type: 'image/png' })] })); } catch (e) {}
-      // Kompyuterda: Telegram oynasini bosish paytining o'zida ochib qo'yamiz (keyin brauzer to'sib qo'ymasligi uchun)
-      var tgWin = canFiles ? null : window.open('', '_blank');
-      if (tgWin) { try { tgWin.opener = null; } catch (e) {} }
-      var tgUrl = 'https://t.me/share/url?url=' + encodeURIComponent(location.origin + location.pathname) + '&text=' + encodeURIComponent('Eng faol o\'quvchilar' + (d.period ? ' — ' + d.period : ''));
-      var pending = '';
-      function goTelegram() {
-        if (tgWin) { tgWin.location.href = tgUrl; }
-        else window.open(tgUrl, '_blank', 'noopener');
-      }
-      setBusy(true);
-      loadH2C().then(function () {
-        return html2canvas(sec, { backgroundColor: '#F6F7FB', scale: 2, useCORS: true });
-      }).then(function (canvas) {
-        return new Promise(function (ok) { canvas.toBlob(ok, 'image/png'); });
-      }).then(function (blob) {
-        if (!blob) throw new Error('blob');
-        var file = new File([blob], 'eng-faol-oquvchilar.png', { type: 'image/png' });
-        if (canFiles) {   // telefon: ulashish oynasi (Telegram va boshqalar) — rasm bilan
-          return navigator.share({ files: [file], title: 'Eng faol o\'quvchilar', text: 'Eng faol o\'quvchilar' + (d.period ? ' — ' + d.period : '') + '\n' + location.origin + location.pathname });
-        }
-        // kompyuter: rasm nusxalanadi (bo'lmasa yuklab olinadi), Telegram ochiladi — chatda Ctrl+V
-        var copied = navigator.clipboard && window.ClipboardItem
-          ? navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(function () { return true; }, function () { return false; })
-          : Promise.resolve(false);
-        return copied.then(function (ok) {
-          if (!ok) {
-            var a = document.createElement('a');
-            a.href = URL.createObjectURL(blob); a.download = 'eng-faol-oquvchilar.png';
-            document.body.appendChild(a); a.click(); a.remove();
-          }
-          goTelegram();
-          pending = ok ? 'Rasm nusxalandi — chatda Ctrl+V bosing' : 'Rasm yuklab olindi — chatga qo\'shing';
-        });
-      }).catch(function (e) {
-        if (e && e.name === 'AbortError') { if (tgWin) tgWin.close(); return; }   // foydalanuvchi o'zi yopdi
-        goTelegram();   // rasm tayyorlab bo'lmadi — hech bo'lmasa matn bilan
-      }).then(function () { setBusy(false); if (pending) flash(pending); });
-    });
   }).catch(function (e) { console.warn('Reyting yuklanmadi:', e); });
 })();
 </script>
