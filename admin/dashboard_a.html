@@ -159,6 +159,9 @@
 .st-rank{width:28px;height:28px;border-radius:50%;background:rgba(47,111,237,.12);color:#2F6FED;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;flex-shrink:0;}
 .st-chip{display:inline-block;background:rgba(229,72,77,.11);color:#E5484D;border-radius:6px;padding:2px 7px;font-size:.7rem;font-weight:700;margin:2px 4px 0 0;}
 .st-empty-mini{color:var(--adm-gray,var(--gray));font-size:.85rem;padding:14px 4px;}
+.st-card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.st-card-head .st-h{margin:0;}.st-actions{display:flex;gap:6px;}
+.st-more{font-size:.78rem;color:var(--adm-gray,var(--gray));padding:8px 6px 0;}
 /* ====== BOSH SAHIFA / STATISTIKA ====== */
 .home-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:22px 0 32px;}
 .home-section-card{background:var(--paper);border:1.5px solid var(--adm-line,var(--line));border-radius:20px;padding:20px 22px;box-shadow:0 10px 26px -20px rgba(16,27,61,.35);}
@@ -614,8 +617,16 @@
       </div>
 
       <div class="st-grid">
-        <div class="home-section-card"><h3 class="st-h">⚠️ Diqqat talab qiladi</h3><div id="stRisk"></div></div>
-        <div class="home-section-card"><h3 class="st-h">🏆 Eng faol o'quvchilar</h3><div id="stTop"></div></div>
+        <div class="home-section-card">
+          <div class="st-card-head"><h3 class="st-h">⚠️ Diqqat talab qiladi <small id="stRiskCount"></small></h3>
+            <span class="st-actions"><button class="btn btn-tg btn-sm" id="stRiskTgBtn" title="Ro'yxatning hammasini Telegramga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
+            <button class="btn btn-ghost btn-sm" id="stRiskCopyBtn" title="Matnni nusxalash">Nusxa</button></span></div>
+          <div id="stRisk"></div></div>
+        <div class="home-section-card">
+          <div class="st-card-head"><h3 class="st-h">🏆 Eng faol o'quvchilar</h3>
+            <span class="st-actions"><button class="btn btn-tg btn-sm" id="stTopTgBtn" title="Reytingni Telegramga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
+            <button class="btn btn-ghost btn-sm" id="stTopCopyBtn" title="Matnni nusxalash">Nusxa</button></span></div>
+          <div id="stTop"></div></div>
       </div>
 
       <div id="statsEmpty" class="oj-empty" style="display:none;">
@@ -6257,7 +6268,7 @@ async function homeFetchGroupsWithStudents(){
   const groups = groupsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   const studentLists = await Promise.all(groups.map(g =>
     db.collection('oquv_groups').doc(g.id).collection('students').orderBy('name').get()
-      .then(s => s.docs.map(sd => ({ id: sd.id, name: sd.data().name })))
+      .then(s => s.docs.map(sd => ({ id: sd.id, name: sd.data().name, phone: sd.data().phone || '' })))
       .catch(() => [])
   ));
   groups.forEach((g, i) => { g.students = studentLists[i]; });
@@ -6416,7 +6427,7 @@ function stNorm(e, g, s){
   if (e.homeworkDone === true || e.homeworkDone === 'yes') hw = 100;
   else if (e.homeworkDone === false || e.homeworkDone === 'no') hw = 0;
   else if (e.homeworkDone === 'partial') hw = Math.max(0, Math.min(100, Number(e.homeworkPercent) || 0));
-  return { date: e.date, gid: g.id, gname: g.name, sid: s.id, sname: s.name, a, hw, pun: e.punished === true, pc: Number(e.punishCount) || 0 };
+  return { date: e.date, gid: g.id, gname: g.name, sid: s.id, sname: s.name, sphone: s.phone || '', a, hw, pun: e.punished === true, pc: Number(e.punishCount) || 0 };
 }
 
 function stAgg(list){
@@ -6661,7 +6672,7 @@ async function loadStatsPage(days, force){
 
   // ---- o'quvchilar ----
   const byS = {};
-  cur.forEach(r => { (byS[r.sid] = byS[r.sid] || { sid:r.sid, name:r.sname, gid:r.gid, gname:r.gname, list:[] }).list.push(r); });
+  cur.forEach(r => { (byS[r.sid] = byS[r.sid] || { sid:r.sid, name:r.sname, phone:r.sphone, gid:r.gid, gname:r.gname, list:[] }).list.push(r); });
   const people = Object.values(byS).map(p => {
     const l = p.list.slice().sort((x,y) => x.date < y.date ? -1 : 1).filter(x => x.a);
     let streak = 0; for (let i = l.length - 1; i >= 0 && l[i].a === 'no'; i--) streak++;
@@ -6679,10 +6690,13 @@ async function loadStatsPage(days, force){
   const personRow = (p, right) => `<div class="st-person" data-gid="${p.gid}">${right.lead || ''}<div style="flex:1;min-width:0">
       <div class="st-person-name">${escHtml(p.name)}</div><div class="st-person-meta">${escHtml(p.gname)} · keldi ${p.a.yes + p.a.late}${wins[p.gid] && wins[p.gid].n ? '/' + wins[p.gid].n : ''} · davomat ${p.a.att === null ? '—' : p.a.att + '%'} · uy vazifa ${p.a.hw === null ? '—' : p.a.hw + '%'}</div>${right.body || ''}</div>${right.tail || ''}</div>`;
 
-  const risk = people.filter(p => p.reasons.length).sort((x,y) => y.sev - x.sev).slice(0, 8);
-  document.getElementById('stRisk').innerHTML = risk.length
+  const riskAll = people.filter(p => p.reasons.length).sort((x,y) => y.sev - x.sev);
+  const risk = riskAll.slice(0, 8);
+  document.getElementById('stRiskCount').textContent = riskAll.length ? `(${riskAll.length} ta)` : '';
+  document.getElementById('stRisk').innerHTML = (risk.length
     ? risk.map(p => personRow(p, { body: p.reasons.map(r => `<span class="st-chip">${r}</span>`).join('') })).join('')
-    : '<div class="st-empty-mini">🎉 Xavf ostidagi o\'quvchi topilmadi.</div>';
+    : '<div class="st-empty-mini">🎉 Xavf ostidagi o\'quvchi topilmadi.</div>')
+    + (riskAll.length > 8 ? `<div class="st-more">…va yana ${riskAll.length - 8} ta o'quvchi (Telegram/Nusxa da hammasi bor)</div>` : '');
 
   const top = people.filter(p => p.a.marked >= 3 && p.sc !== null).sort((x,y) => y.sc - x.sc || y.a.marked - x.a.marked).slice(0, 5);
   document.getElementById('stTop').innerHTML = top.length
@@ -6693,7 +6707,8 @@ async function loadStatsPage(days, force){
     const g = gInfo(el.dataset.gid); if (g.id) loadOjStudents(g.id, g.name, g.days || []);
   }));
 
-  _statsModel = { days, gRows, people, wins };
+  _statsModel = { days, gRows, people, wins, riskAll, top, groupLabel: sel.value ? (groups[0] && groups[0].name) : 'Barcha guruhlar',
+    periodLabel: isL ? `1 oy (har guruhning oxirgi ${ST_LESSONS} darsi)` : `so'nggi ${days} kun` };
 }
 
 function _statsRenderGroupTable(gRows){
@@ -6738,6 +6753,98 @@ document.getElementById('statsExportBtn').addEventListener('click', () => {
   XLSX.writeFile(wb, (_statsModel.days === 'L12' ? 'statistika_12_dars.xlsx' : `statistika_${_statsModel.days}_kun.xlsx`));
 });
 
+
+// ----- "Diqqat talab qiladi" ro'yxatini Telegramga yuborish -----
+function stRiskChunks(){
+  const m = _statsModel;
+  if (!m || !m.riskAll.length) return [];
+  const d = new Date(), dl = stPad(d.getDate()) + '.' + stPad(d.getMonth() + 1) + '.' + d.getFullYear();
+  const head = `⚠️ DIQQAT TALAB QILADIGAN O'QUVCHILAR\n📅 ${dl} · ${m.periodLabel}\n👥 ${m.groupLabel}\nJami: ${m.riskAll.length} ta o'quvchi\n`;
+  const blocks = m.riskAll.map((p, i) => {
+    const a = p.a, n = (m.wins[p.gid] || {}).n || 0, unm = n ? Math.max(0, n - a.marked) : 0;
+    return `\n${i + 1}. ${p.name}\n` +
+      `   👥 Guruh: ${p.gname}\n` +
+      (p.phone ? `   📞 ${p.phone}\n` : '') +
+      `   ✅ Keldi: ${a.yes + a.late}${n ? '/' + n : ''} · Davomat: ${a.att === null ? '—' : a.att + '%'} · Uy vazifa: ${a.hw === null ? '—' : a.hw + '%'}\n` +
+      `   ❌ Kelmagan: ${a.no} · ⏰ Kech: ${a.late}` + (a.pun ? ` · ⚖️ Jazo: ${a.pun} marta` : '') + (unm ? ` · ❔ Belgilanmagan: ${unm}` : '') + '\n' +
+      `   ⚠️ ${p.reasons.join('; ')}\n`;
+  });
+  const chunks = []; let cur = head;
+  blocks.forEach(b => { if ((cur + b).length > 3800) { chunks.push(cur); cur = ''; } cur += b; });
+  if (cur.trim()) chunks.push(cur);
+  return chunks;
+}
+
+async function stCopyText(t){
+  try { await navigator.clipboard.writeText(t); return true; }
+  catch (e) { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (_) {} ta.remove(); return ok; }
+}
+
+async function stShareCopy(chunks, emptyMsg){
+  if (!chunks.length) { showToast(emptyMsg); return; }
+  showToast(await stCopyText(chunks.join('\n')) ? 'Nusxalandi — Telegramga qo\'ying' : 'Nusxalab bo\'lmadi');
+}
+
+async function stShareTg(chunks, emptyMsg, what, btn){
+  if (!chunks.length) { showToast(emptyMsg); return; }
+  let s = {}; try { s = JSON.parse(localStorage.getItem('efTgBotSettings') || '{}'); } catch (e) {}
+  const targets = (s.targets || []).filter(Boolean);
+
+  // Bot sozlanmagan bo'lsa — Telegram'ning "ulashish" oynasini ochamiz
+  if (!s.token || !targets.length) {
+    const full = chunks.join('\n');
+    await stCopyText(full);
+    if (encodeURIComponent(full).length < 3500) window.open('https://t.me/share/url?url=%20&text=' + encodeURIComponent(full), '_blank');
+    else window.open('https://t.me/', '_blank');
+    showToast('Bot sozlanmagan: matn nusxalandi — Telegramda chatni tanlab qo\'ying');
+    return;
+  }
+  if (!confirm(`${what} ${targets.length} ta Telegram chatga yuborilsinmi?`)) return;
+  btn.disabled = true;
+  let ok = 0, fail = 0;
+  for (const chatId of targets) {
+    let good = true;
+    for (const text of chunks) {
+      try {
+        const res = await fetch('https://api.telegram.org/bot' + s.token + '/sendMessage', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chatId, text }) });
+        const j = await res.json();
+        if (!j.ok) { good = false; console.warn('Telegram:', j.description); break; }
+      } catch (err) { good = false; console.warn(err); break; }
+    }
+    good ? ok++ : fail++;
+  }
+  btn.disabled = false;
+  showToast(fail ? `Yuborildi: ${ok} ta, xatolik: ${fail} ta (chat ID yoki bot huquqini tekshiring)` : `Telegramga yuborildi ✓ (${ok} ta chat)`);
+}
+
+// ----- "Eng faol o'quvchilar" -----
+function stTopChunks(){
+  const m = _statsModel;
+  if (!m || !m.top.length) return [];
+  const d = new Date(), dl = stPad(d.getDate()) + '.' + stPad(d.getMonth() + 1) + '.' + d.getFullYear();
+  const medal = ['🥇', '🥈', '🥉'];
+  let t = `🏆 ENG FAOL O'QUVCHILAR\n📅 ${dl} · ${m.periodLabel}\n👥 ${m.groupLabel}\n(Ball = 60% davomat + 40% uy vazifa)\n`;
+  m.top.forEach((p, i) => {
+    const a = p.a, n = (m.wins[p.gid] || {}).n || 0;
+    t += `\n${medal[i] || (i + 1) + '.'} ${p.name} — ${p.sc} ball\n` +
+      `   👥 Guruh: ${p.gname}\n` + (p.phone ? `   📞 ${p.phone}\n` : '') +
+      `   ✅ Keldi: ${a.yes + a.late}${n ? '/' + n : ''} · Davomat: ${a.att === null ? '—' : a.att + '%'} · Uy vazifa: ${a.hw === null ? '—' : a.hw + '%'}\n` +
+      `   ❌ Kelmagan: ${a.no} · ⏰ Kech: ${a.late}` + (a.pun ? ` · ⚖️ Jazo: ${a.pun} marta` : '') + '\n';
+  });
+  return [t];
+}
+
+const stEmptyRisk = 'Xavf ostidagi o\'quvchi yo\'q — yuboriladigan narsa yo\'q.';
+const stEmptyTop = 'Reyting hali tayyor emas (kamida 3 ta belgilangan dars kerak).';
+document.getElementById('stRiskCopyBtn').addEventListener('click', () => stShareCopy(stRiskChunks(), stEmptyRisk));
+document.getElementById('stRiskTgBtn').addEventListener('click', e => {
+  const b = e.currentTarget; stShareTg(stRiskChunks(), stEmptyRisk, `${_statsModel ? _statsModel.riskAll.length : 0} ta o'quvchi ro'yxati`, b);
+});
+document.getElementById('stTopCopyBtn').addEventListener('click', () => stShareCopy(stTopChunks(), stEmptyTop));
+document.getElementById('stTopTgBtn').addEventListener('click', e => {
+  const b = e.currentTarget; stShareTg(stTopChunks(), stEmptyTop, `Eng faol ${_statsModel ? _statsModel.top.length : 0} ta o'quvchi reytingi`, b);
+});
 async function loadOjGroups() {
   const grid = document.getElementById('ojGroupsGrid');
   const empty = document.getElementById('ojGroupsEmpty');
