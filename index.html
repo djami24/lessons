@@ -103,6 +103,55 @@
     </div>
   </div>
 
+  <!-- ===== ENG FAOL O'QUVCHILAR (reyting) — admin panel statistikasidan avtomatik yangilanadi ===== -->
+  <section class="lb-section" id="leaderboardSection" hidden>
+    <div class="lb-head">
+      <span class="lb-eyebrow">🏆 Reyting</span>
+      <h2 class="lb-title">Eng faol o'quvchilar</h2>
+      <p class="lb-sub" id="lbSub"></p>
+    </div>
+    <div class="lb-podium" id="lbPodium"></div>
+    <div class="lb-list" id="lbList"></div>
+    <p class="lb-foot" id="lbFoot"></p>
+  </section>
+
+  <style>
+  .lb-section{width:100%;max-width:1080px;margin:2.4em auto 0;padding:0 16px;box-sizing:border-box;}
+  .lb-head{text-align:center;margin-bottom:26px;}
+  .lb-eyebrow{display:inline-block;padding:5px 14px;border-radius:999px;background:rgba(217,142,63,.14);color:var(--amber-deep,#B96F26);font-weight:800;font-size:.8rem;letter-spacing:.02em;}
+  .lb-title{margin:12px 0 6px;font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;color:var(--ink,#14213D);}
+  .lb-sub{margin:0;color:var(--gray,#5B6472);font-size:.95rem;}
+  .lb-podium{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:16px;align-items:end;margin-bottom:16px;}
+  .lb-card{background:#fff;border:1.5px solid var(--line,#DDD9CB);border-radius:20px;padding:20px 16px 18px;text-align:center;box-shadow:0 10px 26px -18px rgba(20,33,61,.4);position:relative;}
+  .lb-card.is-1{padding-top:28px;padding-bottom:26px;border-color:#E6B34A;background:linear-gradient(180deg,#FFF9EA 0%,#fff 60%);box-shadow:0 18px 40px -20px rgba(217,142,63,.6);}
+  .lb-medal{font-size:2.1rem;line-height:1;}
+  .lb-card.is-1 .lb-medal{font-size:2.6rem;}
+  .lb-name{margin:8px 0 2px;font-size:1.05rem;font-weight:800;color:var(--ink,#14213D);overflow-wrap:anywhere;}
+  .lb-group{font-size:.78rem;color:var(--gray,#5B6472);font-weight:600;}
+  .lb-score{display:inline-flex;align-items:baseline;gap:4px;margin:12px 0 8px;padding:6px 16px;border-radius:999px;background:rgba(46,111,110,.1);color:var(--teal-deep,#1F4E4D);}
+  .lb-score b{font-size:1.5rem;font-weight:800;}
+  .lb-score span{font-size:.75rem;font-weight:700;}
+  .lb-card.is-1 .lb-score{background:rgba(217,142,63,.18);color:var(--amber-deep,#B96F26);}
+  .lb-stats{display:flex;justify-content:center;gap:14px;font-size:.78rem;color:var(--gray,#5B6472);}
+  .lb-stats b{color:var(--ink,#14213D);}
+  .lb-row{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--line,#DDD9CB);border-radius:16px;padding:12px 16px;margin-bottom:10px;}
+  .lb-rank{width:34px;height:34px;flex-shrink:0;border-radius:50%;background:rgba(46,111,110,.12);color:var(--teal-deep,#1F4E4D);display:flex;align-items:center;justify-content:center;font-weight:800;}
+  .lb-row-main{flex:1;min-width:0;}
+  .lb-row-name{font-weight:800;color:var(--ink,#14213D);}
+  .lb-row-meta{font-size:.78rem;color:var(--gray,#5B6472);}
+  .lb-row-score{font-size:1.25rem;font-weight:800;color:var(--teal-deep,#1F4E4D);}
+  .lb-foot{text-align:center;margin:14px 0 0;font-size:.78rem;color:var(--gray,#5B6472);}
+  @media (max-width:720px){
+    .lb-podium{grid-template-columns:1fr;gap:12px;}
+    .lb-card.is-1{order:-1;}
+    .lb-card,.lb-card.is-1{display:grid;grid-template-columns:auto 1fr auto;align-items:center;text-align:left;gap:4px 14px;padding:14px 16px;}
+    .lb-medal,.lb-card.is-1 .lb-medal{grid-row:1 / span 2;font-size:2rem;}
+    .lb-name{margin:0;}
+    .lb-score{grid-row:1 / span 2;grid-column:3;margin:0;padding:6px 12px;}
+    .lb-stats{grid-column:2;justify-content:flex-start;}
+  }
+  </style>
+
 <!-- ===== TALABALAR FIKRI — split-card dizayn ===== -->
   <section class="tsl-section" id="testimonialsSection">
     <div class="tsl-heading-wrap">
@@ -1169,6 +1218,59 @@
 <script src="firebase-config.js"></script>
 <script src="testimonials-carousel.js"></script>
 <script src="site-settings.js"></script>
+
+<script>
+/* ============================================================
+   Eng faol o'quvchilar reytingi
+   Manba: settings/leaderboard (admin paneldagi Statistika bo'limi
+   avtomatik yozib turadi). Hujjat yo'q yoki bo'sh bo'lsa, bo'lim
+   umuman ko'rinmaydi.
+   ============================================================ */
+(function () {
+  var sec = document.getElementById('leaderboardSection');
+  if (!sec || typeof db === 'undefined') return;
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function pct(v){ return v == null ? '—' : v + '%'; }
+  var MEDAL = ['🥇','🥈','🥉'];
+
+  db.collection('settings').doc('leaderboard').get().then(function (snap) {
+    if (!snap.exists) return;
+    var d = snap.data() || {}, top = Array.isArray(d.top) ? d.top : [];
+    if (!top.length) return;
+
+    document.getElementById('lbSub').textContent =
+      (d.period || 'Oxirgi 12 dars') + ' bo\'yicha davomat va uy vazifa natijalari';
+
+    var podium = top.slice(0, 3), rest = top.slice(3);
+    // Podium tartibi: 2-o'rin, 1-o'rin, 3-o'rin (kompyuterda 1-o'rin o'rtada)
+    var order = podium.length === 3 ? [1, 0, 2] : podium.map(function (_, i) { return i; });
+    document.getElementById('lbPodium').innerHTML = order.map(function (i) {
+      var p = podium[i];
+      return '<div class="lb-card is-' + (i + 1) + '">' +
+        '<div class="lb-medal">' + MEDAL[i] + '</div>' +
+        '<div><div class="lb-name">' + esc(p.name) + '</div><div class="lb-group">' + esc(p.group) + '</div></div>' +
+        '<div class="lb-score"><b>' + esc(p.score) + '</b><span>ball</span></div>' +
+        '<div class="lb-stats"><span>Davomat <b>' + pct(p.att) + '</b></span><span>Uy vazifa <b>' + pct(p.hw) + '</b></span></div>' +
+        '</div>';
+    }).join('');
+
+    document.getElementById('lbList').innerHTML = rest.map(function (p, k) {
+      return '<div class="lb-row"><div class="lb-rank">' + (k + 4) + '</div>' +
+        '<div class="lb-row-main"><div class="lb-row-name">' + esc(p.name) + '</div>' +
+        '<div class="lb-row-meta">' + esc(p.group) + ' · davomat ' + pct(p.att) + ' · uy vazifa ' + pct(p.hw) + '</div></div>' +
+        '<div class="lb-row-score">' + esc(p.score) + '</div></div>';
+    }).join('');
+
+    if (d.updatedAtMs) {
+      var u = new Date(d.updatedAtMs);
+      document.getElementById('lbFoot').textContent = 'Ball = 60% davomat + 40% uy vazifa · Yangilangan: ' +
+        ('0' + u.getDate()).slice(-2) + '.' + ('0' + (u.getMonth() + 1)).slice(-2) + '.' + u.getFullYear();
+    }
+    sec.hidden = false;
+  }).catch(function (e) { console.warn('Reyting yuklanmadi:', e); });
+})();
+</script>
+
 <!-- <script src="guest-visit-log.js"></script> -->
 <!-- Mehmon (guest) tashrif jurnali o'chirildi: faollik jurnalida faqat
      talaba va ota-ona kirishlari kerak, mehmon tashriflari shart emas. -->
