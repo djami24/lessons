@@ -587,6 +587,8 @@
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="90">90 kun</button>
           </div>
           <button class="btn btn-ghost btn-sm" id="statsRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
+          <select class="st-select rp-month-select" title="Hisobot oyi"></select>
+          <button class="btn btn-primary btn-sm" id="statsMonthPdfBtn" title="Tanlangan oy uchun PDF hisobot (o'tgan oy bilan solishtirilgan)"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
           <button class="btn btn-ghost btn-sm" id="statsExportBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Excel</button>
         </div>
       </div>
@@ -1566,7 +1568,8 @@
           <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupDaysLine"></p>
         </div>
         <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn" style="margin-left:auto;"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Hammasini nusxalash</button>
-        <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Guruh statistikasi (PDF, 30 kun)</button>
+        <select class="st-select rp-month-select" title="Hisobot oyi"></select>
+        <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
         <button class="btn btn-primary" id="openAddOquvStudent">+ Talaba qo'shish</button>
       </div>
       <div id="ojScheduleBanner" class="oj-schedule-banner" hidden></div>
@@ -1602,7 +1605,7 @@
           <code id="ojProgressIdVal" style="background:var(--surface,#f4f4f4); padding:4px 9px; border-radius:6px; font-weight:700;"></code>
           <button type="button" class="btn btn-ghost btn-sm" id="ojCopyIdBtn">Nusxalash</button>
         </div>
-        <button type="button" class="btn btn-ghost btn-sm" id="ojStudentPdfBtn" style="margin-left:auto;"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> PDF yuklash (30 kun)</button>
+        <span style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;"><select class="st-select rp-month-select" title="Hisobot oyi"></select><button type="button" class="btn btn-ghost btn-sm" id="ojStudentPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button></span>
       </div>
 
       <!-- Stats row -->
@@ -9368,61 +9371,290 @@ async function ojAppendStudentReportToPdf(pdf, html, isFirstOverall) {
   ojAddTallCanvasToPdf(pdf, canvas, !isFirstOverall);
 }
 
-// ----- 1) Bitta talabaning PDF hisoboti -----
-const ojStudentPdfBtnEl = document.getElementById('ojStudentPdfBtn');
-if (ojStudentPdfBtnEl) {
-  ojStudentPdfBtnEl.addEventListener('click', async () => {
-    const btn = ojStudentPdfBtnEl;
-    const original = btn.innerHTML;
-    btn.disabled = true; btn.textContent = 'Tayyorlanmoqda…';
-    try {
-      const stats = ojComputeMonthlyStats(_ojProgressEntries, 30);
-      const html = ojBuildStudentReportHtml(_ojActiveStudentName, _ojActiveGroupName, _ojActiveStudentId, stats);
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
-      await ojAppendStudentReportToPdf(pdf, html, true);
-      pdf.save((_ojActiveStudentName || 'talaba') + ' - statistika.pdf');
-    } catch (err) {
-      console.error(err);
-      alert('PDF yaratishda xatolik yuz berdi.');
-    } finally {
-      btn.disabled = false; btn.innerHTML = original;
-    }
+// ============================================================
+// OYLIK HISOBOT (PDF) — KALENDAR OY bo'yicha, o'tgan oy bilan solishtirish
+// Oyda odatda 12 ta (ba'zan 13 ta) dars bo'ladi: dars soni guruh jadvalidagi
+// kunlardan (masalan Dush-Chor-Juma yoki Sesh-Pay-Shan) shu oyda nechta
+// kun borligiga qarab AVTOMATIK hisoblanadi.
+// Davomat = (keldi + kech qoldi) / belgilangan darslar — "Statistika"
+// sahifasidagi bilan bir xil; ball = 60% davomat + 40% uy vazifa.
+// Uch joydan ishlatiladi:
+//   1) Statistika sahifasi — "Oylik hisobot (PDF)" (tanlangan guruh yoki barcha guruhlar)
+//   2) O'quv jarayoni > guruh — butun guruh (guruh sahifasi + har bir talaba)
+//   3) O'quv jarayoni > talaba — bitta talaba
+// ============================================================
+const RP_MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
+const RP_C = { good:'#1FAE7A', bad:'#E5484D', neu:'#8a93a6', blue:'#2F6FED', orange:'#F0923D', purple:'#7C5CFC' };
+let _rpMonth = '';
+
+function rpYm(d){ return d.getFullYear() + '-' + stPad(d.getMonth() + 1); }
+function rpLabel(ym){ return RP_MONTHS[Number(ym.slice(5, 7)) - 1] + ' ' + ym.slice(0, 4); }
+function rpPrevYm(ym){ let y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7)) - 1; if (m < 1) { m = 12; y--; } return y + '-' + stPad(m); }
+function rpRange(ym){
+  const y = Number(ym.slice(0, 4)), m = Number(ym.slice(5, 7));
+  return { from: ym + '-01', to: ym + '-' + stPad(new Date(y, m, 0).getDate()) };
+}
+// Guruh jadvali bo'yicha oy ichidagi dars sanalari
+function rpSched(days, rng){
+  const out = [];
+  for (let d = new Date(rng.from + 'T00:00:00'); stDate(d) <= rng.to; d = stAdd(d, 1)) {
+    if ((days || []).includes(OJ_JSDAY_TO_KEY[d.getDay()])) out.push(stDate(d));
+  }
+  return out;
+}
+
+function rpInitMonthSelects(){
+  const now = new Date();
+  // Oyning dastlabki 5 kunida odatda o'tgan oy hisoboti kerak bo'ladi
+  if (!_rpMonth) _rpMonth = rpYm(new Date(now.getFullYear(), now.getMonth() - (now.getDate() <= 5 ? 1 : 0), 1));
+  const opts = [];
+  for (let i = 0; i < 12; i++) { const ym = rpYm(new Date(now.getFullYear(), now.getMonth() - i, 1)); opts.push('<option value="' + ym + '">' + rpLabel(ym) + '</option>'); }
+  document.querySelectorAll('.rp-month-select').forEach(sel => {
+    sel.innerHTML = opts.join(''); sel.value = _rpMonth;
+    sel.addEventListener('change', () => { _rpMonth = sel.value; document.querySelectorAll('.rp-month-select').forEach(o => { o.value = _rpMonth; }); });
   });
 }
 
-// ----- 2) Butun guruh uchun PDF (har bir talaba — alohida sahifada) -----
-const ojGroupPdfBtnEl = document.getElementById('ojGroupPdfBtn');
-if (ojGroupPdfBtnEl) {
-  ojGroupPdfBtnEl.addEventListener('click', async () => {
-    const btn = ojGroupPdfBtnEl;
-    if (!_ojActiveGroupStudents.length) { alert('Bu guruhda hali talaba yo\'q.'); return; }
-    const original = btn.innerHTML;
-    btn.disabled = true;
-    try {
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
-      for (let i = 0; i < _ojActiveGroupStudents.length; i++) {
-        const s = _ojActiveGroupStudents[i];
-        btn.textContent = `Tayyorlanmoqda… (${i + 1}/${_ojActiveGroupStudents.length})`;
-        let entries = [];
-        try {
-          const snap = await db.collection('oquv_progress').doc(s.id).collection('entries').get();
-          entries = snap.docs.map(d => d.data());
-        } catch (e) { entries = []; }
-        const stats = ojComputeMonthlyStats(entries, 30);
-        const html = ojBuildStudentReportHtml(s.name, _ojActiveGroupName, s.id, stats);
-        await ojAppendStudentReportToPdf(pdf, html, i === 0);
-      }
-      pdf.save((_ojActiveGroupName || 'guruh') + ' - statistika.pdf');
-    } catch (err) {
-      console.error(err);
-      alert('PDF yaratishda xatolik yuz berdi.');
-    } finally {
-      btn.disabled = false; btn.innerHTML = original;
-    }
-  });
+async function rpFetchEntries(students, fromStr){
+  const out = {};
+  await Promise.all(students.map(s =>
+    db.collection('oquv_progress').doc(s.id).collection('entries').where('date', '>=', fromStr).get()
+      .then(sn => { out[s.id] = sn.docs.map(d => d.data()); })
+      .catch(() => { out[s.id] = []; })
+  ));
+  return out;
 }
+
+// Guruh (yoki bitta talaba) uchun shu oy va o'tgan oy hisobi
+function rpGroupModel(g, students, emap, ym){
+  const pym = rpPrevYm(ym), R = rpRange(ym), PR = rpRange(pym);
+  const mk = (s, rng) => (emap[s.id] || []).map(e => { const x = stNorm(e, g, s); if (x) x.note = e.note || ''; return x; })
+    .filter(x => x && x.date >= rng.from && x.date <= rng.to);
+  const studs = students.map(s => {
+    const rows = mk(s, R), prows = mk(s, PR), a = stAgg(rows), p = stAgg(prows);
+    return { s, rows, prows, a, p, sc: stScore(a), psc: stScore(p) };
+  });
+  const allRows = studs.flatMap(x => x.rows), prevRows = studs.flatMap(x => x.prows);
+  const A = stAgg(allRows), P = stAgg(prevRows);
+  return { g, ym, pym, R, PR, sched: rpSched(g.days, R), pSched: rpSched(g.days, PR), studs, A, P,
+    sc: stScore(A), psc: stScore(P), held: new Set(allRows.map(r => r.date)).size, people: stBuildPeople(allRows) };
+}
+
+function rpDelta(cur, prev, invert, unit){
+  if (cur === null || cur === undefined || prev === null || prev === undefined) return '';
+  const d = cur - prev;
+  if (d === 0) return '<span style="color:' + RP_C.neu + ';font-weight:700;">• o\'zgarmagan</span>';
+  const good = invert ? d < 0 : d > 0;
+  return '<span style="color:' + (good ? RP_C.good : RP_C.bad) + ';font-weight:700;">' + (d > 0 ? '▲ +' : '▼ ') + d + (unit || '') + '</span>';
+}
+function rpPct(v){ return v === null || v === undefined ? '—' : v + '%'; }
+function rpCard(label, val, prevTxt, delta, color){
+  return '<div style="border:1.5px solid #e2e2e6;border-top:4px solid ' + color + ';border-radius:10px;padding:9px 6px;text-align:center;">' +
+    '<div style="font-size:11px;color:#777;font-weight:700;">' + label + '</div>' +
+    '<div style="font-size:22px;font-weight:800;color:#1c1c22;line-height:1.3;">' + val + '</div>' +
+    '<div style="font-size:10px;color:#777;">' + prevTxt + '</div>' +
+    '<div style="font-size:11px;margin-top:2px;min-height:14px;">' + delta + '</div></div>';
+}
+function rpCards(a, p, sc, psc){
+  const hp = p.marked > 0, pv = v => hp ? rpPct(v) : '—', pn = v => hp ? v : '—';
+  return '<div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px;">' +
+    rpCard('Davomat', rpPct(a.att), 'o\'tgan oy: ' + pv(p.att), hp ? rpDelta(a.att, p.att, false, ' %') : '', RP_C.good) +
+    rpCard('Uy vazifa', rpPct(a.hw), 'o\'tgan oy: ' + pv(p.hw), hp ? rpDelta(a.hw, p.hw, false, ' %') : '', RP_C.blue) +
+    rpCard('Kelmadi', a.no, 'o\'tgan oy: ' + pn(p.no), hp ? rpDelta(a.no, p.no, true, '') : '', RP_C.bad) +
+    rpCard('Kech qoldi', a.late, 'o\'tgan oy: ' + pn(p.late), hp ? rpDelta(a.late, p.late, true, '') : '', RP_C.orange) +
+    rpCard('Jazo', a.pun, 'o\'tgan oy: ' + pn(p.pun), hp ? rpDelta(a.pun, p.pun, true, '') : '', RP_C.purple) +
+    rpCard('Ball', sc === null ? '—' : sc, 'o\'tgan oy: ' + (hp && psc !== null ? psc : '—'), hp ? rpDelta(sc, psc, false, '') : '', '#2e6f6e') +
+    '</div>';
+}
+function rpSummaryText(a, p, sc, psc){
+  if (!a.marked) return 'Bu oy uchun belgilangan davomat yo\'q.';
+  if (!p.marked) return 'O\'tgan oy uchun ma\'lumot yo\'q — solishtirib bo\'lmaydi.';
+  const f = (name, c, pv) => {
+    if (c === null || pv === null) return null;
+    if (c === pv) return name + ' o\'zgarmadi (' + c + '%)';
+    return name + ' ' + Math.abs(c - pv) + ' punktga ' + (c > pv ? 'oshdi' : 'pasaydi') + ' (' + pv + '% → ' + c + '%)';
+  };
+  const parts = [f('Davomat', a.att, p.att), f('Uy vazifa', a.hw, p.hw)].filter(Boolean);
+  if (sc !== null && psc !== null) parts.push(sc === psc ? 'umumiy ball o\'zgarmadi (' + sc + ')' : 'umumiy ball ' + psc + ' → ' + sc);
+  return parts.join('; ') + '.';
+}
+function rpStatus(score){
+  if (score === null || score === undefined) return '<span style="color:#98A2B3;">—</span>';
+  const [t, c] = score >= 85 ? ['Zo\'r', RP_C.good] : score >= 70 ? ['Yaxshi', RP_C.blue] : score >= 55 ? ['Diqqat', RP_C.orange] : ['Xavfli', RP_C.bad];
+  return '<span style="background:' + c + '22;color:' + c + ';padding:2px 9px;border-radius:12px;font-weight:800;font-size:11px;">' + t + '</span>';
+}
+function rpWrap(inner){ return '<div style="font-family:\'Segoe UI\',Arial,sans-serif;width:764px;padding:20px 24px 28px;box-sizing:border-box;color:#1c1c22;">' + inner + '</div>'; }
+function rpHeader(title){
+  return '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #2e6f6e;padding-bottom:12px;margin-bottom:16px;">' +
+    '<div><div style="font-size:20px;font-weight:800;color:#2e6f6e;">Abduraxmon Teacher</div><div style="font-size:12px;color:#777;">' + title + '</div></div>' +
+    '<div style="text-align:right;font-size:12px;color:#777;">Yaratildi: ' + escapeHtml(ojFormatDateUz(stDate(new Date()))) + '</div></div>';
+}
+function rpLessonsLine(m){
+  const dl = ojDaysToLabel(m.g.days);
+  return 'Darslar: <b>' + m.sched.length + ' ta</b> (jadval bo\'yicha' + (dl ? ': ' + escapeHtml(dl) : '') + ')' +
+    (m.pSched.length ? ' · o\'tgan oyda: ' + m.pSched.length + ' ta' : '');
+}
+function rpSign(){
+  return '<div style="margin-top:70px;display:flex;justify-content:space-around;">' +
+    '<div style="width:40%;text-align:center;border-top:1.5px solid #999;padding-top:6px;font-size:12px;color:#555;">O\'qituvchi imzosi</div></div>';
+}
+function rpSignStudent(){
+  return '<table style="width:100%;border-collapse:collapse;margin-top:80px;table-layout:fixed;"><tr>' +
+    '<td style="width:50%;text-align:center;vertical-align:bottom;padding:0 20px;"><div style="border-top:1.5px solid #999;padding-top:6px;font-size:12px;color:#555;">O\'qituvchi imzosi</div></td>' +
+    '<td style="width:50%;text-align:center;vertical-align:bottom;padding:0 20px;"><div style="border-top:1.5px solid #999;padding-top:6px;font-size:12px;color:#555;">Ota-ona imzosi</div>' +
+    '<div style="font-size:12px;color:#555;margin-top:10px;">Ota-ona F.I.Sh: ____________________</div></td></tr></table>';
+}
+
+// Talabaning shu oydagi har bir darsi (jadval bo'yicha) — belgilanmaganlari ham ko'rinadi
+function rpLessonRows(st, m){
+  const today = stDate(new Date()), by = {};
+  st.rows.forEach(r => { if (!by[r.date]) by[r.date] = r; });
+  const dates = Array.from(new Set(m.sched.concat(st.rows.map(r => r.date)))).sort();
+  const td = 'padding:6px 8px;border-bottom:1px solid #eee;';
+  return dates.map((d, i) => {
+    const r = by[d], dt = new Date(d + 'T00:00:00');
+    const dateTxt = ST_WD[dt.getDay()] + ', ' + dt.getDate() + '.' + stPad(dt.getMonth() + 1) + (m.sched.includes(d) ? '' : ' <span style="color:#999;">(qo\'shimcha)</span>');
+    if (!r) {
+      const txt = d > today ? 'Hali o\'tmagan' : 'Belgilanmagan';
+      return '<tr><td style="' + td + '">' + (i + 1) + '</td><td style="' + td + 'white-space:nowrap;">' + dateTxt + '</td><td colspan="4" style="' + td + 'color:#999;">' + txt + '</td></tr>';
+    }
+    const att = r.a === 'yes' ? svgStandalone('check-circle', '#1FAE7A') + ' Keldi' : r.a === 'late' ? svgStandalone('alarm', '#d98e3f') + ' Kech qoldi'
+      : r.a === 'no' ? svgStandalone('ban', '#c0392b') + ' Kelmadi' : '—';
+    const hw = r.hw === null ? '—' : r.hw >= 100 ? svgStandalone('check-circle', '#1FAE7A') + ' Qildi' : r.hw <= 0 ? svgStandalone('clock', '#d98e3f') + ' Qilmadi' : svgStandalone('diamond', '#d98e3f') + ' ' + r.hw + '%';
+    const pun = r.pun ? svgStandalone('ban', '#c0392b') + ' ' + (r.pc || 1) : '—';
+    return '<tr><td style="' + td + '">' + (i + 1) + '</td><td style="' + td + 'white-space:nowrap;">' + dateTxt + '</td><td style="' + td + '">' + att + '</td><td style="' + td + '">' + hw + '</td><td style="' + td + '">' + pun + '</td><td style="' + td + '">' + (r.note ? escapeHtml(r.note) : '—') + '</td></tr>';
+  }).join('') || '<tr><td colspan="6" style="text-align:center;color:#888;padding:14px;">Bu oyda yozuv yo\'q</td></tr>';
+}
+
+function rpStudentHtml(m, st){
+  const th = 'padding:7px 8px;text-align:left;';
+  return rpWrap(
+    rpHeader('Talabaning oylik statistika hisoboti') +
+    '<div style="margin-bottom:14px;"><div style="font-size:17px;font-weight:700;">' + escapeHtml(st.s.name) + '</div>' +
+    '<div style="font-size:13px;color:#555;margin-top:2px;">Guruh: ' + escapeHtml(m.g.name) + ' &nbsp;·&nbsp; ID: ' + escapeHtml(st.s.id) + '</div>' +
+    '<div style="font-size:13px;color:#555;">Oy: <b>' + rpLabel(m.ym) + '</b> (' + escapeHtml(ojFormatDateUz(m.R.from)) + ' — ' + escapeHtml(ojFormatDateUz(m.R.to)) + ')</div>' +
+    '<div style="font-size:13px;color:#555;">' + rpLessonsLine(m) + '</div></div>' +
+    rpCards(st.a, st.p, st.sc, st.psc) +
+    '<div style="background:#f3f8f8;border-radius:8px;padding:9px 12px;font-size:12px;margin-bottom:16px;"><b>O\'tgan oyga nisbatan:</b> ' + rpSummaryText(st.a, st.p, st.sc, st.psc) + '</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#2e6f6e;color:#fff;">' +
+    '<th style="' + th + '">№</th><th style="' + th + '">Sana</th><th style="' + th + '">Davomat</th><th style="' + th + '">Uy vazifa</th><th style="' + th + '">Jazo</th><th style="' + th + '">Izoh</th>' +
+    '</tr></thead><tbody>' + rpLessonRows(st, m) + '</tbody></table>' + rpSignStudent());
+}
+
+function rpGroupHtml(m){
+  const th = 'padding:7px 6px;text-align:left;', td = 'padding:6px 6px;border-bottom:1px solid #eee;vertical-align:top;';
+  const studs = m.studs.slice().sort((x, y) => (y.sc === null ? -1 : y.sc) - (x.sc === null ? -1 : x.sc));
+  const cell = (v, pv, hp) => '<div style="font-weight:700;">' + rpPct(v) + '</div><div style="font-size:10.5px;">' + (hp ? rpDelta(v, pv, false, ' %') : '') + '</div>';
+  const rows = studs.map((x, i) => {
+    const hp = x.p.marked > 0, person = m.people.find(p => p.sid === x.s.id);
+    return '<tr><td style="' + td + '">' + (i + 1) + '</td><td style="' + td + 'font-weight:700;">' + escapeHtml(x.s.name) + '</td>' +
+      '<td style="' + td + '">' + cell(x.a.att, x.p.att, hp) + '</td><td style="' + td + '">' + cell(x.a.hw, x.p.hw, hp) + '</td>' +
+      '<td style="' + td + '">' + x.a.no + '</td><td style="' + td + '">' + x.a.late + '</td><td style="' + td + '">' + x.a.pun + '</td>' +
+      '<td style="' + td + '"><div style="font-weight:800;">' + (x.sc === null ? '—' : x.sc) + '</div><div style="font-size:10.5px;">' + (hp ? rpDelta(x.sc, x.psc, false, '') : '') + '</div></td>' +
+      '<td style="' + td + '">' + rpStatus(x.sc) + '</td>' +
+      '<td style="' + td + 'font-size:10.5px;color:#c0392b;">' + (person && person.reasons.length ? escapeHtml(person.reasons.join('; ')) : '') + '</td></tr>';
+  }).join('');
+  const expected = m.sched.length * m.studs.length, comp = expected ? Math.min(100, Math.round(m.A.marked / expected * 100)) : null;
+  return rpWrap(
+    rpHeader('Guruhning oylik statistika hisoboti') +
+    '<div style="margin-bottom:14px;"><div style="font-size:17px;font-weight:700;">' + escapeHtml(m.g.name) + '</div>' +
+    '<div style="font-size:13px;color:#555;margin-top:2px;">Oy: <b>' + rpLabel(m.ym) + '</b> &nbsp;·&nbsp; Talabalar: ' + m.studs.length + ' ta</div>' +
+    '<div style="font-size:13px;color:#555;">' + rpLessonsLine(m) + ' · o\'tilgan: ' + m.held + ' ta</div>' +
+    '<div style="font-size:13px;color:#555;">Davomat belgilanganligi: ' + (comp === null ? '—' : comp + '%') + ' (' + m.A.marked + ' / ' + expected + ')</div></div>' +
+    rpCards(m.A, m.P, m.sc, m.psc) +
+    '<div style="background:#f3f8f8;border-radius:8px;padding:9px 12px;font-size:12px;margin-bottom:16px;"><b>O\'tgan oyga nisbatan:</b> ' + rpSummaryText(m.A, m.P, m.sc, m.psc) + '</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:11.5px;"><thead><tr style="background:#2e6f6e;color:#fff;">' +
+    '<th style="' + th + '">№</th><th style="' + th + '">Talaba</th><th style="' + th + '">Davomat</th><th style="' + th + '">Uy vazifa</th><th style="' + th + '">Kelmadi</th><th style="' + th + '">Kech</th><th style="' + th + '">Jazo</th><th style="' + th + '">Ball</th><th style="' + th + '">Holat</th><th style="' + th + '">Izoh</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' +
+    '<div style="font-size:10.5px;color:#888;margin-top:8px;">Ball = 60% davomat + 40% uy vazifa. Farq (▲/▼) — o\'tgan oyga nisbatan.</div>' + rpSign());
+}
+
+function rpOverviewHtml(models, ym){
+  const th = 'padding:7px 6px;text-align:left;', td = 'padding:6px 6px;border-bottom:1px solid #eee;vertical-align:top;';
+  const all = models.flatMap(m => m.studs), allA = stAgg(all.flatMap(x => x.rows)), allP = stAgg(all.flatMap(x => x.prows));
+  const cell = (v, pv, hp, unit) => '<div style="font-weight:700;">' + (unit ? rpPct(v) : (v === null ? '—' : v)) + '</div><div style="font-size:10.5px;">' + (hp ? rpDelta(v, pv, false, unit ? ' %' : '') : '') + '</div>';
+  const rows = models.slice().sort((x, y) => (y.sc === null ? -1 : y.sc) - (x.sc === null ? -1 : x.sc)).map(m => {
+    const hp = m.P.marked > 0;
+    return '<tr><td style="' + td + 'font-weight:700;">' + escapeHtml(m.g.name) + '</td><td style="' + td + '">' + m.studs.length + '</td><td style="' + td + '">' + m.sched.length + '</td>' +
+      '<td style="' + td + '">' + cell(m.A.att, m.P.att, hp, true) + '</td><td style="' + td + '">' + cell(m.A.hw, m.P.hw, hp, true) + '</td>' +
+      '<td style="' + td + '">' + m.A.no + '</td><td style="' + td + '">' + m.A.late + '</td><td style="' + td + '">' + m.A.pun + '</td>' +
+      '<td style="' + td + '">' + cell(m.sc, m.psc, hp, false) + '</td><td style="' + td + '">' + rpStatus(m.sc) + '</td></tr>';
+  }).join('');
+  return rpWrap(
+    rpHeader('Barcha guruhlar — oylik statistika hisoboti') +
+    '<div style="margin-bottom:14px;"><div style="font-size:17px;font-weight:700;">' + rpLabel(ym) + '</div>' +
+    '<div style="font-size:13px;color:#555;margin-top:2px;">Guruhlar: ' + models.length + ' ta &nbsp;·&nbsp; Talabalar: ' + all.length + ' ta</div></div>' +
+    rpCards(allA, allP, stScore(allA), stScore(allP)) +
+    '<div style="background:#f3f8f8;border-radius:8px;padding:9px 12px;font-size:12px;margin-bottom:16px;"><b>O\'tgan oyga nisbatan:</b> ' + rpSummaryText(allA, allP, stScore(allA), stScore(allP)) + '</div>' +
+    '<table style="width:100%;border-collapse:collapse;font-size:11.5px;"><thead><tr style="background:#2e6f6e;color:#fff;">' +
+    '<th style="' + th + '">Guruh</th><th style="' + th + '">Talaba</th><th style="' + th + '">Dars</th><th style="' + th + '">Davomat</th><th style="' + th + '">Uy vazifa</th><th style="' + th + '">Kelmadi</th><th style="' + th + '">Kech</th><th style="' + th + '">Jazo</th><th style="' + th + '">Ball</th><th style="' + th + '">Holat</th>' +
+    '</tr></thead><tbody>' + rows + '</tbody></table>' + rpSign());
+}
+
+// groups: [{id, name, days, students:[{id,name}]}]. withStudents — har bir talaba uchun alohida sahifa.
+async function rpMakeReport(groups, ym, withStudents, onProgress){
+  const { jsPDF } = window.jspdf, pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+  const from = rpRange(rpPrevYm(ym)).from, models = [];
+  for (let i = 0; i < groups.length; i++) {
+    if (onProgress) onProgress('Ma\'lumot yuklanmoqda… (' + (i + 1) + '/' + groups.length + ')');
+    const emap = await rpFetchEntries(groups[i].students, from);
+    models.push(rpGroupModel(groups[i], groups[i].students, emap, ym));
+  }
+  let first = true, n = 0;
+  const pages = (models.length > 1 ? 1 : 0) + models.length + (withStudents ? models.reduce((s, m) => s + m.studs.length, 0) : 0);
+  const add = async html => {
+    if (onProgress) onProgress('PDF tayyorlanmoqda… (' + (++n) + '/' + pages + ')');
+    await ojAppendStudentReportToPdf(pdf, html, first); first = false;
+  };
+  if (models.length > 1) await add(rpOverviewHtml(models, ym));
+  for (const m of models) {
+    await add(rpGroupHtml(m));
+    if (withStudents) for (const st of m.studs) await add(rpStudentHtml(m, st));
+  }
+  return pdf;
+}
+
+async function rpRun(btn, job){
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  try { await job(t => { btn.textContent = t; }); }
+  catch (err) { console.error(err); alert('PDF yaratishda xatolik yuz berdi.'); }
+  finally { btn.disabled = false; btn.innerHTML = original; }
+}
+
+// ----- 1) Statistika sahifasi: tanlangan guruh (talabalari bilan) yoki barcha guruhlar -----
+const rpStatsBtn = document.getElementById('statsMonthPdfBtn');
+if (rpStatsBtn) rpStatsBtn.addEventListener('click', () => rpRun(rpStatsBtn, async prog => {
+  const fv = document.getElementById('statsGroupFilter').value;
+  let groups = (await homeFetchGroupsWithStudents()).filter(g => g.students.length);
+  if (fv) groups = groups.filter(g => g.id === fv);
+  if (!groups.length) { alert('Hisobot uchun talabali guruh topilmadi.'); return; }
+  const pdf = await rpMakeReport(groups, _rpMonth, !!fv, prog);
+  pdf.save((fv ? groups[0].name : 'Barcha guruhlar') + ' - ' + rpLabel(_rpMonth) + ' - hisobot.pdf');
+}));
+
+// ----- 2) O'quv jarayoni: butun guruh (guruh sahifasi + har bir talaba) -----
+const rpGroupBtn = document.getElementById('ojGroupPdfBtn');
+if (rpGroupBtn) rpGroupBtn.addEventListener('click', () => rpRun(rpGroupBtn, async prog => {
+  if (!_ojActiveGroupStudents.length) { alert('Bu guruhda hali talaba yo\'q.'); return; }
+  const g = { id: _ojActiveGroupId, name: _ojActiveGroupName, days: _ojActiveGroupDays, students: _ojActiveGroupStudents };
+  const pdf = await rpMakeReport([g], _rpMonth, true, prog);
+  pdf.save((_ojActiveGroupName || 'guruh') + ' - ' + rpLabel(_rpMonth) + ' - hisobot.pdf');
+}));
+
+// ----- 3) O'quv jarayoni: bitta talaba -----
+const rpStudentBtn = document.getElementById('ojStudentPdfBtn');
+if (rpStudentBtn) rpStudentBtn.addEventListener('click', () => rpRun(rpStudentBtn, async prog => {
+  prog('Tayyorlanmoqda…');
+  const g = { id: _ojActiveGroupId, name: _ojActiveGroupName, days: _ojActiveGroupDays };
+  const s = { id: _ojActiveStudentId, name: _ojActiveStudentName };
+  const m = rpGroupModel(g, [s], { [s.id]: _ojProgressEntries }, _rpMonth);
+  const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+  await ojAppendStudentReportToPdf(pdf, rpStudentHtml(m, m.studs[0]), true);
+  pdf.save((_ojActiveStudentName || 'talaba') + ' - ' + rpLabel(_rpMonth) + '.pdf');
+}));
+
+rpInitMonthSelects();
 
 
 
