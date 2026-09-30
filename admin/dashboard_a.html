@@ -626,7 +626,7 @@
           <div class="st-card-head"><h3 class="st-h">🏆 Eng faol o'quvchilar</h3>
             <span class="st-actions"><button class="btn btn-tg btn-sm" id="stTopTgBtn" title="Reytingni Telegramga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
             <button class="btn btn-ghost btn-sm" id="stTopCopyBtn" title="Matnni nusxalash">Nusxa</button></span></div>
-          <div id="stTop"></div></div>
+          <div id="stTop"></div><div class="st-more" id="stTopPub"></div></div>
       </div>
 
       <div id="statsEmpty" class="oj-empty" style="display:none;">
@@ -2918,6 +2918,7 @@ auth.onAuthStateChanged(async (user) => {
   loadHomeStats();
   loadTodayHomeworkCards();
   restoreLastAdminView();
+  setTimeout(() => { if (typeof stPublishLeaderboard === 'function') stPublishLeaderboard('auto'); }, 4000);
 });
 
 document.getElementById('logoutBtn').addEventListener('click', () => {
@@ -6419,6 +6420,31 @@ function stDate(d){ return d.getFullYear() + '-' + stPad(d.getMonth()+1) + '-' +
 function stAdd(d, n){ const x = new Date(d); x.setDate(x.getDate() + n); return x; }
 function stCol(v){ return v === null ? ST_C.gray : v >= 85 ? ST_C.green : v >= 70 ? ST_C.blue : v >= 55 ? ST_C.orange : ST_C.red; }
 
+const ST_TOP_N = 5;   // 'Eng faol' ro'yxatida nechta o'quvchi (admin panel + sayt bosh sahifasi)
+
+function stBuildPeople(cur){
+  const byS = {};
+  cur.forEach(r => { (byS[r.sid] = byS[r.sid] || { sid:r.sid, name:r.sname, phone:r.sphone, gid:r.gid, gname:r.gname, list:[] }).list.push(r); });
+  return Object.values(byS).map(p => {
+    const l = p.list.slice().sort((x,y) => x.date < y.date ? -1 : 1).filter(x => x.a);
+    let streak = 0; for (let i = l.length - 1; i >= 0 && l[i].a === 'no'; i--) streak++;
+    const a = stAgg(p.list);
+    const reasons = [];
+    if (streak >= 2) reasons.push(`${streak} dars ketma-ket kelmagan`);
+    if (a.marked >= 3 && a.att < 70) reasons.push(`Davomat ${a.att}%`);
+    if (a.hwN >= 3 && a.hw < 50) reasons.push(`Uy vazifa ${a.hw}%`);
+    if (a.pun >= 2) reasons.push(`${a.pun} marta jazolangan`);
+    const sev = streak * 25 + (a.att === null ? 0 : 100 - a.att) + (a.hw === null ? 0 : (100 - a.hw) / 2) + a.pun * 5;
+    const sc = a.att === null ? null : Math.round(0.6 * a.att + 0.4 * (a.hw === null ? a.att : a.hw));
+    return { ...p, a, streak, reasons, sev, sc };
+  });
+}
+
+// Eng faol o'quvchilar: kamida 3 ta belgilangan dars; ball = 60% davomat + 40% uy vazifa
+function stPickTop(people){
+  return people.filter(p => p.a.marked >= 3 && p.sc !== null).sort((x,y) => y.sc - x.sc || y.a.marked - x.a.marked).slice(0, ST_TOP_N);
+}
+
 function stNorm(e, g, s){
   if (!e.date) return null;
   const a = (e.attended === true || e.attended === 'yes') ? 'yes' : e.attended === 'late' ? 'late'
@@ -6445,17 +6471,18 @@ function stAgg(list){
 }
 function stScore(a){ const v = [a.att, a.hw].filter(x => x !== null); return v.length ? Math.round(v.reduce((s,x)=>s+x,0) / v.length) : null; }
 
-async function stFetch(force){
-  if (!force && _statsData && Date.now() - _statsData.ts < 300000) return _statsData;
+async function stFetch(force, back){
+  back = back || 180;
+  if (!force && _statsData && _statsData.back >= back && Date.now() - _statsData.ts < 300000) return _statsData;
   const groups = await homeFetchGroupsWithStudents();
-  const since = stDate(stAdd(new Date(), -179));
+  const since = stDate(stAdd(new Date(), -(back - 1)));
   const rows = [];
   await Promise.all(groups.flatMap(g => g.students.map(s =>
     db.collection('oquv_progress').doc(s.id).collection('entries').where('date', '>=', since).get()
       .then(snap => snap.docs.forEach(d => { const x = stNorm(d.data(), g, s); if (x) rows.push(x); }))
       .catch(() => {})
   )));
-  _statsData = { ts: Date.now(), groups, rows };
+  _statsData = { ts: Date.now(), back, groups, rows };
   return _statsData;
 }
 
@@ -6671,21 +6698,7 @@ async function loadStatsPage(days, force){
   _statsRenderGroupTable(gRows);
 
   // ---- o'quvchilar ----
-  const byS = {};
-  cur.forEach(r => { (byS[r.sid] = byS[r.sid] || { sid:r.sid, name:r.sname, phone:r.sphone, gid:r.gid, gname:r.gname, list:[] }).list.push(r); });
-  const people = Object.values(byS).map(p => {
-    const l = p.list.slice().sort((x,y) => x.date < y.date ? -1 : 1).filter(x => x.a);
-    let streak = 0; for (let i = l.length - 1; i >= 0 && l[i].a === 'no'; i--) streak++;
-    const a = stAgg(p.list);
-    const reasons = [];
-    if (streak >= 2) reasons.push(`${streak} dars ketma-ket kelmagan`);
-    if (a.marked >= 3 && a.att < 70) reasons.push(`Davomat ${a.att}%`);
-    if (a.hwN >= 3 && a.hw < 50) reasons.push(`Uy vazifa ${a.hw}%`);
-    if (a.pun >= 2) reasons.push(`${a.pun} marta jazolangan`);
-    const sev = streak * 25 + (a.att === null ? 0 : 100 - a.att) + (a.hw === null ? 0 : (100 - a.hw) / 2) + a.pun * 5;
-    const sc = a.att === null ? null : Math.round(0.6 * a.att + 0.4 * (a.hw === null ? a.att : a.hw));
-    return { ...p, a, streak, reasons, sev, sc };
-  });
+  const people = stBuildPeople(cur);
   const gInfo = id => data.groups.find(g => g.id === id) || {};
   const personRow = (p, right) => `<div class="st-person" data-gid="${p.gid}">${right.lead || ''}<div style="flex:1;min-width:0">
       <div class="st-person-name">${escHtml(p.name)}</div><div class="st-person-meta">${escHtml(p.gname)} · keldi ${p.a.yes + p.a.late}${wins[p.gid] && wins[p.gid].n ? '/' + wins[p.gid].n : ''} · davomat ${p.a.att === null ? '—' : p.a.att + '%'} · uy vazifa ${p.a.hw === null ? '—' : p.a.hw + '%'}</div>${right.body || ''}</div>${right.tail || ''}</div>`;
@@ -6698,7 +6711,7 @@ async function loadStatsPage(days, force){
     : '<div class="st-empty-mini">🎉 Xavf ostidagi o\'quvchi topilmadi.</div>')
     + (riskAll.length > 8 ? `<div class="st-more">…va yana ${riskAll.length - 8} ta o'quvchi (Telegram/Nusxa da hammasi bor)</div>` : '');
 
-  const top = people.filter(p => p.a.marked >= 3 && p.sc !== null).sort((x,y) => y.sc - x.sc || y.a.marked - x.a.marked).slice(0, 5);
+  const top = stPickTop(people);
   document.getElementById('stTop').innerHTML = top.length
     ? top.map((p,i) => personRow(p, { lead: `<div class="st-rank">${i + 1}</div>`, tail: `<b style="color:${stCol(p.sc)}">${p.sc}</b>` })).join('')
     : '<div class="st-empty-mini">Reyting uchun kamida 3 ta belgilangan dars kerak.</div>';
@@ -6707,6 +6720,7 @@ async function loadStatsPage(days, force){
     const g = gInfo(el.dataset.gid); if (g.id) loadOjStudents(g.id, g.name, g.days || []);
   }));
 
+  stPublishLeaderboard('sync');   // saytdagi reytingni shu ma'lumot bilan yangilaymiz
   _statsModel = { days, gRows, people, wins, riskAll, top, groupLabel: sel.value ? (groups[0] && groups[0].name) : 'Barcha guruhlar',
     periodLabel: isL ? `1 oy (har guruhning oxirgi ${ST_LESSONS} darsi)` : `so'nggi ${days} kun` };
 }
@@ -6845,6 +6859,62 @@ document.getElementById('stTopCopyBtn').addEventListener('click', () => stShareC
 document.getElementById('stTopTgBtn').addEventListener('click', e => {
   const b = e.currentTarget; stShareTg(stTopChunks(), stEmptyTop, `Eng faol ${_statsModel ? _statsModel.top.length : 0} ta o'quvchi reytingi`, b);
 });
+
+// ----- Sayt bosh sahifasidagi "Eng faol o'quvchilar" (settings/leaderboard) -----
+// Hisob har doim: BARCHA guruhlar, har guruhning oxirgi 12 darsi — admin paneldagi bilan bir xil qoidalar.
+// Saytga faqat ism + familiya bosh harfi, guruh va ko'rsatkichlar chiqadi (telefon YO'Q).
+function stPublicName(n){
+  const p = String(n || '').trim().split(/\s+/).filter(Boolean);
+  return p.length > 1 ? p[0] + ' ' + p[1].charAt(0).toUpperCase() + '.' : (p[0] || '—');
+}
+
+function stComputeLeaderboard(data){
+  const today = new Date(), wins = {};
+  data.groups.forEach(g => { wins[g.id] = stWin(g, 'L12', today, data.rows); });
+  const cur = data.rows.filter(r => { const w = wins[r.gid]; return w && r.date >= w.from && r.date <= w.to; });
+  const top = stPickTop(stBuildPeople(cur));
+  return {
+    period: `Oxirgi ${ST_LESSONS} dars (1 oy)`,
+    groupsCount: data.groups.length,
+    studentsCount: data.groups.reduce((s, g) => s + g.students.length, 0),
+    top: top.map((p, i) => ({ rank: i + 1, name: stPublicName(p.name), group: p.gname, score: p.sc, att: p.a.att, hw: p.a.hw,
+                              came: p.a.yes + p.a.late, lessons: (wins[p.gid] || {}).n || 0 }))
+  };
+}
+
+let _lbBusy = false, _lbTimer = null;
+function stShowPubStatus(msg, bad){
+  const el = document.getElementById('stTopPub'); if (!el) return;
+  el.textContent = msg; el.style.color = bad ? ST_C.red : '';
+}
+// mode: 'auto' (12 soatdan eski bo'lsagina), 'sync' (keshdagi ma'lumot bilan), 'force' (yangidan yuklab)
+async function stPublishLeaderboard(mode){
+  if (_lbBusy) return;
+  _lbBusy = true;
+  try {
+    const ref = db.collection('settings').doc('leaderboard');
+    let old = null;
+    try { const s = await ref.get(); old = s.exists ? s.data() : null; } catch (e) {}
+    const age = old ? Date.now() - (old.updatedAtMs || 0) : Infinity;
+    if (mode === 'auto' && age < 12 * 3600e3) return;
+    const data = await stFetch(mode === 'force', 100);
+    const lb = stComputeLeaderboard(data);
+    const hash = JSON.stringify(lb.top);
+    const hhmm = () => { const d = new Date(); return stPad(d.getHours()) + ':' + stPad(d.getMinutes()); };
+    if (old && old.hash === hash && age < 20 * 3600e3) { stShowPubStatus('🌐 Saytda ko\'rinib turibdi (o\'zgarish yo\'q)'); return; }
+    await ref.set(Object.assign(lb, { hash, updatedAtMs: Date.now(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }));
+    stShowPubStatus('🌐 Sayt bosh sahifasi yangilandi · ' + hhmm());
+  } catch (err) {
+    console.warn('Reyting saytga yuborilmadi:', err);
+    stShowPubStatus('⚠️ Saytdagi reytingni yangilab bo\'lmadi', true);
+  } finally { _lbBusy = false; }
+}
+// Davomat/uy vazifa o'zgarganda chaqiriladi: 60 soniya tinchlikdan keyin bir marta yangilaydi
+function stScheduleLeaderboard(){
+  _statsData = null;
+  clearTimeout(_lbTimer);
+  _lbTimer = setTimeout(() => stPublishLeaderboard('force'), 60000);
+}
 async function loadOjGroups() {
   const grid = document.getElementById('ojGroupsGrid');
   const empty = document.getElementById('ojGroupsEmpty');
@@ -7062,6 +7132,7 @@ async function loadOjStudents(groupId, groupName, days) {
           await db.collection('oquv_progress').doc(sid).collection('entries').doc(today)
             .set(Object.assign({ date: today }, fields), { merge: true });
           flashSaved();
+          if (typeof stScheduleLeaderboard === 'function') stScheduleLeaderboard();
 
           // "Kelmadi" bosilsa callQueue ga yoz
           if (fields.attended === 'no') {
@@ -7148,6 +7219,7 @@ async function loadOjStudents(groupId, groupName, days) {
         e.stopPropagation();
         if (!confirm(`"${s.name}"ni o'chirmoqchimisiz?`)) return;
         await db.collection('oquv_groups').doc(groupId).collection('students').doc(sid).delete();
+        if (typeof stScheduleLeaderboard === 'function') stScheduleLeaderboard();
         try {
           const entriesSnap = await db.collection('oquv_progress').doc(sid).collection('entries').get();
           const batch = db.batch();
@@ -7525,6 +7597,7 @@ document.getElementById('ojSaveBtn').addEventListener('click', async () => {
     await db.collection('oquv_progress').doc(_ojActiveStudentId)
       .collection('entries').doc(docId).set({ date, attended, homeworkDone, homeworkPercent, homeworkMissing, punished, punishCount, note });
     setIconText(status, '{{check-circle}} Saqlandi!');
+    if (typeof stScheduleLeaderboard === 'function') stScheduleLeaderboard();
     document.getElementById('ojEntryEditingId').value = '';
     document.getElementById('ojAttendedInput').value = '';
     document.getElementById('ojHomeworkInput').value = '';
@@ -7546,6 +7619,7 @@ async function ojDeleteEntry(entryId) {
   try {
     await db.collection('oquv_progress').doc(_ojActiveStudentId)
       .collection('entries').doc(entryId).delete();
+    if (typeof stScheduleLeaderboard === 'function') stScheduleLeaderboard();
     loadOjProgressEntries();
   } catch(err) { alert("O\u02bcchirishda xatolik."); }
 }
