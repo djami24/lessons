@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mehmon kirish — Djami Lessons</title>
+<title>Mehmon kirish Djami Lessons</title>
 <link rel="icon" href="../favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="../assets/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="../assets/favicon/favicon-16x16.png">
@@ -48,7 +48,7 @@
     padding:.9em 1em; margin-bottom:1.6em; text-align:left;
     border: 1px solid rgba(46,111,110,.15);
   }
-  .guest-note-icon{ font-size:1rem; flex-shrink:0; margin-top:1px; }
+  .guest-note-icon{ display:inline-flex; color: var(--teal); flex-shrink:0; margin-top:1px; }
   .guest-note-text{ font-size:.82rem; color:var(--gray); line-height:1.5; }
   .guest-note-text strong{ color: var(--teal); }
   .btn-guest-enter{
@@ -72,7 +72,7 @@
   </a>
 
   <div class="guest-card">
-    <div class="guest-icon">👤</div>
+    <div class="guest-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg></div>
     <h1>Mehmon sifatida kiring</h1>
     <p>Ismi-familiyangizni kiriting va davom eting.</p>
 
@@ -89,17 +89,17 @@
     </div>
 
     <div class="guest-note">
-      <span class="guest-note-icon">ℹ️</span>
+      <span class="guest-note-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg></span>
       <div class="guest-note-text">
         Mehmon sifatida faqat <strong>CEFR darajani bilish testi</strong> va <strong>So'z o'yini</strong>ga kirishingiz mumkin.
         Barcha imkoniyatlardan foydalanish uchun <a href="../student/register.html" style="color:var(--amber-deep);font-weight:700;">ro'yxatdan o'ting</a>.
       </div>
     </div>
 
-    <button class="btn-guest-enter" onclick="enterAsGuest()">Kirish →</button>
+    <button class="btn-guest-enter" onclick="enterAsGuest()">Kirish</button>
 
     <div class="guest-back">
-      <a href="../kirish.html">← Orqaga</a>
+      <a href="../kirish.html">Orqaga</a>
     </div>
   </div>
 </div>
