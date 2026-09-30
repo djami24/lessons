@@ -586,7 +586,7 @@
         <div class="st-controls">
           <select id="statsGroupFilter" class="st-select"><option value="">Barcha guruhlar</option></select>
           <div class="oj-days-preset-row" id="statsPeriodPicker">
-            <button class="btn btn-ghost btn-sm stats-period-btn active" data-days="M" title="O'ngdagi ro'yxatdan tanlangan oy — o'tgan oy bilan solishtiriladi">📅 Tanlangan oy</button>
+            <button class="btn btn-ghost btn-sm stats-period-btn active" data-days="M" title="O'ngdagi ro'yxatdan tanlangan oy — o'tgan oy bilan solishtiriladi"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Tanlangan oy</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="L12" title="Har bir guruhning oxirgi 12 ta darsi">12 dars</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="7">7 kun</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="30">30 kun</button>
@@ -626,12 +626,12 @@
 
       <div class="st-grid">
         <div class="home-section-card">
-          <div class="st-card-head"><h3 class="st-h">⚠️ Diqqat talab qiladi <small id="stRiskCount"></small></h3>
+          <div class="st-card-head"><h3 class="st-h"><span style="color:#F0923D;display:inline-flex"><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"></use></svg></span> Diqqat talab qiladi <small id="stRiskCount"></small></h3>
             <span class="st-actions"><button class="btn btn-tg btn-sm" id="stRiskTgBtn" title="Ro'yxatning hammasini Telegramga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
             <button class="btn btn-ghost btn-sm" id="stRiskCopyBtn" title="Matnni nusxalash">Nusxa</button></span></div>
           <div id="stRisk"></div></div>
         <div class="home-section-card">
-          <div class="st-card-head"><h3 class="st-h">🏆 Eng faol o'quvchilar</h3>
+          <div class="st-card-head"><h3 class="st-h"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"></use></svg> Eng faol o'quvchilar</h3>
             <span class="st-actions"><button class="btn btn-tg btn-sm" id="stTopTgBtn" title="Reytingni Telegramga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
             <button class="btn btn-ghost btn-sm" id="stTopCopyBtn" title="Matnni nusxalash">Nusxa</button></span></div>
           <div id="stTop"></div><div class="st-more" id="stTopPub"></div></div>
@@ -1576,7 +1576,7 @@
           <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupDaysLine"></p>
           <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupMonthLine"></p>
         </div>
-        <button class="btn btn-amber" id="ojNewMonthBtn" style="margin-left:auto;" title="Yangi o'quv oyini boshlash — statistika shu sanadan boshidan hisoblanadi">📅 Yangi oyni boshlash</button>
+        <button class="btn btn-amber" id="ojNewMonthBtn" style="margin-left:auto;" title="Yangi o'quv oyini boshlash — statistika shu sanadan boshidan hisoblanadi"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Yangi oyni boshlash</button>
         <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Hammasini nusxalash</button>
         <select class="st-select rp-month-select" title="Hisobot oyi"></select>
         <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
@@ -6772,7 +6772,7 @@ async function loadStatsPage(days, force){
   document.getElementById('stRiskCount').textContent = riskAll.length ? `(${riskAll.length} ta)` : '';
   document.getElementById('stRisk').innerHTML = (risk.length
     ? risk.map(p => personRow(p, { body: p.reasons.map(r => `<span class="st-chip">${r}</span>`).join('') })).join('')
-    : '<div class="st-empty-mini">🎉 Xavf ostidagi o\'quvchi topilmadi.</div>')
+    : '<div class="st-empty-mini">' + svgIcon('party') + ' Xavf ostidagi o\'quvchi topilmadi.</div>')
     + (riskAll.length > 8 ? `<div class="st-more">…va yana ${riskAll.length - 8} ta o'quvchi (Telegram/Nusxa da hammasi bor)</div>` : '');
 
   const top = stPickTop(people);
@@ -6795,8 +6795,8 @@ async function loadStatsPage(days, force){
       <b style="color:${m.d > 0 ? ST_C.green : ST_C.red}">${m.d > 0 ? '▲ +' : '▼ '}${m.d}</b></div>`;
   const up = movers.filter(m => m.d > 0).sort((x, y) => y.d - x.d).slice(0, 6), down = movers.filter(m => m.d < 0).sort((x, y) => x.d - y.d).slice(0, 6);
   document.getElementById('stMovers').innerHTML =
-    `<div class="home-section-card"><h3 class="st-h">📈 Yaxshilanganlar <small>(ball, ${per}ga nisbatan)</small></h3>${up.length ? up.map(mvRow).join('') : '<div class="st-empty-mini">Solishtirish uchun ma\'lumot yetarli emas.</div>'}</div>` +
-    `<div class="home-section-card"><h3 class="st-h">📉 Pasayganlar <small>(ball, ${per}ga nisbatan)</small></h3>${down.length ? down.map(mvRow).join('') : '<div class="st-empty-mini">Pasayganlar yo\'q.</div>'}</div>`;
+    `<div class="home-section-card"><h3 class="st-h"><span style="color:#1FAE7A;display:inline-flex">${svgIcon('trending-up')}</span> Yaxshilanganlar <small>(ball, ${per}ga nisbatan)</small></h3>${up.length ? up.map(mvRow).join('') : '<div class="st-empty-mini">Solishtirish uchun ma\'lumot yetarli emas.</div>'}</div>` +
+    `<div class="home-section-card"><h3 class="st-h"><span style="color:#E5484D;display:inline-flex;transform:scaleY(-1)">${svgIcon('trending-up')}</span> Pasayganlar <small>(ball, ${per}ga nisbatan)</small></h3>${down.length ? down.map(mvRow).join('') : '<div class="st-empty-mini">Pasayganlar yo\'q.</div>'}</div>`;
   document.querySelectorAll('#stMovers .st-person').forEach(el => el.addEventListener('click', () => {
     const g = gInfo(el.dataset.gid); if (g.id) loadOjStudents(g.id, g.name, g.days || []);
   }));
@@ -6966,7 +6966,7 @@ function stComputeLeaderboard(data){
 let _lbBusy = false, _lbTimer = null;
 function stShowPubStatus(msg, bad){
   const el = document.getElementById('stTopPub'); if (!el) return;
-  el.textContent = msg; el.style.color = bad ? ST_C.red : '';
+  setIconText(el, msg); el.style.color = bad ? ST_C.red : '';
 }
 // mode: 'auto' (12 soatdan eski bo'lsagina), 'sync' (keshdagi ma'lumot bilan), 'force' (yangidan yuklab)
 async function stPublishLeaderboard(mode){
@@ -6982,12 +6982,12 @@ async function stPublishLeaderboard(mode){
     const lb = stComputeLeaderboard(data);
     const hash = JSON.stringify(lb.top);
     const hhmm = () => { const d = new Date(); return stPad(d.getHours()) + ':' + stPad(d.getMinutes()); };
-    if (old && old.hash === hash && age < 20 * 3600e3) { stShowPubStatus('🌐 Saytda ko\'rinib turibdi (o\'zgarish yo\'q)'); return; }
+    if (old && old.hash === hash && age < 20 * 3600e3) { stShowPubStatus('{{globe}} Saytda ko\'rinib turibdi (o\'zgarish yo\'q)'); return; }
     await ref.set(Object.assign(lb, { hash, updatedAtMs: Date.now(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() }));
-    stShowPubStatus('🌐 Sayt bosh sahifasi yangilandi · ' + hhmm());
+    stShowPubStatus('{{globe}} Sayt bosh sahifasi yangilandi · ' + hhmm());
   } catch (err) {
     console.warn('Reyting saytga yuborilmadi:', err);
-    stShowPubStatus('⚠️ Saytdagi reytingni yangilab bo\'lmadi', true);
+    stShowPubStatus('{{alert-triangle}} Saytdagi reytingni yangilab bo\'lmadi', true);
   } finally { _lbBusy = false; }
 }
 // Davomat/uy vazifa o'zgarganda chaqiriladi: 60 soniya tinchlikdan keyin bir marta yangilaydi
@@ -7105,8 +7105,8 @@ let _ojActiveGroupPeriods = [];
 function ojRenderMonthLine(){
   const el = document.getElementById('ojGroupMonthLine'), ps = grpPeriods({ periods: _ojActiveGroupPeriods });
   const c = ps[ps.length - 1];
-  el.textContent = c ? `📅 Joriy o'quv oyi: ${periodTitle(c)} (${c.n || ps.length}-oy) · ${fmtDmy(c.start)} dan` : "📅 O'quv oyi hali boshlanmagan — «Yangi oyni boshlash» ni bosing";
-  document.getElementById('ojNewMonthBtn').textContent = c ? '📅 Yangi oyni boshlash' : '📅 Oyni boshlash';
+  setIconText(el, c ? `{{calendar}} Joriy o'quv oyi: ${periodTitle(c)} (${c.n || ps.length}-oy) · ${fmtDmy(c.start)} dan` : "{{calendar}} O'quv oyi hali boshlanmagan — «Yangi oyni boshlash» ni bosing");
+  setIconText(document.getElementById('ojNewMonthBtn'), c ? '{{calendar}} Yangi oyni boshlash' : '{{calendar}} Oyni boshlash');
 }
 async function ojLoadPeriods(groupId){
   _ojActiveGroupPeriods = [];
