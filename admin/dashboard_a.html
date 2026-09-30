@@ -6541,12 +6541,12 @@ function periodTitle(p){
 }
 function fmtDmy(str){ return str ? str.slice(8, 10) + '.' + str.slice(5, 7) + '.' + str.slice(0, 4) : ''; }
 // Har bir guruh uchun joriy va oldingi davr oynasi.
-function stWin(g, mode, today, rows){
+function stWin(g, mode, today, rows, ymOverride){
   const tStr = stDate(today), none = { from:'9', to:'0', n:0 };
   const cntL = (a, b) => { let n = 0; for (let d = new Date(a + 'T00:00:00'); stDate(d) <= b; d = stAdd(d, 1)) if ((g.days || []).includes(OJ_JSDAY_TO_KEY[d.getDay()])) n++; return n; };
   if (mode === 'M') {
     // Tanlangan oy (_rpMonth). Guruhda shu oyda boshlangan «o'quv oyi» bo'lsa — uning sanalari, aks holda kalendar oy.
-    const ym = _rpMonth || rpYm(today), ps = grpPeriods(g);
+    const ym = ymOverride || _rpMonth || rpYm(today), ps = grpPeriods(g);
     const pi = ps.findIndex(x => x.start.slice(0, 7) === ym), c = pi >= 0 ? ps[pi] : null;
     let cFrom, cTo, pFrom, pTo;
     if (c) {
@@ -6950,12 +6950,12 @@ function stPublicName(n){
 }
 
 function stComputeLeaderboard(data){
-  const today = new Date(), wins = {};
-  data.groups.forEach(g => { wins[g.id] = stWin(g, 'L12', today, data.rows); });
+  const today = new Date(), wins = {}, ym = rpYm(today);   // saytdagi reyting — haqiqiy joriy oy (admin tanlagan oyga bog'liq emas)
+  data.groups.forEach(g => { wins[g.id] = stWin(g, 'M', today, data.rows, ym); });
   const cur = data.rows.filter(r => { const w = wins[r.gid]; return w && r.date >= w.from && r.date <= w.to; });
   const top = stPickTop(stBuildPeople(cur));
   return {
-    period: `Oxirgi ${ST_LESSONS} dars (1 oy)`,
+    period: `${rpLabel(ym)} oyi`,
     groupsCount: data.groups.length,
     studentsCount: data.groups.reduce((s, g) => s + g.students.length, 0),
     top: top.map((p, i) => ({ rank: i + 1, name: stPublicName(p.name), group: p.gname, score: p.sc, att: p.a.att, hw: p.a.hw,
