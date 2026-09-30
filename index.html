@@ -106,7 +106,7 @@
   <!-- ===== ENG FAOL O'QUVCHILAR (reyting) — admin panel statistikasidan avtomatik yangilanadi ===== -->
   <section class="lb-section" id="leaderboardSection" hidden>
     <div class="lb-head">
-      <span class="lb-eyebrow">🏆 Reyting</span>
+      <span class="lb-eyebrow">Reyting</span>
       <h2 class="lb-title">Eng faol o'quvchilar</h2>
       <p class="lb-sub" id="lbSub"></p>
     </div>
@@ -116,39 +116,50 @@
   </section>
 
   <style>
-  .lb-section{width:100%;max-width:1080px;margin:2.4em auto 0;padding:0 16px;box-sizing:border-box;}
-  .lb-head{text-align:center;margin-bottom:26px;}
-  .lb-eyebrow{display:inline-block;padding:5px 14px;border-radius:999px;background:rgba(217,142,63,.14);color:var(--amber-deep,#B96F26);font-weight:800;font-size:.8rem;letter-spacing:.02em;}
-  .lb-title{margin:12px 0 6px;font-size:clamp(1.5rem,3.4vw,2.1rem);font-weight:800;color:var(--ink,#14213D);}
-  .lb-sub{margin:0;color:var(--gray,#5B6472);font-size:.95rem;}
-  .lb-podium{display:grid;grid-template-columns:1fr 1.12fr 1fr;gap:16px;align-items:end;margin-bottom:16px;}
-  .lb-card{background:#fff;border:1.5px solid var(--line,#DDD9CB);border-radius:20px;padding:20px 16px 18px;text-align:center;box-shadow:0 10px 26px -18px rgba(20,33,61,.4);position:relative;}
-  .lb-card.is-1{padding-top:28px;padding-bottom:26px;border-color:#E6B34A;background:linear-gradient(180deg,#FFF9EA 0%,#fff 60%);box-shadow:0 18px 40px -20px rgba(217,142,63,.6);}
-  .lb-medal{font-size:2.1rem;line-height:1;}
-  .lb-card.is-1 .lb-medal{font-size:2.6rem;}
-  .lb-name{margin:8px 0 2px;font-size:1.05rem;font-weight:800;color:var(--ink,#14213D);overflow-wrap:anywhere;}
-  .lb-group{font-size:.78rem;color:var(--gray,#5B6472);font-weight:600;}
-  .lb-score{display:inline-flex;align-items:baseline;gap:4px;margin:12px 0 8px;padding:6px 16px;border-radius:999px;background:rgba(46,111,110,.1);color:var(--teal-deep,#1F4E4D);}
-  .lb-score b{font-size:1.5rem;font-weight:800;}
-  .lb-score span{font-size:.75rem;font-weight:700;}
-  .lb-card.is-1 .lb-score{background:rgba(217,142,63,.18);color:var(--amber-deep,#B96F26);}
-  .lb-stats{display:flex;justify-content:center;gap:14px;font-size:.78rem;color:var(--gray,#5B6472);}
-  .lb-stats b{color:var(--ink,#14213D);}
-  .lb-row{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--line,#DDD9CB);border-radius:16px;padding:12px 16px;margin-bottom:10px;}
-  .lb-rank{width:34px;height:34px;flex-shrink:0;border-radius:50%;background:rgba(46,111,110,.12);color:var(--teal-deep,#1F4E4D);display:flex;align-items:center;justify-content:center;font-weight:800;}
+  .lb-section{width:100%;max-width:960px;margin:2em auto 0;padding:0 14px;box-sizing:border-box;}
+  .lb-head{text-align:center;margin-bottom:20px;}
+  .lb-eyebrow{display:inline-block;padding:4px 12px;border-radius:999px;background:#FBE7CC;color:#8A4B0F;font-weight:800;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;}
+  .lb-title{margin:10px 0 4px;font-size:clamp(1.1rem,2.6vw,1.6rem);font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#14213D;line-height:1.2;}
+  .lb-sub{margin:0;color:#5B6472;font-size:.85rem;}
+  .lb-podium{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:12px;align-items:end;margin-bottom:12px;}
+  .lb-card{background:#fff;border:1.5px solid #DDD9CB;border-radius:18px;padding:16px 12px 14px;text-align:center;box-shadow:0 10px 26px -18px rgba(20,33,61,.4);position:relative;}
+  .lb-card.is-1{padding-top:22px;padding-bottom:20px;border-color:#E6B34A;background:linear-gradient(180deg,#FFF6E0 0%,#fff 65%);box-shadow:0 16px 36px -20px rgba(217,142,63,.6);}
+  /* raqamli nishon (medal o'rniga) */
+  .lb-medal{display:flex;justify-content:center;line-height:1;}
+  .lb-num{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-weight:800;font-size:1.15rem;color:#fff;background:linear-gradient(145deg,#B9C0CC,#7D8797);box-shadow:0 0 0 3px #fff,0 0 0 4.5px #B9C0CC,0 6px 12px -6px rgba(20,33,61,.5);}
+  .lb-card.is-1 .lb-num{width:48px;height:48px;font-size:1.4rem;background:linear-gradient(145deg,#F6C453,#D98E1F);box-shadow:0 0 0 3px #fff,0 0 0 4.5px #E6B34A,0 8px 16px -8px rgba(217,142,63,.9);}
+  .lb-card.is-3 .lb-num{background:linear-gradient(145deg,#D9A171,#A8683A);box-shadow:0 0 0 3px #fff,0 0 0 4.5px #D9A171,0 6px 12px -6px rgba(120,70,30,.6);}
+  .lb-name{margin:8px 0 2px;font-size:.95rem;font-weight:800;color:#14213D;overflow-wrap:anywhere;}
+  .lb-group{font-size:.74rem;color:#5B6472;font-weight:600;}
+  .lb-score{display:inline-flex;align-items:baseline;gap:4px;margin:10px 0 6px;padding:5px 14px;border-radius:999px;background:#E3EEEE;color:#1F4E4D;}
+  .lb-score b{font-size:1.3rem;font-weight:800;}
+  .lb-score span{font-size:.7rem;font-weight:700;}
+  .lb-card.is-1 .lb-score{background:#FBE3BC;color:#8A4B0F;}
+  .lb-stats{display:flex;justify-content:center;gap:12px;font-size:.74rem;color:#5B6472;}
+  .lb-stats b{color:#14213D;}
+  .lb-row{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid #DDD9CB;border-radius:14px;padding:10px 14px;margin-bottom:8px;}
+  .lb-rank{width:30px;height:30px;flex-shrink:0;border-radius:50%;background:#E3EEEE;color:#1F4E4D;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;}
   .lb-row-main{flex:1;min-width:0;}
-  .lb-row-name{font-weight:800;color:var(--ink,#14213D);}
-  .lb-row-meta{font-size:.78rem;color:var(--gray,#5B6472);}
-  .lb-row-score{font-size:1.25rem;font-weight:800;color:var(--teal-deep,#1F4E4D);}
-  .lb-foot{text-align:center;margin:14px 0 0;font-size:.78rem;color:var(--gray,#5B6472);}
+  .lb-row-name{font-weight:800;font-size:.92rem;color:#14213D;}
+  .lb-row-meta{font-size:.74rem;color:#5B6472;}
+  .lb-row-score{font-size:1.1rem;font-weight:800;color:#1F4E4D;}
+  .lb-foot{text-align:center;margin:12px 0 0;font-size:.74rem;color:#5B6472;}
   @media (max-width:720px){
-    .lb-podium{grid-template-columns:1fr;gap:12px;}
+    .lb-section{margin-top:1.4em;padding:0 12px;}
+    .lb-head{margin-bottom:14px;}
+    .lb-title{font-size:1.05rem;letter-spacing:.03em;}
+    .lb-sub{font-size:.8rem;}
+    .lb-podium{grid-template-columns:1fr;gap:8px;}
     .lb-card.is-1{order:-1;}
-    .lb-card,.lb-card.is-1{display:grid;grid-template-columns:auto 1fr auto;align-items:center;text-align:left;gap:4px 14px;padding:14px 16px;}
-    .lb-medal,.lb-card.is-1 .lb-medal{grid-row:1 / span 2;font-size:2rem;}
-    .lb-name{margin:0;}
-    .lb-score{grid-row:1 / span 2;grid-column:3;margin:0;padding:6px 12px;}
-    .lb-stats{grid-column:2;justify-content:flex-start;}
+    .lb-card,.lb-card.is-1{display:grid;grid-template-columns:auto 1fr auto;align-items:center;text-align:left;gap:2px 12px;padding:10px 12px;border-radius:14px;}
+    .lb-medal{grid-row:1 / span 2;}
+    .lb-num,.lb-card.is-1 .lb-num{width:34px;height:34px;font-size:1rem;}
+    .lb-name{margin:0;font-size:.9rem;}
+    .lb-score,.lb-card.is-1 .lb-score{grid-row:1 / span 2;grid-column:3;margin:0;padding:4px 10px;}
+    .lb-score b{font-size:1.1rem;}
+    .lb-stats{grid-column:2;justify-content:flex-start;font-size:.7rem;gap:10px;}
+    .lb-row{padding:8px 12px;gap:10px;}
+    .lb-row-name{font-size:.88rem;}
   }
   </style>
 
@@ -523,7 +534,6 @@
   if (!sec || typeof db === 'undefined') return;
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function pct(v){ return v == null ? '—' : v + '%'; }
-  var MEDAL = ['🥇','🥈','🥉'];
 
   db.collection('settings').doc('leaderboard').get().then(function (snap) {
     if (!snap.exists) return;
@@ -539,7 +549,7 @@
     document.getElementById('lbPodium').innerHTML = order.map(function (i) {
       var p = podium[i];
       return '<div class="lb-card is-' + (i + 1) + '">' +
-        '<div class="lb-medal">' + MEDAL[i] + '</div>' +
+        '<div class="lb-medal"><span class="lb-num">' + (i + 1) + '</span></div>' +
         '<div><div class="lb-name">' + esc(p.name) + '</div><div class="lb-group">' + esc(p.group) + '</div></div>' +
         '<div class="lb-score"><b>' + esc(p.score) + '</b><span>ball</span></div>' +
         '<div class="lb-stats"><span>Davomat <b>' + pct(p.att) + '</b></span><span>Uy vazifa <b>' + pct(p.hw) + '</b></span></div>' +
