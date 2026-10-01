@@ -1997,10 +1997,16 @@ async function renderProgressBox(){
 // (which happened before because the tags were just deleted with nothing
 // put in their place).
 function htmlToLinePreview(html, maxLen){
-  const withBreaks = String(html || '')
+  // Admin paneldagi matn muharriri bo'sh joylarni "&nbsp;" qilib saqlaydi.
+  // Teglar olib tashlangandan keyin entity'larni oddiy belgiga aylantiramiz,
+  // aks holda "&nbsp;" so'zma-so'z matn bo'lib ko'rinib qoladi.
+  const decode = s => { const t = document.createElement('textarea'); t.innerHTML = s; return t.value; };
+  const withBreaks = decode(String(html || '')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
+    .replace(/<[^>]*>/g, ''))
+    .replace(/[\u00a0\u200b]/g, ' ')
+    .replace(/[ \t]{2,}/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .replace(/[ \t]+\n/g, '\n')
     .trim();
