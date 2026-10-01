@@ -252,6 +252,12 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
   body.admin-theme .admin-shell.sb-collapsed .sb-head .brand{ flex:none; padding:0; justify-content:center; }
   .admin-shell.sb-collapsed .sb-head .brand [data-site-brand-name]{ display:none; }
 
+  /* Yig'ilganda asosiy kontent butun bo'sh joyni egallaydi (o'ngda bo'sh joy qolmaydi) */
+  .admin-shell.sb-collapsed .admin-main{ max-width:none; }
+  /* Ikonkalar ro'yxatida scrollbar joy olib, ikonkalarni surib yubormasin */
+  .admin-shell.sb-collapsed .admin-nav{ scrollbar-width:none; }
+  .admin-shell.sb-collapsed .admin-nav::-webkit-scrollbar{ display:none; }
+
   .admin-shell.sb-collapsed .nav-label,
   .admin-shell.sb-collapsed .nav-caret{ display:none; }
   body.admin-theme .admin-shell.sb-collapsed .admin-nav{ padding:.6em .55em .75em; }
