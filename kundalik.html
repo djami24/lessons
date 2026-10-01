@@ -3,314 +3,206 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kundalik — Uy vazifalari</title>
+<title>Kundalik — Uy vazifalari | Djami Lessons</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
+<link rel="apple-touch-icon" href="assets/favicon/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+  /* Sayt (admin / talaba paneli) bilan bir xil och rangli dizayn:
+     Inter shrifti, #F3F6FC fon, oq kartochkalar, ko'k urg'u, SVG ikonkalar. */
   :root{
-    color-scheme: dark;
-    --bg: #121826;
-    --bg-2: #0d121c;
-    --panel: #1c2536;
-    --panel-2: #212d40;
-    --line: #2e3b52;
-    --ink: #eef1f0;
-    --ink-dim: #93a0b5;
-    --brass: #2F6FED;
-    --brass-dim: #1E54C4;
-    --pass: #5fae95;
-    --shadow: 0 24px 50px -25px rgba(0,0,0,0.65);
+    color-scheme: light;
+    --bg:#F3F6FC; --panel:#FFFFFF; --panel-2:#F4F6FB;
+    --line:#E7EBF4; --ink:#101B3D; --ink-dim:#8892A6;
+    --blue:#2F6FED; --blue-deep:#1E54C4; --purple:#7C5CFC;
+    --green:#1FAE7A; --orange:#F0923D; --red:#E5484D;
+    --radius:18px;
+    --shadow:0 10px 26px -20px rgba(16,27,61,.35);
+    --font:'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
-  .powered-by{
-    position: fixed;
-    right: 18px;
-    bottom: 14px;
-    display: flex;
-    align-items: center;
-    opacity: .4;
-    z-index: 500;
-    pointer-events: none;
-  }
-  .powered-by span{
-    font-size: 9px;
-    font-style: italic;
-    color: var(--ink-dim);
-  }
-  .powered-by span b{
-    font-style: italic;
-    font-weight: 600;
-    font-family: 'Merriweather', Georgia, serif;
-    letter-spacing: .3px;
-    color: var(--ink);
-  }
-
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background: radial-gradient(ellipse at top, #182236 0%, var(--bg) 55%, var(--bg-2) 100%);
-    color: var(--ink);
-    font-family: 'Merriweather', Georgia, serif;
-    min-height:100vh;
+    background:var(--bg); color:var(--ink);
+    font-family:var(--font); font-size:15px; line-height:1.5;
+    min-height:100vh; -webkit-font-smoothing:antialiased;
   }
+  svg.ic{ flex-shrink:0; }
+  .powered-by{
+    position:fixed; right:18px; bottom:14px; display:flex; align-items:center;
+    opacity:.5; z-index:500; pointer-events:none;
+  }
+  .powered-by span{ font-size:9px; font-style:italic; color:var(--ink-dim); }
+  .powered-by span b{ font-style:italic; font-weight:700; letter-spacing:.3px; color:var(--ink); }
 
   /* ---- topbar ---- */
   .topbar{
-    display:flex; align-items:center; justify-content:space-between;
-    padding:14px 22px;
-    background:var(--panel);
-    border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:12px 24px; background:var(--panel);
+    border-bottom:1px solid var(--line); box-shadow:0 2px 14px rgba(16,27,61,.05);
     position:sticky; top:0; z-index:100;
   }
-  .topbar-brand{
-    font-family:'Source Sans 3', sans-serif;
-    font-weight:600; font-size:16px;
-    color:var(--brass);
-  }
-  .topbar-right{
-    display:flex; align-items:center; gap:12px;
-  }
+  .topbar-brand{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:1rem; color:var(--ink); letter-spacing:-.01em; min-width:0; }
+  .topbar-logo{ width:34px; height:34px; border-radius:10px; background:#14213D; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; }
+  .topbar-logo img{ width:100%; height:100%; object-fit:contain; display:block; }
+  .topbar-sep{ width:1px; height:20px; background:var(--line); }
+  .topbar-page{ display:inline-flex; align-items:center; gap:7px; color:var(--blue); font-weight:700; font-size:.92rem; }
+  .topbar-right{ display:flex; align-items:center; gap:10px; min-width:0; }
   .user-chip{
-    font-family:'Source Sans 3', sans-serif;
-    font-size:12px; color:var(--ink-dim);
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    border-radius:999px;
-    padding:6px 14px;
+    font-size:.78rem; font-weight:600; color:var(--ink-dim);
+    background:var(--panel-2); border:1px solid var(--line); border-radius:999px;
+    padding:7px 14px; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
   .btn-ghost{
-    font-family:'Source Sans 3', sans-serif;
-    font-size:12px; font-weight:600;
-    background:transparent;
-    border:1px solid var(--line);
-    color:var(--ink-dim);
-    border-radius:8px;
-    padding:8px 16px;
-    cursor:pointer;
-    transition:all 0.2s;
+    font-family:var(--font); font-size:.82rem; font-weight:700;
+    background:var(--panel); border:1.5px solid var(--line); color:var(--ink);
+    border-radius:12px; padding:9px 16px; cursor:pointer;
+    transition:background .15s, border-color .15s, color .15s, box-shadow .15s;
   }
-  .btn-ghost:hover{ color:var(--ink); border-color:var(--brass-dim); }
+  .btn-ghost:hover{ background:#F0F4FF; border-color:#C9D6FB; color:var(--blue-deep); }
+  .btn-primary{ background:var(--blue); border-color:var(--blue); color:#fff; }
+  .btn-primary:hover{ background:var(--blue-deep); border-color:var(--blue-deep); color:#fff; }
 
-  .wrap{
-    max-width:900px;
-    margin:0 auto;
-    padding:32px 20px 60px;
-  }
+  .wrap{ max-width:980px; margin:0 auto; padding:34px 20px 70px; }
 
   /* ---- Page title ---- */
-  .page-head{
-    margin-bottom:28px;
-  }
-  .page-head h1{
-    font-family:'Source Sans 3', sans-serif;
-    font-size:clamp(20px,4vw,28px);
-    margin:0 0 6px;
-  }
-  .page-head p{
-    color:var(--ink-dim); font-size:14px; margin:0;
-  }
+  .page-head{ margin-bottom:26px; }
+  .page-head h1{ font-size:clamp(22px,4vw,30px); font-weight:800; margin:0 0 6px; letter-spacing:-.02em; }
+  .page-head p{ color:var(--ink-dim); font-size:.92rem; margin:0; max-width:620px; }
 
-  /* ---- Back button ---- */
   .back-btn{
-    font-family:'Source Sans 3', sans-serif;
-    font-size:12px; font-weight:600;
-    background:transparent;
-    border:1px solid var(--line);
-    color:var(--ink-dim);
-    border-radius:8px;
-    padding:8px 16px;
-    cursor:pointer;
-    transition:all 0.2s;
-    margin-bottom:20px;
-    display:inline-flex; align-items:center; gap:6px;
+    font-family:var(--font); font-size:.82rem; font-weight:700;
+    background:var(--panel); border:1.5px solid var(--line); color:var(--ink);
+    border-radius:12px; padding:9px 16px 9px 12px; cursor:pointer;
+    margin-bottom:20px; display:inline-flex; align-items:center; gap:6px;
+    transition:background .15s, border-color .15s, color .15s;
   }
-  .back-btn:hover{ color:var(--ink); border-color:var(--brass-dim); }
+  .back-btn:hover{ background:#F0F4FF; border-color:#C9D6FB; color:var(--blue-deep); }
 
-  /* ---- Group folders ---- */
-  .groups-heading{
-    font-family:'Source Sans 3', sans-serif;
-    font-size:14px; color:var(--ink-dim);
-    margin:0 0 16px;
-    letter-spacing:0.04em;
+  /* ---- Section labels ---- */
+  .groups-heading, .hw-heading{
+    font-size:.74rem; font-weight:800; color:var(--ink-dim);
+    margin:0 0 14px; letter-spacing:.08em; text-transform:uppercase;
   }
-  .groups-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap:14px;
-  }
+
+  /* ---- Group cards ---- */
+  .groups-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
   .group-card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:14px;
-    padding:22px 20px;
-    cursor:pointer;
-    transition:all 0.2s;
-    display:flex; flex-direction:column; gap:8px;
+    background:var(--panel); border:1.5px solid var(--line); border-radius:16px;
+    padding:18px; cursor:pointer; display:flex; align-items:center; gap:14px;
+    transition:box-shadow .2s, transform .15s, border-color .2s;
   }
-  .group-card:hover{
-    border-color:var(--brass-dim);
-    transform:translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  .group-card:hover{ border-color:var(--blue); transform:translateY(-1px); box-shadow:0 6px 18px -10px rgba(47,111,237,.35); }
+  .group-card .icon{
+    width:46px; height:46px; border-radius:13px; flex-shrink:0;
+    background:rgba(47,111,237,.12); color:var(--blue);
+    display:flex; align-items:center; justify-content:center;
   }
-  .group-card .icon{ font-size:28px; }
-  .group-card .name{
-    font-family:'Source Sans 3', sans-serif;
-    font-weight:600; font-size:15px;
-  }
-  .group-card .count{
-    font-size:12px; color:var(--ink-dim);
-  }
+  .group-card .meta{ min-width:0; }
+  .group-card .name{ font-weight:700; font-size:.97rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .group-card .count{ font-size:.78rem; color:var(--ink-dim); margin-top:2px; display:flex; align-items:center; gap:2px; }
 
   /* ---- Homework cards ---- */
-  .hw-heading{
-    font-family:'Source Sans 3', sans-serif;
-    font-size:14px; color:var(--ink-dim);
-    margin:0 0 16px;
-    letter-spacing:0.04em;
-  }
-  .hw-grid{
-    display:grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap:16px;
-  }
+  .hw-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(290px,1fr)); gap:16px; }
   .hw-card{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:14px;
-    overflow:hidden;
-    cursor:pointer;
-    transition:all 0.2s;
+    background:var(--panel); border:1.5px solid var(--line); border-radius:var(--radius);
+    overflow:hidden; cursor:pointer; box-shadow:var(--shadow);
+    transition:box-shadow .2s, transform .15s, border-color .2s;
   }
-  .hw-card:hover{
-    border-color:var(--brass-dim);
-    transform:translateY(-2px);
-    box-shadow:0 8px 24px rgba(0,0,0,0.4);
-  }
+  .hw-card:hover{ border-color:var(--blue); transform:translateY(-2px); box-shadow:0 10px 24px -12px rgba(47,111,237,.4); }
   .hw-card-date{
-    background: var(--brass);
-    color:#ffffff;
-    font-family:'Source Sans 3', sans-serif;
-    font-weight:600; font-size:13px;
-    padding:10px 16px;
-    letter-spacing:0.03em;
     display:flex; align-items:center; justify-content:space-between; gap:8px;
+    padding:12px 18px; font-weight:700; font-size:.82rem; color:var(--blue-deep);
+    background:linear-gradient(135deg, rgba(47,111,237,.11), rgba(124,92,252,.08));
+    border-bottom:1px solid var(--line);
   }
+  .hw-card-date .when{ display:inline-flex; align-items:center; gap:8px; }
   .hw-check{
-    background:#08221a; color:var(--pass);
-    font-size:11px; font-weight:700;
-    padding:3px 9px; border-radius:999px;
-    white-space:nowrap;
+    display:inline-flex; align-items:center; gap:4px;
+    background:rgba(31,174,122,.14); color:#15885f;
+    font-size:.7rem; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap;
   }
-  .hw-card-body{
-    padding:16px;
-  }
-  .hw-card-title{
-    font-weight:700; font-size:16px; margin:0 0 8px;
-    line-height:1.4;
-  }
+  .hw-card-body{ padding:16px 18px 18px; }
+  .hw-card-title{ font-weight:800; font-size:1rem; margin:0 0 8px; line-height:1.4; }
   .hw-card-preview{
-    font-size:13px; color:var(--ink-dim);
-    margin:0;
-    display:-webkit-box;
-    -webkit-line-clamp:2;
-    -webkit-box-orient:vertical;
-    overflow:hidden;
-    white-space:pre-line;
+    font-size:.86rem; color:var(--ink-dim); margin:0;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;
+    overflow:hidden; white-space:pre-line;
   }
 
-  /* Optional "did you do it?" self-check buttons — purely a per-browser
-     reminder, nothing required, a student can click either or neither. */
-  .hw-status-row{
-    display:flex; gap:10px; flex-wrap:wrap; margin-top:20px;
-  }
+  /* "Bajardim / Hali qilmadim" — faqat shu brauzer uchun eslatma */
+  .hw-status-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:22px; }
   .hw-status-btn{
-    font-family:'Source Sans 3', sans-serif; font-size:13px; font-weight:700; cursor:pointer;
-    border-radius:999px; padding:9px 18px; border:1.5px solid var(--line);
-    background:var(--panel-2); color:var(--ink); transition:all 0.2s;
+    font-family:var(--font); font-size:.84rem; font-weight:700; cursor:pointer;
+    display:inline-flex; align-items:center; gap:7px;
+    border-radius:999px; padding:10px 18px; border:1.5px solid var(--line);
+    background:var(--panel); color:var(--ink); transition:background .15s, border-color .15s, color .15s;
   }
-  .hw-status-btn:hover{ border-color:var(--brass-dim); }
-  .hw-status-btn.is-active{ background:var(--brass); color:#fff; border-color:var(--brass); }
-  .hw-status-btn.is-active[data-status="undone"]{ background:#8a4a2f; border-color:#8a4a2f; color:#fff; }
+  .hw-status-btn:hover{ border-color:#C9D6FB; background:#F0F4FF; }
+  .hw-status-btn.is-active[data-status="done"]{ background:var(--green); border-color:var(--green); color:#fff; }
+  .hw-status-btn.is-active[data-status="undone"]{ background:var(--orange); border-color:var(--orange); color:#fff; }
 
   /* ---- Modal ---- */
   .modal-bg{
-    position:fixed; inset:0;
-    background:rgba(0,0,0,0.7);
-    display:flex; align-items:center; justify-content:center;
-    z-index:200;
-    padding:20px;
+    position:fixed; inset:0; background:rgba(16,27,61,.5);
+    -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+    display:flex; align-items:center; justify-content:center; z-index:200; padding:20px;
   }
   .modal-bg[hidden]{ display:none; }
   .modal{
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:18px;
-    max-width:620px; width:100%;
-    max-height:85vh;
-    overflow-y:auto;
-    padding:32px;
-    position:relative;
+    background:var(--panel); border:1.5px solid var(--line); border-radius:22px;
+    max-width:640px; width:100%; max-height:85vh; overflow-y:auto;
+    padding:30px 30px 28px; position:relative;
+    box-shadow:0 24px 60px -20px rgba(16,27,61,.45);
   }
   .modal-date{
-    font-family:'Source Sans 3', sans-serif;
-    font-size:12px; color:var(--brass);
-    margin:0 0 10px;
-    letter-spacing:0.06em;
+    display:inline-flex; align-items:center; gap:7px; margin:0 0 12px;
+    font-size:.78rem; font-weight:700; color:var(--blue-deep);
+    background:rgba(47,111,237,.11); padding:6px 12px; border-radius:999px;
   }
-  .modal-title{
-    font-size:22px; font-weight:700;
-    margin:0 0 18px;
-    line-height:1.35;
-  }
-  .modal-content{
-    font-size:15px; line-height:1.75;
-    color:var(--ink);
-  }
+  .modal-title{ font-size:1.4rem; font-weight:800; margin:0 46px 18px 0; line-height:1.3; letter-spacing:-.01em; }
+  .modal-content{ font-size:.96rem; line-height:1.75; color:var(--ink); word-break:break-word; }
   .modal-content p{ margin:0 0 12px; }
-  .modal-content ul, .modal-content ol{
-    padding-left:20px; margin:0 0 12px;
-  }
+  .modal-content ul, .modal-content ol{ padding-left:20px; margin:0 0 12px; }
   .modal-content li{ margin-bottom:6px; }
   .modal-close{
-    position:absolute; top:18px; right:18px;
-    background:var(--panel-2);
-    border:1px solid var(--line);
-    color:var(--ink-dim);
-    border-radius:8px;
-    padding:6px 12px;
-    cursor:pointer;
-    font-family:'Source Sans 3', sans-serif;
-    font-size:13px;
-    transition:all 0.2s;
+    position:absolute; top:18px; right:18px; width:36px; height:36px; padding:0;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--panel-2); border:1px solid var(--line); color:var(--ink-dim);
+    border-radius:10px; cursor:pointer; transition:background .15s, color .15s, border-color .15s;
   }
-  .modal-close:hover{ color:var(--ink); border-color:var(--brass-dim); }
+  .modal-close:hover{ background:#FFF0F0; color:var(--red); border-color:#F6C9CB; }
 
   /* ---- States ---- */
-  .loading{
-    text-align:center;
-    padding:40px;
-    color:var(--ink-dim);
-    font-family:'Source Sans 3', sans-serif;
-    font-size:14px;
-  }
+  .loading{ text-align:center; padding:40px; color:var(--ink-dim); font-size:.9rem; font-weight:600; grid-column:1/-1; }
   .empty{
-    text-align:center;
-    padding:50px 20px;
-    color:var(--ink-dim);
-    font-family:'Source Sans 3', sans-serif;
-    font-size:14px;
-    background:var(--panel);
-    border:1px solid var(--line);
-    border-radius:14px;
+    text-align:center; padding:48px 20px; color:var(--ink-dim); font-size:.92rem; font-weight:600;
+    background:var(--panel); border:1.5px dashed #D5DCEB; border-radius:var(--radius);
+    grid-column:1/-1;
   }
-  .empty .icon{ font-size:36px; margin-bottom:12px; }
-
-  /* ---- Auth loading ---- */
-  #authLoading{
-    position:fixed; inset:0;
-    background:var(--bg);
+  .empty .icon{
+    width:58px; height:58px; margin:0 auto 14px; border-radius:18px;
+    background:rgba(47,111,237,.1); color:var(--blue);
     display:flex; align-items:center; justify-content:center;
-    font-family:'Source Sans 3', sans-serif;
-    color:var(--ink-dim); font-size:14px;
+  }
+  .empty .icon.warn{ background:rgba(229,72,77,.1); color:var(--red); }
+
+  #authLoading{
+    position:fixed; inset:0; background:var(--bg);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-dim); font-size:.92rem; font-weight:600;
+  }
+
+  @media (max-width:640px){
+    .topbar{ padding:10px 14px; }
+    .user-chip, .topbar-sep, .topbar-page{ display:none; }
+    .wrap{ padding:24px 14px 60px; }
+    .modal{ padding:24px 20px 22px; border-radius:20px; }
+    .hw-grid{ grid-template-columns:1fr; }
   }
 </style>
 <script>
@@ -326,10 +218,15 @@
 <div id="appShell" style="display:none;">
 
   <div class="topbar">
-    <div class="topbar-brand">📅 Kundalik</div>
+    <div class="topbar-brand">
+      <span class="topbar-logo"><img src="assets/logo.png" alt="Djami Lessons"></span>
+      <span>Djami Lessons</span>
+      <span class="topbar-sep"></span>
+      <span class="topbar-page"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> Kundalik</span>
+    </div>
     <div class="topbar-right">
       <span class="user-chip" id="userChip">…</span>
-      <a class="btn-ghost" id="backToProfileBtn" href="student/dashboard.html" style="text-decoration:none; display:inline-flex; align-items:center;">← Talaba profili</a>
+      <a class="btn-ghost" id="backToProfileBtn" href="student/dashboard.html" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding-left:12px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg> Talaba profili</a>
     </div>
   </div>
 
@@ -354,15 +251,15 @@
       </div>
       <form id="individualNameForm" style="display:flex; gap:10px; flex-wrap:wrap; max-width:480px;">
         <input type="text" id="individualNameInput" placeholder="Ism familiya" required autocomplete="name"
-          style="flex:1; min-width:220px; background:var(--panel-2); border:1px solid var(--line); color:var(--ink); border-radius:8px; padding:12px 14px; font-family:'Source Sans 3',sans-serif; font-size:14px;">
-        <button type="submit" class="btn-ghost" id="individualNameSubmit" style="background:var(--brass); color:#fff; border-color:var(--brass);">Tasdiqlash</button>
+          style="flex:1; min-width:220px; background:var(--panel); border:1.5px solid var(--line); color:var(--ink); border-radius:12px; padding:12px 14px; font-family:var(--font); font-size:.92rem; outline:none;" onfocus="this.style.borderColor='#2F6FED'" onblur="this.style.borderColor=''">
+        <button type="submit" class="btn-ghost btn-primary" id="individualNameSubmit">Tasdiqlash</button>
       </form>
       <p class="empty" id="individualNameError" style="margin-top:16px; display:none;"></p>
     </div>
 
     <!-- HOMEWORK VIEW -->
     <div id="viewHomework" style="display:none;">
-      <button class="back-btn" id="backToGroups">← Guruhlar</button>
+      <button class="back-btn" id="backToGroups"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg> Guruhlar</button>
       <div class="page-head">
         <h1 id="hwGroupName">Guruh</h1>
         <p>Sanani bosib, uy vazifasini ko'ring</p>
@@ -378,13 +275,13 @@
 <!-- Detail Modal -->
 <div class="modal-bg" id="hwModal" hidden>
   <div class="modal">
-    <button class="modal-close" id="modalClose">✕ Yopish</button>
+    <button class="modal-close" id="modalClose" aria-label="Yopish" title="Yopish"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button>
     <p class="modal-date" id="modalDate"></p>
     <h2 class="modal-title" id="modalTitle"></h2>
     <div class="modal-content" id="modalContent"></div>
     <div class="hw-status-row" id="modalStatusRow">
-      <button type="button" class="hw-status-btn" data-status="done">✅ Bajardim</button>
-      <button type="button" class="hw-status-btn" data-status="undone">🕓 Hali qilmadim</button>
+      <button type="button" class="hw-status-btn" data-status="done"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg> Bajardim</button>
+      <button type="button" class="hw-status-btn" data-status="undone"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Hali qilmadim</button>
     </div>
   </div>
 </div>
@@ -411,10 +308,16 @@ function formatDate(ts){
 // boundaries into real line breaks first so words from separate
 // paragraphs/list items don't get glued together.
 function htmlToLinePreview(html, maxLen){
-  const withBreaks = String(html || '')
+  // Admin paneldagi matn muharriri bo'sh joylarni "&nbsp;" qilib saqlaydi.
+  // Teglar olib tashlangandan keyin entity'larni oddiy belgiga aylantiramiz,
+  // aks holda "&nbsp;" so'zma-so'z matn bo'lib ko'rinib qoladi.
+  const decode = s => { const t = document.createElement('textarea'); t.innerHTML = s; return t.value; };
+  const withBreaks = decode(String(html || '')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, '\n')
-    .replace(/<[^>]*>/g, '')
+    .replace(/<[^>]*>/g, ''))
+    .replace(/[\u00a0\u200b]/g, ' ')
+    .replace(/[ \t]{2,}/g, ' ')
     .replace(/\n{3,}/g, '\n\n')
     .replace(/[ \t]+\n/g, '\n')
     .trim();
@@ -552,22 +455,24 @@ async function loadGroups(){
   try{
     const snap = await db.collection('oquv_groups').orderBy('name').get();
     if(snap.empty){
-      grid.innerHTML = '<div class="empty"><div class="icon">📂</div>Hali guruhlar qo\'shilmagan.</div>';
+      grid.innerHTML = '<div class="empty"><div class="icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.6 3.9A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/></svg></div>Hali guruhlar qo\'shilmagan.</div>';
       return;
     }
     const groups = snap.docs.map(d => ({id:d.id, ...d.data()}));
     grid.innerHTML = groups.map(g => `
       <div class="group-card" data-gid="${escHtml(g.id)}">
-        <div class="icon">📁</div>
-        <div class="name">${escHtml(g.name || g.id)}</div>
-        <div class="count">Bosing →</div>
+        <div class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.7-.9L9.6 3.9A2 2 0 0 0 7.9 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2z"/></svg></div>
+        <div class="meta">
+          <div class="name">${escHtml(g.name || g.id)}</div>
+          <div class="count">Ochish <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></div>
+        </div>
       </div>
     `).join('');
     grid.querySelectorAll('.group-card').forEach(card => {
       card.addEventListener('click', () => chooseGroup(card.dataset.gid));
     });
   } catch(err){
-    grid.innerHTML = '<div class="empty"><div class="icon">⚠️</div>Yuklab bo\'lmadi.</div>';
+    grid.innerHTML = '<div class="empty"><div class="icon warn"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>Yuklab bo\'lmadi.</div>';
     console.error(err);
   }
 }
@@ -585,7 +490,7 @@ async function openGroup(groupId, displayName){
       .collection('vazifalari').orderBy('sana', 'desc').get();
 
     if(snap.empty){
-      grid.innerHTML = '<div class="empty"><div class="icon">📭</div>Hali uy vazifalari qo\'shilmagan.</div>';
+      grid.innerHTML = '<div class="empty"><div class="icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1z"/></svg></div>Hali uy vazifalari qo\'shilmagan.</div>';
       countLabel.textContent = 'UY VAZIFALARI (0)';
       return;
     }
@@ -601,7 +506,7 @@ async function openGroup(groupId, displayName){
       const isPast = dueDate ? dueDate < now : false;
       return `
         <div class="hw-card" data-id="${doc.id}" data-gid="${escHtml(groupId)}">
-          <div class="hw-card-date">📅 ${dateStr}${isPast ? ' <span class="hw-check" title="Muddati o\'tgan — tekshirilgan">✓ Tekshirilgan</span>' : ''}</div>
+          <div class="hw-card-date"><span class="when"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> ${dateStr}</span>${isPast ? ' <span class="hw-check" title="Muddati o\'tgan — tekshirilgan"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Tekshirilgan</span>' : ''}</div>
           <div class="hw-card-body">
             <p class="hw-card-title">${title}</p>
             <p class="hw-card-preview">${preview}</p>
@@ -618,7 +523,7 @@ async function openGroup(groupId, displayName){
       card.addEventListener('click', () => openHwModal(card.dataset.id, card.dataset.gid));
     });
   } catch(err){
-    grid.innerHTML = '<div class="empty"><div class="icon">⚠️</div>Yuklab bo\'lmadi.</div>';
+    grid.innerHTML = '<div class="empty"><div class="icon warn"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg></div>Yuklab bo\'lmadi.</div>';
     console.error(err);
   }
 }
@@ -627,7 +532,7 @@ async function openGroup(groupId, displayName){
 function openHwModal(docId, groupId){
   const d = (window._hwDocs || {})[docId];
   if(!d) return;
-  document.getElementById('modalDate').textContent = '📅 ' + formatDate(d.sana);
+  document.getElementById('modalDate').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> ' + escHtml(formatDate(d.sana));
   document.getElementById('modalTitle').textContent = d.sarlavha || 'Uy vazifasi';
   // d.matn may contain rich HTML from the admin panel
   document.getElementById('modalContent').innerHTML = d.matn || '';
