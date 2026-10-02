@@ -477,6 +477,13 @@
       border-top-color: transparent !important;
       margin-top: 0 !important;
     }
+    /* Yopiq nav max-height:0 bo'lsa ham padding va row-gap joy egallab turardi */
+    html body.admin-theme .admin-sidebar:not(.is-menu-open){ row-gap: 0 !important; }
+    html body.admin-theme .admin-sidebar:not(.is-menu-open) .admin-nav{
+      padding-top: 0 !important; padding-bottom: 0 !important;
+      border: 0 !important; margin: 0 !important;
+    }
+    html body.admin-theme .admin-sidebar:not(.is-menu-open) .brand{ padding-bottom: .4em !important; }
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -547,7 +554,7 @@ body.dark .auth-split-wrap{background:#171d2c !important}
 body.dark .auth-split{background:#171d2c !important}
 body.dark .admin-sidebar{background:#171d2c !important;border-right-color:#2a3248 !important}
 body.dark .admin-sidebar::-webkit-scrollbar-thumb{background:hsla(222,62%,52%,.17) !important}
-body.dark .admin-sidebar .brand{border-bottom-color:#2a3248 !important;color:hsl(220,78%,70%) !important}
+body.dark .admin-sidebar .brand{border-bottom-color:#2a3248 !important;color:#fff !important}
 body.dark .admin-sidebar .brand:hover{background:#171d2c !important}
 body.dark .admin-nav a{color:#c3cada !important}
 body.dark .admin-nav a:hover{background:hsla(224,62%,52%,.17) !important;color:hsl(232,78%,70%) !important}
@@ -627,7 +634,8 @@ body.dark .site-loading-spinner{border-color:#2a3248 !important}
 body.dark .comment-admin-item{background:#171d2c !important}
 body.dark.admin-theme .admin-sidebar{background:#171d2c !important;border-right-color:#2a3248 !important}
 body.dark.admin-theme .admin-sidebar::-webkit-scrollbar-thumb{background:hsla(222,62%,52%,.17) !important}
-body.dark.admin-theme .admin-sidebar .brand{border-bottom-color:#2a3248 !important;background:#171d2c !important;color:hsl(220,78%,70%) !important}
+body.dark.admin-theme .admin-sidebar .brand{border-bottom-color:#2a3248 !important;background:#171d2c !important;color:#fff !important}
+body.dark .admin-sidebar .brand [data-site-brand-name]{color:#fff !important}
 body.dark.admin-theme .admin-sidebar .brand:hover{background:#171d2c !important}
 body.dark.admin-theme .admin-nav a{color:#c3cada !important}
 body.dark.admin-theme .admin-nav a:hover{background:hsla(224,62%,52%,.17) !important;color:hsl(232,78%,70%) !important}
