@@ -467,6 +467,16 @@
       transition:max-height .25s ease, opacity .2s ease; margin:0;
     }
     .admin-sidebar.is-menu-open .admin-nav{ max-height:600px; opacity:1; margin-top:.9em; }
+
+    /* Menyu yopiq turganda brand ostidagi va admin-user ustidagi
+       2 ta chiziqni yashirish (ochiq bo'lganda avvalgidek ko'rinadi) */
+    html body.admin-theme .admin-sidebar:not(.is-menu-open) .brand{
+      border-bottom-color: transparent !important;
+    }
+    html body.admin-theme .admin-sidebar:not(.is-menu-open) .admin-user{
+      border-top-color: transparent !important;
+      margin-top: 0 !important;
+    }
   }
 
   @keyframes spin { to { transform: rotate(360deg); } }
