@@ -897,7 +897,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <!-- profile — dinamik (Firestore'dan to'ldiriladi) -->
       <div class="card profile-card-new">
         <div class="pnew-avatar-col">
-          <div class="pnew-avatar-circle">
+          <div class="pnew-avatar-circle" id="homeAvatarCircle">
             <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
               <circle cx="40" cy="30" r="20" fill="#c7ddf8"/>
               <ellipse cx="40" cy="76" rx="30" ry="18" fill="#c7ddf8"/>
@@ -1245,7 +1245,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
           <div class="profile-avatar-big" id="profileAvatarBig"></div>
           <div>
             <button type="button" class="btn btn-ghost btn-sm" id="toggleEmojiPickerBtn">Belgini o‘zgartirish</button>
-            <p style="margin:.5em 0 0; color:var(--gray); font-size:.85rem;">Profil rasmi o‘rniga emoji tanlang.</p>
+            <p style="margin:.5em 0 0; color:var(--gray); font-size:.85rem;">Profil rasmingizni tanlang.</p>
           </div>
         </div>
 
@@ -1614,17 +1614,7 @@ async function enterDashboard(){
   document.getElementById('idGateScreen').hidden = true;
 
   document.getElementById('sidebarUsername').textContent = state.student.name || state.student.email;
-  (function(){
-    var av = document.getElementById('sidebarAvatar');
-    if(!av) return;
-    var name = state.student.name || state.student.email || '';
-    var initial = name.trim().charAt(0).toUpperCase();
-    if(initial){
-      av.textContent = initial;
-    } else {
-      av.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
-    }
-  })();
+  applyAvatars();
   document.getElementById('appShell').hidden = false;
 
   // Profil kartochkasini to'ldirish (yangi dizayn uchun)
@@ -3037,13 +3027,52 @@ const AVATAR_EMOJIS = [
   '','','','','','','','','','','','','','','',''
 ];
 
+// Tayyor rasmli avatarlar (assets/avatars/ papkasida). Yangisini qo'shish uchun
+// rasmni shu papkaga tashlab, bu ro'yxatga bitta qator qo'shing.
+const AVATAR_IMAGES = {
+  qiz:  { src: '../assets/avatars/qiz.webp',  label: 'Qiz bola' },
+  bola: { src: '../assets/avatars/bola.webp', label: 'O‘g‘il bola' }
+};
+const AVATAR_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
+
+let homeAvatarDefaultHTML = null;
+function applyAvatars(){
+  const st = state.student || {};
+  const img = AVATAR_IMAGES[st.avatarImg];
+  const imgHTML = img ? '<img class="avatar-img" alt="" src="' + img.src + '">' : '';
+
+  // Sidebar: rasm bo'lsa rasm, bo'lmasa ismning bosh harfi / SVG
+  const side = document.getElementById('sidebarAvatar');
+  if(side){
+    if(img) side.innerHTML = imgHTML;
+    else {
+      const initial = (st.name || st.email || '').trim().charAt(0).toUpperCase();
+      if(initial) side.textContent = initial; else side.innerHTML = AVATAR_SVG;
+    }
+  }
+  // Mening profilim sahifasi
+  const big = document.getElementById('profileAvatarBig');
+  if(big) big.innerHTML = imgHTML;
+  // Bosh sahifadagi profil kartochka
+  const home = document.getElementById('homeAvatarCircle');
+  if(home){
+    if(homeAvatarDefaultHTML === null) homeAvatarDefaultHTML = home.innerHTML;
+    home.innerHTML = img ? imgHTML : homeAvatarDefaultHTML;
+  }
+  // Tanlangan avatarni belgilab qo'yish
+  const grid = document.getElementById('emojiPickerGrid');
+  if(grid) grid.querySelectorAll('.emoji-picker-btn').forEach(b => {
+    b.classList.toggle('selected', !!b.dataset.img && b.dataset.img === st.avatarImg);
+  });
+}
+
 function renderProfile(){
   setActiveNav('navProfile');
 
   document.getElementById('profileName').value = state.student.name || '';
   document.getElementById('profilePhone').value = state.student.phone || '';
   document.getElementById('profileEmail').value = state.student.email || '';
-  document.getElementById('profileAvatarBig').textContent = state.student.avatarEmoji || '';
+  applyAvatars();
   document.getElementById('profileError').hidden = true;
   document.getElementById('profileNotice').hidden = true;
   document.getElementById('emojiPickerGrid').hidden = true;
@@ -3052,7 +3081,11 @@ function renderProfile(){
 }
 
 const emojiGrid = document.getElementById('emojiPickerGrid');
-emojiGrid.innerHTML = AVATAR_EMOJIS.map(e => `<button type="button" class="emoji-picker-btn" data-emoji="${e}">${e}</button>`).join('');
+emojiGrid.innerHTML =
+  Object.entries(AVATAR_IMAGES).map(([key, a]) =>
+    `<button type="button" class="emoji-picker-btn photo" data-img="${key}" title="${a.label}" aria-label="${a.label}"><img alt="" src="${a.src}"></button>`
+  ).join('') +
+  AVATAR_EMOJIS.filter(Boolean).map(e => `<button type="button" class="emoji-picker-btn" data-emoji="${e}">${e}</button>`).join('');
 
 document.getElementById('toggleEmojiPickerBtn').addEventListener('click', () => {
   emojiGrid.hidden = !emojiGrid.hidden;
@@ -3061,23 +3094,19 @@ document.getElementById('toggleEmojiPickerBtn').addEventListener('click', () => 
 emojiGrid.addEventListener('click', async (e) => {
   const btn = e.target.closest('.emoji-picker-btn');
   if(!btn) return;
-  const emoji = btn.dataset.emoji;
-  document.getElementById('profileAvatarBig').textContent = emoji;
-  // Sidebar: faqat SVG/initial ko'rsatiladi, emoji ishlatilmaydi
-  (function(){
-    var av = document.getElementById('sidebarAvatar');
-    if(!av) return;
-    var name = (state.student && state.student.name) || (state.student && state.student.email) || '';
-    var initial = name.trim().charAt(0).toUpperCase();
-    if(initial){ av.textContent = initial; } else {
-      av.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
-    }
-  })();
+  const imgKey = btn.dataset.img || '';
+  const emoji = imgKey ? '' : (btn.dataset.emoji || '');
+  const prev = { avatarImg: state.student.avatarImg || '', avatarEmoji: state.student.avatarEmoji || '' };
+  state.student.avatarImg = imgKey;
+  state.student.avatarEmoji = emoji;
+  applyAvatars();
   emojiGrid.hidden = true;
   try{
-    await db.collection('students').doc(currentUid).update({ avatarEmoji: emoji });
-    state.student.avatarEmoji = emoji;
+    await db.collection('students').doc(currentUid).update({ avatarImg: imgKey, avatarEmoji: emoji });
   } catch(err){
+    state.student.avatarImg = prev.avatarImg;
+    state.student.avatarEmoji = prev.avatarEmoji;
+    applyAvatars();
     document.getElementById('profileError').textContent = 'Belgini saqlab bo‘lmadi. Qayta urinib ko‘ring.';
     document.getElementById('profileError').hidden = false;
   }
