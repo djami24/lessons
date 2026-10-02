@@ -11,7 +11,23 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<script>try{if(localStorage.getItem("studentTheme")==="dark")document.documentElement.classList.add("dark")}catch(e){}</script>
+<script>
+(function(){
+  function applyTheme(){
+    try{
+      var dark = localStorage.getItem("studentTheme")==="dark";
+      document.documentElement.classList.toggle("dark", dark);
+    }catch(e){}
+  }
+  applyTheme();
+  // Boshqa tab/oynada (masalan talaba bosh sahifasida) mavzu o'zgarsa — darhol yangilanadi
+  window.addEventListener("storage", function(e){ if(e.key==="studentTheme"||e.key===null) applyTheme(); });
+  // Orqaga qaytilganda (bfcache) yoki tabga qaytilganda ham yangilanadi
+  window.addEventListener("pageshow", applyTheme);
+  document.addEventListener("visibilitychange", function(){ if(!document.hidden) applyTheme(); });
+  window.addEventListener("focus", applyTheme);
+})();
+</script>
 <style>
   /* Sayt (admin / talaba paneli) bilan bir xil och rangli dizayn:
      Inter shrifti, #F3F6FC fon, oq kartochkalar, ko'k urg'u, SVG ikonkalar. */
