@@ -206,7 +206,7 @@
     font-size:13.5px; font-weight:600; color:var(--gray-900);
   }
   /* Eski profil CSS — boshqa sahifalar uchun saqlab qo'yamiz */
-  .profile-card{padding:20px;display:flex;gap:18px;align-items:flex-start;}
+  .profile-card{padding:24px 26px;display:block;}
   .profile-main{flex:1;}
   .profile-name-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
   .profile-name{font-size:18px;font-weight:800;color:var(--gray-900);}
@@ -3083,7 +3083,7 @@ function renderProfile(){
 const emojiGrid = document.getElementById('emojiPickerGrid');
 emojiGrid.innerHTML =
   Object.entries(AVATAR_IMAGES).map(([key, a]) =>
-    `<button type="button" class="emoji-picker-btn photo" data-img="${key}" title="${a.label}" aria-label="${a.label}"><img alt="" src="${a.src}"></button>`
+    `<button type="button" class="emoji-picker-btn photo" data-img="${key}" title="${a.label}" aria-label="${a.label}"><img alt="" src="${a.src}" onerror="this.style.visibility='hidden'"><span>${a.label}</span></button>`
   ).join('') +
   AVATAR_EMOJIS.filter(Boolean).map(e => `<button type="button" class="emoji-picker-btn" data-emoji="${e}">${e}</button>`).join('');
 
