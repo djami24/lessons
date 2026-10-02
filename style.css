@@ -567,12 +567,23 @@ footer a:hover{ color: var(--amber); }
 /* ---- Profil rasmlari (tayyor avatarlar) ---- */
 .avatar-img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; }
 .profile-avatar-big, .pnew-avatar-circle{ overflow:hidden; }
-.emoji-picker-btn.photo{
-  grid-column: span 2; aspect-ratio: 1; padding: 0; overflow: hidden;
-  border-radius: 14px;
+.profile-avatar-big{ width:96px !important; height:96px !important; overflow:hidden; }
+.emoji-picker-grid:not([hidden]){
+  display:flex; flex-wrap:wrap; gap:14px; align-items:flex-start;
 }
-.emoji-picker-btn.photo img{ width:100%; height:100%; object-fit:cover; display:block; }
-.emoji-picker-btn.selected{ border-color: var(--teal); box-shadow: 0 0 0 2px rgba(47,111,237,.35); }
+.emoji-picker-btn.photo{
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  width:96px; padding:10px 8px; border-radius:16px; font-size:.78rem; font-weight:600;
+  color:var(--gray); background:transparent;
+}
+.emoji-picker-btn.photo img{
+  width:68px; height:68px; border-radius:50%; object-fit:cover; display:block;
+  border:3px solid transparent; transition: border-color .15s;
+}
+.emoji-picker-btn.photo:hover img{ border-color: rgba(47,111,237,.45); }
+.emoji-picker-btn.photo.selected img{ border-color:#2f6fed; }
+.emoji-picker-btn.photo.selected{ border-color:#2f6fed; color:#2f6fed; }
+.emoji-picker-btn.selected{ border-color: var(--teal); }
 
 /* ---- Student profile page ---- */
 .profile-card{
