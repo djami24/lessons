@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem("studentTheme")==="dark")document.documentElement.classList.add("dark")}catch(e){}</script>
 <style>
   /* Sayt (admin / talaba paneli) bilan bir xil och rangli dizayn:
      Inter shrifti, #F3F6FC fon, oq kartochkalar, ko'k urg'u, SVG ikonkalar. */
@@ -204,6 +205,38 @@
     .modal{ padding:24px 20px 22px; border-radius:20px; }
     .hw-grid{ grid-template-columns:1fr; }
   }
+
+  /* ===== DARK MODE — dashboard bilan bir xil ("studentTheme" kaliti) ===== */
+  html.dark{
+    color-scheme: dark;
+    --bg:#0f1420; --panel:#171d2c; --panel-2:#1e2538;
+    --line:#2a3248; --ink:#e8ecf5; --ink-dim:#9aa4ba;
+    --blue:#4f7ff2; --blue-deep:#8fb0ff;
+    --green:#1FAE7A; --orange:#F0923D; --red:#f0765f;
+    --shadow:0 1px 2px rgba(0,0,0,.45), 0 8px 24px -12px rgba(0,0,0,.6);
+  }
+  html.dark body{ background:var(--bg); color:var(--ink); }
+  html.dark .topbar{ box-shadow:0 2px 14px rgba(0,0,0,.4); }
+  html.dark .topbar-logo{ background:#1a2744; }
+  html.dark .btn-ghost:hover, html.dark .back-btn:hover, html.dark .hw-status-btn:hover{ background:#1e2538; border-color:#3b4d80; color:#8fb0ff; }
+  html.dark .btn-primary{ background:#2f6df0; border-color:#2f6df0; color:#fff; }
+  html.dark .btn-primary:hover{ background:#4b82f5; border-color:#4b82f5; color:#fff; }
+  html.dark .group-card .icon, html.dark .empty .icon{ background:rgba(79,127,242,.18); }
+  html.dark .group-card:hover{ box-shadow:0 6px 18px -10px rgba(79,127,242,.5); }
+  html.dark .hw-card-date{ background:linear-gradient(135deg, rgba(79,127,242,.18), rgba(124,92,252,.14)); color:#8fb0ff; }
+  html.dark .hw-check{ background:rgba(31,174,122,.2); color:#4fd6a3; }
+  html.dark .hw-status-btn.is-active[data-status="done"]{ background:var(--green); border-color:var(--green); color:#fff; }
+  html.dark .hw-status-btn.is-active[data-status="undone"]{ background:var(--orange); border-color:var(--orange); color:#fff; }
+  html.dark .modal-bg{ background:rgba(5,8,18,.7); }
+  html.dark .modal{ box-shadow:0 24px 60px -20px rgba(0,0,0,.8); }
+  html.dark .modal-date{ background:rgba(79,127,242,.2); color:#8fb0ff; }
+  html.dark .modal-close:hover{ background:rgba(240,118,95,.15); color:#f0765f; border-color:rgba(240,118,95,.4); }
+  html.dark .modal-content *{ background-color:transparent !important; color:inherit !important; }
+  html.dark .modal-content a{ color:#8fb0ff !important; }
+  html.dark .empty{ border-color:#2a3248; }
+  html.dark .empty .icon.warn{ background:rgba(240,118,95,.15); }
+  html.dark input, html.dark select, html.dark textarea{ background:#1b2235; color:#e8ecf5; border-color:#2a3248; }
+  html.dark input::placeholder{ color:#7d88a0; }
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
