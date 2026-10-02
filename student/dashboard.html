@@ -492,6 +492,18 @@
   .back-link::before { content: '' !important; display: none !important; }
   .back-link { padding-left: 0 !important; }
 
+  /* Bildirishnomalar: "Bosh sahifaga" tugmasiga orqa fon */
+  #backToHomeFromNotif.back-link{
+    padding: .6em 1.1em !important;
+    background: #fff; border: 1.5px solid #dfe4f0; border-radius: 12px;
+    color: #374151; box-shadow: 0 1px 4px rgba(16,27,61,.06);
+  }
+  #backToHomeFromNotif.back-link:hover{ background:#eef2ff; border-color:#c5cee8; color:#2f5fd8; }
+  body.dark #backToHomeFromNotif.back-link{
+    background:#171d2c !important; border-color:#2a3248 !important; color:#c3cada !important; box-shadow:none;
+  }
+  body.dark #backToHomeFromNotif.back-link:hover{ background:#1e2538 !important; color:#8fb0ff !important; }
+
   /* Sidebar menyu bandi bosilganda ("So'z o'yini" va h.k.) ko'k rangga
      o'tmayotgan edi — .active klassi JS orqali qo'shilsa ham, shu yerda
      majburiy ko'k fon beramiz (Bosh Sahifa'dagi kabi). */
