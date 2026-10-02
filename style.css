@@ -561,7 +561,18 @@ footer a:hover{ color: var(--amber); }
   font-size: .85rem;
   font-weight: 700;
   color: #fff;
+  overflow: hidden;
 }
+
+/* ---- Profil rasmlari (tayyor avatarlar) ---- */
+.avatar-img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; }
+.profile-avatar-big, .pnew-avatar-circle{ overflow:hidden; }
+.emoji-picker-btn.photo{
+  grid-column: span 2; aspect-ratio: 1; padding: 0; overflow: hidden;
+  border-radius: 14px;
+}
+.emoji-picker-btn.photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+.emoji-picker-btn.selected{ border-color: var(--teal); box-shadow: 0 0 0 2px rgba(47,111,237,.35); }
 
 /* ---- Student profile page ---- */
 .profile-card{
