@@ -7753,7 +7753,17 @@ document.getElementById('ojParentTgBtn').addEventListener('click', async () => {
   const absent = rows.filter(r => r.dataset.attend === 'no').map(nameOf);
   const late   = rows.filter(r => r.dataset.attend === 'late').map(nameOf);
   const came   = rows.filter(r => r.dataset.attend === 'yes').length;
+  // Uy vazifa qilmaganlar: darsga kelgan (yoki kech qolgan) talabalar orasidan. Kelmaganlar yuqorida alohida ko'rsatiladi.
+  const hwUndone = rows.filter(r => (r.dataset.attend === 'yes' || r.dataset.attend === 'late') && (r.dataset.hw === 'no' || r.dataset.hw === 'partial'))
+    .map(r => nameOf(r) + (r.dataset.hw === 'partial' ? ' (qisman)' : ''));
   const unmarked = rows.filter(r => !r.dataset.attend).length;
+  // Jazolanganlar: "Jazolandi" tugmasi faol bo'lgan qatorlar; jazo soni qatordagi "Nechta jazo" maydonidan olinadi
+  const punished = rows.filter(r => { const b = r.querySelector('[data-punish-btn]'); return b && b.classList.contains('is-active'); })
+    .map(r => {
+      const inp = r.querySelector('[data-field="punishCount"]');
+      const n = inp ? Number(inp.value) : 0;
+      return nameOf(r) + (n > 0 ? ` — ${n} ta jazo` : ' — jazolandi');
+    });
 
   if (unmarked === rows.length) { showToast("Avval davomatni belgilang (Keldi / Kech qoldi / Kelmadi)", true); return; }
   if (unmarked && !confirm(`${unmarked} ta talaba uchun davomat hali belgilanmagan. Baribir yuborilsinmi?`)) return;
@@ -7764,12 +7774,19 @@ document.getElementById('ojParentTgBtn').addEventListener('click', async () => {
 
   const dateLabel = new Date(today + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', weekday:'long' });
   let text = `📋 <b>${ojTgEsc(_ojActiveGroupName)}</b> — ${ojTgEsc(dateLabel)}\n`;
-  if (!absent.length && !late.length) {
-    text += `\n✅ Bugun hamma talaba darsga keldi. Barakalla!`;
+  if (!absent.length && !late.length && !hwUndone.length && !punished.length) {
+    text += `\n✅ Bugun hamma talaba darsga keldi va uy vazifasini bajardi. Barakalla!`;
   } else {
-    if (absent.length) text += `\n🚫 <b>Darsga kelmaganlar (${absent.length}):</b>\n` + absent.map(n => '• ' + ojTgEsc(n)).join('\n') + '\n';
-    if (late.length)   text += `\n⏰ <b>Kech qolganlar (${late.length}):</b>\n` + late.map(n => '• ' + ojTgEsc(n)).join('\n') + '\n';
+    if (absent.length)   text += `\n🚫 <b>Darsga kelmaganlar (${absent.length}):</b>\n` + absent.map(n => '• ' + ojTgEsc(n)).join('\n') + '\n';
+    if (late.length)     text += `\n⏰ <b>Kech qolganlar (${late.length}):</b>\n` + late.map(n => '• ' + ojTgEsc(n)).join('\n') + '\n';
+    if (hwUndone.length) text += `\n📝 <b>Uy vazifa qilmaganlar (${hwUndone.length}):</b>\n` + hwUndone.map(n => '• ' + ojTgEsc(n)).join('\n') + '\n';
+    if (punished.length) text += `\n⚠️ <b>Jazolanganlar (${punished.length}):</b>\n` + punished.map(n => '• ' + ojTgEsc(n)).join('\n') + '\n';
     text += `\n✅ Darsga kelganlar: ${came + late.length} / ${rows.length}`;
+    // Oxirgi qisqa murojaat
+    const notes = [];
+    if (absent.length)   notes.push(`Farzandingiz nega kelmaganini o'qituvchiga xabar bering.`);
+    if (hwUndone.length) notes.push(`Uy vazifalarning bajarilishini nazorat qilishingizni so'raymiz.`);
+    if (notes.length) text += `\n\n🙏 ` + notes.join(' ');
   }
 
   if (!confirm(`Quyidagi xabar ota-onalar guruhiga (${chatId}) yuborilsinmi?\n\n` + text.replace(/<[^>]+>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'))) return;
