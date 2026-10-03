@@ -11,6 +11,22 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../style.css">
+<style>
+  .avatar-choice{ display:flex; gap:16px; flex-wrap:wrap; padding:.3em 0; }
+  .avatar-choice label{
+    position:relative; display:flex; flex-direction:column; align-items:center; gap:8px;
+    width:104px; padding:12px 8px; border:2px solid var(--line, #e2e6ee); border-radius:18px;
+    cursor:pointer; font-weight:600; font-size:.82rem; color:var(--gray, #6b7487);
+    transition:border-color .15s, box-shadow .15s, color .15s;
+  }
+  .avatar-choice label:hover{ border-color:#9db8f5; }
+  .avatar-choice input{ position:absolute; opacity:0; width:1px; height:1px; pointer-events:none; }
+  .avatar-choice img{ width:72px; height:72px; border-radius:50%; object-fit:cover; display:block; }
+  .avatar-choice label:has(input:checked){ border-color:#2f6fed; box-shadow:0 0 0 3px rgba(47,111,237,.18); color:#2f6fed; }
+  .avatar-choice label:has(input:focus-visible){ outline:2px solid #2f6fed; outline-offset:2px; }
+  .avatar-choice.is-invalid label{ border-color:#d64545; }
+  .avatar-hint{ margin:.2em 0 0; font-weight:400; font-size:.8rem; color:var(--gray, #6b7487); }
+</style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
   window.vmtrc = window.vmtrc || function (){window.vmtrcq.push(Array.prototype.slice.call(arguments))};
@@ -71,6 +87,23 @@
           </div>
         </label>
 
+        <div class="field" id="avatarField">
+          <span>Profil rasmingiz <b style="color:#d64545;">*</b></span>
+          <div class="avatar-choice" id="avatarChoice" role="radiogroup" aria-label="Profil rasmi">
+            <label>
+              <input type="radio" name="regAvatar" value="qiz">
+              <img src="../assets/avatars/qiz.webp" alt="" onerror="this.style.visibility='hidden'">
+              <span>Qiz bola</span>
+            </label>
+            <label>
+              <input type="radio" name="regAvatar" value="bola">
+              <img src="../assets/avatars/bola.webp" alt="" onerror="this.style.visibility='hidden'">
+              <span>O‘g‘il bola</span>
+            </label>
+          </div>
+          <p class="avatar-hint">Keyinroq profilingizdan o‘zgartirishingiz mumkin.</p>
+        </div>
+
         <p class="form-error" id="registerError" role="alert" hidden></p>
 
         <button type="submit" class="btn btn-amber auth-submit" id="registerSubmit">Ro‘yxatdan o‘tish</button>
@@ -89,6 +122,11 @@
 <script src="../site-settings.js"></script>
 <script>
 
+document.querySelectorAll('input[name="regAvatar"]').forEach(r => r.addEventListener('change', () => {
+  document.getElementById('avatarChoice').classList.remove('is-invalid');
+  document.getElementById('registerError').hidden = true;
+}));
+
 document.getElementById('pwToggle').addEventListener('click', () => {
   const input = document.getElementById('regPassword');
   const btn = document.getElementById('pwToggle');
@@ -102,6 +140,19 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   const errorEl = document.getElementById('registerError');
   const submitBtn = document.getElementById('registerSubmit');
   errorEl.hidden = true;
+
+  // Profil rasmi majburiy
+  const avatarInput = document.querySelector('input[name="regAvatar"]:checked');
+  const avatarBox = document.getElementById('avatarChoice');
+  if(!avatarInput){
+    avatarBox.classList.add('is-invalid');
+    errorEl.textContent = 'Iltimos, profil rasmingizni tanlang.';
+    errorEl.hidden = false;
+    document.getElementById('avatarField').scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  avatarBox.classList.remove('is-invalid');
+
   submitBtn.disabled = true;
   submitBtn.textContent = 'Yaratilmoqda…';
 
@@ -111,6 +162,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   const password = document.getElementById('regPassword').value;
   const studentTypeInput = document.querySelector('input[name="regStudentType"]:checked');
   const studentType = studentTypeInput ? studentTypeInput.value : 'guruh';
+  const avatarImg = avatarInput.value;
 
   try{
     const cred = await auth.createUserWithEmailAndPassword(email, password);
@@ -119,6 +171,8 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
       email: email,
       phone: phone,
       studentType: studentType,
+      avatarImg: avatarImg,
+      avatarEmoji: '',
       paymentStatus: 'none',
       progress: {},
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
