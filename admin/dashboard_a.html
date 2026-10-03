@@ -118,6 +118,18 @@
 .st-select{padding:7px 12px;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;background:var(--paper);color:var(--adm-ink,var(--ink));font:inherit;font-size:.85rem;font-weight:600;max-width:200px;}
 .st-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:20px;}
 .st-kpi{background:var(--paper);border:1.5px solid var(--adm-line,var(--line));border-top:4px solid var(--c);border-radius:16px;padding:14px 16px 10px;display:flex;flex-direction:column;gap:2px;}
+.st-kpi-click{cursor:pointer;transition:transform .12s, box-shadow .12s;}
+.st-kpi-click:hover{transform:translateY(-2px);box-shadow:0 10px 22px -14px rgba(20,33,61,.45);}
+.st-kpi-click:focus-visible{outline:2px solid var(--adm-blue,#2F6FED);outline-offset:2px;}
+.st-kpi-hint{font-size:.66rem;color:var(--adm-gray,var(--gray));opacity:.8;margin-top:2px;}
+.kd-list{display:flex;flex-direction:column;gap:8px;margin:14px 0 6px;max-height:60vh;overflow-y:auto;}
+.kd-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1.5px solid var(--adm-line,var(--line));border-radius:12px;background:var(--paper);}
+.kd-ava{width:38px;height:38px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6c63ff,#3fbfbf);color:#fff;font-weight:700;font-size:.85rem;}
+.kd-main{flex:1;min-width:0;}
+.kd-name{font-weight:700;font-size:.92rem;}
+.kd-sub{font-size:.74rem;color:var(--adm-gray,var(--gray));overflow-wrap:anywhere;}
+.kd-val{font-weight:800;font-size:1.05rem;white-space:nowrap;}
+.kd-empty{text-align:center;padding:28px 10px;color:var(--adm-gray,var(--gray));}
 .st-kpi-label{font-size:.76rem;font-weight:700;color:var(--adm-gray,var(--gray));}
 .st-kpi-num{font-size:1.9rem;font-weight:800;color:var(--adm-ink,var(--ink));line-height:1.15;}
 .st-kpi-sub{font-size:.72rem;color:var(--adm-gray,var(--gray));min-height:1em;}
@@ -2648,6 +2660,18 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
         <button type="submit" class="btn btn-amber" id="addStudentSubmit">O‘quvchi qo‘shish</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- ===== MODAL: Statistika kartochkasi tafsiloti ===== -->
+<div class="modal-overlay" id="modalKpiDetail" hidden>
+  <div class="modal-box">
+    <h3 id="kpiDetailTitle">Tafsilot</h3>
+    <p class="modal-sub" id="kpiDetailSub"></p>
+    <div class="kd-list" id="kpiDetailList"></div>
+    <div class="modal-actions" style="margin-top:12px;">
+      <button type="button" class="btn btn-ghost" data-close-modal="modalKpiDetail">Yopish</button>
+    </div>
   </div>
 </div>
 
@@ -6506,6 +6530,7 @@ async function homeRenderStatsOverview(force){
   const buckets = stBucketsRange(minFrom, today);
   const bAgg = buckets.map(b => stAgg(cur.filter(r => r.date >= b.from && r.date <= b.to)));
   const attS = bAgg.map(a => a.att), hwS = bAgg.map(a => a.hw);
+  _stKpiCtx.home = { cur, groups, wins, per };
   document.getElementById('homeStKpis').innerHTML =
     stKpi('Davomat', A.att === null ? '—' : A.att + '%', D(A.att, P.att, false, ' %'), `${A.yes + A.late} / ${A.marked} ta dars`, stSpark(attS, ST_C.green), ST_C.green) +
     stKpi('Uy vazifa', A.hw === null ? '—' : A.hw + '%', D(A.hw, P.hw, false, ' %'), `${A.hwFull} to'liq · ${A.hwPart} qisman`, stSpark(hwS, ST_C.blue), ST_C.blue) +
@@ -6719,8 +6744,79 @@ function stSpark(vals, color){
   return `<svg viewBox="0 0 100 30" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
 }
 
+const ST_KPI_KIND = { 'Davomat':'att', 'Uy vazifa':'hw', 'Kelmadi':'no', 'Kech qoldi':'late', 'Jazolangan':'pun', 'Belgilash':'comp' };
+// ----- Kartochkani bosganda: tegishli talabalar ro'yxati -----
+const _stKpiCtx = { home: null, stats: null };
+function stOpenKpiDetail(kind, ctx){
+  if(!ctx) return;
+  const { cur, groups, wins, per } = ctx;
+  const byS = {};
+  cur.forEach(r => { (byS[r.sid] = byS[r.sid] || { sid:r.sid, name:r.sname, phone:r.sphone, gname:r.gname, list:[] }).list.push(r); });
+  const people = Object.values(byS).map(p => ({ ...p, a: stAgg(p.list) }));
+  const dm = d => d.slice(8, 10) + '.' + d.slice(5, 7);
+  const dates = (p, pred) => {
+    const ds = p.list.filter(pred).map(r => r.date).sort();
+    return ds.slice(0, 8).map(dm).join(', ') + (ds.length > 8 ? ` va yana ${ds.length - 8} ta` : '');
+  };
+  let title = '', sub = '', rows = [];   // rows: { name, gname, phone, line, val, color }
+  if (kind === 'att') {
+    title = 'Davomat — o‘quvchilar bo‘yicha'; sub = 'Eng past davomatdan boshlab';
+    rows = people.filter(p => p.a.marked > 0).sort((x, y) => x.a.att - y.a.att)
+      .map(p => ({ ...p, line: `${p.a.yes + p.a.late} / ${p.a.marked} ta dars · kelmadi: ${p.a.no} · kech: ${p.a.late}`, val: p.a.att + '%', color: stCol(p.a.att) }));
+  } else if (kind === 'hw') {
+    title = 'Uy vazifa — o‘quvchilar bo‘yicha'; sub = 'Eng past natijadan boshlab';
+    rows = people.filter(p => p.a.hw !== null).sort((x, y) => x.a.hw - y.a.hw)
+      .map(p => ({ ...p, line: `${p.a.hwFull} to‘liq · ${p.a.hwPart} qisman · ${p.a.hwNo} qilmagan`, val: p.a.hw + '%', color: stCol(p.a.hw) }));
+  } else if (kind === 'no') {
+    title = 'Kelmagan o‘quvchilar'; sub = 'Ko‘p dars qoldirganlar birinchi';
+    rows = people.filter(p => p.a.no > 0).sort((x, y) => y.a.no - x.a.no)
+      .map(p => ({ ...p, line: dates(p, r => r.a === 'no'), val: p.a.no + ' marta', color: ST_C.red }));
+  } else if (kind === 'late') {
+    title = 'Kech qolgan o‘quvchilar'; sub = 'Ko‘p kechikkanlar birinchi';
+    rows = people.filter(p => p.a.late > 0).sort((x, y) => y.a.late - x.a.late)
+      .map(p => ({ ...p, line: dates(p, r => r.a === 'late'), val: p.a.late + ' marta', color: ST_C.orange }));
+  } else if (kind === 'pun') {
+    title = 'Jazolangan o‘quvchilar'; sub = 'Ko‘p jazo olganlar birinchi';
+    rows = people.filter(p => p.a.pun > 0).sort((x, y) => y.a.punCnt - x.a.punCnt)
+      .map(p => ({ ...p, line: dates(p, r => r.pun), val: p.a.punCnt + ' ta jazo', color: ST_C.purple }));
+  } else if (kind === 'comp') {
+    title = 'Belgilanmagan darslar'; sub = 'Davomat to‘liq kiritilmagan o‘quvchilar (ko‘p qolganlar birinchi)';
+    groups.forEach(g => {
+      const n = (wins[g.id] || {}).n || 0;
+      g.students.forEach(st => {
+        const marked = (byS[st.id] ? byS[st.id].a.marked : 0);
+        if (n > 0 && marked < n) rows.push({ sid: st.id, name: st.name, phone: st.phone || '', gname: g.name, line: `${n - marked} ta dars belgilanmagan`, val: `${marked} / ${n}`, color: ST_C.gray, miss: n - marked });
+      });
+    });
+    rows.sort((x, y) => y.miss - x.miss);
+  }
+  document.getElementById('kpiDetailTitle').textContent = title;
+  document.getElementById('kpiDetailSub').textContent = (sub ? sub + ' · ' : '') + rows.length + ' ta o‘quvchi';
+  document.getElementById('kpiDetailList').innerHTML = rows.length ? rows.map(p => {
+    const key = stAvatarKeyFor(p);
+    const ini = escHtml(initials(p.name));
+    const ava = key ? `<img class="avatar-img" alt="" src="${ADMIN_AVATAR_IMAGES[key]}">` : ini;
+    return `<div class="kd-row"><div class="kd-ava">${ava}</div>
+      <div class="kd-main"><div class="kd-name">${escHtml(p.name || '—')}</div>
+      <div class="kd-sub">${escHtml(p.gname || '')}${p.line ? ' · ' + escHtml(p.line) : ''}</div></div>
+      <div class="kd-val" style="color:${p.color}">${escHtml(p.val)}</div></div>`;
+  }).join('') : '<div class="kd-empty">Bu ko‘rsatkich bo‘yicha o‘quvchi yo‘q.</div>';
+  openModal('modalKpiDetail');
+}
+[['homeStKpis', 'home'], ['statsTopStatRow', 'stats']].forEach(([id, key]) => {
+  const box = document.getElementById(id);
+  if (!box) return;
+  const open = (e) => {
+    const card = e.target.closest('[data-kpi]');
+    if (card) stOpenKpiDetail(card.dataset.kpi, _stKpiCtx[key]);
+  };
+  box.addEventListener('click', open);
+  box.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } });
+});
+
 function stKpi(label, num, delta, sub, spark, color){
-  return `<div class="st-kpi" style="--c:${color}"><div class="st-kpi-label">${label}</div>
+  const kind = ST_KPI_KIND[label];
+  return `<div class="st-kpi${kind ? ' st-kpi-click' : ''}" ${kind ? `data-kpi="${kind}" role="button" tabindex="0" title="Talabalar ro‘yxatini ko‘rish"` : ''} style="--c:${color}"><div class="st-kpi-label">${label}</div>
     <div class="st-kpi-num">${num}${delta}</div><div class="st-kpi-sub">${sub || ''}</div>${spark}</div>`;
 }
 
@@ -6819,6 +6915,7 @@ async function loadStatsPage(days, force){
   const bAgg = buckets.map(b => stAgg(cur.filter(r => r.date >= b.from && r.date <= b.to)));
   const attS = bAgg.map(a => a.att), hwS = bAgg.map(a => a.hw);
 
+  _stKpiCtx.stats = { cur, groups, wins, per };
   document.getElementById('statsTopStatRow').innerHTML =
     stKpi('Davomat', A.att === null ? '—' : A.att + '%', D(A.att, P.att, false, ' %'), `${A.yes + A.late} / ${A.marked} ta dars`, stSpark(attS, ST_C.green), ST_C.green) +
     stKpi('Uy vazifa', A.hw === null ? '—' : A.hw + '%', D(A.hw, P.hw, false, ' %'), `${A.hwFull} to'liq · ${A.hwPart} qisman`, stSpark(hwS, ST_C.blue), ST_C.blue) +
@@ -7050,6 +7147,23 @@ function stPublicName(n){
   return p.length > 1 ? p[0] + ' ' + p[1].charAt(0).toUpperCase() + '.' : (p[0] || '—');
 }
 
+// Reyting qatoridagi o'quvchini (guruh ro'yxatidagi, alohida ID'li) ro'yxatdan
+// o'tgan talaba bilan telefon raqami (oxirgi 9 raqam), bo'lmasa to'liq ism bo'yicha
+// moslab, uning tanlagan rasmi kalitini ('qiz' / 'bola') qaytaradi. Topilmasa ''.
+function stAvatarKeyFor(person){
+  const list = state.students || [];
+  const digits = v => String(v || '').replace(/\D/g, '').slice(-9);
+  const nm = v => String(v || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  let st = null;
+  const ph = digits(person.phone);
+  if (ph.length >= 9) st = list.find(x => digits(x.phone) === ph);
+  if (!st && nm(person.name)) {
+    const same = list.filter(x => nm(x.name) === nm(person.name));
+    if (same.length === 1) st = same[0];
+  }
+  return (st && ADMIN_AVATAR_IMAGES[st.avatarImg]) ? st.avatarImg : '';
+}
+
 function stComputeLeaderboard(data){
   const today = new Date(), wins = {}, ym = rpYm(today);   // saytdagi reyting — haqiqiy joriy oy (admin tanlagan oyga bog'liq emas)
   data.groups.forEach(g => { wins[g.id] = stWin(g, 'M', today, data.rows, ym); });
@@ -7059,7 +7173,7 @@ function stComputeLeaderboard(data){
     period: `${rpLabel(ym)} oyi`,
     groupsCount: data.groups.length,
     studentsCount: data.groups.reduce((s, g) => s + g.students.length, 0),
-    top: top.map((p, i) => ({ rank: i + 1, name: stPublicName(p.name), group: p.gname, score: p.sc, att: p.a.att, hw: p.a.hw,
+    top: top.map((p, i) => ({ rank: i + 1, name: stPublicName(p.name), avatar: stAvatarKeyFor(p), group: p.gname, score: p.sc, att: p.a.att, hw: p.a.hw,
                               came: p.a.yes + p.a.late, lessons: (wins[p.gid] || {}).n || 0 }))
   };
 }
