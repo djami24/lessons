@@ -130,6 +130,10 @@
 .kd-list{display:flex;flex-direction:column;gap:8px;margin:14px 0 6px;max-height:60vh;overflow-y:auto;}
 .kd-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1.5px solid var(--adm-line,var(--line));border-radius:12px;background:var(--paper);}
 .kd-ava{width:38px;height:38px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6c63ff,#3fbfbf);color:#fff;font-weight:700;font-size:.85rem;}
+.kd-row-go{cursor:pointer;transition:border-color .12s, box-shadow .12s;}
+.kd-row-go:hover{border-color:var(--adm-blue,#2F6FED);box-shadow:0 6px 16px -12px rgba(47,111,237,.6);}
+.kd-chip{display:inline-block;margin:2px 3px 0 0;padding:1px 8px;border:1px solid var(--adm-line,var(--line));border-radius:999px;background:rgba(47,111,237,.08);color:var(--adm-blue,#2F6FED);font:inherit;font-size:.72rem;font-weight:700;cursor:pointer;}
+.kd-chip:hover{background:var(--adm-blue,#2F6FED);color:#fff;}
 .kd-main{flex:1;min-width:0;}
 .kd-name{font-weight:700;font-size:.92rem;}
 .kd-sub{font-size:.74rem;color:var(--adm-gray,var(--gray));overflow-wrap:anywhere;}
@@ -6779,12 +6783,39 @@ function stRenderKpiDetail(){
     const key = stAvatarKeyFor(p);
     const ini = escHtml(initials(p.name));
     const ava = key ? `<img class="avatar-img" alt="" src="${ADMIN_AVATAR_IMAGES[key]}">` : ini;
-    return `<div class="kd-row"><div class="kd-ava">${ava}</div>
+    const go = _kdState.kind === 'comp' && p.dates && p.dates.length;
+    const chips = go ? ' · belgilanmagan: ' + p.dates.slice(0, 8).map(d => `<button type="button" class="kd-chip" data-date="${d}" title="Shu sanani belgilash">${d.slice(8, 10)}.${d.slice(5, 7)}</button>`).join('') +
+      (p.dates.length > 8 ? ` va yana ${p.dates.length - 8} ta` : '') : '';
+    return `<div class="kd-row${go ? ' kd-row-go' : ''}" ${go ? `data-idx="${_kdState.rows.indexOf(p)}" role="button" tabindex="0" title="Belgilashga o‘tish"` : ''}><div class="kd-ava">${ava}</div>
       <div class="kd-main"><div class="kd-name">${escHtml(p.name || '—')}</div>
-      <div class="kd-sub">${escHtml(p.gname || '')}${p.line ? ' · ' + escHtml(p.line) : ''}</div></div>
+      <div class="kd-sub">${escHtml(p.gname || '')}${p.line ? ' · ' + escHtml(p.line) : ''}${chips}</div></div>
       <div class="kd-val" style="color:${p.color}">${escHtml(p.val)}</div></div>`;
   }).join('') : '<div class="kd-empty">' + (_kdState.rows.length ? 'Filtr bo‘yicha hech kim topilmadi.' : 'Bu ko‘rsatkich bo‘yicha o‘quvchi yo‘q.') + '</div>';
 }
+// Belgilanmagan o'quvchini bosganda: shu o'quvchining davomat/uy vazifa belgilash sahifasi (sana oldindan tanlangan)
+function stGoMark(p, date){
+  closeModal('modalKpiDetail');
+  _ojActiveGroupId = p.gid; _ojActiveGroupName = p.gname;
+  if (p.gdays) _ojActiveGroupDays = p.gdays;
+  openOjProgress(p.sid, p.name);
+  document.getElementById('ojDateInput').value = date;
+  const att = document.getElementById('ojAttendedInput');
+  if (att) att.focus({ preventScroll: true });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+(function(){
+  const listEl = document.getElementById('kpiDetailList');
+  const act = (e) => {
+    const rowEl = e.target.closest('.kd-row-go');
+    if (!rowEl) return;
+    const p = _kdState.rows[Number(rowEl.dataset.idx)];
+    if (!p || !p.dates || !p.dates.length) return;
+    const chip = e.target.closest('.kd-chip');
+    stGoMark(p, chip ? chip.dataset.date : p.dates[0]);
+  };
+  listEl.addEventListener('click', act);
+  listEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.target.closest('.kd-chip')) { e.preventDefault(); act(e); } });
+})();
 ['kpiDetailSearch', 'kpiDetailGroup', 'kpiDetailSort'].forEach(id => {
   const el = document.getElementById(id);
   el.addEventListener(id === 'kpiDetailSearch' ? 'input' : 'change', stRenderKpiDetail);
@@ -6838,8 +6869,7 @@ function stOpenKpiDetail(kind, ctx){
         const miss = lessonDates.filter(dt => !markedKey.has(st.id + '|' + dt));
         miss.forEach(dt => { missByDate[dt] = (missByDate[dt] || 0) + 1; });
         if (miss.length) {
-          const shown = miss.slice(0, 8).map(dm).join(', ') + (miss.length > 8 ? ` va yana ${miss.length - 8} ta` : '');
-          rows.push({ sid: st.id, name: st.name, phone: st.phone || '', gname: g.name, line: 'belgilanmagan: ' + shown,
+          rows.push({ sid: st.id, name: st.name, phone: st.phone || '', gid: g.id, gdays: g.days || [], gname: g.name, dates: miss, line: '',
                       val: `${lessonDates.length - miss.length} / ${lessonDates.length}`, num: miss.length, color: ST_C.gray, miss: miss.length });
         }
       });
