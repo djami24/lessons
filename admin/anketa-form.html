@@ -248,11 +248,36 @@
     .card-header { padding: 24px 20px 20px; }
     .card-body { padding: 20px; }
   }
+
+  /* SVG ikonlar (admin paneldagi bilan bir xil uslub) */
+  .ic {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: -.2em;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+    overflow: visible;
+  }
+  .logo .ic { width: 1.5em; height: 1.5em; color: var(--blue); }
+  .card-header .icon .ic { width: 32px; height: 32px; }
+  .guruh-badge { display: inline-flex; align-items: center; gap: 6px; }
+  .success-circle { color: var(--green); }
+  .success-circle .ic { width: 40px; height: 40px; }
+  .error-icon { color: var(--red); margin-bottom: 16px; }
+  .error-icon .ic { width: 48px; height: 48px; }
 </style>
 </head>
 <body>
 
-<div class="logo">📚 Djami Lessons</div>
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false"><symbol id="i-graduation-cap" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M22 10v6M6 12v5c3 3 9 3 12 0v-5"/></symbol><symbol id="i-books" viewBox="0 0 24 24"><path d="M4 3v18M9 3v18"/><path d="M14 5.5l4.5-1L22 19.5l-4.5 1z"/></symbol><symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol><symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></symbol><symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l3 3 5-6"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol></svg>
+
+<div class="logo"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg> Djami Lessons</div>
 
 <div class="card" id="mainCard">
   <!-- LOADING -->
@@ -263,7 +288,7 @@
 
   <!-- ERROR screen -->
   <div class="error-screen" id="errorScreen">
-    <div style="font-size:2.5rem;margin-bottom:16px;">❌</div>
+    <div class="error-icon"><svg class="ic" aria-hidden="true"><use href="#i-x-circle"></use></svg></div>
     <h2>Link noto'g'ri</h2>
     <p>Ushbu link yaroqsiz yoki guruh topilmadi.<br>Administrator bilan bog'laning.</p>
   </div>
@@ -271,7 +296,7 @@
   <!-- FORM -->
   <div id="formScreen" style="display:none;">
     <div class="card-header">
-      <div class="icon">📋</div>
+      <div class="icon"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg></div>
       <h1>Talaba Ma'lumotlari</h1>
       <p>Barcha majburiy maydonlarni to'ldiring</p>
       <span class="guruh-badge" id="guruhBadge">—</span>
@@ -294,7 +319,7 @@
       <div class="field-group full">
         <div class="field">
           <label>Talabaning telefon raqami <span style="font-weight:400;text-transform:none;font-size:.75rem;">(ixtiyoriy)</span></label>
-          <input type="tel" id="f_tel_oz" placeholder="+998 90 123 45 67" maxlength="18" />
+          <input type="tel" id="f_tel_oz" placeholder="901234567" maxlength="14" inputmode="numeric" />
         </div>
       </div>
 
@@ -303,25 +328,25 @@
       <div class="field-group">
         <div class="field">
           <label>1-telefon raqam <span class="req">*</span></label>
-          <input type="tel" id="f_tel1" placeholder="+998 90 123 45 67" maxlength="18" />
+          <input type="tel" id="f_tel1" placeholder="901234567" maxlength="14" inputmode="numeric" />
           <span class="err" id="err_tel1"></span>
         </div>
         <div class="field">
           <label>2-telefon raqam <span class="req">*</span></label>
-          <input type="tel" id="f_tel2" placeholder="+998 91 234 56 78" maxlength="18" />
+          <input type="tel" id="f_tel2" placeholder="912345678" maxlength="14" inputmode="numeric" />
           <span class="err" id="err_tel2"></span>
         </div>
       </div>
 
       <button class="btn-submit" id="submitBtn" onclick="formSaqlash()">
-        ✅ Tasdiqlash va Yuborish
+        <svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Tasdiqlash va Yuborish
       </button>
     </div>
   </div>
 
   <!-- SUCCESS -->
   <div class="success-screen" id="successScreen">
-    <div class="success-circle">✅</div>
+    <div class="success-circle"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg></div>
     <h2>Muvaffaqiyatli yuborildi!</h2>
     <p id="successText">Ma'lumotlaringiz saqlandi.</p>
     <p style="margin-top:12px;font-size:.78rem;color:var(--gray);">Ushbu oynani yopishingiz mumkin.</p>
@@ -344,6 +369,13 @@ const guruhNom = urlParams.get('nom') ? decodeURIComponent(urlParams.get('nom'))
 // ============================================================
 // Sahifani yuklash
 // ============================================================
+// Guruh nomi yonida SVG ikonka bilan (nom matn sifatida qo'shiladi — xavfsiz)
+function setGuruhBadge(nom) {
+  const badge = document.getElementById('guruhBadge');
+  badge.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-books"></use></svg>';
+  badge.appendChild(document.createTextNode(nom));
+}
+
 async function init() {
   const loading = document.getElementById('loadingScreen');
   const errorScr = document.getElementById('errorScreen');
@@ -364,14 +396,14 @@ async function init() {
       return;
     }
     const guruh = snap.data();
-    document.getElementById('guruhBadge').textContent = '📚 ' + (guruh.nom || guruhNom);
+    setGuruhBadge(guruh.nom || guruhNom);
     document.title = 'Anketa — ' + (guruh.nom || guruhNom);
     loading.style.display = 'none';
     formScr.style.display = 'block';
   } catch(e) {
     // Firestore xatosi bo'lsa ham URL parametriga ishon
     if (guruhNom) {
-      document.getElementById('guruhBadge').textContent = '📚 ' + guruhNom;
+      setGuruhBadge(guruhNom);
       document.title = 'Anketa — ' + guruhNom;
       loading.style.display = 'none';
       formScr.style.display = 'block';
@@ -388,9 +420,8 @@ async function init() {
   if (!el) return;
   el.addEventListener('input', function() {
     let v = this.value.replace(/\D/g, '');
-    if (v.startsWith('998')) v = '+' + v;
-    else if (v.startsWith('9')) v = '+998' + v;
-    this.value = v;
+    if (v.length >= 12 && v.startsWith('998')) v = v.slice(3); // +998 bilan qo'yilgan bo'lsa olib tashlaydi
+    this.value = v.slice(0, 9);
   });
 });
 
@@ -430,7 +461,7 @@ async function formSaqlash() {
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  btn.textContent = '⏳ Yuborilmoqda…';
+  btn.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-clock"></use></svg> Yuborilmoqda…';
 
   const sana = new Date().toLocaleDateString('uz-UZ', { year:'numeric', month:'2-digit', day:'2-digit' });
 
@@ -455,7 +486,7 @@ async function formSaqlash() {
       ism + ' ' + familiya + ' — ma\'lumotlaringiz ' + guruhNom + ' guruhiga muvaffaqiyatli yuborildi!';
   } catch(e) {
     btn.disabled = false;
-    btn.innerHTML = '✅ Tasdiqlash va Yuborish';
+    btn.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Tasdiqlash va Yuborish';
     alert('Xatolik yuz berdi. Iltimos qayta urinib ko\'ring.\n\n' + e.message);
   }
 }
