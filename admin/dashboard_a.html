@@ -122,6 +122,7 @@
 .st-kpi-click:hover{transform:translateY(-2px);box-shadow:0 10px 22px -14px rgba(20,33,61,.45);}
 .st-kpi-click:focus-visible{outline:2px solid var(--adm-blue,#2F6FED);outline-offset:2px;}
 .st-kpi-hint{font-size:.66rem;color:var(--adm-gray,var(--gray));opacity:.8;margin-top:2px;}
+.kd-note{margin:8px 0 0;padding:8px 12px;border-radius:10px;background:rgba(240,146,61,.14);color:#9a5410;font-size:.78rem;font-weight:600;line-height:1.4;}
 .kd-filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
 .kd-filters input,.kd-filters select{padding:8px 10px;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;background:var(--paper);color:inherit;font:inherit;font-size:.85rem;min-width:0;}
 .kd-filters input{flex:1 1 160px;}
@@ -2672,6 +2673,7 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
   <div class="modal-box">
     <h3 id="kpiDetailTitle">Tafsilot</h3>
     <p class="modal-sub" id="kpiDetailSub"></p>
+    <p class="kd-note" id="kpiDetailNote" hidden></p>
     <div class="kd-filters">
       <input type="search" id="kpiDetailSearch" placeholder="Ism bo‘yicha qidirish…" autocomplete="off">
       <select id="kpiDetailGroup" aria-label="Guruh"></select>
@@ -6798,7 +6800,7 @@ function stOpenKpiDetail(kind, ctx){
     const ds = p.list.filter(pred).map(r => r.date).sort();
     return ds.slice(0, 8).map(dm).join(', ') + (ds.length > 8 ? ` va yana ${ds.length - 8} ta` : '');
   };
-  let title = '', sub = '', rows = [];   // rows: { name, gname, phone, line, val, color }
+  let title = '', sub = '', note = '', rows = [];   // rows: { name, gname, phone, line, val, color }
   if (kind === 'att') {
     title = 'Davomat — o‘quvchilar bo‘yicha'; sub = 'Eng past davomatdan boshlab';
     rows = people.filter(p => p.a.marked > 0).sort((x, y) => x.a.att - y.a.att)
@@ -6820,17 +6822,37 @@ function stOpenKpiDetail(kind, ctx){
     rows = people.filter(p => p.a.pun > 0).sort((x, y) => y.a.punCnt - x.a.punCnt)
       .map(p => ({ ...p, line: dates(p, r => r.pun), val: p.a.punCnt + ' ta jazo', num: p.a.punCnt, color: ST_C.purple }));
   } else if (kind === 'comp') {
-    title = 'Belgilanmagan darslar'; sub = 'Davomat to‘liq kiritilmagan o‘quvchilar (ko‘p qolganlar birinchi)';
+    title = 'Belgilanmagan darslar'; sub = 'Davomat kiritilmagan o‘quvchilar (ko‘p qolganlar birinchi)';
+    const markedKey = new Set(cur.filter(r => r.a === 'yes' || r.a === 'late' || r.a === 'no').map(r => r.sid + '|' + r.date));
+    const wholeMissed = [];
     groups.forEach(g => {
-      const n = (wins[g.id] || {}).n || 0;
+      const w = wins[g.id];
+      if (!w || w.from > w.to || !g.students.length) return;
+      // Shu davrdagi guruh dars sanalari (kartochkadagi hisob bilan bir xil qoida)
+      const lessonDates = [];
+      for (let d = new Date(w.from + 'T00:00:00'); stDate(d) <= w.to; d = stAdd(d, 1)) {
+        if ((g.days || []).includes(OJ_JSDAY_TO_KEY[d.getDay()])) lessonDates.push(stDate(d));
+      }
+      const missByDate = {};
       g.students.forEach(st => {
-        const marked = (byS[st.id] ? byS[st.id].a.marked : 0);
-        if (n > 0 && marked < n) rows.push({ sid: st.id, name: st.name, phone: st.phone || '', gname: g.name, line: `${n - marked} ta dars belgilanmagan`, val: `${marked} / ${n}`, num: n - marked, color: ST_C.gray, miss: n - marked });
+        const miss = lessonDates.filter(dt => !markedKey.has(st.id + '|' + dt));
+        miss.forEach(dt => { missByDate[dt] = (missByDate[dt] || 0) + 1; });
+        if (miss.length) {
+          const shown = miss.slice(0, 8).map(dm).join(', ') + (miss.length > 8 ? ` va yana ${miss.length - 8} ta` : '');
+          rows.push({ sid: st.id, name: st.name, phone: st.phone || '', gname: g.name, line: 'belgilanmagan: ' + shown,
+                      val: `${lessonDates.length - miss.length} / ${lessonDates.length}`, num: miss.length, color: ST_C.gray, miss: miss.length });
+        }
       });
+      // Hech bir o'quvchiga belgi qo'yilmagan darslar — o'qituvchi butunlay unutgan bo'lishi mumkin
+      const all = lessonDates.filter(dt => missByDate[dt] === g.students.length);
+      if (all.length) wholeMissed.push(`${g.name}: ${all.map(dm).join(', ')}`);
     });
     rows.sort((x, y) => y.miss - x.miss);
+    note = wholeMissed.length ? 'Butun guruh belgilanmagan darslar — ' + wholeMissed.join(' · ') : '';
   }
   _kdState = { rows, sub, kind };
+  const noteEl = document.getElementById('kpiDetailNote');
+  noteEl.textContent = note; noteEl.hidden = !note;
   document.getElementById('kpiDetailTitle').textContent = title;
   document.getElementById('kpiDetailSearch').value = '';
   document.getElementById('kpiDetailSort').value = 'def';
