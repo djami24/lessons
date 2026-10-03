@@ -4465,6 +4465,18 @@ function formatStudentCreatedAt(ts){
 
 const COURSE_CHIP_LABELS = { ge: 'GE', ielts: 'IELTS', cefr: 'CEFR', writing: 'Insho' };
 
+// ----- Talaba profil rasmlari (talaba o'zi tanlaydi, students/{uid}.avatarImg) -----
+const ADMIN_AVATAR_IMAGES = { qiz: '../assets/avatars/qiz.webp', bola: '../assets/avatars/bola.webp' };
+function studentAvatarSrc(id){
+  const s = (state.students || []).find(x => x.id === id);
+  return (s && ADMIN_AVATAR_IMAGES[s.avatarImg]) || '';
+}
+// fallbackHtml — rasm tanlanmagan bo'lsa ko'rsatiladigan (allaqachon escape qilingan) matn
+function avatarInner(id, fallbackHtml){
+  const src = studentAvatarSrc(id);
+  return src ? `<img class="avatar-img" alt="" src="${src}">` : fallbackHtml;
+}
+
 function initials(name){
   const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
   if(parts.length === 0) return '?';
@@ -4508,7 +4520,7 @@ function renderStudents(){
 
   listEl.innerHTML = filtered.map(s => `
     <div class="student-row" data-student-detail="${s.id}">
-      <div class="student-row-avatar">${initials(s.name)}</div>
+      <div class="student-row-avatar">${avatarInner(s.id, initials(s.name))}</div>
       <div class="student-row-main">
         <div class="student-row-name">${escapeHtml(s.name)}</div>
         <div class="student-row-sub">${escapeHtml(s.email)}${s.phone ? ' · ' + escapeHtml(s.phone) : ''}</div>
@@ -7303,7 +7315,7 @@ async function loadOjStudents(groupId, groupName, days) {
       row.dataset.hw = hwVal;
       row.innerHTML = `
         <div class="oj-row-identity" data-open>
-          <div class="oj-student-card-avatar" style="width:40px; height:40px; font-size:1rem;">${initials}</div>
+          <div class="oj-student-card-avatar" style="width:40px; height:40px; font-size:1rem;">${avatarInner(sid, initials)}</div>
           <div>
             <div class="oj-row-name">${escHtml(s.name)}</div>
             <div class="oj-row-id">
@@ -7655,7 +7667,7 @@ function openOjProgress(studentId, studentName) {
   _ojActiveStudentId = studentId;
   _ojActiveStudentName = studentName;
   const initials = studentName.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('ojProgressAvatar').textContent = initials;
+  document.getElementById('ojProgressAvatar').innerHTML = avatarInner(studentId, initials);
   document.getElementById('ojProgressName').textContent = studentName;
   document.getElementById('ojProgressGroup').textContent = _ojActiveGroupName;
   document.getElementById('ojProgressIdVal').textContent = studentId;
@@ -8561,7 +8573,7 @@ function renderChatStudentList(docs, filter){
     div.className = 'chat-student-item' + (adminActiveChatId === doc.id ? ' is-active' : '');
     div.dataset.chatId = doc.id;
     div.innerHTML = `<div class="chat-item-body">
-        <div class="chat-item-avatar" style="background:${color};">${escapeHtml(initial)}</div>
+        <div class="chat-item-avatar" style="background:${color};">${avatarInner(doc.id, escapeHtml(initial))}</div>
         <div class="chat-item-main">
           <div class="chat-item-top">
             <span class="chat-item-name">${escapeHtml(name)}</span>
@@ -8608,7 +8620,7 @@ function openAdminChat(chatId, studentName){
   nameEl.classList.remove('chat-detail-empty');
   const avatarEl = document.getElementById('chatDetailAvatar');
   const chatColor = avatarColorFor(chatId);
-  avatarEl.textContent = (resolvedName.trim().charAt(0) || 'T').toUpperCase();
+  avatarEl.innerHTML = avatarInner(chatId, escapeHtml((resolvedName.trim().charAt(0) || 'T').toUpperCase()));
   avatarEl.style.background = chatColor;
   document.getElementById('chatDetailStatus').hidden = false;
 
@@ -8652,7 +8664,7 @@ function openAdminChat(chatId, studentName){
           ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '<svg class="ic" aria-hidden="true"><use href="#i-check-check"></use></svg>' : '<svg class="ic" aria-hidden="true"><use href="#i-check"></use></svg>'}</span>`
           : '';
         const avatarHtml = !isTeacher
-          ? `<div class="chat-msg-avatar" style="background:${chatColor};">${escapeHtml((resolvedName.trim().charAt(0) || 'T').toUpperCase())}</div>`
+          ? `<div class="chat-msg-avatar" style="background:${chatColor};">${avatarInner(chatId, escapeHtml((resolvedName.trim().charAt(0) || 'T').toUpperCase()))}</div>`
           : '';
         const quoteHtml = d.replyTo
           ? `<div class="chat-msg-quote"><span class="chat-msg-quote-name">${escapeHtml(d.replyTo.senderRole === 'teacher' ? 'Siz' : resolvedName)}</span>${escapeHtml(d.replyTo.text || '')}</div>`
