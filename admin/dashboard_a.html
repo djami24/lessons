@@ -1892,6 +1892,8 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
         <button class="btn btn-amber" id="ojNewMonthBtn" style="margin-left:auto;" title="Yangi o'quv oyini boshlash — statistika shu sanadan boshidan hisoblanadi"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Yangi oyni boshlash</button>
         <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Hammasini nusxalash</button>
+        <button class="btn btn-primary btn-sm" id="ojParentTgBtn" title="Bugungi davomatni (kelmaganlar va kech qolganlar) ota-onalar Telegram guruhiga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Ota-onalarga yuborish</button>
+        <button class="btn btn-ghost btn-sm" id="ojParentTgChatBtn" title="Shu guruh ota-onalarining Telegram guruhi (chat ID)">Telegram guruh</button>
         <select class="st-select rp-month-select" title="Hisobot oyi"></select>
         <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
         <button class="btn btn-primary" id="openAddOquvStudent">+ Talaba qo'shish</button>
@@ -7702,6 +7704,96 @@ async function ojRefreshStudentsIfStale(){
   if (Date.now() - _studentsLoadedAt < 30000) return;
   try { await loadStudents(); _studentsLoadedAt = Date.now(); } catch (e) { console.warn('students refresh skip:', e); }
 }
+
+// ===== Ota-onalar Telegram guruhiga davomat xabari =====
+// Har bir o'quv guruhi uchun ota-onalarning Telegram guruhi (chat ID) oquv_groups/{id}.parentChatId da saqlanadi.
+// "Ota-onalarga yuborish" bosilganda ro'yxatdagi bugungi davomat (kelmagan / kech qolgan) bitta xabar bo'lib yuboriladi.
+function ojTgSettings(){
+  try { return JSON.parse(localStorage.getItem('efTgBotSettings') || '{}') || {}; } catch (e) { return {}; }
+}
+function ojTgEsc(t){ return String(t == null ? '' : t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+document.getElementById('ojParentTgChatBtn').addEventListener('click', async () => {
+  const gid = _ojActiveGroupId;
+  if (!gid) return;
+  let cur = '';
+  try { const d = await db.collection('oquv_groups').doc(gid).get(); cur = (d.exists && d.data().parentChatId) || ''; } catch (e) {}
+  const val = prompt(
+    `"${_ojActiveGroupName}" ota-onalar Telegram guruhining chat ID raqami.\n` +
+    `Masalan: -1001234567890  (yoki ochiq guruh uchun @guruh_nomi)\n` +
+    `Bo'sh qoldirsangiz o'chiriladi.`, cur);
+  if (val === null) return;
+  const v = val.trim();
+  if (v && !/^(-?\d{5,}|@[A-Za-z0-9_]{4,})$/.test(v)) { showToast("Chat ID noto'g'ri: -1001234567890 yoki @guruh_nomi ko'rinishida kiriting", true); return; }
+  try {
+    await db.collection('oquv_groups').doc(gid).update({ parentChatId: v });
+    showToast(v ? 'Telegram guruh saqlandi' : "Telegram guruh o'chirildi");
+  } catch (e) { console.error(e); showToast("Saqlab bo'lmadi", true); }
+});
+
+document.getElementById('ojParentTgBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('ojParentTgBtn');
+  const gid = _ojActiveGroupId;
+  if (!gid) return;
+  const tg = ojTgSettings();
+  if (!tg.token) { showToast("Avval bot tokenini kiriting: Sayt sozlamalari → Telegram Bot sozlamalari", true); return; }
+
+  let chatId = '';
+  try { const d = await db.collection('oquv_groups').doc(gid).get(); chatId = (d.exists && d.data().parentChatId) || ''; } catch (e) {}
+  if (!chatId) {
+    showToast("Avval \"Telegram guruh\" tugmasi orqali ota-onalar guruhining chat ID sini kiriting", true);
+    document.getElementById('ojParentTgChatBtn').click();
+    return;
+  }
+
+  const today = ojTodayStr();
+  const rows = Array.from(document.querySelectorAll('#ojStudentsGrid .oj-student-row'));
+  if (!rows.length) { showToast("Guruhda talaba yo'q", true); return; }
+  const nameOf = r => ((r.querySelector('.oj-row-name') || {}).textContent || '').trim();
+  const absent = rows.filter(r => r.dataset.attend === 'no').map(nameOf);
+  const late   = rows.filter(r => r.dataset.attend === 'late').map(nameOf);
+  const came   = rows.filter(r => r.dataset.attend === 'yes').length;
+  const unmarked = rows.filter(r => !r.dataset.attend).length;
+
+  if (unmarked === rows.length) { showToast("Avval davomatni belgilang (Keldi / Kech qoldi / Kelmadi)", true); return; }
+  if (unmarked && !confirm(`${unmarked} ta talaba uchun davomat hali belgilanmagan. Baribir yuborilsinmi?`)) return;
+
+  const sentKey = `ojTgSent:${gid}:${today}`;
+  let prev = null; try { prev = localStorage.getItem(sentKey); } catch (e) {}
+  if (prev && !confirm(`Bugungi xabar soat ${prev} da allaqachon yuborilgan. Yana yuborilsinmi?`)) return;
+
+  const dateLabel = new Date(today + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', weekday:'long' });
+  let text = `📋 <b>${ojTgEsc(_ojActiveGroupName)}</b> — ${ojTgEsc(dateLabel)}\n`;
+  if (!absent.length && !late.length) {
+    text += `\n✅ Bugun hamma talaba darsga keldi. Barakalla!`;
+  } else {
+    if (absent.length) text += `\n🚫 <b>Darsga kelmaganlar (${absent.length}):</b>\n` + absent.map(n => '• ' + ojTgEsc(n)).join('\n') + '\n';
+    if (late.length)   text += `\n⏰ <b>Kech qolganlar (${late.length}):</b>\n` + late.map(n => '• ' + ojTgEsc(n)).join('\n') + '\n';
+    text += `\n✅ Darsga kelganlar: ${came + late.length} / ${rows.length}`;
+  }
+
+  if (!confirm(`Quyidagi xabar ota-onalar guruhiga (${chatId}) yuborilsinmi?\n\n` + text.replace(/<[^>]+>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'))) return;
+
+  btn.disabled = true;
+  try {
+    const res = await fetch('https://api.telegram.org/bot' + tg.token + '/sendMessage', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chatId, text, parse_mode: 'HTML' })
+    });
+    const j = await res.json();
+    if (!j.ok) {
+      let why = j.description || 'Telegram xatosi';
+      if (j.parameters && j.parameters.migrate_to_chat_id) why += ` — guruh superguruhga aylangan, yangi chat ID: ${j.parameters.migrate_to_chat_id}`;
+      throw new Error(why);
+    }
+    try { localStorage.setItem(sentKey, new Date().toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' })); } catch (e) {}
+    showToast('Ota-onalar guruhiga yuborildi ✓');
+  } catch (e) {
+    console.warn('Ota-onalar xabari yuborilmadi:', e);
+    showToast('Yuborilmadi: ' + (e.message || 'xatolik') + ' (bot guruhda borligini va chat ID ni tekshiring)', true);
+  } finally { btn.disabled = false; }
+});
+// ===== /Ota-onalar Telegram guruhiga davomat xabari =====
 
 async function loadOjStudents(groupId, groupName, days) {
   _ojActiveGroupId = groupId;
