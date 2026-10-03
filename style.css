@@ -2580,3 +2580,7 @@ body.admin-theme .topbar-icon-btn{
   border-color: var(--adm-line, #334155);
   color: #fff;
 }
+
+/* Oq panelda turgan auth-split-foot havolalari oq fonda ko‘rinmay qolmasligi uchun */
+.auth-split-right .auth-split-foot a{ color: var(--teal-deep, #1f4fd1); font-weight:700; text-decoration: underline; text-underline-offset: 2px; }
+.auth-split-right .auth-split-foot a:hover{ color: var(--amber, #d98e3f); }
