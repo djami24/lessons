@@ -834,8 +834,8 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           </div>
           <div id="homeTomorrowGroups" class="home-lesson-list"></div>
           <div id="homeTomorrowEmpty" class="oj-empty" style="display:none; padding:24px;">
-            <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"></use></svg></div>
-            <p>Ertaga hech qaysi guruhda dars yo'q.</p>
+            <div class="oj-empty-icon" id="homeTomorrowEmptyIcon"><svg class="ic" aria-hidden="true"><use href="#i-cloud-sun"></use></svg></div>
+            <p id="homeTomorrowEmptyText">Ertaga hech qaysi guruhda dars yo'q.</p>
           </div>
         </div>
       </div>
@@ -6719,6 +6719,20 @@ async function loadHomeStats(){
 
   const todayInfo = homeRenderLessonCards('homeTodayGroups', 'homeTodayEmpty', groups, todayKey);
   const tomorrowInfo = homeRenderLessonCards('homeTomorrowGroups', 'homeTomorrowEmpty', groups, tomorrowKey);
+  // Ertaga yakshanba bo'lsa — SVG fayl (assets/sunday-rest.svg) va dam olish xabari
+  const tmrTxt = document.getElementById('homeTomorrowEmptyText');
+  const tmrIcon = document.getElementById('homeTomorrowEmptyIcon');
+  if (tmrTxt) {
+    if (tmrIcon && !tmrIcon.dataset.defaultHtml) tmrIcon.dataset.defaultHtml = tmrIcon.innerHTML;
+    const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
+    if (tmr.getDay() === 0) {
+      tmrTxt.textContent = "Ertaga darslar yo'q, yakshanba — mazza qilib dam oling!";
+      if (tmrIcon) tmrIcon.innerHTML = '<img src="../assets/sunday-rest.svg" alt="Yakshanba — dam olish" style="width:180px; max-width:100%; height:auto;">';
+    } else {
+      tmrTxt.textContent = "Ertaga hech qaysi guruhda dars yo'q.";
+      if (tmrIcon) tmrIcon.innerHTML = tmrIcon.dataset.defaultHtml;
+    }
+  }
 
   document.getElementById('homeTopStatRow').innerHTML = `
     <div class="home-stat-card home-stat-blue">
