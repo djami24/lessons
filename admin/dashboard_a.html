@@ -326,6 +326,8 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
 .actlog-action-login{background:rgba(124,92,252,.12);color:#7C5CFC;}
 .actlog-action-register{background:rgba(240,146,61,.15);color:#D4780A;}
 .actlog-action-visit{background:rgba(20,184,166,.13);color:#0D9488;}
+.actlog-person{display:flex;align-items:center;gap:10px;}
+.actlog-avatar{width:34px;height:34px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6c63ff,#3fbfbf);color:#fff;font-size:.85rem;font-weight:700;}
 .actlog-time{font-size:.78rem;color:var(--adm-gray,var(--gray));}
 .actlog-empty{text-align:center;padding:48px 24px;color:var(--adm-gray,var(--gray));}
 .actlog-filter-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
@@ -9408,9 +9410,13 @@ function renderActivityLogTable(){
 
     // Mehmon yozuvlarida ism/email bo'lmaydi — o'rniga qaysi sahifaga
     // kirganini ko'rsatamiz.
+    // Talaba/ota-ona: ism oldida avatar (talaba rasm tanlagan bo'lsa — rasm,
+    // aks holda ismning bosh harfi).
+    const personInitial = escHtml(initials(doc.name || doc.email || '?'));
+    const personAvatar = `<div class="actlog-avatar">${doc.role === 'student' && doc.uid ? avatarInner(doc.uid, personInitial) : personInitial}</div>`;
     const nameCell = doc.role === 'guest'
       ? `<span style="color:var(--adm-gray,var(--gray));">${escHtml(doc.page || doc.path || 'Nomaʼlum sahifa')}</span>`
-      : `<strong>${escHtml(doc.name || '—')}</strong>${doc.email ? '<br><span style="font-size:.75rem;color:var(--adm-gray,var(--gray));">'+escHtml(doc.email)+'</span>' : ''}`;
+      : `<div class="actlog-person">${personAvatar}<div><strong>${escHtml(doc.name || '—')}</strong>${doc.email ? '<br><span style="font-size:.75rem;color:var(--adm-gray,var(--gray));">'+escHtml(doc.email)+'</span>' : ''}</div></div>`;
 
     const deleteCell = doc.uid
       ? `<button type="button" class="btn btn-danger btn-sm" data-actlog-delete-uid="${escHtml(doc.uid)}" data-actlog-delete-role="${escHtml(doc.role||'')}" data-actlog-delete-name="${escHtml(doc.name||doc.email||'Foydalanuvchi')}"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> O'chirish</button>`
