@@ -3241,6 +3241,7 @@ auth.onAuthStateChanged(async (user) => {
   await ensureWritingExists();
   await loadWriting();
   await loadStudents();
+  _studentsLoadedAt = Date.now();
   await loadEssays();
   await loadBlogs();
   renderLevelsOverview();
@@ -4693,13 +4694,31 @@ const COURSE_CHIP_LABELS = { ge: 'GE', ielts: 'IELTS', cefr: 'CEFR', writing: 'I
 
 // ----- Talaba profil rasmlari (talaba o'zi tanlaydi, students/{uid}.avatarImg) -----
 const ADMIN_AVATAR_IMAGES = { qiz: '../assets/avatars/qiz.webp', bola: '../assets/avatars/bola.webp' };
-function studentAvatarSrc(id){
-  const s = (state.students || []).find(x => x.id === id);
+// "O'quv jarayoni" guruhidagi talabaning ID'si (oquv_groups/{gid}/students/{id}) ro'yxatdan
+// o'tgan talaba ID'si (students/{uid}) bilan BIR XIL EMAS. Shuning uchun avval ID bo'yicha,
+// topilmasa telefon (oxirgi 9 raqam), u ham bo'lmasa — yagona mos keladigan to'liq ism bo'yicha qidiramiz.
+function findRegisteredStudent(id, person){
+  const list = state.students || [];
+  let st = id ? list.find(x => x.id === id) : null;
+  if (st || !person) return st || null;
+  const digits = v => String(v || '').replace(/\D/g, '').slice(-9);
+  const nm = v => String(v || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const ph = digits(person.phone);
+  if (ph.length >= 9) st = list.find(x => digits(x.phone) === ph);
+  if (!st && nm(person.name)) {
+    const same = list.filter(x => nm(x.name) === nm(person.name));
+    if (same.length === 1) st = same[0];
+  }
+  return st || null;
+}
+function studentAvatarSrc(id, person){
+  const s = findRegisteredStudent(id, person);
   return (s && ADMIN_AVATAR_IMAGES[s.avatarImg]) || '';
 }
 // fallbackHtml — rasm tanlanmagan bo'lsa ko'rsatiladigan (allaqachon escape qilingan) matn
-function avatarInner(id, fallbackHtml){
-  const src = studentAvatarSrc(id);
+// person ({name, phone}) — guruh talabasi uchun: ID mos kelmasa shu bo'yicha qidiriladi
+function avatarInner(id, fallbackHtml, person){
+  const src = studentAvatarSrc(id, person);
   return src ? `<img class="avatar-img" alt="" src="${src}">` : fallbackHtml;
 }
 
@@ -7421,16 +7440,7 @@ function stPublicName(n){
 // o'tgan talaba bilan telefon raqami (oxirgi 9 raqam), bo'lmasa to'liq ism bo'yicha
 // moslab, uning tanlagan rasmi kalitini ('qiz' / 'bola') qaytaradi. Topilmasa ''.
 function stAvatarKeyFor(person){
-  const list = state.students || [];
-  const digits = v => String(v || '').replace(/\D/g, '').slice(-9);
-  const nm = v => String(v || '').trim().toLowerCase().replace(/\s+/g, ' ');
-  let st = null;
-  const ph = digits(person.phone);
-  if (ph.length >= 9) st = list.find(x => digits(x.phone) === ph);
-  if (!st && nm(person.name)) {
-    const same = list.filter(x => nm(x.name) === nm(person.name));
-    if (same.length === 1) st = same[0];
-  }
+  const st = findRegisteredStudent('', person);
   return (st && ADMIN_AVATAR_IMAGES[st.avatarImg]) ? st.avatarImg : '';
 }
 
@@ -7641,6 +7651,14 @@ document.getElementById('newMonthUndo').addEventListener('click', async () => {
   } catch (e) { console.error(e); showToast('Saqlab bo\'lmadi', true); }
 });
 
+// Talaba profilida rasm tanlasa, admin sahifasi qayta yuklanmaguncha ko'rinmay qolmasligi uchun:
+// guruh ochilganda ro'yxatdan o'tgan talabalar ma'lumotini (avatarImg) 30 soniyadan eski bo'lsa yangilaymiz.
+var _studentsLoadedAt = Date.now();
+async function ojRefreshStudentsIfStale(){
+  if (Date.now() - _studentsLoadedAt < 30000) return;
+  try { await loadStudents(); _studentsLoadedAt = Date.now(); } catch (e) { console.warn('students refresh skip:', e); }
+}
+
 async function loadOjStudents(groupId, groupName, days) {
   _ojActiveGroupId = groupId;
   ojLoadPeriods(groupId);
@@ -7651,6 +7669,7 @@ async function loadOjStudents(groupId, groupName, days) {
   const grid = document.getElementById('ojStudentsGrid');
   const empty = document.getElementById('ojStudentsEmpty');
   grid.innerHTML = '<p style="color:var(--gray); padding:8px;">Yuklanmoqda…</p>';
+  await ojRefreshStudentsIfStale();
   const today = ojTodayStr();
   document.getElementById('ojTodayLabel').textContent =
     new Date(today + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' });
@@ -7672,7 +7691,7 @@ async function loadOjStudents(groupId, groupName, days) {
     const snap = await db.collection('oquv_groups').doc(groupId).collection('students').orderBy('name').get();
     grid.innerHTML = '';
     document.getElementById('ojGroupSub').textContent = snap.size + ' talaba';
-    _ojActiveGroupStudents = snap.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
+    _ojActiveGroupStudents = snap.docs.map(doc => ({ id: doc.id, name: doc.data().name, phone: doc.data().phone || '' }));
     if (snap.empty) { empty.style.display = 'block'; return; }
     empty.style.display = 'none';
 
@@ -7701,7 +7720,7 @@ async function loadOjStudents(groupId, groupName, days) {
       row.dataset.hw = hwVal;
       row.innerHTML = `
         <div class="oj-row-identity" data-open>
-          <div class="oj-student-card-avatar" style="width:40px; height:40px; font-size:1rem;">${avatarInner(sid, initials)}</div>
+          <div class="oj-student-card-avatar" style="width:40px; height:40px; font-size:1rem;">${avatarInner(sid, initials, s)}</div>
           <div>
             <div class="oj-row-name">${escHtml(s.name)}</div>
             <div class="oj-row-id">
@@ -8053,7 +8072,7 @@ function openOjProgress(studentId, studentName) {
   _ojActiveStudentId = studentId;
   _ojActiveStudentName = studentName;
   const initials = studentName.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('ojProgressAvatar').innerHTML = avatarInner(studentId, initials);
+  document.getElementById('ojProgressAvatar').innerHTML = avatarInner(studentId, initials, (_ojActiveGroupStudents || []).find(x => x.id === studentId) || { name: studentName });
   document.getElementById('ojProgressName').textContent = studentName;
   document.getElementById('ojProgressGroup').textContent = _ojActiveGroupName;
   document.getElementById('ojProgressIdVal').textContent = studentId;
