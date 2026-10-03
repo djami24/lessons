@@ -6708,6 +6708,7 @@ function homeRenderLessonCards(containerId, emptyId, groups, dayKey){
   return { groups: todays, total };
 }
 
+const SUNDAY_REST_SVG = '<svg class="sunday-rest-svg" style="width:180px;max-width:100%;height:auto;display:block;margin:0 auto;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-label="Yakshanba — dam olish"><defs><linearGradient id="sunRestSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE8A3"/><stop offset="1" stop-color="#FFF6DA" stop-opacity="0"/></linearGradient><linearGradient id="sunRestSun" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD25E"/><stop offset="1" stop-color="#FFA63D"/></linearGradient></defs><circle cx="170" cy="48" r="46" fill="url(#sunRestSky)"/><g stroke="#FFB84D" stroke-width="4" stroke-linecap="round"><line x1="170" y1="6" x2="170" y2="14"/><line x1="170" y1="82" x2="170" y2="90"/><line x1="128" y1="48" x2="136" y2="48"/><line x1="204" y1="48" x2="212" y2="48"/><line x1="140" y1="18" x2="146" y2="24"/><line x1="194" y1="72" x2="200" y2="78"/><line x1="200" y1="18" x2="194" y2="24"/><line x1="146" y1="72" x2="140" y2="78"/></g><circle cx="170" cy="48" r="22" fill="url(#sunRestSun)"/><g fill="#C9D4F5"><ellipse cx="60" cy="42" rx="22" ry="11"/><ellipse cx="46" cy="46" rx="14" ry="9"/><ellipse cx="76" cy="47" rx="14" ry="8"/></g><path d="M0 140 Q60 128 120 136 T240 134 V160 H0 Z" fill="#CFE8D5"/><g stroke="#2F6FED" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M70 138 L92 104"/><path d="M92 104 L132 116"/><path d="M132 116 L146 138"/><path d="M92 104 L108 84"/></g><path d="M96 106 L128 117" stroke="#7C5CFC" stroke-width="10" stroke-linecap="round"/><path d="M94 102 L108 84" stroke="#7C5CFC" stroke-width="10" stroke-linecap="round"/><rect x="160" y="120" width="10" height="16" rx="2" fill="#fff" stroke="#2F6FED" stroke-width="2"/><rect x="161.5" y="126" width="7" height="8" rx="1" fill="#FF8A5B"/><line x1="168" y1="114" x2="172" y2="106" stroke="#E5484D" stroke-width="2" stroke-linecap="round"/><g fill="#7C5CFC" font-family="Inter,Arial,sans-serif" font-weight="700"><text x="112" y="70" font-size="14">z</text><text x="122" y="60" font-size="11" opacity=".75">z</text><text x="130" y="51" font-size="9" opacity=".5">z</text></g></svg>';
 async function loadHomeStats(){
   document.getElementById('homeDateLine').textContent =
     new Date().toLocaleDateString('uz-UZ', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
@@ -6719,7 +6720,7 @@ async function loadHomeStats(){
 
   const todayInfo = homeRenderLessonCards('homeTodayGroups', 'homeTodayEmpty', groups, todayKey);
   const tomorrowInfo = homeRenderLessonCards('homeTomorrowGroups', 'homeTomorrowEmpty', groups, tomorrowKey);
-  // Ertaga yakshanba bo'lsa — SVG fayl (assets/sunday-rest.svg) va dam olish xabari
+  // Ertaga yakshanba bo'lsa — SVG rasm (SUNDAY_REST_SVG) va dam olish xabari
   const tmrTxt = document.getElementById('homeTomorrowEmptyText');
   const tmrIcon = document.getElementById('homeTomorrowEmptyIcon');
   if (tmrTxt) {
@@ -6727,7 +6728,7 @@ async function loadHomeStats(){
     const tmr = new Date(); tmr.setDate(tmr.getDate() + 1);
     if (tmr.getDay() === 0) {
       tmrTxt.textContent = "Ertaga darslar yo'q, yakshanba — mazza qilib dam oling!";
-      if (tmrIcon) tmrIcon.innerHTML = '<img src="../assets/sunday-rest.svg" alt="Yakshanba — dam olish" style="width:180px; max-width:100%; height:auto;">';
+      if (tmrIcon) tmrIcon.innerHTML = SUNDAY_REST_SVG;
     } else {
       tmrTxt.textContent = "Ertaga hech qaysi guruhda dars yo'q.";
       if (tmrIcon) tmrIcon.innerHTML = tmrIcon.dataset.defaultHtml;
