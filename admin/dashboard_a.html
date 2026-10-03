@@ -402,6 +402,11 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
 
 /* SVG ikonlar (emoji o'rniga) */
 .ic{display:inline-block;width:1.1em;height:1.1em;vertical-align:-.2em;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;overflow:visible}
+
+/* Anketa: bosib nusxalanadigan telefon raqamlar */
+.a-tel{cursor:pointer;padding:3px 6px;margin:-3px -6px;border-radius:6px;transition:background .15s,color .15s;user-select:none;-webkit-user-select:none;}
+.a-tel:hover{background:rgba(47,111,237,.12);color:var(--adm-blue,#2F6FED);}
+.a-tel.copied{background:rgba(25,170,110,.16);color:#14935c;}
 </style>
 </head>
 
@@ -11865,6 +11870,29 @@ async function aStatsYangi() {
   aJadvalChiz();
 }
 
+// Telefon raqamni 998 siz, 9 xonali ko'rinishga keltiradi: +998 90 550 67 07 -> 905506707
+function aTelTozala(v) {
+  let d = String(v == null ? '' : v).replace(/\D/g, '');
+  if (d.length > 9 && d.startsWith('998')) d = d.slice(3);
+  return d;
+}
+
+function aTelUyasi(v) {
+  const clean = aTelTozala(v);
+  if (!clean) return `<span>${v || '\u2014'}</span>`;
+  return `<span class="a-tel" data-tel="${clean}" title="Nusxalash uchun bosing" onclick="aTelNusxala(this)">${clean}</span>`;
+}
+
+function aTelNusxala(el) {
+  const raqam = el.dataset.tel;
+  if (!raqam) return;
+  copyTextToClipboard(raqam, () => {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 1200);
+    showToast('Nusxalandi: ' + raqam);
+  });
+}
+
 function aJadvalChiz() {
   let talabalar = ADB.talabalar();
   const gF = document.getElementById('aFilterGuruh') ? document.getElementById('aFilterGuruh').value : '';
@@ -11888,9 +11916,9 @@ function aJadvalChiz() {
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));">${i+1}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><span style="background:rgba(47,111,237,.1);color:var(--adm-blue,#2F6FED);padding:3px 8px;border-radius:6px;font-size:.78rem;font-weight:700;">${t.guruhNom}</span></td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-weight:600;">${t.ism} ${t.familiya}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${t.telOz}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${t.tel1}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${t.tel2}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${aTelUyasi(t.telOz)}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${aTelUyasi(t.tel1)}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${aTelUyasi(t.tel2)}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));color:var(--adm-gray,#8892A6);font-size:.78rem;">${t.sana}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><button class="btn btn-sm" onclick="aTalabaOchir('${t.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.75rem;"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></button></td>
     </tr>
