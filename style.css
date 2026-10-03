@@ -567,6 +567,8 @@ footer a:hover{ color: var(--amber); }
 /* ---- Profil rasmlari (tayyor avatarlar) ---- */
 .avatar-img{ width:100%; height:100%; object-fit:cover; border-radius:50%; display:block; }
 .profile-avatar-big, .pnew-avatar-circle{ overflow:hidden; }
+.student-row-avatar, .chat-item-avatar, .chat-detail-avatar, .chat-msg-avatar,
+.oj-student-card-avatar, .oj-student-avatar{ overflow:hidden; }
 .profile-avatar-big{ width:96px !important; height:96px !important; overflow:hidden; }
 .emoji-picker-grid:not([hidden]){
   display:flex; flex-wrap:wrap; gap:14px; align-items:flex-start;
