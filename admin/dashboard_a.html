@@ -4699,7 +4699,12 @@ const ADMIN_AVATAR_IMAGES = { qiz: '../assets/avatars/qiz.webp', bola: '../asset
 // topilmasa telefon (oxirgi 9 raqam), u ham bo'lmasa — yagona mos keladigan to'liq ism bo'yicha qidiramiz.
 function findRegisteredStudent(id, person){
   const list = state.students || [];
+  const eq = (a, b) => String(a || '').trim().toLowerCase() === String(b || '').trim().toLowerCase();
   let st = id ? list.find(x => x.id === id) : null;
+  // Asosiy bog'lanish: talaba o'z kabinetida kiritgan O'quv jarayoni ID'si (students/{uid}.oquvProgressCode)
+  // guruhdagi talaba ID'si bilan bir xil.
+  const gid = id || (person && (person.sid || person.id));
+  if (!st && gid) st = list.find(x => x.oquvProgressCode && eq(x.oquvProgressCode, gid));
   if (st || !person) return st || null;
   const digits = v => String(v || '').replace(/\D/g, '').slice(-9);
   const nm = v => String(v || '').trim().toLowerCase().replace(/\s+/g, ' ');
@@ -7440,7 +7445,7 @@ function stPublicName(n){
 // o'tgan talaba bilan telefon raqami (oxirgi 9 raqam), bo'lmasa to'liq ism bo'yicha
 // moslab, uning tanlagan rasmi kalitini ('qiz' / 'bola') qaytaradi. Topilmasa ''.
 function stAvatarKeyFor(person){
-  const st = findRegisteredStudent('', person);
+  const st = findRegisteredStudent(person.sid || '', person);
   return (st && ADMIN_AVATAR_IMAGES[st.avatarImg]) ? st.avatarImg : '';
 }
 
