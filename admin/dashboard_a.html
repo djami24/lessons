@@ -2265,7 +2265,7 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
                 </div>
                 <div style="display:flex;flex-direction:column;gap:5px;grid-column:1/-1;">
                   <label style="font-size:.78rem;font-weight:700;color:var(--adm-gray,#8892A6);text-transform:uppercase;letter-spacing:.04em;">Talabaning telefon raqami <span style="font-size:.72rem;font-weight:400;text-transform:none;color:var(--adm-gray,#8892A6);">(ixtiyoriy)</span></label>
-                  <input class="oj-input" type="tel" id="af_tel_oz" placeholder="+998 __ ___ __ __" maxlength="18" style="width:100%;" />
+                  <input class="oj-input" type="tel" id="af_tel_oz" placeholder="901234567" maxlength="14" inputmode="numeric" style="width:100%;" />
                 </div>
                 <div style="grid-column:1/-1;display:flex;align-items:center;gap:12px;color:var(--adm-gray,#8892A6);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;">
                   <span style="flex:1;height:1px;background:var(--adm-line,var(--line));"></span>
@@ -2274,12 +2274,12 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
                 </div>
                 <div style="display:flex;flex-direction:column;gap:5px;">
                   <label style="font-size:.78rem;font-weight:700;color:var(--adm-gray,#8892A6);text-transform:uppercase;letter-spacing:.04em;">1-telefon raqam <span style="color:#e74c3c;">*</span></label>
-                  <input class="oj-input" type="tel" id="af_tel1" placeholder="+998 __ ___ __ __" maxlength="18" style="width:100%;" />
+                  <input class="oj-input" type="tel" id="af_tel1" placeholder="901234567" maxlength="14" inputmode="numeric" style="width:100%;" />
                   <span style="font-size:.75rem;color:#e74c3c;" id="aerr_tel1"></span>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:5px;">
                   <label style="font-size:.78rem;font-weight:700;color:var(--adm-gray,#8892A6);text-transform:uppercase;letter-spacing:.04em;">2-telefon raqam <span style="color:#e74c3c;">*</span></label>
-                  <input class="oj-input" type="tel" id="af_tel2" placeholder="+998 __ ___ __ __" maxlength="18" style="width:100%;" />
+                  <input class="oj-input" type="tel" id="af_tel2" placeholder="901234567" maxlength="14" inputmode="numeric" style="width:100%;" />
                   <span style="font-size:.75rem;color:#e74c3c;" id="aerr_tel2"></span>
                 </div>
               </div>
@@ -11749,9 +11749,8 @@ function aFormTozala() {
   if (!el) return;
   el.addEventListener('input', function() {
     let v = this.value.replace(/\D/g, '');
-    if (v.startsWith('998')) v = '+' + v;
-    else if (v.startsWith('9')) v = '+998' + v;
-    this.value = v;
+    if (v.length >= 12 && v.startsWith('998')) v = v.slice(3); // +998 bilan qo'yilgan bo'lsa olib tashlaydi
+    this.value = v.slice(0, 9);
   });
 });
 
