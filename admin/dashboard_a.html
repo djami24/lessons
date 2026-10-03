@@ -546,6 +546,22 @@ body.admin-theme.dark [style*="color: #333" i]{color:#e8ecf5 !important}
 body.admin-theme.dark [style*="border:1px solid #eee" i],
 body.admin-theme.dark [style*="border-bottom:1px solid #eee" i],
 body.admin-theme.dark [style*="border-top:1px solid #eee" i]{border-color:#2a3248 !important}
+
+/* Bosh sahifa: "To'liq statistikani ko'rish" — kichik, chapda, fonsiz */
+.home-cta-wrap{text-align:left;margin-top:14px;}
+body.admin-theme .home-cta-wrap .btn{
+  background:transparent !important; border:none !important; box-shadow:none !important; transform:none !important;
+  color:var(--adm-blue,#2F6FED); padding:.35em .2em; font-size:.85rem; font-weight:600; border-radius:8px;
+}
+body.admin-theme .home-cta-wrap .btn:hover{ text-decoration:underline; text-underline-offset:3px; }
+body.admin-theme.dark .home-cta-wrap .btn{ color:#8fb0ff; }
+
+/* Dark mode: donut markazidagi raqam oq */
+body.admin-theme.dark .st-donut svg text:first-of-type{ fill:#fff !important; }
+body.admin-theme.dark .st-donut svg text:last-of-type{ fill:#c3cada !important; }
+
+/* Dark mode: Caller — muddati o'tgan qatorlar */
+body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,95,.12) !important; }
 </style>
 </head>
 
@@ -846,7 +862,7 @@ body.admin-theme.dark [style*="border-top:1px solid #eee" i]{border-color:#2a324
       </div>
 
       <div class="home-cta-wrap">
-        <button class="btn btn-primary" id="homeGoToStats"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> To'liq statistikani ko'rish <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg></button>
+        <button class="btn btn-primary" id="homeGoToStats">To'liq statistikani ko'rish</button>
       </div>
     </section>
 
