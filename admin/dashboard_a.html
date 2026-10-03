@@ -122,6 +122,10 @@
 .st-kpi-click:hover{transform:translateY(-2px);box-shadow:0 10px 22px -14px rgba(20,33,61,.45);}
 .st-kpi-click:focus-visible{outline:2px solid var(--adm-blue,#2F6FED);outline-offset:2px;}
 .st-kpi-hint{font-size:.66rem;color:var(--adm-gray,var(--gray));opacity:.8;margin-top:2px;}
+.kd-filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.kd-filters input,.kd-filters select{padding:8px 10px;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;background:var(--paper);color:inherit;font:inherit;font-size:.85rem;min-width:0;}
+.kd-filters input{flex:1 1 160px;}
+.kd-filters select{flex:0 1 auto;max-width:100%;}
 .kd-list{display:flex;flex-direction:column;gap:8px;margin:14px 0 6px;max-height:60vh;overflow-y:auto;}
 .kd-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1.5px solid var(--adm-line,var(--line));border-radius:12px;background:var(--paper);}
 .kd-ava{width:38px;height:38px;border-radius:50%;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#6c63ff,#3fbfbf);color:#fff;font-weight:700;font-size:.85rem;}
@@ -2668,6 +2672,16 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
   <div class="modal-box">
     <h3 id="kpiDetailTitle">Tafsilot</h3>
     <p class="modal-sub" id="kpiDetailSub"></p>
+    <div class="kd-filters">
+      <input type="search" id="kpiDetailSearch" placeholder="Ism bo‘yicha qidirish…" autocomplete="off">
+      <select id="kpiDetailGroup" aria-label="Guruh"></select>
+      <select id="kpiDetailSort" aria-label="Saralash">
+        <option value="def">Standart tartib</option>
+        <option value="name">Ism (A → Z)</option>
+        <option value="asc">Ko‘rsatkich: kamdan ko‘pga</option>
+        <option value="desc">Ko‘rsatkich: ko‘pdan kamga</option>
+      </select>
+    </div>
     <div class="kd-list" id="kpiDetailList"></div>
     <div class="modal-actions" style="margin-top:12px;">
       <button type="button" class="btn btn-ghost" data-close-modal="modalKpiDetail">Yopish</button>
@@ -6747,6 +6761,32 @@ function stSpark(vals, color){
 const ST_KPI_KIND = { 'Davomat':'att', 'Uy vazifa':'hw', 'Kelmadi':'no', 'Kech qoldi':'late', 'Jazolangan':'pun', 'Belgilash':'comp' };
 // ----- Kartochkani bosganda: tegishli talabalar ro'yxati -----
 const _stKpiCtx = { home: null, stats: null };
+let _kdState = { rows: [], sub: '', kind: '' };
+function stRenderKpiDetail(){
+  const q = document.getElementById('kpiDetailSearch').value.trim().toLowerCase();
+  const g = document.getElementById('kpiDetailGroup').value;
+  const sort = document.getElementById('kpiDetailSort').value;
+  let list = _kdState.rows.filter(r => (!g || r.gname === g) && (!q || String(r.name || '').toLowerCase().includes(q)));
+  if (sort === 'name') list = list.slice().sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+  else if (sort === 'asc') list = list.slice().sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
+  else if (sort === 'desc') list = list.slice().sort((a, b) => (b.num ?? 0) - (a.num ?? 0));
+  const filtered = list.length !== _kdState.rows.length;
+  document.getElementById('kpiDetailSub').textContent = (_kdState.sub ? _kdState.sub + ' · ' : '') +
+    (filtered ? list.length + ' / ' + _kdState.rows.length : list.length) + ' ta o‘quvchi';
+  document.getElementById('kpiDetailList').innerHTML = list.length ? list.map(p => {
+    const key = stAvatarKeyFor(p);
+    const ini = escHtml(initials(p.name));
+    const ava = key ? `<img class="avatar-img" alt="" src="${ADMIN_AVATAR_IMAGES[key]}">` : ini;
+    return `<div class="kd-row"><div class="kd-ava">${ava}</div>
+      <div class="kd-main"><div class="kd-name">${escHtml(p.name || '—')}</div>
+      <div class="kd-sub">${escHtml(p.gname || '')}${p.line ? ' · ' + escHtml(p.line) : ''}</div></div>
+      <div class="kd-val" style="color:${p.color}">${escHtml(p.val)}</div></div>`;
+  }).join('') : '<div class="kd-empty">' + (_kdState.rows.length ? 'Filtr bo‘yicha hech kim topilmadi.' : 'Bu ko‘rsatkich bo‘yicha o‘quvchi yo‘q.') + '</div>';
+}
+['kpiDetailSearch', 'kpiDetailGroup', 'kpiDetailSort'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener(id === 'kpiDetailSearch' ? 'input' : 'change', stRenderKpiDetail);
+});
 function stOpenKpiDetail(kind, ctx){
   if(!ctx) return;
   const { cur, groups, wins, per } = ctx;
@@ -6762,45 +6802,43 @@ function stOpenKpiDetail(kind, ctx){
   if (kind === 'att') {
     title = 'Davomat — o‘quvchilar bo‘yicha'; sub = 'Eng past davomatdan boshlab';
     rows = people.filter(p => p.a.marked > 0).sort((x, y) => x.a.att - y.a.att)
-      .map(p => ({ ...p, line: `${p.a.yes + p.a.late} / ${p.a.marked} ta dars · kelmadi: ${p.a.no} · kech: ${p.a.late}`, val: p.a.att + '%', color: stCol(p.a.att) }));
+      .map(p => ({ ...p, line: `${p.a.yes + p.a.late} / ${p.a.marked} ta dars · kelmadi: ${p.a.no} · kech: ${p.a.late}`, val: p.a.att + '%', num: p.a.att, color: stCol(p.a.att) }));
   } else if (kind === 'hw') {
     title = 'Uy vazifa — o‘quvchilar bo‘yicha'; sub = 'Eng past natijadan boshlab';
     rows = people.filter(p => p.a.hw !== null).sort((x, y) => x.a.hw - y.a.hw)
-      .map(p => ({ ...p, line: `${p.a.hwFull} to‘liq · ${p.a.hwPart} qisman · ${p.a.hwNo} qilmagan`, val: p.a.hw + '%', color: stCol(p.a.hw) }));
+      .map(p => ({ ...p, line: `${p.a.hwFull} to‘liq · ${p.a.hwPart} qisman · ${p.a.hwNo} qilmagan`, val: p.a.hw + '%', num: p.a.hw, color: stCol(p.a.hw) }));
   } else if (kind === 'no') {
     title = 'Kelmagan o‘quvchilar'; sub = 'Ko‘p dars qoldirganlar birinchi';
     rows = people.filter(p => p.a.no > 0).sort((x, y) => y.a.no - x.a.no)
-      .map(p => ({ ...p, line: dates(p, r => r.a === 'no'), val: p.a.no + ' marta', color: ST_C.red }));
+      .map(p => ({ ...p, line: dates(p, r => r.a === 'no'), val: p.a.no + ' marta', num: p.a.no, color: ST_C.red }));
   } else if (kind === 'late') {
     title = 'Kech qolgan o‘quvchilar'; sub = 'Ko‘p kechikkanlar birinchi';
     rows = people.filter(p => p.a.late > 0).sort((x, y) => y.a.late - x.a.late)
-      .map(p => ({ ...p, line: dates(p, r => r.a === 'late'), val: p.a.late + ' marta', color: ST_C.orange }));
+      .map(p => ({ ...p, line: dates(p, r => r.a === 'late'), val: p.a.late + ' marta', num: p.a.late, color: ST_C.orange }));
   } else if (kind === 'pun') {
     title = 'Jazolangan o‘quvchilar'; sub = 'Ko‘p jazo olganlar birinchi';
     rows = people.filter(p => p.a.pun > 0).sort((x, y) => y.a.punCnt - x.a.punCnt)
-      .map(p => ({ ...p, line: dates(p, r => r.pun), val: p.a.punCnt + ' ta jazo', color: ST_C.purple }));
+      .map(p => ({ ...p, line: dates(p, r => r.pun), val: p.a.punCnt + ' ta jazo', num: p.a.punCnt, color: ST_C.purple }));
   } else if (kind === 'comp') {
     title = 'Belgilanmagan darslar'; sub = 'Davomat to‘liq kiritilmagan o‘quvchilar (ko‘p qolganlar birinchi)';
     groups.forEach(g => {
       const n = (wins[g.id] || {}).n || 0;
       g.students.forEach(st => {
         const marked = (byS[st.id] ? byS[st.id].a.marked : 0);
-        if (n > 0 && marked < n) rows.push({ sid: st.id, name: st.name, phone: st.phone || '', gname: g.name, line: `${n - marked} ta dars belgilanmagan`, val: `${marked} / ${n}`, color: ST_C.gray, miss: n - marked });
+        if (n > 0 && marked < n) rows.push({ sid: st.id, name: st.name, phone: st.phone || '', gname: g.name, line: `${n - marked} ta dars belgilanmagan`, val: `${marked} / ${n}`, num: n - marked, color: ST_C.gray, miss: n - marked });
       });
     });
     rows.sort((x, y) => y.miss - x.miss);
   }
+  _kdState = { rows, sub, kind };
   document.getElementById('kpiDetailTitle').textContent = title;
-  document.getElementById('kpiDetailSub').textContent = (sub ? sub + ' · ' : '') + rows.length + ' ta o‘quvchi';
-  document.getElementById('kpiDetailList').innerHTML = rows.length ? rows.map(p => {
-    const key = stAvatarKeyFor(p);
-    const ini = escHtml(initials(p.name));
-    const ava = key ? `<img class="avatar-img" alt="" src="${ADMIN_AVATAR_IMAGES[key]}">` : ini;
-    return `<div class="kd-row"><div class="kd-ava">${ava}</div>
-      <div class="kd-main"><div class="kd-name">${escHtml(p.name || '—')}</div>
-      <div class="kd-sub">${escHtml(p.gname || '')}${p.line ? ' · ' + escHtml(p.line) : ''}</div></div>
-      <div class="kd-val" style="color:${p.color}">${escHtml(p.val)}</div></div>`;
-  }).join('') : '<div class="kd-empty">Bu ko‘rsatkich bo‘yicha o‘quvchi yo‘q.</div>';
+  document.getElementById('kpiDetailSearch').value = '';
+  document.getElementById('kpiDetailSort').value = 'def';
+  const gNames = [...new Set(rows.map(r => r.gname).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const gSel = document.getElementById('kpiDetailGroup');
+  gSel.innerHTML = '<option value="">Barcha guruhlar</option>' + gNames.map(n => `<option value="${escHtml(n)}">${escHtml(n)}</option>`).join('');
+  gSel.style.display = gNames.length > 1 ? '' : 'none';
+  stRenderKpiDetail();
   openModal('modalKpiDetail');
 }
 [['homeStKpis', 'home'], ['statsTopStatRow', 'stats']].forEach(([id, key]) => {
