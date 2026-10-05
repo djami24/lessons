@@ -7788,7 +7788,7 @@ document.getElementById('ojParentTgBtn').addEventListener('click', async () => {
       // Qisman bajargan bo'lsa: admin kiritgan bajarilmagan uy vazifa nomi qavs ichida chiqadi (kiritilmagan bo'lsa — "qisman")
       const mi = r.querySelector('[data-field="homeworkMissing"]');
       const missing = ((mi && mi.value) || '').trim();
-      return nameOf(r) + ' (' + (missing || 'qisman') + ')';
+      return nameOf(r) + ' (' + (missing ? 'Qilinmagan uy vazifalar: ' + missing : 'qisman') + ')';
     });
   const unmarked = rows.filter(r => !r.dataset.attend).length;
   // Jazolanganlar: "Jazolandi" tugmasi faol bo'lgan qatorlar; jazo soni qatordagi "Nechta jazo" maydonidan olinadi
@@ -7820,7 +7820,8 @@ document.getElementById('ojParentTgBtn').addEventListener('click', async () => {
     const notes = [];
     if (absent.length)   notes.push(`Farzandingiz nega kelmaganini o'qituvchiga xabar bering.`);
     if (hwUndone.length) notes.push(`Uy vazifalarning bajarilishini nazorat qilishingizni so'raymiz.`);
-    if (notes.length) text += `\n\n🙏 ` + notes.join(' ');
+    if (notes.length) text += `\n\n❗ ` + notes.join(' ');
+    text += `\n\nO'qituvchi: @djamiteacher`;
   }
 
   if (!confirm(`Quyidagi xabar ota-onalar guruhiga (${chatId}) yuborilsinmi?\n\n` + text.replace(/<[^>]+>/g, '').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>'))) return;
