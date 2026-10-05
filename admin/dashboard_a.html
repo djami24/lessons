@@ -14,6 +14,10 @@
 .btn-tg:hover{background:linear-gradient(135deg,#1a8fc4,#155f8e);} 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }
 
 /* ====== O'QUV JARAYONI — Modern UI ====== */
+/* Admin sarlavhalari ixcham */
+.admin-main h1{font-size:1.45rem;font-weight:700;line-height:1.25;display:flex;align-items:center;gap:8px;}
+.admin-main h1 .ic{width:1.05em;height:1.05em;flex-shrink:0;}
+.admin-main h2{font-size:1.15rem;font-weight:700;line-height:1.3;}
 .oj-gh{margin-bottom:20px;display:flex;flex-direction:column;gap:14px;}
 .oj-gh-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
 .oj-gh-info{min-width:0;display:flex;flex-direction:column;gap:6px;}
@@ -1621,7 +1625,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <h1 style="margin:0 0 4px;"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Kundalik — Uy vazifalari</h1>
           <p style="margin:0; color:var(--gray); font-size:14px;">Guruh papkasini oching, sana bo'yicha uy vazifalari qo'shing. Ro'yxat "Guruhlar" bo'limidagi guruhlar bilan avtomatik bir xil — yangi guruhni shu yerdan ham qo'shishingiz mumkin.</p>
         </div>
-        <button class="btn btn-primary" id="openAddKundalikGroup">+ Yangi guruh</button>
+        <button class="btn btn-primary btn-sm" id="openAddKundalikGroup">+ Yangi guruh</button>
       </div>
 
       <!-- Group list -->
@@ -1636,7 +1640,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <h2 style="margin:0;" id="kundalikActiveGroupName">Guruh</h2>
         </div>
         <div style="margin-bottom:16px;">
-          <button class="btn btn-amber" id="openAddHw">+ Yangi uy vazifasi</button>
+          <button class="btn btn-amber btn-sm" id="openAddHw">+ Yangi uy vazifasi</button>
         </div>
         <div class="table-wrap">
           <table class="data-table" id="kundalikHwTable">
