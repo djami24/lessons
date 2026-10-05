@@ -14,6 +14,20 @@
 .btn-tg:hover{background:linear-gradient(135deg,#1a8fc4,#155f8e);} 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }
 
 /* ====== O'QUV JARAYONI — Modern UI ====== */
+.oj-gh{margin-bottom:20px;display:flex;flex-direction:column;gap:14px;}
+.oj-gh-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap;}
+.oj-gh-info{min-width:0;display:flex;flex-direction:column;gap:6px;}
+.oj-gh-info h1{margin:0;font-size:1.3rem;line-height:1.2;display:flex;align-items:center;gap:8px;}
+.oj-gh-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.oj-chip{display:inline-flex;align-items:center;gap:5px;font-size:.76rem;font-weight:600;color:var(--gray);background:var(--surface,#f4f5f7);border:1px solid var(--line);border-radius:999px;padding:3px 10px;line-height:1.3;white-space:nowrap;}
+.oj-chip:empty{display:none;}
+.oj-chip .ic{width:13px;height:13px;}
+.oj-gh-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:10px 12px;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;}
+.oj-gh-group{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+.oj-gh-bar .btn{white-space:nowrap;padding:.6em 1em;font-size:.8rem;}
+.oj-gh-bar .btn .ic{width:15px;height:15px;}
+.oj-gh-bar .st-select{padding:6px 10px;font-size:.8rem;border-radius:999px;}
+@media(max-width:700px){.oj-gh-group{width:100%;}.oj-gh-group .btn{flex:1 1 auto;}}
 .oj-header{display:flex;align-items:flex-start;justify-content:space-between;gap:1em;flex-wrap:wrap;margin-bottom:28px;}
 .oj-header h1{margin:0 0 4px;font-size:1.5rem;}
 .oj-header p{margin:0;color:var(--gray);font-size:.9rem;}
@@ -1882,21 +1896,31 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
     <!-- ===== O'QUV JARAYONI: Students in a group ===== -->
     <section id="view-oquv-students" hidden>
-      <div style="display:flex; align-items:center; gap:12px; margin-bottom:24px;">
-        <button class="btn btn-ghost btn-sm" id="ojBackToGroups"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Guruhlar</button>
-        <div>
-          <h1 style="margin:0; font-size:1.4rem;" id="ojGroupTitle">Guruh</h1>
-          <p style="margin:0; color:var(--gray); font-size:.85rem;" id="ojGroupSub">0 talaba</p>
-          <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupDaysLine"></p>
-          <p style="margin:2px 0 0; color:var(--gray); font-size:.8rem;" id="ojGroupMonthLine"></p>
+      <div class="oj-gh">
+        <div class="oj-gh-top">
+          <button class="btn btn-ghost btn-sm oj-gh-back" id="ojBackToGroups"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Guruhlar</button>
+          <div class="oj-gh-info">
+            <h1 id="ojGroupTitle">Guruh</h1>
+            <div class="oj-gh-chips">
+              <span class="oj-chip" id="ojGroupSub">0 talaba</span>
+              <span class="oj-chip" id="ojGroupDaysLine"></span>
+              <span class="oj-chip" id="ojGroupMonthLine"></span>
+            </div>
+          </div>
         </div>
-        <button class="btn btn-amber" id="ojNewMonthBtn" style="margin-left:auto;" title="Yangi o'quv oyini boshlash — statistika shu sanadan boshidan hisoblanadi"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Yangi oyni boshlash</button>
-        <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Hammasini nusxalash</button>
-        <button class="btn btn-primary btn-sm" id="ojParentTgBtn" title="Bugungi davomatni (kelmaganlar va kech qolganlar) ota-onalar Telegram guruhiga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Ota-onalarga yuborish</button>
-        <button class="btn btn-ghost btn-sm" id="ojParentTgChatBtn" title="Shu guruh ota-onalarining Telegram guruhi (chat ID)">Telegram guruh</button>
-        <select class="st-select rp-month-select" title="Hisobot oyi"></select>
-        <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
-        <button class="btn btn-primary" id="openAddOquvStudent">+ Talaba qo'shish</button>
+        <div class="oj-gh-bar">
+          <div class="oj-gh-group">
+            <button class="btn btn-amber btn-sm" id="ojNewMonthBtn" title="Yangi o'quv oyini boshlash — statistika shu sanadan boshidan hisoblanadi"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Yangi oyni boshlash</button>
+            <button class="btn btn-primary btn-sm" id="ojParentTgBtn" title="Bugungi davomatni (kelmaganlar va kech qolganlar) ota-onalar Telegram guruhiga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Ota-onalarga yuborish</button>
+            <button class="btn btn-primary btn-sm" id="openAddOquvStudent">+ Talaba qo'shish</button>
+          </div>
+          <div class="oj-gh-group oj-gh-group--end">
+            <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Hammasini nusxalash</button>
+            <button class="btn btn-ghost btn-sm" id="ojParentTgChatBtn" title="Shu guruh ota-onalarining Telegram guruhi (chat ID)">Telegram guruh</button>
+            <select class="st-select rp-month-select" title="Hisobot oyi"></select>
+            <button class="btn btn-ghost btn-sm" id="ojGroupPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
+          </div>
+        </div>
       </div>
       <div id="ojScheduleBanner" class="oj-schedule-banner" hidden></div>
       <p style="color:var(--gray); font-size:.85rem; margin:-10px 0 16px;">Ro'yxatda <strong id="ojTodayLabel"></strong> uchun davomat, uy vazifa va bahoni belgilang. To'liq tarixni ko'rish yoki tahrirlash uchun talaba ismiga bosing.</p>
