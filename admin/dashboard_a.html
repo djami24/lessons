@@ -7783,7 +7783,13 @@ document.getElementById('ojParentTgBtn').addEventListener('click', async () => {
   const came   = rows.filter(r => r.dataset.attend === 'yes').length;
   // Uy vazifa qilmaganlar: darsga kelgan (yoki kech qolgan) talabalar orasidan. Kelmaganlar yuqorida alohida ko'rsatiladi.
   const hwUndone = rows.filter(r => (r.dataset.attend === 'yes' || r.dataset.attend === 'late') && (r.dataset.hw === 'no' || r.dataset.hw === 'partial'))
-    .map(r => nameOf(r) + (r.dataset.hw === 'partial' ? ' (qisman)' : ''));
+    .map(r => {
+      if (r.dataset.hw !== 'partial') return nameOf(r);
+      // Qisman bajargan bo'lsa: admin kiritgan bajarilmagan uy vazifa nomi qavs ichida chiqadi (kiritilmagan bo'lsa — "qisman")
+      const mi = r.querySelector('[data-field="homeworkMissing"]');
+      const missing = ((mi && mi.value) || '').trim();
+      return nameOf(r) + ' (' + (missing || 'qisman') + ')';
+    });
   const unmarked = rows.filter(r => !r.dataset.attend).length;
   // Jazolanganlar: "Jazolandi" tugmasi faol bo'lgan qatorlar; jazo soni qatordagi "Nechta jazo" maydonidan olinadi
   const punished = rows.filter(r => { const b = r.querySelector('[data-punish-btn]'); return b && b.classList.contains('is-active'); })
