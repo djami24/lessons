@@ -18,6 +18,8 @@
 .modal-box .modal-title{font-size:1.25rem;font-weight:700;line-height:1.3;margin:0 0 14px;}
 .modal-form > label:not(:has(input[type=checkbox])){display:flex;flex-direction:column;gap:6px;font-size:.85rem;font-weight:600;}
 .modal-form > label > input:not([type=checkbox]):not([type=radio]),.modal-form > label > select,.modal-form > label > textarea{width:100%;box-sizing:border-box;}
+body.teacher-mode .admin-nav li{display:none;}
+body.teacher-mode .admin-nav li:has(#navOquvJarayoni){display:block;}
 /* Admin sarlavhalari ixcham */
 .admin-main h1{font-size:1.45rem;font-weight:700;line-height:1.25;display:flex;align-items:center;gap:8px;}
 .admin-main h1 .ic{width:1.05em;height:1.05em;flex-shrink:0;}
@@ -3309,13 +3311,54 @@ function renderBreadcrumb(elId, rootLabel, rootArray, path, onNavigateAttr){
   el.innerHTML = html;
 }
 
+// ---------- Ustoz rejimi ----------
+// Ustoz shu panelning faqat "O'quv jarayoni" bo'limini ko'radi va faqat o'z guruhlarini boshqaradi
+// (oquv_groups.teacherId == uid). Ruxsatlar Firestore qoidalarida ham tekshiriladi.
+window.IS_TEACHER = false;
+async function ojGroupsSnap(){
+  if (!window.IS_TEACHER) return db.collection('oquv_groups').orderBy('name').get();
+  const snap = await db.collection('oquv_groups').where('teacherId', '==', window.TEACHER_UID).get();
+  const docs = snap.docs.slice().sort((a, b) => String(a.data().name || '').localeCompare(String(b.data().name || '')));
+  return { docs, empty: docs.length === 0, size: docs.length, forEach: (fn) => docs.forEach(fn) };
+}
+async function initTeacherMode(){
+  document.body.classList.add('teacher-mode');
+  document.getElementById('sidebarUsername').textContent = window.TEACHER_NAME;
+  const av = document.getElementById('sidebarAvatar');
+  if (av) av.textContent = (window.TEACHER_NAME || 'U').trim().charAt(0).toUpperCase();
+  const role = document.querySelector('.admin-user-role');
+  if (role) role.textContent = "O'qituvchi";
+  document.getElementById('loadingScreen').hidden = true;
+  document.getElementById('appShell').hidden = false;
+  // Telegram bot tokenini admin Firestore'ga saqlagan — ota-onalarga xabar yuborish uchun
+  try {
+    const t = await db.collection('telegramConfig').doc('bot').get();
+    if (t.exists && t.data().token) {
+      let cur = {}; try { cur = JSON.parse(localStorage.getItem('efTgBotSettings') || '{}') || {}; } catch(e){}
+      cur.token = t.data().token;
+      localStorage.setItem('efTgBotSettings', JSON.stringify(cur));
+    }
+  } catch(e){ console.warn('tg token yo\'q:', e); }
+  document.getElementById('navOquvJarayoni').click();
+}
+
 // ---------- Auth gate ----------
 auth.onAuthStateChanged(async (user) => {
   if(!user){ window.location.href = 'login.html'; return; }
   const adminDoc = await db.collection('admins').doc(user.uid).get();
   if(!adminDoc.exists){
-    await auth.signOut();
-    window.location.href = 'login.html';
+    // Admin emas — ustoz hisobimi? (faqat o'quv jarayoni bo'limi ochiladi)
+    let tDoc = null;
+    try { tDoc = await db.collection('teachers').doc(user.uid).get(); } catch(e){}
+    if(!tDoc || !tDoc.exists || tDoc.data().active === false){
+      await auth.signOut();
+      window.location.href = 'login.html';
+      return;
+    }
+    window.IS_TEACHER = true;
+    window.TEACHER_UID = user.uid;
+    window.TEACHER_NAME = tDoc.data().name || user.email;
+    await initTeacherMode();
     return;
   }
   document.getElementById('sidebarUsername').textContent = user.email;
@@ -5924,6 +5967,7 @@ function renderRatingStats(sum, count){
   }
 
   function saveTgSettingsLocal(token, siteUrl, targets, absentChatId, sheetScriptUrl){
+    try{ if(token && !window.IS_TEACHER){ db.collection('telegramConfig').doc('bot').set({ token: token, updatedAt: Date.now() }).catch(function(){}); } } catch(e){}
     try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token: token, siteUrl: siteUrl, targets: targets, absentChatId: absentChatId || '', sheetScriptUrl: sheetScriptUrl || '' })); } catch(e){}
   }
 
@@ -6504,7 +6548,7 @@ async function loadKundalikGroups() {
   document.getElementById('kundalikHwView').style.display = 'none';
   listEl.innerHTML = '<p style="color:var(--gray);font-size:14px;padding:8px 0;">Yuklanmoqda\u2026</p>';
   try {
-    const snap = await db.collection('oquv_groups').orderBy('name').get();
+    const snap = await ojGroupsSnap();
     if (snap.empty) {
       listEl.innerHTML = '<p style="color:var(--gray);font-size:14px;padding:8px 0;">Hali guruhlar yo\u02bcq. Yuqoridagi &quot;+ Yangi guruh&quot; tugmasi orqali birinchi guruhni yarating.</p>';
       return;
@@ -6746,7 +6790,7 @@ function ojDayKeyForOffset(offsetDays){
 // Fetches every group together with its student list (id+name) in one go.
 // Used by both the home dashboard and the statistics page.
 async function homeFetchGroupsWithStudents(){
-  const groupsSnap = await db.collection('oquv_groups').orderBy('name').get();
+  const groupsSnap = await ojGroupsSnap();
   const groups = groupsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
   const studentLists = await Promise.all(groups.map(g =>
     db.collection('oquv_groups').doc(g.id).collection('students').orderBy('name').get()
@@ -7625,8 +7669,8 @@ async function loadOjGroups() {
   const empty = document.getElementById('ojGroupsEmpty');
   grid.innerHTML = '<p style="color:var(--gray); padding:8px;">Yuklanmoqda…</p>';
   try {
-    if (!Object.keys(window._teachersMap || {}).length) await ojLoadTeachersMap();
-    const snap = await db.collection('oquv_groups').orderBy('name').get();
+    if (!window.IS_TEACHER && !Object.keys(window._teachersMap || {}).length) await ojLoadTeachersMap();
+    const snap = await ojGroupsSnap();
     grid.innerHTML = '';
     if (snap.empty) { empty.style.display = 'block'; return; }
     empty.style.display = 'none';
@@ -7711,7 +7755,7 @@ document.getElementById('ojGroupSaveBtn').addEventListener('click', async () => 
   const editingId = document.getElementById('ojGroupEditingId').value;
   const days = ojGetCheckedDays();
   const time = document.getElementById('ojGroupTimeInput').value.trim();
-  const teacherId = document.getElementById('ojGroupTeacherSelect').value || '';
+  const teacherId = window.IS_TEACHER ? window.TEACHER_UID : (document.getElementById('ojGroupTeacherSelect').value || '');
   if (!name) { err.textContent = 'Guruh nomi kiritilmagan.'; err.hidden = false; return; }
   err.hidden = true;
   try {
@@ -8656,6 +8700,7 @@ async function ojLoadTeachersMap(){
 async function ojFillTeacherSelect(selected){
   const sel = document.getElementById('ojGroupTeacherSelect');
   if (!sel) return;
+  if (window.IS_TEACHER) { const lab = sel.closest('label'); if (lab) lab.style.display = 'none'; return; }
   if (!Object.keys(window._teachersMap || {}).length) await ojLoadTeachersMap();
   sel.innerHTML = '<option value="">Men (admin)</option>' + Object.values(window._teachersMap)
     .filter(t => t.active !== false || t.id === selected)
