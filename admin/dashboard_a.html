@@ -3330,7 +3330,12 @@ function renderBreadcrumb(elId, rootLabel, rootArray, path, onNavigateAttr){
 // (oquv_groups.teacherId == uid). Ruxsatlar Firestore qoidalarida ham tekshiriladi.
 window.IS_TEACHER = false;
 async function ojGroupsSnap(){
-  if (!window.IS_TEACHER) return db.collection('oquv_groups').orderBy('name').get();
+  if (!window.IS_TEACHER) {
+    // Admin faqat o'z guruhlarini ko'radi (teacherId yo'q); ustozlar guruhlari "Ustozlar" bo'limida
+    const all = await db.collection('oquv_groups').orderBy('name').get();
+    const mine = all.docs.filter(d => !d.data().teacherId);
+    return { docs: mine, empty: mine.length === 0, size: mine.length, forEach: (fn) => mine.forEach(fn) };
+  }
   const snap = await db.collection('oquv_groups').where('teacherId', '==', window.TEACHER_UID).get();
   const docs = snap.docs.slice().sort((a, b) => String(a.data().name || '').localeCompare(String(b.data().name || '')));
   return { docs, empty: docs.length === 0, size: docs.length, forEach: (fn) => docs.forEach(fn) };
