@@ -6623,12 +6623,13 @@ async function loadKundalikHw(groupId) {
     }
     window._kundalikHwCache = {};
     snap.docs.forEach(d => { window._kundalikHwCache[d.id] = d.data(); });
-    tbody.innerHTML = snap.docs.map(doc => {
+    const hwDocs = snap.docs.slice().sort((a, b) => hwSortDesc(a.data(), b.data()));
+    tbody.innerHTML = hwDocs.map((doc, idx) => {
       const d = doc.data();
       const dateStr = d.sana ? (typeof d.sana.toDate === 'function'
         ? d.sana.toDate().toLocaleDateString('uz-UZ',{day:'numeric',month:'short',year:'numeric'})
         : d.sana) : '\u2014';
-      return '<tr><td style="white-space:nowrap;">' + escapeHtml(dateStr) + '</td><td>' + escapeHtml(d.sarlavha||'') + '</td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-ghost btn-sm" onclick="editHwItem(\'' + doc.id + '\')"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg> Tahrirlash</button><button class="btn btn-danger btn-sm" onclick="deleteHwItem(\'' + doc.id + '\',\'' + escapeHtml(d.sarlavha||'') + '\')">O\u02bcchirish</button></td></tr>';
+      return '<tr><td style="white-space:nowrap;">' + escapeHtml(dateStr) + '</td><td>' + escapeHtml(d.sarlavha||'') + (idx === 0 ? ' <span style="background:#e8f7ee;color:#1e8449;font-weight:700;font-size:.72rem;padding:2px 8px;border-radius:999px;margin-left:6px;">Hozirgi (talabalar shuni ko\u02bbradi)</span>' : '') + '</td><td style="display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-ghost btn-sm" onclick="editHwItem(\'' + doc.id + '\')"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg> Tahrirlash</button><button class="btn btn-danger btn-sm" onclick="deleteHwItem(\'' + doc.id + '\',\'' + escapeHtml(d.sarlavha||'') + '\')">O\u02bcchirish</button></td></tr>';
     }).join('');
   } catch (err) {
     tbody.innerHTML = '<tr><td colspan="3" style="color:var(--error);">Yuklab bo\u02bclmadi.</td></tr>';
@@ -6681,9 +6682,11 @@ document.getElementById('editHwForm').addEventListener('submit', async (e) => {
   try {
     const col = db.collection('kundalik').doc(_kundalikActiveGroup).collection('vazifalari');
     if (_editHwId) { await col.doc(_editHwId).update(payload); }
-    else { await col.add(payload); }
+    else { await col.add({ ...payload, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); }
     closeModal('modalEditHw');
     loadKundalikHw(_kundalikActiveGroup);
+    // Bosh sahifadagi "Guruhlarning so'nggi uy vazifalari" ham darhol yangilansin
+    if (typeof loadTodayHomeworkCards === 'function') loadTodayHomeworkCards();
   } catch (err) {
     errEl.textContent = 'Saqlashda xatolik.'; errEl.hidden = false;
   } finally {
@@ -9946,18 +9949,28 @@ let _todayHwAutoRefreshInterval = null;
 // to'g'ri oquv_groups'dagi haqiqiy guruh ID'si bilan bir xil, shuning
 // uchun nom farqi (probel, katta-kichik harf) tufayli hech qachon mos
 // kelmay qolmaydi.
+// Uy vazifalarni tartiblash: avval sana (yangisi birinchi), sana bir xil
+// bo'lsa — qaysi biri keyinroq kiritilgan bo'lsa (createdAt) o'sha birinchi.
+function hwToMs(ts){
+  if(!ts) return 0;
+  const d = typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
+  const t = d.getTime();
+  return isNaN(t) ? 0 : t;
+}
+function hwSortDesc(a, b){
+  const diff = hwToMs(b.sana) - hwToMs(a.sana);
+  return diff !== 0 ? diff : hwToMs(b.createdAt) - hwToMs(a.createdAt);
+}
+
 async function homeFetchLatestKundalikHw(groupId){
   try{
     const hwSnap = await db.collection('kundalik').doc(groupId)
       .collection('vazifalari').orderBy('sana', 'desc').limit(10).get();
-    // Faqat BUGUNGI sanadagi uy vazifalar ko'rsatiladi
-    const today = localDateStr();
-    const items = hwSnap.docs.map(d => d.data()).filter(h => {
-      const ts = h.sana;
-      const dt = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
-      return dt && !isNaN(dt) && localDateStr(dt) === today;
-    });
-    return { kundalikGroupId: groupId, items };
+    // Har doim faqat ENG SO'NGGI kiritilgan bitta uy vazifa ko'rsatiladi —
+    // yangisi kiritilganda eskisi o'rnini egallaydi (eski vazifalar
+    // Kundalik bo'limida tarix sifatida saqlanib qoladi).
+    const sorted = hwSnap.docs.map(d => d.data()).sort(hwSortDesc);
+    return { kundalikGroupId: groupId, items: sorted.slice(0, 1) };
   } catch(err){
     return { kundalikGroupId: null, items: [] };
   }
@@ -9985,14 +9998,14 @@ function renderTodayAssignmentCards(cardData){
           </div>
           <div class="today-assign-empty">Bu guruh uchun hali uy vazifasi kiritilmagan.</div>
           <div class="today-assign-footer">
-            <span style="color:var(--adm-amber,#D4780A);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};"><svg class="ic" aria-hidden="true"><use href="#i-plus"></use></svg> Qo'shish</span>
+            <span style="color:var(--adm-amber,#D4780A);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};${kundalikGroupId ? "document.getElementById('openAddHw').click();" : ''}"><svg class="ic" aria-hidden="true"><use href="#i-plus"></use></svg> Qo'shish</span>
           </div>
         </div>`;
     }
     return hwItems.map(hw => {
       const ts = hw.sana;
       const date = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
-      const dateFmt = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'short' }) : '';
+      const dateFmt = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
       return `
       <div class="today-assign-card">
         <div class="today-assign-card-head">
@@ -10005,7 +10018,8 @@ function renderTodayAssignmentCards(cardData){
         <h3 class="today-assign-title">${escHtml(hw.sarlavha || 'Uy vazifasi')}</h3>
         <div class="today-assign-text">${hw.matn || ''}</div>
         <div class="today-assign-footer">
-          <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg> Tahrirlash</span>
+          <span style="color:var(--adm-amber,#D4780A);cursor:pointer;font-weight:700;font-size:.85rem;margin-right:14px;" onclick="switchView('kundalik');${openKundalikCall};document.getElementById('openAddHw').click();"><svg class="ic" aria-hidden="true"><use href="#i-plus"></use></svg> Yangi vazifa</span>
+          <span style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;font-size:.85rem;" onclick="switchView('kundalik');${openKundalikCall};"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg> Barchasi</span>
         </div>
       </div>`;
     }).join('');
@@ -10021,9 +10035,7 @@ async function homeRenderAllAssignments(groups){
     const info = await homeFetchLatestKundalikHw(g.id);
     return { group: g, kundalikGroupId: info.kundalikGroupId, hwItems: info.items };
   }));
-  const withHw = data.filter(x => x.hwItems && x.hwItems.length);
-  if (!withHw.length) { grid.innerHTML = '<p style="color:var(--gray);font-size:.9rem;margin:6px 0;">Bugun uchun uy vazifa kiritilmagan.</p>'; return; }
-  renderTodayAssignmentCards(withHw);
+  renderTodayAssignmentCards(data);
 }
 
 async function loadTodayHomeworkCards(){
