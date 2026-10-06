@@ -180,24 +180,43 @@
 
   /* Uy vazifa balli kartochkasi */
   .hwp-card{
-    position:relative; overflow:hidden; min-width:150px; max-width:210px;
-    padding:12px 16px 13px; border-radius:18px; color:#fff;
+    position:relative; overflow:hidden; min-width:126px; max-width:170px;
+    margin-left:12px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    padding:9px 13px 10px; border-radius:15px; color:#fff;
+    transition:transform .15s, box-shadow .15s;
     background:linear-gradient(135deg,#0ea5a4 0%,#2563eb 100%);
-    box-shadow:0 8px 22px rgba(37,99,235,.28);
+    box-shadow:0 6px 16px rgba(37,99,235,.26);
   }
+  .hwp-card:hover{ transform:translateY(-1px); box-shadow:0 9px 20px rgba(37,99,235,.34); }
+  .hwp-card:active{ transform:scale(.98); }
+  .hwp-card:focus-visible{ outline:2px solid #fff; outline-offset:-4px; }
   .hwp-card::after{
     content:''; position:absolute; right:-26px; top:-26px; width:84px; height:84px; border-radius:50%;
     background:rgba(255,255,255,.14); pointer-events:none;
   }
-  .hwp-top{ display:flex; align-items:center; gap:7px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.92; }
-  .hwp-ico{ width:20px; height:20px; border-radius:7px; background:rgba(255,255,255,.2); display:inline-flex; align-items:center; justify-content:center; }
-  .hwp-main{ display:flex; align-items:baseline; gap:5px; margin-top:6px; }
-  .hwp-num{ font-size:34px; font-weight:800; line-height:1; letter-spacing:-.02em; }
-  .hwp-unit{ font-size:13px; font-weight:700; opacity:.9; }
-  .hwp-max{ margin-left:auto; font-size:12px; font-weight:600; opacity:.8; }
-  .hwp-bar{ height:6px; border-radius:99px; background:rgba(255,255,255,.25); margin-top:9px; overflow:hidden; }
+  .hwp-top{ display:flex; align-items:center; gap:6px; font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.92; }
+  .hwp-ico{ width:17px; height:17px; border-radius:6px; background:rgba(255,255,255,.2); display:inline-flex; align-items:center; justify-content:center; }
+  .hwp-main{ display:flex; align-items:baseline; gap:4px; margin-top:4px; }
+  .hwp-num{ font-size:27px; font-weight:800; line-height:1; letter-spacing:-.02em; }
+  .hwp-unit{ font-size:11.5px; font-weight:700; opacity:.9; }
+  .hwp-max{ margin-left:auto; font-size:10.5px; font-weight:600; opacity:.8; }
+  .hwp-bar{ height:5px; border-radius:99px; background:rgba(255,255,255,.25); margin-top:7px; overflow:hidden; }
   .hwp-bar > i{ display:block; height:100%; width:0; border-radius:99px; background:#fff; transition:width .7s cubic-bezier(.2,.8,.2,1); }
-  .hwp-sub{ margin-top:7px; font-size:11px; font-weight:500; opacity:.88; }
+  .hwp-sub{ margin-top:5px; font-size:10px; font-weight:500; opacity:.88; }
+  .hwp-more{ margin-top:5px; font-size:9.5px; font-weight:700; opacity:.9; display:flex; align-items:center; gap:3px; }
+
+  /* Ball tizimi tushuntirish oynasi */
+  .hwi-overlay{ position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(8,12,24,.62); backdrop-filter:blur(3px); }
+  .hwi-overlay.open{ display:flex; }
+  .hwi-box{ width:100%; max-width:480px; max-height:86vh; overflow:auto; border-radius:20px; background:#fff; color:#1f2937; padding:22px 22px 18px; box-shadow:0 24px 60px rgba(0,0,0,.35); position:relative; }
+  .hwi-box h3{ margin:0 36px 14px 0; font-size:18px; font-weight:800; }
+  .hwi-close{ position:absolute; right:14px; top:14px; width:32px; height:32px; border-radius:50%; border:0; cursor:pointer; background:rgba(100,116,139,.15); color:inherit; font-size:18px; line-height:1; }
+  .hwi-step{ display:flex; gap:11px; margin-bottom:13px; }
+  .hwi-n{ flex:none; width:24px; height:24px; border-radius:50%; background:linear-gradient(135deg,#0ea5a4,#2563eb); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px; }
+  .hwi-step b.t{ display:block; font-size:14px; margin-bottom:3px; }
+  .hwi-step p{ margin:0; font-size:13.5px; line-height:1.5; opacity:.9; }
+  .hwi-box ul{ margin:6px 0 0; padding-left:18px; font-size:13.5px; line-height:1.55; }
+  body.dark .hwi-box{ background:#171d2c; color:#e8ecf5; border:1px solid #2a3248; }
   .pnew-avatar-circle{
     width:88px; height:88px;
     border-radius:50%;
@@ -933,7 +952,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
             </svg>
           </div>
           <!-- Uy vazifa balli (shu oy) -->
-          <div id="hwPointsBadge" class="hwp-card" hidden>
+          <div id="hwPointsBadge" class="hwp-card" role="button" tabindex="0" aria-label="Ball tizimi haqida batafsil" hidden>
             <div class="hwp-top">
               <span class="hwp-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.5 6.1 20.7l1.2-6.6L2.5 9.5l6.6-.9z"/></svg></span>
               Uy vazifa balli
@@ -945,6 +964,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
             </div>
             <div class="hwp-bar"><i id="hwPointsBar"></i></div>
             <div class="hwp-sub" id="hwPointsSub"></div>
+            <div class="hwp-more">Qanday ishlaydi? <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>
           </div>
         </div>
         <div class="pnew-main">
@@ -2669,6 +2689,21 @@ async function loadHwPointsBadge(){
     box.hidden = true;
   }
 }
+
+// Ball kartochkasi bosilganda tushuntirish oynasi (hodisalar document'da — elementlar keyinroq yuklansa ham ishlaydi)
+(function(){
+  const ov = () => document.getElementById('hwInfoOverlay');
+  const open = () => { const o = ov(); if(o){ o.classList.add('open'); o.setAttribute('aria-hidden', 'false'); } };
+  const close = () => { const o = ov(); if(o){ o.classList.remove('open'); o.setAttribute('aria-hidden', 'true'); } };
+  document.addEventListener('click', e => {
+    if(e.target.closest('#hwPointsBadge')) { open(); return; }
+    if(e.target.closest('#hwInfoClose') || e.target === ov()) close();
+  });
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') close();
+    else if((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.id === 'hwPointsBadge'){ e.preventDefault(); open(); }
+  });
+})();
 
 async function loadLatestHomework(){
   const box = document.getElementById('latestHwBox');
@@ -5142,5 +5177,39 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   try{localStorage.setItem('studentTheme',d?'dark':'light')}catch(e){}
 });
 </script>
+<!-- Uy vazifa ballari: tushuntirish oynasi -->
+<div class="hwi-overlay" id="hwInfoOverlay" aria-hidden="true">
+  <div class="hwi-box" role="dialog" aria-modal="true" aria-labelledby="hwInfoTitle">
+    <button type="button" class="hwi-close" id="hwInfoClose" aria-label="Yopish">&times;</button>
+    <h3 id="hwInfoTitle">Uy vazifa ballari: qanday ishlaydi?</h3>
+    <div class="hwi-step"><span class="hwi-n">1</span><div>
+      <b class="t">Har darsda ball olasiz</b>
+      <p>Uy vazifani qanchasini qilganingizga qarab, 0 dan 10 gacha ball berilgan:</p>
+      <ul>
+        <li>hammasini qilsangiz: <b>10 ball</b></li>
+        <li>80% ini qilsangiz: <b>8 ball</b></li>
+        <li>yarmini qilsangiz: <b>5 ball</b></li>
+        <li>20% ini qilsangiz: <b>2 ball</b></li>
+        <li>umuman qilmasangiz yoki darsga kelmasangiz: <b>0 ball</b></li>
+      </ul>
+    </div></div>
+    <div class="hwi-step"><span class="hwi-n">2</span><div>
+      <b class="t">Ballar yig'ilib boradi</b>
+      <p>Har darsdagi ball oy davomida qo'shilib turadi. Masalan, 12 ta darsning hammasida 10 dan olsangiz, oy oxirida 120 ball bo'ladi.</p>
+    </div></div>
+    <div class="hwi-step"><span class="hwi-n">3</span><div>
+      <b class="t">Oy oxirida mukofot bor</b>
+      <p>Har guruhdan eng ko'p ball yig'gan bitta talaba yig'gan balliga qarab to'lovdan ozod bo'ladi: <b>1 ball = 1 000 so'm</b>. Masalan, 120 ball yig'sa, 120 000 so'm to'lovdan ozod bo'ladi.</p>
+    </div></div>
+    <div class="hwi-step"><span class="hwi-n">4</span><div>
+      <b class="t">Lekin shart bor</b>
+      <p>Mukofot olish uchun kamida <b>90 ball</b> yig'ish kerak (12 ta darsda). Ya'ni uy vazifaning kamida to'rtdan uchini doim qilib turish kerak. Bir-ikki dars qoldirsangiz ham imkoningiz bor, lekin tez-tez qoldirsangiz yetmay qoladi.</p>
+    </div></div>
+    <div class="hwi-step" style="margin-bottom:0;"><span class="hwi-n">5</span><div>
+      <b class="t">Ballingizni o'zingiz ko'rasiz</b>
+      <p>Profilingizdagi rasmingiz yonida "shu oy" balli va nechta darsdan ekani turadi.</p>
+    </div></div>
+  </div>
+</div>
 </body>
 </html>
