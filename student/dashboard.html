@@ -175,7 +175,29 @@
     gap:22px;
     align-items:flex-start;
   }
-  .pnew-avatar-col{ flex-shrink:0; }
+  .pnew-avatar-col{ flex-shrink:0; display:flex; align-items:center; gap:16px; }
+  @media (min-width:601px){ .pnew-avatar-col{ flex-direction:column; gap:12px; } }
+
+  /* Uy vazifa balli kartochkasi */
+  .hwp-card{
+    position:relative; overflow:hidden; min-width:150px; max-width:210px;
+    padding:12px 16px 13px; border-radius:18px; color:#fff;
+    background:linear-gradient(135deg,#0ea5a4 0%,#2563eb 100%);
+    box-shadow:0 8px 22px rgba(37,99,235,.28);
+  }
+  .hwp-card::after{
+    content:''; position:absolute; right:-26px; top:-26px; width:84px; height:84px; border-radius:50%;
+    background:rgba(255,255,255,.14); pointer-events:none;
+  }
+  .hwp-top{ display:flex; align-items:center; gap:7px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.92; }
+  .hwp-ico{ width:20px; height:20px; border-radius:7px; background:rgba(255,255,255,.2); display:inline-flex; align-items:center; justify-content:center; }
+  .hwp-main{ display:flex; align-items:baseline; gap:5px; margin-top:6px; }
+  .hwp-num{ font-size:34px; font-weight:800; line-height:1; letter-spacing:-.02em; }
+  .hwp-unit{ font-size:13px; font-weight:700; opacity:.9; }
+  .hwp-max{ margin-left:auto; font-size:12px; font-weight:600; opacity:.8; }
+  .hwp-bar{ height:6px; border-radius:99px; background:rgba(255,255,255,.25); margin-top:9px; overflow:hidden; }
+  .hwp-bar > i{ display:block; height:100%; width:0; border-radius:99px; background:#fff; transition:width .7s cubic-bezier(.2,.8,.2,1); }
+  .hwp-sub{ margin-top:7px; font-size:11px; font-weight:500; opacity:.88; }
   .pnew-avatar-circle{
     width:88px; height:88px;
     border-radius:50%;
@@ -911,10 +933,18 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
             </svg>
           </div>
           <!-- Uy vazifa balli (shu oy) -->
-          <div id="hwPointsBadge" hidden style="margin-top:10px;text-align:center;">
-            <div id="hwPointsNum" style="font-size:24px;font-weight:800;line-height:1;color:var(--teal-500,#0d9488);">0</div>
-            <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-top:2px;">BAL · shu oy</div>
-            <div id="hwPointsSub" style="font-size:10.5px;color:var(--gray-400);margin-top:1px;"></div>
+          <div id="hwPointsBadge" class="hwp-card" hidden>
+            <div class="hwp-top">
+              <span class="hwp-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.5 6.1 20.7l1.2-6.6L2.5 9.5l6.6-.9z"/></svg></span>
+              Uy vazifa balli
+            </div>
+            <div class="hwp-main">
+              <span class="hwp-num" id="hwPointsNum">0</span>
+              <span class="hwp-unit">bal</span>
+              <span class="hwp-max" id="hwPointsMax"></span>
+            </div>
+            <div class="hwp-bar"><i id="hwPointsBar"></i></div>
+            <div class="hwp-sub" id="hwPointsSub"></div>
           </div>
         </div>
         <div class="pnew-main">
@@ -2626,9 +2656,14 @@ async function loadHwPointsBadge(){
       lessons++;
       if(a !== 'no' && hw !== null) pts += Math.round(hw / 10);
     });
+    const maxPts = lessons * 10;
     document.getElementById('hwPointsNum').textContent = pts;
-    document.getElementById('hwPointsSub').textContent = lessons ? (lessons + ' ta darsdan') : 'hali dars belgilanmagan';
+    document.getElementById('hwPointsMax').textContent = lessons ? ('/ ' + maxPts) : '';
+    document.getElementById('hwPointsSub').textContent = lessons ? ('Shu oy · ' + lessons + ' ta dars hisobida') : 'Shu oy · hali dars belgilanmagan';
+    const bar = document.getElementById('hwPointsBar');
+    bar.style.width = '0';
     box.hidden = false;
+    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = (maxPts ? Math.round(pts / maxPts * 100) : 0) + '%'; }));
   } catch(err){
     console.error('HW points load failed:', err);
     box.hidden = true;
