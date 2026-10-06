@@ -721,6 +721,10 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         <span class="nav-label">Test natijalar</span>
       </a></li>
+      <li><a href="#" id="navTeachers">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="nav-label">Ustozlar</span>
+      </a></li>
 
       <li class="nav-divider"></li>
 
@@ -1649,6 +1653,18 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           </table>
         </div>
       </div>
+    </section>
+
+    <!-- ===== USTOZLAR ===== -->
+    <section id="view-teachers" hidden>
+      <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:20px;">
+        <div>
+          <h1 style="margin:0 0 4px;"><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg> Ustozlar</h1>
+          <p style="margin:0;color:var(--gray);font-size:.9rem;">Ustoz hisoblarini yarating. Guruhni ustozga biriktirish — guruhni tahrirlash oynasida.</p>
+        </div>
+        <button class="btn btn-primary btn-sm" id="openAddTeacher">+ Ustoz qo'shish</button>
+      </div>
+      <div id="teachersList"></div>
     </section>
 
     <!-- ===== TEST NATIJALAR (gradebook) ===== -->
@@ -2581,6 +2597,29 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 </div>
 
 <!-- ===== MODAL: Add O'quv Jarayoni Group ===== -->
+<!-- ===== MODAL: Add Teacher ===== -->
+<div class="modal-overlay" id="modalAddTeacher" hidden>
+  <div class="modal-box" style="max-width:420px;">
+    <h2 class="modal-title">Yangi ustoz</h2>
+    <div class="modal-form">
+      <label>Ism familiya
+        <input type="text" id="teacherNameInput" placeholder="Masalan: Aziz Karimov">
+      </label>
+      <label>Login
+        <input type="text" id="teacherLoginInput" placeholder="aziz" autocapitalize="none" spellcheck="false">
+      </label>
+      <label>Parol (kamida 6 belgi)
+        <input type="text" id="teacherPassInput" placeholder="Parol" autocomplete="off">
+      </label>
+      <p class="form-error" id="teacherError" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="teacherSaveBtn">Ustoz yaratish</button>
+        <button class="btn btn-ghost" onclick="closeModal('modalAddTeacher')">Bekor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modalAddOquvGroup" hidden>
   <div class="modal-box" style="max-width:420px;">
     <h2 class="modal-title" id="ojGroupModalTitle">Yangi guruh</h2>
@@ -2606,6 +2645,9 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
       </label>
       <label>Dars vaqti
         <input type="text" id="ojGroupTimeInput" placeholder="Masalan: 15:30–16:30">
+      </label>
+      <label>Ustoz
+        <select id="ojGroupTeacherSelect"><option value="">Men (admin)</option></select>
       </label>
       <p class="form-error" id="ojGroupError" role="alert" hidden></p>
 
@@ -4286,6 +4328,7 @@ const ADMIN_VIEW_NAV_MAP = {
   'oquv-progress': 'navOquvJarayoni',
   'stats': 'navStats',
   'gradebook': 'navGradebook',
+  'teachers': 'navTeachers',
   'broadcast': 'navBroadcast',
   'chats': 'navChats',
   'parent-chats': 'navParentChats',
@@ -4343,6 +4386,8 @@ function switchView(view){
   document.getElementById('view-oquv-students').hidden = view !== 'oquv-students';
   document.getElementById('view-oquv-progress').hidden = view !== 'oquv-progress';
   document.getElementById('view-gradebook').hidden = view !== 'gradebook';
+  document.getElementById('view-teachers').hidden = view !== 'teachers';
+  document.getElementById('navTeachers').classList.toggle('active', view === 'teachers');
   document.getElementById('navLevels').classList.toggle('active', view === 'levels' || view === 'lessons');
   document.getElementById('navIelts').classList.toggle('active', (view === 'course-sections' || view === 'course-topics') && state.activeCourseId === 'ielts');
   document.getElementById('navCefr').classList.toggle('active', view === 'reading-mocks' || view === 'reading-mock-builder' || view === 'reading-attempts' || view === 'speaking-menu' || view === 'writing-tracks' || view === 'writing-items' || view === 'essays');
@@ -4412,6 +4457,11 @@ document.getElementById('navKundalik').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('kundalik');
   loadKundalikGroups();
+});
+document.getElementById('navTeachers').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('teachers');
+  loadTeachers();
 });
 document.getElementById('navGradebook').addEventListener('click', (e) => {
   e.preventDefault();
@@ -6477,6 +6527,7 @@ function editKundalikGroup(groupId) {
   document.getElementById('ojGroupTimeInput').value = g.time || '';
   document.getElementById('ojGroupError').hidden = true;
   document.getElementById('ojGroupSaveBtn').textContent = 'Saqlash';
+  ojFillTeacherSelect(g.teacherId || '');
   openModal('modalAddOquvGroup');
 }
 
@@ -7570,6 +7621,7 @@ async function loadOjGroups() {
   const empty = document.getElementById('ojGroupsEmpty');
   grid.innerHTML = '<p style="color:var(--gray); padding:8px;">Yuklanmoqda…</p>';
   try {
+    if (!Object.keys(window._teachersMap || {}).length) await ojLoadTeachersMap();
     const snap = await db.collection('oquv_groups').orderBy('name').get();
     grid.innerHTML = '';
     if (snap.empty) { empty.style.display = 'block'; return; }
@@ -7583,7 +7635,7 @@ async function loadOjGroups() {
         <div class="oj-group-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg></div>
         <div>
           <div class="oj-group-card-name">${escHtml(g.name)}</div>
-          <div class="oj-group-card-meta">Guruh${g.time ? ` · ${escHtml(g.time)}` : ''}</div>
+          <div class="oj-group-card-meta">Guruh${g.time ? ` · ${escHtml(g.time)}` : ''}${g.teacherId && window._teachersMap && window._teachersMap[g.teacherId] ? ` · Ustoz: ${escHtml(window._teachersMap[g.teacherId].name)}` : ''}</div>
           ${daysLabel ? `<div class="oj-group-card-days">${OJ_DAY_ORDER.filter(d => (g.days||[]).includes(d)).map(d => `<span class="oj-day-chip">${OJ_DAY_LABELS[d]}</span>`).join('')}</div>` : ''}
         </div>
         <button class="oj-group-card-edit" title="Tahrirlash" data-gid="${doc.id}"><svg class="ic" aria-hidden="true"><use href="#i-pencil"></use></svg></button>
@@ -7602,6 +7654,7 @@ async function loadOjGroups() {
         document.getElementById('ojGroupTimeInput').value = g.time || '';
         document.getElementById('ojGroupError').hidden = true;
         document.getElementById('ojGroupSaveBtn').textContent = 'Saqlash';
+        ojFillTeacherSelect(g.teacherId || '');
         openModal('modalAddOquvGroup');
       });
       card.querySelector('.oj-group-card-del').addEventListener('click', async (e) => {
@@ -7624,6 +7677,7 @@ document.getElementById('openAddOquvGroup').addEventListener('click', () => {
   document.getElementById('ojGroupTimeInput').value = '';
   document.getElementById('ojGroupError').hidden = true;
   document.getElementById('ojGroupSaveBtn').textContent = 'Yaratish';
+  ojFillTeacherSelect('');
   openModal('modalAddOquvGroup');
   setTimeout(() => document.getElementById('ojGroupNameInput').focus(), 80);
 });
@@ -7642,6 +7696,7 @@ document.getElementById('openAddKundalikGroup').addEventListener('click', () => 
   document.getElementById('ojGroupTimeInput').value = '';
   document.getElementById('ojGroupError').hidden = true;
   document.getElementById('ojGroupSaveBtn').textContent = 'Yaratish';
+  ojFillTeacherSelect('');
   openModal('modalAddOquvGroup');
   setTimeout(() => document.getElementById('ojGroupNameInput').focus(), 80);
 });
@@ -7652,13 +7707,14 @@ document.getElementById('ojGroupSaveBtn').addEventListener('click', async () => 
   const editingId = document.getElementById('ojGroupEditingId').value;
   const days = ojGetCheckedDays();
   const time = document.getElementById('ojGroupTimeInput').value.trim();
+  const teacherId = document.getElementById('ojGroupTeacherSelect').value || '';
   if (!name) { err.textContent = 'Guruh nomi kiritilmagan.'; err.hidden = false; return; }
   err.hidden = true;
   try {
     if (editingId) {
-      await db.collection('oquv_groups').doc(editingId).set({ name, days, time }, { merge: true });
+      await db.collection('oquv_groups').doc(editingId).set({ name, days, time, teacherId }, { merge: true });
     } else {
-      await db.collection('oquv_groups').add({ name, days, time, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await db.collection('oquv_groups').add({ name, days, time, teacherId, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
     }
     closeModal('modalAddOquvGroup');
     if (_ojGroupModalSource === 'kundalik') { loadKundalikGroups(); } else { loadOjGroups(); }
@@ -8573,6 +8629,96 @@ document.getElementById('ojCopyAllIdsBtn').addEventListener('click', () => {
     setIconText(btn, '{{check}} Nusxalandi');
     setTimeout(() => { btn.innerHTML = original; }, 1800);
   });
+});
+
+
+/* ================================================================
+   USTOZLAR — ustoz hisoblari (login/parol) va guruhga biriktirish
+   Firestore: teachers/{uid} { name, login, email, active, createdAt }
+              oquv_groups/{id}.teacherId  (bo'sh = admin guruhi)
+   ================================================================ */
+window._teachersMap = {};
+const TEACHER_EMAIL_DOMAIN = '@ustoz.djami.uz';
+
+async function ojLoadTeachersMap(){
+  try {
+    const snap = await db.collection('teachers').get();
+    window._teachersMap = {};
+    snap.docs.forEach(d => { window._teachersMap[d.id] = { id: d.id, ...d.data() }; });
+  } catch (e) { console.error(e); }
+  return window._teachersMap;
+}
+
+async function ojFillTeacherSelect(selected){
+  const sel = document.getElementById('ojGroupTeacherSelect');
+  if (!sel) return;
+  if (!Object.keys(window._teachersMap || {}).length) await ojLoadTeachersMap();
+  sel.innerHTML = '<option value="">Men (admin)</option>' + Object.values(window._teachersMap)
+    .filter(t => t.active !== false || t.id === selected)
+    .map(t => '<option value="' + t.id + '">' + escHtml(t.name || t.login) + '</option>').join('');
+  sel.value = selected || '';
+}
+
+async function loadTeachers(){
+  const box = document.getElementById('teachersList');
+  box.innerHTML = '<p style="color:var(--gray);padding:8px 0;">Yuklanmoqda…</p>';
+  try {
+    await ojLoadTeachersMap();
+    const gs = await db.collection('oquv_groups').get();
+    const counts = {};
+    gs.docs.forEach(d => { const t = d.data().teacherId; if (t) counts[t] = (counts[t] || 0) + 1; });
+    const list = Object.values(window._teachersMap).sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    if (!list.length) { box.innerHTML = '<p style="color:var(--gray);padding:8px 0;">Hali ustoz yo\'q. "+ Ustoz qo\'shish" tugmasi orqali yarating.</p>'; return; }
+    box.innerHTML = '<table class="data-table"><thead><tr><th>Ism</th><th>Login</th><th>Guruhlar</th><th>Holat</th><th></th></tr></thead><tbody>' +
+      list.map(t => '<tr><td><strong>' + escHtml(t.name) + '</strong></td><td>' + escHtml(t.login) + '</td><td>' + (counts[t.id] || 0) + '</td><td>' +
+        (t.active === false ? '<span style="color:var(--error);">O\'chirilgan</span>' : '<span style="color:#1a9d5a;">Faol</span>') +
+        '</td><td><button class="btn btn-ghost btn-sm" data-tid="' + t.id + '" data-act="toggle">' + (t.active === false ? 'Yoqish' : 'O\'chirish') + '</button></td></tr>').join('') +
+      '</tbody></table>';
+    box.querySelectorAll('[data-act="toggle"]').forEach(b => b.addEventListener('click', async () => {
+      const t = window._teachersMap[b.dataset.tid];
+      const next = t.active === false;
+      if (!next && !confirm('"' + (t.name || t.login) + '" kirishi o\'chirilsinmi? Guruhlari va talabalari saqlanib qoladi.')) return;
+      await db.collection('teachers').doc(t.id).update({ active: next });
+      loadTeachers();
+    }));
+  } catch (e) { console.error(e); box.innerHTML = '<p style="color:var(--error);">Yuklab bo\'lmadi.</p>'; }
+}
+
+document.getElementById('openAddTeacher').addEventListener('click', () => {
+  ['teacherNameInput', 'teacherLoginInput', 'teacherPassInput'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('teacherError').hidden = true;
+  openModal('modalAddTeacher');
+  setTimeout(() => document.getElementById('teacherNameInput').focus(), 80);
+});
+
+document.getElementById('teacherSaveBtn').addEventListener('click', async () => {
+  const name = document.getElementById('teacherNameInput').value.trim();
+  const login = document.getElementById('teacherLoginInput').value.trim().toLowerCase();
+  const pass = document.getElementById('teacherPassInput').value;
+  const err = document.getElementById('teacherError');
+  const btn = document.getElementById('teacherSaveBtn');
+  err.hidden = true;
+  if (!name || !login || !pass) { err.textContent = 'Hamma maydonni to\'ldiring.'; err.hidden = false; return; }
+  if (!/^[a-z0-9._-]{3,30}$/.test(login)) { err.textContent = 'Login 3–30 ta belgi: lotin harflari, raqam, nuqta, tire.'; err.hidden = false; return; }
+  if (pass.length < 6) { err.textContent = 'Parol kamida 6 belgi bo\'lsin.'; err.hidden = false; return; }
+  btn.disabled = true; btn.textContent = 'Yaratilmoqda…';
+  try {
+    const email = login + TEACHER_EMAIL_DOMAIN;
+    const secondaryAuth = getSecondaryAuth();
+    const cred = await secondaryAuth.createUserWithEmailAndPassword(email, pass);
+    const uid = cred.user.uid;
+    await secondaryAuth.signOut();
+    await db.collection('teachers').doc(uid).set({ name, login, email, active: true, createdAt: Date.now() });
+    closeModal('modalAddTeacher');
+    loadTeachers();
+    alert('Ustoz hisobi yaratildi.\n\nLogin: ' + login + '\nParol: ' + pass + '\nKirish sahifasi: /teacher/login.html\n\nParolni hozir nusxalab oling — keyin ko\'rib bo\'lmaydi.');
+  } catch (e) {
+    let msg = 'Xatolik yuz berdi. Qayta urinib ko\'ring.';
+    if (e.code === 'auth/email-already-in-use') msg = 'Bu login band.';
+    if (e.code === 'auth/weak-password') msg = 'Parol juda oddiy.';
+    if (e.code === 'permission-denied' || (e.message || '').includes('permission')) msg = 'Ruxsat yo\'q — Firestore qoidalarini yangilaganingizni tekshiring.';
+    err.textContent = msg; err.hidden = false;
+  } finally { btn.disabled = false; btn.textContent = 'Ustoz yaratish'; }
 });
 
 function escHtml(s){ return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
