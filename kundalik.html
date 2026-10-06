@@ -363,6 +363,7 @@ function htmlToLinePreview(html, maxLen){
   const decode = s => { const t = document.createElement('textarea'); t.innerHTML = s; return t.value; };
   const withBreaks = decode(String(html || '')
     .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<(p|div|li|h[1-6]|tr)(\s[^>]*)?>/gi, '\n')
     .replace(/<\/(p|div|li|h[1-6]|tr)>/gi, '\n')
     .replace(/<[^>]*>/g, ''))
     .replace(/[\u00a0\u200b]/g, ' ')
