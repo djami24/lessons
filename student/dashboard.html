@@ -910,6 +910,12 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
               <ellipse cx="40" cy="76" rx="30" ry="18" fill="#c7ddf8"/>
             </svg>
           </div>
+          <!-- Uy vazifa balli (shu oy) -->
+          <div id="hwPointsBadge" hidden style="margin-top:10px;text-align:center;">
+            <div id="hwPointsNum" style="font-size:24px;font-weight:800;line-height:1;color:var(--teal-500,#0d9488);">0</div>
+            <div style="font-size:11px;font-weight:700;color:var(--gray-500);margin-top:2px;">BAL · shu oy</div>
+            <div id="hwPointsSub" style="font-size:10.5px;color:var(--gray-400);margin-top:1px;"></div>
+          </div>
         </div>
         <div class="pnew-main">
           <div class="pnew-name" id="homeStudentName">Yuklanmoqda…</div>
@@ -1922,6 +1928,7 @@ function renderHomeView(){
   switchView('home');
   setActiveNav('navHome');
   loadLatestHomework();
+  loadHwPointsBadge();
   renderGbResultBox();
   renderProgressBox();
 }
@@ -2582,6 +2589,50 @@ function _esc(str){
     .replace(/</g,'&lt;')
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;');
+}
+
+// Uy vazifa balli: har dars 0–10 bal (uy vazifa foizi / 10); kelmagan yoki qilmagan — 0.
+// Hisob shu oy (guruhning davom etayotgan o'quv oyi, bo'lmasa kalendar oy) bo'yicha.
+async function loadHwPointsBadge(){
+  const box = document.getElementById('hwPointsBadge');
+  if(!box) return;
+  const code = state.student.oquvProgressCode;
+  if(!code){ box.hidden = true; return; }
+  try{
+    const pad = n => String(n).padStart(2, '0');
+    const now = new Date();
+    const tStr = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+    let from = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-01';
+    const gid = await resolveStudentKundalikGroupId();
+    if(gid){
+      const gd = await db.collection('oquv_groups').doc(gid).get();
+      const ps = ((gd.exists && gd.data().periods) || [])
+        .filter(p => p && /^\d{4}-\d{2}-\d{2}$/.test(p.start) && p.start <= tStr && (!p.end || p.end >= tStr))
+        .sort((a, b) => a.start < b.start ? -1 : 1);
+      if(ps.length) from = ps[ps.length - 1].start;
+    }
+    const snap = await db.collection('oquv_progress').doc(code).collection('entries')
+      .where('date', '>=', from).where('date', '<=', tStr).get();
+    let pts = 0, lessons = 0;
+    snap.docs.forEach(doc => {
+      const e = doc.data();
+      const a = (e.attended === true || e.attended === 'yes') ? 'yes' : e.attended === 'late' ? 'late'
+              : (e.attended === false || e.attended === 'no') ? 'no' : '';
+      let hw = null;
+      if(e.homeworkDone === true || e.homeworkDone === 'yes') hw = 100;
+      else if(e.homeworkDone === false || e.homeworkDone === 'no') hw = 0;
+      else if(e.homeworkDone === 'partial') hw = Math.max(0, Math.min(100, Number(e.homeworkPercent) || 0));
+      if(a === '' && hw === null) return;
+      lessons++;
+      if(a !== 'no' && hw !== null) pts += Math.round(hw / 10);
+    });
+    document.getElementById('hwPointsNum').textContent = pts;
+    document.getElementById('hwPointsSub').textContent = lessons ? (lessons + ' ta darsdan') : 'hali dars belgilanmagan';
+    box.hidden = false;
+  } catch(err){
+    console.error('HW points load failed:', err);
+    box.hidden = true;
+  }
 }
 
 async function loadLatestHomework(){
