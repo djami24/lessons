@@ -467,6 +467,11 @@ body.admin-theme.dark{
   --shadow-pop:0 4px 10px rgba(0,0,0,.5),0 20px 40px -16px rgba(0,0,0,.7);
 }
 body.admin-theme.dark .admin-main{background:#0f1420}
+/* Ball kartochkasi natija qutilari */
+.ball-win{background:#e8f7ee;color:#1e6b3a;border-radius:10px;padding:10px 12px;font-size:.88rem;margin-bottom:10px;border:1px solid transparent}
+.ball-no{background:#fff4e5;color:#8a5a00;border-radius:10px;padding:10px 12px;font-size:.85rem;margin-bottom:10px;border:1px solid transparent}
+body.dark .ball-win{background:rgba(31,174,122,.14);color:#7be3b6;border-color:rgba(31,174,122,.30)}
+body.dark .ball-no{background:rgba(245,166,35,.12);color:#f2c274;border-color:rgba(245,166,35,.28)}
 body.admin-theme.dark .loading-screen{background:#0f1420;color:#e8ecf5}
 body.admin-theme.dark input,
 body.admin-theme.dark select,
@@ -916,12 +921,16 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
       <div class="home-section-card" style="margin-bottom:24px;">
         <div class="home-section-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Statistika</h3>
-          <span style="margin-left:auto;display:inline-flex;gap:8px;flex-wrap:wrap;">
+          <h3 class="home-col-title" id="homeStToggle" role="button" tabindex="0" aria-expanded="false" style="cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px;">
+            <svg id="homeStChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transition:transform .2s;"><path d="M9 6l6 6-6 6"/></svg>
+            <svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Statistika
+          </h3>
+          <span id="homeStControls" style="margin-left:auto;display:none;gap:8px;flex-wrap:wrap;">
             <select id="homeStGroupFilter" class="st-select" title="Guruhni tanlang"><option value="">Barcha guruhlar</option></select>
             <select class="st-select rp-month-select" id="homeStMonthSelect" title="Oyni tanlang"></select>
           </span>
         </div>
+        <div id="homeStBody" style="display:none;">
         <p id="homeStSubline" style="margin:-6px 0 14px; color:var(--adm-gray,var(--gray)); font-size:.85rem;"></p>
         <div class="st-kpis" id="homeStKpis"></div>
         <div class="st-grid st-grid-wide" style="margin-top:16px;">
@@ -929,6 +938,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <div class="home-section-card"><h3 class="st-h">Taqsimot</h3><div id="homeStDonuts"></div></div>
         </div>
         <p id="homeStLoading" style="color:var(--gray); text-align:center; padding:8px; margin:0;"></p>
+        </div>
       </div>
 
       <div class="home-cta-wrap">
@@ -10324,12 +10334,12 @@ function ballRenderCard(d){
   const status = d.w.ongoing ? 'Joriy oy \u2014 hozircha' : 'Yakuniy';
   let result;
   if (ok) {
-    result = `<div style="background:#e8f7ee;color:#1e6b3a;border-radius:10px;padding:10px 12px;font-size:.88rem;margin-bottom:10px;">
+    result = `<div class="ball-win">
       <b>${d.w.ongoing ? 'Hozircha yetakchi' : 'G\u02bcolib'}:</b> ${names}<br>
       <b>${max} bal</b> \u2192 ${ballFmtSom(max * BALL_SOM_PER_POINT)} so\u02bcm to\u02bclovdan ozod
       ${leaders.length > 1 ? '<br><span style="font-size:.78rem;">Ballar teng \u2014 ' + leaders.length + ' ta talaba, qaror sizda.</span>' : ''}</div>`;
   } else {
-    result = `<div style="background:#fff4e5;color:#8a5a00;border-radius:10px;padding:10px 12px;font-size:.85rem;margin-bottom:10px;">
+    result = `<div class="ball-no">
       ${d.w.ongoing ? 'Hozircha' : 'Bu oy'} shartga yetgan talaba yo\u02bcq. Kerak: kamida <b>${Math.ceil(need)}</b> bal, eng yuqori: <b>${max}</b>.</div>`;
   }
   const rowsHtml = d.rows.map((r, i) => `<tr><td style="color:var(--gray);width:28px;">${i + 1}</td><td>${escHtml(r.s.name)}</td><td style="text-align:right;font-weight:700;">${r.pts}</td></tr>`).join('');
@@ -10355,6 +10365,24 @@ function ballToggle(){
 document.getElementById('ballToggle').addEventListener('click', ballToggle);
 document.getElementById('ballToggle').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ballToggle(); } });
 ballApplyCollapsed();
+
+// Bosh sahifadagi "Statistika" bo'limini ham yig'ish / yoyish (standart — yig'ilgan, tanlov eslab qolinadi)
+(function(){
+  const KEY = 'homeStCollapsed';
+  const isCol = () => { try { return localStorage.getItem(KEY) !== '0'; } catch (e) { return true; } };
+  const apply = () => {
+    const col = isCol();
+    document.getElementById('homeStBody').style.display = col ? 'none' : '';
+    document.getElementById('homeStControls').style.display = col ? 'none' : 'inline-flex';
+    document.getElementById('homeStChevron').style.transform = col ? '' : 'rotate(90deg)';
+    document.getElementById('homeStToggle').setAttribute('aria-expanded', col ? 'false' : 'true');
+  };
+  const toggle = () => { try { localStorage.setItem(KEY, isCol() ? '0' : '1'); } catch (e) {} apply(); };
+  const h = document.getElementById('homeStToggle');
+  h.addEventListener('click', toggle);
+  h.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
+  apply();
+})();
 document.getElementById('ballMonthSelect').addEventListener('change', () => ballLoad(true));
 document.getElementById('ballRefreshBtn').addEventListener('click', () => ballLoad(true));
 ballFillMonths();
