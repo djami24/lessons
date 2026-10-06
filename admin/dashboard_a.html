@@ -998,12 +998,12 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="home-section-card">
           <div class="st-card-head"><h3 class="st-h"><span style="color:#F0923D;display:inline-flex"><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"></use></svg></span> Diqqat talab qiladi <small id="stRiskCount"></small></h3>
             <span class="st-actions"><button class="btn btn-tg btn-sm" id="stRiskTgBtn" title="Ro'yxatning hammasini Telegramga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
-            <button class="btn btn-ghost btn-sm" id="stRiskCopyBtn" title="Matnni nusxalash">Nusxa</button></span></div>
+            <button class="btn btn-ghost btn-sm" id="stRiskCopyBtn" title="Matnni nusxalash">Nusxa</button><button class="btn btn-ghost btn-sm st-shot-btn" type="button" title="Bu blokni rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm</button></span></div>
           <div id="stRisk"></div></div>
         <div class="home-section-card">
           <div class="st-card-head"><h3 class="st-h"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"></use></svg> Eng faol o'quvchilar</h3>
             <span class="st-actions"><button class="btn btn-tg btn-sm" id="stTopTgBtn" title="Reytingni Telegramga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
-            <button class="btn btn-ghost btn-sm" id="stTopCopyBtn" title="Matnni nusxalash">Nusxa</button></span></div>
+            <button class="btn btn-ghost btn-sm" id="stTopCopyBtn" title="Matnni nusxalash">Nusxa</button><button class="btn btn-ghost btn-sm st-shot-btn" type="button" title="Bu blokni rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm</button></span></div>
           <div id="stTop"></div><div class="st-more" id="stTopPub"></div></div>
       </div>
 
@@ -7508,6 +7508,7 @@ async function loadStatsPage(days, force){
   document.getElementById('stMovers').innerHTML =
     `<div class="home-section-card"><h3 class="st-h"><span style="color:#1FAE7A;display:inline-flex">${svgIcon('trending-up')}</span> Yaxshilanganlar <small>(ball, ${per}ga nisbatan)</small></h3>${up.length ? up.map(mvRow).join('') : '<div class="st-empty-mini">Solishtirish uchun ma\'lumot yetarli emas.</div>'}</div>` +
     `<div class="home-section-card"><h3 class="st-h"><span style="color:#E5484D;display:inline-flex;transform:scaleY(-1)">${svgIcon('trending-up')}</span> Pasayganlar <small>(ball, ${per}ga nisbatan)</small></h3>${down.length ? down.map(mvRow).join('') : '<div class="st-empty-mini">Pasayganlar yo\'q.</div>'}</div>`;
+  stInjectShotButtons();
   document.querySelectorAll('#stMovers .st-person').forEach(el => el.addEventListener('click', () => {
     const g = gInfo(el.dataset.gid); if (g.id) loadOjStudents(g.id, g.name, g.days || []);
   }));
@@ -7916,6 +7917,55 @@ document.getElementById('ojParentTgChatBtn').addEventListener('click', async () 
 
 // "Hammasi keldi": guruhdagi hali belgilanmagan (bo'sh) talabalarni bir bosishda "Keldi" qiladi.
 // Allaqachon "Kelmadi" yoki "Kech qoldi" deb belgilanganlar o'zgartirilmaydi.
+// ===== Statistika bloklarini rasm (PNG) qilib yuklab olish =====
+// html2canvas allaqachon yuklangan. Tugmalar (Telegram/Nusxa/Rasm) rasmga tushmaydi.
+function stCardBg(el){
+  for (let n = el; n && n.nodeType === 1; n = n.parentElement) {
+    const c = getComputedStyle(n).backgroundColor;
+    if (c && c !== 'transparent' && !/rgba\(\s*\d+,\s*\d+,\s*\d+,\s*0\s*\)/.test(c)) return c;
+  }
+  return '#ffffff';
+}
+async function stCardToImage(card, btn){
+  if (typeof html2canvas !== 'function') { showToast('Rasm kutubxonasi yuklanmadi — sahifani yangilang', true); return; }
+  const titleEl = card.querySelector('.st-h');
+  const title = (titleEl ? titleEl.childNodes.length && titleEl.textContent : 'statistika').replace(/\(.*?\)/g, '').replace(/\d+\s*ta/g, '').trim() || 'statistika';
+  const old = btn.innerHTML; btn.disabled = true; btn.textContent = '…';
+  try {
+    const canvas = await html2canvas(card, {
+      scale: 2, useCORS: true, backgroundColor: stCardBg(card),
+      ignoreElements: el => el.classList && (el.classList.contains('st-actions') || el.classList.contains('st-shot-btn'))
+    });
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    if (!blob) throw new Error('toBlob');
+    const d = new Date(), pad = n => String(n).padStart(2, '0');
+    const name = title.toLowerCase().replace(/[^a-z0-9\u0400-\u04ff]+/gi, '-').replace(/^-+|-+$/g, '') + '-' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '.png';
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    showToast('Rasm yuklab olindi');
+  } catch (err) {
+    console.error('Rasmga olish xatosi:', err);
+    showToast('Rasmga olib bo\'lmadi', true);
+  } finally { btn.disabled = false; btn.innerHTML = old; }
+}
+function stInjectShotButtons(){
+  document.querySelectorAll('#view-stats .st-grid > .home-section-card').forEach(card => {
+    let btn = card.querySelector('.st-shot-btn');
+    if (!btn) {   // dinamik kartalar (Yaxshilanganlar/Pasayganlar) uchun
+      btn = document.createElement('button');
+      btn.type = 'button'; btn.className = 'btn btn-ghost btn-sm st-shot-btn';
+      btn.style.float = 'right'; btn.title = 'Bu blokni rasm (PNG) qilib yuklab olish';
+      btn.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm';
+      card.insertBefore(btn, card.firstChild);
+    }
+    if (!btn.dataset.bound) { btn.dataset.bound = '1'; btn.addEventListener('click', () => stCardToImage(card, btn)); }
+  });
+}
+stInjectShotButtons();
+// ===== /Statistika rasm =====
+
 document.getElementById('ojMarkAllPresentBtn').addEventListener('click', () => {
   const rows = Array.from(document.querySelectorAll('#ojStudentsGrid .oj-student-row'));
   if (!rows.length) { showToast("Guruhda talaba yo'q", true); return; }
