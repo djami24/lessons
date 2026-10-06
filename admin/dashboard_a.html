@@ -7966,10 +7966,20 @@ document.getElementById('statsShotAllBtn').addEventListener('click', async (e) =
   const old = btn.innerHTML; btn.disabled = true; btn.textContent = '…';
   try {
     const bg = stCardBg(area.parentElement || area);
+    const hEl = area.querySelector('.st-h'); const titleColor = hEl ? getComputedStyle(hEl).color : '#111';
     const canvas = await html2canvas(area, {
       scale: 2, useCORS: true, backgroundColor: bg,
       ignoreElements: el => el.classList && (el.classList.contains('st-actions') || el.classList.contains('st-shot-btn')),
-      onclone: doc => { const a = doc.getElementById('stShotArea'); if (a) { a.style.padding = '18px'; a.style.background = bg; } }
+      onclone: doc => {
+        const a = doc.getElementById('stShotArea'); if (!a) return;
+        a.style.padding = '18px'; a.style.background = bg;
+        // Rasm tepasiga sana sarlavhasi: "06.10.2026 holatiga ko'ra: o'quvchilar natijalari va o'zgarishlar"
+        const t = new Date(), p2 = n => String(n).padStart(2, '0');
+        const h = doc.createElement('div');
+        h.textContent = p2(t.getDate()) + '.' + p2(t.getMonth() + 1) + '.' + t.getFullYear() + " holatiga ko'ra: o'quvchilar natijalari va o'zgarishlar";
+        h.style.cssText = 'font-size:1.35rem;font-weight:800;text-align:center;padding:6px 8px 20px;color:' + titleColor + ';';
+        a.insertBefore(h, a.firstChild);
+      }
     });
     const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
     if (!blob) throw new Error('toBlob');
