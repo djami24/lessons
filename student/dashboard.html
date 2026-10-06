@@ -2582,10 +2582,16 @@ async function loadLatestHomework(){
   if(!group){ box.hidden = true; return; }
   try{
     const snap = await db.collection('kundalik').doc(group)
-      .collection('vazifalari').orderBy('sana', 'desc').limit(1).get();
+      .collection('vazifalari').orderBy('sana', 'desc').limit(10).get();
     if(snap.empty){ box.hidden = true; return; }
-    const hwId = snap.docs[0].id;
-    const d = snap.docs[0].data();
+    // Sana bir xil bo'lsa — keyinroq kiritilgani (createdAt) birinchi
+    const _ms = t => { if(!t) return 0; const x = typeof t.toDate === 'function' ? t.toDate() : new Date(t); const v = x.getTime(); return isNaN(v) ? 0 : v; };
+    const latestDoc = snap.docs.slice().sort((a, b) => {
+      const da = a.data(), db_ = b.data();
+      return (_ms(db_.sana) - _ms(da.sana)) || (_ms(db_.createdAt) - _ms(da.createdAt));
+    })[0];
+    const hwId = latestDoc.id;
+    const d = latestDoc.data();
     const ts = d.sana;
     const date = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
     document.getElementById('latestHwDate').textContent = date ? date.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' }) : '';
