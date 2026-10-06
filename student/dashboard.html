@@ -753,6 +753,13 @@ body.dark.light-mode #view-home #latestHwBox .hd-check-row{color:#e8ecf5 !import
 body.dark.light-mode #view-home #latestHwBox > a.btn{color:hsl(157,78%,70%) !important}
 body.dark.light-mode #view-home #latestHwBox .hw-status-btn{color:#e8ecf5 !important}
 body.dark.light-mode #view-home #latestHwBox .hw-status-btn.is-active[data-status="undone"]{color:#e8ecf5 !important}
+/* "Bajarmaganman" bosilganda — qizil fon (barcha rejimlarda) */
+body #view-home #latestHwBox .hw-status-btn.is-active[data-status="undone"],
+body.light-mode #view-home #latestHwBox .hw-status-btn.is-active[data-status="undone"],
+body.dark #view-home #latestHwBox .hw-status-btn.is-active[data-status="undone"],
+body.dark.light-mode #view-home #latestHwBox .hw-status-btn.is-active[data-status="undone"]{
+  background:#dc2626 !important; border-color:#dc2626 !important; color:#fff !important;
+}
 body.dark.light-mode #view-home .home-quick-bar{background:#171d2c !important;border-color:#2a3248 !important}
 body.dark.light-mode #view-home .home-quick-title{color:#e8ecf5 !important}
 body.dark.light-mode #view-home .home-quick-tile{background:#1b2235 !important}
@@ -1063,8 +1070,8 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         </div>
         <div id="latestHwPreview" class="latest-hw-checklist"></div>
         <div class="hw-status-row" id="latestHwStatusRow">
-          <button type="button" class="hw-status-btn" data-status="done"> Bajardim</button>
-          <button type="button" class="hw-status-btn" data-status="undone">⏳ Bajarmaganman</button>
+          <button type="button" class="hw-status-btn" data-status="done">Bajardim</button>
+          <button type="button" class="hw-status-btn" data-status="undone">Bajarmaganman</button>
         </div>
       </div>
 
