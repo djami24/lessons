@@ -965,6 +965,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <button class="btn btn-ghost btn-sm" id="statsRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
           <select class="st-select rp-month-select" id="statsMonthSelect" title="Oyni tanlang — statistika shu oy uchun ko'rsatiladi (PDF hisobot ham shu oy uchun)"></select>
           <button class="btn btn-primary btn-sm" id="statsMonthPdfBtn" title="Tanlangan oy uchun PDF hisobot (o'tgan oy bilan solishtirilgan)"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
+          <button class="btn btn-ghost btn-sm" id="statsShotAllBtn" title="Diqqat talab qiladi, Eng faol, Yaxshilanganlar va Pasayganlar — hammasini bitta rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm (hammasi)</button>
           <button class="btn btn-ghost btn-sm" id="statsExportBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Excel</button>
         </div>
       </div>
@@ -994,20 +995,20 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
       </div>
 
+      <div id="stShotArea">
       <div class="st-grid">
         <div class="home-section-card">
           <div class="st-card-head"><h3 class="st-h"><span style="color:#F0923D;display:inline-flex"><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"></use></svg></span> Diqqat talab qiladi <small id="stRiskCount"></small></h3>
-            <span class="st-actions"><button class="btn btn-tg btn-sm" id="stRiskTgBtn" title="Ro'yxatning hammasini Telegramga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
-            <button class="btn btn-ghost btn-sm" id="stRiskCopyBtn" title="Matnni nusxalash">Nusxa</button><button class="btn btn-ghost btn-sm st-shot-btn" type="button" title="Bu blokni rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm</button></span></div>
+            <span class="st-actions"><button class="btn btn-ghost btn-sm" id="stRiskCopyBtn" title="Matnni nusxalash">Nusxa</button><button class="btn btn-ghost btn-sm st-shot-btn" type="button" title="Bu blokni rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm</button></span></div>
           <div id="stRisk"></div></div>
         <div class="home-section-card">
           <div class="st-card-head"><h3 class="st-h"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"></use></svg> Eng faol o'quvchilar</h3>
-            <span class="st-actions"><button class="btn btn-tg btn-sm" id="stTopTgBtn" title="Reytingni Telegramga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Telegram</button>
-            <button class="btn btn-ghost btn-sm" id="stTopCopyBtn" title="Matnni nusxalash">Nusxa</button><button class="btn btn-ghost btn-sm st-shot-btn" type="button" title="Bu blokni rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm</button></span></div>
+            <span class="st-actions"><button class="btn btn-ghost btn-sm" id="stTopCopyBtn" title="Matnni nusxalash">Nusxa</button><button class="btn btn-ghost btn-sm st-shot-btn" type="button" title="Bu blokni rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm</button></span></div>
           <div id="stTop"></div><div class="st-more" id="stTopPub"></div></div>
       </div>
 
       <div class="st-grid" id="stMovers"></div>
+      </div>
 
       <div id="statsEmpty" class="oj-empty" style="display:none;">
         <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-folder-open"></use></svg></div>
@@ -7645,13 +7646,7 @@ function stTopChunks(){
 const stEmptyRisk = 'Xavf ostidagi o\'quvchi yo\'q — yuboriladigan narsa yo\'q.';
 const stEmptyTop = 'Reyting hali tayyor emas (kamida 3 ta belgilangan dars kerak).';
 document.getElementById('stRiskCopyBtn').addEventListener('click', () => stShareCopy(stRiskChunks(), stEmptyRisk));
-document.getElementById('stRiskTgBtn').addEventListener('click', e => {
-  const b = e.currentTarget; stShareTg(stRiskChunks(), stEmptyRisk, `${_statsModel ? _statsModel.riskAll.length : 0} ta o'quvchi ro'yxati`, b);
-});
 document.getElementById('stTopCopyBtn').addEventListener('click', () => stShareCopy(stTopChunks(), stEmptyTop));
-document.getElementById('stTopTgBtn').addEventListener('click', e => {
-  const b = e.currentTarget; stShareTg(stTopChunks(), stEmptyTop, `Eng faol ${_statsModel ? _statsModel.top.length : 0} ta o'quvchi reytingi`, b);
-});
 
 // ----- Sayt bosh sahifasidagi "Eng faol o'quvchilar" (settings/leaderboard) -----
 // Hisob har doim: BARCHA guruhlar, har guruhning oxirgi 12 darsi — admin paneldagi bilan bir xil qoidalar.
@@ -7963,6 +7958,33 @@ function stInjectShotButtons(){
     if (!btn.dataset.bound) { btn.dataset.bound = '1'; btn.addEventListener('click', () => stCardToImage(card, btn)); }
   });
 }
+// Hammasi bitta rasmda (skrinshotga o'xshash): 4 ta blok birga
+document.getElementById('statsShotAllBtn').addEventListener('click', async (e) => {
+  const btn = e.currentTarget, area = document.getElementById('stShotArea');
+  if (typeof html2canvas !== 'function') { showToast('Rasm kutubxonasi yuklanmadi — sahifani yangilang', true); return; }
+  if (!area || !area.offsetHeight) { showToast("Statistika hali yuklanmadi", true); return; }
+  const old = btn.innerHTML; btn.disabled = true; btn.textContent = '…';
+  try {
+    const bg = stCardBg(area.parentElement || area);
+    const canvas = await html2canvas(area, {
+      scale: 2, useCORS: true, backgroundColor: bg,
+      ignoreElements: el => el.classList && (el.classList.contains('st-actions') || el.classList.contains('st-shot-btn')),
+      onclone: doc => { const a = doc.getElementById('stShotArea'); if (a) { a.style.padding = '18px'; a.style.background = bg; } }
+    });
+    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+    if (!blob) throw new Error('toBlob');
+    const d = new Date(), pad = n => String(n).padStart(2, '0');
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url;
+    a.download = 'statistika-' + d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    showToast('Rasm yuklab olindi');
+  } catch (err) {
+    console.error('Rasmga olish xatosi:', err);
+    showToast("Rasmga olib bo'lmadi", true);
+  } finally { btn.disabled = false; btn.innerHTML = old; }
+});
 stInjectShotButtons();
 // ===== /Statistika rasm =====
 
