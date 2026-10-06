@@ -899,14 +899,19 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
       <!-- Uy vazifa ballari: har darsda 0–10 bal (foiz/10), oy oxirida har guruhdan eng yuqori ball yig'gan talaba -->
       <div class="home-section-card" style="margin-bottom:24px;" id="ballSection">
         <div class="home-section-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Uy vazifa ballari — oylik g'olib</h3>
-          <span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;">
+          <h3 class="home-col-title" id="ballToggle" role="button" tabindex="0" aria-expanded="false" style="cursor:pointer;user-select:none;display:flex;align-items:center;gap:6px;">
+            <svg id="ballChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="transition:transform .2s;"><path d="M9 6l6 6-6 6"/></svg>
+            <svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Uy vazifa ballari — oylik g'olib
+          </h3>
+          <span id="ballControls" style="margin-left:auto;display:none;gap:8px;align-items:center;">
             <select id="ballMonthSelect" class="st-select" title="Oyni tanlang"></select>
             <button class="btn btn-ghost btn-sm" id="ballRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
           </span>
         </div>
+        <div id="ballBody" style="display:none;">
         <p style="margin:-6px 0 12px;color:var(--adm-gray,var(--gray));font-size:.82rem;">Har darsda uy vazifa foiziga qarab 0–10 bal (100% = 10, 80% = 8, 50% = 5...). Darsga kelmagan yoki qilmagan — 0 bal. G'olib bo'lish uchun oy maksimal ballining kamida 75% i kerak (12 ta darsda 90 bal). 1 bal = 1 000 so'm.</p>
         <div id="ballGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;"></div>
+        </div>
       </div>
 
       <div class="home-section-card" style="margin-bottom:24px;">
@@ -10268,7 +10273,7 @@ function ballWindow(g, ym, today){
 
 async function ballLoad(force){
   const host = document.getElementById('ballGrid');
-  if (!host) return;
+  if (!host || ballIsCollapsed()) return;
   ballFillMonths();
   const sel = document.getElementById('ballMonthSelect');
   const ym = sel.value;
@@ -10331,6 +10336,25 @@ function ballRenderCard(d){
   return box(head(`${escHtml(d.w.label)} \u00b7 ${status} \u00b7 o\u02bctilgan darslar: ${d.held} \u00b7 maksimum ${d.held * 10} bal`) + result +
     `<div style="max-height:240px;overflow:auto;"><table class="data-table" style="width:100%;font-size:.85rem;"><tbody>${rowsHtml}</tbody></table></div>`);
 }
+// Yig'ish / yoyish (standart holat — yig'ilgan; tanlov brauzerda eslab qolinadi)
+function ballIsCollapsed(){
+  try { return localStorage.getItem('ballCollapsed') !== '0'; } catch (e) { return true; }
+}
+function ballApplyCollapsed(){
+  const col = ballIsCollapsed();
+  document.getElementById('ballBody').style.display = col ? 'none' : '';
+  document.getElementById('ballControls').style.display = col ? 'none' : 'inline-flex';
+  document.getElementById('ballChevron').style.transform = col ? '' : 'rotate(90deg)';
+  document.getElementById('ballToggle').setAttribute('aria-expanded', col ? 'false' : 'true');
+}
+function ballToggle(){
+  try { localStorage.setItem('ballCollapsed', ballIsCollapsed() ? '0' : '1'); } catch (e) {}
+  ballApplyCollapsed();
+  if (!ballIsCollapsed()) ballLoad();
+}
+document.getElementById('ballToggle').addEventListener('click', ballToggle);
+document.getElementById('ballToggle').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ballToggle(); } });
+ballApplyCollapsed();
 document.getElementById('ballMonthSelect').addEventListener('change', () => ballLoad(true));
 document.getElementById('ballRefreshBtn').addEventListener('click', () => ballLoad(true));
 ballFillMonths();
