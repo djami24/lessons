@@ -10030,7 +10030,14 @@ function renderTodayAssignmentCards(cardData){
 async function homeRenderAllAssignments(groups){
   const grid = document.getElementById('todayAssignGrid');
   if(!grid) return;
-  if(!groups || !groups.length){ grid.innerHTML = ''; return; }
+  // Faqat BUGUN dars bo'ladigan guruhlarning uy vazifasi ko'rsatiladi
+  // (Du-Chor-Ju guruhlari shu kunlari, Se-Pay-Sha guruhlari shu kunlari).
+  const todayKey = OJ_JSDAY_TO_KEY[new Date().getDay()];
+  groups = (groups || []).filter(g => (g.days || []).includes(todayKey));
+  if(!groups.length){
+    grid.innerHTML = '<p style="color:var(--gray);font-size:.9rem;margin:6px 0;">Bugun dars bo\u02bclgan guruhlar uchun uy vazifa yo\u02bcq.</p>';
+    return;
+  }
   const data = await Promise.all(groups.map(async g => {
     const info = await homeFetchLatestKundalikHw(g.id);
     return { group: g, kundalikGroupId: info.kundalikGroupId, hwItems: info.items };
