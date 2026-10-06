@@ -1964,6 +1964,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
         <div class="oj-gh-bar">
           <div class="oj-gh-group">
+            <button class="btn btn-primary btn-sm" id="ojMarkAllPresentBtn" title="Hali belgilanmagan barcha talabalarni 'Keldi' deb belgilash"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Hammasi keldi</button>
             <button class="btn btn-amber btn-sm" id="ojNewMonthBtn" title="Yangi o'quv oyini boshlash — statistika shu sanadan boshidan hisoblanadi"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Yangi oyni boshlash</button>
             <button class="btn btn-primary btn-sm" id="ojParentTgBtn" title="Bugungi davomatni (kelmaganlar va kech qolganlar) ota-onalar Telegram guruhiga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Ota-onalarga yuborish</button>
             <button class="btn btn-primary btn-sm" id="openAddOquvStudent">+ Talaba qo'shish</button>
@@ -7911,6 +7912,20 @@ document.getElementById('ojParentTgChatBtn').addEventListener('click', async () 
     await db.collection('oquv_groups').doc(gid).update({ parentChatId: v });
     showToast(v ? 'Telegram guruh saqlandi' : "Telegram guruh o'chirildi");
   } catch (e) { console.error(e); showToast("Saqlab bo'lmadi", true); }
+});
+
+// "Hammasi keldi": guruhdagi hali belgilanmagan (bo'sh) talabalarni bir bosishda "Keldi" qiladi.
+// Allaqachon "Kelmadi" yoki "Kech qoldi" deb belgilanganlar o'zgartirilmaydi.
+document.getElementById('ojMarkAllPresentBtn').addEventListener('click', () => {
+  const rows = Array.from(document.querySelectorAll('#ojStudentsGrid .oj-student-row'));
+  if (!rows.length) { showToast("Guruhda talaba yo'q", true); return; }
+  const targets = rows.filter(r => !r.dataset.attend);
+  if (!targets.length) { showToast("Hamma talaba allaqachon belgilangan"); return; }
+  targets.forEach(r => {
+    const yesBtn = r.querySelector('.oj-toggle-group[data-field="attended"] .oj-toggle-btn[data-val="yes"]');
+    if (yesBtn) yesBtn.click();
+  });
+  showToast(targets.length + " ta talaba 'Keldi' deb belgilandi");
 });
 
 document.getElementById('ojParentTgBtn').addEventListener('click', async () => {
