@@ -9927,6 +9927,18 @@ function renderTodayAssignmentCards(cardData){
   }).join('');
 }
 
+// "Guruhlarning so'nggi uy vazifalari" — bugun dars bo'lmagan guruhlar ham ko'rinadi (har bir guruhning eng so'nggi vazifasi)
+async function homeRenderAllAssignments(groups){
+  const grid = document.getElementById('todayAssignGrid');
+  if(!grid) return;
+  if(!groups || !groups.length){ grid.innerHTML = ''; return; }
+  const data = await Promise.all(groups.map(async g => {
+    const info = await homeFetchLatestKundalikHw(g.id);
+    return { group: g, kundalikGroupId: info.kundalikGroupId, hwItems: info.items };
+  }));
+  renderTodayAssignmentCards(data);
+}
+
 async function loadTodayHomeworkCards(){
   const grid = document.getElementById('todayHwGrid');
   const loading = document.getElementById('todayHwLoading');
@@ -9950,8 +9962,7 @@ async function loadTodayHomeworkCards(){
     empty.style.display = 'block';
     subline.textContent = '';
     refreshedAt.textContent = '';
-    const assignGrid = document.getElementById('todayAssignGrid');
-    if(assignGrid) assignGrid.innerHTML = '';
+    homeRenderAllAssignments(groups);
     return;
   }
 
@@ -10029,7 +10040,7 @@ async function loadTodayHomeworkCards(){
     });
   }
 
-  renderTodayAssignmentCards(cardData);
+  homeRenderAllAssignments(groups);
 
   const now = new Date();
   refreshedAt.textContent = `Yangilandi: ${now.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'})}`;
