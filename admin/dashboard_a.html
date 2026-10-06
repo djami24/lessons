@@ -896,6 +896,19 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
       </div>
 
+      <!-- Uy vazifa ballari: har darsda 0–10 bal (foiz/10), oy oxirida har guruhdan eng yuqori ball yig'gan talaba -->
+      <div class="home-section-card" style="margin-bottom:24px;" id="ballSection">
+        <div class="home-section-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Uy vazifa ballari — oylik g'olib</h3>
+          <span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;">
+            <select id="ballMonthSelect" class="st-select" title="Oyni tanlang"></select>
+            <button class="btn btn-ghost btn-sm" id="ballRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
+          </span>
+        </div>
+        <p style="margin:-6px 0 12px;color:var(--adm-gray,var(--gray));font-size:.82rem;">Har darsda uy vazifa foiziga qarab 0–10 bal (100% = 10, 80% = 8, 50% = 5...). Darsga kelmagan yoki qilmagan — 0 bal. G'olib bo'lish uchun oy maksimal ballining kamida 75% i kerak (12 ta darsda 90 bal). 1 bal = 1 000 so'm.</p>
+        <div id="ballGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;"></div>
+      </div>
+
       <div class="home-section-card" style="margin-bottom:24px;">
         <div class="home-section-head" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Statistika</h3>
@@ -10069,6 +10082,7 @@ async function loadTodayHomeworkCards(){
     subline.textContent = '';
     refreshedAt.textContent = '';
     homeRenderAllAssignments(groups);
+    ballLoad();
     return;
   }
 
@@ -10147,6 +10161,7 @@ async function loadTodayHomeworkCards(){
   }
 
   homeRenderAllAssignments(groups);
+  ballLoad();
 
   const now = new Date();
   refreshedAt.textContent = `Yangilandi: ${now.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'})}`;
@@ -10207,6 +10222,118 @@ function startTodayHwAutoRefresh(){
 }
 
 document.getElementById('todayHwRefreshBtn').addEventListener('click', () => loadTodayHomeworkCards());
+
+/* ================================================================
+   UY VAZIFA BALLARI (statistika formulasiga bog'liq emas)
+   Har dars: kelmagan / uy vazifa belgilanmagan / qilmagan = 0 bal;
+   aks holda round(uy vazifa foizi / 10)  → 100% = 10, 80% = 8, 50% = 5, 20% = 2.
+   Oy = guruhning "o'quv oyi" (periods), bo'lmasa kalendar oy.
+   G'olib: guruhda eng ko'p ball yig'gan talaba, lekin kamida
+   (o'tilgan darslar × 10) ning 75% i (12 dars → 90 bal). 1 bal = 1 000 so'm.
+   ================================================================ */
+const BALL_SOM_PER_POINT = 1000;
+const BALL_MIN_SHARE = 0.75;
+let _ballCache = { key: '', ts: 0 };
+
+function ballPoints(x){
+  if (x.a === 'no' || x.hw === null) return 0;
+  return Math.round(x.hw / 10);
+}
+function ballFmtSom(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+
+function ballFillMonths(){
+  const sel = document.getElementById('ballMonthSelect');
+  if (!sel || sel.options.length) return;
+  const now = new Date();
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    const o = document.createElement('option');
+    o.value = ym; o.textContent = UZ_MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+    sel.appendChild(o);
+  }
+}
+
+// Guruh uchun tanlangan oy oynasi: joriy oyda — hozir davom etayotgan o'quv oyi (agar bor bo'lsa)
+function ballWindow(g, ym, today){
+  const tStr = stDate(today), ps = grpPeriods(g);
+  if (ym === rpYm(today)) {
+    const cur = ps.filter(p => p.start <= tStr && (!p.end || p.end >= tStr)).pop();
+    if (cur) return { from: cur.start, to: cur.end && cur.end < tStr ? cur.end : tStr, ongoing: !cur.end, label: periodTitle(cur) };
+  }
+  const w = stWin(g, 'M', today, null, ym);
+  if (!w || w.from > w.to) return null;
+  return { from: w.from, to: w.to, ongoing: !!(w.month && !w.month.end), label: w.month ? periodTitle(w.month) : UZ_MONTHS[Number(ym.slice(5, 7)) - 1] + ' ' + ym.slice(0, 4) };
+}
+
+async function ballLoad(force){
+  const host = document.getElementById('ballGrid');
+  if (!host) return;
+  ballFillMonths();
+  const sel = document.getElementById('ballMonthSelect');
+  const ym = sel.value;
+  if (!force && _ballCache.key === ym && Date.now() - _ballCache.ts < 300000) return;
+  host.innerHTML = '<p style="color:var(--gray);font-size:.9rem;">Yuklanmoqda\u2026</p>';
+  try {
+    const today = new Date();
+    const groups = await homeFetchGroupsWithStudents();
+    const data = await Promise.all(groups.map(async g => {
+      const w = ballWindow(g, ym, today);
+      if (!w) return { g, w: null };
+      const rows = await Promise.all(g.students.map(async s => {
+        try {
+          const snap = await db.collection('oquv_progress').doc(s.id).collection('entries')
+            .where('date', '>=', w.from).where('date', '<=', w.to).get();
+          let pts = 0; const dates = [];
+          snap.docs.forEach(d => {
+            const x = stNorm(d.data(), g, s);
+            if (!x) return;
+            pts += ballPoints(x);
+            if (x.a !== '' || x.hw !== null) dates.push(x.date);
+          });
+          return { s, pts, dates };
+        } catch (e) { return { s, pts: 0, dates: [] }; }
+      }));
+      const held = new Set(); rows.forEach(r => r.dates.forEach(d => held.add(d)));
+      rows.sort((a, b) => b.pts - a.pts || String(a.s.name).localeCompare(String(b.s.name)));
+      return { g, w, rows, held: held.size };
+    }));
+    host.innerHTML = data.map(ballRenderCard).join('') || '<p style="color:var(--gray);font-size:.9rem;">Guruhlar yo\u02bcq.</p>';
+    _ballCache = { key: ym, ts: Date.now() };
+  } catch (err) {
+    console.error('ballLoad', err);
+    host.innerHTML = '<p style="color:var(--error);font-size:.9rem;">Yuklab bo\u02bclmadi.</p>';
+  }
+}
+
+function ballRenderCard(d){
+  const head = (sub) => `<div style="font-weight:800;font-size:1rem;">${escHtml(d.g.name)}</div><div style="font-size:.78rem;color:var(--gray);margin-bottom:8px;">${sub}</div>`;
+  const box = (inner) => `<div style="border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--adm-card,transparent);">${inner}</div>`;
+  if (!d.w) return box(head('Bu oy uchun ma\u02bclumot yo\u02bcq'));
+  if (!d.rows.length) return box(head(escHtml(d.w.label)) + '<div style="font-size:.85rem;color:var(--gray);">Guruhda talaba yo\u02bcq.</div>');
+  const need = BALL_MIN_SHARE * 10 * d.held;           // 12 dars → 90
+  const max = d.rows[0].pts;
+  const leaders = d.rows.filter(r => r.pts === max);
+  const ok = d.held > 0 && max > 0 && max >= need;
+  const names = leaders.map(r => escHtml(r.s.name)).join(', ');
+  const status = d.w.ongoing ? 'Joriy oy \u2014 hozircha' : 'Yakuniy';
+  let result;
+  if (ok) {
+    result = `<div style="background:#e8f7ee;color:#1e6b3a;border-radius:10px;padding:10px 12px;font-size:.88rem;margin-bottom:10px;">
+      <b>${d.w.ongoing ? 'Hozircha yetakchi' : 'G\u02bcolib'}:</b> ${names}<br>
+      <b>${max} bal</b> \u2192 ${ballFmtSom(max * BALL_SOM_PER_POINT)} so\u02bcm to\u02bclovdan ozod
+      ${leaders.length > 1 ? '<br><span style="font-size:.78rem;">Ballar teng \u2014 ' + leaders.length + ' ta talaba, qaror sizda.</span>' : ''}</div>`;
+  } else {
+    result = `<div style="background:#fff4e5;color:#8a5a00;border-radius:10px;padding:10px 12px;font-size:.85rem;margin-bottom:10px;">
+      ${d.w.ongoing ? 'Hozircha' : 'Bu oy'} shartga yetgan talaba yo\u02bcq. Kerak: kamida <b>${Math.ceil(need)}</b> bal, eng yuqori: <b>${max}</b>.</div>`;
+  }
+  const rowsHtml = d.rows.map((r, i) => `<tr><td style="color:var(--gray);width:28px;">${i + 1}</td><td>${escHtml(r.s.name)}</td><td style="text-align:right;font-weight:700;">${r.pts}</td></tr>`).join('');
+  return box(head(`${escHtml(d.w.label)} \u00b7 ${status} \u00b7 o\u02bctilgan darslar: ${d.held} \u00b7 maksimum ${d.held * 10} bal`) + result +
+    `<div style="max-height:240px;overflow:auto;"><table class="data-table" style="width:100%;font-size:.85rem;"><tbody>${rowsHtml}</tbody></table></div>`);
+}
+document.getElementById('ballMonthSelect').addEventListener('change', () => ballLoad(true));
+document.getElementById('ballRefreshBtn').addEventListener('click', () => ballLoad(true));
+ballFillMonths();
 
 // ============================================================
 // FAOLLIK JURNALI (Activity Log)
