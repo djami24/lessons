@@ -9944,8 +9944,15 @@ let _todayHwAutoRefreshInterval = null;
 async function homeFetchLatestKundalikHw(groupId){
   try{
     const hwSnap = await db.collection('kundalik').doc(groupId)
-      .collection('vazifalari').orderBy('sana', 'desc').limit(1).get();
-    return { kundalikGroupId: groupId, items: hwSnap.docs.map(d => d.data()) };
+      .collection('vazifalari').orderBy('sana', 'desc').limit(10).get();
+    // Faqat BUGUNGI sanadagi uy vazifalar ko'rsatiladi
+    const today = localDateStr();
+    const items = hwSnap.docs.map(d => d.data()).filter(h => {
+      const ts = h.sana;
+      const dt = ts ? (typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts)) : null;
+      return dt && !isNaN(dt) && localDateStr(dt) === today;
+    });
+    return { kundalikGroupId: groupId, items };
   } catch(err){
     return { kundalikGroupId: null, items: [] };
   }
@@ -10009,7 +10016,9 @@ async function homeRenderAllAssignments(groups){
     const info = await homeFetchLatestKundalikHw(g.id);
     return { group: g, kundalikGroupId: info.kundalikGroupId, hwItems: info.items };
   }));
-  renderTodayAssignmentCards(data);
+  const withHw = data.filter(x => x.hwItems && x.hwItems.length);
+  if (!withHw.length) { grid.innerHTML = '<p style="color:var(--gray);font-size:.9rem;margin:6px 0;">Bugun uchun uy vazifa kiritilmagan.</p>'; return; }
+  renderTodayAssignmentCards(withHw);
 }
 
 async function loadTodayHomeworkCards(){
