@@ -14,6 +14,10 @@
 .btn-tg:hover{background:linear-gradient(135deg,#1a8fc4,#155f8e);} 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }
 
 /* ====== O'QUV JARAYONI — Modern UI ====== */
+/* Admin oynalari (modal) ixcham va tartibli */
+.modal-box .modal-title{font-size:1.25rem;font-weight:700;line-height:1.3;margin:0 0 14px;}
+.modal-form > label:not(:has(input[type=checkbox])){display:flex;flex-direction:column;gap:6px;font-size:.85rem;font-weight:600;}
+.modal-form > label > input:not([type=checkbox]):not([type=radio]),.modal-form > label > select,.modal-form > label > textarea{width:100%;box-sizing:border-box;}
 /* Admin sarlavhalari ixcham */
 .admin-main h1{font-size:1.45rem;font-weight:700;line-height:1.25;display:flex;align-items:center;gap:8px;}
 .admin-main h1 .ic{width:1.05em;height:1.05em;flex-shrink:0;}
@@ -2606,7 +2610,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <input type="text" id="teacherNameInput" placeholder="Masalan: Aziz Karimov">
       </label>
       <label>Login
-        <input type="text" id="teacherLoginInput" placeholder="aziz" autocapitalize="none" spellcheck="false">
+        <input type="text" id="teacherLoginInput" placeholder="aziz  yoki  email" autocapitalize="none" spellcheck="false">
       </label>
       <label>Parol (kamida 6 belgi)
         <input type="text" id="teacherPassInput" placeholder="Parol" autocomplete="off">
@@ -8699,11 +8703,12 @@ document.getElementById('teacherSaveBtn').addEventListener('click', async () => 
   const btn = document.getElementById('teacherSaveBtn');
   err.hidden = true;
   if (!name || !login || !pass) { err.textContent = 'Hamma maydonni to\'ldiring.'; err.hidden = false; return; }
-  if (!/^[a-z0-9._-]{3,30}$/.test(login)) { err.textContent = 'Login 3–30 ta belgi: lotin harflari, raqam, nuqta, tire.'; err.hidden = false; return; }
+  const isEmail = login.includes('@');
+  if (isEmail ? !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(login) : !/^[a-z0-9._-]{3,30}$/.test(login)) { err.textContent = 'Login 3–30 ta belgi bo\'lsin (lotin harflari, raqam, nuqta, tire) yoki to\'g\'ri email kiriting.'; err.hidden = false; return; }
   if (pass.length < 6) { err.textContent = 'Parol kamida 6 belgi bo\'lsin.'; err.hidden = false; return; }
   btn.disabled = true; btn.textContent = 'Yaratilmoqda…';
   try {
-    const email = login + TEACHER_EMAIL_DOMAIN;
+    const email = isEmail ? login : login + TEACHER_EMAIL_DOMAIN;
     const secondaryAuth = getSecondaryAuth();
     const cred = await secondaryAuth.createUserWithEmailAndPassword(email, pass);
     const uid = cred.user.uid;
