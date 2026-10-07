@@ -965,6 +965,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <button class="btn btn-ghost btn-sm" id="statsRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
           <select class="st-select rp-month-select" id="statsMonthSelect" title="Oyni tanlang — statistika shu oy uchun ko'rsatiladi (PDF hisobot ham shu oy uchun)"></select>
           <button class="btn btn-primary btn-sm" id="statsMonthPdfBtn" title="Tanlangan oy uchun PDF hisobot (o'tgan oy bilan solishtirilgan)"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
+          <button class="btn btn-primary btn-sm" id="statsWinnerBtn" title="Tanlangan oy (va guruh) bo'yicha eng yuqori ballli o'quvchiga tabrik rasmi tayyorlash"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Oy o'quvchisi</button>
           <button class="btn btn-ghost btn-sm" id="statsShotAllBtn" title="Diqqat talab qiladi, Eng faol, Yaxshilanganlar va Pasayganlar — hammasini bitta rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm (hammasi)</button>
           <button class="btn btn-ghost btn-sm" id="statsExportBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Excel</button>
         </div>
@@ -1966,6 +1967,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="oj-gh-bar">
           <div class="oj-gh-group">
             <button class="btn btn-primary btn-sm" id="ojMarkAllPresentBtn" title="Hali belgilanmagan barcha talabalarni 'Keldi' deb belgilash"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Hammasi keldi</button>
+            <button class="btn btn-primary btn-sm" id="ojMarkAllHwBtn" title="Uy vazifasi hali belgilanmagan talabalarni (Kelmadi deb belgilanganlardan tashqari) UV qildi deb belgilash"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Hammasi UV qildi</button>
             <button class="btn btn-amber btn-sm" id="ojNewMonthBtn" title="Yangi o'quv oyini boshlash — statistika shu sanadan boshidan hisoblanadi"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Yangi oyni boshlash</button>
             <button class="btn btn-primary btn-sm" id="ojParentTgBtn" title="Bugungi davomatni (kelmaganlar va kech qolganlar) ota-onalar Telegram guruhiga yuborish"><svg class="ic" aria-hidden="true"><use href="#i-send"></use></svg> Ota-onalarga yuborish</button>
             <button class="btn btn-primary btn-sm" id="openAddOquvStudent">+ Talaba qo'shish</button>
@@ -7997,6 +7999,182 @@ document.getElementById('statsShotAllBtn').addEventListener('click', async (e) =
 });
 stInjectShotButtons();
 // ===== /Statistika rasm =====
+
+// "Hammasi UV qildi": uy vazifasi hali belgilanmagan talabalarni bir bosishda "UV qildi" qiladi.
+// "Kelmadi" deb belgilanganlar va allaqachon belgilanganlar (Qilmadi / Foiz qildi) o'zgarmaydi.
+// ===== OY O'QUVCHISI: tabrik rasmi =====
+// Tanlangan davr va guruh filtri bo'yicha eng yuqori ballli o'quvchi (stPickTop bilan bir xil qoida:
+// kamida 3 ta belgilangan dars, ball = 60% davomat + 40% uy vazifa).
+function stRoundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function stStarPath(ctx, cx, cy, R, r){
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const ang = -Math.PI / 2 + i * Math.PI / 5, rad = i % 2 === 0 ? R : r;
+    const x = cx + Math.cos(ang) * rad, y = cy + Math.sin(ang) * rad;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.closePath();
+}
+async function stDrawWinnerCard(p, periodLabel){
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+  const W = 1080, H = 1080, F = 'Inter, "Segoe UI", Roboto, Arial, sans-serif';
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  // Fon
+  const bg = ctx.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#172554'); bg.addColorStop(1, '#5B3FD6');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  [[120, 140, 170], [980, 220, 130], [900, 940, 210], [90, 900, 120]].forEach(a => { ctx.beginPath(); ctx.arc(a[0], a[1], a[2], 0, 7); ctx.fill(); });
+
+  // Konfetti (har safar bir xil joylashuv)
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  const cols = ['#FFD54A', '#FF7A9C', '#7CE3C4', '#FFFFFF', '#8EC5FF'];
+  for (let i = 0; i < 46; i++) {
+    const x = rnd() * W, y = rnd() * 470, sz = 8 + rnd() * 12;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(rnd() * 3);
+    ctx.fillStyle = cols[i % cols.length]; ctx.globalAlpha = 0.85;
+    ctx.fillRect(-sz / 2, -sz / 4, sz, sz / 2); ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+
+  // Sarlavha
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  const isMonth = /oyi$/.test(periodLabel || '');
+  ctx.fillStyle = '#fff'; ctx.font = `800 62px ${F}`;
+  ctx.fillText(isMonth ? "OY O'QUVCHISI" : "ENG YAXSHI O'QUVCHI", W / 2, 118);
+  ctx.fillStyle = '#FFD54A'; ctx.font = `700 34px ${F}`;
+  ctx.fillText(periodLabel || '', W / 2, 168);
+
+  // Medal
+  const mx = W / 2, my = 360;
+  ctx.fillStyle = '#E5484D';                       // lenta
+  ctx.beginPath(); ctx.moveTo(mx - 80, my + 90); ctx.lineTo(mx - 30, my + 110); ctx.lineTo(mx - 62, my + 215); ctx.lineTo(mx - 100, my + 180); ctx.lineTo(mx - 132, my + 205); ctx.closePath(); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(mx + 80, my + 90); ctx.lineTo(mx + 30, my + 110); ctx.lineTo(mx + 62, my + 215); ctx.lineTo(mx + 100, my + 180); ctx.lineTo(mx + 132, my + 205); ctx.closePath(); ctx.fill();
+  const gold = ctx.createLinearGradient(mx - 130, my - 130, mx + 130, my + 130); gold.addColorStop(0, '#FFE27A'); gold.addColorStop(1, '#E39A00');
+  ctx.shadowColor = 'rgba(0,0,0,0.35)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 12;
+  ctx.fillStyle = gold; ctx.beginPath(); ctx.arc(mx, my, 130, 0, 7); ctx.fill();
+  ctx.shadowColor = 'transparent';
+  ctx.strokeStyle = 'rgba(255,255,255,0.65)'; ctx.lineWidth = 7; ctx.beginPath(); ctx.arc(mx, my, 104, 0, 7); ctx.stroke();
+  stStarPath(ctx, mx, my + 4, 66, 28); ctx.fillStyle = '#fff'; ctx.fill();
+
+  // Tabrik va ism (uzun ism sig'maguncha kichraytiriladi)
+  ctx.fillStyle = '#FFD54A'; ctx.font = `800 36px ${F}`;
+  ctx.fillText('TABRIKLAYMIZ!', W / 2, 612);
+  const name = String(p.name || '');
+  let fs = 88; ctx.font = `800 ${fs}px ${F}`;
+  while (ctx.measureText(name).width > 940 && fs > 40) { fs -= 4; ctx.font = `800 ${fs}px ${F}`; }
+  ctx.fillStyle = '#fff'; ctx.fillText(name, W / 2, 612 + 20 + fs * 0.85);
+
+  // Guruh nomi
+  const gy = 612 + 20 + fs * 0.85 + 34;
+  const gtxt = "Guruh: " + (p.gname || '—');
+  ctx.font = `700 30px ${F}`;
+  const gw = Math.min(ctx.measureText(gtxt).width + 56, 900);
+  stRoundRect(ctx, W / 2 - gw / 2, gy, gw, 54, 27); ctx.fillStyle = 'rgba(255,255,255,0.16)'; ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillText(gtxt, W / 2, gy + 37);
+
+  // Ko'rsatkichlar
+  const a = p.a, pct = v => (v === null || v === undefined) ? '—' : v + '%';
+  const cards = [['Ball', p.sc === null ? '—' : String(p.sc)], ['Davomat', pct(a.att)], ['Uy vazifa', pct(a.hw)]];
+  const cw = 290, gap = 26, cy = 818, ch = 150, x0 = (W - (cw * 3 + gap * 2)) / 2;
+  cards.forEach((it, i) => {
+    const x = x0 + i * (cw + gap);
+    stRoundRect(ctx, x, cy, cw, ch, 26); ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = `800 64px ${F}`; ctx.fillText(it[1], x + cw / 2, cy + 82);
+    ctx.fillStyle = 'rgba(255,255,255,0.78)'; ctx.font = `600 28px ${F}`; ctx.fillText(it[0], x + cw / 2, cy + 123);
+  });
+
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = `600 32px ${F}`;
+  ctx.fillText('Shunday davom eting!', W / 2, 1024);
+
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  if (!blob) throw new Error('toBlob');
+  return blob;
+}
+function stWinnerCaption(p, periodLabel){
+  const a = p.a;
+  return `🏆 ${/oyi$/.test(periodLabel || '') ? "Oy o'quvchisi" : "Eng yaxshi o'quvchi"} — ${p.name}\n` +
+    `👥 Guruh: ${p.gname} · ${periodLabel}\n` +
+    `Ball: ${p.sc} · Davomat: ${a.att === null ? '—' : a.att + '%'} · Uy vazifa: ${a.hw === null ? '—' : a.hw + '%'}\n\nTabriklaymiz! 🎉`;
+}
+async function stSendWinnerTg(blob, p, periodLabel, btn){
+  const tg = ojTgSettings();
+  if (!tg.token) { showToast("Avval bot tokenini kiriting: Sayt sozlamalari → Telegram Bot sozlamalari", true); return; }
+  let chatId = '';
+  try { const d = await db.collection('oquv_groups').doc(p.gid).get(); chatId = (d.exists && d.data().parentChatId) || ''; } catch (e) {}
+  const targets = chatId ? [chatId] : (tg.targets || []).filter(Boolean);
+  if (!targets.length) { showToast("Telegram chat topilmadi: guruhning ota-onalar chat ID sini yoki bot chatlarini kiriting", true); return; }
+  const where = chatId ? `"${p.gname}" guruhining ota-onalar chatiga` : `${targets.length} ta Telegram chatga`;
+  if (!confirm(`${p.name} uchun tabrik rasmi ${where} yuborilsinmi?`)) return;
+  const old = btn.innerHTML; btn.disabled = true; btn.textContent = 'Yuborilmoqda…';
+  let ok = 0, fail = 0;
+  for (const cid of targets) {
+    try {
+      const fd = new FormData();
+      fd.append('chat_id', cid);
+      fd.append('caption', stWinnerCaption(p, periodLabel));
+      fd.append('photo', blob, 'oy-oquvchisi.png');
+      const res = await fetch('https://api.telegram.org/bot' + tg.token + '/sendPhoto', { method: 'POST', body: fd });
+      const j = await res.json();
+      if (j.ok) ok++; else { fail++; console.warn('Telegram:', j.description); }
+    } catch (err) { fail++; console.warn(err); }
+  }
+  btn.disabled = false; btn.innerHTML = old;
+  showToast(fail ? `Yuborildi: ${ok} ta, xato: ${fail} ta` : 'Tabrik rasmi yuborildi', !!fail && !ok);
+}
+function stShowWinnerPreview(blob, p, periodLabel){
+  const url = URL.createObjectURL(blob);
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,14,30,.72);display:flex;align-items:center;justify-content:center;padding:16px;';
+  ov.innerHTML = '<div style="background:var(--card,#fff);color:inherit;border-radius:18px;padding:16px;max-width:560px;width:100%;max-height:96vh;overflow:auto;display:flex;flex-direction:column;gap:12px;">' +
+    '<img alt="Tabrik rasmi" style="width:100%;height:auto;border-radius:12px;display:block;">' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">' +
+    '<button type="button" class="btn btn-ghost btn-sm" data-w="close">Yopish</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" data-w="dl">Yuklab olish</button>' +
+    '<button type="button" class="btn btn-primary btn-sm" data-w="tg">Telegramga yuborish</button></div></div>';
+  ov.querySelector('img').src = url;
+  const close = () => { URL.revokeObjectURL(url); ov.remove(); };
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  ov.querySelector('[data-w="close"]').addEventListener('click', close);
+  ov.querySelector('[data-w="dl"]').addEventListener('click', () => {
+    const a = document.createElement('a'); a.href = url;
+    a.download = 'oy-oquvchisi-' + String(p.name || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  ov.querySelector('[data-w="tg"]').addEventListener('click', e => stSendWinnerTg(blob, p, periodLabel, e.currentTarget));
+  document.body.appendChild(ov);
+}
+document.getElementById('statsWinnerBtn').addEventListener('click', async (e) => {
+  const btn = e.currentTarget, m = _statsModel;
+  if (!m || !m.top || !m.top.length) { showToast("Reyting hali tayyor emas (kamida 3 ta belgilangan dars kerak)", true); return; }
+  const p = m.top[0], old = btn.innerHTML; btn.disabled = true; btn.textContent = '…';
+  try {
+    const blob = await stDrawWinnerCard(p, m.periodLabel);
+    stShowWinnerPreview(blob, p, m.periodLabel);
+  } catch (err) {
+    console.error("Oy o'quvchisi rasmi xatosi:", err);
+    showToast("Rasm tayyorlab bo'lmadi", true);
+  } finally { btn.disabled = false; btn.innerHTML = old; }
+});
+// ===== /OY O'QUVCHISI =====
+
+document.getElementById('ojMarkAllHwBtn').addEventListener('click', () => {
+  const rows = Array.from(document.querySelectorAll('#ojStudentsGrid .oj-student-row'));
+  if (!rows.length) { showToast("Guruhda talaba yo'q", true); return; }
+  const targets = rows.filter(r => !r.dataset.hw && r.dataset.attend !== 'no');
+  if (!targets.length) { showToast("Belgilanadigan talaba qolmadi"); return; }
+  targets.forEach(r => {
+    const yesBtn = r.querySelector('.oj-toggle-group[data-field="homeworkDone"] .oj-toggle-btn[data-val="yes"]');
+    if (yesBtn) yesBtn.click();
+  });
+  const absent = rows.filter(r => !r.dataset.hw && r.dataset.attend === 'no').length;
+  showToast(targets.length + " ta talaba 'UV qildi' deb belgilandi" + (absent ? " (" + absent + " ta kelmagan o'tkazib yuborildi)" : ""));
+});
 
 document.getElementById('ojMarkAllPresentBtn').addEventListener('click', () => {
   const rows = Array.from(document.querySelectorAll('#ojStudentsGrid .oj-student-row'));
