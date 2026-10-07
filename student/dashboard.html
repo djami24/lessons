@@ -379,6 +379,11 @@
   .myst-note{font-size:12px;color:var(--gray-500);margin-top:8px;}
   .myst-empty-mini{color:var(--gray-500);font-size:13px;padding:10px 2px;}
 
+  .myst-share-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;padding:11px 20px;border:none;border-radius:12px;background:#229ED9;color:#fff;font:inherit;font-size:13.5px;font-weight:800;cursor:pointer;}
+  .myst-share-btn:hover{background:#1b8bc2;}
+  .myst-share-btn:disabled{opacity:.6;cursor:default;}
+  .myst-share-btn svg{width:18px;height:18px;fill:#fff;}
+  @media (max-width:600px){ .myst-share-btn{width:100%;} }
   .myst-badge-count{font-size:11.5px;font-weight:700;color:var(--gray-500);margin-left:6px;}
   .myst-badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:12px;}
   .myst-badge{background:var(--white);border:1.5px solid var(--gray-200);border-radius:14px;padding:14px 10px 12px;text-align:center;opacity:.62;}
@@ -1077,6 +1082,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
               <h4>Yutuqlarim <span class="myst-badge-count" id="mystBadgeCount"></span></h4>
               <div class="myst-badges" id="mystBadges"></div>
               <div class="myst-note">Medallar barcha oylar bo'yicha hisoblanadi.</div>
+              <button type="button" class="myst-share-btn" id="mystShareBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.6 2.9 10.8c-1.3.5-1.2 1.3-.2 1.6l4.8 1.5 1.8 5.6c.2.6.4.8.9.8.4 0 .7-.2 1-.5l2.3-2.2 4.8 3.5c.9.5 1.5.2 1.8-.8l3.2-15.2c.3-1.3-.5-1.9-1.8-1.5zM8.7 13.4l9.8-6.2c.5-.3.9-.1.5.2l-8.1 7.3-.3 3.3-1.9-4.6z"/></svg> Yutuqlarimni ulashish</button>
             </div>
           </div>
         </div>
@@ -2371,6 +2377,135 @@ function mystBadgesHtml(rows){
   }).join('');
   return { html, got, total: medals.length };
 }
+
+// ----- Yutuqlarni rasm qilib ulashish (Telegram) -----
+function mystMedalInfo(m){
+  const reached = m.levels.filter(l => m.value >= l).length, max = m.levels.length;
+  const color = reached === 0 ? '#98A2B3' : reached === max ? '#E9A400' : reached === 1 ? '#C98A4B' : '#8E9AAF';
+  const NAMES = ['', 'Bronza', 'Kumush', 'Oltin'];
+  const lv = max === 1 ? (reached ? "Qo'lga kiritildi" : '') : (reached ? NAMES[Math.min(reached, 3)] + ' daraja' : '');
+  const next = m.levels[reached];
+  const prog = reached === max ? 'Eng yuqori daraja!' : Math.min(m.value, next) + ' / ' + next + ' ' + m.unit;
+  return { reached, color, lv, prog };
+}
+function mystRR(ctx, x, y, w, h, r){
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+function mystStar(ctx, cx, cy, R, r){
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 5, rad = i % 2 === 0 ? R : r;
+    const x = cx + Math.cos(a) * rad, y = cy + Math.sin(a) * rad;
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.closePath();
+}
+async function mystDrawShareCard(){
+  try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+  const medals = mystMedals(_mystRows || []);
+  const infos = medals.map(mystMedalInfo);
+  const got = infos.filter(i => i.reached > 0).length;
+  const W = 1080, H = 1250, F = 'Inter, "Segoe UI", Roboto, Arial, sans-serif';
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  const bg = ctx.createLinearGradient(0, 0, W, H); bg.addColorStop(0, '#172554'); bg.addColorStop(1, '#5B3FD6');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  [[110, 120, 160], [990, 260, 120], [940, 1180, 210], [70, 1100, 130]].forEach(a => { ctx.beginPath(); ctx.arc(a[0], a[1], a[2], 0, 7); ctx.fill(); });
+
+  ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#FFD54A'; ctx.font = `800 36px ${F}`;
+  ctx.fillText('MENING YUTUQLARIM', W / 2, 100);
+  const name = String((state.student && (state.student.name || state.student.email)) || 'Talaba');
+  let fs = 74; ctx.font = `800 ${fs}px ${F}`;
+  while (ctx.measureText(name).width > 940 && fs > 38) { fs -= 4; ctx.font = `800 ${fs}px ${F}`; }
+  ctx.fillStyle = '#fff'; ctx.fillText(name, W / 2, 100 + 28 + fs * 0.85);
+  const sy = 100 + 28 + fs * 0.85 + 56;
+  ctx.fillStyle = 'rgba(255,255,255,0.85)'; ctx.font = `700 34px ${F}`;
+  ctx.fillText(got + ' / ' + medals.length + ' medal qo\'lga kiritildi', W / 2, sy);
+
+  // Medallar to'ri: 2 ustun x 3 qator
+  const tw = 480, th = 250, gx = 40, gy = 34, x0 = (W - (tw * 2 + gx)) / 2, y0 = sy + 50;
+  medals.forEach((m, i) => {
+    const inf = infos[i], col = i % 2, row = Math.floor(i / 2);
+    const x = x0 + col * (tw + gx), y = y0 + row * (th + gy), on = inf.reached > 0;
+    mystRR(ctx, x, y, tw, th, 28);
+    ctx.fillStyle = on ? 'rgba(255,255,255,0.17)' : 'rgba(255,255,255,0.07)'; ctx.fill();
+    if (on) { ctx.strokeStyle = inf.color; ctx.lineWidth = 4; ctx.stroke(); }
+    ctx.globalAlpha = on ? 1 : 0.6;
+    const cx = x + 82, cy = y + th / 2;
+    ctx.fillStyle = inf.color; ctx.beginPath(); ctx.arc(cx, cy, 52, 0, 7); ctx.fill();
+    mystStar(ctx, cx, cy + 2, 30, 13); ctx.fillStyle = '#fff'; ctx.fill();
+    ctx.textAlign = 'left';
+    const tx = x + 156, maxW = tw - 156 - 18;
+    let tfs = 30; ctx.font = `800 ${tfs}px ${F}`;
+    while (ctx.measureText(m.title).width > maxW && tfs > 20) { tfs -= 2; ctx.font = `800 ${tfs}px ${F}`; }
+    ctx.fillStyle = '#fff'; ctx.fillText(m.title, tx, cy - 22);
+    ctx.font = `800 24px ${F}`; ctx.fillStyle = on ? '#FFD54A' : 'rgba(255,255,255,0.55)';
+    ctx.fillText(inf.lv || 'Hali olinmagan', tx, cy + 14);
+    ctx.font = `600 24px ${F}`; ctx.fillStyle = 'rgba(255,255,255,0.8)';
+    ctx.fillText(inf.prog, tx, cy + 50);
+    ctx.globalAlpha = 1; ctx.textAlign = 'center';
+  });
+
+  ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = `700 30px ${F}`;
+  ctx.fillText('Djami Lessons', W / 2, H - 46);
+
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  if (!blob) throw new Error('toBlob');
+  return blob;
+}
+function mystShowSharePreview(blob){
+  const dark = document.body.classList.contains('dark');
+  const url = URL.createObjectURL(blob);
+  const ov = document.createElement('div');
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(10,14,30,.72);display:flex;align-items:center;justify-content:center;padding:16px;';
+  ov.innerHTML = '<div style="background:' + (dark ? '#171d2c' : '#fff') + ';color:' + (dark ? '#e8ecf5' : '#1c212e') + ';border-radius:18px;padding:16px;max-width:520px;width:100%;max-height:96vh;overflow:auto;display:flex;flex-direction:column;gap:12px;">' +
+    '<img alt="Yutuqlarim" style="width:100%;height:auto;border-radius:12px;display:block;">' +
+    '<div data-w="msg" style="font-size:12.5px;min-height:1em;opacity:.8;"></div>' +
+    '<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;">' +
+    '<button type="button" class="btn btn-ghost btn-sm" data-w="close">Yopish</button>' +
+    '<button type="button" class="btn btn-ghost btn-sm" data-w="dl">Yuklab olish</button>' +
+    '<button type="button" class="myst-share-btn" style="margin-top:0;padding:8px 16px;" data-w="tg">Telegramda ulashish</button></div></div>';
+  ov.querySelector('img').src = url;
+  const msg = t => { ov.querySelector('[data-w="msg"]').textContent = t; };
+  const close = () => { URL.revokeObjectURL(url); ov.remove(); };
+  const download = () => { const a = document.createElement('a'); a.href = url; a.download = 'yutuqlarim.png'; document.body.appendChild(a); a.click(); a.remove(); };
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  ov.querySelector('[data-w="close"]').addEventListener('click', close);
+  ov.querySelector('[data-w="dl"]').addEventListener('click', download);
+  ov.querySelector('[data-w="tg"]').addEventListener('click', async () => {
+    const text = 'Mening yutuqlarim — Djami Lessons';
+    const file = new File([blob], 'yutuqlarim.png', { type: 'image/png' });
+    // Telefonda: ulashish oynasi ochiladi, Telegram'ni tanlang
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      try { await navigator.share({ files: [file], text }); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    // Kompyuterda: rasm yuklab olinadi (va nusxalanadi), Telegram ochiladi
+    download();
+    let copied = false;
+    try {
+      if (navigator.clipboard && window.ClipboardItem) { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); copied = true; }
+    } catch (e) {}
+    window.open('https://t.me/share/url?url=' + encodeURIComponent(location.origin) + '&text=' + encodeURIComponent(text), '_blank');
+    msg(copied ? 'Rasm yuklab olindi va nusxalandi — Telegramda chatni tanlab, rasmni qo\'ying (Ctrl+V).' : 'Rasm yuklab olindi — Telegramda chatni tanlab, rasmni biriktiring.');
+  });
+  document.body.appendChild(ov);
+}
+(function(){
+  const btn = document.getElementById('mystShareBtn');
+  if (!btn) return;
+  btn.addEventListener('click', async () => {
+    if (!_mystRows || !_mystRows.length) return;
+    const old = btn.innerHTML; btn.disabled = true; btn.textContent = '…';
+    try { mystShowSharePreview(await mystDrawShareCard()); }
+    catch (err) { console.warn('Yutuqlar rasmi xatosi:', err); alert("Rasm tayyorlab bo'lmadi. Qayta urinib ko'ring."); }
+    finally { btn.disabled = false; btn.innerHTML = old; }
+  });
+})();
 // ===== /YUTUQLAR =====
 
 function renderMyStats(){
