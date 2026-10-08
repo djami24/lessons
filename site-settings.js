@@ -4,7 +4,7 @@
    see FIRESTORE_RULES.txt) and applies it to whichever page loads
    this script: brand colors, brand name, logo, nav labels, payment
    card details — and, on the homepage only, every section of text
-   (hero, courses, feature grid, stats bar, blog, rating, footer).
+   (hero, raqamlar, imkoniyatlar, kirish kartochkalari, blog, footer).
    Include AFTER firebase-config.js on every page that should react
    to admin-configured branding.
    ============================================================ */
@@ -86,17 +86,14 @@
     });
   }
 
-  // Updates both the visible text and the href of a footer contact link
-  // (phone / telegram), since these carry real link targets, not just text.
-  // Keeps whatever leading icon/emoji is already in the markup.
-  function applyFooterContact(selector, value, hrefBuilder){
+  // Footer aloqa havolasi: matn (span) va havola manzili (eng yaqin <a>) birga yangilanadi.
+  function applyFooterContact(selector, value, textBuilder, hrefBuilder){
     if(!value) return;
     document.querySelectorAll(selector).forEach(el => {
-      const iconMatch = el.textContent.match(/^(\S+\s)/);
-      const icon = iconMatch ? iconMatch[1] : '';
-      el.textContent = icon + value;
-      const href = hrefBuilder(value);
-      if(href) el.setAttribute('href', href);
+      el.textContent = textBuilder ? textBuilder(value) : value;
+      const link = el.closest('a');
+      const href = hrefBuilder ? hrefBuilder(value) : '';
+      if(link && href) link.setAttribute('href', href);
     });
   }
 
@@ -299,7 +296,7 @@
 
   <!-- progress card -->
   <div class="mnt-card">
-    <span class="mnt-wrench">🔧</span>
+    <span class="mnt-wrench"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#5555cc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
     <div class="mnt-progress-wrap">
       <div class="mnt-progress-label">Ish jarayoni davom etmoqda...</div>
       <div class="mnt-bar-row">
@@ -412,64 +409,56 @@
 
     // ---- Top nav (present on every page) ----
     setText('[data-site-nav-home]', data.navHomeLabel);
-    setText('[data-site-nav-courses]', data.navCoursesLabel);
-    setText('[data-site-nav-results]', data.navResultsLabel);
-    setText('[data-site-nav-cta]', data.navCtaText);
     setText('[data-site-blog-link-text]', data.blogLinkText);
-    setText('[data-site-home-admin-btn]', data.homeAdminBtnText);
 
-    // ---- Payment card (shown on the student dashboard's payment pages) ----
-    setText('[data-site-card-number]', data.cardNumber);
-    setText('[data-site-card-holder]', data.cardHolderName);
 
     // ---- Footer (present on every page) ----
     setText('[data-site-footer-copyright]', data.footerCopyright);
     setText('[data-site-footer-tagline]', data.footerTagline);
-    applyFooterContact('[data-site-footer-phone]', data.footerPhone, v => 'tel:+' + v.replace(/\D/g, ''));
-    applyFooterContact('[data-site-footer-telegram]', data.footerTelegram, v => 'https://t.me/' + v.replace(/^@|^https?:\/\/t\.me\//i, ''));
+    const tgHandle = v => v.replace(/^@|^https?:\/\/t\.me\//i, '');
+    applyFooterContact('[data-site-footer-phone]', data.footerPhone, null, v => 'tel:+' + v.replace(/\D/g, ''));
+    applyFooterContact('[data-site-footer-telegram]', data.footerTelegram, v => 't.me/' + tgHandle(v), v => 'https://t.me/' + tgHandle(v));
 
     // ---- Homepage-only fields (elements simply won't exist on other pages) ----
 
     applyMarquee(data.marqueeText, data.marqueeEnabled);
 
     // Hero
-    setText('[data-site-hero-eyebrow]', data.heroEyebrow);
     setText('[data-site-hero-title]', data.heroTitle);
     setText('[data-site-hero-lead]', data.heroLead);
-    setText('[data-site-home-student-btn]', data.homeStudentBtnText);
-    setText('[data-site-hero-results-btn]', data.heroResultsBtnText);
-    setText('[data-site-hero-mini-number]', data.heroMiniNumber);
-    setText('[data-site-hero-mini-label]', data.heroMiniLabel);
+    setText('[data-site-register-btn]', data.registerBtnText);
+    setText('[data-site-login-btn]', data.loginBtnText);
+    setText('[data-site-login-hint]', data.heroLoginHint);
+    setText('[data-site-hero-tg-text]', data.heroTgText);
     if(Array.isArray(data.certificateImages) && data.certificateImages.length > 0){
       renderCertificateCarousel(data.certificateImages);
     } else {
       renderHeroImage(data.heroImageUrl);
     }
 
-    // "Nega biz" feature grid (4 icon + title + text cards)
-    setText('[data-site-feature-1-title]', data.feature1Title);
-    setText('[data-site-feature-1-text]', data.feature1Text);
-    setText('[data-site-feature-2-title]', data.feature2Title);
-    setText('[data-site-feature-2-text]', data.feature2Text);
-    setText('[data-site-feature-3-title]', data.feature3Title);
-    setText('[data-site-feature-3-text]', data.feature3Text);
-    setText('[data-site-feature-4-title]', data.feature4Title);
-    setText('[data-site-feature-4-text]', data.feature4Text);
+    // Raqamlar qatori (4 ta)
+    for(let i = 1; i <= 4; i++){
+      setText('[data-site-stat-' + i + '-value]', data['stat' + i + 'Value']);
+      setText('[data-site-stat-' + i + '-label]', data['stat' + i + 'Label']);
+    }
 
-    // Courses section (General English / IELTS / CEFR cards)
-    setText('[data-site-courses-eyebrow]', data.coursesEyebrow);
-    setText('[data-site-courses-heading]', data.coursesHeading);
-    setText('[data-site-home-label-1]', data.homeLabel1);
-    setText('[data-site-home-sub-1]', data.homeSub1);
-    setText('[data-site-home-label-2]', data.homeLabel2);
-    setText('[data-site-home-sub-2]', data.homeSub2);
-    setText('[data-site-home-label-3]', data.homeLabel3);
-    setText('[data-site-home-sub-3]', data.homeSub3);
+    // Platforma imkoniyatlari
+    setText('[data-site-tools-heading]', data.toolsHeading);
+    setText('[data-site-tools-btn]', data.toolsBtnText);
+    for(let i = 1; i <= 2; i++){
+      setText('[data-site-tool-' + i + '-title]', data['tool' + i + 'Title']);
+      setText('[data-site-tool-' + i + '-text]', data['tool' + i + 'Text']);
+    }
 
+    // Kabinetga kirish kartochkalari
+    setText('[data-site-access-heading]', data.accessHeading);
+    setText('[data-site-access-student-title]', data.accessStudentTitle);
+    setText('[data-site-access-student-text]', data.accessStudentText);
+    setText('[data-site-access-parent-title]', data.accessParentTitle);
+    setText('[data-site-access-parent-text]', data.accessParentText);
 
-    // Blog + rating
+    // Blog
     setText('[data-site-blog-heading]', data.blogHeading);
-    setText('[data-site-rating-label]', data.ratingLabel);
 
     // ── Talabalar fikri — dinamik slaydlar ──────────────────────────
     // data.testimonials — massiv: [{name, role, text, photo, initials}, ...]
@@ -533,7 +522,7 @@
                 '</div>' +
               '</div>' +
               '<div class="tsl-badges">' +
-                (cert ? '<span class="tsl-badge tsl-badge-cert">\uD83C\uDFC6 ' + cert + '</span>' : '') +
+                (cert ? '<span class="tsl-badge tsl-badge-cert"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-2px;margin-right:4px"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>' + cert + '</span>' : '') +
                 (time ? '<span class="tsl-badge tsl-badge-time">' + time + '</span>' : '') +
               '</div>' +
             '</div>' +
