@@ -69,6 +69,55 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
   .hm-tool{flex-wrap:wrap;} .hm-tool-go{margin-left:0;}
   .hm-btn{width:100%;text-align:center;}
 }
+
+.hm-visual{background:linear-gradient(160deg,#EEF4F4 0%,#FBF3E6 100%);}
+.hm-mock{width:82%;background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:1.5em 1.5em 1.3em;box-shadow:0 24px 50px -28px rgba(20,33,61,.45);}
+.hm-mock-top{display:flex;justify-content:space-between;align-items:center;font-size:.8rem;font-weight:700;color:var(--gray);}
+.hm-mock-chip{padding:.2em .7em;border-radius:999px;background:#E3EEEE;color:var(--teal-deep);font-size:.72rem;}
+.hm-mock-title{font-family:var(--font-display);font-weight:900;font-size:1.1rem;color:var(--ink);margin:.6em 0 1.1em;}
+.hm-mock-track{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.1em;}
+.hm-mock-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:.68rem;font-weight:800;color:var(--gray);background:var(--paper);border:2px solid var(--paper-3);}
+.hm-mock-dot.is-done{background:var(--teal);border-color:var(--teal);color:#fff;}
+.hm-mock-dot.is-now{border-color:var(--amber);color:var(--amber-deep);box-shadow:0 0 0 4px rgba(217,142,63,.18);}
+.hm-mock-bar{height:8px;border-radius:999px;background:var(--paper-3);overflow:hidden;}
+.hm-mock-bar span{display:block;height:100%;width:68%;border-radius:999px;background:linear-gradient(90deg,var(--teal),var(--amber));}
+.hm-mock-row{display:flex;justify-content:space-between;gap:.6em;align-items:center;margin-top:1.1em;padding:.8em 1em;border-radius:12px;background:var(--paper-2);font-size:.86rem;font-weight:600;color:var(--ink);}
+.hm-mock-time{color:var(--amber-deep);white-space:nowrap;}
+.hm-eyebrow{display:inline-block;font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--amber-deep);margin-bottom:.6em;}
+.hm-sec-sub{margin:-.6em 0 1.6em;color:var(--gray);font-size:1rem;line-height:1.6;max-width:36em;}
+.hm-levels{display:grid;grid-template-columns:repeat(6,1fr);gap:.9em;}
+.hm-level{position:relative;padding:1.4em 1.1em 1.2em;border:1px solid var(--line);border-radius:var(--radius-m);background:var(--paper);transition:transform .2s,box-shadow .2s;}
+.hm-level:hover{transform:translateY(-3px);box-shadow:0 14px 28px -22px rgba(20,33,61,.5);}
+.hm-level-code{font-family:var(--font-display);font-weight:900;font-size:1.7rem;line-height:1;color:var(--teal);}
+.hm-level h3{margin:.55em 0 .35em;font-size:.98rem;color:var(--ink);}
+.hm-level p{margin:0;color:var(--gray);font-size:.87rem;line-height:1.5;}
+.hm-level.is-goal{background:var(--ink);border-color:var(--ink);}
+.hm-level.is-goal .hm-level-code{color:var(--amber);}
+.hm-level.is-goal h3{color:#fff;}
+.hm-level.is-goal p{color:#C9D1E0;}
+.hm-level-badge{position:absolute;top:-11px;right:12px;padding:.25em .65em;border-radius:999px;background:var(--amber);color:#fff;font-size:.66rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;}
+.hm-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2em;}
+.hm-step{padding:1.8em 1.6em;border-radius:var(--radius-m);background:var(--paper-2);}
+.hm-step-num{display:grid;place-items:center;width:42px;height:42px;margin-bottom:1em;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--font-display);font-weight:900;}
+.hm-step h3{margin:0 0 .35em;font-size:1.1rem;color:var(--ink);}
+.hm-step p{margin:0;color:var(--gray);font-size:.96rem;line-height:1.55;}
+.hm-cta-band{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:2em;padding:3em 2.6em;border-radius:var(--radius-l);background:linear-gradient(135deg,var(--ink) 0%,var(--teal-deep) 100%);}
+.hm-cta-band h2{margin:0 0 .4em;font-family:var(--font-display);font-weight:900;font-size:clamp(1.5rem,3vw,2.1rem);line-height:1.2;color:#fff;}
+.hm-cta-band p{margin:0;color:#D5DCE8;font-size:1rem;line-height:1.6;max-width:32em;}
+.hm-cta-actions{display:flex;flex-wrap:wrap;gap:.8em;}
+.hm-cta-ghost{display:inline-flex;align-items:center;padding:.9em 1.7em;border:1.5px solid rgba(255,255,255,.45);border-radius:999px;color:#fff;text-decoration:none;font-weight:700;transition:background .2s;}
+.hm-cta-ghost:hover{background:rgba(255,255,255,.1);}
+@media (max-width:1000px){ .hm-levels{grid-template-columns:repeat(3,1fr);} }
+@media (max-width:860px){
+  .hm-steps{grid-template-columns:1fr;}
+  .hm-cta-band{padding:2.2em 1.8em;}
+}
+@media (max-width:480px){
+  .hm-levels{grid-template-columns:repeat(2,1fr);}
+  .hm-cta-band{padding:1.8em 1.4em;}
+  .hm-cta-actions{width:100%;}
+  .hm-cta-actions .btn,.hm-cta-ghost{flex:1 1 100%;text-align:center;justify-content:center;}
+}
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -111,7 +160,22 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
       </div>
     </div>
     <div class="hm-visual-wrap">
-      <div class="hm-visual" data-site-hero-visual><svg class="hm-visual-art" viewBox="0 0 400 300" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="var(--paper-2)"/><rect x="48" y="52" width="304" height="196" rx="18" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/><g stroke="var(--teal)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M200 96c-20-12-48-14-70-8v94c22-6 50-4 70 8"/><path d="M200 96c20-12 48-14 70-8v94c-22-6-50-4-70 8"/><path d="M200 96v94"/></g><g stroke="var(--amber)" stroke-width="6" stroke-linecap="round"><path d="M88 216h56"/><path d="M256 216h56"/></g></svg></div>
+      <div class="hm-visual" data-site-hero-visual>
+        <div class="hm-mock" aria-hidden="true">
+          <div class="hm-mock-top"><span>Mening yo‘lim</span><span class="hm-mock-chip">Faol</span></div>
+          <p class="hm-mock-title">B2 sari yo‘lda</p>
+          <div class="hm-mock-track">
+            <span class="hm-mock-dot is-done">A1</span>
+            <span class="hm-mock-dot is-done">A2</span>
+            <span class="hm-mock-dot is-done">B1</span>
+            <span class="hm-mock-dot is-now">B2</span>
+            <span class="hm-mock-dot">C1</span>
+            <span class="hm-mock-dot">C2</span>
+          </div>
+          <div class="hm-mock-bar"><span></span></div>
+          <div class="hm-mock-row"><span>Bugungi mashq: Reading</span><span class="hm-mock-time">15 daqiqa</span></div>
+        </div>
+      </div>
       <a class="hm-tg" href="https://t.me/djami_teacher" target="_blank" rel="noopener noreferrer"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span data-site-hero-tg-text>Telegram kanalimiz</span></a>
     </div>
   </section>
@@ -121,6 +185,66 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
     <div class="hm-stat"><strong data-site-stat-2-value>A1–C2</strong><span data-site-stat-2-label>barcha CEFR darajalari</span></div>
     <div class="hm-stat"><strong data-site-stat-3-value>4 bo‘lim</strong><span data-site-stat-3-label>Listening, Reading, Writing, Speaking</span></div>
     <div class="hm-stat"><strong data-site-stat-4-value>B2</strong><span data-site-stat-4-label>CEFR sertifikatini olgan talabalarimiz</span></div>
+  </section>
+
+  <section class="hm-sec" id="darajalar">
+    <span class="hm-eyebrow">Kurs yo‘li</span>
+    <h2 class="hm-h2">CEFR darajalari bo‘yicha o‘qish yo‘li</h2>
+    <p class="hm-sec-sub">A1 dan C2 gacha — har bir bosqichda aniq maqsad va amaliy mashqlar.</p>
+    <div class="hm-levels">
+      <div class="hm-level">
+        <span class="hm-level-code">A1</span>
+        <h3>Boshlang‘ich</h3>
+        <p>Tanishuv, kundalik so‘zlar va oddiy gaplar.</p>
+      </div>
+      <div class="hm-level">
+        <span class="hm-level-code">A2</span>
+        <h3>Elementar</h3>
+        <p>Oddiy kundalik vaziyatlar va qisqa matnlar.</p>
+      </div>
+      <div class="hm-level">
+        <span class="hm-level-code">B1</span>
+        <h3>O‘rta</h3>
+        <p>Tanish mavzularda fikr bildirish va hikoya qilish.</p>
+      </div>
+      <div class="hm-level is-goal"><span class="hm-level-badge">Maqsad</span>
+        <span class="hm-level-code">B2</span>
+        <h3>Yuqori o‘rta</h3>
+        <p>Murakkab matnlar va erkin muloqot. Sertifikat maqsadi.</p>
+      </div>
+      <div class="hm-level">
+        <span class="hm-level-code">C1</span>
+        <h3>Ilg‘or</h3>
+        <p>Keng qamrovli va mantiqiy nutq.</p>
+      </div>
+      <div class="hm-level">
+        <span class="hm-level-code">C2</span>
+        <h3>Mukammal</h3>
+        <p>Ona tiliga yaqin darajada tushunish va ifodalash.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="hm-sec" id="qadamlar">
+    <span class="hm-eyebrow">Qanday ishlaydi</span>
+    <h2 class="hm-h2">3 qadamda boshlang</h2>
+    <div class="hm-steps">
+      <div class="hm-step">
+        <span class="hm-step-num">1</span>
+        <h3>Ro‘yxatdan o‘ting</h3>
+        <p>Talaba yoki ota-ona sifatida bir necha daqiqada hisob oching.</p>
+      </div>
+      <div class="hm-step">
+        <span class="hm-step-num">2</span>
+        <h3>Darajangizni aniqlang</h3>
+        <p>Test natijalari asosida sizga mos CEFR bosqichidan boshlang.</p>
+      </div>
+      <div class="hm-step">
+        <span class="hm-step-num">3</span>
+        <h3>Mashq qiling va o‘sing</h3>
+        <p>Darslar, testlar va natijalar tahlili bilan darajani bosqichma-bosqich oshiring.</p>
+      </div>
+    </div>
   </section>
 
   <section class="hm-sec" id="imkoniyatlar">
@@ -525,6 +649,17 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
     <h2 class="home-blog-heading" data-site-blog-heading>Djami's Blog</h2>
     <div class="home-blog-grid" id="homeBlogGrid"></div>
   </div>
+
+  <section class="hm-sec hm-cta-band">
+    <div class="hm-cta-copy">
+      <h2>Birinchi darsingizni bugun boshlang</h2>
+      <p>Ro‘yxatdan o‘tish bir necha daqiqa oladi. Savollaringiz bo‘lsa, Telegram orqali yozing.</p>
+    </div>
+    <div class="hm-cta-actions">
+      <a href="kirish.html?mode=register" class="btn btn-primary hm-btn">Ro'yxatdan o'tish</a>
+      <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" class="hm-cta-ghost">Telegram</a>
+    </div>
+  </section>
 
 </main>
 
