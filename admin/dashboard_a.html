@@ -1391,8 +1391,6 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
       </div>
       <!-- ===== /TELEGRAM BOT CARD ===== -->
 
-      <div class="stat-row" id="ratingStatRow" style="grid-template-columns: repeat(2,1fr); margin-bottom:1.8em;"></div>
-
       <form class="modal-form" id="siteSettingsForm" style="max-width:640px;">
 
         <h3 style="margin-top:0;"><svg class="ic" aria-hidden="true"><use href="#i-palette"></use></svg> Ranglar</h3>
@@ -1472,14 +1470,6 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3><svg class="ic" aria-hidden="true"><use href="#i-credit-card"></use></svg> To‘lov ma’lumotlari</h3>
-        <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">O‘quvchi kurs sotib olganda, to‘lov sahifasida shu karta raqami va egasi ismi ko‘rsatiladi.</p>
-        <div style="display:grid; grid-template-columns:2fr 1fr; gap:1em;">
-          <label class="field"><span>Karta raqami</span><input type="text" id="settingCardNumber" placeholder="8600 1234 5678 9012"></label>
-          <label class="field"><span>Karta egasi</span><input type="text" id="settingCardHolderName" placeholder="F. ISM"></label>
-        </div>
-
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3><svg class="ic" aria-hidden="true"><use href="#i-gamepad"></use></svg> So‘z o‘yini</h3>
         <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">Talaba profilining bosh sahifasidagi "So‘z o‘yini" bo‘limini vaqtincha yashirish uchun belgini olib tashlang.</p>
         <div style="display:flex; align-items:center; gap:.7em; font-weight:700; font-size:.85rem;">
@@ -1487,28 +1477,15 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <label for="settingWordGameEnabled" style="cursor:pointer;">Talabalarga "So‘z o‘yini" bo‘limini ko‘rsatish</label>
         </div>
 
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3><svg class="ic" aria-hidden="true"><use href="#i-compass"></use></svg> Yuqori panel (barcha sahifalarda)</h3>
+                <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-compass"></use></svg> Yuqori panel</h3>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
           <label class="field"><span>"Bosh sahifa" havolasi</span><input type="text" id="settingNavHomeLabel" placeholder="Bosh sahifa"></label>
-          <label class="field"><span>"Kurslar" havolasi</span><input type="text" id="settingNavCoursesLabel" placeholder="Kurslar"></label>
-          <label class="field"><span>"Natijalar" havolasi</span><input type="text" id="settingNavResultsLabel" placeholder="Natijalar"></label>
+          <label class="field"><span>Blog havolasi</span><input type="text" id="settingBlogLinkText" placeholder="Djami's Blog"></label>
         </div>
-        <label class="field">
-          <span>"Djami's Blog" tugmasi matni (tepadagi panel)</span>
-          <input type="text" id="settingBlogLinkText" placeholder="Djami's Blog">
-        </label>
-        <label class="field">
-          <span>"Admin profili" tugmasi matni</span>
-          <input type="text" id="settingHomeAdminBtnText" placeholder="Admin">
-        </label>
-        <label class="field">
-          <span>"Ro'yxatdan o'tish" tugmasi matni (o‘ng tomondagi asosiy tugma)</span>
-          <input type="text" id="settingNavCtaText" placeholder="Ro'yxatdan o'tish">
-        </label>
 
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+<hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg> Yugurma yozuv (bosh sahifa, admin, talaba va ota-ona panellarida, eng tepada)</h3>
         <p style="color:var(--gray); font-size:.85rem; margin:-0.6em 0 1.2em;">Chapdan o‘ngga qarab uzluksiz suzib turadigan yozuv. Matnni o‘chirmasdan ham, pastdagi belgi orqali xohlagan payt yoqib/o‘chirib qo‘yishingiz mumkin.</p>
         <div style="display:flex; align-items:center; gap:.7em; font-weight:700; font-size:.85rem; margin-bottom:1em;">
@@ -1520,68 +1497,64 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <input type="text" id="settingMarqueeText" placeholder="Masalan: Yangi IELTS guruhi 15-avgustdan boshlanadi — joylar cheklangan!">
         </label>
 
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+                <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3><svg class="ic" aria-hidden="true"><use href="#i-home"></use></svg> Bosh sahifa — Hero qismi</h3>
 
-        <label class="field">
-          <span>Eyebrow matni (sarlavha ustidagi kichik yozuv)</span>
-          <input type="text" id="settingHeroEyebrow" placeholder="Djami Lessons'ga xush kelibsiz">
-        </label>
-        <label class="field">
-          <span>Sarlavha matni <span style="font-weight:400; color:var(--gray);">(to‘liq matn — o‘zgartirsangiz standart rangli urg‘u ko‘rinishi yo‘qoladi)</span></span>
-          <input type="text" id="settingHeroTitle" placeholder="Ingliz tilini o‘rganishning zamonaviy platformasi">
-        </label>
-        <label class="field">
-          <span>Sarlavha ostidagi tavsif</span>
-          <textarea id="settingHeroLead" rows="2" placeholder="General English, IELTS va CEFR kurslari bo‘yicha…"></textarea>
-        </label>
-        <label class="field">
-          <span>"Talaba profili" tugmasi matni</span>
-          <input type="text" id="settingHomeStudentBtnText" placeholder="Talaba profili">
-        </label>
-        <label class="field">
-          <span>"Talaba test natijalari" tugmasi matni</span>
-          <input type="text" id="settingHeroResultsBtnText" placeholder="Talaba test natijalari">
-        </label>
+        <label class="field"><span>Sarlavha</span><input type="text" id="settingHeroTitle" placeholder="Ingliz tilini o‘rganishning zamonaviy platformasi"></label>
+        <label class="field"><span>Sarlavha ostidagi tavsif</span><textarea id="settingHeroLead" rows="2" placeholder="General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar."></textarea></label>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
-          <label class="field"><span>Kichik statistika raqami</span><input type="text" id="settingHeroMiniNumber" placeholder="5,000+"></label>
-          <label class="field"><span>Kichik statistika yozuvi</span><input type="text" id="settingHeroMiniLabel" placeholder="faol talabalar"></label>
+          <label class="field"><span>"Ro‘yxatdan o‘tish" tugmasi (hamma joyda)</span><input type="text" id="settingRegisterBtnText" placeholder="Ro'yxatdan o'tish"></label>
+          <label class="field"><span>"Kirish" tugmasi (hamma joyda)</span><input type="text" id="settingLoginBtnText" placeholder="Kirish"></label>
+          <label class="field"><span>Kirish havolasi oldidagi yozuv</span><input type="text" id="settingHeroLoginHint" placeholder="Hisobingiz bormi?"></label>
+          <label class="field"><span>Telegram havolasi matni</span><input type="text" id="settingHeroTgText" placeholder="Telegram kanalimiz"></label>
         </div>
         <label class="field">
-          <span>Hero rasmi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy — rasmni boshqa saytga (masalan, Imgur) yuklab, shu yerga havolasini qo‘ying. Bo‘sh qoldirsangiz, ko‘k panel + kitob belgisi ko‘rinadi)</span></span>
+          <span>Hero rasmi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy — rasm havolasini qo‘ying. Bo‘sh qoldirsangiz, standart kitob rasmi ko‘rinadi)</span></span>
           <input type="url" id="settingHeroImageUrl" placeholder="https://…">
         </label>
 
         <label class="field">
-          <span>O‘quvchilar sertifikatlari <span style="font-weight:400; color:var(--gray);">(bir nechta rasm havolasini qo‘shing — bosh sahifada shu joyda avtomatik almashinib turadi va Hero rasmi o‘rniga shular ko‘rsatiladi. Bo‘sh qoldirsangiz, Hero rasmi yoki standart belgi ko‘rinadi)</span></span>
+          <span>O‘quvchilar sertifikatlari <span style="font-weight:400; color:var(--gray);">(bir nechta rasm havolasini qo‘shing — bosh sahifada shu joyda avtomatik almashinib turadi va Hero rasmi o‘rniga shular ko‘rsatiladi. Bo‘sh qoldirsangiz, Hero rasmi yoki standart rasm ko‘rinadi)</span></span>
         </label>
         <div id="certificatesEditor"></div>
         <button type="button" class="btn btn-ghost btn-sm" id="addCertificateBtn" style="align-self:flex-start; margin-top:.4em;">+ Sertifikat rasmi qo‘shish</button>
-
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3><svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg> Kurslar bo‘limi</h3>
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-sparkles"></use></svg> Raqamlar qatori</h3>
+        <p style="font-size:.85rem; color:var(--gray); margin:0 0 1.2em;">Hero ostidagi 4 ta raqam. Haqiqiy ko‘rsatkichlaringizni yozing.</p>
 
-        <label class="field">
-          <span>Bo‘lim eyebrow matni</span>
-          <input type="text" id="settingCoursesEyebrow" placeholder="Yo‘nalishlar">
-        </label>
-        <label class="field">
-          <span>Bo‘lim sarlavhasi</span>
-          <input type="text" id="settingCoursesHeading" placeholder="Ommabop kurslarimiz">
-        </label>
-
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
-          <label class="field"><span>1-karta nomi</span><input type="text" id="settingHomeLabel1" placeholder="GENERAL ENGLISH"></label>
-          <label class="field"><span>2-karta nomi</span><input type="text" id="settingHomeLabel2" placeholder="IELTS"></label>
-          <label class="field"><span>3-karta nomi</span><input type="text" id="settingHomeLabel3" placeholder="CEFR"></label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field"><span>1-raqam</span><input type="text" id="settingStat1Value" placeholder="5,000+"></label>
+          <label class="field"><span>1-raqam izohi</span><input type="text" id="settingStat1Label" placeholder="faol talabalar"></label>
+          <label class="field"><span>2-raqam</span><input type="text" id="settingStat2Value" placeholder="A1–C2"></label>
+          <label class="field"><span>2-raqam izohi</span><input type="text" id="settingStat2Label" placeholder="barcha CEFR darajalari"></label>
+          <label class="field"><span>3-raqam</span><input type="text" id="settingStat3Value" placeholder="4 bo‘lim"></label>
+          <label class="field"><span>3-raqam izohi</span><input type="text" id="settingStat3Label" placeholder="Listening, Reading, Writing, Speaking"></label>
+          <label class="field"><span>4-raqam</span><input type="text" id="settingStat4Value" placeholder="B2"></label>
+          <label class="field"><span>4-raqam izohi</span><input type="text" id="settingStat4Label" placeholder="CEFR sertifikatini olgan talabalarimiz"></label>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1em;">
-          <label class="field"><span>1-karta tavsifi</span><input type="text" id="settingHomeSub1" placeholder="Boshlang‘ichdan ilg‘or darajagacha"></label>
-          <label class="field"><span>2-karta tavsifi</span><input type="text" id="settingHomeSub2" placeholder="Listening, Reading, Writing, Speaking"></label>
-          <label class="field"><span>3-karta tavsifi</span><input type="text" id="settingHomeSub3" placeholder="A1 dan C2 gacha barcha darajalar"></label>
-        </div>
-
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg> Platforma imkoniyatlari</h3>
+        <p style="font-size:.85rem; color:var(--gray); margin:0 0 1.2em;">Bu yerdagi nomlar yuqori panel va footerdagi havolalarda ham o‘zgaradi.</p>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field"><span>Bo‘lim sarlavhasi</span><input type="text" id="settingToolsHeading" placeholder="Platforma imkoniyatlari"></label>
+          <label class="field"><span>Kartochka tugmasi matni</span><input type="text" id="settingToolsBtnText" placeholder="Ochish"></label>
+          <label class="field"><span>1-kartochka nomi</span><input type="text" id="settingTool1Title" placeholder="Reading Mock"></label>
+          <label class="field"><span>1-kartochka tavsifi</span><input type="text" id="settingTool1Text" placeholder="Reading formatidagi mashq testlari va natijalar tahlili."></label>
+          <label class="field"><span>2-kartochka nomi</span><input type="text" id="settingTool2Title" placeholder="Lug'at"></label>
+          <label class="field"><span>2-kartochka tavsifi</span><input type="text" id="settingTool2Text" placeholder="Inglizcha-o‘zbekcha so‘zlarni darajalar bo‘yicha o‘rganing va testda sinang."></label>
+        </div>
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg> Kabinetga kirish kartochkalari</h3>
+
+        <label class="field"><span>Bo‘lim sarlavhasi</span><input type="text" id="settingAccessHeading" placeholder="Shaxsiy kabinetingizga kiring"></label>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
+          <label class="field"><span>Talaba kartochkasi nomi</span><input type="text" id="settingAccessStudentTitle" placeholder="Talaba"></label>
+          <label class="field"><span>Talaba kartochkasi tavsifi</span><input type="text" id="settingAccessStudentText" placeholder="Darslar, test natijalari va reyting."></label>
+          <label class="field"><span>Ota-ona kartochkasi nomi</span><input type="text" id="settingAccessParentTitle" placeholder="Ota-ona"></label>
+          <label class="field"><span>Ota-ona kartochkasi tavsifi</span><input type="text" id="settingAccessParentText" placeholder="Farzandingizning davomati va uy vazifalarini kuzating."></label>
+        </div>
+<hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3><svg class="ic" aria-hidden="true"><use href="#i-anchor"></use></svg> Footer</h3>
 
         <label class="field">
@@ -1599,31 +1572,10 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <input type="text" id="settingFooterCopyright" placeholder="© 2026 Djami Lessons. Barcha huquqlar himoyalangan.">
         </label>
 
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3><svg class="ic" aria-hidden="true"><use href="#i-sparkles"></use></svg> "Nega biz" bloklari</h3>
+                <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+        <h3><svg class="ic" aria-hidden="true"><use href="#i-newspaper"></use></svg> Blog bo‘limi</h3>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1em;">
-          <label class="field"><span>1-blok sarlavhasi</span><input type="text" id="settingFeature1Title" placeholder="Sifatli kontent"></label>
-          <label class="field"><span>1-blok matni</span><input type="text" id="settingFeature1Text" placeholder="Zamonaviy va foydali o‘quv materiallar"></label>
-          <label class="field"><span>2-blok sarlavhasi</span><input type="text" id="settingFeature2Title" placeholder="Amaliy yondashuv"></label>
-          <label class="field"><span>2-blok matni</span><input type="text" id="settingFeature2Text" placeholder="Real hayotga mos mashqlar va testlar"></label>
-          <label class="field"><span>3-blok sarlavhasi</span><input type="text" id="settingFeature3Title" placeholder="Natijaga yo‘naltirilgan"></label>
-          <label class="field"><span>3-blok matni</span><input type="text" id="settingFeature3Text" placeholder="Darajangizni oshirish uchun eng yaxshi yo‘l"></label>
-          <label class="field"><span>4-blok sarlavhasi</span><input type="text" id="settingFeature4Title" placeholder="Ishonchli platforma"></label>
-          <label class="field"><span>4-blok matni</span><input type="text" id="settingFeature4Text" placeholder="Xavfsiz va qulay foydalanish"></label>
-        </div>
-
-        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
-        <h3><svg class="ic" aria-hidden="true"><use href="#i-newspaper"></use></svg> Blog va baholash bo‘limlari</h3>
-
-        <label class="field">
-          <span>Blog bo‘limi sarlavhasi</span>
-          <input type="text" id="settingBlogHeading" placeholder="Djami's Blog">
-        </label>
-        <label class="field">
-          <span>"Saytni baholang" yozuvi</span>
-          <input type="text" id="settingRatingLabel" placeholder="Saytni baholang">
-        </label>
+        <label class="field"><span>Blog bo‘limi sarlavhasi</span><input type="text" id="settingBlogHeading" placeholder="Djami's Blog"></label>
 
         <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
         <h3><svg class="ic" aria-hidden="true"><use href="#i-message"></use></svg> Talabalar fikri</h3>
@@ -5804,36 +5756,41 @@ const DEFAULT_SITE_SETTINGS = {
   logoUrl: '',
   teacherName: '',
 
-  cardNumber: '5614 6818 5667 8473',
-  cardHolderName: 'Abduraxmon',
 
   navHomeLabel: 'Bosh sahifa',
-  navCoursesLabel: 'Kurslar',
-  navResultsLabel: 'Natijalar',
-  navCtaText: 'Ro\'yxatdan o\'tish',
 
   marqueeText: '',
   marqueeEnabled: true,
 
-  heroEyebrow: "Djami Lessons'ga xush kelibsiz",
   heroTitle: 'Ingliz tilini o‘rganishning zamonaviy platformasi',
-  heroLead: 'General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.',
-  heroResultsBtnText: 'Talaba test natijalari',
-  heroMiniNumber: '5,000+',
-  heroMiniLabel: 'faol talabalar',
+  heroTitle: 'Ingliz tilini o‘rganishning zamonaviy platformasi',
+  heroLead: 'General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.',
+  registerBtnText: "Ro'yxatdan o'tish",
+  loginBtnText: 'Kirish',
+  heroLoginHint: 'Hisobingiz bormi?',
+  heroTgText: 'Telegram kanalimiz',
+  stat1Value: '5,000+',
+  stat1Label: 'faol talabalar',
+  stat2Value: 'A1–C2',
+  stat2Label: 'barcha CEFR darajalari',
+  stat3Value: '4 bo‘lim',
+  stat3Label: 'Listening, Reading, Writing, Speaking',
+  stat4Value: 'B2',
+  stat4Label: 'CEFR sertifikatini olgan talabalarimiz',
+  toolsHeading: 'Platforma imkoniyatlari',
+  toolsBtnText: 'Ochish',
+  tool1Title: 'Reading Mock',
+  tool1Text: 'Reading formatidagi mashq testlari va natijalar tahlili.',
+  tool2Title: "Lug'at",
+  tool2Text: 'Inglizcha-o‘zbekcha so‘zlarni darajalar bo‘yicha o‘rganing va testda sinang.',
+  accessHeading: 'Shaxsiy kabinetingizga kiring',
+  accessStudentTitle: 'Talaba',
+  accessStudentText: 'Darslar, test natijalari va reyting.',
+  accessParentTitle: 'Ota-ona',
+  accessParentText: 'Farzandingizning davomati va uy vazifalarini kuzating.',
   heroImageUrl: '',
   certificateImages: [],
 
-  coursesEyebrow: 'Yo‘nalishlar',
-  coursesHeading: 'Ommabop kurslarimiz',
-  homeLabel1: 'GENERAL ENGLISH',
-  homeSub1: 'Boshlang‘ichdan ilg‘or darajagacha',
-  homeLabel2: 'IELTS',
-  homeSub2: 'Listening, Reading, Writing, Speaking',
-  homeLabel3: 'CEFR',
-  homeSub3: 'A1 dan C2 gacha barcha darajalar',
-  homeStudentBtnText: 'Talaba profili',
-  homeAdminBtnText: 'Admin kirish',
   blogLinkText: "Djami's Blog",
 
   footerTagline: 'General English, IELTS va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.',
@@ -5841,17 +5798,8 @@ const DEFAULT_SITE_SETTINGS = {
   footerTelegram: 'djamiteacher',
   footerCopyright: '© 2026 Djami Lessons. Barcha huquqlar himoyalangan.',
 
-  feature1Title: 'Sifatli kontent',
-  feature1Text: 'Zamonaviy va foydali o‘quv materiallar',
-  feature2Title: 'Amaliy yondashuv',
-  feature2Text: 'Real hayotga mos mashqlar va testlar',
-  feature3Title: 'Natijaga yo‘naltirilgan',
-  feature3Text: 'Darajangizni oshirish uchun eng yaxshi yo‘l',
-  feature4Title: 'Ishonchli platforma',
-  feature4Text: 'Xavfsiz va qulay foydalanish',
 
   blogHeading: "Djami's Blog",
-  ratingLabel: 'Saytni baholang'
 };
 
 function fillSiteSettingsForm(data){
@@ -5876,57 +5824,54 @@ function fillSiteSettingsForm(data){
   else if(_im1){_im1.style.display='none';if(_sp1)_sp1.style.display='none';}
   document.getElementById('settingTeacherName').value = data.teacherName || '';
 
-  document.getElementById('settingCardNumber').value = data.cardNumber || '';
-  document.getElementById('settingCardHolderName').value = data.cardHolderName || '';
 
   document.getElementById('settingWordGameEnabled').checked = data.wordGameEnabled !== false;
 
   document.getElementById('settingNavHomeLabel').value = data.navHomeLabel || '';
-  document.getElementById('settingNavCoursesLabel').value = data.navCoursesLabel || '';
-  document.getElementById('settingNavResultsLabel').value = data.navResultsLabel || '';
-  document.getElementById('settingNavCtaText').value = data.navCtaText || '';
   document.getElementById('settingBlogLinkText').value = data.blogLinkText || '';
-  document.getElementById('settingHomeAdminBtnText').value = data.homeAdminBtnText || '';
 
   document.getElementById('settingMarqueeEnabled').checked = data.marqueeEnabled !== false;
   document.getElementById('settingMarqueeText').value = data.marqueeText || '';
 
-  document.getElementById('settingHeroEyebrow').value = data.heroEyebrow || '';
   document.getElementById('settingHeroTitle').value = data.heroTitle || '';
   document.getElementById('settingHeroLead').value = data.heroLead || '';
-  document.getElementById('settingHomeStudentBtnText').value = data.homeStudentBtnText || '';
-  document.getElementById('settingHeroResultsBtnText').value = data.heroResultsBtnText || '';
-  document.getElementById('settingHeroMiniNumber').value = data.heroMiniNumber || '';
-  document.getElementById('settingHeroMiniLabel').value = data.heroMiniLabel || '';
   document.getElementById('settingHeroImageUrl').value = data.heroImageUrl || '';
   state.certificateImages = Array.isArray(data.certificateImages) ? [...data.certificateImages] : [];
   renderCertificatesEditor();
 
-  document.getElementById('settingCoursesEyebrow').value = data.coursesEyebrow || '';
-  document.getElementById('settingCoursesHeading').value = data.coursesHeading || '';
-  document.getElementById('settingHomeLabel1').value = data.homeLabel1 || '';
-  document.getElementById('settingHomeSub1').value = data.homeSub1 || '';
-  document.getElementById('settingHomeLabel2').value = data.homeLabel2 || '';
-  document.getElementById('settingHomeSub2').value = data.homeSub2 || '';
-  document.getElementById('settingHomeLabel3').value = data.homeLabel3 || '';
-  document.getElementById('settingHomeSub3').value = data.homeSub3 || '';
 
   document.getElementById('settingFooterTagline').value = data.footerTagline || '';
   document.getElementById('settingFooterPhone').value = data.footerPhone || '';
   document.getElementById('settingFooterTelegram').value = data.footerTelegram || '';
   document.getElementById('settingFooterCopyright').value = data.footerCopyright || '';
 
-  document.getElementById('settingFeature1Title').value = data.feature1Title || '';
-  document.getElementById('settingFeature1Text').value = data.feature1Text || '';
-  document.getElementById('settingFeature2Title').value = data.feature2Title || '';
-  document.getElementById('settingFeature2Text').value = data.feature2Text || '';
-  document.getElementById('settingFeature3Title').value = data.feature3Title || '';
-  document.getElementById('settingFeature3Text').value = data.feature3Text || '';
-  document.getElementById('settingFeature4Title').value = data.feature4Title || '';
-  document.getElementById('settingFeature4Text').value = data.feature4Text || '';
 
   document.getElementById('settingBlogHeading').value = data.blogHeading || '';
-  document.getElementById('settingRatingLabel').value = data.ratingLabel || '';
+
+  document.getElementById('settingHeroLead').value = data.heroLead || '';
+  document.getElementById('settingRegisterBtnText').value = data.registerBtnText || '';
+  document.getElementById('settingLoginBtnText').value = data.loginBtnText || '';
+  document.getElementById('settingHeroLoginHint').value = data.heroLoginHint || '';
+  document.getElementById('settingHeroTgText').value = data.heroTgText || '';
+  document.getElementById('settingStat1Value').value = data.stat1Value || '';
+  document.getElementById('settingStat1Label').value = data.stat1Label || '';
+  document.getElementById('settingStat2Value').value = data.stat2Value || '';
+  document.getElementById('settingStat2Label').value = data.stat2Label || '';
+  document.getElementById('settingStat3Value').value = data.stat3Value || '';
+  document.getElementById('settingStat3Label').value = data.stat3Label || '';
+  document.getElementById('settingStat4Value').value = data.stat4Value || '';
+  document.getElementById('settingStat4Label').value = data.stat4Label || '';
+  document.getElementById('settingToolsHeading').value = data.toolsHeading || '';
+  document.getElementById('settingToolsBtnText').value = data.toolsBtnText || '';
+  document.getElementById('settingTool1Title').value = data.tool1Title || '';
+  document.getElementById('settingTool1Text').value = data.tool1Text || '';
+  document.getElementById('settingTool2Title').value = data.tool2Title || '';
+  document.getElementById('settingTool2Text').value = data.tool2Text || '';
+  document.getElementById('settingAccessHeading').value = data.accessHeading || '';
+  document.getElementById('settingAccessStudentTitle').value = data.accessStudentTitle || '';
+  document.getElementById('settingAccessStudentText').value = data.accessStudentText || '';
+  document.getElementById('settingAccessParentTitle').value = data.accessParentTitle || '';
+  document.getElementById('settingAccessParentText').value = data.accessParentText || '';
 
   // Talabalar fikri — dinamik ro'yxat
   tslAdminLoadList(data.testimonials || []);
@@ -5982,19 +5927,9 @@ async function loadSiteSettingsForm(){
     const doc = await db.collection('settings').doc('site').get();
     const data = doc.exists ? doc.data() : {};
     fillSiteSettingsForm(doc.exists ? { ...DEFAULT_SITE_SETTINGS, ...data } : DEFAULT_SITE_SETTINGS);
-    renderRatingStats(data.ratingSum || 0, data.ratingCount || 0);
   } catch(err){
     fillSiteSettingsForm(DEFAULT_SITE_SETTINGS);
-    renderRatingStats(0, 0);
   }
-}
-
-function renderRatingStats(sum, count){
-  const avg = count ? (sum / count).toFixed(1) : '—';
-  document.getElementById('ratingStatRow').innerHTML = `
-    <div class="stat-card"><strong>${avg}</strong><span>O‘rtacha baho (5 balldan)</span></div>
-    <div class="stat-card"><strong>${count}</strong><span>Jami baholar soni</span></div>
-  `;
 }
 
 ['settingColorPrimary', 'settingColorAccent', 'settingColorBackground', 'settingColorDark', 'settingButtonColor', 'settingFooterBgColor', 'settingFooterTextColor'].forEach(id => {
@@ -6495,56 +6430,53 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
     teacherName: document.getElementById('settingTeacherName').value.trim(),
 
-    cardNumber: document.getElementById('settingCardNumber').value.trim(),
-    cardHolderName: document.getElementById('settingCardHolderName').value.trim(),
 
     wordGameEnabled: document.getElementById('settingWordGameEnabled').checked,
 
     navHomeLabel: document.getElementById('settingNavHomeLabel').value.trim(),
-    navCoursesLabel: document.getElementById('settingNavCoursesLabel').value.trim(),
-    navResultsLabel: document.getElementById('settingNavResultsLabel').value.trim(),
-    navCtaText: document.getElementById('settingNavCtaText').value.trim(),
     blogLinkText: document.getElementById('settingBlogLinkText').value.trim(),
-    homeAdminBtnText: document.getElementById('settingHomeAdminBtnText').value.trim(),
 
     marqueeText: document.getElementById('settingMarqueeText').value.trim(),
     marqueeEnabled: document.getElementById('settingMarqueeEnabled').checked,
 
-    heroEyebrow: document.getElementById('settingHeroEyebrow').value.trim(),
     heroTitle: document.getElementById('settingHeroTitle').value.trim(),
     heroLead: document.getElementById('settingHeroLead').value.trim(),
-    homeStudentBtnText: document.getElementById('settingHomeStudentBtnText').value.trim(),
-    heroResultsBtnText: document.getElementById('settingHeroResultsBtnText').value.trim(),
-    heroMiniNumber: document.getElementById('settingHeroMiniNumber').value.trim(),
-    heroMiniLabel: document.getElementById('settingHeroMiniLabel').value.trim(),
     heroImageUrl: document.getElementById('settingHeroImageUrl').value.trim(),
     certificateImages: cleanedCertificates,
 
-    coursesEyebrow: document.getElementById('settingCoursesEyebrow').value.trim(),
-    coursesHeading: document.getElementById('settingCoursesHeading').value.trim(),
-    homeLabel1: document.getElementById('settingHomeLabel1').value.trim(),
-    homeSub1: document.getElementById('settingHomeSub1').value.trim(),
-    homeLabel2: document.getElementById('settingHomeLabel2').value.trim(),
-    homeSub2: document.getElementById('settingHomeSub2').value.trim(),
-    homeLabel3: document.getElementById('settingHomeLabel3').value.trim(),
-    homeSub3: document.getElementById('settingHomeSub3').value.trim(),
 
     footerTagline: document.getElementById('settingFooterTagline').value.trim(),
     footerPhone: document.getElementById('settingFooterPhone').value.trim(),
     footerTelegram: document.getElementById('settingFooterTelegram').value.trim(),
     footerCopyright: document.getElementById('settingFooterCopyright').value.trim(),
 
-    feature1Title: document.getElementById('settingFeature1Title').value.trim(),
-    feature1Text: document.getElementById('settingFeature1Text').value.trim(),
-    feature2Title: document.getElementById('settingFeature2Title').value.trim(),
-    feature2Text: document.getElementById('settingFeature2Text').value.trim(),
-    feature3Title: document.getElementById('settingFeature3Title').value.trim(),
-    feature3Text: document.getElementById('settingFeature3Text').value.trim(),
-    feature4Title: document.getElementById('settingFeature4Title').value.trim(),
-    feature4Text: document.getElementById('settingFeature4Text').value.trim(),
 
     blogHeading: document.getElementById('settingBlogHeading').value.trim(),
-    ratingLabel: document.getElementById('settingRatingLabel').value.trim(),
+
+    heroLead: document.getElementById('settingHeroLead').value.trim(),
+    registerBtnText: document.getElementById('settingRegisterBtnText').value.trim(),
+    loginBtnText: document.getElementById('settingLoginBtnText').value.trim(),
+    heroLoginHint: document.getElementById('settingHeroLoginHint').value.trim(),
+    heroTgText: document.getElementById('settingHeroTgText').value.trim(),
+    stat1Value: document.getElementById('settingStat1Value').value.trim(),
+    stat1Label: document.getElementById('settingStat1Label').value.trim(),
+    stat2Value: document.getElementById('settingStat2Value').value.trim(),
+    stat2Label: document.getElementById('settingStat2Label').value.trim(),
+    stat3Value: document.getElementById('settingStat3Value').value.trim(),
+    stat3Label: document.getElementById('settingStat3Label').value.trim(),
+    stat4Value: document.getElementById('settingStat4Value').value.trim(),
+    stat4Label: document.getElementById('settingStat4Label').value.trim(),
+    toolsHeading: document.getElementById('settingToolsHeading').value.trim(),
+    toolsBtnText: document.getElementById('settingToolsBtnText').value.trim(),
+    tool1Title: document.getElementById('settingTool1Title').value.trim(),
+    tool1Text: document.getElementById('settingTool1Text').value.trim(),
+    tool2Title: document.getElementById('settingTool2Title').value.trim(),
+    tool2Text: document.getElementById('settingTool2Text').value.trim(),
+    accessHeading: document.getElementById('settingAccessHeading').value.trim(),
+    accessStudentTitle: document.getElementById('settingAccessStudentTitle').value.trim(),
+    accessStudentText: document.getElementById('settingAccessStudentText').value.trim(),
+    accessParentTitle: document.getElementById('settingAccessParentTitle').value.trim(),
+    accessParentText: document.getElementById('settingAccessParentText').value.trim(),
 
     testimonials: tslAdminGetList()
   };
