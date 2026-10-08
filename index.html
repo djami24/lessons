@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Djami Lessons</title>
+<meta name="description" content="General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon/favicon-16x16.png">
@@ -11,18 +12,71 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700;900&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-  <meta property="og:title" content="Ingliz tilini o'rganayotgan bo'lsangiz, shu 5 ta odatni bugundan boshlang">
-<meta property="og:description" content="Ingliz tilini samarali o'rganishga yordam beradigan 5 ta muhim odat.">
-<meta property="og:image" content="https://djamilessons.netlify.app/images/blog-cover.jpg">
-<meta property="og:url" content="https://djamilessons.netlify.app/blog.html?id=fqNvvZH67B2R5fXPtn3D">
-<meta property="og:type" content="article">
+<meta property="og:title" content="Djami Lessons — ingliz tilini o‘rganishning zamonaviy platformasi">
+<meta property="og:description" content="General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.">
+<meta property="og:image" content="https://djamilessons.uz/assets/og-banner.png">
+<meta property="og:url" content="https://djamilessons.uz/">
+<meta property="og:type" content="website">
+<style>
+body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;--font-display:'Merriweather',Georgia,serif;font-family:var(--font-body);}
+.hm-main{max-width:1160px;gap:0;padding:0 1.4em 1em;align-items:center;}
+.hm-ic{width:1em;height:1em;display:block;}
+.hm-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:3.4em;align-items:center;width:100%;padding:4.2em 0 0;}
+.hm-title{font-family:var(--font-display);font-weight:900;font-size:clamp(2rem,4.4vw,3.1rem);line-height:1.16;letter-spacing:-.01em;color:var(--ink);margin:0 0 .55em;}
+.hm-lead{font-size:1.12rem;line-height:1.65;color:var(--gray);max-width:34em;margin:0 0 1.7em;}
+.hm-cta{display:flex;align-items:center;flex-wrap:wrap;gap:1em 1.5em;}
+.hm-btn{padding:.9em 1.9em;font-size:1rem;}
+.hm-login{margin:0;color:var(--gray);}
+.hm-login a{color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px;}
+.hm-login a:hover{color:var(--amber-deep);}
+.hm-visual-wrap{display:flex;flex-direction:column;gap:.8em;align-items:flex-start;}
+.hm-visual{position:relative;width:100%;aspect-ratio:4/3;border-radius:var(--radius-l);overflow:hidden;background:var(--paper-2);border:1px solid var(--line);display:grid;place-items:center;}
+.hm-visual-art{width:100%;height:100%;display:block;}
+.hm-tg{display:inline-flex;align-items:center;gap:.55em;padding:.5em 1em;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-weight:600;font-size:.92rem;background:var(--paper);transition:border-color .2s;}
+.hm-tg:hover{border-color:var(--amber);}
+.hm-tg .hm-ic{width:1.1em;height:1.1em;color:var(--teal);}
+.hm-stats{display:grid;grid-template-columns:repeat(4,1fr);width:100%;margin-top:3.6em;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+.hm-stat{padding:1.6em 1.4em;border-left:1px solid var(--line);}
+.hm-stat:first-child{border-left:0;padding-left:0;}
+.hm-stat strong{display:block;font-family:var(--font-display);font-size:1.9rem;font-weight:900;line-height:1.1;color:var(--ink);}
+.hm-stat span{display:block;margin-top:.45em;color:var(--gray);font-size:.93rem;line-height:1.45;}
+.hm-sec{width:100%;margin-top:5em;}
+.hm-h2{font-family:var(--font-display);font-weight:900;font-size:clamp(1.5rem,3vw,2rem);color:var(--ink);margin:0 0 1.1em;}
+.hm-tools,.hm-access{display:grid;grid-template-columns:1fr 1fr;gap:1.2em;}
+.hm-tool{display:flex;align-items:center;gap:1.2em;padding:1.5em 1.6em;border:1px solid var(--line);border-radius:var(--radius-m);background:var(--paper);text-decoration:none;color:inherit;transition:border-color .2s,box-shadow .2s;}
+.hm-tool:hover{border-color:var(--amber);box-shadow:0 12px 28px -20px rgba(20,33,61,.5);}
+.hm-ico{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:var(--paper-2);color:var(--teal);}
+.hm-ico .hm-ic{width:26px;height:26px;}
+.hm-tool h3,.hm-card h3{margin:0 0 .3em;font-size:1.12rem;color:var(--ink);}
+.hm-tool p,.hm-card p{margin:0;color:var(--gray);font-size:.96rem;line-height:1.5;}
+.hm-tool-go{margin-left:auto;font-weight:700;color:var(--amber-deep);white-space:nowrap;}
+.hm-card{display:flex;flex-direction:column;gap:1.2em;padding:1.8em;border-radius:var(--radius-m);background:var(--paper-2);}
+.hm-card-head{display:flex;align-items:center;gap:1em;}
+.hm-card .hm-ico{background:var(--paper);}
+.hm-card-actions{display:flex;flex-wrap:wrap;gap:.7em;}
+.hm-card-actions .btn{padding:.7em 1.4em;font-size:.92rem;}
+.hm-main > .lb-section,.hm-main > .tsl-section,.hm-main > .home-blog-section{margin-top:5em;}
+.hm-tool:focus-visible,.hm-tg:focus-visible,.hm-login a:focus-visible{outline:3px solid var(--teal);outline-offset:3px;}
+@media (max-width:860px){
+  .hm-hero{grid-template-columns:1fr;gap:2.2em;padding-top:2.6em;}
+  .hm-stats{grid-template-columns:1fr 1fr;}
+  .hm-stat:nth-child(odd){border-left:0;padding-left:0;}
+  .hm-stat:nth-child(n+3){border-top:1px solid var(--line);}
+  .hm-tools,.hm-access{grid-template-columns:1fr;}
+  .hm-sec,.hm-main > .lb-section,.hm-main > .tsl-section,.hm-main > .home-blog-section{margin-top:3.6em;}
+}
+@media (max-width:480px){
+  .hm-tool{flex-wrap:wrap;} .hm-tool-go{margin-left:0;}
+  .hm-btn{width:100%;text-align:center;}
+}
+</style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
   window.vmtrc = window.vmtrc || function (){window.vmtrcq.push(Array.prototype.slice.call(arguments))};
 </script>
 <script defer src="https://cdn.vemetric.com/main.js" data-token="CHdcoB75KN2xKaYh"></script>
 </head>
-<body class="home-body" style="background: linear-gradient(160deg, #f0f4ff 0%, #f9f7ff 60%, #f0fff8 100%) fixed;">
+<body class="home-body">
 <div class="site-marquee" data-site-marquee style="display:none">
   <div class="site-marquee-track"><span data-site-marquee-text></span></div>
 </div>
@@ -33,8 +87,8 @@
 
   <nav class="home-nav-links" id="homeNavLinks">
     <a href="index.html" class="is-current" data-site-nav-home>Bosh sahifa</a>
-    <a href="kirish.html">Reading Mock</a>
-    <a href="https://vocabme.netlify.app/index.html" target="_blank" rel="noopener">Lug'at</a>
+    <a href="kirish.html" data-site-tool-1-title>Reading Mock</a>
+    <a href="https://vocabme.netlify.app/index.html" target="_blank" rel="noopener" data-site-tool-2-title>Lug'at</a>
     <a href="blogs.html" data-site-blog-link-text>Djami's Blog</a>
   </nav>
 
@@ -45,63 +99,67 @@
   </div>
 </header>
 
-<main class="home-main">
+<main class="home-main hm-main">
 
-  <section class="hero-section">
-    <div class="hero-copy">
-      <h1 class="home-hero-title" data-site-hero-title>Ingliz tilini o‘rganishning <span class="accent">zamonaviy platformasi</span></h1>
-      <p class="home-hero-lead" >General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
-
-      <div class="home-cta-row">
-        <a href="kirish.html?mode=register" class="btn btn-primary home-student-btn">Ro'yxatdan o'tish</a>
-        <a href="kirish.html?mode=login" class="btn btn-outline-teal home-student-btn"><span data-site-home-student-btn>Kirish</span></a>
+  <section class="hm-hero">
+    <div class="hm-hero-copy">
+      <h1 class="hm-title" data-site-hero-title>Ingliz tilini o‘rganishning zamonaviy platformasi</h1>
+      <p class="hm-lead" data-site-hero-lead>General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
+      <div class="hm-cta">
+        <a href="kirish.html?mode=register" class="btn btn-primary hm-btn" data-site-register-btn>Ro'yxatdan o'tish</a>
+        <p class="hm-login"><span data-site-login-hint>Hisobingiz bormi?</span> <a href="kirish.html?mode=login" data-site-login-btn>Kirish</a></p>
       </div>
-
-      <div class="home-cta-row" style="margin-top:.6em;">
-        <a href="https://vocabme.netlify.app" target="_blank" rel="noopener" class="btn btn-outline-teal home-student-btn">Lug'at</a>
-        <a href="kirish.html" class="btn btn-outline-teal home-student-btn">Reading Mock</a>
-      </div>
-
     </div>
-
-    <a href="https://t.me/djami_teacher" target="_blank" rel="noopener noreferrer" class="hero-visual" aria-label="Telegram kanalimiz">
-      <div class="hero-visual-panel" data-site-hero-visual>
-        <span class="hero-visual-mark"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;color:#4a6fa5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
-        <div class="hero-achievements-overlay"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;color:#f59e0b"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg> Talabalar Yutuqlari</div>
-      </div>
-    </a>
+    <div class="hm-visual-wrap">
+      <div class="hm-visual" data-site-hero-visual><svg class="hm-visual-art" viewBox="0 0 400 300" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="var(--paper-2)"/><rect x="48" y="52" width="304" height="196" rx="18" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/><g stroke="var(--teal)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M200 96c-20-12-48-14-70-8v94c22-6 50-4 70 8"/><path d="M200 96c20-12 48-14 70-8v94c-22-6-50-4-70 8"/><path d="M200 96v94"/></g><g stroke="var(--amber)" stroke-width="6" stroke-linecap="round"><path d="M88 216h56"/><path d="M256 216h56"/></g></svg></div>
+      <a class="hm-tg" href="https://t.me/djami_teacher" target="_blank" rel="noopener noreferrer"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span data-site-hero-tg-text>Telegram kanalimiz</span></a>
+    </div>
   </section>
 
-  <div class="home-features-box">
-    <div class="home-feature">
-      <span class="home-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;color:#6366f1"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>
-      <div>
-        <p class="home-feature-title" data-site-feature-1-title>Sifatli kontent</p>
-        <p class="home-feature-text" data-site-feature-1-text>Zamonaviy va foydali o‘quv materiallar</p>
+  <section class="hm-stats" aria-label="Raqamlar">
+    <div class="hm-stat"><strong data-site-stat-1-value>5,000+</strong><span data-site-stat-1-label>faol talabalar</span></div>
+    <div class="hm-stat"><strong data-site-stat-2-value>A1–C2</strong><span data-site-stat-2-label>barcha CEFR darajalari</span></div>
+    <div class="hm-stat"><strong data-site-stat-3-value>4 bo‘lim</strong><span data-site-stat-3-label>Listening, Reading, Writing, Speaking</span></div>
+    <div class="hm-stat"><strong data-site-stat-4-value>B2</strong><span data-site-stat-4-label>CEFR sertifikatini olgan talabalarimiz</span></div>
+  </section>
+
+  <section class="hm-sec" id="imkoniyatlar">
+    <h2 class="hm-h2" data-site-tools-heading>Platforma imkoniyatlari</h2>
+    <div class="hm-tools">
+      <a class="hm-tool" href="kirish.html">
+        <span class="hm-ico"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+        <div><h3 data-site-tool-1-title>Reading Mock</h3><p data-site-tool-1-text>Reading formatidagi mashq testlari va natijalar tahlili.</p></div>
+        <span class="hm-tool-go" data-site-tools-btn>Ochish</span>
+      </a>
+      <a class="hm-tool" href="https://vocabme.netlify.app" target="_blank" rel="noopener">
+        <span class="hm-ico"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
+        <div><h3 data-site-tool-2-title>Lug'at</h3><p data-site-tool-2-text>Inglizcha-o‘zbekcha so‘zlarni darajalar bo‘yicha o‘rganing va testda sinang.</p></div>
+        <span class="hm-tool-go" data-site-tools-btn>Ochish</span>
+      </a>
+    </div>
+  </section>
+
+  <section class="hm-sec" id="kirish">
+    <h2 class="hm-h2" data-site-access-heading>Shaxsiy kabinetingizga kiring</h2>
+    <div class="hm-access">
+      <div class="hm-card">
+        <div class="hm-card-head"><span class="hm-ico"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>
+          <div><h3 data-site-access-student-title>Talaba</h3><p data-site-access-student-text>Darslar, test natijalari va reyting.</p></div></div>
+        <div class="hm-card-actions">
+          <a href="student/login.html" class="btn btn-primary" data-site-login-btn>Kirish</a>
+          <a href="student/register.html" class="btn btn-outline-teal" data-site-register-btn>Ro'yxatdan o'tish</a>
+        </div>
+      </div>
+      <div class="hm-card">
+        <div class="hm-card-head"><span class="hm-ico"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+          <div><h3 data-site-access-parent-title>Ota-ona</h3><p data-site-access-parent-text>Farzandingizning davomati va uy vazifalarini kuzating.</p></div></div>
+        <div class="hm-card-actions">
+          <a href="parent/login.html" class="btn btn-primary" data-site-login-btn>Kirish</a>
+          <a href="parent/register.html" class="btn btn-outline-teal" data-site-register-btn>Ro'yxatdan o'tish</a>
+        </div>
       </div>
     </div>
-    <div class="home-feature">
-      <span class="home-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;color:#e0455a"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span>
-      <div>
-        <p class="home-feature-title" data-site-feature-2-title>Amaliy yondashuv</p>
-        <p class="home-feature-text" data-site-feature-2-text>Real hayotga mos mashqlar va testlar</p>
-      </div>
-    </div>
-    <div class="home-feature">
-      <span class="home-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;color:#10b981"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>
-      <div>
-        <p class="home-feature-title" data-site-feature-3-title>Natijaga yo‘naltirilgan</p>
-        <p class="home-feature-text" data-site-feature-3-text>Darajangizni oshirish uchun eng yaxshi yo‘l</p>
-      </div>
-    </div>
-    <div class="home-feature">
-      <span class="home-feature-icon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;color:#3b82f6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
-      <div>
-        <p class="home-feature-title" data-site-feature-4-title>Ishonchli platforma</p>
-        <p class="home-feature-text" data-site-feature-4-text>Xavfsiz va qulay foydalanish</p>
-      </div>
-    </div>
-  </div>
+  </section>
 
   <!-- ===== ENG FAOL O'QUVCHILAR (reyting) — admin panel statistikasidan avtomatik yangilanadi ===== -->
   <section class="lb-section" id="leaderboardSection" hidden>
@@ -163,7 +221,7 @@
   }
   </style>
 
-<!-- ===== TALABALAR FIKRI — split-card dizayn ===== -->
+  <!-- ===== TALABALAR FIKRI — split-card dizayn ===== -->
   <section class="tsl-section" id="testimonialsSection">
     <div class="tsl-heading-wrap">
       <h2 class="tsl-heading">Talabalar fikri</h2>
@@ -478,32 +536,22 @@
           <span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span>
           <span class="site-footer-brand-name" data-site-brand-name>Djami Lessons</span>
         </div>
-        <p class="site-footer-tagline" >General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
+        <p class="site-footer-tagline" data-site-footer-tagline>General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
       </div>
 
       <div class="site-footer-cols">
         <div class="site-footer-col">
           <p class="site-footer-col-title">Havolalar</p>
-          <a href="index.html">Bosh sahifa</a>
-          <a href="https://vocabme.netlify.app" target="_blank" rel="noopener">Lug'at</a>
-          <a href="kirish.html">Reading Mock</a>
-          <a href="blogs.html">Djami's Blog</a>
-        </div>
-        <div class="site-footer-col">
-          <p class="site-footer-col-title">Talabalar uchun</p>
-          <a href="student/register.html">Ro'yxatdan o'tish</a>
-          <a href="student/login.html">Talaba profili</a>
-        </div>
-        <div class="site-footer-col">
-          <p class="site-footer-col-title">Ota-onalar uchun</p>
-          <a href="parent/register.html">Ro'yxatdan o'tish</a>
-          <a href="parent/login.html">Ota-ona profili</a>
+          <a href="index.html" data-site-nav-home>Bosh sahifa</a>
+          <a href="https://vocabme.netlify.app" target="_blank" rel="noopener" data-site-tool-2-title>Lug'at</a>
+          <a href="kirish.html" data-site-tool-1-title>Reading Mock</a>
+          <a href="blogs.html" data-site-blog-link-text>Djami's Blog</a>
         </div>
         <div class="site-footer-col">
           <p class="site-footer-col-title">Bog'lanish</p>
           <div class="footer-contact-links">
-            <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" style="display:inline-flex !important;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 240 240" style="flex-shrink:0;vertical-align:middle"><circle cx="120" cy="120" r="120" fill="#2CA5E0"/><path d="M81.229 128.772l14.237 39.406s1.78 3.687 3.686 3.687 30.444-29.616 30.444-29.616l31.782-61.438L81.229 128.772z" fill="#C8DAEA"/><path d="M100.106 138.878l-2.733 29.046s-1.144 8.9 7.754 0 17.415-15.763 17.415-15.763" fill="#A9C6D4"/><path d="M81.486 130.178L52.2 120.636s-3.5-1.42-2.373-4.64c.232-.664.7-1.229 2.1-2.2 6.489-4.523 120.106-45.35 120.106-45.35s3.208-1.081 5.1-.362a2.766 2.766 0 0 1 1.885 2.055 9.357 9.357 0 0 1 .254 2.585c-.009.752-.1 1.449-.169 2.542-.692 11.165-21.4 94.493-21.4 94.493s-1.239 4.876-5.678 5.043a8.13 8.13 0 0 1-5.925-2.292c-8.711-7.493-38.819-27.727-45.472-32.177a1.27 1.27 0 0 1-.546-.9c-.093-.523.443-1.172.443-1.172s52.4-46.6 53.821-51.492c.108-.379-.3-.566-.848-.4-3.482 1.281-63.844 39.4-70.426 43.461z" fill="#fff"/></svg> t.me/djamiteacher</a>
-            <a href="tel:+998905506707" style="display:inline-flex !important;align-items:center;gap:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;color:#10b981"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l1.27-.85a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> <span data-site-footer-phone>+998 90 550 67 07</span></a>
+            <a href="https://t.me/djamiteacher" target="_blank" rel="noopener" style="display:inline-flex !important;align-items:center;gap:6px;"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span data-site-footer-telegram>t.me/djamiteacher</span></a>
+            <a href="tel:+998905506707" style="display:inline-flex !important;align-items:center;gap:6px;"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span data-site-footer-phone>+998 90 550 67 07</span></a>
           </div>
         </div>
       </div>
@@ -523,6 +571,7 @@
 <script src="site-settings.js"></script>
 
 <script>
+
 /* ============================================================
    Eng faol o'quvchilar reytingi
    Manba: settings/leaderboard (admin paneldagi Statistika bo'limi
@@ -571,125 +620,6 @@
     sec.hidden = false;
 
   }).catch(function (e) { console.warn('Reyting yuklanmadi:', e); });
-})();
-</script>
-
-<!-- <script src="guest-visit-log.js"></script> -->
-<!-- Mehmon (guest) tashrif jurnali o'chirildi: faollik jurnalida faqat
-     talaba va ota-ona kirishlari kerak, mehmon tashriflari shart emas. -->
-<script>
-/* ============================================================
-   Sayt baholash (site rating) widget
-   ------------------------------------------------------------
-   Aggregat ma'lumot settings/site hujjatida ikkita maydonda
-   saqlanadi: ratingSum (barcha baholar yig'indisi) va
-   ratingCount (baholar soni). O'rtacha = ratingSum / ratingCount.
-   Bu maydonlar Firestore Rules'da HAMMAGA (login qilmagan
-   mehmonlarga ham) faqat shu ikki maydonni oshirish (increment)
-   uchun ochiq bo'lishi kerak — pastdagi izohga qarang.
-   ============================================================ */
-(function () {
-  var STORAGE_KEY = 'efSiteRating_v1';
-
-  var starsDisplayEl = document.getElementById('ratingStarsDisplay');
-  var summaryTextEl = document.getElementById('ratingSummaryText');
-  var starsInputEl = document.getElementById('ratingStarsInput');
-  var starButtons = Array.prototype.slice.call(document.querySelectorAll('.rating-star-btn'));
-  var thanksEl = document.getElementById('ratingThanks');
-
-  var cachedSum = 0;
-  var cachedCount = 0;
-
-  function renderStarsDisplay(avg) {
-    var rounded = Math.round(avg * 2) / 2; // nearest half star
-    var html = '';
-    for (var i = 1; i <= 5; i++) {
-      if (rounded >= i) html += '<span class="star full"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" style="display:inline-block;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>';
-      else if (rounded >= i - 0.5) html += '<span class="star half"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" style="display:inline-block;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>';
-      else html += '<span class="star empty"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="0" style="display:inline-block;vertical-align:middle;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>';
-    }
-    starsDisplayEl.innerHTML = html;
-  }
-
-  function renderSummary() {
-    if (!cachedCount) {
-      summaryTextEl.textContent = 'Hali baho yo‘q — birinchi bo‘lib baholang!';
-      renderStarsDisplay(0);
-      return;
-    }
-    var avg = cachedSum / cachedCount;
-    renderStarsDisplay(avg);
-    summaryTextEl.textContent = avg.toFixed(1) + ' / 5 · ' + cachedCount + ' ta baho';
-  }
-
-  function markAsRated(value) {
-    starsInputEl.hidden = true;
-    thanksEl.hidden = false;
-    thanksEl.textContent = 'Siz ' + value + ' yulduz bilan baholadingiz. Rahmat!';
-    var _icon = document.createElement('span');
-    _icon.setAttribute('aria-hidden', 'true');
-    _icon.style.cssText = 'display:inline-block;margin-left:4px;vertical-align:middle;';
-    _icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="1.1em" height="1.1em" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>';
-    thanksEl.appendChild(_icon);vertical-align:middle;color:#f59e0b"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>';
-  }
-
-  function getStoredRating() {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY));
-    } catch (e) {
-      return null;
-    }
-  }
-
-  function highlightUpTo(value) {
-    starButtons.forEach(function (b) {
-      b.classList.toggle('is-hovered', Number(b.dataset.value) <= value);
-    });
-  }
-
-  async function loadRating() {
-    try {
-      var doc = await db.collection('settings').doc('site').get();
-      var data = doc.exists ? doc.data() : {};
-      cachedSum = data.ratingSum || 0;
-      cachedCount = data.ratingCount || 0;
-      renderSummary();
-    } catch (err) {
-      summaryTextEl.textContent = '';
-    }
-  }
-
-  async function submitRating(value) {
-    starButtons.forEach(function (b) { b.disabled = true; });
-    try {
-      await db.collection('settings').doc('site').set({
-        ratingSum: firebase.firestore.FieldValue.increment(value),
-        ratingCount: firebase.firestore.FieldValue.increment(1)
-      }, { merge: true });
-
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ value: value, ratedAt: Date.now() }));
-      cachedSum += value;
-      cachedCount += 1;
-      renderSummary();
-      markAsRated(value);
-    } catch (err) {
-      starButtons.forEach(function (b) { b.disabled = false; });
-      alert('Bahoni saqlashda xatolik yuz berdi. Birozdan so‘ng qayta urinib ko‘ring.');
-    }
-  }
-
-  starButtons.forEach(function (btn) {
-    btn.addEventListener('mouseenter', function () { highlightUpTo(Number(btn.dataset.value)); });
-    btn.addEventListener('mouseleave', function () { highlightUpTo(0); });
-    btn.addEventListener('click', function () { submitRating(Number(btn.dataset.value)); });
-  });
-
-  var stored = getStoredRating();
-  if (stored && stored.value) {
-    markAsRated(stored.value);
-  }
-
-  loadRating();
 })();
 
 /* ============================================================
@@ -801,7 +731,9 @@
     });
   });
 })();
+
 </script>
+
 <div class="powered-by">
   <span>powered by <b>Djami</b></span>
 </div>
