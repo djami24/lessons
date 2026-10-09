@@ -565,6 +565,33 @@
     .search-row{ flex-direction:column; }
     button.primary{ padding: 12px 22px; }
   }
+
+  /* ---- gb-utils.js ranglari (body'da — yorug'/tungi rejimga moslashadi) ---- */
+  body{ --gb-ink: var(--ink); --gb-dim: var(--ink-dim); --gb-line: var(--line); --gb-panel: var(--panel-2); --gb-accent: var(--brass); }
+  .section-title .gb-ic{ color: var(--brass); margin-right: 6px; position: relative; top: -2px; }
+  .search-row input#searchId{ max-width: 190px; }
+  .score-row{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin: 2px 0 8px; }
+  .score-pill{ font-family:'Source Sans 3', Arial, sans-serif; font-weight:800; font-size: 28px; color:#fff; border-radius: 10px; padding: 2px 14px; }
+  .score-msg{ font-family:'Source Sans 3', sans-serif; font-weight:600; font-size: 13px; margin: 0 0 10px; }
+  .unit-line{ font-family:'Source Sans 3', sans-serif; font-size: 12.5px; color: var(--ink-dim); margin: 0 0 8px; }
+  .lb-controls{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin: 0 0 14px; }
+  .lb-tabs{ display:flex; flex-wrap:wrap; gap:8px; }
+  .lb-tabs button{
+    font-family:'Source Sans 3', sans-serif; font-size: 12.5px; font-weight:600;
+    background: var(--panel-2); color: var(--ink-dim);
+    border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor:pointer;
+  }
+  .lb-tabs button:hover{ color: var(--ink); border-color: var(--brass-dim); }
+  .lb-tabs button.active{ background: var(--brass); border-color: var(--brass); color: #241c05; }
+  .lb-selects{ display:flex; flex-wrap:wrap; gap:10px; margin-left:auto; }
+  .lb-selects select{
+    font-family:'Source Sans 3', sans-serif; font-size: 13px;
+    background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; max-width: 200px;
+  }
+  .leaderboard-rank .gb-ic{ display:block; margin: 0 auto; }
+  .leaderboard-row.top1 .leaderboard-rank, .leaderboard-row.top2 .leaderboard-rank, .leaderboard-row.top3 .leaderboard-rank{ font-size: 14px; }
+  @media (max-width: 520px){ .lb-selects{ margin-left:0; width:100%; } .lb-selects select{ flex:1; max-width:none; } .search-row input#searchId{ max-width:none; } }
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -578,7 +605,7 @@
     <a href="student/dashboard.html" class="corner-admin-btn" style="text-decoration:none; display:inline-flex; align-items:center;">← Talaba profili</a>
     <div style="display:flex; align-items:center; gap:10px;">
       <button class="theme-toggle" id="themeToggle" type="button">
-        <span class="icon" id="themeIcon">🌙</span>
+        <span class="icon" id="themeIcon"></span>
         <span id="themeLabel">Tungi rejim</span>
       </button>
     <a href="login.html" class="corner-admin-btn" style="text-decoration:none; display:inline-flex; align-items:center;">Admin</a>
@@ -593,19 +620,32 @@
   <!-- STUDENT VIEW -->
   <div class="stage" id="studentStage">
     <h2 class="section-title">Natijangizni toping</h2>
-    <p class="section-sub">Ismingiz yoki guruh nomingizni kiriting.</p>
+    <p class="section-sub">Ustoz bergan ID va ism-familiyangizni kiriting. Natija faqat o'zingizga ko'rinadi.</p>
     <div class="search-row">
-      <input type="text" id="searchInput" placeholder="Masalan: Aziza Karimova yoki 21-IF-14">
+      <input type="text" id="searchId" placeholder="ID (masalan: TX-001)" autocomplete="off">
+      <input type="text" id="searchInput" placeholder="Ism-familiya (Aziza Karimova)" autocomplete="off">
       <button class="primary" id="searchBtn">Qidirish</button>
     </div>
-    <div class="hint" id="studentHint"></div>
+    <div class="hint" id="studentHint">ID raqamingizni bilmasangiz, ustozingizdan so'rang.</div>
     <div id="resultsArea"></div>
   </div>
 
   <!-- LEADERBOARD -->
   <div class="stage" id="leaderboardStage" style="display:none; margin-top:22px;">
-    <h2 class="section-title">🏆 TOP-10</h2>
+    <h2 class="section-title" id="leaderboardTitle"></h2>
     <p class="section-sub" id="leaderboardSub"></p>
+    <div class="lb-controls">
+      <div class="lb-tabs" id="lbTabs" role="tablist">
+        <button type="button" data-mode="hundred">100 ball</button>
+        <button type="button" data-mode="avg">O'rtacha ball</button>
+        <button type="button" data-mode="month">Oy TOP'i</button>
+        <button type="button" data-mode="growth">Eng ko'p o'sgan</button>
+      </div>
+      <div class="lb-selects">
+        <select id="lbGroup" aria-label="Guruh bo'yicha"></select>
+        <select id="lbUnit" aria-label="Unit bo'yicha"></select>
+      </div>
+    </div>
     <div id="leaderboardArea"></div>
   </div>
 
@@ -621,6 +661,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="firebase-config.js"></script>
+<script src="gb-utils.js"></script>
 <!-- <script src="guest-visit-log.js"></script> -->
 <!-- Mehmon (guest) tashrif jurnali o'chirildi: faollik jurnalida faqat
      talaba va ota-ona kirishlari kerak, mehmon tashriflari shart emas. -->
@@ -643,7 +684,7 @@ const themeLabel = document.getElementById('themeLabel');
 
 function applyTheme(isLight){
   document.body.classList.toggle('light-mode', isLight);
-  themeIcon.textContent = isLight ? '☀️' : '🌙';
+  themeIcon.innerHTML = GB.icon(isLight ? 'sun' : 'moon', 14);
   themeLabel.textContent = isLight ? 'Kunduzgi rejim' : 'Tungi rejim';
 }
 applyTheme(true);
@@ -679,66 +720,139 @@ function getUnitsForGroup(group){
   return (data.unitsByGroup && data.unitsByGroup[group]) || [];
 }
 
-/* ---------------- top-10 leaderboard (umumiy eng yaxshi o'quvchilar, 100 ball) ---------------- */
+/* ---------------- TOP ro'yxatlar ----------------
+   Faqat ism va guruh ko'rsatiladi. Eng past natijalar hech qachon
+   ommaviy ro'yxatga chiqarilmaydi (faqat TOP-10). */
 const leaderboardStage = document.getElementById('leaderboardStage');
+const leaderboardTitle = document.getElementById('leaderboardTitle');
 const leaderboardSub = document.getElementById('leaderboardSub');
 const leaderboardArea = document.getElementById('leaderboardArea');
+const lbGroupSel = document.getElementById('lbGroup');
+const lbUnitSel = document.getElementById('lbUnit');
+const lbTabBtns = document.querySelectorAll('#lbTabs button');
+const MONTHS_UZ = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
+const lbState = { mode: 'hundred', group: '', unit: '' };
+
+function lbAllGroups(){
+  return [...new Set(data.students.map(s => s.group).filter(Boolean))];
+}
+function lbUnitOptions(){
+  const groups = lbState.group ? [lbState.group] : lbAllGroups();
+  const seen = [];
+  groups.forEach(g => getUnitsForGroup(g).forEach(u => { if(!seen.includes(u)) seen.push(u); }));
+  return seen;
+}
+function fillLbSelects(){
+  lbGroupSel.innerHTML = '<option value="">Barcha guruhlar</option>' +
+    lbAllGroups().map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+  lbGroupSel.value = lbState.group;
+  const units = lbUnitOptions();
+  if(lbState.unit && !units.includes(lbState.unit)) lbState.unit = '';
+  lbUnitSel.innerHTML = '<option value="">Barcha unitlar</option>' +
+    units.map(u => `<option value="${escapeHtml(u)}">${escapeHtml(u)}</option>`).join('');
+  lbUnitSel.value = lbState.unit;
+}
+
+function lbCompare(a, b){
+  for(let i = 0; i < a.key.length; i++){
+    if(b.key[i] !== a.key[i]) return b.key[i] - a.key[i];
+  }
+  return 0;
+}
+
+function lbRows(){
+  const now = new Date();
+  const rows = [];
+  data.students.forEach(s => {
+    if(lbState.group && s.group !== lbState.group) return;
+    const sm = GB.summarize(s, getUnitsForGroup(s.group));
+    if(!sm.count) return;
+    const grp = s.group || '';
+
+    if(lbState.unit){
+      const p = sm.series.find(x => x.unit === lbState.unit);
+      if(p) rows.push({ s, valueText: String(p.score), sub: grp, key: [p.score, sm.avg] });
+      return;
+    }
+    if(lbState.mode === 'hundred'){
+      const n = sm.series.filter(p => p.score === 100).length;
+      if(n > 0) rows.push({ s, valueText: '100', sub: grp + (n > 1 ? ' · ' + n + ' marta 100' : ''), key: [n, sm.avg] });
+    } else if(lbState.mode === 'avg'){
+      if(sm.count >= 2) rows.push({ s, valueText: GB.fmtNum(sm.avg), sub: grp + ' · ' + sm.count + ' ta unit', key: [sm.avg, sm.count] });
+    } else if(lbState.mode === 'month'){
+      const mine = sm.series.filter(p => {
+        if(p.ts === null) return false;
+        const d = new Date(p.ts);
+        return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+      });
+      if(mine.length){
+        const avg = mine.reduce((a, p) => a + p.score, 0) / mine.length;
+        rows.push({ s, valueText: GB.fmtNum(avg), sub: grp + ' · ' + mine.length + ' ta natija', key: [avg, mine.length] });
+      }
+    } else if(lbState.mode === 'growth'){
+      if(sm.count >= 2){
+        const first = sm.series[0], last = sm.series[sm.series.length - 1];
+        const diff = last.score - first.score;
+        if(diff > 0) rows.push({ s, valueText: '+' + diff, sub: grp + ' · ' + first.score + ' \u2192 ' + last.score, key: [diff, last.score] });
+      }
+    }
+  });
+  rows.sort(lbCompare);
+  return rows;
+}
+
+function lbSubtitle(){
+  const where = lbState.group ? ' (' + lbState.group + ')' : '';
+  if(lbState.unit) return lbState.unit + " unitida eng yuqori ball olgan o'quvchilar" + where;
+  switch(lbState.mode){
+    case 'avg':    return "O'rtacha ball bo'yicha eng yaxshi o'quvchilar (kamida 2 ta unit)" + where;
+    case 'month':  return MONTHS_UZ[new Date().getMonth()] + " oyida kiritilgan natijalar bo'yicha o'rtacha ball" + where;
+    case 'growth': return "Birinchi natijasiga nisbatan eng ko'p o'sgan o'quvchilar" + where;
+    default:       return "Turli unit va guruhlardan 100 ball olgan eng a'lochi o'quvchilar" + where;
+  }
+}
 
 function renderLeaderboard(){
   if(!data.students || data.students.length === 0){
     leaderboardStage.style.display = 'none';
     return;
   }
+  leaderboardStage.style.display = 'block';
+  leaderboardTitle.innerHTML = GB.icon('trophy', 22) + 'TOP-10';
+  leaderboardSub.textContent = lbSubtitle();
+  fillLbSelects();
+  lbTabBtns.forEach(b => b.classList.toggle('active', !lbState.unit && b.dataset.mode === lbState.mode));
 
-  const ranked = data.students.map(s => {
-    let hundredCount = 0, sum = 0, count = 0;
-    getUnitsForGroup(s.group).forEach(u => {
-      const raw = s.scores ? s.scores[u] : undefined;
-      if(raw === undefined || raw === null || raw === '') return;
-      const score = Number(raw);
-      if(isNaN(score)) return;
-      sum += score; count++;
-      if(score === 100) hundredCount++;
-    });
-    const avg = count > 0 ? sum / count : 0;
-    return { student: s, hundredCount, avg };
-  }).filter(r => r.hundredCount > 0);
-
-  if(ranked.length === 0){
-    leaderboardStage.style.display = 'none';
+  const top = lbRows().slice(0, 10);
+  if(top.length === 0){
+    leaderboardArea.innerHTML = '<div class="empty">Hozircha bu tanlov bo\'yicha ma\'lumot yo\'q.</div>';
     return;
   }
-
-  ranked.sort((a, b) => b.hundredCount - a.hundredCount || b.avg - a.avg);
-  const top10 = ranked.slice(0, 10);
-
-  leaderboardStage.style.display = 'block';
-  leaderboardSub.textContent = "Turli unit va guruhlardan 100 ball olgan eng a'lochi o'quvchilar";
-
-  leaderboardArea.innerHTML = '';
   const list = document.createElement('div');
   list.className = 'leaderboard-list';
-
-  top10.forEach((r, i) => {
+  top.forEach((r, i) => {
     const rank = i + 1;
-    const s = r.student;
     const row = document.createElement('div');
     row.className = 'leaderboard-row' + (rank <= 3 ? ' top' + rank : '');
-    const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
-    const badge = r.hundredCount > 1 ? `<div class="leaderboard-group">${r.hundredCount} marta 100</div>` : `<div class="leaderboard-group">${escapeHtml(s.group)}</div>`;
     row.innerHTML = `
-      <span class="leaderboard-rank">${medal}</span>
+      <span class="leaderboard-rank">${GB.medal(rank, 24)}</span>
       <span class="leaderboard-info">
-        <div class="leaderboard-name">${escapeHtml(s.name)}</div>
-        ${badge}
+        <div class="leaderboard-name">${escapeHtml(r.s.name)}</div>
+        <div class="leaderboard-group">${escapeHtml(r.sub)}</div>
       </span>
-      <span class="leaderboard-score">100</span>
+      <span class="leaderboard-score">${escapeHtml(r.valueText)}</span>
     `;
     list.appendChild(row);
   });
-
+  leaderboardArea.innerHTML = '';
   leaderboardArea.appendChild(list);
 }
+
+lbTabBtns.forEach(b => b.addEventListener('click', () => {
+  lbState.mode = b.dataset.mode; lbState.unit = ''; renderLeaderboard();
+}));
+lbGroupSel.addEventListener('change', () => { lbState.group = lbGroupSel.value; renderLeaderboard(); });
+lbUnitSel.addEventListener('change', () => { lbState.unit = lbUnitSel.value; renderLeaderboard(); });
 
 /* ---------------- visitor tracking ----------------
    Counted here on every page load; the tally itself is shown to the
@@ -754,36 +868,54 @@ async function trackVisit(){
   }catch(e){ /* jimgina o'tkazib yuboramiz */ }
 }
 
-/* ---------------- student view ---------------- */
+/* ---------------- student view ----------------
+   Maxfiylik: natija faqat admin bergan ID (progressId) VA ism-familiya
+   birga to'g'ri kiritilganda ko'rsatiladi. Ism yoki guruh bo'yicha
+   boshqalarning natijasini qidirib bo'lmaydi. */
+const searchId = document.getElementById('searchId');
 const searchInput = document.getElementById('searchInput');
 const searchBtn = document.getElementById('searchBtn');
 const resultsArea = document.getElementById('resultsArea');
 const studentHint = document.getElementById('studentHint');
 
+let failCount = 0;
+let lockUntil = 0;
+
 async function runSearch(){
-  const q = searchInput.value.trim().toLowerCase();
   resultsArea.innerHTML = '';
-  if(!q){
-    studentHint.textContent = "Iltimos, ism yoki guruh nomini kiriting.";
+  const idQ = searchId.value.trim();
+  const nameQ = searchInput.value.trim();
+
+  if(Date.now() < lockUntil){
+    const sec = Math.ceil((lockUntil - Date.now()) / 1000);
+    studentHint.textContent = "Juda ko'p urinish. " + sec + " soniyadan keyin qayta urinib ko'ring.";
+    return;
+  }
+  if(!idQ || !nameQ){
+    studentHint.textContent = "Iltimos, ID va ism-familiyangizni kiriting.";
     return;
   }
   studentHint.textContent = 'Qidirilmoqda…';
   if(!dataLoaded) await loadData();
   studentHint.textContent = '';
 
-  const matches = data.students.filter(s =>
-    s.name.toLowerCase().includes(q) || s.group.toLowerCase().includes(q)
+  const match = data.students.find(s =>
+    s.progressId && GB.normId(s.progressId) === GB.normId(idQ) &&
+    GB.nameKey(s.name) === GB.nameKey(nameQ)
   );
 
-  if(matches.length === 0){
-    resultsArea.innerHTML = '<div class="empty">Hech narsa topilmadi. Ism yoki guruh nomini tekshirib ko\'ring.</div>';
+  if(!match){
+    failCount++;
+    if(failCount >= 5){ lockUntil = Date.now() + 60000; failCount = 0; }
+    resultsArea.innerHTML = '<div class="empty">ID yoki ism-familiya noto\'g\'ri. Ikkalasini ham ustoz bergan shaklda kiriting.</div>';
     return;
   }
-
-  matches.forEach(s => resultsArea.appendChild(renderResultCard(s)));
+  failCount = 0;
+  resultsArea.appendChild(renderResultCard(match));
 }
 
 function renderResultCard(student){
+  GB.injectCss();
   const card = document.createElement('div');
   card.className = 'result-card';
 
@@ -794,50 +926,40 @@ function renderResultCard(student){
 
   const units = getUnitsForGroup(student.group);
   if(units.length === 0){
-    card.innerHTML += '<div class="empty">Hali unitlar qo\'shilmagan.</div>';
+    card.insertAdjacentHTML('beforeend', '<div class="empty">Hali unitlar qo\'shilmagan.</div>');
     return card;
   }
 
-  const table = document.createElement('table');
-  table.className = 'grades';
-  table.innerHTML = `<thead><tr><th>Unit</th><th>Ball</th><th>Holat</th></tr></thead>`;
-  const tbody = document.createElement('tbody');
+  const sum = GB.summarize(student, units);
+  const rank = GB.groupRank(data, student);
 
-  let sum = 0, count = 0;
-  units.forEach(unit => {
-    const raw = student.scores ? student.scores[unit] : undefined;
-    const hasScore = raw !== undefined && raw !== null && raw !== '';
-    const score = hasScore ? Number(raw) : null;
-    if(hasScore && !isNaN(score)){ sum += score; count++; }
+  if(!sum.latest){
+    card.insertAdjacentHTML('beforeend', '<div class="empty">Hali natija kiritilmagan.</div>');
+    return card;
+  }
 
-    const tr = document.createElement('tr');
-    const statusHtml = !hasScore
-      ? '<span style="color:var(--ink-dim);font-size:12.5px;">—</span>'
-      : (score >= PASS_THRESHOLD
-          ? '<span class="stamp">O\'TDI</span>'
-          : '<span class="stamp fail">QAYTA</span>');
-    tr.innerHTML = `<td>${escapeHtml(unit)}</td><td class="score-cell">${hasScore ? score : '—'}</td><td>${statusHtml}</td>`;
-    tbody.appendChild(tr);
-  });
-  table.appendChild(tbody);
-  card.appendChild(table);
+  const tier = GB.tier(sum.latest.score);
+  card.insertAdjacentHTML('beforeend',
+    `<p class="unit-line">${escapeHtml(sum.latest.unit)} · so'nggi natija</p>` +
+    `<div class="score-row"><span class="score-pill" style="background:${tier.color}">${sum.latest.score}/100</span>${GB.deltaHtml(sum)}</div>` +
+    `<p class="score-msg" style="color:${tier.color}">${escapeHtml(tier.message)}</p>` +
+    GB.extraHtml(sum, rank));
 
-  const avgRow = document.createElement('div');
-  avgRow.className = 'avg-row';
-  const avg = count > 0 ? (sum / count).toFixed(1) : '—';
-  avgRow.innerHTML = `<span>O'rtacha ball</span><b>${avg}</b>`;
-  card.appendChild(avgRow);
-
+  const detail = document.createElement('div');
+  detail.style.marginTop = '6px';
+  card.appendChild(detail);
+  GB.mountDetail(detail, { student, units, sum, rank, compact: true });
   return card;
 }
 
 function escapeHtml(str){
   const d = document.createElement('div');
-  d.textContent = str;
+  d.textContent = str == null ? '' : str;
   return d.innerHTML;
 }
 
 searchBtn.addEventListener('click', runSearch);
+searchId.addEventListener('keydown', e => { if(e.key === 'Enter') runSearch(); });
 searchInput.addEventListener('keydown', e => { if(e.key === 'Enter') runSearch(); });
 
 /* ---------------- init ---------------- */
