@@ -2601,6 +2601,22 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
   </div>
 </div>
 
+<!-- ===== MODAL: Test natijalari — ustoz izohi (talabaning har bir uniti uchun) ===== -->
+<div class="modal-overlay" id="modalGbNotes" hidden>
+  <div class="modal-box" style="max-width:520px; width:94vw; max-height:90vh; overflow:auto;">
+    <h2 class="modal-title" id="gbNotesTitle">Ustoz izohi</h2>
+    <div class="modal-form">
+      <p style="font-size:.85rem; color:var(--gray); margin:0 0 6px;">Har bir unit uchun qisqa izoh yozing. Talaba buni o'z natijalari jadvalida ko'radi. Bo'sh qoldirilgan izoh o'chiriladi.</p>
+      <div id="gbNotesList" style="display:flex; flex-direction:column; gap:10px;"></div>
+      <p class="form-error" id="gbNotesError" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="gbNotesSaveBtn" type="button">Saqlash</button>
+        <button class="btn btn-ghost" type="button" onclick="closeModal('modalGbNotes')">Bekor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MODAL: Add Teacher ===== -->
 <div class="modal-overlay" id="modalAddTeacher" hidden>
   <div class="modal-box" style="max-width:420px;">
@@ -9200,6 +9216,7 @@ function renderGbUnitChips(){
         if(s.group !== gbSelectedGroup || !s.scores) return;
         delete s.scores[unit];
         if(s.scoreTimestamps) delete s.scoreTimestamps[unit];
+        if(s.notes) delete s.notes[unit];
       });
       renderGbUnitChips();
       renderGbGroupTable(gbSelectedGroup);
@@ -9363,7 +9380,8 @@ function renderGbGroupTable(group){
       const val = (s.scores && s.scores[u] !== undefined) ? s.scores[u] : '';
       tbody += `<td><input type="number" min="0" max="100" data-student="${s.id}" data-unit="${escapeHtml(u)}" value="${val}"></td>`;
     });
-    tbody += `<td><button type="button" class="btn btn-ghost btn-sm" data-del-student="${s.id}">O'chirish</button></td></tr>`;
+    const noteCount = s.notes ? Object.values(s.notes).filter(v => v && String(v).trim()).length : 0;
+    tbody += `<td style="white-space:nowrap;"><button type="button" class="btn btn-ghost btn-sm" data-note-student="${s.id}" title="Ustoz izohi">Izoh${noteCount ? ' (' + noteCount + ')' : ''}</button> <button type="button" class="btn btn-ghost btn-sm" data-del-student="${s.id}">O'chirish</button></td></tr>`;
   });
   table.innerHTML = '<thead>' + thead + '</thead><tbody>' + tbody + '</tbody>';
 
@@ -9403,6 +9421,10 @@ function renderGbGroupTable(group){
     });
   });
 
+  table.querySelectorAll('[data-note-student]').forEach(btn => {
+    btn.addEventListener('click', () => openGbNotes(btn.dataset.noteStudent));
+  });
+
   table.querySelectorAll('[data-del-student]').forEach(btn => {
     btn.addEventListener('click', async () => {
       const student = gbData.students.find(x => x.id === btn.dataset.delStudent);
@@ -9425,6 +9447,55 @@ async function deleteGbGroup(groupName) {
   renderGbAdminGradeTable();
   await saveGradebook();
 }
+
+// ---- Ustoz izohi (talabaning har bir uniti uchun) ----
+let gbNotesStudentId = null;
+
+function openGbNotes(studentId){
+  const s = gbData.students.find(x => x.id === studentId);
+  if(!s) return;
+  gbNotesStudentId = studentId;
+  document.getElementById('gbNotesTitle').textContent = 'Ustoz izohi \u2014 ' + s.name;
+  const units = getUnitsForGroup(s.group);
+  const notes = s.notes || {};
+  const list = document.getElementById('gbNotesList');
+  if(units.length === 0){
+    list.innerHTML = '<p style="color:var(--gray);">Bu guruh uchun hali unit qo\u2018shilmagan.</p>';
+  } else {
+    list.innerHTML = units.map(u => {
+      const has = s.scores && s.scores[u] !== undefined && s.scores[u] !== '';
+      const scTxt = has ? 'ball: ' + escapeHtml(String(s.scores[u])) : 'ball yo\u2018q';
+      return `<label style="display:flex; flex-direction:column; gap:4px; font-weight:600; font-size:.85rem;">${escapeHtml(u)} <span style="font-weight:400; color:var(--gray);">${scTxt}</span>` +
+        `<input type="text" maxlength="200" data-note-unit="${escapeHtml(u)}" value="${escapeHtml(notes[u] || '')}" placeholder="Masalan: grammatikani takrorlang" style="width:100%; box-sizing:border-box;"></label>`;
+    }).join('');
+  }
+  document.getElementById('gbNotesError').hidden = true;
+  openModal('modalGbNotes');
+}
+
+document.getElementById('gbNotesSaveBtn').addEventListener('click', async () => {
+  const s = gbData.students.find(x => x.id === gbNotesStudentId);
+  if(!s) { closeModal('modalGbNotes'); return; }
+  const btn = document.getElementById('gbNotesSaveBtn');
+  const errEl = document.getElementById('gbNotesError');
+  const notes = {};
+  document.querySelectorAll('#gbNotesList input[data-note-unit]').forEach(inp => {
+    const v = inp.value.trim();
+    if(v) notes[inp.dataset.noteUnit] = v.slice(0, 200);
+  });
+  if(Object.keys(notes).length) s.notes = notes; else delete s.notes;
+
+  btn.disabled = true;
+  const ok = await saveGradebook();
+  btn.disabled = false;
+  if(!ok){
+    errEl.textContent = "Saqlashda xatolik yuz berdi, qayta urinib ko'ring.";
+    errEl.hidden = false;
+    return;
+  }
+  closeModal('modalGbNotes');
+  if(gbSelectedGroup) renderGbGroupTable(gbSelectedGroup);
+});
 
 // ---- Visit stats (read-only here; natijalar.html bumps the counter) ----
 async function loadGbVisitStats(){
