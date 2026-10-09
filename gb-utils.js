@@ -176,16 +176,18 @@
   GB.sparkline = function(series, opts){
     opts = opts || {};
     if(!series || series.length < 2) return '';
-    const W = opts.w || 240, H = opts.h || 64, pad = 8;
+    const W = 320, H = 72, pad = 14;
     const scores = series.map(p => p.score);
-    let lo = Math.max(0, Math.min.apply(null, scores) - 10);
-    let hi = Math.min(100, Math.max.apply(null, scores) + 10);
-    if(hi - lo < 20){ lo = Math.max(0, hi - 20); hi = lo + 20; }
+    const mn = Math.min.apply(null, scores), mx = Math.max.apply(null, scores);
+    // chiziq bir xil bo'lsa ham o'rtada turadi, chetga yopishmaydi
+    const span = Math.max(mx - mn, 20), mid = (mn + mx) / 2;
+    const lo = mid - span / 2 - span * 0.25, hi = mid + span / 2 + span * 0.25;
     const x = i => pad + (W - 2 * pad) * (i / (series.length - 1));
     const y = v => pad + (H - 2 * pad) * (1 - (v - lo) / (hi - lo));
     const pts = series.map((p, i) => [x(i), y(p.score)]);
     const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-    const area = line + ' L' + pts[pts.length - 1][0].toFixed(1) + ' ' + (H - pad) + ' L' + pts[0][0].toFixed(1) + ' ' + (H - pad) + ' Z';
+    const area = line + ' L' + pts[pts.length - 1][0].toFixed(1) + ' ' + H + ' L' + pts[0][0].toFixed(1) + ' ' + H + ' Z';
+    const gid = 'gbg' + Math.random().toString(36).slice(2, 8);
     let th = '';
     if(lo < GB.RETAKE_BELOW && GB.RETAKE_BELOW < hi){
       const ty = y(GB.RETAKE_BELOW).toFixed(1);
@@ -195,8 +197,9 @@
       const last = i === pts.length - 1;
       return '<circle cx="' + p[0].toFixed(1) + '" cy="' + p[1].toFixed(1) + '" r="' + (last ? 4.5 : 3) + '" fill="' + (last ? 'currentColor' : 'var(--gb-panel, #fff)') + '" stroke="currentColor" stroke-width="2"><title>' + GB.esc(series[i].unit) + ': ' + series[i].score + '</title></circle>';
     }).join('');
-    return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Ballar dinamikasi grafigi">' +
-      '<path d="' + area + '" fill="currentColor" fill-opacity=".10"/>' +
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Ballar dinamikasi grafigi">' +
+      '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".22"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>' +
+      '<path d="' + area + '" fill="url(#' + gid + ')"/>' +
       th +
       '<path d="' + line + '" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>' +
       dots + '</svg>';
@@ -215,8 +218,9 @@
       '.gb-delta.down{background:rgba(224,69,90,.16);color:#e0455a}',
       '.gb-delta.flat{background:rgba(125,136,160,.18);color:var(--gb-dim,#6b7484)}',
       '.gb-spark{color:var(--gb-accent,#2f5fd8);margin:10px 0 4px}',
-      '.gb-spark svg{display:block;width:100%;height:64px}',
-      '.gb-spark.big svg{height:96px}',
+      '.gb-spark svg{display:block;width:100%;height:auto;max-height:84px}',
+      '.gb-spark.big svg{max-height:110px}',
+      '.gb-spark.big{background:var(--gb-panel,#fff);border:1px solid var(--gb-line,#e2e5ec);border-radius:14px;padding:10px 12px;margin:0 0 4px}',
       '.gb-spark-cap{font-size:11px;color:var(--gb-dim,#6b7484);margin:0 0 8px}',
       '.gb-avgline{font-size:13px;font-weight:700;color:var(--gb-ink,#1c212e);margin:6px 0 8px}',
       '.gb-chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}',
@@ -233,23 +237,26 @@
       '.gb-retake ul{margin:6px 0 0;padding-left:18px}',
       '.gb-note{border-left:3px solid var(--gb-accent,#2f5fd8);background:rgba(125,136,160,.12);border-radius:6px;padding:7px 10px;margin:0 0 10px;font-size:12.5px;line-height:1.45;color:var(--gb-ink,#1c212e)}',
       '.gb-note small{display:block;font-size:11px;color:var(--gb-dim,#6b7484);margin-bottom:2px}',
-      '.gb-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 0}',
+      '.gb-tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 12px}',
       '.gb-tools select{font:inherit;font-size:12.5px;padding:6px 8px;border-radius:8px;border:1px solid var(--gb-line,#e2e5ec);background:var(--gb-panel,#fff);color:var(--gb-ink,#1c212e)}',
-      '.gb-tools .sp{flex:1}',
-      '.gb-btn{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:999px;border:1px solid var(--gb-line,#e2e5ec);background:transparent;color:var(--gb-ink,#1c212e);cursor:pointer}',
+      '.gb-tools label{flex:1 1 100%;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--gb-dim,#6b7484)}',
+      '.gb-tools label select{flex:1;min-width:0}',
+      '.gb-btn{flex:1;justify-content:center;display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:999px;border:1px solid var(--gb-line,#e2e5ec);background:transparent;color:var(--gb-ink,#1c212e);cursor:pointer}',
       '.gb-btn:hover{border-color:var(--gb-accent,#2f5fd8);color:var(--gb-accent,#2f5fd8)}',
       '.gb-btn:disabled{opacity:.5;cursor:wait}',
-      '.gb-status{font-size:12px;color:var(--gb-dim,#6b7484)}',
-      '.gb-tablewrap{overflow-x:auto;border:1px solid var(--gb-line,#e2e5ec);border-radius:10px}',
-      'table.gb-table{width:100%;border-collapse:collapse;min-width:460px;font-size:13px}',
-      'table.gb-table th{text-align:left;font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--gb-dim,#6b7484);padding:8px 10px;border-bottom:1px solid var(--gb-line,#e2e5ec);white-space:nowrap}',
-      'table.gb-table td{padding:8px 10px;border-bottom:1px solid var(--gb-line,#e2e5ec);color:var(--gb-ink,#1c212e);vertical-align:top}',
-      'table.gb-table tr:last-child td{border-bottom:none}',
-      'td.gb-sc{font-weight:800;text-align:center;white-space:nowrap}',
-      'td.gb-s-red{background:rgba(224,69,90,.16);color:#e0455a}',
-      'td.gb-s-yellow{background:rgba(245,179,1,.2);color:#b87f00}',
-      'td.gb-s-green{background:rgba(31,169,113,.16);color:#1fa971}',
-      'td.gb-date{white-space:nowrap;color:var(--gb-dim,#6b7484)}',
+      '.gb-status{flex:1 1 100%;text-align:center;font-size:12px;color:var(--gb-dim,#6b7484)}',
+      '.gb-status:empty{display:none}',
+      '.gb-list{display:flex;flex-direction:column;gap:8px}',
+      '.gb-row{display:flex;gap:12px;align-items:flex-start;padding:10px;border:1px solid var(--gb-line,#e2e5ec);border-radius:14px;background:var(--gb-panel,#fff)}',
+      '.gb-sc{flex:none;width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;background:rgba(125,136,160,.14);color:var(--gb-dim,#6b7484)}',
+      '.gb-s-red{background:rgba(224,69,90,.16);color:#e0455a}',
+      '.gb-s-yellow{background:rgba(245,179,1,.2);color:#b87f00}',
+      '.gb-s-green{background:rgba(31,169,113,.16);color:#1fa971}',
+      '.gb-rmain{flex:1;min-width:0}',
+      '.gb-rtop{display:flex;justify-content:space-between;align-items:center;gap:8px}',
+      '.gb-rtop b{font-size:14px;color:var(--gb-ink,#1c212e);overflow-wrap:anywhere}',
+      '.gb-rsub{font-size:12px;color:var(--gb-dim,#6b7484);margin-top:3px}',
+      '.gb-rnote{margin-top:7px;font-size:12.5px;line-height:1.4;color:var(--gb-ink,#1c212e);border-left:3px solid var(--gb-accent,#2f5fd8);padding-left:8px}',
       '.gb-st{font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap}',
       '.gb-st.pass{background:rgba(31,169,113,.16);color:#1fa971}',
       '.gb-st.fail{background:rgba(224,69,90,.16);color:#e0455a}',
@@ -309,17 +316,16 @@
     return rows;
   }
   function tableBody(student, units, sum, mode){
-    if(!units.length) return '<tr><td colspan="5" class="gb-empty">Hali unitlar qo\'shilmagan.</td></tr>';
+    if(!units.length) return '<div class="gb-empty">Hali unitlar qo\'shilmagan.</div>';
     return sortedRows(student, units, sum, mode).map(r => {
       if(!r.p){
-        return '<tr><td>' + GB.esc(r.unit) + '</td><td class="gb-sc">\u2014</td><td class="gb-date">\u2014</td><td>\u2014</td><td class="gb-empty">\u2014</td></tr>';
+        return '<div class="gb-row"><div class="gb-sc">\u2014</div><div class="gb-rmain"><div class="gb-rtop"><b>' + GB.esc(r.unit) + '</b></div><div class="gb-rsub">Hali natija kiritilmagan</div></div></div>';
       }
       const pass = r.p.score >= GB.RETAKE_BELOW;
-      return '<tr><td>' + GB.esc(r.unit) + '</td>' +
-        '<td class="gb-sc gb-s-' + GB.tier(r.p.score).key + '">' + r.p.score + '</td>' +
-        '<td class="gb-date">' + GB.esc(GB.fmtDate(r.p.ts)) + '</td>' +
-        '<td><span class="gb-st ' + (pass ? 'pass' : 'fail') + '">' + (pass ? "O'TDI" : 'QAYTA') + '</span></td>' +
-        '<td>' + (r.p.note ? GB.esc(r.p.note) : '<span class="gb-empty">\u2014</span>') + '</td></tr>';
+      return '<div class="gb-row"><div class="gb-sc gb-s-' + GB.tier(r.p.score).key + '">' + r.p.score + '</div>' +
+        '<div class="gb-rmain"><div class="gb-rtop"><b>' + GB.esc(r.unit) + '</b><span class="gb-st ' + (pass ? 'pass' : 'fail') + '">' + (pass ? "O'TDI" : 'QAYTA') + '</span></div>' +
+        '<div class="gb-rsub">' + GB.esc(GB.fmtDate(r.p.ts)) + '</div>' +
+        (r.p.note ? '<div class="gb-rnote">' + GB.esc(r.p.note) + '</div>' : '') + '</div></div>';
     }).join('');
   }
 
@@ -328,7 +334,7 @@
   GB.mountDetail = function(el, ctx){
     GB.injectCss();
     const { student, units, sum, rank } = ctx;
-    const sp = GB.sparkline(sum.series, { w: 320, h: 96 });
+    const sp = GB.sparkline(sum.series);
     const compact = !!ctx.compact; // true bo'lsa — yuqoridagi o'rtacha/grafik takrorlanmaydi
     el.innerHTML =
       (compact ? '' :
@@ -340,23 +346,21 @@
         '</div>' +
         (sp ? '<div class="gb-spark big">' + sp + '</div>' : '')) +
       '<div class="gb-tools">' +
-        '<label>Saralash: <select class="gb-sort">' +
+        '<label>Saralash<select class="gb-sort">' +
           '<option value="list">Unit tartibi</option>' +
           '<option value="date">Sana (yangisi birinchi)</option>' +
           '<option value="score_desc">Ball (yuqoridan pastga)</option>' +
           '<option value="score_asc">Ball (pastdan yuqoriga)</option>' +
         '</select></label>' +
-        '<span class="sp"></span>' +
         '<button type="button" class="gb-btn" data-gb-share="image">' + GB.icon('image', 15) + 'Rasm</button>' +
         '<button type="button" class="gb-btn" data-gb-share="pdf">' + GB.icon('pdf', 15) + 'PDF</button>' +
         '<span class="gb-status" aria-live="polite"></span>' +
       '</div>' +
-      '<div class="gb-tablewrap"><table class="gb-table"><thead><tr><th>Unit</th><th style="text-align:center">Ball</th><th>Sana</th><th>Holat</th><th>Ustoz izohi</th></tr></thead>' +
-      '<tbody>' + tableBody(student, units, sum, 'list') + '</tbody></table></div>';
+      '<div class="gb-list">' + tableBody(student, units, sum, 'list') + '</div>';
 
-    const tbody = el.querySelector('tbody');
+    const listEl = el.querySelector('.gb-list');
     el.querySelector('.gb-sort').addEventListener('change', e => {
-      tbody.innerHTML = tableBody(student, units, sum, e.target.value);
+      listEl.innerHTML = tableBody(student, units, sum, e.target.value);
     });
     const status = el.querySelector('.gb-status');
     el.querySelectorAll('[data-gb-share]').forEach(btn => {
@@ -454,8 +458,9 @@
     c.fillStyle = '#f6f7fb'; rrect(c, gx - 20, gy - 20, gw + 40, gh + 40, 20); c.fill();
     if(sum.series.length >= 2){
       const sc = sum.series.map(p => p.score);
-      let lo = Math.max(0, Math.min.apply(null, sc) - 10), hi = Math.min(100, Math.max.apply(null, sc) + 10);
-      if(hi - lo < 20){ lo = Math.max(0, hi - 20); hi = lo + 20; }
+      const mn = Math.min.apply(null, sc), mx = Math.max.apply(null, sc);
+      const span = Math.max(mx - mn, 20), mid = (mn + mx) / 2;
+      const lo = mid - span / 2 - span * 0.25, hi = mid + span / 2 + span * 0.25;
       const X = i => gx + gw * (i / (sum.series.length - 1));
       const Y = v => gy + gh * (1 - (v - lo) / (hi - lo));
       c.strokeStyle = '#2f5fd8'; c.lineWidth = 6; c.lineJoin = 'round'; c.lineCap = 'round';
