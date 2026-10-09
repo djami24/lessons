@@ -217,6 +217,12 @@
   .hwi-step p{ margin:0; font-size:13.5px; line-height:1.5; opacity:.9; }
   .hwi-box ul{ margin:6px 0 0; padding-left:18px; font-size:13.5px; line-height:1.55; }
   body.dark .hwi-box{ background:#171d2c; color:#e8ecf5; border:1px solid #2a3248; }
+  /* Test natijasi (gb-utils.js) ranglari — body'da e'lon qilinadi, shunda dark rejimga ham moslashadi */
+  body{ --gb-ink:var(--gray-900); --gb-dim:var(--gray-500); --gb-line:var(--gray-200); --gb-panel:var(--gray-25); --gb-accent:var(--blue-600); }
+  .gbx-box{ max-width:680px; }
+  #gbResultView .gb-bw>div{ background:var(--gray-25); }
+  .gbx-scorerow{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:8px; }
+  #gbDetailBtn{ gap:8px; }
   .pnew-avatar-circle{
     width:88px; height:88px;
     border-radius:50%;
@@ -1029,10 +1035,16 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         <div id="gbResultView" hidden class="test-body">
           <p class="test-title" id="gbResultName" style="margin:0 0 2px;"></p>
           <p id="gbResultUnit" style="font-size:12px; margin:0 0 10px;"></p>
-          <div id="gbResultScore" hidden style="font-size:28px; font-weight:800; border-radius:8px; padding:2px 14px; display:inline-flex; align-items:center; margin-bottom:8px;"></div>
-          <div id="gbResultMessage" style="font-size:13px; font-weight:600; margin-bottom:14px;"></div>
-          <a href="../natijalar.html" target="_blank" class="btn">Batafsil
-          </a>
+          <div class="gbx-scorerow">
+            <div id="gbResultScore" hidden style="font-size:28px; font-weight:800; border-radius:8px; padding:2px 14px; display:inline-flex; align-items:center;"></div>
+            <span id="gbResultDelta"></span>
+          </div>
+          <div id="gbResultMessage" style="font-size:13px; font-weight:600; margin-bottom:10px;"></div>
+          <div id="gbExtra"></div>
+          <button type="button" class="btn" id="gbDetailBtn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 10h18M9 10v10"/></svg>
+            Batafsil jadval
+          </button>
         </div>
       </div>
 
@@ -1592,6 +1604,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
+<script src="../gb-utils.js"></script>
 <script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
 <script>
@@ -3052,48 +3065,37 @@ async function renderGbResultBox(){
     return;
   }
 
-  // Find the score with the newest timestamp (set by the admin panel
-  // whenever a score is entered/edited). If none of this student's scores
-  // have a timestamp (older data, entered before this tracking existed),
-  // fall back to the last unit-in-list that has a score.
-  let latestUnit = null, latestScore = null, bestStamp = -1;
-  let fallbackUnit = null, fallbackScore = null;
-  const stamps = match.scoreTimestamps || {};
+  GB.injectCss();
   const units = (data.unitsByGroup && data.unitsByGroup[match.group]) || [];
-  units.forEach(unit => {
-    const sc = match.scores ? match.scores[unit] : undefined;
-    if(sc === undefined || sc === null || sc === '') return;
-    fallbackUnit = unit; // keeps advancing, so it ends on the last one in list order
-    fallbackScore = sc;
-    const stamp = stamps[unit];
-    if(typeof stamp === 'number' && stamp > bestStamp){
-      bestStamp = stamp;
-      latestUnit = unit;
-      latestScore = sc;
-    }
-  });
-  if(latestUnit === null){
-    latestUnit = fallbackUnit;
-    latestScore = fallbackScore;
-  }
+  const sum = GB.summarize(match, units);          // eng so'nggi ball, o'zgarish, o'rtacha, eng yaxshi/past...
+  const rank = GB.groupRank(data, match);          // faqat talabaning o'z o'rni
+  state._gbCtx = { student: match, units, sum, rank };
 
   document.getElementById('gbResultName').textContent = match.name;
   const scoreEl = document.getElementById('gbResultScore');
   const msgEl = document.getElementById('gbResultMessage');
-  if(latestUnit){
-    document.getElementById('gbResultUnit').textContent = latestUnit + (match.group ? ' · ' + match.group : '');
-    updateHomeQuickInfo({ course: latestUnit });
+  const deltaEl = document.getElementById('gbResultDelta');
+  const extraEl = document.getElementById('gbExtra');
+  const detailBtn = document.getElementById('gbDetailBtn');
+
+  if(sum.latest){
+    document.getElementById('gbResultUnit').textContent = sum.latest.unit + (match.group ? ' · ' + match.group : '');
+    updateHomeQuickInfo({ course: sum.latest.unit });
     scoreEl.hidden = false;
-    scoreEl.textContent = latestScore + '/100';
+    scoreEl.textContent = sum.latest.score + '/100';
     scoreEl.classList.remove('quiz-result-pass', 'quiz-result-fail');
 
-    const tier = getGbScoreTier(latestScore);
+    const tier = GB.tier(sum.latest.score);
     box.style.background = ''; // karta har doim oq — rang o'zgartirilmaydi
-    scoreEl.style.background = tier.cardBg || 'var(--blue-50)';
-    scoreEl.style.color = tier.cardBg ? '#fff' : 'var(--blue-600)';
+    scoreEl.style.background = tier.color;
+    scoreEl.style.color = '#fff';
     msgEl.hidden = false;
-    msgEl.textContent = tier.emoji + ' ' + tier.message;
-    msgEl.style.color = tier.cardBg || 'var(--gray-600)';
+    msgEl.textContent = tier.message;
+    msgEl.style.color = tier.color;
+
+    deltaEl.innerHTML = GB.deltaHtml(sum);
+    extraEl.innerHTML = GB.extraHtml(sum, rank);
+    detailBtn.hidden = false;
   } else {
     box.style.background = '';
     document.getElementById('gbResultUnit').textContent = (match.group ? match.group + ' · ' : '') + 'Hali natija kiritilmagan.';
@@ -3102,27 +3104,39 @@ async function renderGbResultBox(){
     scoreEl.style.background = '';
     msgEl.hidden = true;
     msgEl.textContent = '';
+    deltaEl.innerHTML = '';
+    extraEl.innerHTML = '';
+    detailBtn.hidden = true;
   }
 
   formEl.hidden = true;
   viewEl.hidden = false;
 }
 
-// Score - whole-card color + motivational message (message text is always
-// white so it stays readable no matter which tier color the card takes):
-//   0–65   : qizil (red)   — "Yaxshi o'qimayapsiz" 
-//   66–97  : zangor (cyan) — "Harakatni to'xtatmang" 
-//   98–100 : ko'k (blue)   — "A'lochi o'quvchi"  — the card's own default blue, unchanged
-function getGbScoreTier(score){
-  const n = Number(score);
-  if(n <= 65){
-    return { cardBg: '#c0392b', message: 'Yaxshi o‘qimayapsiz', emoji: '' };
-  }
-  if(n <= 97){
-    return { cardBg: '#1791ab', message: 'Harakatni to‘xtatmang', emoji: '' };
-  }
-  return { cardBg: '', message: 'A’lochi o‘quvchi', emoji: '' };
+// ---------- Batafsil jadval (modal) — talabaning o'z natijalari shu yerning o'zida ochiladi ----------
+function openGbDetail(){
+  const ctx = state._gbCtx;
+  const ov = document.getElementById('gbDetailOverlay');
+  if(!ctx || !ov) return;
+  GB.injectCss();
+  document.getElementById('gbDetailTitle').textContent = ctx.student.name + (ctx.student.group ? ' · ' + ctx.student.group : '');
+  GB.mountDetail(document.getElementById('gbDetailBody'), ctx);
+  ov.classList.add('open');
+  ov.setAttribute('aria-hidden', 'false');
 }
+function closeGbDetail(){
+  const ov = document.getElementById('gbDetailOverlay');
+  if(!ov) return;
+  ov.classList.remove('open');
+  ov.setAttribute('aria-hidden', 'true');
+}
+document.addEventListener('click', (e) => {
+  if(e.target.closest('#gbDetailBtn')) openGbDetail();
+  else if(e.target.closest('#gbDetailClose') || e.target === document.getElementById('gbDetailOverlay')) closeGbDetail();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeGbDetail();
+});
 
 // Manual name entry for the "Test natijasi" card was removed — it now
 // matches by the same ID entered in the "O'quv jarayoni" card (see
@@ -5406,6 +5420,14 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   try{localStorage.setItem('studentTheme',d?'dark':'light')}catch(e){}
 });
 </script>
+<!-- Test natijalari: batafsil jadval oynasi -->
+<div class="hwi-overlay" id="gbDetailOverlay" aria-hidden="true">
+  <div class="hwi-box gbx-box" role="dialog" aria-modal="true" aria-labelledby="gbDetailTitle">
+    <button type="button" class="hwi-close" id="gbDetailClose" aria-label="Yopish">&times;</button>
+    <h3 id="gbDetailTitle">Test natijalari</h3>
+    <div id="gbDetailBody"></div>
+  </div>
+</div>
 <!-- Uy vazifa ballari: tushuntirish oynasi -->
 <div class="hwi-overlay" id="hwInfoOverlay" aria-hidden="true">
   <div class="hwi-box" role="dialog" aria-modal="true" aria-labelledby="hwInfoTitle">
