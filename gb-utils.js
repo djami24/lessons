@@ -370,7 +370,7 @@
         status.textContent = 'Tayyorlanmoqda\u2026';
         try{
           const r = await GB.share(btn.dataset.gbShare, ctx);
-          status.textContent = r === 'shared' ? 'Yuborildi' : r === 'cancelled' ? '' : 'Yuklab olindi';
+          status.textContent = r === 'shared' ? 'Yuborildi' : (r === 'cancelled' || r === 'preview') ? '' : 'Yuklab olindi';
         } catch(err){
           console.error('Share failed:', err);
           status.textContent = 'Xatolik, qayta urinib ko\'ring.';
@@ -542,6 +542,39 @@
     return new Blob(parts, { type: 'application/pdf' });
   };
 
+  // Telegram / Instagram / Facebook ichki brauzerlari fayl yuklashni (download) bloklaydi
+  GB.isInAppBrowser = function(){
+    const ua = navigator.userAgent || '';
+    return /Telegram|FBAN|FBAV|Instagram|Line\/|MicroMessenger/i.test(ua) ||
+           !!(window.TelegramWebviewProxy || (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData));
+  };
+
+  // Yuklab bo'lmaydigan joyda: rasmni ekranda ko'rsatamiz (bosib turib saqlanadi)
+  GB.showPreview = function(canvas, kind, blob){
+    const old = document.getElementById('gb-preview'); if(old) old.remove();
+    const ov = document.createElement('div');
+    ov.id = 'gb-preview';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(8,12,24,.88);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:14px;overflow:auto;-webkit-overflow-scrolling:touch;font-family:inherit;';
+    const msg = kind === 'pdf'
+      ? "Telegram ichida PDF yuklab bo'lmaydi. Quyidagi rasmni bosib turing va «Saqlash» ni tanlang. PDF kerak bo'lsa, sahifani brauzerda oching (\u22ee \u2192 Brauzerda ochish)."
+      : "Rasmni bosib turing va «Saqlash» (yoki «Rasmni yuklab olish») ni tanlang.";
+    ov.innerHTML =
+      '<div style="width:100%;max-width:460px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;">' +
+        '<span style="color:#fff;font-size:13px;line-height:1.4;">' + GB.esc(msg) + '</span>' +
+        '<button type="button" id="gb-preview-x" style="flex:none;width:36px;height:36px;border-radius:50%;border:0;background:rgba(255,255,255,.18);color:#fff;font-size:20px;cursor:pointer;">&times;</button>' +
+      '</div>' +
+      '<img alt="Natija" src="' + canvas.toDataURL('image/png') + '" style="width:100%;max-width:460px;height:auto;border-radius:14px;background:#fff;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto;">';
+    if(kind === 'pdf' && blob){
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.target = '_blank'; a.rel = 'noopener';
+      a.textContent = 'PDF ni ochishga urinib ko\'rish';
+      a.style.cssText = 'color:#9db8ff;font-size:13px;margin:14px 0 20px;';
+      ov.appendChild(a);
+    }
+    document.body.appendChild(ov);
+    ov.addEventListener('click', e => { if(e.target === ov || e.target.id === 'gb-preview-x') ov.remove(); });
+  };
+
   GB.share = async function(kind, ctx){
     const canvas = GB.renderCardCanvas(ctx);
     const slug = GB.slug(ctx.student.name);
@@ -563,6 +596,7 @@
         // boshqa xatoda — oddiy yuklab olishga o'tamiz
       }
     }
+    if(GB.isInAppBrowser()){ GB.showPreview(canvas, kind, blob); return 'preview'; }
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = filename;
