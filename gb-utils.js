@@ -19,6 +19,7 @@
   const GB = window.GB = {};
 
   /* ---------- sozlamalar (bitta joyda o'zgartiriladi) ---------- */
+  GB.VERSION = '3';
   GB.RETAKE_BELOW = 65;  // shu balldan past unit — qayta topshirish kerak
   GB.RED_BELOW    = 60;  // 60 dan past — qizil
   GB.GREEN_FROM   = 85;  // shundan yuqori — yashil, oraliq — sariq
@@ -373,7 +374,7 @@
           status.textContent = r === 'shared' ? 'Yuborildi' : (r === 'cancelled' || r === 'preview') ? '' : 'Yuklab olindi';
         } catch(err){
           console.error('Share failed:', err);
-          status.textContent = 'Xatolik, qayta urinib ko\'ring.';
+          status.textContent = 'Xatolik: ' + ((err && err.message) || 'noma\'lum');
         }
         all.forEach(b => b.disabled = false);
         if(status.textContent) setTimeout(() => { status.textContent = ''; }, 3500);
@@ -545,8 +546,10 @@
   // Telegram / Instagram / Facebook ichki brauzerlari fayl yuklashni (download) bloklaydi
   GB.isInAppBrowser = function(){
     const ua = navigator.userAgent || '';
-    return /Telegram|FBAN|FBAV|Instagram|Line\/|MicroMessenger/i.test(ua) ||
-           !!(window.TelegramWebviewProxy || (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData));
+    if(/Telegram|FBAN|FBAV|Instagram|Line\/|MicroMessenger|; wv\)/i.test(ua)) return true;
+    // iOS WebView: UA'da "Safari" so'zi bo'lmaydi
+    if(/iPhone|iPad|iPod/.test(ua) && !/Safari/i.test(ua)) return true;
+    return !!(window.TelegramWebviewProxy || window.Telegram || (window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.performAction));
   };
 
   // Yuklab bo'lmaydigan joyda: rasmni ekranda ko'rsatamiz (bosib turib saqlanadi)
@@ -587,6 +590,7 @@
     }
     if(!blob) throw new Error('Fayl yaratib bo\'lmadi');
     const file = new File([blob], filename, { type: mime });
+    if(GB.isInAppBrowser()){ GB.showPreview(canvas, kind, blob); return 'preview'; }
     if(navigator.canShare && navigator.canShare({ files: [file] })){
       try{
         await navigator.share({ files: [file], title: 'Test natijasi' });
