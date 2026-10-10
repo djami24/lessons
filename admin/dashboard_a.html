@@ -6969,7 +6969,78 @@ function stCol(v){ return v === null ? ST_C.gray : v >= 85 ? ST_C.green : v >= 7
 
 const ST_TOP_N = 5;   // 'Eng faol' ro'yxatida nechta o'quvchi (admin panel + sayt bosh sahifasi)
 
-function stBuildPeople(cur){
+// ----- Test natijalari (gradebook, «Test natijalar» bo'limi) statistikaga qo'shiladi -----
+// Ball: o'quvchida test natijasi bo'lsa 40% davomat + 30% uy vazifa + 30% test (barcha testlar o'rtachasi);
+// test yo'q bo'lsa — avvalgidek 60% davomat + 40% uy vazifa.
+// O'quvchi test jadvaliga «O'quv jarayoni»dagi ID (progressId) orqali bog'lanadi; ID kiritilmagan qatorlar
+// faqat ismi bo'yicha (yagona moslik bo'lsagina) bog'lanadi.
+const ST_W = { att: 0.4, hw: 0.3, test: 0.3 };
+const ST_TEST_LOW = 55;    // test o'rtachasi shundan past bo'lsa — «Diqqat talab qiladi»
+const ST_TEST_DROP = 15;   // oxirgi test(lar) oldingilaridan shuncha ball (yoki ko'p) past bo'lsa — «Diqqat talab qiladi»
+let _stTestsCache = null;
+
+function stScoreT(a, t){
+  if (t === null || t === undefined) return stScore(a);
+  if (a.att === null) return a.hw === null ? Math.round(t) : Math.round((a.hw + t) / 2);
+  const hw = a.hw === null ? a.att : a.hw;   // uy vazifa belgilanmagan bo'lsa — davomat o'rniga olinadi (stScore bilan bir xil)
+  return Math.round(ST_W.att * a.att + ST_W.hw * hw + ST_W.test * t);
+}
+function stNameKey(s){ return String(s || '').toLowerCase().replace(/[\u02bb\u02bc\u2019\u2018`\u00b4']/g, '').replace(/\s+/g, ' ').trim(); }
+
+// Bitta talabaning test ko'rsatkichlari. Tartib — guruh unitlari tartibi bo'yicha.
+//  avg — barcha testlar o'rtachasi; recent/earlier — oxirgi (4+ test bo'lsa 2 ta, aks holda 1 ta) va undan oldingilar o'rtachasi;
+//  delta = recent − earlier (kamida 2 ta test bo'lsagina).
+function stTestInfo(s, unitsByGroup){
+  const sc = s.scores || {}, units = (unitsByGroup && unitsByGroup[s.group]) || [], vals = [], seen = {};
+  const take = u => {
+    if (seen[u]) return; seen[u] = true;
+    const v = sc[u]; if (v === undefined || v === null || v === '') return;
+    const n = Number(v); if (isFinite(n)) vals.push(Math.max(0, Math.min(100, n)));
+  };
+  units.forEach(take);
+  Object.keys(sc).forEach(take);
+  const n = vals.length; if (!n) return null;
+  const mean = arr => arr.reduce((x, y) => x + y, 0) / arr.length;
+  const info = { n, avg: Math.round(mean(vals)), last: Math.round(vals[n - 1]), recent: null, earlier: null, delta: null };
+  if (n >= 2) {
+    const k = n >= 4 ? 2 : 1;
+    info.recent = Math.round(mean(vals.slice(n - k)));
+    info.earlier = Math.round(mean(vals.slice(0, n - k)));
+    info.delta = info.recent - info.earlier;
+  }
+  return info;
+}
+function stTestIndex(gb){
+  const byId = {}, byName = {};
+  ((gb && gb.students) || []).forEach(s => {
+    const info = stTestInfo(s, gb.unitsByGroup);
+    const id = normalizeGbId(s.progressId);
+    if (id) byId[id] = info;
+    else (byName[stNameKey(s.name)] = byName[stNameKey(s.name)] || []).push(info);
+  });
+  return { get(sid, name){
+    const k = normalizeGbId(sid);
+    if (k && Object.prototype.hasOwnProperty.call(byId, k)) return byId[k];
+    const arr = byName[stNameKey(name)];
+    return (arr && arr.length === 1) ? arr[0] : null;
+  } };
+}
+async function stLoadTests(force){
+  try {
+    if (!force && _stTestsCache && Date.now() - _stTestsCache.ts < 60000) return _stTestsCache.idx;
+    const snap = await db.collection('gradebook').doc('gradebook').get();
+    const idx = stTestIndex(snap.exists ? snap.data() : {});
+    _stTestsCache = { ts: Date.now(), idx };
+    return idx;
+  } catch (e) { console.warn('Test natijalari yuklanmadi:', e); return null; }
+}
+function stScoreNote(tIdx){
+  return '<div class="st-note">' + (tIdx
+    ? 'Ball = 40% davomat + 30% uy vazifa + 30% test (testi yo\'q o\'quvchilarda: 60% davomat + 40% uy vazifa). Yaxshilanganlar/Pasayganlar\'da test o\'zgarishi — oxirgi test(lar) o\'rtachasi oldingilariga nisbatan.'
+    : 'Test natijalari yuklanmadi — ball faqat davomat va uy vazifadan hisoblandi (60% + 40%).') + '</div>';
+}
+
+function stBuildPeople(cur, tIdx){
   const byS = {};
   cur.forEach(r => { (byS[r.sid] = byS[r.sid] || { sid:r.sid, name:r.sname, phone:r.sphone, gid:r.gid, gname:r.gname, list:[] }).list.push(r); });
   return Object.values(byS).map(p => {
@@ -6982,12 +7053,16 @@ function stBuildPeople(cur){
     if (a.hwN >= 3 && a.hw < 50) reasons.push(`Uy vazifa ${a.hw}%`);
     if (a.pun >= 2) reasons.push(`${a.pun} marta jazolangan`);
     const sev = streak * 25 + (a.att === null ? 0 : 100 - a.att) + (a.hw === null ? 0 : (100 - a.hw) / 2) + a.pun * 5;
-    const sc = a.att === null ? null : stScore(a);
-    return { ...p, a, streak, reasons, sev, sc };
+    const tst = tIdx ? tIdx.get(p.sid, p.name) : null;
+    let testSev = 0;
+    if (tst && tst.avg < ST_TEST_LOW) { reasons.push(tst.n === 1 ? `Test ${tst.avg}%` : `Test o'rtachasi ${tst.avg}%`); testSev = (100 - tst.avg) / 3; }
+    if (tst && tst.delta !== null && tst.delta <= -ST_TEST_DROP) { reasons.push(`Test pasaydi: ${tst.earlier}% → ${tst.recent}%`); testSev = Math.max(testSev, Math.abs(tst.delta) / 3); }
+    const sc = a.att === null ? null : stScoreT(a, tst ? tst.avg : null);
+    return { ...p, a, streak, reasons, sev: sev + testSev, sc, t: tst };
   });
 }
 
-// Eng faol o'quvchilar: kamida 3 ta belgilangan dars; ball = 60% davomat + 40% uy vazifa
+// Eng faol o'quvchilar: kamida 3 ta belgilangan dars; ball = 40% davomat + 30% uy vazifa + 30% test (test bo'lmasa 60% + 40%)
 function stPickTop(people){
   return people.filter(p => p.a.marked >= 3 && p.sc !== null).sort((x,y) => y.sc - x.sc || y.a.marked - x.a.marked).slice(0, ST_TOP_N);
 }
@@ -7334,8 +7409,8 @@ async function loadStatsPage(days, force){
   const tok = ++_statsToken;
   const loading = document.getElementById('statsLoading'), empty = document.getElementById('statsEmpty');
   loading.textContent = 'Yuklanmoqda…'; empty.style.display = 'none';
-  let data;
-  try { data = await stFetch(force); } catch (err) { console.error(err); loading.textContent = 'Xatolik yuz berdi. Yangilab ko\'ring.'; return; }
+  let data, tIdx = null;
+  try { data = await stFetch(force); tIdx = await stLoadTests(force); } catch (err) { console.error(err); loading.textContent = 'Xatolik yuz berdi. Yangilab ko\'ring.'; return; }
   if (tok !== _statsToken) return;
   loading.textContent = '';
 
@@ -7424,10 +7499,10 @@ async function loadStatsPage(days, force){
   _statsRenderGroupTable(gRows);
 
   // ---- o'quvchilar ----
-  const people = stBuildPeople(cur);
+  const people = stBuildPeople(cur, tIdx);
   const gInfo = id => data.groups.find(g => g.id === id) || {};
   const personRow = (p, right) => `<div class="st-person" data-gid="${p.gid}">${right.lead || ''}<div style="flex:1;min-width:0">
-      <div class="st-person-name">${escHtml(p.name)}</div><div class="st-person-meta">${escHtml(p.gname)} · keldi ${p.a.yes + p.a.late}${wins[p.gid] && wins[p.gid].n ? '/' + wins[p.gid].n : ''} · davomat ${p.a.att === null ? '—' : p.a.att + '%'} · uy vazifa ${p.a.hw === null ? '—' : p.a.hw + '%'}</div>${right.body || ''}</div>${right.tail || ''}</div>`;
+      <div class="st-person-name">${escHtml(p.name)}</div><div class="st-person-meta">${escHtml(p.gname)} · keldi ${p.a.yes + p.a.late}${wins[p.gid] && wins[p.gid].n ? '/' + wins[p.gid].n : ''} · davomat ${p.a.att === null ? '—' : p.a.att + '%'} · uy vazifa ${p.a.hw === null ? '—' : p.a.hw + '%'}${p.t ? ' · test ' + p.t.avg + '%' : ''}</div>${right.body || ''}</div>${right.tail || ''}</div>`;
 
   const riskAll = people.filter(p => p.reasons.length).sort((x,y) => y.sev - x.sev);
   const risk = riskAll.slice(0, 8);
@@ -7442,6 +7517,7 @@ async function loadStatsPage(days, force){
     ? top.map((p,i) => personRow(p, { lead: `<div class="st-rank">${i + 1}</div>`, tail: `<b style="color:${stCol(p.sc)}">${p.sc}</b>` })).join('')
     : '<div class="st-empty-mini">Reyting uchun kamida 3 ta belgilangan dars kerak.</div>';
 
+  document.getElementById('stTop').insertAdjacentHTML('beforeend', stScoreNote(tIdx));
   document.querySelectorAll('#stRisk .st-person,#stTop .st-person').forEach(el => el.addEventListener('click', () => {
     const g = gInfo(el.dataset.gid); if (g.id) loadOjStudents(g.id, g.name, g.days || []);
   }));
@@ -7449,11 +7525,13 @@ async function loadStatsPage(days, force){
   // ---- talabalar: o'tgan davrga nisbatan o'zgarish ----
   const prevBy = {}; prev.forEach(r => { (prevBy[r.sid] = prevBy[r.sid] || []).push(r); });
   const movers = people.map(p => {
-    const pa = stAgg(prevBy[p.sid] || []), sc = stScore(p.a), psc = stScore(pa);
+    const pa = stAgg(prevBy[p.sid] || []), tr = !!(p.t && p.t.delta !== null);
+    // test bo'yicha o'zgarish bor bo'lsa: hozirgi ball — oxirgi testlar, oldingi ball — undan oldingi testlar bilan
+    const sc = tr ? stScoreT(p.a, p.t.recent) : stScore(p.a), psc = tr ? stScoreT(pa, p.t.earlier) : stScore(pa);
     return { p, pa, sc, psc, d: (sc !== null && psc !== null && p.a.marked >= 3 && pa.marked >= 3) ? sc - psc : null };
   }).filter(m => m.d !== null);
   const mvRow = m => `<div class="st-person" data-gid="${m.p.gid}"><div style="flex:1;min-width:0"><div class="st-person-name">${escHtml(m.p.name)}</div>
-      <div class="st-person-meta">${escHtml(m.p.gname)} · davomat ${m.p.a.att === null ? '—' : m.p.a.att + '%'}${stDelta(m.p.a.att, m.pa.att, false, ' %')} · uy vazifa ${m.p.a.hw === null ? '—' : m.p.a.hw + '%'}${stDelta(m.p.a.hw, m.pa.hw, false, ' %')}</div></div>
+      <div class="st-person-meta">${escHtml(m.p.gname)} · davomat ${m.p.a.att === null ? '—' : m.p.a.att + '%'}${stDelta(m.p.a.att, m.pa.att, false, ' %')} · uy vazifa ${m.p.a.hw === null ? '—' : m.p.a.hw + '%'}${stDelta(m.p.a.hw, m.pa.hw, false, ' %')}${m.p.t ? (m.p.t.delta !== null ? ' · test ' + m.p.t.recent + '%' + stDelta(m.p.t.recent, m.p.t.earlier, false, ' %') : ' · test ' + m.p.t.avg + '%') : ''}</div></div>
       <b style="color:${m.d > 0 ? ST_C.green : ST_C.red}">${m.d > 0 ? '▲ +' : '▼ '}${m.d}</b></div>`;
   const up = movers.filter(m => m.d > 0).sort((x, y) => y.d - x.d).slice(0, 6), down = movers.filter(m => m.d < 0).sort((x, y) => x.d - y.d).slice(0, 6);
   document.getElementById('stMovers').innerHTML =
@@ -7507,7 +7585,7 @@ document.getElementById('statsExportBtn').addEventListener('click', () => {
     'Guruh': r.name, 'Talaba': r.count, 'O\'tilgan darslar': r.held, 'Jadval bo\'yicha darslar': r.lessons, 'Davomat %': r.att, 'Uy vazifa %': r.hw, 'Kelmadi': r.no, 'Kech qoldi': r.late, 'Jazolangan': r.pun, 'Belgilash %': r.comp }))), 'Guruhlar');
   XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(_statsModel.people.map(p => ({
     'Talaba': p.name, 'Guruh': p.gname, 'Davomat %': p.a.att, 'Uy vazifa %': p.a.hw, 'Kelmadi': p.a.no, 'Kech qoldi': p.a.late,
-    'Ketma-ket kelmagan': p.streak, 'Jazolangan': p.a.pun, 'Ball': p.sc, 'Izoh': p.reasons.join('; ') }))), 'Talabalar');
+    'Ketma-ket kelmagan': p.streak, 'Jazolangan': p.a.pun, "Test o'rtacha %": p.t ? p.t.avg : null, "Test o'zgarishi": (p.t && p.t.delta !== null) ? p.t.delta : null, 'Ball': p.sc, 'Izoh': p.reasons.join('; ') }))), 'Talabalar');
   XLSX.writeFile(wb, (_statsModel.days === 'M' ? 'statistika_' + (_rpMonth || 'oy') + '.xlsx' : _statsModel.days === 'L12' ? 'statistika_12_dars.xlsx' : `statistika_${_statsModel.days}_kun.xlsx`));
 });
 
@@ -7523,7 +7601,7 @@ function stRiskChunks(){
     return `\n${i + 1}. ${p.name}\n` +
       `   👥 Guruh: ${p.gname}\n` +
       (p.phone ? `   📞 ${p.phone}\n` : '') +
-      `   ✅ Keldi: ${a.yes + a.late}${n ? '/' + n : ''} · Davomat: ${a.att === null ? '—' : a.att + '%'} · Uy vazifa: ${a.hw === null ? '—' : a.hw + '%'}\n` +
+      `   ✅ Keldi: ${a.yes + a.late}${n ? '/' + n : ''} · Davomat: ${a.att === null ? '—' : a.att + '%'} · Uy vazifa: ${a.hw === null ? '—' : a.hw + '%'}${p.t ? ' · Test: ' + p.t.avg + '%' : ''}\n` +
       `   ❌ Kelmagan: ${a.no} · ⏰ Kech: ${a.late}` + (a.pun ? ` · ⚖️ Jazo: ${a.pun} marta` : '') + (unm ? ` · ❔ Belgilanmagan: ${unm}` : '') + '\n' +
       `   ⚠️ ${p.reasons.join('; ')}\n`;
   });
@@ -7582,12 +7660,12 @@ function stTopChunks(){
   if (!m || !m.top.length) return [];
   const d = new Date(), dl = stPad(d.getDate()) + '.' + stPad(d.getMonth() + 1) + '.' + d.getFullYear();
   const medal = ['🥇', '🥈', '🥉'];
-  let t = `🏆 ENG FAOL O'QUVCHILAR\n📅 ${dl} · ${m.periodLabel}\n👥 ${m.groupLabel}\n(Ball = 60% davomat + 40% uy vazifa)\n`;
+  let t = `🏆 ENG FAOL O'QUVCHILAR\n📅 ${dl} · ${m.periodLabel}\n👥 ${m.groupLabel}\n(Ball = 40% davomat + 30% uy vazifa + 30% test; testi yo'q bo'lsa 60% + 40%)\n`;
   m.top.forEach((p, i) => {
     const a = p.a, n = (m.wins[p.gid] || {}).n || 0;
     t += `\n${medal[i] || (i + 1) + '.'} ${p.name} — ${p.sc} ball\n` +
       `   👥 Guruh: ${p.gname}\n` + (p.phone ? `   📞 ${p.phone}\n` : '') +
-      `   ✅ Keldi: ${a.yes + a.late}${n ? '/' + n : ''} · Davomat: ${a.att === null ? '—' : a.att + '%'} · Uy vazifa: ${a.hw === null ? '—' : a.hw + '%'}\n` +
+      `   ✅ Keldi: ${a.yes + a.late}${n ? '/' + n : ''} · Davomat: ${a.att === null ? '—' : a.att + '%'} · Uy vazifa: ${a.hw === null ? '—' : a.hw + '%'}${p.t ? ' · Test: ' + p.t.avg + '%' : ''}\n` +
       `   ❌ Kelmagan: ${a.no} · ⏰ Kech: ${a.late}` + (a.pun ? ` · ⚖️ Jazo: ${a.pun} marta` : '') + '\n';
   });
   return [t];
@@ -7614,16 +7692,16 @@ function stAvatarKeyFor(person){
   return (st && ADMIN_AVATAR_IMAGES[st.avatarImg]) ? st.avatarImg : '';
 }
 
-function stComputeLeaderboard(data){
+function stComputeLeaderboard(data, tIdx){
   const today = new Date(), wins = {}, ym = rpYm(today);   // saytdagi reyting — haqiqiy joriy oy (admin tanlagan oyga bog'liq emas)
   data.groups.forEach(g => { wins[g.id] = stWin(g, 'M', today, data.rows, ym); });
   const cur = data.rows.filter(r => { const w = wins[r.gid]; return w && r.date >= w.from && r.date <= w.to; });
-  const top = stPickTop(stBuildPeople(cur));
+  const top = stPickTop(stBuildPeople(cur, tIdx));
   return {
     period: `${rpLabel(ym)} oyi`,
     groupsCount: data.groups.length,
     studentsCount: data.groups.reduce((s, g) => s + g.students.length, 0),
-    top: top.map((p, i) => ({ rank: i + 1, name: stPublicName(p.name), avatar: stAvatarKeyFor(p), group: p.gname, score: p.sc, att: p.a.att, hw: p.a.hw,
+    top: top.map((p, i) => ({ rank: i + 1, name: stPublicName(p.name), avatar: stAvatarKeyFor(p), group: p.gname, score: p.sc, att: p.a.att, hw: p.a.hw, test: p.t ? p.t.avg : null,
                               came: p.a.yes + p.a.late, lessons: (wins[p.gid] || {}).n || 0 }))
   };
 }
@@ -7644,7 +7722,9 @@ async function stPublishLeaderboard(mode){
     const age = old ? Date.now() - (old.updatedAtMs || 0) : Infinity;
     if (mode === 'auto' && age < 12 * 3600e3) return;
     const data = await stFetch(mode === 'force', 100);
-    const lb = stComputeLeaderboard(data);
+    const tIdx = await stLoadTests(mode === 'force');
+    if (!tIdx) throw new Error('Test natijalari yuklanmadi');   // test o'qilmasa, noto'g'ri (testsiz) reytingni saytga chiqarmaymiz
+    const lb = stComputeLeaderboard(data, tIdx);
     const hash = JSON.stringify(lb.top);
     const hhmm = () => { const d = new Date(); return stPad(d.getHours()) + ':' + stPad(d.getMinutes()); };
     if (old && old.hash === hash && age < 20 * 3600e3) { stShowPubStatus('{{globe}} Saytda ko\'rinib turibdi (o\'zgarish yo\'q)'); return; }
@@ -7952,7 +8032,7 @@ stInjectShotButtons();
 // "Kelmadi" deb belgilanganlar va allaqachon belgilanganlar (Qilmadi / Foiz qildi) o'zgarmaydi.
 // ===== OY O'QUVCHISI: tabrik rasmi =====
 // Tanlangan davr va guruh filtri bo'yicha eng yuqori ballli o'quvchi (stPickTop bilan bir xil qoida:
-// kamida 3 ta belgilangan dars, ball = 60% davomat + 40% uy vazifa).
+// kamida 3 ta belgilangan dars, ball = 40% davomat + 30% uy vazifa + 30% test; test bo'lmasa 60% + 40%).
 function stRoundRect(ctx, x, y, w, h, r){
   ctx.beginPath();
   ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
@@ -8029,7 +8109,8 @@ async function stDrawWinnerCard(p, periodLabel){
   // Ko'rsatkichlar
   const a = p.a, pct = v => (v === null || v === undefined) ? '—' : v + '%';
   const cards = [['Ball', p.sc === null ? '—' : String(p.sc)], ['Davomat', pct(a.att)], ['Uy vazifa', pct(a.hw)]];
-  const cw = 290, gap = 26, cy = 818, ch = 150, x0 = (W - (cw * 3 + gap * 2)) / 2;
+  if (p.t) cards.push(['Test', pct(p.t.avg)]);
+  const nC = cards.length, gap = 26, cw = nC === 4 ? 215 : 290, cy = 818, ch = 150, x0 = (W - (cw * nC + gap * (nC - 1))) / 2;
   cards.forEach((it, i) => {
     const x = x0 + i * (cw + gap);
     stRoundRect(ctx, x, cy, cw, ch, 26); ctx.fillStyle = 'rgba(255,255,255,0.14)'; ctx.fill();
@@ -8048,7 +8129,7 @@ function stWinnerCaption(p, periodLabel){
   const a = p.a;
   return `🏆 ${/oyi$/.test(periodLabel || '') ? "Oy o'quvchisi" : "Eng yaxshi o'quvchi"} — ${p.name}\n` +
     `👥 Guruh: ${p.gname} · ${periodLabel}\n` +
-    `Ball: ${p.sc} · Davomat: ${a.att === null ? '—' : a.att + '%'} · Uy vazifa: ${a.hw === null ? '—' : a.hw + '%'}\n\nTabriklaymiz! 🎉`;
+    `Ball: ${p.sc} · Davomat: ${a.att === null ? '—' : a.att + '%'} · Uy vazifa: ${a.hw === null ? '—' : a.hw + '%'}${p.t ? ' · Test: ' + p.t.avg + '%' : ''}\n\nTabriklaymiz! 🎉`;
 }
 async function stSendWinnerTg(blob, p, periodLabel, btn){
   const tg = ojTgSettings();
@@ -9159,6 +9240,8 @@ async function saveGradebook(){
       unitsByGroup: gbData.unitsByGroup,
       students: gbData.students
     });
+    _stTestsCache = null;
+    try { stScheduleLeaderboard(); } catch (e) {}   // test o'zgardi — statistika va sayt reytingi qayta hisoblanadi
     return true;
   } catch(err){
     console.error('Gradebook save failed:', err);
