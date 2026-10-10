@@ -601,20 +601,20 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
         '<div class="lb-medal"><span class="lb-num">' + (i + 1) + '</span></div>' +
         '<div><div class="lb-name">' + esc(p.name) + '</div><div class="lb-group">' + esc(p.group) + '</div></div>' +
         '<div class="lb-score"><b>' + esc(p.score) + '</b><span>ball</span></div>' +
-        '<div class="lb-stats"><span>Davomat <b>' + pct(p.att) + '</b></span><span>Uy vazifa <b>' + pct(p.hw) + '</b></span></div>' +
+        '<div class="lb-stats"><span>Davomat <b>' + pct(p.att) + '</b></span><span>Uy vazifa <b>' + pct(p.hw) + '</b></span>' + (p.test != null ? '<span>Test <b>' + pct(p.test) + '</b></span>' : '') + '</div>' +
         '</div>';
     }).join('');
 
     document.getElementById('lbList').innerHTML = rest.map(function (p, k) {
       return '<div class="lb-row"><div class="lb-rank">' + (k + 4) + '</div>' +
         '<div class="lb-row-main"><div class="lb-row-name">' + esc(p.name) + '</div>' +
-        '<div class="lb-row-meta">' + esc(p.group) + ' · davomat ' + pct(p.att) + ' · uy vazifa ' + pct(p.hw) + '</div></div>' +
+        '<div class="lb-row-meta">' + esc(p.group) + ' · davomat ' + pct(p.att) + ' · uy vazifa ' + pct(p.hw) + (p.test != null ? ' · test ' + pct(p.test) : '') + '</div></div>' +
         '<div class="lb-row-score">' + esc(p.score) + '</div></div>';
     }).join('');
 
     if (d.updatedAtMs) {
       var u = new Date(d.updatedAtMs);
-      document.getElementById('lbFoot').textContent = 'Ball = 60% davomat + 40% uy vazifa · Yangilangan: ' +
+      document.getElementById('lbFoot').textContent = 'Ball = 40% davomat + 30% uy vazifa + 30% test (test natijasi bo\'lmasa 60% + 40%) · Yangilangan: ' +
         ('0' + u.getDate()).slice(-2) + '.' + ('0' + (u.getMonth() + 1)).slice(-2) + '.' + u.getFullYear();
     }
     sec.hidden = false;
