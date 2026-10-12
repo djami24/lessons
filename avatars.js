@@ -2,9 +2,10 @@
    Yangisini qo'shish: rasmni assets/pepe/ papkasiga tashlang va pastga bitta qator qo'shing.
    key — Firestore'ga (students/{uid}.avatarImg) yoziladi, shuning uchun uni keyin o'zgartirmang.
    file — assets/ papkasiga nisbatan yo'l.
-   group — 'pepe' guruhidagi rasmlar bitta "Pepe" kartochkasi ichida, bosilganda ochiladigan oynada chiqadi. */
+   group — 'pepe' guruhidagi rasmlar bitta "Profil rasmlari" kartochkasi ichida, bosilganda ochiladigan oynada chiqadi.
+   hidden — tanlash oynasida ko'rinmaydi, lekin avval tanlagan talabalarda rasm ko'rinib turadi. */
 window.AVATAR_LIST = [
-  { key: 'qiz',    group: 'lolo', file: 'avatars/qiz.webp',  label: 'Lolo' },
+  { key: 'qiz',    group: 'pepe', file: 'avatars/qiz.webp',  label: 'Lolo', hidden: true },
   { key: 'bola',   group: 'pepe', file: 'avatars/bola.webp', label: 'Pepe' },
   { key: 'pepe1',  group: 'pepe', file: 'pepe/pepe1.webp',   label: 'Sariq xudi' },
   { key: 'pepe2',  group: 'pepe', file: 'pepe/pepe2.webp',   label: 'Yashil xudi' },
@@ -16,7 +17,10 @@ window.AVATAR_LIST = [
   { key: 'pepe8',  group: 'pepe', file: 'pepe/pepe8.webp',   label: 'To‘q sariq' },
   { key: 'pepe9',  group: 'pepe', file: 'pepe/pepe9.webp',   label: 'Ko‘k kurtka' },
   { key: 'pepe10', group: 'pepe', file: 'pepe/pepe10.webp',  label: 'Ko‘zoynakli' },
-  { key: 'pepe11', group: 'pepe', file: 'pepe/pepe11.webp',  label: 'Kostyumli' }
+  { key: 'pepe11', group: 'pepe', file: 'pepe/pepe11.webp',  label: 'Kostyumli' },
+  { key: 'pepe12', group: 'pepe', file: 'pepe/pepe12.webp',  label: 'Hijobli' },
+  { key: 'pepe13', group: 'pepe', file: 'pepe/pepe13.webp',  label: 'Hijobli kostyum' },
+  { key: 'pepe14', group: 'pepe', file: 'pepe/pepe14.webp',  label: 'Pushti fon' }
 ];
 
 /* Guruh ichidagi rasmlarni oynada ko'rsatadi.
@@ -24,7 +28,7 @@ window.AVATAR_LIST = [
 window.openAvatarGallery = function(opts){
   opts = opts || {};
   var base = opts.base || '../assets/';
-  var items = (window.AVATAR_LIST || []).filter(function(a){ return a.group === opts.group; });
+  var items = (window.AVATAR_LIST || []).filter(function(a){ return a.group === opts.group && !a.hidden; });
   if(!items.length) return;
 
   if(!document.getElementById('avgStyle')){
