@@ -3152,6 +3152,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
 <div class="toast" id="toast"></div>
 
+<script src="../avatars.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
@@ -4863,7 +4864,8 @@ function formatStudentCreatedAt(ts){
 const COURSE_CHIP_LABELS = { ge: 'GE', ielts: 'IELTS', cefr: 'CEFR', writing: 'Insho' };
 
 // ----- Talaba profil rasmlari (talaba o'zi tanlaydi, students/{uid}.avatarImg) -----
-const ADMIN_AVATAR_IMAGES = { qiz: '../assets/avatars/qiz.webp', bola: '../assets/avatars/bola.webp' };
+const ADMIN_AVATAR_IMAGES = {};
+(window.AVATAR_LIST || []).forEach(a => { ADMIN_AVATAR_IMAGES[a.key] = '../assets/' + a.file; });
 // "O'quv jarayoni" guruhidagi talabaning ID'si (oquv_groups/{gid}/students/{id}) ro'yxatdan
 // o'tgan talaba ID'si (students/{uid}) bilan BIR XIL EMAS. Shuning uchun avval ID bo'yicha,
 // topilmasa telefon (oxirgi 9 raqam), u ham bo'lmasa — yagona mos keladigan to'liq ism bo'yicha qidiramiz.
