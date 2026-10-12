@@ -163,9 +163,37 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
 
   <!-- ===== ENG FAOL O'QUVCHILAR (reyting) — admin panel statistikasidan avtomatik yangilanadi ===== -->
   <section class="lb-section" id="leaderboardSection" hidden>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <defs>
+        <linearGradient id="lbRingBlue" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4C8DFF"/><stop offset="1" stop-color="#1747C8"/></linearGradient>
+        <linearGradient id="lbRingGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFE08A"/><stop offset="1" stop-color="#E8A317"/></linearGradient>
+      </defs>
+    </svg>
+
+    <!-- bezak: London manzarasi + shior (faqat bezak) -->
+    <div class="lb-deco" aria-hidden="true">
+      <svg class="lb-sky" viewBox="0 0 440 280" preserveAspectRatio="xMaxYMin meet">
+        <g fill="#C3D8F7">
+          <polygon points="352,6 343,52 361,52"/>
+          <rect x="337" y="52" width="30" height="34" rx="2"/>
+          <rect x="340" y="86" width="24" height="132"/>
+          <rect x="333" y="218" width="38" height="62"/>
+          <rect x="60" y="214" width="272" height="66"/>
+          <rect x="84" y="160" width="18" height="54"/><polygon points="93,128 83,160 103,160"/>
+          <rect x="140" y="176" width="16" height="38"/><polygon points="148,150 139,176 157,176"/>
+          <rect x="214" y="170" width="18" height="44"/><polygon points="223,140 213,170 233,170"/>
+          <rect x="278" y="188" width="14" height="26"/><polygon points="285,166 277,188 293,188"/>
+          <rect x="375" y="196" width="60" height="84"/><polygon points="405,168 394,196 416,196"/>
+        </g>
+        <circle cx="352" cy="68" r="9.5" fill="#F4F8FF"/>
+        <path d="M352 62v6l4 2" stroke="#9DBDEB" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div class="lb-tag">Better<br>English<br>Bigger<br>Opportunities</div>
+    </div>
+
     <div class="lb-head">
       <span class="lb-eyebrow">Reyting</span>
-      <h2 class="lb-title">Eng faol o'quvchilar</h2>
+      <h2 class="lb-title">Eng faol o‘quvchilar</h2>
       <p class="lb-sub" id="lbSub"></p>
     </div>
     <div class="lb-podium" id="lbPodium"></div>
@@ -174,63 +202,115 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
   </section>
 
   <style>
-  .lb-section{width:100%;max-width:960px;margin:2em auto 0;padding:0 14px;box-sizing:border-box;}
-  .lb-head{text-align:center;margin-bottom:20px;}
-  .lb-eyebrow{display:inline-block;padding:4px 12px;border-radius:999px;background:#FBE7CC;color:#8A4B0F;font-weight:800;font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;}
-  .lb-title{margin:10px 0 4px;font-size:clamp(1.1rem,2.6vw,1.6rem);font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#14213D;line-height:1.2;}
-  .lb-sub{margin:0;color:#5B6472;font-size:.85rem;}
-  .lb-podium{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:12px;align-items:end;margin-bottom:12px;}
-  .lb-card{background:#fff;border:1.5px solid #DDD9CB;border-radius:18px;padding:16px 12px 14px;text-align:center;box-shadow:0 10px 26px -18px rgba(20,33,61,.4);position:relative;}
-  .lb-card.is-1{padding-top:22px;padding-bottom:20px;border-color:#E6B34A;background:linear-gradient(180deg,#FFF6E0 0%,#fff 65%);box-shadow:0 16px 36px -20px rgba(217,142,63,.6);}
-  /* raqamli nishon (medal o'rniga) */
-  .lb-medal{display:flex;justify-content:center;line-height:1;}
-  .lb-num{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-weight:800;font-size:1.15rem;color:#fff;background:linear-gradient(145deg,#B9C0CC,#7D8797);box-shadow:0 0 0 3px #fff,0 0 0 4.5px #B9C0CC,0 6px 12px -6px rgba(20,33,61,.5);}
-  .lb-card.is-1 .lb-num{width:48px;height:48px;font-size:1.4rem;background:linear-gradient(145deg,#F6C453,#D98E1F);box-shadow:0 0 0 3px #fff,0 0 0 4.5px #E6B34A,0 8px 16px -8px rgba(217,142,63,.9);}
-  .lb-card.is-3 .lb-num{background:linear-gradient(145deg,#D9A171,#A8683A);box-shadow:0 0 0 3px #fff,0 0 0 4.5px #D9A171,0 6px 12px -6px rgba(120,70,30,.6);}
-  .lb-name{margin:8px 0 2px;font-size:.95rem;font-weight:800;color:#14213D;overflow-wrap:anywhere;}
-  .lb-group{font-size:.74rem;color:#5B6472;font-weight:600;}
-  .lb-score{display:inline-flex;align-items:baseline;gap:4px;margin:10px 0 6px;padding:5px 14px;border-radius:999px;background:#E3EEEE;color:#1F4E4D;}
-  .lb-score b{font-size:1.3rem;font-weight:800;}
-  .lb-score span{font-size:.7rem;font-weight:700;}
-  .lb-card.is-1 .lb-score{background:#FBE3BC;color:#8A4B0F;}
-  .lb-stats{display:flex;justify-content:center;gap:12px;font-size:.74rem;color:#5B6472;}
-  .lb-stats b{color:#14213D;}
-  .lb-row{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid #DDD9CB;border-radius:14px;padding:10px 14px;margin-bottom:8px;}
-  .lb-rank{width:30px;height:30px;flex-shrink:0;border-radius:50%;background:#E3EEEE;color:#1F4E4D;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;}
+  .lb-section{position:relative;overflow:hidden;width:calc(100% - 28px);max-width:1120px;margin:2em auto 0;padding:30px 28px 24px;box-sizing:border-box;border-radius:28px;
+    background:linear-gradient(180deg,#EEF4FF 0%,#F8FBFF 45%,#FFFFFF 100%);border:1px solid #E1EAFA;box-shadow:0 24px 50px -34px rgba(23,71,200,.35);
+    --lb-navy:#0B1F4D;--lb-blue:#2F6BE0;--lb-muted:#5B6B8C;}
+  .lb-head{position:relative;z-index:1;margin-bottom:26px;max-width:640px;}
+  .lb-eyebrow{display:inline-block;padding:7px 18px;border-radius:999px;background:#DCE8FD;color:#1E4FD8;font-weight:800;font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;}
+  .lb-title{margin:16px 0 8px;font-size:clamp(1.9rem,4.4vw,3.1rem);font-weight:800;letter-spacing:-.01em;color:var(--lb-navy);line-height:1.08;}
+  .lb-sub{margin:0;color:var(--lb-muted);font-size:clamp(.92rem,1.6vw,1.1rem);}
+
+  /* bezak */
+  .lb-deco{position:absolute;right:0;top:0;width:min(52%,520px);height:300px;pointer-events:none;z-index:0;}
+  .lb-sky{position:absolute;right:0;top:0;width:100%;height:100%;opacity:.8;-webkit-mask-image:linear-gradient(to left,#000 45%,transparent 100%);mask-image:linear-gradient(to left,#000 45%,transparent 100%);}
+  .lb-tag{position:absolute;right:30px;top:26px;transform:rotate(-9deg);text-align:left;color:#1E4FD8;font:italic 700 1.15rem/1.12 'Segoe Script','Brush Script MT','Snell Roundhand','Lucida Handwriting',cursive;
+    padding-bottom:12px;background:linear-gradient(#1E4FD8,#1E4FD8) bottom left/92% 2px no-repeat;}
+
+  .lb-podium{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1.18fr 1fr;gap:18px;align-items:center;margin-bottom:16px;}
+  .lb-podium.n-1{grid-template-columns:minmax(0,430px);justify-content:center;}
+  .lb-podium.n-2{grid-template-columns:1fr 1fr;}
+
+  .lb-card{position:relative;overflow:hidden;background:#fff;border:1.5px solid #E3EAF7;border-radius:22px;padding:22px 20px 20px;box-shadow:0 16px 34px -24px rgba(20,40,100,.45);color:var(--lb-navy);}
+  .lb-card > *{position:relative;z-index:1;}
+  .lb-ribbon{position:absolute !important;left:20px;top:0;width:36px;height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding-bottom:7px;box-sizing:border-box;color:#fff;
+    clip-path:polygon(0 0,100% 0,100% 100%,50% 84%,0 100%);background:linear-gradient(180deg,#A9B6CB,#7C8BA5);}
+  .lb-ribbon b{font-size:1.05rem;font-weight:800;line-height:1;}
+  .lb-ribbon svg{width:15px;height:15px;fill:currentColor;display:block;}
+  .lb-card.is-3 .lb-ribbon{background:linear-gradient(180deg,#D9A171,#A8683A);}
+  .lb-card.is-1 .lb-ribbon{height:54px;width:40px;background:linear-gradient(180deg,#F8CD5C,#D99A12);color:#fff;}
+
+  .lb-top{display:flex;align-items:center;gap:12px;padding-left:50px;margin-bottom:16px;min-width:0;}
+  .lb-ava{flex-shrink:0;width:58px;height:58px;border-radius:50%;overflow:hidden;background:#E8EEFA;color:#A5B3CE;display:flex;align-items:flex-end;justify-content:center;border:3px solid #fff;box-shadow:0 0 0 1.5px #D5DFF3;}
+  .lb-ava img{width:100%;height:100%;object-fit:cover;display:block;}
+  .lb-ava svg{width:78%;height:78%;display:block;}
+  .lb-who{min-width:0;}
+  .lb-name{font-size:1.08rem;font-weight:800;color:var(--lb-navy);overflow-wrap:anywhere;line-height:1.2;}
+  .lb-group{display:flex;align-items:center;gap:5px;margin-top:4px;font-size:.84rem;font-weight:600;color:var(--lb-muted);}
+  .lb-group svg{width:14px;height:14px;flex-shrink:0;fill:none;stroke:var(--lb-blue);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+
+  .lb-body{display:flex;align-items:center;gap:16px;}
+  .lb-ring{position:relative;flex-shrink:0;width:104px;height:104px;}
+  .lb-ring svg{width:100%;height:100%;display:block;}
+  .lb-ring .trk{fill:none;stroke:#E6ECF8;stroke-width:9;}
+  .lb-ring .bar{fill:none;stroke-width:9;stroke-linecap:round;}
+  .lb-ring-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;}
+  .lb-ring-in b{font-size:1.9rem;font-weight:800;color:var(--lb-navy);}
+  .lb-ring-in span{margin-top:4px;font-size:.8rem;font-weight:600;color:var(--lb-muted);}
+  .lb-stats{flex:1;min-width:0;display:flex;flex-direction:column;gap:11px;padding-left:16px;border-left:1.5px solid #E6ECF8;}
+  .lb-stat{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--lb-muted);}
+  .lb-stat .lb-sl{flex:1;min-width:0;}
+  .lb-stat b{font-weight:800;color:var(--lb-navy);}
+  .lb-sic{display:inline-flex;width:20px;height:20px;color:var(--lb-blue);flex-shrink:0;}
+  .lb-sic svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+
+  /* 1-o'rin: to'q ko'k kartochka */
+  .lb-card.is-1{padding:30px 24px 34px;border:2px solid #E9B84A;background:linear-gradient(135deg,#0A2467 0%,#12399A 55%,#0C2B7E 100%);color:#fff;box-shadow:0 26px 48px -22px rgba(11,40,120,.75),0 0 0 3px rgba(233,184,74,.18);}
+  .lb-card.is-1::after{content:"";position:absolute;left:-12%;right:-12%;bottom:-46px;height:70px;z-index:0;pointer-events:none;border-radius:50% 50% 0 0 / 100% 100% 0 0;transform:rotate(-3deg);
+    background:linear-gradient(100deg,rgba(246,196,83,0) 15%,rgba(246,196,83,.85) 62%,#FFE9A8 100%);}
+  .lb-card.is-1 .lb-ava{width:70px;height:70px;background:rgba(255,255,255,.14);color:#fff;border-color:rgba(255,255,255,.9);box-shadow:0 0 0 2px rgba(255,255,255,.25);}
+  .lb-card.is-1 .lb-name{color:#fff;font-size:1.18rem;}
+  .lb-card.is-1 .lb-group{color:#C7D5F7;}
+  .lb-card.is-1 .lb-group svg{stroke:#F6C453;}
+  .lb-card.is-1 .lb-ring{width:122px;height:122px;}
+  .lb-card.is-1 .lb-ring .trk{stroke:rgba(255,255,255,.16);}
+  .lb-card.is-1 .lb-ring-in b{color:#fff;font-size:2.3rem;}
+  .lb-card.is-1 .lb-ring-in span{color:#E4ECFF;}
+  .lb-card.is-1 .lb-stats{border-left-color:rgba(255,255,255,.22);}
+  .lb-card.is-1 .lb-stat{color:#D5E0FA;}
+  .lb-card.is-1 .lb-stat b{color:#fff;}
+  .lb-card.is-1 .lb-sic{color:#F6C453;}
+
+  /* 4-o'rindan pastdagilar */
+  .lb-list{position:relative;z-index:1;}
+  .lb-row{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid #E3EAF7;border-radius:18px;padding:12px 18px;margin-bottom:10px;box-shadow:0 10px 24px -22px rgba(20,40,100,.5);}
+  .lb-rank{width:42px;height:42px;flex-shrink:0;border-radius:50%;background:#E8EFFD;color:var(--lb-navy);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.05rem;}
+  .lb-row .lb-ava{width:52px;height:52px;}
   .lb-row-main{flex:1;min-width:0;}
-  .lb-row-name{font-weight:800;font-size:.92rem;color:#14213D;}
-  .lb-row-meta{font-size:.74rem;color:#5B6472;}
-  .lb-row-score{font-size:1.1rem;font-weight:800;color:#1F4E4D;}
-  .lb-foot{text-align:center;margin:12px 0 0;font-size:.74rem;color:#5B6472;}
-  @media (max-width:720px){
-    .lb-section{margin-top:1.4em;padding:0 12px;}
-    .lb-head{margin-bottom:14px;}
-    .lb-title{font-size:1.05rem;letter-spacing:.03em;}
-    .lb-sub{font-size:.8rem;}
-    .lb-podium{grid-template-columns:1fr;gap:8px;}
+  .lb-row-name{font-weight:800;font-size:1.02rem;color:var(--lb-navy);overflow-wrap:anywhere;}
+  .lb-row-meta{margin-top:2px;font-size:.84rem;color:var(--lb-muted);}
+  .lb-row-score{flex-shrink:0;min-width:56px;text-align:center;padding:8px 18px;border-radius:999px;background:#E6EEFF;font-size:1.2rem;font-weight:800;color:var(--lb-navy);}
+  .lb-chev{width:18px;height:18px;flex-shrink:0;fill:none;stroke:#9AA9C8;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+  .lb-foot{position:relative;z-index:1;text-align:center;margin:14px 0 0;font-size:.78rem;color:var(--lb-muted);}
+
+  @media (max-width:900px){
+    .lb-section{padding:24px 18px 20px;border-radius:22px;}
+    .lb-deco{width:60%;height:230px;opacity:.7;}
+    .lb-tag{display:none;}
+    .lb-podium,.lb-podium.n-2{grid-template-columns:1fr;gap:14px;}
+    .lb-podium.n-1{grid-template-columns:1fr;}
     .lb-card.is-1{order:-1;}
-    .lb-card,.lb-card.is-1{display:grid;grid-template-columns:auto 1fr auto;align-items:center;text-align:left;gap:2px 12px;padding:10px 12px;border-radius:14px;}
-    .lb-medal{grid-row:1 / span 2;}
-    .lb-num,.lb-card.is-1 .lb-num{width:34px;height:34px;font-size:1rem;}
-    .lb-name{margin:0;font-size:.9rem;}
-    .lb-score,.lb-card.is-1 .lb-score{grid-row:1 / span 2;grid-column:3;margin:0;padding:4px 10px;}
-    .lb-score b{font-size:1.1rem;}
-    .lb-stats{grid-column:2;justify-content:flex-start;font-size:.7rem;gap:10px;}
-    .lb-row{padding:8px 12px;gap:10px;}
-    .lb-row-name{font-size:.88rem;}
   }
-  /* talaba tanlagan profil rasmi (bo'lmasa — avvalgidek faqat raqam) */
-  .lb-avwrap{position:relative;display:inline-block;line-height:0;}
-  .lb-av{width:64px;height:64px;border-radius:50%;object-fit:cover;display:block;background:#F1EFE6;border:3px solid #fff;box-shadow:0 0 0 2px #B9C0CC,0 8px 16px -8px rgba(20,33,61,.5);}
-  .lb-card.is-1 .lb-av{width:78px;height:78px;box-shadow:0 0 0 2.5px #E6B34A,0 10px 20px -8px rgba(217,142,63,.8);}
-  .lb-card.is-3 .lb-av{box-shadow:0 0 0 2px #D9A171,0 8px 16px -8px rgba(120,70,30,.6);}
-  .lb-card .lb-avwrap .lb-num,.lb-card.is-1 .lb-avwrap .lb-num{position:absolute;right:-6px;bottom:-4px;width:26px;height:26px;font-size:.82rem;box-shadow:0 0 0 2px #fff,0 3px 8px -2px rgba(20,33,61,.5);}
-  .lb-card.is-1 .lb-avwrap .lb-num{width:30px;height:30px;font-size:.95rem;}
-  .lb-row-av{width:38px;height:38px;border-radius:50%;object-fit:cover;flex-shrink:0;background:#F1EFE6;border:2px solid #fff;box-shadow:0 0 0 1.5px #DDD9CB;}
-  @media (max-width:720px){
-    .lb-av,.lb-card.is-1 .lb-av{width:48px;height:48px;border-width:2px;}
-    .lb-card .lb-avwrap .lb-num,.lb-card.is-1 .lb-avwrap .lb-num{width:22px;height:22px;font-size:.75rem;right:-5px;bottom:-3px;}
-    .lb-row-av{width:34px;height:34px;}
+  @media (max-width:520px){
+    .lb-section{width:calc(100% - 20px);padding:20px 12px 16px;margin-top:1.4em;}
+    .lb-head{margin-bottom:18px;}
+    .lb-deco{height:170px;opacity:.55;}
+    .lb-card,.lb-card.is-1{padding:20px 14px 16px;border-radius:18px;}
+    .lb-card.is-1{padding-top:24px;padding-bottom:30px;}
+    .lb-top{gap:10px;padding-left:46px;margin-bottom:12px;}
+    .lb-ava,.lb-card.is-1 .lb-ava{width:50px;height:50px;}
+    .lb-name,.lb-card.is-1 .lb-name{font-size:1rem;}
+    .lb-body{gap:12px;}
+    .lb-ring,.lb-card.is-1 .lb-ring{width:88px;height:88px;}
+    .lb-ring-in b,.lb-card.is-1 .lb-ring-in b{font-size:1.6rem;}
+    .lb-stats{padding-left:12px;gap:9px;}
+    .lb-stat{font-size:.82rem;}
+    .lb-row{padding:10px 12px;gap:10px;border-radius:16px;}
+    .lb-rank{width:34px;height:34px;font-size:.95rem;}
+    .lb-row .lb-ava{width:42px;height:42px;}
+    .lb-row-name{font-size:.95rem;}
+    .lb-row-meta{font-size:.76rem;}
+    .lb-row-score{padding:6px 12px;font-size:1.05rem;min-width:46px;}
+    .lb-chev{display:none;}
   }
   </style>
 
@@ -611,27 +691,55 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
     document.getElementById('lbSub').textContent =
       (d.period || 'Oxirgi 12 dars') + ' bo\'yicha davomat va uy vazifa natijalari';
 
+    var ICO = {
+      cap:   '<svg viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 2.5 9 2.5 12 0v-5"/></svg>',
+      house: '<svg viewBox="0 0 24 24"><path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>',
+      doc:   '<svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>',
+      pin:   '<svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+      user:  '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4.2" fill="currentColor"/><path d="M3.5 22c0-5 3.8-8 8.5-8s8.5 3 8.5 8z" fill="currentColor"/></svg>',
+      crown: '<svg viewBox="0 0 24 24"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5z"/></svg>',
+      chev:  '<svg class="lb-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>'
+    };
+    function avatarHtml(p) {
+      var src = avSrc(p.avatar);
+      return '<div class="lb-ava">' + (src ? '<img alt="" src="' + src + '">' : ICO.user) + '</div>';
+    }
+    function stat(ico, label, v) {
+      return '<div class="lb-stat"><span class="lb-sic">' + ICO[ico] + '</span><span class="lb-sl">' + label + '</span><b>' + pct(v) + '</b></div>';
+    }
+    var CIRC = 2 * Math.PI * 44;
+    function ring(score, gold) {
+      var v = Math.max(0, Math.min(100, parseFloat(score) || 0));
+      return '<div class="lb-ring"><svg viewBox="0 0 100 100" aria-hidden="true">' +
+        '<circle class="trk" cx="50" cy="50" r="44"/>' +
+        '<circle class="bar" cx="50" cy="50" r="44" stroke="url(#' + (gold ? 'lbRingGold' : 'lbRingBlue') + ')" ' +
+          'stroke-dasharray="' + CIRC.toFixed(2) + '" stroke-dashoffset="' + (CIRC * (1 - v / 100)).toFixed(2) + '" transform="rotate(-90 50 50)"/>' +
+        '</svg><div class="lb-ring-in"><b>' + esc(score) + '</b><span>ball</span></div></div>';
+    }
+
     var podium = top.slice(0, 3), rest = top.slice(3);
     // Podium tartibi: 2-o'rin, 1-o'rin, 3-o'rin (kompyuterda 1-o'rin o'rtada)
     var order = podium.length === 3 ? [1, 0, 2] : podium.map(function (_, i) { return i; });
-    document.getElementById('lbPodium').innerHTML = order.map(function (i) {
-      var p = podium[i];
-      return '<div class="lb-card is-' + (i + 1) + '">' +
-        '<div class="lb-medal">' + (avSrc(p.avatar)
-          ? '<span class="lb-avwrap"><img class="lb-av" alt="" src="' + avSrc(p.avatar) + '"><span class="lb-num">' + (i + 1) + '</span></span>'
-          : '<span class="lb-num">' + (i + 1) + '</span>') + '</div>' +
-        '<div><div class="lb-name">' + esc(p.name) + '</div><div class="lb-group">' + esc(p.group) + '</div></div>' +
-        '<div class="lb-score"><b>' + esc(p.score) + '</b><span>ball</span></div>' +
-        '<div class="lb-stats"><span>Davomat <b>' + pct(p.att) + '</b></span><span>Uy vazifa <b>' + pct(p.hw) + '</b></span>' + (p.test != null ? '<span>Test <b>' + pct(p.test) + '</b></span>' : '') + '</div>' +
-        '</div>';
+    var pEl = document.getElementById('lbPodium');
+    pEl.className = 'lb-podium n-' + podium.length;
+    pEl.innerHTML = order.map(function (i) {
+      var p = podium[i], rank = i + 1;
+      return '<article class="lb-card is-' + rank + '">' +
+        '<div class="lb-ribbon">' + (rank === 1 ? ICO.crown : '') + '<b>' + rank + '</b></div>' +
+        '<div class="lb-top">' + avatarHtml(p) +
+          '<div class="lb-who"><div class="lb-name">' + esc(p.name) + '</div>' +
+          '<div class="lb-group">' + ICO.pin + '<span>' + esc(p.group) + '</span></div></div></div>' +
+        '<div class="lb-body">' + ring(p.score, rank === 1) +
+          '<div class="lb-stats">' + stat('cap', 'Davomat', p.att) + stat('house', 'Uy vazifa', p.hw) +
+          (p.test != null ? stat('doc', 'Test', p.test) : '') + '</div></div>' +
+        '</article>';
     }).join('');
 
     document.getElementById('lbList').innerHTML = rest.map(function (p, k) {
-      return '<div class="lb-row"><div class="lb-rank">' + (k + 4) + '</div>' +
-        (avSrc(p.avatar) ? '<img class="lb-row-av" alt="" src="' + avSrc(p.avatar) + '">' : '') +
+      return '<div class="lb-row"><div class="lb-rank">' + (k + 4) + '</div>' + avatarHtml(p) +
         '<div class="lb-row-main"><div class="lb-row-name">' + esc(p.name) + '</div>' +
         '<div class="lb-row-meta">' + esc(p.group) + ' · davomat ' + pct(p.att) + ' · uy vazifa ' + pct(p.hw) + (p.test != null ? ' · test ' + pct(p.test) : '') + '</div></div>' +
-        '<div class="lb-row-score">' + esc(p.score) + '</div></div>';
+        '<div class="lb-row-score">' + esc(p.score) + '</div>' + ICO.chev + '</div>';
     }).join('');
 
     if (d.updatedAtMs) {
