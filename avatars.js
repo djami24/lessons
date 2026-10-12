@@ -20,6 +20,7 @@ window.AVATAR_LIST = [
   { key: 'pepe11', group: 'pepe', file: 'pepe/pepe11.webp',  label: 'Kostyumli' },
   { key: 'pepe12', group: 'pepe', file: 'pepe/pepe12.webp',  label: 'Hijobli' },
   { key: 'pepe13', group: 'pepe', file: 'pepe/pepe13.webp',  label: 'Hijobli kostyum' },
+    { key: 'pepe13', group: 'pepe', file: 'pepe/pepe15.webp',  label: 'Qizil fon' },
   { key: 'pepe14', group: 'pepe', file: 'pepe/pepe14.webp',  label: 'Pushti fon' }
 ];
 
