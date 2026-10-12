@@ -1600,6 +1600,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
   </main>
 </div>
 
+<script src="../avatars.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
@@ -3407,10 +3408,9 @@ const AVATAR_EMOJIS = [
 
 // Tayyor rasmli avatarlar (assets/avatars/ papkasida). Yangisini qo'shish uchun
 // rasmni shu papkaga tashlab, bu ro'yxatga bitta qator qo'shing.
-const AVATAR_IMAGES = {
-  qiz:  { src: '../assets/avatars/qiz.webp',  label: 'Qiz bola' },
-  bola: { src: '../assets/avatars/bola.webp', label: 'O‘g‘il bola' }
-};
+// Ro'yxat ../avatars.js faylida (yagona manba).
+const AVATAR_IMAGES = {};
+(window.AVATAR_LIST || []).forEach(a => { AVATAR_IMAGES[a.key] = { src: '../assets/' + a.file, label: a.label }; });
 const AVATAR_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
 
 let homeAvatarDefaultHTML = null;
