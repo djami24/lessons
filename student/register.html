@@ -90,7 +90,7 @@
         <div class="field" id="avatarField">
           <span>Profil rasmingiz <b style="color:#d64545;">*</b></span>
           <div class="avatar-choice" id="avatarChoice" role="radiogroup" aria-label="Profil rasmi"></div>
-          <p class="avatar-hint">Keyinroq profilingizdan o‘zgartirishingiz mumkin.</p>
+          <p class="avatar-hint">Pepe ustiga bosib, o‘zingizga yoqqan rasmni tanlang. Keyinroq profilingizdan o‘zgartirishingiz mumkin.</p>
         </div>
 
         <p class="form-error" id="registerError" role="alert" hidden></p>
@@ -113,11 +113,37 @@
 <script>
 
 // Avatarlar ro'yxati ../avatars.js faylida
-document.getElementById('avatarChoice').innerHTML = (window.AVATAR_LIST || []).map(a =>
-  '<label><input type="radio" name="regAvatar" value="' + a.key + '">' +
-  '<img src="../assets/' + a.file + '" alt="" onerror="this.style.visibility=\'hidden\'">' +
-  '<span>' + a.label + '</span></label>'
-).join('');
+(function(){
+  const base = '../assets/';
+  const list = window.AVATAR_LIST || [];
+  const lolo = list.find(a => a.group === 'lolo');
+  const pepes = list.filter(a => a.group === 'pepe');
+  const card = (a, extra) => '<label' + (extra || '') + '><input type="radio" name="regAvatar" value="' + a.key + '">' +
+    '<img src="' + base + a.file + '" alt="" onerror="this.style.visibility=\'hidden\'"><span>' + a.label + '</span></label>';
+  let html = '';
+  if(lolo) html += card(lolo);
+  if(pepes.length) html += card(pepes[0], ' id="pepeCard"');
+  document.getElementById('avatarChoice').innerHTML = html;
+
+  // "Pepe" kartochkasi bosilganda hamma pepe rasmlari oynada chiqadi, talaba bittasini tanlaydi
+  const pepeCard = document.getElementById('pepeCard');
+  if(pepeCard){
+    const radio = pepeCard.querySelector('input');
+    const img = pepeCard.querySelector('img');
+    pepeCard.addEventListener('click', (e) => {
+      e.preventDefault();
+      openAvatarGallery({
+        group: 'pepe', base: base, title: 'Pepe rasmini tanlang',
+        selected: radio.checked ? radio.value : '',
+        onPick: (key, src) => {
+          radio.value = key; img.src = src; img.style.visibility = '';
+          radio.checked = true;
+          radio.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    });
+  }
+})();
 document.querySelectorAll('input[name="regAvatar"]').forEach(r => r.addEventListener('change', () => {
   document.getElementById('avatarChoice').classList.remove('is-invalid');
   document.getElementById('registerError').hidden = true;
