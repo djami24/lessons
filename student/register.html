@@ -25,6 +25,7 @@
   .avatar-choice label:has(input:checked){ border-color:#2f6fed; box-shadow:0 0 0 3px rgba(47,111,237,.18); color:#2f6fed; }
   .avatar-choice label:has(input:focus-visible){ outline:2px solid #2f6fed; outline-offset:2px; }
   .avatar-choice.is-invalid label{ border-color:#d64545; }
+  #pepeCard{ width:128px; }
   .avatar-hint{ margin:.2em 0 0; font-weight:400; font-size:.8rem; color:var(--gray, #6b7487); }
 </style>
 <script>
@@ -90,7 +91,7 @@
         <div class="field" id="avatarField">
           <span>Profil rasmingiz <b style="color:#d64545;">*</b></span>
           <div class="avatar-choice" id="avatarChoice" role="radiogroup" aria-label="Profil rasmi"></div>
-          <p class="avatar-hint">Pepe ustiga bosib, o‘zingizga yoqqan rasmni tanlang. Keyinroq profilingizdan o‘zgartirishingiz mumkin.</p>
+          <p class="avatar-hint">“Profil rasmlari” ustiga bosib, o‘zingizga yoqqan rasmni tanlang. Keyinroq profilingizdan o‘zgartirishingiz mumkin.</p>
         </div>
 
         <p class="form-error" id="registerError" role="alert" hidden></p>
@@ -116,16 +117,14 @@
 (function(){
   const base = '../assets/';
   const list = window.AVATAR_LIST || [];
-  const lolo = list.find(a => a.group === 'lolo');
-  const pepes = list.filter(a => a.group === 'pepe');
+  const pepes = list.filter(a => a.group === 'pepe' && !a.hidden);
   const card = (a, extra) => '<label' + (extra || '') + '><input type="radio" name="regAvatar" value="' + a.key + '">' +
     '<img src="' + base + a.file + '" alt="" onerror="this.style.visibility=\'hidden\'"><span>' + a.label + '</span></label>';
   let html = '';
-  if(lolo) html += card(lolo);
-  if(pepes.length) html += card(pepes[0], ' id="pepeCard"');
+  if(pepes.length) html += card(Object.assign({}, pepes[0], { label: 'Profil rasmlari' }), ' id="pepeCard"');
   document.getElementById('avatarChoice').innerHTML = html;
 
-  // "Pepe" kartochkasi bosilganda hamma pepe rasmlari oynada chiqadi, talaba bittasini tanlaydi
+  // "Profil rasmlari" kartochkasi bosilganda hamma pepe rasmlari oynada chiqadi, talaba bittasini tanlaydi
   const pepeCard = document.getElementById('pepeCard');
   if(pepeCard){
     const radio = pepeCard.querySelector('input');
@@ -133,7 +132,7 @@
     pepeCard.addEventListener('click', (e) => {
       e.preventDefault();
       openAvatarGallery({
-        group: 'pepe', base: base, title: 'Pepe rasmini tanlang',
+        group: 'pepe', base: base, title: 'Profil rasmini tanlang',
         selected: radio.checked ? radio.value : '',
         onPick: (key, src) => {
           radio.value = key; img.src = src; img.style.visibility = '';

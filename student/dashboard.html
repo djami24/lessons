@@ -3410,7 +3410,7 @@ const AVATAR_EMOJIS = [
 // rasmni shu papkaga tashlab, bu ro'yxatga bitta qator qo'shing.
 // Ro'yxat ../avatars.js faylida (yagona manba).
 const AVATAR_IMAGES = {};
-(window.AVATAR_LIST || []).forEach(a => { AVATAR_IMAGES[a.key] = { src: '../assets/' + a.file, label: a.label, group: a.group }; });
+(window.AVATAR_LIST || []).forEach(a => { AVATAR_IMAGES[a.key] = { src: '../assets/' + a.file, label: a.label, group: a.group, hidden: a.hidden }; });
 const AVATAR_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>';
 
 let homeAvatarDefaultHTML = null;
@@ -3467,15 +3467,14 @@ function renderProfile(){
   switchView('profile');
 }
 
-// Lolo — alohida kartochka; hamma pepe rasmlari bitta "Pepe" kartochkasi ichida (bosilsa oyna ochiladi)
+// Hamma rasmlar bitta "Profil rasmlari" kartochkasi ichida (bosilsa oyna ochiladi)
 function avatarButtonsHTML(){
   const entries = Object.entries(AVATAR_IMAGES);
   const btn = (key, a, extra) =>
     `<button type="button" class="emoji-picker-btn photo" data-img="${key}"${extra || ''} title="${a.label}" aria-label="${a.label}"><img alt="" src="${a.src}" onerror="this.style.visibility='hidden'"><span>${a.label}</span></button>`;
   let html = '';
-  entries.filter(([k, a]) => a.group !== 'pepe').forEach(([k, a]) => { html += btn(k, a); });
-  const pepe = entries.find(([k, a]) => a.group === 'pepe');
-  if(pepe) html += btn(pepe[0], pepe[1], ' data-group="pepe"');
+  const pepe = entries.find(([k, a]) => a.group === 'pepe' && !a.hidden);
+  if(pepe) html += btn(pepe[0], Object.assign({}, pepe[1], { label: 'Profil rasmlari' }), ' data-group="pepe"');
   return html;
 }
 
@@ -3493,7 +3492,7 @@ emojiGrid.addEventListener('click', (e) => {
   if(!btn) return;
   if(btn.dataset.group === 'pepe'){
     openAvatarGallery({
-      group: 'pepe', base: '../assets/', title: 'Pepe rasmini tanlang',
+      group: 'pepe', base: '../assets/', title: 'Profil rasmini tanlang',
       selected: state.student.avatarImg || '',
       onPick: (key) => saveAvatarChoice(key, '')
     });
