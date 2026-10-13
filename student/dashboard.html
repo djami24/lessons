@@ -1609,15 +1609,11 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
     </section>
   </main>
 
-  <!-- PASTKI NAVIGATSIYA (faqat talaba, faqat telefon): chapda Homework, o'rtada Bosh sahifa, o'ngda Profil -->
+  <!-- PASTKI NAVIGATSIYA (faqat talaba, faqat telefon): chapda Menyu (Homework ham shu yerda), Bosh sahifa, Profil -->
   <nav class="student-bottom-nav" id="studentBottomNav" aria-label="Asosiy navigatsiya">
     <button type="button" class="sbn-item" id="sbnMenu" data-target="menu" aria-haspopup="dialog" aria-expanded="false">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
       <span>Menyu</span>
-    </button>
-    <button type="button" class="sbn-item" id="sbnHomework" data-target="homework">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
-      <span>Homework</span>
     </button>
     <button type="button" class="sbn-item sbn-center active" id="sbnHome" data-target="home">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
@@ -5562,7 +5558,6 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   const items = {
     home: document.getElementById('sbnHome'),
     profile: document.getElementById('sbnProfile'),
-    homework: document.getElementById('sbnHomework'),
     menu: document.getElementById('sbnMenu')
   };
   function setBottomActive(key){
@@ -5572,7 +5567,6 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   // Tugmalar mavjud yon menyu havolalarini bosadi — shunda hamma logika (yuklash, holat) o'zgarishsiz qoladi
   items.home.addEventListener('click', () => { document.getElementById('navHome').click(); });
   items.profile.addEventListener('click', () => { document.getElementById('navProfile').click(); });
-  items.homework.addEventListener('click', () => { location.href = '../kundalik.html'; });
 
   // ---- "Menyu": yon menyudagi qolgan bo'limlar pastdan chiqadigan ro'yxatda ----
   const wrap = document.getElementById('sbnSheetWrap');
@@ -5595,6 +5589,8 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     list.appendChild(el);
     if(key) sheetLinks[key] = el;
   }
+  const hwLink = document.querySelector('.admin-nav a[href="../kundalik.html"]');
+  if(hwLink) addSheetItem(hwLink, null);
   SHEET_IDS.forEach(id => { const o = document.getElementById(id); if(o) addSheetItem(o, id); });
   const siteLink = document.querySelector('.admin-nav a[href="../index.html"]');
   if(siteLink) addSheetItem(siteLink, null);
