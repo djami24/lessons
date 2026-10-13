@@ -362,6 +362,9 @@
 
   function applySettings(data){
     if(!data) return;
+    // Boshqa skriptlar (masalan talaba kabineti "O'qituvchi haqida") shu ma'lumotdan foydalanadi
+    window.__siteSettings = data;
+    try{ window.dispatchEvent(new CustomEvent('siteSettingsApplied', { detail: data })); }catch(e){}
     const root = document.documentElement.style;
 
     // ---- Colors ----
