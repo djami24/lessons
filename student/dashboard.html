@@ -559,6 +559,28 @@
   .back-link::before { content: '' !important; display: none !important; }
   .back-link { padding-left: 0 !important; }
 
+
+  /* ===== Chat sahifasi: sarlavha, tugmalar ===== */
+  #view-chat .chat-page-header h1{ font-size:22px; line-height:1.25; font-weight:800; margin:0 0 4px; }
+  #view-chat .chat-page-header p{ font-size:13.5px; margin:0; }
+  #backToHomeFromChat.back-link{
+    display:inline-flex; align-items:center;
+    padding:.6em 1.1em !important;
+    background:#fff; border:1.5px solid #dfe4f0; border-radius:12px;
+    color:#374151; font-weight:700; box-shadow:0 1px 4px rgba(16,27,61,.06);
+  }
+  #backToHomeFromChat.back-link:hover{ background:#eef2ff; border-color:#c5cee8; color:#2f5fd8; }
+  body.dark #backToHomeFromChat.back-link{ background:#171d2c !important; border-color:#2a3248 !important; color:#c3cada !important; box-shadow:none; }
+  #view-chat .chat-emoji-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:44px; height:44px; border-radius:50%; flex-shrink:0;
+    background:#fff; border:1px solid #dfe4f0; color:#64748b; cursor:pointer; padding:0;
+  }
+  #view-chat .chat-emoji-btn:hover{ background:#eef2ff; color:#2563eb; }
+  body.dark #view-chat .chat-emoji-btn{ color:#9aa2b1; }
+  #view-chat .chat-send-btn{ display:inline-flex; align-items:center; justify-content:center; padding:0; flex-shrink:0; }
+  #view-chat .chat-send-btn svg{ margin-left:-2px; }
+
   /* Bildirishnomalar: "Bosh sahifaga" tugmasiga orqa fon */
   #backToHomeFromNotif.back-link{
     padding: .6em 1.1em !important;
@@ -1458,7 +1480,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <a href="#" id="backToHomeFromChat" class="back-link">Bosh sahifaga</a>
       <div class="admin-header chat-page-header">
         <div>
-          <h1> O‘qituvchi bilan chat</h1>
+          <h1>O‘qituvchi bilan chat</h1>
           <p>Savollaringizni o‘qituvchiga yozing.</p>
         </div>
       </div>
@@ -1490,11 +1512,11 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         </div>
         <div class="chat-input-row">
           <div class="chat-emoji-wrap">
-            <button type="button" class="chat-emoji-btn" id="chatEmojiBtn" title="Emoji"></button>
+            <button type="button" class="chat-emoji-btn" id="chatEmojiBtn" title="Emoji" aria-label="Emoji"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/><path d="M8 14.2c1 1.5 2.4 2.3 4 2.3s3-.8 4-2.3"/><circle cx="9" cy="9.8" r=".9" fill="currentColor" stroke="none"/><circle cx="15" cy="9.8" r=".9" fill="currentColor" stroke="none"/></svg></button>
             <div class="chat-emoji-panel" id="chatEmojiPanel" hidden></div>
           </div>
           <textarea id="chatInput" class="chat-textarea" placeholder="Xabar yozing..." rows="1" maxlength="1000"></textarea>
-          <button class="chat-send-btn" id="chatSendBtn" title="Yuborish"></button>
+          <button class="chat-send-btn" id="chatSendBtn" title="Yuborish" aria-label="Yuborish"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button>
         </div>
       </div>
     </section>
