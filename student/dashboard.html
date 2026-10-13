@@ -1611,6 +1611,10 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 
   <!-- PASTKI NAVIGATSIYA (faqat talaba, faqat telefon): chapda Homework, o'rtada Bosh sahifa, o'ngda Profil -->
   <nav class="student-bottom-nav" id="studentBottomNav" aria-label="Asosiy navigatsiya">
+    <button type="button" class="sbn-item" id="sbnMenu" data-target="menu" aria-haspopup="dialog" aria-expanded="false">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
+      <span>Menyu</span>
+    </button>
     <button type="button" class="sbn-item" id="sbnHomework" data-target="homework">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
       <span>Homework</span>
@@ -1624,6 +1628,15 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <span>Profil</span>
     </button>
   </nav>
+
+  <!-- Pastki panel "Menyu" tugmasi ochadigan ro'yxat (telefon) -->
+  <div class="sbn-sheet-wrap" id="sbnSheetWrap" hidden>
+    <div class="sbn-sheet-backdrop" id="sbnSheetBackdrop"></div>
+    <div class="sbn-sheet" id="sbnSheet" role="dialog" aria-label="Menyu">
+      <div class="sbn-sheet-grip"></div>
+      <div class="sbn-sheet-list" id="sbnSheetList"></div>
+    </div>
+  </div>
 </div>
 
 <script src="../avatars.js"></script>
@@ -5490,7 +5503,44 @@ async function rmToggleSave(mockId) {
   body.dark .student-bottom-nav .sbn-item{color:#9aa4ba;}
   body.dark .student-bottom-nav .sbn-item.active{color:#7da2ff;}
   body.dark .student-bottom-nav .sbn-item.sbn-center.active{background:rgba(125,162,255,.14);}
+
+  /* Yuqoridagi menyu (hamburger + ro'yxat) telefonda pastki panelga ko'chirildi */
+  .admin-sidebar .admin-nav{display:none !important;}
+  #sidebarMenuToggle{display:none !important;}
+
+  /* "Menyu" ochadigan ro'yxat (ilovalardagi kabi pastdan chiqadi) */
+  .sbn-sheet-wrap:not([hidden]){position:fixed; inset:0; z-index:950; display:block;}
+  .sbn-sheet-backdrop{position:absolute; inset:0; background:rgba(15,23,42,.45);}
+  .sbn-sheet{
+    position:absolute; left:0; right:0; bottom:0;
+    background:var(--white,#fff); border-radius:18px 18px 0 0;
+    padding:8px 12px calc(78px + env(safe-area-inset-bottom,0px));
+    max-height:80vh; overflow-y:auto;
+    box-shadow:0 -8px 28px rgba(15,31,61,.18);
+    animation:sbnSheetUp .22s ease-out;
+  }
+  @keyframes sbnSheetUp{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+  .sbn-sheet-grip{width:38px; height:4px; border-radius:4px; background:#d5dae4; margin:2px auto 8px;}
+  .sbn-sheet-list{display:flex; flex-direction:column; gap:2px;}
+  .sbn-sheet-item{
+    display:flex; align-items:center; gap:14px; width:100%;
+    padding:13px 12px; border-radius:12px; border:0; background:none;
+    color:var(--ink,#1a2d52); font:inherit; font-size:15px; font-weight:600;
+    text-align:left; text-decoration:none; cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .sbn-sheet-item svg{width:22px; height:22px; flex:none; color:var(--gray-500,#6b7484);}
+  .sbn-sheet-item:active{background:rgba(47,95,216,.08);}
+  .sbn-sheet-item.active{background:rgba(47,95,216,.10); color:var(--blue-600,#2f5fd8);}
+  .sbn-sheet-item.active svg{color:var(--blue-600,#2f5fd8);}
+  body.dark .sbn-sheet{background:#171d2c; box-shadow:0 -8px 28px rgba(0,0,0,.5);}
+  body.dark .sbn-sheet-grip{background:#2a3248;}
+  body.dark .sbn-sheet-item{color:#e8ecf5;}
+  body.dark .sbn-sheet-item svg{color:#9aa4ba;}
+  body.dark .sbn-sheet-item.active{background:rgba(125,162,255,.14); color:#7da2ff;}
+  body.dark .sbn-sheet-item.active svg{color:#7da2ff;}
 }
+.sbn-sheet-wrap{display:none;}
 </style>
 
 <div class="powered-by">
@@ -5512,7 +5562,8 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   const items = {
     home: document.getElementById('sbnHome'),
     profile: document.getElementById('sbnProfile'),
-    homework: document.getElementById('sbnHomework')
+    homework: document.getElementById('sbnHomework'),
+    menu: document.getElementById('sbnMenu')
   };
   function setBottomActive(key){
     Object.keys(items).forEach(k => items[k].classList.toggle('active', k === key));
@@ -5523,13 +5574,44 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   items.profile.addEventListener('click', () => { document.getElementById('navProfile').click(); });
   items.homework.addEventListener('click', () => { location.href = '../kundalik.html'; });
 
+  // ---- "Menyu": yon menyudagi qolgan bo'limlar pastdan chiqadigan ro'yxatda ----
+  const wrap = document.getElementById('sbnSheetWrap');
+  const list = document.getElementById('sbnSheetList');
+  const SHEET_IDS = ['navResultsCard','navPlacementTest','navMyEssays','navCEFR','navWordGame'];
+  const sheetLinks = {}; // navId -> ro'yxatdagi element
+  function closeSheet(){ wrap.hidden = true; items.menu.setAttribute('aria-expanded','false'); }
+  function openSheet(){ wrap.hidden = false; items.menu.setAttribute('aria-expanded','true'); }
+  function addSheetItem(orig, key){
+    const el = document.createElement('a');
+    el.className = 'sbn-sheet-item';
+    el.innerHTML = orig.innerHTML; // ikonka + yozuv asl menyudagidek
+    const href = orig.getAttribute('href') || '#';
+    el.setAttribute('href', href);
+    if(orig.target) el.target = orig.target;
+    el.addEventListener('click', (e) => {
+      closeSheet();
+      if(href === '#'){ e.preventDefault(); orig.click(); }
+    });
+    list.appendChild(el);
+    if(key) sheetLinks[key] = el;
+  }
+  SHEET_IDS.forEach(id => { const o = document.getElementById(id); if(o) addSheetItem(o, id); });
+  const siteLink = document.querySelector('.admin-nav a[href="../index.html"]');
+  if(siteLink) addSheetItem(siteLink, null);
+
+  items.menu.addEventListener('click', () => { wrap.hidden ? openSheet() : closeSheet(); });
+  document.getElementById('sbnSheetBackdrop').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeSheet(); });
+
   // Yon menyudagi faol bo'lim o'zgarganda pastki panel ham yangilansin
   const origSetActiveNav = window.setActiveNav;
   window.setActiveNav = function(activeId){
     origSetActiveNav.apply(this, arguments);
+    Object.keys(sheetLinks).forEach(k => sheetLinks[k].classList.toggle('active', k === activeId));
     if(activeId === 'navHome') setBottomActive('home');
     else if(activeId === 'navProfile') setBottomActive('profile');
-    else setBottomActive(null); // boshqa bo'limlarda (Insholar, CEFR...) hech biri belgilanmaydi
+    else if(sheetLinks[activeId]) setBottomActive('menu'); // Insholar, CEFR... "Menyu" ostida belgilanadi
+    else setBottomActive(null);
   };
 })();
 </script>
