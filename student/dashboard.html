@@ -633,6 +633,9 @@ body.dark #view-profile #profileSaveBtn{
 .teacher-top{ display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
 .teacher-photo{ width:110px; height:110px; border-radius:50%; overflow:hidden; flex:none; background:rgba(47,111,237,.12); border:2px solid rgba(47,111,237,.25); display:flex; align-items:center; justify-content:center; color:#2f5fd8; font-size:38px; font-weight:800; }
 .teacher-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+.teacher-photo.has-img{ width:170px; height:auto; border-radius:18px; background:none; border:1px solid #e8ecf5; }
+.teacher-photo.has-img img{ height:auto; max-height:260px; object-fit:contain; border-radius:0; }
+body.dark .teacher-photo.has-img{ border-color:#2a3248; }
 .teacher-name{ font-size:1.25rem; font-weight:800; color:var(--gray-900,#12172b); margin:0; }
 .teacher-role{ margin:.2em 0 0; color:var(--gray,#6b7484); font-size:.85rem; }
 .teacher-about{ margin:20px 0 0; line-height:1.65; white-space:pre-line; color:#2b3550; font-size:.95rem; }
@@ -3293,11 +3296,12 @@ function renderTeacherCard(){
   }
   const name = (info.name || '').trim();
   const initial = name ? name.charAt(0).toUpperCase() : '';
-  let photoHtml = initial;
+  let photoHtml = initial, photoCls = '';
   if(info.photo && /^https?:\/\//i.test(info.photo)){
-    photoHtml = '<img alt="" referrerpolicy="no-referrer" src="' + teacherEsc(info.photo) + '" onerror="this.remove()">' + teacherEsc(initial);
+    photoCls = ' has-img';
+    photoHtml = '<img alt="" referrerpolicy="no-referrer" src="' + teacherEsc(info.photo) + '" onerror="this.parentNode.classList.remove(\'has-img\');this.remove()">' + teacherEsc(initial);
   }
-  let html = '<div class="teacher-top"><div class="teacher-photo">' + photoHtml + '</div><div>' +
+  let html = '<div class="teacher-top"><div class="teacher-photo' + photoCls + '">' + photoHtml + '</div><div>' +
     (name ? '<h2 class="teacher-name">' + teacherEsc(name) + '</h2>' : '') +
     '<p class="teacher-role">O‘qituvchi</p></div></div>';
   if(info.about) html += '<p class="teacher-about">' + teacherEsc(info.about) + '</p>';
