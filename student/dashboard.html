@@ -5569,7 +5569,20 @@ async function rmToggleSave(mockId) {
     -webkit-tap-highlight-color:transparent;
   }
   .sbn-sheet-item svg{width:22px; height:22px; flex:none; color:var(--gray-500,#6b7484);}
-  .sbn-sheet-item:active{background:rgba(47,95,216,.08);}
+  /* Tugma ko'rinishi + bosilganda effekt */
+  .sbn-sheet-list{gap:8px;}
+  .sbn-sheet-item{
+    background:#f4f6fb; border:1px solid #e8ecf5;
+    transition:transform .12s ease, background-color .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+  .sbn-sheet-item:active, .sbn-sheet-item.is-pressed{
+    transform:scale(.96); background:rgba(47,95,216,.16); border-color:rgba(47,95,216,.45);
+    color:var(--blue-600,#2f5fd8); box-shadow:inset 0 0 0 1px rgba(47,95,216,.25);
+  }
+  .sbn-sheet-item:active svg, .sbn-sheet-item.is-pressed svg{color:var(--blue-600,#2f5fd8);}
+  body.dark .sbn-sheet-item{background:#1e2538; border-color:#2a3248;}
+  body.dark .sbn-sheet-item:active, body.dark .sbn-sheet-item.is-pressed{background:rgba(125,162,255,.22); border-color:rgba(125,162,255,.5); color:#9bb8ff;}
+  body.dark .sbn-sheet-item:active svg, body.dark .sbn-sheet-item.is-pressed svg{color:#9bb8ff;}
   .sbn-sheet-item.active{background:rgba(47,95,216,.10); color:var(--blue-600,#2f5fd8);}
   .sbn-sheet-item.active svg{color:var(--blue-600,#2f5fd8);}
   body.dark .sbn-sheet{background:#171d2c; box-shadow:0 -8px 28px rgba(0,0,0,.5);}
@@ -5647,6 +5660,15 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   if(siteLink) addSheetItem(siteLink, null);
 
   items.menu.addEventListener('click', () => { wrap.hidden ? openSheet() : closeSheet(); });
+
+  // Bosilganda darrov effekt (iOS/Android'da :active kechikmasligi uchun)
+  list.addEventListener('touchstart', (e) => {
+    const it = e.target.closest('.sbn-sheet-item');
+    if(it) it.classList.add('is-pressed');
+  }, { passive: true });
+  ['touchend','touchcancel','touchmove'].forEach(ev => list.addEventListener(ev, () => {
+    list.querySelectorAll('.is-pressed').forEach(x => x.classList.remove('is-pressed'));
+  }, { passive: true }));
 
   // Barmoq bilan pastga surib yopish
   const sheet = document.getElementById('sbnSheet');
