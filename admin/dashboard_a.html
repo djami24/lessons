@@ -1397,6 +1397,12 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
         <div style="margin-top:1.2em; padding-top:1em; border-top:1px dashed var(--line);">
           <label class="field">
+            <span>Kirishlar haqida xabar uchun Chat ID <span style="font-weight:400;color:var(--gray);">(talaba yoki ota-ona profiliga kirsa, ismi va emaili shu kanal/chatga yuboriladi. Bot kanalda admin bo'lishi kerak. Bir odam uchun 30 daqiqada 1 marta. Bo'sh qoldirsangiz o'chiq turadi)</span></span>
+            <input type="text" id="tgVisitChatId" placeholder="@kanal_username yoki -1001234567890" style="max-width:420px;">
+          </label>
+        </div>
+        <div style="margin-top:1.2em; padding-top:1em; border-top:1px dashed var(--line);">
+          <label class="field">
             <span><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> "Kelmadi" — Google Sheets Web App URL <span style="font-weight:400;color:var(--gray);">(o'quvchi davomatda "Kelmadi" deb belgilansa, shu qatorga avtomatik yoziladi — Apps Script'ni deploy qilgach /exec havolasini shu yerga qo'ying)</span></span>
             <input type="text" id="tgSheetScriptUrl" placeholder="https://script.google.com/macros/s/AKfycb.../exec" style="max-width:520px;">
           </label>
@@ -6090,9 +6096,9 @@ async function loadSiteSettingsForm(){
     } catch(e){ return {}; }
   }
 
-  function saveTgSettingsLocal(token, siteUrl, targets, absentChatId, sheetScriptUrl){
-    try{ if(token && !window.IS_TEACHER){ db.collection('telegramConfig').doc('bot').set({ token: token, updatedAt: Date.now() }).catch(function(){}); } } catch(e){}
-    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token: token, siteUrl: siteUrl, targets: targets, absentChatId: absentChatId || '', sheetScriptUrl: sheetScriptUrl || '' })); } catch(e){}
+  function saveTgSettingsLocal(token, siteUrl, targets, absentChatId, sheetScriptUrl, visitChatId){
+    try{ if(token && !window.IS_TEACHER){ db.collection('telegramConfig').doc('bot').set({ token: token, visitChatId: visitChatId || '', updatedAt: Date.now() }, { merge: true }).catch(function(){}); } } catch(e){}
+    try{ localStorage.setItem(TG_STORAGE_KEY, JSON.stringify({ token: token, siteUrl: siteUrl, targets: targets, absentChatId: absentChatId || '', sheetScriptUrl: sheetScriptUrl || '', visitChatId: visitChatId || '' })); } catch(e){}
   }
 
   function fillTgForm(){
@@ -6105,6 +6111,8 @@ async function loadSiteSettingsForm(){
     if(su) su.value = s.siteUrl || '';
     if(ac) ac.value = s.absentChatId || '';
     if(sh) sh.value = s.sheetScriptUrl || '';
+    var vc = document.getElementById('tgVisitChatId');
+    if(vc) vc.value = s.visitChatId || '';
     var inputs = document.querySelectorAll('.tg-target-input');
     var targets = s.targets || [];
     inputs.forEach(function(inp, i){ inp.value = targets[i] || ''; });
@@ -6117,6 +6125,7 @@ async function loadSiteSettingsForm(){
                        .map(function(i){ return i.value.trim(); }).filter(Boolean);
     var absentChatId = (document.getElementById('tgAbsentChatId').value || '').trim();
     var sheetScriptUrl = (document.getElementById('tgSheetScriptUrl').value || '').trim();
+    var visitChatId = (document.getElementById('tgVisitChatId').value || '').trim();
     var st = document.getElementById('tgSettingsSaveStatus');
 
     if(!token || !siteUrl){
@@ -6124,14 +6133,14 @@ async function loadSiteSettingsForm(){
       st.style.color = '#c0392b';
       return;
     }
-    if(targets.length === 0 && !absentChatId){
+    if(targets.length === 0 && !absentChatId && !visitChatId){
       st.textContent = 'Kamida 1 ta yuborish joyi yoki "Kelmadi" chat ID kiriting.';
       st.style.color = '#c0392b';
       return;
     }
 
-    saveTgSettingsLocal(token, siteUrl, targets, absentChatId, sheetScriptUrl);
-    st.textContent = 'Saqlandi. ' + targets.length + ' ta joy.' + (absentChatId ? ' Kelmadi xabari yoqilgan.' : '') + (sheetScriptUrl ? ' Sheets yozuvi yoqilgan.' : '');
+    saveTgSettingsLocal(token, siteUrl, targets, absentChatId, sheetScriptUrl, visitChatId);
+    st.textContent = 'Saqlandi. ' + targets.length + ' ta joy.' + (absentChatId ? ' Kelmadi xabari yoqilgan.' : '') + (visitChatId ? ' Kirishlar haqida xabar yoqilgan.' : '') + (sheetScriptUrl ? ' Sheets yozuvi yoqilgan.' : '');
     st.style.color = '#2e6f6e';
     setTimeout(function(){ st.textContent = ''; }, 4000);
   });
