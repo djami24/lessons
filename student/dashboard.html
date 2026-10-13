@@ -5614,7 +5614,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   // ---- "Menyu": yon menyudagi qolgan bo'limlar pastdan chiqadigan ro'yxatda ----
   const wrap = document.getElementById('sbnSheetWrap');
   const list = document.getElementById('sbnSheetList');
-  const SHEET_IDS = ['navResultsCard','navPlacementTest','navMyEssays','navCEFR','navWordGame'];
+  const SHEET_IDS = ['navChat','navResultsCard','navPlacementTest','navMyEssays','navCEFR','navWordGame'];
   const sheetLinks = {}; // navId -> ro'yxatdagi element
   function closeSheet(){ wrap.hidden = true; items.menu.setAttribute('aria-expanded','false'); }
   function openSheet(){ wrap.hidden = false; items.menu.setAttribute('aria-expanded','true'); }
@@ -5622,6 +5622,14 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     const el = document.createElement('a');
     el.className = 'sbn-sheet-item';
     el.innerHTML = orig.innerHTML; // ikonka + yozuv asl menyudagidek
+    const dupBadge = el.querySelector('#chatBadge');
+    if(dupBadge){
+      dupBadge.removeAttribute('id');
+      const srcBadge = orig.querySelector('#chatBadge');
+      const sync = () => { dupBadge.textContent = srcBadge.textContent; dupBadge.hidden = srcBadge.hidden; };
+      new MutationObserver(sync).observe(srcBadge, { attributes:true, childList:true, characterData:true, subtree:true });
+      sync();
+    }
     const href = orig.getAttribute('href') || '#';
     el.setAttribute('href', href);
     if(orig.target) el.target = orig.target;
@@ -5639,6 +5647,42 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   if(siteLink) addSheetItem(siteLink, null);
 
   items.menu.addEventListener('click', () => { wrap.hidden ? openSheet() : closeSheet(); });
+
+  // Barmoq bilan pastga surib yopish
+  const sheet = document.getElementById('sbnSheet');
+  let dragY0 = null, dragDy = 0;
+  sheet.addEventListener('touchstart', (e) => {
+    if(e.touches.length !== 1) return;
+    const onGrip = !!e.target.closest('.sbn-sheet-grip');
+    dragY0 = (onGrip || sheet.scrollTop <= 0) ? e.touches[0].clientY : null;
+    dragDy = 0;
+  }, { passive: true });
+  sheet.addEventListener('touchmove', (e) => {
+    if(dragY0 === null) return;
+    const dy = e.touches[0].clientY - dragY0;
+    if(dy <= 0){ if(dragDy > 0){ dragDy = 0; sheet.style.transform = ''; } return; }
+    dragDy = dy;
+    sheet.style.animation = 'none';
+    sheet.style.transition = 'none';
+    sheet.style.transform = 'translateY(' + dy + 'px)';
+    if(e.cancelable) e.preventDefault();
+  }, { passive: false });
+  function endDrag(){
+    if(dragY0 === null) return;
+    const closing = dragDy > 90;
+    dragY0 = null;
+    sheet.style.transition = 'transform .2s ease-out';
+    if(closing){
+      sheet.style.transform = 'translateY(100%)';
+      setTimeout(() => { closeSheet(); sheet.style.transform = ''; sheet.style.transition = ''; sheet.style.animation = ''; }, 190);
+    } else {
+      sheet.style.transform = '';
+      setTimeout(() => { sheet.style.transition = ''; sheet.style.animation = ''; }, 210);
+    }
+    dragDy = 0;
+  }
+  sheet.addEventListener('touchend', endDrag);
+  sheet.addEventListener('touchcancel', endDrag);
   document.getElementById('sbnSheetBackdrop').addEventListener('click', closeSheet);
   document.addEventListener('keydown', (e) => { if(e.key === 'Escape') closeSheet(); });
 
