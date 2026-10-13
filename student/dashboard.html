@@ -3299,7 +3299,7 @@ function renderTeacherCard(){
   let photoHtml = initial, photoCls = '';
   if(info.photo && /^https?:\/\//i.test(info.photo)){
     photoCls = ' has-img';
-    photoHtml = '<img alt="" referrerpolicy="no-referrer" src="' + teacherEsc(info.photo) + '" onerror="this.parentNode.classList.remove(\'has-img\');this.remove()">' + teacherEsc(initial);
+    photoHtml = '<img alt="" referrerpolicy="no-referrer" src="' + teacherEsc(info.photo) + '" onerror="var p=this.parentNode;p.classList.remove(\'has-img\');p.textContent=this.getAttribute(\'data-i\')" data-i="' + teacherEsc(initial) + '">';
   }
   let html = '<div class="teacher-top"><div class="teacher-photo' + photoCls + '">' + photoHtml + '</div><div>' +
     (name ? '<h2 class="teacher-name">' + teacherEsc(name) + '</h2>' : '') +
