@@ -177,6 +177,10 @@
   }
   .pnew-avatar-col{ flex-shrink:0; display:flex; align-items:center; gap:16px; }
   @media (min-width:601px){ .pnew-avatar-col{ flex-direction:column; gap:12px; } }
+  /* Ball kartochkasi — o'ng tomonda */
+  .profile-card-new{ position:relative; }
+  @media (min-width:601px){ .pnew-avatar-col .hwp-card{ position:absolute; top:24px; right:26px; margin-left:0; } }
+  @media (max-width:600px){ .pnew-avatar-col{ width:100%; } .pnew-avatar-col .hwp-card{ margin-left:auto; } }
 
   /* Uy vazifa balli kartochkasi */
   .hwp-card{
