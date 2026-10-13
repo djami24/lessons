@@ -6926,7 +6926,7 @@ async function homeFetchGroupsWithStudents(){
   // Chiqib ketgan talabalar (Out) — faqat oylik "chiqdi / qo'shildi" statistikasi uchun; asosiy hisobga kirmaydi
   const leftLists = await Promise.all(groups.map(g =>
     db.collection('oquv_groups').doc(g.id).collection('leftStudents').get()
-      .then(s => s.docs.map(sd => ({ id: sd.id, leftDate: sd.data().leftDate || '', joined: tsDate(sd.data().joinedAt) })))
+      .then(s => s.docs.map(sd => ({ id: sd.id, name: sd.data().name || '', phone: sd.data().phone || '', reason: sd.data().reason || '', totals: sd.data().totals || {}, leftDate: sd.data().leftDate || '', joined: tsDate(sd.data().joinedAt) })))
       .catch(() => [])
   ));
   groups.forEach((g, i) => { g.students = studentLists[i]; g.left = leftLists[i]; });
@@ -7344,7 +7344,7 @@ function stSpark(vals, color){
   return `<svg viewBox="0 0 100 30" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
 }
 
-const ST_KPI_KIND = { 'Davomat':'att', 'Uy vazifa':'hw', 'Kelmadi':'no', 'Kech qoldi':'late', 'Jazolangan':'pun', 'Belgilash':'comp' };
+const ST_KPI_KIND = { 'Davomat':'att', 'Uy vazifa':'hw', 'Kelmadi':'no', 'Kech qoldi':'late', 'Jazolangan':'pun', 'Belgilash':'comp', 'Chiqib ketgan':'out', "Yangi qo'shilgan":'add' };
 // ----- Kartochkani bosganda: tegishli talabalar ro'yxati -----
 const _stKpiCtx = { home: null, stats: null };
 let _kdState = { rows: [], sub: '', kind: '' };
@@ -7459,6 +7459,35 @@ function stOpenKpiDetail(kind, ctx){
     });
     rows.sort((x, y) => y.miss - x.miss);
     note = wholeMissed.length ? 'Butun guruh belgilanmagan darslar — ' + wholeMissed.join(' · ') : '';
+  }
+  if (kind === 'out' || kind === 'add') {
+    const inW = (d, a, b) => !!d && !!a && !!b && a <= b && d >= a && d <= b;
+    const ago = [];
+    groups.forEach(g => {
+      const w = wins[g.id]; if (!w) return;
+      const left = g.left || [];
+      if (kind === 'out') {
+        left.filter(l => inW(l.leftDate, w.from, w.to)).forEach(l => {
+          const t = l.totals || {};
+          ago.push({ sid: l.id, name: l.name, phone: l.phone, gname: g.name, sortKey: l.leftDate, color: '#EC4899',
+            line: `Qo‘shilgan: ${l.joined ? fmtDmy(l.joined) : '—'} · jami dars: ${t.lessons || 0} (kelgan ${t.came || 0}, kelmagan ${t.absent || 0})${l.reason ? ' · sabab: ' + l.reason : ''}`,
+            val: fmtDmy(l.leftDate) });
+        });
+      } else {
+        const leftIds = new Set(left.map(l => l.id));
+        (g.students || []).concat(left).filter(x => inW(x.joined, w.from, w.to)).forEach(x => {
+          const wasLeft = leftIds.has(x.id);
+          const lft = wasLeft ? left.find(l => l.id === x.id) : null;
+          ago.push({ sid: x.id, name: x.name, phone: x.phone || '', gname: g.name, sortKey: x.joined, color: '#14B8A6',
+            line: wasLeft ? 'Keyin chiqib ketgan: ' + fmtDmy(lft.leftDate) : 'Hozir guruhda o‘qiyapti',
+            val: fmtDmy(x.joined) });
+        });
+      }
+    });
+    ago.sort((a, b) => String(b.sortKey).localeCompare(String(a.sortKey)));
+    rows = ago.map(r => ({ ...r, num: 0 }));
+    title = kind === 'out' ? 'Chiqib ketgan talabalar' : 'Yangi qo‘shilgan talabalar';
+    sub = (kind === 'out' ? 'Chiqqan sanasi' : 'Qo‘shilgan sanasi') + ' bo‘yicha, yangisi birinchi · ' + (per ? 'solishtirish: ' + per : '');
   }
   _kdState = { rows, sub, kind };
   const noteEl = document.getElementById('kpiDetailNote');
