@@ -128,19 +128,28 @@ exports.notifyVisitTelegram = functions.firestore
   .document("activity_log/{logId}")
   .onCreate(async (snap) => {
     const d = snap.data() || {};
-    if (d.role !== "student" && d.role !== "parent") return null;
+    if (d.role !== "student" && d.role !== "parent") {
+      console.log("notifyVisitTelegram: o'tkazib yuborildi, role =", d.role);
+      return null;
+    }
     try {
       const db = admin.firestore();
       const cfgSnap = await db.collection("telegramConfig").doc("bot").get();
       const cfg = cfgSnap.exists ? cfgSnap.data() : {};
-      if (!cfg.token || !cfg.visitChatId) return null;
+      if (!cfg.token || !cfg.visitChatId) {
+        console.log("notifyVisitTelegram: telegramConfig/bot da token yoki visitChatId yo'q (token:", !!cfg.token, ", visitChatId:", !!cfg.visitChatId, ")");
+        return null;
+      }
 
       // Spam himoyasi: profilga qayta-qayta kirsa, 30 daqiqada bir marta
       if (d.action === "dashboard_visit" && d.uid) {
         const ref = db.collection("visitNotify").doc(String(d.uid));
         const prev = await ref.get();
         const now = Date.now();
-        if (prev.exists && now - (prev.data().at || 0) < VISIT_NOTIFY_COOLDOWN_MS) return null;
+        if (prev.exists && now - (prev.data().at || 0) < VISIT_NOTIFY_COOLDOWN_MS) {
+          console.log("notifyVisitTelegram: 30 daqiqa ichida qayta kirish, xabar yuborilmadi:", d.uid);
+          return null;
+        }
         await ref.set({ at: now });
       }
 
@@ -157,6 +166,7 @@ exports.notifyVisitTelegram = functions.firestore
         `🕐 Vaqt: ${tgEscape(when)}`;
 
       await tgSend(cfg.token, cfg.visitChatId, text);
+      console.log("notifyVisitTelegram: xabar yuborildi ->", cfg.visitChatId);
     } catch (e) {
       console.error("notifyVisitTelegram xatosi:", e && e.message ? e.message : e);
     }
