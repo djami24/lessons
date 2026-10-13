@@ -613,6 +613,19 @@
 }
 #view-profile .profile-user-row .admin-user-role{ font-size:.75rem; }
 body.dark #view-profile .profile-user-row{ background:#171d2c !important; border-color:#2a3248 !important; }
+
+/* Mening profilim: sarlavha va izoh kichikroq; Saqlash tugmasi aniq ko'rinsin */
+#view-profile .admin-header{ margin-bottom:1.1em; }
+#view-profile .admin-header h1{ font-size:1.3rem !important; margin-bottom:.15em; }
+#view-profile .admin-header p{ font-size:.8rem !important; }
+#view-profile #profileSaveBtn,
+body.dark #view-profile #profileSaveBtn{
+  background:#2f6df0 !important; color:#fff !important; border:1.5px solid #2f6df0 !important;
+  opacity:1 !important; font-weight:800; padding:.8em 2.2em;
+  box-shadow:0 6px 16px -6px rgba(47,109,240,.6);
+}
+#view-profile #profileSaveBtn:hover:not([disabled]){ background:#1d4ed8 !important; border-color:#1d4ed8 !important; }
+#view-profile #profileSaveBtn[disabled]{ opacity:.6 !important; }
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -1332,7 +1345,6 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 
     <!-- ===== PROFILE (student's own profile) ===== -->
     <section id="view-profile" hidden>
-      <a href="#" id="backToHomeFromProfile" class="back-link">Bosh sahifaga</a>
       <div class="admin-header">
         <div>
           <h1>Mening profilim</h1>
@@ -1344,8 +1356,9 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         <div class="profile-avatar-row">
           <div class="profile-avatar-big" id="profileAvatarBig"></div>
           <div>
-            <button type="button" class="btn btn-ghost btn-sm" id="toggleEmojiPickerBtn">Belgini o‘zgartirish</button>
-            <p style="margin:.5em 0 0; color:var(--gray); font-size:.85rem;">Profil rasmingizni tanlang.</p>
+            <input type="file" id="profilePhotoInput" accept="image/*" hidden>
+            <button type="button" class="btn btn-ghost btn-sm" id="profilePhotoBtn">Profil rasm joylash</button>
+            <p class="form-error" id="profilePhotoError" role="alert" hidden style="margin:.6em 0 0;"></p>
           </div>
         </div>
 
@@ -3211,7 +3224,6 @@ function setupHwStatusButtons(hwId){
 document.getElementById('navHome').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromEssays').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('backToHomeFromPlacement').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
-document.getElementById('backToHomeFromProfile').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
 document.getElementById('logoHomeBtn').addEventListener('click', (e) => { e.preventDefault(); location.reload(); });
 
 
@@ -3452,12 +3464,13 @@ let homeAvatarDefaultHTML = null;
 function applyAvatars(){
   const st = state.student || {};
   const img = AVATAR_IMAGES[st.avatarImg];
-  const imgHTML = img ? '<img class="avatar-img" alt="" src="' + img.src + '">' : '';
+  const photo = st.avatarPhoto || '';
+  const imgHTML = photo ? '<img class="avatar-img" alt="" src="' + photo + '">' : (img ? '<img class="avatar-img" alt="" src="' + img.src + '">' : '');
 
   // Sidebar: rasm bo'lsa rasm, bo'lmasa ismning bosh harfi / SVG
   const side = document.getElementById('sidebarAvatar');
   if(side){
-    if(img) side.innerHTML = imgHTML;
+    if(photo || img) side.innerHTML = imgHTML;
     else {
       const initial = (st.name || st.email || '').trim().charAt(0).toUpperCase();
       if(initial) side.textContent = initial; else side.innerHTML = AVATAR_SVG;
@@ -3470,7 +3483,7 @@ function applyAvatars(){
   const home = document.getElementById('homeAvatarCircle');
   if(home){
     if(homeAvatarDefaultHTML === null) homeAvatarDefaultHTML = home.innerHTML;
-    home.innerHTML = img ? imgHTML : homeAvatarDefaultHTML;
+    home.innerHTML = (photo || img) ? imgHTML : homeAvatarDefaultHTML;
   }
   // Tanlangan avatarni belgilab qo'yish
   const grid = document.getElementById('emojiPickerGrid');
@@ -3514,28 +3527,61 @@ function avatarButtonsHTML(){
 }
 
 const emojiGrid = document.getElementById('emojiPickerGrid');
-emojiGrid.innerHTML =
-  avatarButtonsHTML() +
-  AVATAR_EMOJIS.filter(Boolean).map(e => `<button type="button" class="emoji-picker-btn" data-emoji="${e}">${e}</button>`).join('');
 
-document.getElementById('toggleEmojiPickerBtn').addEventListener('click', () => {
-  emojiGrid.hidden = !emojiGrid.hidden;
-});
+// Profil rasm joylash: rasm brauzerda 256x256 ga kichraytirilib, Firestore'ga saqlanadi
+const photoInput = document.getElementById('profilePhotoInput');
+document.getElementById('profilePhotoBtn').addEventListener('click', () => photoInput.click());
 
-emojiGrid.addEventListener('click', (e) => {
-  const btn = e.target.closest('.emoji-picker-btn');
-  if(!btn) return;
-  if(btn.dataset.group === 'pepe'){
-    openAvatarGallery({
-      group: 'pepe', base: '../assets/', title: 'Profil rasmini tanlang',
-      selected: state.student.avatarImg || '',
-      onPick: (key) => saveAvatarChoice(key, '')
-    });
+function resizeImageToDataUrl(file, size){
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const im = new Image();
+    im.onload = () => {
+      const side = Math.min(im.width, im.height);
+      const sx = (im.width - side) / 2, sy = (im.height - side) / 2;
+      const c = document.createElement('canvas');
+      c.width = c.height = size;
+      c.getContext('2d').drawImage(im, sx, sy, side, side, 0, 0, size, size);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.85));
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('bad image')); };
+    im.src = url;
+  });
+}
+
+photoInput.addEventListener('change', async () => {
+  const file = photoInput.files && photoInput.files[0];
+  photoInput.value = '';
+  if(!file) return;
+  const errEl = document.getElementById('profilePhotoError');
+  errEl.hidden = true;
+  if(!file.type.startsWith('image/')){
+    errEl.textContent = 'Faqat rasm fayli tanlang.';
+    errEl.hidden = false;
     return;
   }
-  const imgKey = btn.dataset.img || '';
-  const emoji = imgKey ? '' : (btn.dataset.emoji || '');
-  saveAvatarChoice(imgKey, emoji);
+  const btn = document.getElementById('profilePhotoBtn');
+  btn.disabled = true;
+  const oldText = btn.textContent;
+  btn.textContent = 'Yuklanmoqda…';
+  const prev = { avatarPhoto: state.student.avatarPhoto || '', avatarImg: state.student.avatarImg || '', avatarEmoji: state.student.avatarEmoji || '' };
+  try{
+    const dataUrl = await resizeImageToDataUrl(file, 256);
+    state.student.avatarPhoto = dataUrl;
+    state.student.avatarImg = '';
+    state.student.avatarEmoji = '';
+    applyAvatars();
+    await db.collection('students').doc(currentUid).update({ avatarPhoto: dataUrl, avatarImg: '', avatarEmoji: '' });
+  } catch(err){
+    Object.assign(state.student, prev);
+    applyAvatars();
+    errEl.textContent = 'Rasmni joylab bo‘lmadi. Boshqa rasm bilan urinib ko‘ring.';
+    errEl.hidden = false;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
 });
 
 async function saveAvatarChoice(imgKey, emoji){
