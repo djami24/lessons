@@ -1601,6 +1601,36 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
         <button type="button" class="btn btn-outline btn-sm" id="tslAddBtn" style="margin-top:.4em; align-self:flex-start;">+ Yangi talaba qo'shish</button>
 
+        <hr style="border:none; border-top:1px solid var(--line); margin:2em 0;">
+
+        <h3 style="margin-top:0;">O‘qituvchi haqida <span style="font-weight:400; color:var(--gray); font-size:.8rem;">(talaba kabinetida "O‘qituvchi haqida" bo‘limida ko‘rinadi)</span></h3>
+
+        <label class="field">
+          <span>Ism familiya</span>
+          <input type="text" id="tiName" maxlength="80" placeholder="Masalan: Djamshid Aliyev">
+        </label>
+
+        <label class="field">
+          <span>Rasm havolasi <span style="font-weight:400; color:var(--gray);">(postimages.org dan "Direct link" ni qo‘ying, masalan https://i.postimg.cc/.../rasm.jpg)</span></span>
+          <input type="url" id="tiPhoto" placeholder="https://i.postimg.cc/...">
+        </label>
+        <div style="display:flex; align-items:center; gap:12px; margin:-.4em 0 1em;">
+          <div id="tiPhotoPreview" style="width:72px; height:72px; border-radius:50%; background:var(--paper-2,#eef1f7); border:1.5px solid var(--line); overflow:hidden; display:flex; align-items:center; justify-content:center; color:var(--gray); font-size:11px; text-align:center;">rasm yo‘q</div>
+          <span id="tiPhotoHint" style="font-size:.8rem; color:var(--gray);"></span>
+        </div>
+
+        <label class="field">
+          <span>Matn <span style="font-weight:400; color:var(--gray);">(o‘qituvchi haqida qisqacha: tajriba, sertifikat, yutuqlar...)</span></span>
+          <textarea id="tiAbout" rows="5" maxlength="2000" placeholder="O‘qituvchi haqida yozing..."></textarea>
+        </label>
+
+        <div class="field">
+          <span>Qo‘shimcha ma’lumotlar <span style="font-weight:400; color:var(--gray);">(telefon, Telegram, Instagram, havola, manzil, ish vaqti va h.k.)</span></span>
+          <div id="tiItems" style="display:flex; flex-direction:column; gap:8px;"></div>
+          <button type="button" class="btn btn-outline btn-sm" id="tiAddItem" style="margin-top:8px; align-self:flex-start;">+ Ma’lumot qo‘shish</button>
+          <p style="margin:6px 0 0; font-size:.78rem; color:var(--gray);">Havola (https://... yoki t.me/...) bosiladigan bo‘ladi, telefon raqam esa qo‘ng‘iroq qilinadigan bo‘ladi. Boshqa yozuvlar oddiy matn bo‘lib chiqadi.</p>
+        </div>
+
         <p id="siteSettingsError" class="form-error" role="alert" hidden></p>
 
         <div class="modal-actions" style="justify-content:flex-start; position:sticky; bottom:0; background:var(--paper); padding:1em 0;">
@@ -5773,6 +5803,7 @@ const DEFAULT_SITE_SETTINGS = {
   brandName: 'Djami Lessons',
   logoUrl: '',
   teacherName: '',
+  teacherInfo: { name: '', photo: '', about: '', items: [] },
 
 
   navHomeLabel: 'Bosh sahifa',
@@ -5820,6 +5851,64 @@ const DEFAULT_SITE_SETTINGS = {
   blogHeading: "Djami's Blog",
 };
 
+// ----- O'qituvchi haqida (settings/site.teacherInfo) -----
+function tiEsc(v){ return String(v||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function tiAddRow(label, value){
+  const wrap = document.getElementById('tiItems');
+  const row = document.createElement('div');
+  row.className = 'ti-row';
+  row.style.cssText = 'display:flex; gap:8px; align-items:center;';
+  row.innerHTML =
+    '<input type="text" class="ti-label" maxlength="40" placeholder="Nomi (Telefon, Telegram...)" value="' + tiEsc(label) + '" style="flex:0 0 38%; min-width:0;">' +
+    '<input type="text" class="ti-value" maxlength="300" placeholder="Qiymati (+998..., https://...)" value="' + tiEsc(value) + '" style="flex:1; min-width:0;">' +
+    '<button type="button" class="btn btn-ghost btn-sm ti-del" title="O‘chirish" aria-label="O‘chirish" style="flex:none;">&times;</button>';
+  row.querySelector('.ti-del').addEventListener('click', () => row.remove());
+  wrap.appendChild(row);
+}
+function tiUpdatePreview(){
+  const url = document.getElementById('tiPhoto').value.trim();
+  const box = document.getElementById('tiPhotoPreview');
+  const hint = document.getElementById('tiPhotoHint');
+  hint.textContent = '';
+  if(!url){ box.textContent = 'rasm yo‘q'; return; }
+  const img = new Image();
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+  img.onload = () => { box.innerHTML = ''; box.appendChild(img); };
+  img.onerror = () => {
+    box.textContent = 'ochilmadi';
+    hint.textContent = /postimg\.cc\/[^/]+$/i.test(url) && !/i\.postimg\.cc/i.test(url)
+      ? 'Bu rasm sahifasining havolasi. Postimages’da "Direct link" (i.postimg.cc bilan boshlanadigan) havolani oling.'
+      : 'Rasm ochilmadi. Havola to‘g‘ridan-to‘g‘ri rasmga olib borishi kerak.';
+  };
+  img.src = url;
+}
+function tiFill(info){
+  info = info || {};
+  document.getElementById('tiName').value = info.name || '';
+  document.getElementById('tiPhoto').value = info.photo || '';
+  document.getElementById('tiAbout').value = info.about || '';
+  document.getElementById('tiItems').innerHTML = '';
+  (Array.isArray(info.items) ? info.items : []).forEach(it => tiAddRow(it.label, it.value));
+  tiUpdatePreview();
+}
+function tiGet(){
+  const items = [];
+  document.querySelectorAll('#tiItems .ti-row').forEach(r => {
+    const label = r.querySelector('.ti-label').value.trim();
+    const value = r.querySelector('.ti-value').value.trim();
+    if(label || value) items.push({ label, value });
+  });
+  return {
+    name: document.getElementById('tiName').value.trim(),
+    photo: document.getElementById('tiPhoto').value.trim(),
+    about: document.getElementById('tiAbout').value.trim(),
+    items
+  };
+}
+document.getElementById('tiAddItem').addEventListener('click', () => tiAddRow('', ''));
+document.getElementById('tiPhoto').addEventListener('change', tiUpdatePreview);
+document.getElementById('tiPhoto').addEventListener('blur', tiUpdatePreview);
+
 function fillSiteSettingsForm(data){
   document.getElementById('settingColorPrimary').value = data.colorPrimary;
   document.getElementById('settingColorPrimaryLabel').textContent = data.colorPrimary;
@@ -5841,6 +5930,7 @@ function fillSiteSettingsForm(data){
   if(_im1&&data.logoUrl){_im1.src=data.logoUrl;_im1.style.display='';if(_sp1)_sp1.style.display='';}
   else if(_im1){_im1.style.display='none';if(_sp1)_sp1.style.display='none';}
   document.getElementById('settingTeacherName').value = data.teacherName || '';
+  tiFill(data.teacherInfo);
 
 
   document.getElementById('settingWordGameEnabled').checked = data.wordGameEnabled !== false;
@@ -6447,6 +6537,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     brandName: document.getElementById('settingBrandName').value.trim() || 'Djami Lessons',
     logoUrl: document.getElementById('settingLogoUrl').value.trim(),
     teacherName: document.getElementById('settingTeacherName').value.trim(),
+    teacherInfo: tiGet(),
 
 
     wordGameEnabled: document.getElementById('settingWordGameEnabled').checked,
