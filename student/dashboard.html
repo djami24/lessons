@@ -180,30 +180,28 @@
 
   /* Uy vazifa balli kartochkasi */
   .hwp-card{
-    position:relative; overflow:hidden; min-width:126px; max-width:170px;
+    position:relative; overflow:hidden; min-width:150px; max-width:190px;
     margin-left:12px; cursor:pointer; -webkit-tap-highlight-color:transparent;
-    padding:9px 13px 10px; border-radius:15px; color:#fff;
-    transition:transform .15s, box-shadow .15s;
-    background:linear-gradient(135deg,#0ea5a4 0%,#2563eb 100%);
-    box-shadow:0 6px 16px rgba(37,99,235,.26);
+    padding:11px 14px 12px; border-radius:14px; color:var(--gray-900);
+    background:#fff; border:1px solid var(--gray-200);
+    box-shadow:0 1px 3px rgba(16,24,40,.06);
+    transition:transform .15s, box-shadow .15s, border-color .15s;
   }
-  .hwp-card:hover{ transform:translateY(-1px); box-shadow:0 9px 20px rgba(37,99,235,.34); }
+  .hwp-card:hover{ transform:translateY(-1px); border-color:#bfd3fb; box-shadow:0 4px 12px rgba(37,99,235,.12); }
   .hwp-card:active{ transform:scale(.98); }
-  .hwp-card:focus-visible{ outline:2px solid #fff; outline-offset:-4px; }
-  .hwp-card::after{
-    content:''; position:absolute; right:-26px; top:-26px; width:84px; height:84px; border-radius:50%;
-    background:rgba(255,255,255,.14); pointer-events:none;
-  }
-  .hwp-top{ display:flex; align-items:center; gap:6px; font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; opacity:.92; }
-  .hwp-ico{ width:17px; height:17px; border-radius:6px; background:rgba(255,255,255,.2); display:inline-flex; align-items:center; justify-content:center; }
-  .hwp-main{ display:flex; align-items:baseline; gap:4px; margin-top:4px; }
-  .hwp-num{ font-size:27px; font-weight:800; line-height:1; letter-spacing:-.02em; }
-  .hwp-unit{ font-size:11.5px; font-weight:700; opacity:.9; }
-  .hwp-max{ margin-left:auto; font-size:10.5px; font-weight:600; opacity:.8; }
-  .hwp-bar{ height:5px; border-radius:99px; background:rgba(255,255,255,.25); margin-top:7px; overflow:hidden; }
-  .hwp-bar > i{ display:block; height:100%; width:0; border-radius:99px; background:#fff; transition:width .7s cubic-bezier(.2,.8,.2,1); }
-  .hwp-sub{ margin-top:5px; font-size:10px; font-weight:500; opacity:.88; }
-  .hwp-more{ margin-top:5px; font-size:9.5px; font-weight:700; opacity:.9; display:flex; align-items:center; gap:3px; }
+  .hwp-card:focus-visible{ outline:2px solid #2563eb; outline-offset:2px; }
+  .hwp-top{ display:flex; align-items:center; gap:6px; font-size:9.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--gray-500); }
+  .hwp-ico{ width:17px; height:17px; border-radius:6px; background:#2563eb; display:inline-flex; align-items:center; justify-content:center; }
+  .hwp-main{ display:flex; align-items:baseline; gap:4px; margin-top:6px; }
+  .hwp-num{ font-size:34px; font-weight:800; line-height:1; letter-spacing:-.03em; color:#2563eb; }
+  .hwp-unit{ font-size:12px; font-weight:700; color:var(--gray-500); }
+  .hwp-max{ margin-left:auto; font-size:11px; font-weight:600; color:var(--gray-400); }
+  .hwp-bar{ height:5px; border-radius:99px; background:var(--gray-100); margin-top:8px; overflow:hidden; }
+  .hwp-bar > i{ display:block; height:100%; width:0; border-radius:99px; background:#2563eb; transition:width .7s cubic-bezier(.2,.8,.2,1); }
+  .hwp-sub{ margin-top:6px; font-size:10.5px; font-weight:500; color:var(--gray-500); }
+  .hwp-more{ margin-top:6px; font-size:10px; font-weight:700; color:#2563eb; display:flex; align-items:center; gap:3px; }
+  .hwp-more svg path{ stroke:#2563eb; }
+  body.dark .hwp-card{ background:#171d2c; border-color:rgba(255,255,255,.1); color:#e5e7eb; }
 
   /* Ball tizimi tushuntirish oynasi */
   .hwi-overlay{ position:fixed; inset:0; z-index:9999; display:none; align-items:center; justify-content:center; padding:16px; background:rgba(8,12,24,.62); backdrop-filter:blur(3px); }
