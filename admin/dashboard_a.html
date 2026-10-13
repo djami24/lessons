@@ -123,6 +123,14 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 .oj-hw-missing{flex:1 1 140px;min-width:120px;padding:.4em .7em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);}
 .oj-row-save{font-size:.85rem;font-weight:700;min-width:16px;text-align:center;color:#2e6f6e;flex-shrink:0;}
 .oj-row-del{background:rgba(231,76,60,.08);border:1.5px solid rgba(231,76,60,.25);border-radius:6px;cursor:pointer;font-size:.8rem;color:#e74c3c;padding:4px 9px;flex-shrink:0;}
+.oj-row-out{background:rgba(230,126,34,.10);border:1.5px solid rgba(230,126,34,.4);border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:800;color:#d35400;padding:4px 10px;flex-shrink:0;letter-spacing:.02em;}
+.oj-row-out:hover{background:rgba(230,126,34,.2);}
+.oj-left-card{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--paper);}
+.oj-left-card h4{margin:0 0 2px;font-size:1rem;}
+.oj-left-meta{font-size:.78rem;color:var(--gray);margin-bottom:8px;}
+.oj-left-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:6px 12px;font-size:.85rem;margin-bottom:10px;}
+.oj-left-grid b{display:block;font-size:1.05rem;}
+.oj-left-grid span{color:var(--gray);font-size:.75rem;}
 .oj-filter-btn.active{background:var(--teal,#2e6f6e);color:#fff;border-color:var(--teal,#2e6f6e);}
 .oj-filter-count{display:inline-block;margin-left:4px;font-size:.72em;opacity:.85;}
 .oj-student-row.oj-row-hidden{display:none;}
@@ -1955,6 +1963,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
             <button class="btn btn-primary btn-sm" id="openAddOquvStudent">+ Talaba qo'shish</button>
           </div>
           <div class="oj-gh-group oj-gh-group--end">
+            <button class="btn btn-ghost btn-sm" id="ojLeftStudentsBtn" title="Guruhdan chiqib ketgan talabalar">Chiqib ketganlar <span id="ojLeftCount"></span></button>
             <button class="btn btn-ghost btn-sm" id="ojCopyAllIdsBtn"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg> Hammasini nusxalash</button>
             <button class="btn btn-ghost btn-sm" id="ojParentTgChatBtn" title="Shu guruh ota-onalarining Telegram guruhi (chat ID)">Telegram guruh</button>
             <select class="st-select rp-month-select" title="Hisobot oyi"></select>
@@ -2643,6 +2652,18 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <button class="btn btn-primary" id="gbNotesSaveBtn" type="button">Saqlash</button>
         <button class="btn btn-ghost" type="button" onclick="closeModal('modalGbNotes')">Bekor</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Chiqib ketgan talabalar ===== -->
+<div class="modal-overlay" id="modalOjLeft" hidden>
+  <div class="modal-box" style="max-width:640px; width:94vw; max-height:90vh; overflow:auto;">
+    <h2 class="modal-title" id="ojLeftTitle">Chiqib ketgan talabalar</h2>
+    <p style="font-size:.85rem; color:var(--gray); margin:0 0 10px;">Bu yerdagi talabalar guruh statistikasiga kirmaydi. Ularning davomati va tarixi saqlanib turadi.</p>
+    <div id="ojLeftList" style="display:flex; flex-direction:column; gap:10px;"></div>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn btn-ghost" type="button" onclick="closeModal('modalOjLeft')">Yopish</button>
     </div>
   </div>
 </div>
@@ -8398,6 +8419,155 @@ document.getElementById('ojParentTgBtn').addEventListener('click', async () => {
 });
 // ===== /Ota-onalar Telegram guruhiga davomat xabari =====
 
+// ===== Chiqib ketgan talabalar (Out) =====
+// Talaba oquv_groups/{g}/students dan oquv_groups/{g}/leftStudents ga ko'chiriladi.
+// oquv_progress/{id}/entries (davomat tarixi) O'CHIRILMAYDI. Statistika faqat "students"
+// ro'yxatini o'qiydi, shuning uchun chiqib ketgan talaba hisobga kirmaydi va xato bermaydi.
+function ojLocalDateStr(d){
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function ojFmtAnyDate(v){
+  if(!v) return '—';
+  let d = null;
+  if(typeof v === 'string') d = new Date(v.length <= 10 ? v + 'T00:00:00' : v);
+  else if(v.toDate) d = v.toDate();
+  else if(v instanceof Date) d = v;
+  if(!d || isNaN(d)) return '—';
+  return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
+}
+async function ojCalcStudentTotals(sid){
+  const snap = await db.collection('oquv_progress').doc(sid).collection('entries').get();
+  const t = { lessons:0, came:0, late:0, absent:0, hwDone:0, firstLesson:'', lastLesson:'' };
+  snap.docs.forEach(d => {
+    const e = d.data();
+    const a = e.attended;
+    const yes = a === true || a === 'yes', lateV = a === 'late', no = a === false || a === 'no';
+    if(!(yes || lateV || no)) return; // belgilanmagan kun dars hisoblanmaydi
+    t.lessons++;
+    if(yes) t.came++;
+    if(lateV){ t.came++; t.late++; }
+    if(no) t.absent++;
+    if(e.homeworkDone === true || e.homeworkDone === 'yes') t.hwDone++;
+    const dt = e.date || d.id;
+    if(!t.firstLesson || dt < t.firstLesson) t.firstLesson = dt;
+    if(!t.lastLesson || dt > t.lastLesson) t.lastLesson = dt;
+  });
+  return t;
+}
+async function ojRefreshLeftCount(groupId){
+  const el = document.getElementById('ojLeftCount');
+  if(!el) return;
+  try{
+    const snap = await db.collection('oquv_groups').doc(groupId).collection('leftStudents').get();
+    el.textContent = snap.size ? '(' + snap.size + ')' : '';
+  }catch(e){ el.textContent = ''; }
+}
+async function ojMoveStudentOut(groupId, groupName, sid, s){
+  if(!confirm('"' + s.name + '" guruhdan chiqib ketdimi?\n\nU "Chiqib ketganlar" bo\u02bblimiga o\u02bbtadi. Davomat tarixi saqlanadi, statistikadan chiqariladi.')) return;
+  const reason = prompt('Chiqib ketish sababi (ixtiyoriy, bo\u02bbsh qoldirsangiz ham bo\u02bbladi):', '');
+  if(reason === null) return;
+  try{
+    const stDoc = await db.collection('oquv_groups').doc(groupId).collection('students').doc(sid).get();
+    const sd = stDoc.exists ? stDoc.data() : s;
+    const totals = await ojCalcStudentTotals(sid);
+    const now = new Date();
+    // 1) avval arxivga yozamiz (xato bo'lsa talaba joyida qoladi)
+    await db.collection('oquv_groups').doc(groupId).collection('leftStudents').doc(sid).set({
+      name: sd.name || s.name || '',
+      phone: sd.phone || '',
+      groupId, groupName: groupName || '',
+      joinedAt: sd.createdAt || null,
+      leftAt: firebase.firestore.FieldValue.serverTimestamp(),
+      leftDate: ojLocalDateStr(now),
+      reason: reason.trim(),
+      totals
+    });
+    // 2) keyin faol ro'yxatdan olib tashlaymiz
+    await db.collection('oquv_groups').doc(groupId).collection('students').doc(sid).delete();
+    try{ await db.collection('oquv_progress').doc(sid).set({ status:'left', leftDate: ojLocalDateStr(now) }, { merge:true }); }catch(e){}
+    if(typeof stScheduleLeaderboard === 'function') stScheduleLeaderboard();
+    showToast('"' + s.name + '" Chiqib ketganlar bo\u02bblimiga o\u02bbtkazildi');
+    loadOjStudents(groupId, groupName);
+  }catch(err){
+    console.error('Out failed:', err);
+    showToast('Out qilib bo\u02bblmadi. Firestore qoidalariga "leftStudents" qo\u02bbshilganini tekshiring.', true);
+  }
+}
+async function ojOpenLeftModal(){
+  const gid = _ojActiveGroupId;
+  if(!gid) return;
+  document.getElementById('ojLeftTitle').textContent = 'Chiqib ketgan talabalar' + (_ojActiveGroupName ? ' \u2014 ' + _ojActiveGroupName : '');
+  const list = document.getElementById('ojLeftList');
+  list.innerHTML = '<p style="color:var(--gray);">Yuklanmoqda…</p>';
+  openModal('modalOjLeft');
+  try{
+    const snap = await db.collection('oquv_groups').doc(gid).collection('leftStudents').get();
+    if(snap.empty){ list.innerHTML = '<p style="color:var(--gray); text-align:center; padding:18px 0;">Chiqib ketgan talaba yo\u02bbq.</p>'; return; }
+    const docs = snap.docs.slice().sort((a,b) => String(b.data().leftDate||'').localeCompare(String(a.data().leftDate||'')));
+    list.innerHTML = '';
+    docs.forEach(doc => {
+      const d = doc.data(), t = d.totals || {};
+      let days = '';
+      const jd = d.joinedAt && d.joinedAt.toDate ? d.joinedAt.toDate() : null;
+      const ld = d.leftDate ? new Date(d.leftDate + 'T00:00:00') : null;
+      if(jd && ld && !isNaN(ld)) days = Math.max(0, Math.round((ld - jd) / 86400000)) + ' kun';
+      const card = document.createElement('div');
+      card.className = 'oj-left-card';
+      card.innerHTML =
+        '<h4>' + escHtml(d.name) + '</h4>' +
+        '<div class="oj-left-meta">ID: ' + escHtml(doc.id) + (d.phone ? ' · ' + escHtml(d.phone) : '') + '</div>' +
+        '<div class="oj-left-grid">' +
+          '<div><b>' + ojFmtAnyDate(d.joinedAt) + '</b><span>Qo\u02bbshilgan sana</span></div>' +
+          '<div><b>' + ojFmtAnyDate(d.leftDate) + '</b><span>Chiqib ketgan sana</span></div>' +
+          '<div><b>' + (days || '—') + '</b><span>Guruhda bo\u02bblgan</span></div>' +
+          '<div><b>' + (t.lessons || 0) + '</b><span>Jami dars</span></div>' +
+          '<div><b style="color:#27ae60;">' + (t.came || 0) + '</b><span>Kelgan dars' + (t.late ? ' (' + t.late + ' ta kech)' : '') + '</span></div>' +
+          '<div><b style="color:#e74c3c;">' + (t.absent || 0) + '</b><span>Kelmagan dars</span></div>' +
+          '<div><b>' + (t.hwDone || 0) + '</b><span>Uy vazifa qilgan</span></div>' +
+        '</div>' +
+        (d.reason ? '<div style="font-size:.85rem; margin-bottom:10px;"><span style="color:var(--gray);">Sabab:</span> ' + escHtml(d.reason) + '</div>' : '') +
+        '<div style="display:flex; gap:8px; flex-wrap:wrap;">' +
+          '<button type="button" class="btn btn-primary btn-sm" data-restore>Guruhga qaytarish</button>' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-purge style="color:#e74c3c;">Butunlay o\u02bbchirish</button>' +
+        '</div>';
+      card.querySelector('[data-restore]').addEventListener('click', async () => {
+        if(!confirm('"' + d.name + '" guruhga qaytarilsinmi?')) return;
+        try{
+          await db.collection('oquv_groups').doc(gid).collection('students').doc(doc.id).set({
+            name: d.name || '', phone: d.phone || '',
+            createdAt: d.joinedAt || firebase.firestore.FieldValue.serverTimestamp()
+          });
+          await db.collection('oquv_groups').doc(gid).collection('leftStudents').doc(doc.id).delete();
+          try{ await db.collection('oquv_progress').doc(doc.id).set({ status: firebase.firestore.FieldValue.delete(), leftDate: firebase.firestore.FieldValue.delete() }, { merge:true }); }catch(e){}
+          if(typeof stScheduleLeaderboard === 'function') stScheduleLeaderboard();
+          showToast('Talaba guruhga qaytarildi');
+          loadOjStudents(gid, _ojActiveGroupName);
+          ojOpenLeftModal();
+        }catch(e){ showToast('Qaytarib bo\u02bblmadi', true); }
+      });
+      card.querySelector('[data-purge]').addEventListener('click', async () => {
+        if(!confirm('"' + d.name + '" va uning barcha davomat tarixi BUTUNLAY o\u02bbchiriladi. Davom etasizmi?')) return;
+        try{
+          const es = await db.collection('oquv_progress').doc(doc.id).collection('entries').get();
+          const batch = db.batch();
+          es.docs.forEach(ed => batch.delete(ed.ref));
+          batch.delete(db.collection('oquv_progress').doc(doc.id));
+          batch.delete(db.collection('oquv_groups').doc(gid).collection('leftStudents').doc(doc.id));
+          await batch.commit();
+          showToast('O\u02bbchirildi');
+          ojRefreshLeftCount(gid);
+          ojOpenLeftModal();
+        }catch(e){ showToast('O\u02bbchirib bo\u02bblmadi', true); }
+      });
+      list.appendChild(card);
+    });
+  }catch(err){
+    list.innerHTML = '<p style="color:#e74c3c;">Ma\u02bblumotni o\u02bbqib bo\u02bblmadi. Firestore qoidalariga "leftStudents" qoidasi qo\u02bbshilganini tekshiring.</p>';
+  }
+}
+document.getElementById('ojLeftStudentsBtn').addEventListener('click', ojOpenLeftModal);
+
 async function loadOjStudents(groupId, groupName, days) {
   _ojActiveGroupId = groupId;
   ojLoadPeriods(groupId);
@@ -8430,6 +8600,7 @@ async function loadOjStudents(groupId, groupName, days) {
     const snap = await db.collection('oquv_groups').doc(groupId).collection('students').orderBy('name').get();
     grid.innerHTML = '';
     document.getElementById('ojGroupSub').textContent = snap.size + ' talaba';
+    ojRefreshLeftCount(groupId);
     _ojActiveGroupStudents = snap.docs.map(doc => ({ id: doc.id, name: doc.data().name, phone: doc.data().phone || '' }));
     if (snap.empty) { empty.style.display = 'block'; return; }
     empty.style.display = 'none';
@@ -8487,6 +8658,7 @@ async function loadOjStudents(groupId, groupName, days) {
           <input type="number" min="0" step="1" class="oj-row-grade" data-field="punishCount" placeholder="Nechta jazo" ${punishedVal ? '' : 'hidden'}>
           <span class="oj-row-save"></span>
         </div>
+        <button class="oj-row-out" title="Guruhdan chiqarish (Out)">Out</button>
         <button class="oj-row-del" title="O'chirish"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>`;
       row.querySelector('[data-field="homeworkPercent"]').value = entry.homeworkPercent || '';
       row.querySelector('[data-field="homeworkMissing"]').value = entry.homeworkMissing || '';
@@ -8595,6 +8767,11 @@ async function loadOjStudents(groupId, groupName, days) {
       hwMissingInput.addEventListener('click', (e) => e.stopPropagation());
       hwMissingInput.addEventListener('blur', () => ojQuickSave({ homeworkMissing: hwMissingInput.value.trim() }));
       hwMissingInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); hwMissingInput.blur(); } });
+
+      row.querySelector('.oj-row-out').addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await ojMoveStudentOut(groupId, groupName, sid, s);
+      });
 
       row.querySelector('.oj-row-del').addEventListener('click', async (e) => {
         e.stopPropagation();
