@@ -335,10 +335,10 @@
   /* bottom row */
   .row-bottom{display:grid;grid-template-columns:1fr 1.5fr;gap:18px;min-width:0;}
   #progressIdForm, #progressView, #latestHwBox{ margin-top:0 !important; margin-bottom:18px; }
-  #hwPointsBadge{ margin:0 0 18px 0; max-width:340px; width:100%; }
-  #hwPointsBadge[hidden]{ display:none; }
   .row-bottom > *{min-width:0;}
   .row-top > *{min-width:0;}
+  .row-top{grid-template-columns:1fr;}
+  .profile-card-new{ margin-bottom:18px; }
   .row-stats > *{min-width:0;}
   .schedule-card{padding:0;}
   .activity-card{padding:0;display:flex;flex-direction:column;}
@@ -1006,7 +1006,16 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
     <!-- ===== HOME (default landing page) ===== -->
     <section id="view-home">
       <div class="kb-content">
-<!-- Uy vazifa balli (shu oy) — O'quv jarayoni tepasida -->
+      <!-- profile — dinamik (Firestore'dan to'ldiriladi) -->
+      <div class="card profile-card-new">
+        <div class="pnew-avatar-col">
+          <div class="pnew-avatar-circle" id="homeAvatarCircle">
+            <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
+              <circle cx="40" cy="30" r="20" fill="#c7ddf8"/>
+              <ellipse cx="40" cy="76" rx="30" ry="18" fill="#c7ddf8"/>
+            </svg>
+          </div>
+          <!-- Uy vazifa balli (shu oy) -->
           <div id="hwPointsBadge" class="hwp-card" role="button" tabindex="0" aria-label="Ball tizimi haqida batafsil" hidden>
             <div class="hwp-top">
               <span class="hwp-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.5 6.1 20.7l1.2-6.6L2.5 9.5l6.6-.9z"/></svg></span>
@@ -1021,6 +1030,34 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
             <div class="hwp-sub" id="hwPointsSub"></div>
             <div class="hwp-more">Qanday ishlaydi? <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>
           </div>
+        </div>
+        <div class="pnew-main">
+          <div class="pnew-name" id="homeStudentName">Yuklanmoqda…</div>
+          <div class="pnew-badge-row">
+            <span class="pnew-badge"> Faol talaba</span>
+          </div>
+          <div class="pnew-divider"></div>
+          <div class="pnew-rows">
+            <div class="pnew-row">
+              <span class="pnew-label">Talaba ID:</span>
+              <span class="pnew-val" id="homeStudentId">—</span>
+            </div>
+            <div class="pnew-row">
+              <span class="pnew-label">Guruh:</span>
+              <span class="pnew-val" id="qiGroupVal">—</span>
+            </div>
+            <div class="pnew-row">
+              <span class="pnew-label">Dars vaqti:</span>
+              <span class="pnew-val" id="qiTimeVal">—</span>
+            </div>
+            <div class="pnew-row">
+              <span class="pnew-label">Keyingi dars:</span>
+              <span class="pnew-val" id="qiNextLessonVal">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
 <!-- O'quv jarayoni kartochkasi (progressIdForm / progressView) -->
       <div id="progressIdForm" hidden style="background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-top:18px;">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
@@ -1089,43 +1126,6 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 
 <!-- TOP ROW -->
     <div class="row-top">
-      <!-- profile — dinamik (Firestore'dan to'ldiriladi) -->
-      <div class="card profile-card-new">
-        <div class="pnew-avatar-col">
-          <div class="pnew-avatar-circle" id="homeAvatarCircle">
-            <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
-              <circle cx="40" cy="30" r="20" fill="#c7ddf8"/>
-              <ellipse cx="40" cy="76" rx="30" ry="18" fill="#c7ddf8"/>
-            </svg>
-          </div>
-        </div>
-        <div class="pnew-main">
-          <div class="pnew-name" id="homeStudentName">Yuklanmoqda…</div>
-          <div class="pnew-badge-row">
-            <span class="pnew-badge"> Faol talaba</span>
-          </div>
-          <div class="pnew-divider"></div>
-          <div class="pnew-rows">
-            <div class="pnew-row">
-              <span class="pnew-label">Talaba ID:</span>
-              <span class="pnew-val" id="homeStudentId">—</span>
-            </div>
-            <div class="pnew-row">
-              <span class="pnew-label">Guruh:</span>
-              <span class="pnew-val" id="qiGroupVal">—</span>
-            </div>
-            <div class="pnew-row">
-              <span class="pnew-label">Dars vaqti:</span>
-              <span class="pnew-val" id="qiTimeVal">—</span>
-            </div>
-            <div class="pnew-row">
-              <span class="pnew-label">Keyingi dars:</span>
-              <span class="pnew-val" id="qiNextLessonVal">—</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- test result — dinamik (gbResultBox) -->
       <div class="card test-card" id="gbResultBox" style="padding:0; transition:background .3s;">
         <div class="card-head">
