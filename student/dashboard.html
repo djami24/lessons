@@ -1598,6 +1598,22 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <div id="rmStudentList" style="display:grid;gap:14px;margin-top:4px;"></div>
     </section>
   </main>
+
+  <!-- PASTKI NAVIGATSIYA (faqat talaba, faqat telefon): chapda Homework, o'rtada Bosh sahifa, o'ngda Profil -->
+  <nav class="student-bottom-nav" id="studentBottomNav" aria-label="Asosiy navigatsiya">
+    <button type="button" class="sbn-item" id="sbnHomework" data-target="homework">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+      <span>Homework</span>
+    </button>
+    <button type="button" class="sbn-item sbn-center active" id="sbnHome" data-target="home">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+      <span>Bosh sahifa</span>
+    </button>
+    <button type="button" class="sbn-item" id="sbnProfile" data-target="profile">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Profil</span>
+    </button>
+  </nav>
 </div>
 
 <script src="../avatars.js"></script>
@@ -5438,6 +5454,33 @@ async function rmToggleSave(mockId) {
   from{ opacity:1; transform:scale(1)   translateY(0);     }
   to{   opacity:0; transform:scale(.88) translateY(24px);  }
 }
+
+/* ===== Pastki navigatsiya paneli (faqat telefonda, talaba dashboardida) ===== */
+.student-bottom-nav{display:none;}
+@media (max-width: 900px){
+  .student-bottom-nav{
+    position:fixed; left:0; right:0; bottom:0; z-index:900;
+    display:flex; align-items:stretch; justify-content:space-around;
+    background:var(--white,#fff); border-top:1px solid var(--gray-200,#e2e5ec);
+    box-shadow:0 -4px 14px rgba(15,31,61,.08);
+    padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+  }
+  .student-bottom-nav .sbn-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+    background:none; border:0; cursor:pointer; padding:6px 4px; border-radius:12px;
+    color:var(--gray-500,#6b7484); font:inherit; font-size:11.5px; font-weight:600;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .student-bottom-nav .sbn-item svg{width:22px;height:22px;}
+  .student-bottom-nav .sbn-item.active{color:var(--blue-600,#2f5fd8);}
+  /* O'rtadagi "Bosh sahifa" biroz ajralib tursin */
+  .student-bottom-nav .sbn-item.sbn-center.active{background:rgba(47,95,216,.10);}
+  body.has-student-bottom-nav .admin-main{padding-bottom:84px;}
+  body.dark .student-bottom-nav{background:#171d2c;border-top-color:#2a3248;box-shadow:0 -4px 14px rgba(0,0,0,.35);}
+  body.dark .student-bottom-nav .sbn-item{color:#9aa4ba;}
+  body.dark .student-bottom-nav .sbn-item.active{color:#7da2ff;}
+  body.dark .student-bottom-nav .sbn-item.sbn-center.active{background:rgba(125,162,255,.14);}
+}
 </style>
 
 <div class="powered-by">
@@ -5449,6 +5492,36 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   var d=document.body.classList.toggle('dark');
   try{localStorage.setItem('studentTheme',d?'dark':'light')}catch(e){}
 });
+
+// ---------- Pastki navigatsiya paneli (talaba, telefon) ----------
+(function(){
+  const nav = document.getElementById('studentBottomNav');
+  if(!nav) return;
+  document.body.classList.add('has-student-bottom-nav');
+
+  const items = {
+    home: document.getElementById('sbnHome'),
+    profile: document.getElementById('sbnProfile'),
+    homework: document.getElementById('sbnHomework')
+  };
+  function setBottomActive(key){
+    Object.keys(items).forEach(k => items[k].classList.toggle('active', k === key));
+  }
+
+  // Tugmalar mavjud yon menyu havolalarini bosadi — shunda hamma logika (yuklash, holat) o'zgarishsiz qoladi
+  items.home.addEventListener('click', () => { document.getElementById('navHome').click(); });
+  items.profile.addEventListener('click', () => { document.getElementById('navProfile').click(); });
+  items.homework.addEventListener('click', () => { location.href = '../kundalik.html'; });
+
+  // Yon menyudagi faol bo'lim o'zgarganda pastki panel ham yangilansin
+  const origSetActiveNav = window.setActiveNav;
+  window.setActiveNav = function(activeId){
+    origSetActiveNav.apply(this, arguments);
+    if(activeId === 'navHome') setBottomActive('home');
+    else if(activeId === 'navProfile') setBottomActive('profile');
+    else setBottomActive(null); // boshqa bo'limlarda (Insholar, CEFR...) hech biri belgilanmaydi
+  };
+})();
 </script>
 <!-- Test natijalari: batafsil jadval oynasi -->
 <div class="hwi-overlay" id="gbDetailOverlay" aria-hidden="true">
