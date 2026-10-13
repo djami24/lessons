@@ -601,6 +601,18 @@
   /* Topbar ikonka tugmalarni kichraytirish (42px -> 34px) */
   .topbar-icon-btn{ width:34px !important; height:34px !important; }
   .topbar-icon-btn svg{ width:16px !important; height:16px !important; }
+
+/* Profil bo'limidagi foydalanuvchi kartasi (avval yon panel pastida edi) */
+#view-profile .profile-user-row{
+  display:flex; align-items:center; justify-content:space-between; gap:.8em;
+  margin-top:1.4em; padding:.9em 1.1em;
+  background:#fafbff; border:1px solid #eef1f7; border-radius:14px;
+}
+#view-profile .profile-user-row .admin-user-name{
+  font-size:.95rem; max-width:none; white-space:normal; overflow:visible;
+}
+#view-profile .profile-user-row .admin-user-role{ font-size:.75rem; }
+body.dark #view-profile .profile-user-row{ background:#171d2c !important; border-color:#2a3248 !important; }
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -929,16 +941,6 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <li><a href="#" id="navWordGame"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M7 12h.01"/><path d="M17 12h.01"/></svg> So’z o’yini</a></li>
       <li><a href="../index.html" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Saytni ko’rish</a></li>
     </ul>
-    <div class="admin-user">
-      <div style="display:flex; align-items:center; gap:.7em;">
-        <span class="sidebar-avatar" id="sidebarAvatar" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--blue-50,#eaf1ff);color:var(--blue-600,#2f5fd8);font-size:15px;font-weight:700;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
-        <div>
-          <div class="admin-user-name" id="sidebarUsername">o‘quvchi</div>
-          <div class="admin-user-role">O‘quvchi</div>
-        </div>
-      </div>
-      <button class="logout-btn" id="logoutBtn">Chiqish</button>
-    </div>
   </aside>
 
   <!-- MAIN -->
@@ -1372,6 +1374,17 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
           </div>
         </form>
       </div>
+
+    <div class="profile-user-row" id="profileUserRow">
+      <div style="display:flex; align-items:center; gap:.7em;">
+        <span class="sidebar-avatar" id="sidebarAvatar" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--blue-50,#eaf1ff);color:var(--blue-600,#2f5fd8);font-size:15px;font-weight:700;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+        <div>
+          <div class="admin-user-name" id="sidebarUsername">o‘quvchi</div>
+          <div class="admin-user-role">O‘quvchi</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logoutBtn">Chiqish</button>
+    </div>
     </section>
 
 
