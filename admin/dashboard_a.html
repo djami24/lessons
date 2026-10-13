@@ -6917,12 +6917,19 @@ function ojDayKeyForOffset(offsetDays){
 async function homeFetchGroupsWithStudents(){
   const groupsSnap = await ojGroupsSnap();
   const groups = groupsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const tsDate = (v) => (v && v.toDate) ? stDate(v.toDate()) : '';
   const studentLists = await Promise.all(groups.map(g =>
     db.collection('oquv_groups').doc(g.id).collection('students').orderBy('name').get()
-      .then(s => s.docs.map(sd => ({ id: sd.id, name: sd.data().name, phone: sd.data().phone || '' })))
+      .then(s => s.docs.map(sd => ({ id: sd.id, name: sd.data().name, phone: sd.data().phone || '', joined: tsDate(sd.data().createdAt) })))
       .catch(() => [])
   ));
-  groups.forEach((g, i) => { g.students = studentLists[i]; });
+  // Chiqib ketgan talabalar (Out) — faqat oylik "chiqdi / qo'shildi" statistikasi uchun; asosiy hisobga kirmaydi
+  const leftLists = await Promise.all(groups.map(g =>
+    db.collection('oquv_groups').doc(g.id).collection('leftStudents').get()
+      .then(s => s.docs.map(sd => ({ id: sd.id, leftDate: sd.data().leftDate || '', joined: tsDate(sd.data().joinedAt) })))
+      .catch(() => [])
+  ));
+  groups.forEach((g, i) => { g.students = studentLists[i]; g.left = leftLists[i]; });
   return groups;
 }
 
@@ -7054,7 +7061,8 @@ async function homeRenderStatsOverview(force){
     stKpi('Kelmadi', A.no, D(A.no, P.no, true), `${per}: ${P.no}`, stSpark(bAgg.map(a => a.no), ST_C.red), ST_C.red) +
     stKpi('Kech qoldi', A.late, D(A.late, P.late, true), `${per}: ${P.late}`, stSpark(bAgg.map(a => a.late), ST_C.orange), ST_C.orange) +
     stKpi('Jazolangan', A.pun, D(A.pun, P.pun, true), A.punCnt ? `jami jazo: ${A.punCnt} ta` : 'jazo yo\'q', stSpark(bAgg.map(a => a.pun), ST_C.purple), ST_C.purple) +
-    stKpi('Belgilash', comp === null ? '—' : comp + '%', D(comp, pComp, false, ' %'), `${A.marked} / ${expected} ta belgilangan`, stSpark(bAgg.map(() => null), ST_C.gray), ST_C.gray);
+    stKpi('Belgilash', comp === null ? '—' : comp + '%', D(comp, pComp, false, ' %'), `${A.marked} / ${expected} ta belgilangan`, stSpark(bAgg.map(() => null), ST_C.gray), ST_C.gray) +
+    stMemberKpis(stMembership(groups, wins), per, stSpark(bAgg.map(() => null), ST_C.gray));
   document.getElementById('homeStTrend').innerHTML = stLine(buckets.map(b => b.label), [
     { name: 'Davomat %', color: ST_C.green, vals: attS }, { name: 'Uy vazifa %', color: ST_C.blue, vals: hwS }]) +
     `<div class="st-note">${buckets.length > 1 && buckets[0].from === buckets[0].to ? 'Har bir nuqta — bir kun.' : 'Har bir nuqta — bir hafta (sana — hafta boshi).'}</div>`;
@@ -7476,6 +7484,23 @@ function stOpenKpiDetail(kind, ctx){
   box.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(e); } });
 });
 
+// Tanlangan davrda chiqib ketgan (Out) va yangi qo'shilgan talabalar soni, oldingi davr bilan.
+function stMembership(groups, wins){
+  const r = { out:0, pOut:0, add:0, pAdd:0 };
+  const inW = (d, a, b) => !!d && !!a && !!b && a <= b && d >= a && d <= b;
+  groups.forEach(g => {
+    const w = wins[g.id]; if (!w) return;
+    const left = g.left || [];
+    left.forEach(l => { if (inW(l.leftDate, w.from, w.to)) r.out++; if (inW(l.leftDate, w.pFrom, w.pTo)) r.pOut++; });
+    (g.students || []).concat(left).forEach(x => { if (inW(x.joined, w.from, w.to)) r.add++; if (inW(x.joined, w.pFrom, w.pTo)) r.pAdd++; });
+  });
+  return r;
+}
+function stMemberKpis(M, per, nullSpark){
+  return stKpi('Chiqib ketgan', M.out, stDelta(M.out, M.pOut, true), `${per}: ${M.pOut}`, nullSpark, '#EC4899') +
+         stKpi('Yangi qo\'shilgan', M.add, stDelta(M.add, M.pAdd, false), `${per}: ${M.pAdd}`, nullSpark, '#14B8A6');
+}
+
 function stKpi(label, num, delta, sub, spark, color){
   const kind = ST_KPI_KIND[label];
   return `<div class="st-kpi${kind ? ' st-kpi-click' : ''}" ${kind ? `data-kpi="${kind}" role="button" tabindex="0" title="Talabalar ro‘yxatini ko‘rish"` : ''} style="--c:${color}"><div class="st-kpi-label">${label}</div>
@@ -7584,7 +7609,8 @@ async function loadStatsPage(days, force){
     stKpi('Kelmadi', A.no, D(A.no, P.no, true), `${per}: ${P.no}`, stSpark(bAgg.map(a => a.no), ST_C.red), ST_C.red) +
     stKpi('Kech qoldi', A.late, D(A.late, P.late, true), `${per}: ${P.late}`, stSpark(bAgg.map(a => a.late), ST_C.orange), ST_C.orange) +
     stKpi('Jazolangan', A.pun, D(A.pun, P.pun, true), A.punCnt ? `jami jazo: ${A.punCnt} ta` : 'jazo yo\'q', stSpark(bAgg.map(a => a.pun), ST_C.purple), ST_C.purple) +
-    stKpi('Belgilash', comp === null ? '—' : comp + '%', stDelta(comp, pComp, false, ' %'), `${A.marked} / ${expected} ta belgilangan`, stSpark(bAgg.map(() => null), ST_C.gray), ST_C.gray);
+    stKpi('Belgilash', comp === null ? '—' : comp + '%', stDelta(comp, pComp, false, ' %'), `${A.marked} / ${expected} ta belgilangan`, stSpark(bAgg.map(() => null), ST_C.gray), ST_C.gray) +
+    stMemberKpis(stMembership(groups, wins), per, stSpark(bAgg.map(() => null), ST_C.gray));
 
   document.getElementById('stTrend').innerHTML = stLine(buckets.map(b => b.label), [
     { name: 'Davomat %', color: ST_C.green, vals: attS }, { name: 'Uy vazifa %', color: ST_C.blue, vals: hwS }]) +
