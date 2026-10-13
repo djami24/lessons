@@ -20,17 +20,13 @@
     }catch(e){}
   }
   applyTheme();
-  // Boshqa tab/oynada (masalan talaba bosh sahifasida) mavzu o'zgarsa — darhol yangilanadi
   window.addEventListener("storage", function(e){ if(e.key==="studentTheme"||e.key===null) applyTheme(); });
-  // Orqaga qaytilganda (bfcache) yoki tabga qaytilganda ham yangilanadi
   window.addEventListener("pageshow", applyTheme);
   document.addEventListener("visibilitychange", function(){ if(!document.hidden) applyTheme(); });
   window.addEventListener("focus", applyTheme);
 })();
 </script>
 <style>
-  /* Sayt (admin / talaba paneli) bilan bir xil och rangli dizayn:
-     Inter shrifti, #F3F6FC fon, oq kartochkalar, ko'k urg'u, SVG ikonkalar. */
   :root{
     color-scheme: light;
     --bg:#F3F6FC; --panel:#FFFFFF; --panel-2:#F4F6FB;
@@ -214,6 +210,29 @@
     color:var(--ink-dim); font-size:.92rem; font-weight:600;
   }
 
+  /* ===== Pastki navigatsiya paneli (faqat telefonda) ===== */
+  .kb-bottom-nav{ display:none; }
+  @media (max-width: 900px){
+    .kb-bottom-nav{
+      position:fixed; left:0; right:0; bottom:0; z-index:300;
+      display:flex; align-items:stretch; justify-content:space-around;
+      background:var(--panel); border-top:1px solid var(--line);
+      box-shadow:0 -4px 14px rgba(16,27,61,.08);
+      padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));
+    }
+    .kb-bottom-nav .sbn-item{
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+      background:none; border:0; cursor:pointer; padding:6px 4px; border-radius:12px;
+      color:var(--ink-dim); font:inherit; font-size:11.5px; font-weight:600;
+      text-decoration:none; -webkit-tap-highlight-color:transparent;
+    }
+    .kb-bottom-nav .sbn-item svg{ width:22px; height:22px; }
+    .kb-bottom-nav .sbn-item.active{ color:var(--blue); }
+    .kb-bottom-nav .sbn-item.sbn-center.active{ background:rgba(47,111,237,.10); }
+    .wrap{ padding-bottom:96px; }
+    .powered-by{ bottom:84px; }
+  }
+
   @media (max-width:640px){
     .topbar{ padding:10px 14px; }
     .user-chip, .topbar-sep, .topbar-page{ display:none; }
@@ -319,6 +338,22 @@
       </div>
     </div>
   </div>
+
+  <!-- PASTKI NAVIGATSIYA (faqat telefonda) -->
+  <nav class="kb-bottom-nav" aria-label="Asosiy navigatsiya">
+    <a href="#" class="sbn-item active" id="sbnKundalik">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+      <span>Kundalik</span>
+    </a>
+    <a href="student/dashboard.html" class="sbn-item sbn-center" id="sbnHome">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
+      <span>Bosh sahifa</span>
+    </a>
+    <a href="student/dashboard.html" class="sbn-item" id="sbnProfile">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <span>Profil</span>
+    </a>
+  </nav>
 </div>
 
 <!-- Detail Modal -->
@@ -358,8 +393,6 @@ function formatDate(ts){
 // paragraphs/list items don't get glued together.
 function htmlToLinePreview(html, maxLen){
   // Admin paneldagi matn muharriri bo'sh joylarni "&nbsp;" qilib saqlaydi.
-  // Teglar olib tashlangandan keyin entity'larni oddiy belgiga aylantiramiz,
-  // aks holda "&nbsp;" so'zma-so'z matn bo'lib ko'rinib qoladi.
   const decode = s => { const t = document.createElement('textarea'); t.innerHTML = s; return t.value; };
   const withBreaks = decode(String(html || '')
     .replace(/<br\s*\/?>/gi, '\n')
@@ -389,12 +422,8 @@ auth.onAuthStateChanged(async user => {
 });
 
 // A student's Kundalik group is resolved automatically from their
-// oquvProgressCode (students/{uid}.oquvProgressCode -> oquv_progress/{code}.groupId),
-// the same link already used on the home page's "Test natijasi" card and
-// "So'nggi uy vazifasi" card — so there's nothing to manually pick, and the
-// group always matches exactly what the admin panel uses.
-// Falls back to the older manually-chosen kundalikGroup field (individual
-// students who set a personal folder name before this page existed).
+// oquvProgressCode (students/{uid}.oquvProgressCode -> oquv_progress/{code}.groupId).
+// Falls back to the older manually-chosen kundalikGroup field.
 async function initGroupFlow(){
   try{
     const studentDoc = await db.collection('students').doc(currentUid).get();
@@ -434,9 +463,6 @@ async function initGroupFlow(){
   loadGroups();
 }
 
-// Same id-generation rule the admin panel uses when creating a Kundalik
-// group/folder from a typed name, so a student's typed name lines up with
-// whatever folder the admin already prepared for them.
 function slugifyName(str){
   return String(str || '').trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '') || ('g' + Date.now());
 }
@@ -467,7 +493,6 @@ document.getElementById('individualNameForm').addEventListener('submit', async (
   openGroup(groupId, typedName);
 });
 
-// Saves the student's chosen group permanently, then opens it.
 async function chooseGroup(groupId){
   try{
     await db.collection('students').doc(currentUid).update({ kundalikGroup: groupId });
@@ -490,6 +515,17 @@ document.getElementById('modalClose').addEventListener('click', () => {
 document.getElementById('hwModal').addEventListener('click', e => {
   if(e.target === document.getElementById('hwModal'))
     document.getElementById('hwModal').hidden = true;
+});
+
+// Pastki navigatsiya: "Profil" va "Bosh sahifa" dashboard'ga o'tadi,
+// "Profil" esa dashboard'da profil bo'limini ochadi.
+document.getElementById('sbnProfile').addEventListener('click', function(e){
+  e.preventDefault();
+  try{ sessionStorage.setItem('studentLastView', 'profile'); }catch(err){}
+  location.href = 'student/dashboard.html';
+});
+document.getElementById('sbnHome').addEventListener('click', function(){
+  try{ sessionStorage.setItem('studentLastView', 'home'); }catch(err){}
 });
 
 function showView(name){
@@ -565,7 +601,6 @@ async function openGroup(groupId, displayName){
       `;
     }).join('');
 
-    // Cache docs for modal
     window._hwDocs = {};
     snap.docs.forEach(doc => { window._hwDocs[doc.id] = doc.data(); });
 
@@ -584,15 +619,12 @@ function openHwModal(docId, groupId){
   if(!d) return;
   document.getElementById('modalDate').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg> ' + escHtml(formatDate(d.sana));
   document.getElementById('modalTitle').textContent = d.sarlavha || 'Uy vazifasi';
-  // d.matn may contain rich HTML from the admin panel
   document.getElementById('modalContent').innerHTML = d.matn || '';
   setupHwStatusButtons(docId);
   document.getElementById('hwModal').hidden = false;
 }
 
-// Optional "did you do it?" self-check — purely cosmetic, remembered only
-// in this browser (localStorage), never sent anywhere. A student may
-// click either button, switch between them, or leave both unclicked.
+// Optional "did you do it?" self-check — remembered only in this browser.
 function setupHwStatusButtons(hwId){
   const row = document.getElementById('modalStatusRow');
   const key = 'efHwStatus_' + hwId;
