@@ -303,6 +303,15 @@ const CHAT_QUICK_DEFAULT = ['Salom! 👋', 'Rahmat, qabul qilindi ✅', 'Uy vazi
   .chat-filter-chips{display:flex;gap:6px;padding:6px 10px;flex-wrap:wrap}
   .chat-filter-chips button{border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}
   .chat-filter-chips button.is-active{background:var(--teal,#0f9d8a);color:#fff;border-color:transparent}
+  body.dark.admin-theme .chat-messages{background:#0d1322 !important}
+  body.dark.admin-theme .chat-msg-teacher .chat-msg-bubble{background:#1d2740 !important;color:#e6ebf5 !important}
+  body.dark.admin-theme .chat-date-sep span{background:#1d2740 !important;color:#c3cada !important}
+  body.dark.admin-theme .chat-msg-meta{color:#8e9ab3}
+  body.dark .chat-react-bar{background:#1d2740}
+  body.dark .chat-react-bar button:hover{background:rgba(255,255,255,.1)}
+  body.dark .chat-msg-actions{background:#1d2740}
+  body.dark .chat-msg-bubble mark{background:#b58900;color:#fff}
+  .chat-filter-chips button.is-active,.chat-jump-btn{background:var(--adm-blue,var(--teal,#0f9d8a))}
   `;
   document.head.appendChild(st);
 })();
