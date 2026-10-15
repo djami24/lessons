@@ -321,6 +321,12 @@ const CHAT_QUICK_DEFAULT = ['Salom! 👋', 'Rahmat, qabul qilindi ✅', 'Uy vazi
   #view-chat:not([hidden]) .chat-messages{padding:1em 5%}
   #view-chat:not([hidden]) .chat-textarea{font-size:16px}
   @media (min-width:900px){ #view-chat:not([hidden]) .chat-messages{padding:1.2em 12%} }
+  /* Javob (reply) iqtibosi — o'qiladigan kontrast */
+  .chat-msg-student .chat-msg-quote{background:rgba(255,255,255,.2) !important;color:#fff !important;border-left-color:#fff !important}
+  .chat-msg-student .chat-msg-quote .chat-msg-quote-name{color:#fff !important;opacity:.95}
+  .chat-msg-teacher .chat-msg-quote{background:rgba(0,0,0,.07);color:var(--ink,#1f2937)}
+  body.dark .chat-msg-teacher .chat-msg-quote{background:rgba(255,255,255,.1) !important;color:#dbe2f0 !important}
+  .chat-msg-quote{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:.84rem}
   `;
   document.head.appendChild(st);
 })();
