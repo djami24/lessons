@@ -4149,101 +4149,52 @@ function startChatUnreadListener(){
 
 // ===== CHAT WITH TEACHER =====
 
-let chatUnsubscribe = null;
 let chatTypingUnsubscribe = null;
-let chatReplyTarget = null; // { id, text, senderName } of the message being replied to
 let chatTeacherPresenceStatus = { online:false, lastSeenDate:null };
 let chatTeacherFallbackSeenAt = null;
 let chatTeacherIsTyping = false;
 const chatTypingCtrl = () => makeTypingController(db.collection('chats').doc(currentUid), 'studentTyping');
 let chatTypingController = null;
+let studentChat = null;
 
-function renderChatMessage(doc){
-  const d = doc.data();
-  const isStudent = d.senderRole === 'student';
-  const dateObj = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
-  const time = dateObj ? dateObj.toLocaleTimeString('uz-UZ', { hour:'2-digit', minute:'2-digit' }) : '';
-  // Read-receipt ticks — only on the student's own messages: single tick
-  // = sent but not yet seen by the teacher, double (blue) tick = the
-  // teacher has opened this chat and seen it.
-  const ticks = isStudent
-    ? `<span class="chat-msg-ticks${d.read === true ? ' is-read' : ''}">${d.read === true ? '' : ''}</span>`
-    : '';
-  const avatarHtml = !isStudent ? `<div class="chat-msg-avatar" style="background:var(--teal);"></div>` : '';
-  const quoteHtml = d.replyTo
-    ? `<div class="chat-msg-quote"><span class="chat-msg-quote-name">${escapeHtml(d.replyTo.senderRole === 'student' ? 'Siz' : 'O‘qituvchi')}</span>${escapeHtml(d.replyTo.text || '')}</div>`
-    : '';
-  return `<div class="chat-msg-row${isStudent ? ' is-mine' : ''}" data-msg-id="${doc.id}" data-msg-text="${escapeHtml(d.text || '')}" data-msg-role="${isStudent ? 'student' : 'teacher'}">
-    ${avatarHtml}
-    <div class="chat-msg ${isStudent ? 'chat-msg-student' : 'chat-msg-teacher'}">
-      <div class="chat-msg-bubble">${quoteHtml}${escapeHtml(d.text || '')}</div>
-      <div class="chat-msg-meta">${time} ${ticks}</div>
-    </div>
-    <div class="chat-msg-actions">
-      <button type="button" class="chat-msg-action-btn chat-msg-reply-btn" data-reply-id="${doc.id}" title="Javob berish">↩</button>
-    </div>
-  </div>`;
+function getStudentChat(){
+  if(studentChat) return studentChat;
+  const typingRow = document.getElementById('chatTypingRow');
+  const emptyEl = document.getElementById('chatEmpty');
+  studentChat = createChatController({
+    role: 'student',
+    listEl: document.getElementById('chatMessages'),
+    inputEl: document.getElementById('chatInput'),
+    sendBtn: document.getElementById('chatSendBtn'),
+    replyBox: {
+      wrap: document.getElementById('chatReplyPreview'),
+      name: document.getElementById('chatReplyPreviewName'),
+      text: document.getElementById('chatReplyPreviewText'),
+      close: document.getElementById('chatReplyPreviewClose')
+    },
+    workHours: true,
+    otherName: () => 'O‘qituvchi',
+    otherAvatarHtml: () => '<div class="chat-msg-avatar" style="background:var(--teal);"></div>',
+    tickHtml: (read) => `<span class="chat-msg-ticks${read ? ' is-read' : ''}">${read ? '✓✓' : '✓'}</span>`,
+    studentName: () => (state.student && state.student.name) || 'Talaba',
+    afterRender: (listEl, isEmpty) => {
+      emptyEl.hidden = !isEmpty;
+      if(isEmpty) listEl.prepend(emptyEl);
+      listEl.appendChild(typingRow);
+    },
+    onSent: () => { if(chatTypingController) chatTypingController.notifyStopped(); }
+  });
+  return studentChat;
 }
 
 function loadChat(){
   const messagesEl = document.getElementById('chatMessages');
-  const emptyEl = document.getElementById('chatEmpty');
   const typingRow = document.getElementById('chatTypingRow');
-
-  if(chatUnsubscribe) chatUnsubscribe();
   if(chatTypingUnsubscribe) chatTypingUnsubscribe();
-
-  const chatDocRef = db.collection('chats').doc(currentUid);
-
-  chatUnsubscribe = chatDocRef
-    .collection('messages')
-    .orderBy('createdAt', 'asc')
-    .onSnapshot(snap => {
-      if(snap.empty){
-        emptyEl.hidden = false;
-        messagesEl.innerHTML = '';
-        messagesEl.appendChild(emptyEl);
-        messagesEl.appendChild(typingRow);
-        return;
-      }
-      emptyEl.hidden = true;
-
-      // Build the message list with a date-separator pill inserted
-      // whenever the calendar day changes between two messages.
-      let lastDateKey = '';
-      const parts = [];
-      snap.docs.forEach(doc => {
-        const d = doc.data();
-        const dateObj = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate() : null;
-        if(dateObj){
-          const dateKey = dateObj.toDateString();
-          if(dateKey !== lastDateKey){
-            lastDateKey = dateKey;
-            const label = dateObj.toLocaleDateString('uz-UZ', { day:'numeric', month:'long', year:'numeric' });
-            parts.push(`<div class="chat-date-sep"><span>${label}</span></div>`);
-          }
-        }
-        parts.push(renderChatMessage(doc));
-      });
-      messagesEl.innerHTML = parts.join('');
-      messagesEl.appendChild(typingRow);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-
-      // Mark any teacher messages the student can now see as read — this
-      // is what flips the admin-side ticks from 1 (sent) to 2 (read).
-      const unreadTeacherMsgs = snap.docs.filter(doc => {
-        const d = doc.data();
-        return d.senderRole === 'teacher' && d.read !== true;
-      });
-      if(unreadTeacherMsgs.length > 0){
-        const batch = db.batch();
-        unreadTeacherMsgs.forEach(doc => batch.update(doc.ref, { read: true }));
-        batch.commit().catch(()=>{});
-      }
-    });
+  getStudentChat().open(currentUid, {});
 
   // "O‘qituvchi yozmoqda..." indicator, driven by teacherTyping on the chat doc.
-  chatTypingUnsubscribe = watchTyping(chatDocRef, 'teacherTyping', (isTyping) => {
+  chatTypingUnsubscribe = watchTyping(db.collection('chats').doc(currentUid), 'teacherTyping', (isTyping) => {
     chatTeacherIsTyping = isTyping;
     typingRow.hidden = !isTyping;
     const statusTextEl = document.getElementById('chatTeacherStatusText');
@@ -4261,44 +4212,18 @@ document.getElementById('navChat').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('chat');
   loadChat();
-  // Mark as read by student
   db.collection('chats').doc(currentUid).update({ unreadByStudent: 0 }).catch(()=>{});
   document.getElementById('chatBadge').hidden = true;
 });
 
 document.getElementById('backToHomeFromChat').addEventListener('click', (e) => {
   e.preventDefault();
-  if(chatUnsubscribe){ chatUnsubscribe(); chatUnsubscribe = null; }
+  if(studentChat) studentChat.close();
   if(chatTypingUnsubscribe){ chatTypingUnsubscribe(); chatTypingUnsubscribe = null; }
   if(chatTypingController) chatTypingController.notifyStopped();
-  cancelChatReply();
+  if(studentChat) studentChat.cancel();
   renderHomeView();
 });
-
-// ----- Reply-to-message -----
-
-document.getElementById('chatMessages').addEventListener('click', (e) => {
-  const btn = e.target.closest('.chat-msg-reply-btn');
-  if(!btn) return;
-  const row = btn.closest('.chat-msg-row');
-  const isMine = row.classList.contains('is-mine');
-  chatReplyTarget = {
-    text: truncateForReply(row.dataset.msgText),
-    senderRole: isMine ? 'student' : 'teacher'
-  };
-  document.getElementById('chatReplyPreviewName').textContent = isMine ? 'Siz' : 'O‘qituvchi';
-  document.getElementById('chatReplyPreviewText').textContent = chatReplyTarget.text;
-  document.getElementById('chatReplyPreview').hidden = false;
-  document.getElementById('chatInput').focus();
-});
-
-function cancelChatReply(){
-  chatReplyTarget = null;
-  document.getElementById('chatReplyPreview').hidden = true;
-}
-document.getElementById('chatReplyPreviewClose').addEventListener('click', cancelChatReply);
-
-// ----- Emoji picker -----
 
 initChatEmojiPicker({
   btn: document.getElementById('chatEmojiBtn'),
@@ -4306,8 +4231,7 @@ initChatEmojiPicker({
   textarea: document.getElementById('chatInput')
 });
 
-// ----- Typing indicator (student -> teacher) -----
-
+// Typing indicator (student -> teacher)
 document.getElementById('chatInput').addEventListener('input', () => {
   if(!chatTypingController) chatTypingController = chatTypingCtrl();
   if(document.getElementById('chatInput').value.trim()){
@@ -4316,51 +4240,6 @@ document.getElementById('chatInput').addEventListener('input', () => {
     chatTypingController.notifyStopped();
   }
 });
-
-document.getElementById('chatSendBtn').addEventListener('click', sendChatMessage);
-document.getElementById('chatInput').addEventListener('keydown', (e) => {
-  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); sendChatMessage(); }
-});
-
-async function sendChatMessage(){
-  const input = document.getElementById('chatInput');
-  const sendBtn = document.getElementById('chatSendBtn');
-  const text = input.value.trim();
-  if(!text) return;
-  const replyTo = chatReplyTarget;
-  input.value = '';
-  input.disabled = true;
-  sendBtn.disabled = true;
-  if(chatTypingController) chatTypingController.notifyStopped();
-  cancelChatReply();
-
-  try{
-    const msgData = {
-      text: text,
-      senderRole: 'student',
-      senderName: state.student.name || 'Talaba',
-      read: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    if(replyTo) msgData.replyTo = replyTo;
-    await db.collection('chats').doc(currentUid).collection('messages').add(msgData);
-    // Update chat metadata for admin to see
-    await db.collection('chats').doc(currentUid).set({
-      studentId: currentUid,
-      studentName: state.student.name || 'Talaba',
-      lastMessage: text,
-      lastAt: firebase.firestore.FieldValue.serverTimestamp(),
-      unreadByTeacher: firebase.firestore.FieldValue.increment(1),
-      unreadByStudent: 0
-    }, { merge: true });
-  } catch(err){
-    alert('Xabar yuborishda xatolik yuz berdi.');
-  } finally {
-    input.disabled = false;
-    sendBtn.disabled = false;
-    input.focus();
-  }
-}
 
 // ===== SO'Z O'YINI (vocabulary game) =====
 // Levels -> 5 games each -> 20 unique English/Uzbek word pairs each
