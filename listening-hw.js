@@ -264,8 +264,10 @@
     body.innerHTML = summary + '<div class="lhw-list">' + visibleList.map(function (ex, i) {
       var sub = S.subs[ex.id];
       var badge = sub
-        ? (sub.penalty ? '<span class="lhw-badge bad">Taxmin: ' + sub.penalty + ' ta jazo</span>' : '<span class="lhw-badge done">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>')
-        : '<span class="lhw-badge todo">Topshirilmagan</span>';
+        ? (sub.penalty
+            ? '<span class="lhw-badge bad" style="background:rgba(229,72,77,.12);color:#E5484D;">Taxmin: ' + sub.penalty + ' ta jazo</span>'
+            : '<span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>')
+        : '<span class="lhw-badge todo" style="background:rgba(229,72,77,.12);color:#E5484D;">Topshirilmagan</span>';
       return '<button type="button" class="lhw-card" data-id="' + esc(ex.id) + '">' +
         '<span class="lhw-num">' + (i + 1) + '</span>' +
         '<span class="lhw-card-title">' + esc(ex.title) + '</span>' + badge +
