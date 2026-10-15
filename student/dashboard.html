@@ -3325,11 +3325,12 @@ document.getElementById('navPlacementTest').addEventListener('click', async (e) 
   e.preventDefault();
   await openPlacementTestView();
 });
-document.getElementById('navListeningHw').addEventListener('click', (e) => {
+document.getElementById('navListeningHw').addEventListener('click', async (e) => {
   e.preventDefault();
   setActiveNav('navListeningHw');
   switchView('listening-hw');
-  ListeningHW.openStudent({ uid: currentUid, name: state.student && state.student.name });
+  const groupId = await resolveStudentKundalikGroupId().catch(() => null);
+  ListeningHW.openStudent({ uid: currentUid, name: state.student && state.student.name, groupId: groupId || '' });
 });
 document.getElementById('navProfile').addEventListener('click', (e) => {
   e.preventDefault();
