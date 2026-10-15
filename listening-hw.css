@@ -251,3 +251,14 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .lhw-table tbody tr:last-child td{ border-bottom:none; }
 .lhw-t-rank{ font-weight:900; color:var(--lhw-blue); }
 .lhw-t-total{ font-weight:900; }
+
+/* menyu: Listening Marafon — och zangor tugma */
+.admin-nav a.lhw-menu-btn,
+.sbn-sheet-item.lhw-menu-btn{
+  background:#4DA3FF !important; border-color:#4DA3FF !important; color:#fff !important;
+  font-weight:800 !important; box-shadow:0 10px 22px -14px rgba(77,163,255,.9);
+}
+.admin-nav a.lhw-menu-btn svg,
+.sbn-sheet-item.lhw-menu-btn svg{ stroke:#fff !important; }
+.admin-nav a.lhw-menu-btn:hover,
+.sbn-sheet-item.lhw-menu-btn:hover{ background:#2F8EF0 !important; }
