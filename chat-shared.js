@@ -721,7 +721,7 @@ function createChatController(cfg){
 // Admin: onlayn holatini ko'rsatish / yashirish tugmasi (presence/teacher-status.hidden)
 (function addPresenceToggle(){
   function init(){
-    const host = document.querySelector('.chat-header-actions');
+    const host = document.querySelector('#view-chats .chat-header-actions');
     if(!host || host.querySelector('.chat-presence-toggle') || typeof firebase === 'undefined') return;
     const btn = document.createElement('button');
     btn.type = 'button'; btn.className = 'chat-presence-toggle btn';
