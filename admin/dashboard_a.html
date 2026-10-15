@@ -608,6 +608,19 @@ body.admin-theme.dark .st-donut svg text:last-of-type{ fill:#c3cada !important; 
 
 /* Dark mode: Caller — muddati o'tgan qatorlar */
 body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,95,.12) !important; }
+
+/* ===== Xabarlar: Telegram kabi butun ekranli chat ===== */
+@media (min-width: 761px){
+  body.chat-fullscreen .admin-main{ padding:0 !important; max-width:none !important; }
+  body.chat-fullscreen #view-chats:not([hidden]){ display:flex; flex-direction:column; height:100vh; height:100dvh; }
+  body.chat-fullscreen #view-chats .chat-page-header{ flex:none; margin:0; padding:.7em 1.2em; border-bottom:1px solid var(--adm-line); }
+  body.chat-fullscreen #view-chats .chat-page-header h1{ font-size:1.25rem; margin:0; }
+  body.chat-fullscreen #view-chats .chat-page-header p{ display:none; }
+  body.chat-fullscreen #view-chats .chat-grid{ flex:1; min-height:0; height:auto; gap:0; grid-template-columns:minmax(300px,360px) 1fr; }
+  body.chat-fullscreen #view-chats .chat-panel{ border-radius:0; box-shadow:none; border-width:0; min-height:0; }
+  body.chat-fullscreen #view-chats .chat-panel-list{ border-right:1px solid var(--adm-line); }
+  body.chat-fullscreen #view-chats .chat-messages{ padding:1.2em 8%; }
+}
 </style>
 </head>
 
@@ -4545,6 +4558,7 @@ function switchView(view){
   document.getElementById('navGradebook').classList.toggle('active', view === 'gradebook');
   document.getElementById('view-broadcast').hidden = view !== 'broadcast';
   document.getElementById('view-chats').hidden = view !== 'chats';
+  document.body.classList.toggle('chat-fullscreen', view === 'chats');
   document.getElementById('view-parent-chats').hidden = view !== 'parent-chats';
   document.getElementById('navBroadcast').classList.toggle('active', view === 'broadcast');
   document.getElementById('navChats').classList.toggle('active', view === 'chats');
