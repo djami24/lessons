@@ -622,6 +622,23 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
   body.chat-fullscreen #view-chats .chat-panel-list{ border-right:1px solid var(--adm-line); }
   body.chat-fullscreen #view-chats .chat-messages{ padding:1.2em 8%; }
 }
+
+/* Yuklanish ekrani: matn o'rniga aylanuvchi animatsiya */
+.dl-wrap{display:flex;flex-direction:column;align-items:center;gap:20px}
+.dl-ring{position:relative;width:88px;height:88px;display:flex;align-items:center;justify-content:center}
+.dl-ring::before{content:"";position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,rgba(47,111,237,0),#2F6FED);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+  mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
+  animation:dashSpin 1s linear infinite}
+.dl-ring img{width:54px;height:54px;object-fit:contain;border-radius:14px;animation:dlPulse 1.6s ease-in-out infinite}
+.dl-text{font-size:.95rem;font-weight:600;letter-spacing:.04em;color:var(--gray,#8a94a8)}
+.dl-text span{opacity:.2;animation:dlDot 1.2s infinite}
+.dl-text span:nth-child(2){animation-delay:.2s}
+.dl-text span:nth-child(3){animation-delay:.4s}
+@keyframes dashSpin{to{transform:rotate(360deg)}}
+@keyframes dlPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.9);opacity:.75}}
+@keyframes dlDot{0%,80%,100%{opacity:.2}40%{opacity:1}}
 </style>
 </head>
 
@@ -657,7 +674,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
   <div class="site-marquee-track"><span data-site-marquee-text></span></div>
 </div>
 
-<div id="loadingScreen" class="loading-screen">Yuklanmoqda…</div>
+<div id="loadingScreen" class="loading-screen" role="status" aria-label="Yuklanmoqda"><div class="dl-wrap"><div class="dl-ring"><img src="../assets/favicon__apple-touch-icon.png" alt=""></div><div class="dl-text">Yuklanmoqda<span>.</span><span>.</span><span>.</span></div></div></div>
 
 <div class="admin-shell" id="appShell" hidden>
 
