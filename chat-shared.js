@@ -312,6 +312,15 @@ const CHAT_QUICK_DEFAULT = ['Salom! 👋', 'Rahmat, qabul qilindi ✅', 'Uy vazi
   body.dark .chat-msg-actions{background:#1d2740}
   body.dark .chat-msg-bubble mark{background:#b58900;color:#fff}
   .chat-filter-chips button.is-active,.chat-jump-btn{background:var(--adm-blue,var(--teal,#0f9d8a))}
+  /* Talaba chati: butun ekranli (Telegram kabi) */
+  #view-chat:not([hidden]){position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;background:var(--white,#fff);margin:0;padding:0;overflow:hidden}
+  body.dark #view-chat:not([hidden]){background:#171d2c}
+  #view-chat:not([hidden]) .chat-page-header{display:none}
+  #view-chat:not([hidden]) .back-link{flex:none;margin:0;padding:.8em 1.1em;border-bottom:1px solid var(--line,rgba(127,127,127,.25));display:block}
+  #view-chat:not([hidden]) .chat-panel-solo{flex:1;min-height:0;height:auto !important;border:0;border-radius:0;box-shadow:none}
+  #view-chat:not([hidden]) .chat-messages{padding:1em 5%}
+  #view-chat:not([hidden]) .chat-textarea{font-size:16px}
+  @media (min-width:900px){ #view-chat:not([hidden]) .chat-messages{padding:1.2em 12%} }
   `;
   document.head.appendChild(st);
 })();
