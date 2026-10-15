@@ -23,7 +23,7 @@
   var BLANKS = 5;
   var MAX_ANSWER_LEN = 200;
   // Taxmin qoidasi: bo‘shliqlarning FLAG_WRONG tasi yoki undan ko‘pi noto‘g‘ri bo‘lsa —
-  // mashq uchun 0 ball, PENALTY jazo, natija domlaga taqdim etiladi.
+  // mashq uchun 0 ball beriladi, PENALTY ta jazo qayd etiladi (balldan ayrilmaydi), natija domlaga taqdim etiladi.
   var FLAG_WRONG = 5;
   var PENALTY = 100;
 
@@ -58,12 +58,12 @@
     var flagged = (BLANKS - correct) >= FLAG_WRONG;
     var score = flagged ? 0 : correct;
     var penalty = flagged ? PENALTY : 0;
-    return { score: score, marks: marks, flagged: flagged, penalty: penalty, finalScore: score - penalty };
+    return { score: score, marks: marks, flagged: flagged, penalty: penalty, finalScore: score };
   }
 
-  // Reytingdagi yakuniy ball (jazo ayrilgan)
+  // Reytingdagi yakuniy ball (jazo balldan ayrilmaydi, alohida qayd etiladi)
   function finalOf(r) {
-    return typeof r.finalScore === 'number' ? r.finalScore : (r.score || 0) - (r.penalty || 0);
+    return typeof r.finalScore === 'number' ? r.finalScore : (r.score || 0);
   }
 
   function tsMs(t) {
@@ -114,7 +114,7 @@
       var r = x.row, me = !!myUid && r.studentId === myUid;
       var fin = finalOf(r);
       var score = r.penalty
-        ? '<span class="lhw-score">' + fin + ' ball</span><small class="lhw-pen">−' + r.penalty + ' jazo</small>'
+        ? '<span class="lhw-score">' + fin + ' ball</span><small class="lhw-pen">' + r.penalty + ' ta jazo</small>'
         : '<span class="lhw-score">' + (r.score || 0) + '/' + BLANKS + '</span>';
       var flag = (adminView && r.flagged) ? ' <span class="lhw-flag">⚠ Domlaga</span>' : '';
       return '<li class="lhw-row' + (me ? ' me' : '') + (adminView ? ' lhw-click' : '') + '" data-sid="' + esc(r._id || '') + '">' +
@@ -230,7 +230,7 @@
         '<p>Siz <b>Listening marafon</b>ga qo‘shildingiz!</p>' +
         '<p>Jami <b>12 ta marafon</b> bo‘ladi. Har bir mashqda 5 ta bo‘shliq bor — har bir to‘g‘ri javob <b>1 ball</b>.</p>' +
         '<div class="lhw-modal-prize">🏆 Marafon oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div>' +
-        '<p class="lhw-modal-warn">⚠️ Eslatma: 5 ta bo‘shliqning hammasi noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi — 0 ball, <b>−100 jazo</b> va natija domlaga taqdim etiladi.</p>' +
+        '<p class="lhw-modal-warn">⚠️ Eslatma: 5 ta bo‘shliqning hammasi noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi — 0 ball, <b>100 ta jazo</b> qayd etiladi va natija domlaga taqdim etiladi.</p>' +
         '<button type="button" class="lhw-modal-btn">Boshlaymiz!</button>' +
       '</div>';
     document.body.appendChild(bg);
@@ -261,7 +261,7 @@
     body.innerHTML = summary + '<div class="lhw-list">' + visibleList.map(function (ex, i) {
       var sub = S.subs[ex.id];
       var badge = sub
-        ? (sub.penalty ? '<span class="lhw-badge bad">Taxmin −' + sub.penalty + '</span>' : '<span class="lhw-badge done">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>')
+        ? (sub.penalty ? '<span class="lhw-badge bad">Taxmin: ' + sub.penalty + ' ta jazo</span>' : '<span class="lhw-badge done">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>')
         : '<span class="lhw-badge todo">Topshirilmagan</span>';
       return '<button type="button" class="lhw-card" data-id="' + esc(ex.id) + '">' +
         '<span class="lhw-num">' + (i + 1) + '</span>' +
@@ -405,7 +405,7 @@
       '<div class="lhw-result">' +
         '<div class="lhw-score-big">' + score + '<span>/' + BLANKS + '</span></div>' +
         '<p class="lhw-muted">Siz ' + BLANKS + ' ta bo‘shliqdan ' + score + 'tasini to‘g‘ri topdingiz. Natija topshirilgan — o‘zgartirib bo‘lmaydi.</p>' +
-        (sub.penalty ? '<div class="lhw-warn">⚠️ Taxmin aniqlandi: 0 ball, −' + sub.penalty + ' jazo. Natija domlaga taqdim etildi.</div>' : '') +
+        (sub.penalty ? '<div class="lhw-warn">⚠️ Taxmin aniqlandi: 0 ball, ' + sub.penalty + ' ta jazo qayd etildi. Natija domlaga taqdim etildi.</div>' : '') +
         '<ol class="lhw-res-list">' + rows + '</ol>' +
       '</div>';
   }
@@ -604,7 +604,7 @@
       var flagged = (rows || []).filter(function (r) { return r.flagged; });
       body.innerHTML = leaderboardHTML(rows, null, true) +
         (rows ? '<p class="lhw-muted">Topshirganlar: ' + rows.length + ' ta — qatorga bosing, javoblarini ko‘ring</p>' : '') +
-        (flagged.length ? '<div class="lhw-warn">Domlaga taqdim etilgan taxminchilar (−' + PENALTY + ' jazo): ' +
+        (flagged.length ? '<div class="lhw-warn">Domlaga taqdim etilgan taxminchilar (' + PENALTY + ' ta jazo): ' +
           flagged.map(function (r) { return esc(r.studentName || 'Talaba'); }).join(', ') + '</div>' : '');
       if (A.detailSid) showAdminDetail(A.detailSid);
     });
@@ -632,7 +632,7 @@
         '</li>';
     }
     var summary = sub.penalty
-      ? 'Taxmin: 0 ball, −' + sub.penalty + ' jazo'
+      ? 'Taxmin: 0 ball, ' + sub.penalty + ' ta jazo'
       : 'Ball: ' + (sub.score || 0) + '/' + BLANKS;
     box.innerHTML = '<div class="lhw-admin-detail">' +
       '<div class="lhw-lb-head"><h3>' + esc(sub.studentName || 'Talaba') + ' — javoblari</h3>' +
