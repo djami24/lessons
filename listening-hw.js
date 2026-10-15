@@ -140,7 +140,7 @@
   /* ============================================================
      TALABA
      ============================================================ */
-  var S = { uid: null, name: 'Talaba', groupId: '', exercises: [], subs: {}, unsubs: [], lbUnsub: null, activeId: null };
+  var S = { uid: null, name: 'Talaba', groupId: '', exercises: [], subs: {}, allTotals: {}, unsubs: [], lbUnsub: null, activeId: null };
 
   function stopStudentLb() {
     if (S.lbUnsub) { try { S.lbUnsub(); } catch (e) { /* ignore */ } S.lbUnsub = null; }
@@ -185,7 +185,27 @@
       renderStudentList();
     }));
 
+    // Hamma talabalarning umumiy balli (o‘rinni hisoblash uchun)
+    S.unsubs.push(db.collection(COL_SUB).onSnapshot(function (snap) {
+      var totals = {};
+      snap.docs.forEach(function (d) {
+        var x = d.data();
+        totals[x.studentId] = (totals[x.studentId] || 0) + finalOf(x);
+      });
+      S.allTotals = totals;
+      renderStudentList();
+    }, function () { /* o‘rin ko‘rsatilmasa ham ro‘yxat ishlayveradi */ }));
+
     maybeShowWelcome();
+  }
+
+  // Umumiy reytingdagi o‘rin: mendan yuqori umumiy ballga ega talabalar soni + 1
+  function overallRank() {
+    var ids = Object.keys(S.allTotals);
+    if (!ids.length || !(S.uid in S.allTotals)) return null;
+    var mine = S.allTotals[S.uid];
+    var above = ids.filter(function (id) { return S.allTotals[id] > mine; }).length;
+    return { rank: above + 1, of: ids.length };
   }
 
   // Talaba birinchi marta Listening bo‘limiga kirganda tabrik chiqadi (bir martalik)
@@ -229,7 +249,16 @@
       body.innerHTML = '<div class="lhw-empty">Hozircha listening uy vazifasi qo‘yilmagan.</div>';
       return;
     }
-    body.innerHTML = '<div class="lhw-list">' + visibleList.map(function (ex, i) {
+    var total = 0, done = 0;
+    visibleList.forEach(function (ex) { var sb = S.subs[ex.id]; if (sb) { done++; total += finalOf(sb); } });
+    var summary = '<div class="lhw-total">' +
+      '<div><span class="lhw-total-label">Sizning umumiy ballingiz</span><span class="lhw-total-num">' + total + '</span></div>' +
+      '<div class="lhw-total-meta">Topshirildi: ' + done + ' / ' + visibleList.length + '</div>' +
+      (function () {
+        var o = overallRank();
+        return o ? '<div class="lhw-total-meta">🏅 Umumiy o‘rin: ' + o.rank + '-o‘rin / ' + o.of + '</div>' : '';
+      })() + '</div>';
+    body.innerHTML = summary + '<div class="lhw-list">' + visibleList.map(function (ex, i) {
       var sub = S.subs[ex.id];
       var badge = sub
         ? (sub.penalty ? '<span class="lhw-badge bad">Taxmin −' + sub.penalty + '</span>' : '<span class="lhw-badge done">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>')
