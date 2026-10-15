@@ -26,7 +26,7 @@
   // mashq uchun 0 ball beriladi, PENALTY ta jazo qayd etiladi (balldan ayrilmaydi), natija domlaga taqdim etiladi.
   var FLAG_WRONG = 5;
   var PENALTY = 100;
-  // Marafonning umumiy mashqlar soni (qolgan marafonni hisoblash uchun)
+  // Marafonning umumiy soni: har bir kiritilgan mashq — bitta marafon (qolganini shundan hisoblaydi)
   var MARATHON_TOTAL = 12;
 
   /* ---------- yordamchilar ---------- */
@@ -255,8 +255,8 @@
     visibleList.forEach(function (ex) { var sb = S.subs[ex.id]; if (sb) { done++; total += finalOf(sb); } });
     var summary = '<div class="lhw-total">' +
       '<div><span class="lhw-total-label">Sizning umumiy ballingiz</span><span class="lhw-total-num">' + total + '</span></div>' +
-      '<div class="lhw-total-meta">Topshirildi: ' + done + ' / ' + MARATHON_TOTAL + '</div>' +
-      '<div class="lhw-total-meta">🎯 Qolgan marafon: ' + Math.max(0, MARATHON_TOTAL - done) + ' ta</div>' +
+      '<div class="lhw-total-meta">Topshirildi: ' + done + ' / ' + visibleList.length + '</div>' +
+      '<div class="lhw-total-meta">🎯 Qolgan marafon: ' + Math.max(0, MARATHON_TOTAL - S.exercises.length) + ' ta</div>' +
       (function () {
         var o = overallRank();
         return o ? '<div class="lhw-total-meta">🏅 Umumiy o‘rin: ' + o.rank + '-o‘rin / ' + o.of + '</div>' : '';
