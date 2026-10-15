@@ -413,7 +413,7 @@
   /* ============================================================
      ADMIN
      ============================================================ */
-  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [] };
+  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [], allSubs: [], groupNames: {} };
 
   function stopAdminLb() {
     if (A.lbUnsub) { try { A.lbUnsub(); } catch (e) { /* ignore */ } A.lbUnsub = null; }
@@ -438,6 +438,7 @@
         '<h1>Listening uy vazifalari</h1>' +
         '<p>Har bir mashq uchun 5 ta to‘g‘ri javob kiriting. Talaba bo‘sh joylarni to‘ldiradi; har bir to‘g‘ri javob — 1 ball. Bir nechta to‘g‘ri variant uchun "|" belgisidan foydalaning.</p>' +
       '</div></div>' +
+      '<div id="lhwOverall" class="lhw-overall"></div>' +
       '<div class="lhw-admin-grid">' +
         '<form id="lhwAdminForm" class="lhw-form">' +
           '<h3 id="lhwFormTitle">Yangi mashq qo‘shish</h3>' +
@@ -460,8 +461,14 @@
     document.getElementById('lhwCancel').addEventListener('click', resetAdminForm);
     document.getElementById('lhwAdminList').addEventListener('click', onAdminListClick);
 
+    A.unsubs.push(db.collection(COL_SUB).onSnapshot(function (snap) {
+      A.allSubs = snap.docs.map(function (d) { return d.data(); });
+      renderOverall();
+    }));
+
     A.unsubs.push(db.collection(COL_EX).onSnapshot(function (snap) {
       A.exercises = sortByCreated(snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }));
+      renderOverall();
       if (A.lbId && !A.exercises.some(function (e) { return e.id === A.lbId; })) closeAdminLb();
       renderAdminList();
     }, function (e) {
@@ -480,10 +487,52 @@
         var o = document.createElement('option');
         o.value = d.id;
         o.textContent = d.data().name || d.id;
+        A.groupNames[d.id] = o.textContent;
         sel.appendChild(o);
       });
       sel.value = keep;
     }).catch(function () { /* guruhlar yuklanmasa ham "Barcha guruhlar" ishlaydi */ });
+  }
+
+  // Admin: barcha talabalarning umumiy reytingi (jonli)
+  function renderOverall() {
+    var box = document.getElementById('lhwOverall');
+    if (!box) return;
+    var by = {};
+    A.allSubs.forEach(function (x) {
+      var k = x.studentId;
+      if (!by[k]) by[k] = { id: k, name: 'Talaba', groupId: '', total: 0, done: 0, flagged: 0 };
+      by[k].name = x.studentName || by[k].name;
+      if (x.groupId) by[k].groupId = x.groupId;
+      by[k].total += finalOf(x);
+      by[k].done += 1;
+      if (x.flagged) by[k].flagged += 1;
+    });
+    var list = Object.keys(by).map(function (k) { return by[k]; })
+      .sort(function (a, b) { return b.total - a.total || b.done - a.done; });
+    var rank = 0, prev = null;
+    var rowsHtml = list.map(function (r, idx) {
+      if (r.total !== prev) { rank = idx + 1; prev = r.total; }
+      var grp = r.groupId ? (A.groupNames[r.groupId] || '—') : 'Guruhsiz';
+      return '<tr>' +
+        '<td class="lhw-t-rank">' + rank + '</td>' +
+        '<td>' + esc(r.name) + '</td>' +
+        '<td class="lhw-muted">' + esc(grp) + '</td>' +
+        '<td class="lhw-t-total">' + r.total + '</td>' +
+        '<td>' + r.done + ' / ' + A.exercises.length + '</td>' +
+        '<td>' + (r.flagged ? '<span class="lhw-flag">⚠ ' + r.flagged + '</span>' : '—') + '</td>' +
+        '</tr>';
+    }).join('');
+    box.innerHTML =
+      '<div class="lhw-overall-card">' +
+        '<div class="lhw-lb-head"><h3>Umumiy reyting</h3>' +
+          '<span class="lhw-muted">Mashqlar: ' + A.exercises.length + ' ta · Ishtirokchilar: ' + list.length + ' ta</span></div>' +
+        (list.length
+          ? '<div class="lhw-overall-wrap"><table class="lhw-table"><thead><tr>' +
+              '<th>O‘rin</th><th>Talaba</th><th>Guruh</th><th>Jami ball</th><th>Topshirgan</th><th>Taxmin</th>' +
+            '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>'
+          : '<p class="lhw-muted">Hali hech kim topshirmagan.</p>') +
+      '</div>';
   }
 
   function renderAdminList() {
