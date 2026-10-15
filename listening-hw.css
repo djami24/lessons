@@ -229,3 +229,14 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .lhw-row.lhw-click:hover{ border-color:var(--lhw-blue); }
 .lhw-admin-detail{ margin-top:16px; padding-top:14px; border-top:1px dashed var(--lhw-line); }
 .lhw-admin-detail .lhw-lb-head h3{ font-size:1rem; }
+
+/* talabaning umumiy bali (ro'yxat tepasida) */
+.lhw-total{
+  display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+  margin:0 0 14px; padding:16px 18px; border-radius:18px;
+  background:linear-gradient(135deg,#2F6FED,#7C5CFC); color:#fff; box-shadow:0 14px 30px -18px rgba(47,111,237,.7);
+}
+.lhw-total > div:first-child{ display:flex; flex-direction:column; }
+.lhw-total-label{ font-size:.82rem; font-weight:700; opacity:.9; }
+.lhw-total-num{ font-size:2.2rem; font-weight:900; line-height:1.1; }
+.lhw-total-meta{ font-size:.85rem; font-weight:700; background:rgba(255,255,255,.18); padding:6px 12px; border-radius:999px; }
