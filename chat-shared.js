@@ -316,7 +316,9 @@ const CHAT_QUICK_DEFAULT = ['Salom! 👋', 'Rahmat, qabul qilindi ✅', 'Uy vazi
   #view-chat:not([hidden]){position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;background:var(--white,#fff);margin:0;padding:0;overflow:hidden}
   body.dark #view-chat:not([hidden]){background:#171d2c}
   #view-chat:not([hidden]) .chat-page-header{display:none}
-  #view-chat:not([hidden]) .back-link{flex:none;margin:0;padding:.8em 1.1em;border-bottom:1px solid var(--line,rgba(127,127,127,.25));display:block}
+  #view-chat:not([hidden]) .back-link{display:none}
+  #view-chat:not([hidden]) .chat-detail-header{padding:.6em 1em;flex:none}
+  .chat-back-btn{background:none;border:0;color:inherit;font-size:26px;line-height:1;cursor:pointer;padding:0 8px 0 0;flex:none}
   #view-chat:not([hidden]) .chat-panel-solo{flex:1;min-height:0;height:auto !important;border:0;border-radius:0;box-shadow:none}
   #view-chat:not([hidden]) .chat-messages{padding:1em 5%}
   #view-chat:not([hidden]) .chat-textarea{font-size:16px}
@@ -695,3 +697,19 @@ function createChatController(cfg){
     if(unsubMeta){ unsubMeta(); unsubMeta = null; }
   }
 }
+
+
+// Talaba chati: "Bosh sahifaga" tugmasi o'rniga chat sarlavhasida ← tugma
+(function addStudentChatBackBtn(){
+  function init(){
+    const back = document.getElementById('backToHomeFromChat');
+    const header = document.querySelector('#view-chat .chat-detail-header');
+    if(!back || !header || header.querySelector('.chat-back-btn')) return;
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chat-back-btn'; b.title = 'Orqaga'; b.setAttribute('aria-label', 'Orqaga');
+    b.textContent = '←';
+    b.addEventListener('click', () => back.click());
+    header.insertBefore(b, header.firstChild);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
