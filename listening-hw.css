@@ -1,625 +1,225 @@
 /* ============================================================
-   Listening uy vazifalari — talaba va admin uchun umumiy modul
-   ------------------------------------------------------------
-   Firestore:
-     listening_exercises/{exId}
-       { title, mediaUrl, answers:[5 ta matn], createdAt, updatedAt }
-       answers[i] — i-bo‘sh joy uchun to‘g‘ri javob.
-       Bir nechta to‘g‘ri variant bo‘lsa "|" bilan ajrating: "color | colour"
-     listening_submissions/{exId_uid}
-       { exerciseId, studentId, studentName, answers:[5], score, total, marks, submittedAt }
-       Talaba har mashqni faqat bir marta topshiradi (hujjat ID = exId_uid).
-
-   Ishlatish:
-     ListeningHW.openStudent({ uid, name })  — talaba paneli (#lhwStudentRoot)
-     ListeningHW.openAdmin()                 — admin paneli  (#lhwAdminRoot)
-   Talab qilinadi: firebase-config.js (global `db`, `firebase`).
+   Listening uy vazifalari — uslublar (talaba + admin)
    ============================================================ */
-(function (global) {
-  'use strict';
+.lhw-root{
+  --lhw-ink:#101B3D; --lhw-muted:#6B7590; --lhw-line:#E4E9F3; --lhw-card:#FFFFFF;
+  --lhw-blue:#2F6FED; --lhw-blue-deep:#1E54C4; --lhw-green:#1FAE7A; --lhw-red:#E5484D;
+  --lhw-soft:#F4F6FB; --lhw-me:#EAF2FF;
+  color:var(--lhw-ink); font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:15px; line-height:1.5; max-width:980px; margin:0 auto; padding:4px 0 40px;
+}
+body.dark .lhw-root,
+body.admin-theme.dark .lhw-root{
+  --lhw-ink:#E8ECF6; --lhw-muted:#94A0B8; --lhw-line:#2A3248; --lhw-card:#171D2C;
+  --lhw-soft:#1E2538; --lhw-me:#1B2B4D;
+}
+.lhw-root *{ box-sizing:border-box; }
+.lhw-root h1{ font-size:1.4rem; margin:0 0 4px; font-weight:800; letter-spacing:-.01em; }
+.lhw-root h2{ font-size:1.2rem; margin:10px 0 8px; font-weight:800; }
+.lhw-root h3{ font-size:1rem; margin:0 0 10px; font-weight:800; }
+.lhw-head{ margin-bottom:16px; }
+.lhw-head p{ margin:0; color:var(--lhw-muted); font-size:.92rem; }
+.lhw-muted{ color:var(--lhw-muted); font-size:.9rem; margin:4px 0; }
+.lhw-hint{ color:var(--lhw-muted); font-size:.82rem; margin:10px 0 0; }
+.lhw-empty{
+  padding:22px; text-align:center; color:var(--lhw-muted);
+  background:var(--lhw-card); border:1px dashed var(--lhw-line); border-radius:16px;
+}
+.lhw-err{ color:var(--lhw-red); font-weight:600; font-size:.88rem; margin:8px 0; }
+.lhw-num{
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+  width:28px; height:28px; border-radius:9px; background:var(--lhw-soft);
+  font-weight:800; font-size:.85rem; color:var(--lhw-blue);
+}
 
-  var COL_EX = 'listening_exercises';
-  var COL_SUB = 'listening_submissions';
-  var BLANKS = 5;
-  var MAX_ANSWER_LEN = 200;
-  // Taxmin qoidasi: bo‘shliqlarning FLAG_WRONG tasi yoki undan ko‘pi noto‘g‘ri bo‘lsa —
-  // mashq uchun 0 ball, PENALTY jazo, natija domlaga taqdim etiladi.
-  var FLAG_WRONG = 5;
-  var PENALTY = 100;
+/* buttons */
+.lhw-btn{
+  appearance:none; border:1px solid var(--lhw-line); background:var(--lhw-card); color:var(--lhw-ink);
+  font:inherit; font-weight:700; font-size:.9rem; padding:10px 16px; border-radius:12px; cursor:pointer;
+  transition:background .15s, border-color .15s, opacity .15s;
+}
+.lhw-btn:hover{ background:var(--lhw-soft); }
+.lhw-btn:disabled{ opacity:.6; cursor:not-allowed; }
+.lhw-btn.primary{ background:var(--lhw-blue); border-color:var(--lhw-blue); color:#fff; }
+.lhw-btn.primary:hover{ background:var(--lhw-blue-deep); border-color:var(--lhw-blue-deep); }
+.lhw-btn.sm{ padding:6px 11px; font-size:.82rem; border-radius:9px; }
+.lhw-btn.danger{ color:var(--lhw-red); }
+.lhw-btn.danger:hover{ background:rgba(229,72,77,.08); }
 
-  /* ---------- yordamchilar ---------- */
+/* student: exercise list */
+.lhw-list{ display:grid; gap:10px; }
+.lhw-card{
+  appearance:none; width:100%; display:flex; align-items:center; gap:12px; text-align:left;
+  background:var(--lhw-card); border:1px solid var(--lhw-line); border-radius:16px; padding:14px 16px;
+  font:inherit; color:var(--lhw-ink); cursor:pointer; box-shadow:0 8px 20px -18px rgba(16,27,61,.35);
+  transition:transform .12s, border-color .15s;
+}
+.lhw-card:hover{ border-color:var(--lhw-blue); transform:translateY(-1px); }
+.lhw-card-title{ flex:1; font-weight:700; min-width:0; overflow-wrap:anywhere; }
+.lhw-badge{ font-size:.78rem; font-weight:800; padding:5px 10px; border-radius:999px; white-space:nowrap; }
+.lhw-badge.done{ background:rgba(31,174,122,.14); color:var(--lhw-green); }
+.lhw-badge.todo{ background:rgba(47,111,237,.12); color:var(--lhw-blue); }
 
-  function esc(v) {
-    return String(v == null ? '' : v).replace(/[&<>"']/g, function (m) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
-    });
-  }
+/* student: detail */
+.lhw-back{
+  appearance:none; background:none; border:none; padding:6px 0; margin-bottom:8px;
+  font:inherit; font-weight:700; color:var(--lhw-blue); cursor:pointer;
+}
+.lhw-detail{
+  background:var(--lhw-card); border:1px solid var(--lhw-line); border-radius:18px; padding:18px;
+  box-shadow:0 10px 26px -22px rgba(16,27,61,.35);
+}
+.lhw-media{
+  display:inline-block; margin:6px 0 12px; padding:8px 14px; border-radius:11px;
+  background:rgba(47,111,237,.1); color:var(--lhw-blue); font-weight:700; font-size:.88rem; text-decoration:none;
+}
+.lhw-form-student{ display:grid; gap:10px; margin-top:6px; }
+.lhw-blank{ display:flex; align-items:center; gap:10px; }
+.lhw-blank input{
+  flex:1; min-width:0; padding:11px 13px; font:inherit; font-size:.95rem; color:var(--lhw-ink);
+  background:var(--lhw-soft); border:1.5px solid var(--lhw-line); border-radius:12px; outline:none;
+}
+.lhw-blank input:focus{ border-color:var(--lhw-blue); background:var(--lhw-card); }
+.lhw-blank-no{
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+  width:28px; height:28px; border-radius:50%; background:var(--lhw-soft); font-weight:800; font-size:.8rem;
+}
+.lhw-form-student .lhw-btn.primary{ justify-self:start; margin-top:4px; }
 
-  // Javobni solishtirish uchun: kichik harf, tinish belgilarisiz, ortiqcha bo‘shliqlarsiz
-  function norm(s) {
-    return String(s == null ? '' : s)
-      .toLowerCase()
-      .replace(/[.,!?;:"“”‘’'()\[\]\-]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
+.lhw-result{ display:grid; gap:8px; }
+.lhw-score-big{ font-size:2.6rem; font-weight:900; color:var(--lhw-blue); line-height:1; }
+.lhw-score-big span{ font-size:1.1rem; color:var(--lhw-muted); font-weight:700; margin-left:2px; }
+.lhw-res-list{ list-style:none; margin:8px 0 0; padding:0; display:grid; gap:8px; }
+.lhw-res{
+  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px;
+  background:var(--lhw-soft); flex-wrap:wrap;
+}
+.lhw-res.ok{ box-shadow:inset 3px 0 0 var(--lhw-green); }
+.lhw-res.bad{ box-shadow:inset 3px 0 0 var(--lhw-red); }
+.lhw-res-yours{ flex:1; font-weight:600; min-width:0; overflow-wrap:anywhere; }
+.lhw-res-mark{ font-weight:800; }
+.lhw-res.ok .lhw-res-mark{ color:var(--lhw-green); }
+.lhw-res.bad .lhw-res-mark{ color:var(--lhw-red); }
+.lhw-res-mark small{ font-weight:600; color:var(--lhw-muted); }
 
-  function acceptedVariants(key) {
-    return String(key == null ? '' : key).split('|').map(norm).filter(Boolean);
-  }
+.lhw-sub-title{ margin:22px 0 10px; font-size:1.02rem; }
 
-  function grade(keyAnswers, studentAnswers) {
-    var marks = [], correct = 0;
-    for (var i = 0; i < BLANKS; i++) {
-      var ok = acceptedVariants((keyAnswers || [])[i]).indexOf(norm((studentAnswers || [])[i])) !== -1;
-      marks.push(ok);
-      if (ok) correct++;
-    }
-    var flagged = (BLANKS - correct) >= FLAG_WRONG;
-    var score = flagged ? 0 : correct;
-    var penalty = flagged ? PENALTY : 0;
-    return { score: score, marks: marks, flagged: flagged, penalty: penalty, finalScore: score - penalty };
-  }
+/* leaderboard */
+.lhw-board{ list-style:none; margin:0; padding:0; display:grid; gap:6px; }
+.lhw-row{
+  display:flex; align-items:center; gap:12px; padding:10px 14px; border-radius:12px;
+  background:var(--lhw-card); border:1px solid var(--lhw-line);
+}
+.lhw-row.me{ background:var(--lhw-me); border-color:var(--lhw-blue); }
+.lhw-rank{ width:30px; font-weight:900; color:var(--lhw-muted); text-align:center; flex-shrink:0; }
+.lhw-row:nth-child(1) .lhw-rank{ color:#E0A100; }
+.lhw-row:nth-child(2) .lhw-rank{ color:#8A96AD; }
+.lhw-row:nth-child(3) .lhw-rank{ color:#B9753A; }
+.lhw-name{ flex:1; font-weight:700; min-width:0; overflow-wrap:anywhere; }
+.lhw-name em{ font-style:normal; color:var(--lhw-blue); font-size:.82rem; }
+.lhw-score{ font-weight:900; color:var(--lhw-blue); white-space:nowrap; }
 
-  // Reytingdagi yakuniy ball (jazo ayrilgan)
-  function finalOf(r) {
-    return typeof r.finalScore === 'number' ? r.finalScore : (r.score || 0) - (r.penalty || 0);
-  }
+/* admin: layout */
+.lhw-admin-grid{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr); gap:18px; align-items:start; }
+.lhw-form{
+  background:var(--lhw-card); border:1px solid var(--lhw-line); border-radius:18px; padding:18px;
+  display:grid; gap:12px;
+}
+.lhw-field{ display:grid; gap:5px; }
+.lhw-field > span{ font-size:.82rem; font-weight:700; color:var(--lhw-muted); }
+.lhw-field input{
+  width:100%; padding:10px 12px; font:inherit; font-size:.92rem; color:var(--lhw-ink);
+  background:var(--lhw-soft); border:1.5px solid var(--lhw-line); border-radius:11px; outline:none;
+}
+.lhw-field input:focus{ border-color:var(--lhw-blue); background:var(--lhw-card); }
+.lhw-answers{ display:grid; gap:10px; }
+.lhw-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+.lhw-admin-list{ min-width:0; }
+.lhw-admin-row{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap; padding:12px 14px; margin-bottom:10px;
+  background:var(--lhw-card); border:1px solid var(--lhw-line); border-radius:14px;
+}
+.lhw-admin-info{ flex:1; min-width:160px; }
+.lhw-admin-title{ font-weight:800; display:flex; align-items:center; gap:8px; overflow-wrap:anywhere; }
+.lhw-preview{ font-size:.8rem; margin-top:4px; overflow-wrap:anywhere; }
+.lhw-admin-btns{ display:flex; gap:6px; flex-wrap:wrap; }
+.lhw-lb-panel{
+  margin-top:18px; background:var(--lhw-card); border:1px solid var(--lhw-blue); border-radius:18px; padding:16px;
+}
+.lhw-lb-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+.lhw-lb-head h3{ margin:0; overflow-wrap:anywhere; }
 
-  function tsMs(t) {
-    if (typeof t === 'number') return t;
-    return t && typeof t.toMillis === 'function' ? t.toMillis() : Date.now();
-  }
+@media (max-width: 780px){
+  .lhw-admin-grid{ grid-template-columns:1fr; }
+  .lhw-root{ padding:0 0 30px; }
+  .lhw-detail, .lhw-form{ padding:14px; }
+  .lhw-score-big{ font-size:2.2rem; }
+}
 
-  function sortByCreated(list) {
-    return list.slice().sort(function (a, b) { return tsMs(a.createdAt) - tsMs(b.createdAt); });
-  }
+/* guruh tanlovi (admin forma) */
+.lhw-field select{
+  width:100%; padding:10px 12px; font:inherit; font-size:.92rem; color:var(--lhw-ink);
+  background:var(--lhw-soft); border:1.5px solid var(--lhw-line); border-radius:11px; outline:none;
+}
+.lhw-field select:focus{ border-color:var(--lhw-blue); background:var(--lhw-card); }
+.lhw-admin-title .lhw-badge{ font-size:.72rem; }
 
-  function safeUrl(u) {
-    var v = String(u == null ? '' : u).trim();
-    return /^https?:\/\/\S+$/i.test(v) ? v : '';
-  }
+/* ---- marafon: banner, orqaga tugma, tugmali reyting, taxmin ---- */
+.lhw-banner{
+  display:flex; align-items:center; gap:12px; margin:0 0 16px; padding:14px 16px;
+  border-radius:16px; background:linear-gradient(135deg,#FFF6DD,#FFE7B8); color:#5A3B00;
+  border:1px solid #F3D48A; font-size:.92rem; line-height:1.45;
+}
+.lhw-banner-ico{ font-size:1.6rem; }
+body.dark .lhw-banner{ background:linear-gradient(135deg,#3A2E12,#2B2410); color:#F5DCA0; border-color:#5A4A1E; }
 
-  function showErr(el, msg) {
-    if (!el) return;
-    el.textContent = msg;
-    el.hidden = false;
-  }
+.lhw-root .lhw-back{
+  appearance:none; display:inline-block; margin:0 0 12px; padding:9px 16px; border-radius:12px;
+  background:var(--lhw-card); border:1px solid var(--lhw-line); color:var(--lhw-ink);
+  font:inherit; font-weight:700; font-size:.88rem; cursor:pointer; box-shadow:0 6px 16px -14px rgba(16,27,61,.5);
+}
+.lhw-root .lhw-back:hover{ background:var(--lhw-soft); }
 
-  function stopList(list) {
-    while (list.length) {
-      var f = list.pop();
-      try { f(); } catch (e) { /* ignore */ }
-    }
-  }
+.lhw-lb-wrap{ margin-top:22px; }
+.lhw-lb-wrap .lhw-sub-title{ margin:0 0 10px; }
+.lhw-lb-btn{ width:100%; padding:14px 16px; font-size:.98rem; border-radius:14px; }
+.lhw-lb{ margin-top:12px; }
+.lhw-live{ display:flex; align-items:center; gap:8px; margin:0 0 8px; font-size:.82rem; font-weight:700; color:var(--lhw-green); }
+.lhw-dot{ width:8px; height:8px; border-radius:50%; background:var(--lhw-green); box-shadow:0 0 0 0 rgba(31,174,122,.6); animation:lhwPulse 1.6s infinite; }
+@keyframes lhwPulse{ 0%{box-shadow:0 0 0 0 rgba(31,174,122,.6);} 70%{box-shadow:0 0 0 8px rgba(31,174,122,0);} 100%{box-shadow:0 0 0 0 rgba(31,174,122,0);} }
 
-  /* ---------- reyting ---------- */
+.lhw-badge.bad{ background:rgba(229,72,77,.12); color:var(--lhw-red); }
+.lhw-pen{ color:var(--lhw-red); font-weight:800; font-size:.78rem; white-space:nowrap; margin-left:6px; }
+.lhw-flag{ display:inline-block; margin-left:6px; padding:2px 8px; border-radius:999px; background:rgba(229,72,77,.12); color:var(--lhw-red); font-size:.72rem; font-weight:800; }
+.lhw-warn{
+  margin:10px 0; padding:12px 14px; border-radius:12px; font-size:.9rem; font-weight:600;
+  background:rgba(229,72,77,.08); color:var(--lhw-red); border:1px solid rgba(229,72,77,.25);
+}
 
-  // Ball bo‘yicha o‘rin: teng ball — bir xil o‘rin; tengda kim oldin topshirgan bo‘lsa, yuqorida
-  function rankRows(rows) {
-    var sorted = rows.slice().sort(function (a, b) {
-      return finalOf(b) - finalOf(a) || tsMs(a.submittedAt) - tsMs(b.submittedAt);
-    });
-    var rank = 0, prev = null;
-    return sorted.map(function (r, idx) {
-      if (finalOf(r) !== prev) { rank = idx + 1; prev = finalOf(r); }
-      return { rank: rank, row: r };
-    });
-  }
-
-  function leaderboardHTML(rows, myUid, adminView) {
-    if (rows === null) return '<p class="lhw-muted">Natijalarni yuklab bo‘lmadi.</p>';
-    if (!rows.length) return '<p class="lhw-muted">Hali hech kim topshirmagan. Birinchi bo‘lib toping!</p>';
-    return '<ol class="lhw-board">' + rankRows(rows).map(function (x) {
-      var r = x.row, me = !!myUid && r.studentId === myUid;
-      var fin = finalOf(r);
-      var score = r.penalty
-        ? '<span class="lhw-score">' + fin + ' ball</span><small class="lhw-pen">−' + r.penalty + ' jazo</small>'
-        : '<span class="lhw-score">' + (r.score || 0) + '/' + BLANKS + '</span>';
-      var flag = (adminView && r.flagged) ? ' <span class="lhw-flag">⚠ Domlaga</span>' : '';
-      return '<li class="lhw-row' + (me ? ' me' : '') + '">' +
-        '<span class="lhw-rank">' + x.rank + '</span>' +
-        '<span class="lhw-name">' + esc(r.studentName || 'Talaba') + (me ? ' <em>(siz)</em>' : '') + flag + '</span>' +
-        score +
-        '</li>';
-    }).join('') + '</ol>';
-  }
-
-  // Mashq guruhga biriktirilgan bo‘lsa, reytingda faqat shu guruh talabalari ko‘rinadi
-  function watchLeaderboard(exId, groupId, cb) {
-    return db.collection(COL_SUB).where('exerciseId', '==', exId).onSnapshot(
-      function (snap) {
-        var rows = snap.docs.map(function (d) { return d.data(); });
-        if (groupId) rows = rows.filter(function (r) { return r.groupId === groupId; });
-        cb(rows);
-      },
-      function () { cb(null); }
-    );
-  }
-
-  /* ============================================================
-     TALABA
-     ============================================================ */
-  var S = { uid: null, name: 'Talaba', groupId: '', exercises: [], subs: {}, unsubs: [], lbUnsub: null, activeId: null };
-
-  function stopStudentLb() {
-    if (S.lbUnsub) { try { S.lbUnsub(); } catch (e) { /* ignore */ } S.lbUnsub = null; }
-  }
-
-  function studentBody() { return document.getElementById('lhwStudentBody'); }
-
-  // Mashq guruhga biriktirilmagan bo‘lsa (guruhsiz) hamma ko‘radi; aks holda faqat o‘z guruhi
-  function visibleToStudent(ex) {
-    return !ex.groupId || ex.groupId === S.groupId;
-  }
-
-  function openStudent(opts) {
-    var root = document.getElementById('lhwStudentRoot');
-    if (!root || typeof db === 'undefined') return;
-    stopList(S.unsubs);
-    stopStudentLb();
-    S.activeId = null;
-    S.uid = (opts && opts.uid) || null;
-    S.name = (opts && opts.name) || 'Talaba';
-    S.groupId = (opts && opts.groupId) || '';
-    root.innerHTML =
-      '<div class="lhw-head"><div>' +
-        '<h1>Listening marafon</h1>' +
-        '<p>Mashqni oching, bo‘sh joylarni to‘ldiring va topshiring. Har bir to‘g‘ri javob — 1 ball.</p>' +
-      '</div></div>' +
-      '<div class="lhw-banner"><span class="lhw-banner-ico">🏆</span><div>Jami <b>12 ta marafon</b> bo‘ladi. Oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div></div>' +
-      '<div id="lhwStudentBody"><p class="lhw-muted">Yuklanmoqda…</p></div>';
-    if (!S.uid) return;
-
-    S.unsubs.push(db.collection(COL_EX).onSnapshot(function (snap) {
-      S.exercises = sortByCreated(snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }));
-      renderStudentList();
-    }, function (e) {
-      var b = studentBody();
-      if (b) b.innerHTML = '<div class="lhw-empty">Mashqlarni yuklab bo‘lmadi: ' + esc(e && e.message) + '</div>';
-    }));
-
-    S.unsubs.push(db.collection(COL_SUB).where('studentId', '==', S.uid).onSnapshot(function (snap) {
-      S.subs = {};
-      snap.docs.forEach(function (d) { var x = d.data(); S.subs[x.exerciseId] = x; });
-      renderStudentList();
-    }));
-
-    maybeShowWelcome();
-  }
-
-  // Talaba birinchi marta Listening bo‘limiga kirganda tabrik chiqadi (bir martalik)
-  function maybeShowWelcome() {
-    db.collection('students').doc(S.uid).get().then(function (snap) {
-      if (!snap.exists || (snap.data() || {}).listeningWelcomed) return;
-      showWelcomeModal(S.name, function () {
-        db.collection('students').doc(S.uid).update({ listeningWelcomed: true }).catch(function () {});
-      });
-    }).catch(function () {});
-  }
-
-  function showWelcomeModal(name, onClose) {
-    if (document.querySelector('.lhw-modal-bg')) return;
-    var first = String(name || 'Talaba').split(' ')[0];
-    var bg = document.createElement('div');
-    bg.className = 'lhw-modal-bg';
-    bg.innerHTML =
-      '<div class="lhw-modal" role="dialog" aria-modal="true">' +
-        '<div class="lhw-modal-emoji">🎉</div>' +
-        '<h2>Tabriklayman, ' + esc(first) + '!</h2>' +
-        '<p>Siz <b>Listening marafon</b>ga qo‘shildingiz!</p>' +
-        '<p>Jami <b>12 ta marafon</b> bo‘ladi. Har bir mashqda 5 ta bo‘shliq bor — har bir to‘g‘ri javob <b>1 ball</b>.</p>' +
-        '<div class="lhw-modal-prize">🏆 Marafon oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div>' +
-        '<p class="lhw-modal-warn">⚠️ Eslatma: 5 ta bo‘shliqning hammasi noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi — 0 ball, <b>−100 jazo</b> va natija domlaga taqdim etiladi.</p>' +
-        '<button type="button" class="lhw-modal-btn">Boshlaymiz!</button>' +
-      '</div>';
-    document.body.appendChild(bg);
-    bg.querySelector('.lhw-modal-btn').addEventListener('click', function () {
-      bg.remove();
-      if (onClose) onClose();
-    });
-  }
-
-  function renderStudentList() {
-    if (S.activeId) return; // mashq ochiq bo‘lsa, forma o‘chib ketmasligi uchun
-    var visibleList = S.exercises.filter(visibleToStudent);
-    var body = studentBody();
-    if (!body) return;
-    if (!visibleList.length) {
-      body.innerHTML = '<div class="lhw-empty">Hozircha listening uy vazifasi qo‘yilmagan.</div>';
-      return;
-    }
-    body.innerHTML = '<div class="lhw-list">' + visibleList.map(function (ex, i) {
-      var sub = S.subs[ex.id];
-      var badge = sub
-        ? (sub.penalty ? '<span class="lhw-badge bad">Taxmin −' + sub.penalty + '</span>' : '<span class="lhw-badge done">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>')
-        : '<span class="lhw-badge todo">Topshirilmagan</span>';
-      return '<button type="button" class="lhw-card" data-id="' + esc(ex.id) + '">' +
-        '<span class="lhw-num">' + (i + 1) + '</span>' +
-        '<span class="lhw-card-title">' + esc(ex.title) + '</span>' + badge +
-        '</button>';
-    }).join('') + '</div>';
-    body.querySelectorAll('.lhw-card').forEach(function (b) {
-      b.addEventListener('click', function () { openExercise(b.getAttribute('data-id')); });
-    });
-  }
-
-  function openExercise(id) {
-    var ex = S.exercises.find(function (e) { return e.id === id; });
-    var body = studentBody();
-    if (!ex || !body) return;
-    stopStudentLb();
-    S.activeId = id;
-    var media = safeUrl(ex.mediaUrl);
-    body.innerHTML =
-      '<button type="button" class="lhw-back" id="lhwBack">Ro‘yxatga qaytish</button>' +
-      '<div class="lhw-detail">' +
-        '<h2>' + esc(ex.title) + '</h2>' +
-        (media ? '<a class="lhw-media" href="' + esc(media) + '" target="_blank" rel="noopener noreferrer">🎧 Audio / materialni ochish</a>' : '') +
-        '<div id="lhwFormArea"></div>' +
-      '</div>' +
-      '<div class="lhw-lb-wrap">' +
-        '<h3 class="lhw-sub-title">Reyting</h3>' +
-        '<button type="button" class="lhw-btn primary lhw-lb-btn" id="lhwLbBtn">📊 Jonli reytingni ko‘rish</button>' +
-        '<div id="lhwLeaderboard" class="lhw-lb" hidden></div>' +
-      '</div>';
-
-    document.getElementById('lhwBack').addEventListener('click', function () {
-      stopStudentLb();
-      S.activeId = null;
-      renderStudentList();
-    });
-    document.getElementById('lhwLbBtn').addEventListener('click', function () {
-      showStudentLeaderboard(ex);
-    });
-
-    var sub = S.subs[id];
-    if (sub) renderResult(ex, sub); else renderForm(ex);
-  }
-
-  // Tugma bosilganda reyting jonli (real vaqt) rejimda ochiladi
-  function showStudentLeaderboard(ex) {
-    var btn = document.getElementById('lhwLbBtn');
-    var lb = document.getElementById('lhwLeaderboard');
-    if (!lb) return;
-    stopStudentLb();
-    if (btn) btn.hidden = true;
-    lb.hidden = false;
-    lb.innerHTML = '<p class="lhw-live"><span class="lhw-dot"></span> Jonli yangilanmoqda</p><p class="lhw-muted">Yuklanmoqda…</p>';
-    S.lbUnsub = watchLeaderboard(ex.id, ex.groupId || '', function (rows) {
-      var el = document.getElementById('lhwLeaderboard');
-      if (el) el.innerHTML = '<p class="lhw-live"><span class="lhw-dot"></span> Jonli yangilanmoqda</p>' + leaderboardHTML(rows, S.uid, false);
-    });
-  }
-
-  function renderForm(ex) {
-    var area = document.getElementById('lhwFormArea');
-    if (!area) return;
-    var inputs = '';
-    for (var i = 0; i < BLANKS; i++) {
-      inputs += '<label class="lhw-blank"><span class="lhw-blank-no">' + (i + 1) + '</span>' +
-        '<input type="text" autocomplete="off" spellcheck="false" data-i="' + i + '" placeholder="Bo‘sh joy ' + (i + 1) + '"></label>';
-    }
-    area.innerHTML =
-      '<form id="lhwSubmitForm" class="lhw-form-student">' + inputs +
-        '<p class="lhw-err" id="lhwSubErr" hidden></p>' +
-        '<button type="submit" class="lhw-btn primary" id="lhwSubmitBtn">Topshirish</button>' +
-        '<p class="lhw-hint">Diqqat: topshirilgan javobni keyin o‘zgartirib bo‘lmaydi.</p>' +
-      '</form>';
-    document.getElementById('lhwSubmitForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      submitExercise(ex);
-    });
-  }
-
-  function submitExercise(ex) {
-    var err = document.getElementById('lhwSubErr');
-    var btn = document.getElementById('lhwSubmitBtn');
-    var answers = [];
-    document.querySelectorAll('#lhwFormArea input[data-i]').forEach(function (inp) {
-      answers[+inp.getAttribute('data-i')] = inp.value.trim();
-    });
-    for (var i = 0; i < BLANKS; i++) {
-      if (!answers[i]) { showErr(err, 'Barcha 5 ta bo‘sh joyni to‘ldiring.'); return; }
-      if (answers[i].length > MAX_ANSWER_LEN) { showErr(err, 'Javob juda uzun.'); return; }
-    }
-    if (err) err.hidden = true;
-    btn.disabled = true;
-
-    var ref = db.collection(COL_SUB).doc(ex.id + '_' + S.uid);
-    ref.get().then(function (snap) {
-      if (snap.exists) return snap.data(); // allaqachon topshirilgan
-      var g = grade(ex.answers, answers);
-      var data = {
-        exerciseId: ex.id,
-        studentId: S.uid,
-        studentName: S.name,
-        groupId: S.groupId || '',
-        answers: answers,
-        score: g.score,
-        total: BLANKS,
-        marks: g.marks,
-        penalty: g.penalty,
-        finalScore: g.finalScore,
-        flagged: g.flagged,
-        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      return ref.set(data).then(function () { return data; });
-    }).then(function (data) {
-      S.subs[ex.id] = data;
-      if (S.activeId === ex.id) renderResult(ex, data); // talaba boshqa mashqqa o‘tib ketmagan bo‘lsa
-    }).catch(function (e) {
-      btn.disabled = false;
-      showErr(err, 'Xatolik: ' + (e && e.message ? e.message : 'topshirib bo‘lmadi'));
-    });
-  }
-
-  function renderResult(ex, sub) {
-    var area = document.getElementById('lhwFormArea');
-    if (!area) return;
-    var marks = sub.marks || [];
-    var answers = sub.answers || [];
-    var rows = '';
-    for (var i = 0; i < BLANKS; i++) {
-      var ok = !!marks[i];
-      var correct = String((ex.answers || [])[i] || '').split('|')[0].trim();
-      rows += '<li class="lhw-res ' + (ok ? 'ok' : 'bad') + '">' +
-        '<span class="lhw-blank-no">' + (i + 1) + '</span>' +
-        '<span class="lhw-res-yours">' + esc(answers[i] || '—') + '</span>' +
-        (ok
-          ? '<span class="lhw-res-mark">✓</span>'
-          : '<span class="lhw-res-mark">✗ <small>to‘g‘ri: ' + esc(correct) + '</small></span>') +
-        '</li>';
-    }
-    var score = sub.score || 0;
-    area.innerHTML =
-      '<div class="lhw-result">' +
-        '<div class="lhw-score-big">' + score + '<span>/' + BLANKS + '</span></div>' +
-        '<p class="lhw-muted">Siz ' + BLANKS + ' ta bo‘shliqdan ' + score + 'tasini to‘g‘ri topdingiz. Natija topshirilgan — o‘zgartirib bo‘lmaydi.</p>' +
-        (sub.penalty ? '<div class="lhw-warn">⚠️ Taxmin aniqlandi: 0 ball, −' + sub.penalty + ' jazo. Natija domlaga taqdim etildi.</div>' : '') +
-        '<ol class="lhw-res-list">' + rows + '</ol>' +
-      '</div>';
-  }
-
-  /* ============================================================
-     ADMIN
-     ============================================================ */
-  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null };
-
-  function stopAdminLb() {
-    if (A.lbUnsub) { try { A.lbUnsub(); } catch (e) { /* ignore */ } A.lbUnsub = null; }
-  }
-
-  function openAdmin() {
-    var root = document.getElementById('lhwAdminRoot');
-    if (!root || typeof db === 'undefined') return;
-    stopList(A.unsubs);
-    stopAdminLb();
-    A.editingId = null;
-    A.lbId = null;
-
-    var blanks = '';
-    for (var i = 1; i <= BLANKS; i++) {
-      blanks += '<label class="lhw-field"><span>' + i + '-bo‘sh joy javobi *</span>' +
-        '<input type="text" data-ans="' + (i - 1) + '" maxlength="' + MAX_ANSWER_LEN + '" autocomplete="off" placeholder="Masalan: apple  (yoki: apple | apples)"></label>';
-    }
-
-    root.innerHTML =
-      '<div class="lhw-head"><div>' +
-        '<h1>Listening uy vazifalari</h1>' +
-        '<p>Har bir mashq uchun 5 ta to‘g‘ri javob kiriting. Talaba bo‘sh joylarni to‘ldiradi; har bir to‘g‘ri javob — 1 ball. Bir nechta to‘g‘ri variant uchun "|" belgisidan foydalaning.</p>' +
-      '</div></div>' +
-      '<div class="lhw-admin-grid">' +
-        '<form id="lhwAdminForm" class="lhw-form">' +
-          '<h3 id="lhwFormTitle">Yangi mashq qo‘shish</h3>' +
-          '<label class="lhw-field"><span>Mashq nomi *</span><input type="text" id="lhwTitle" maxlength="120" placeholder="Masalan: 1-mashq"></label>' +
-          '<label class="lhw-field"><span>Guruh</span><select id="lhwGroup"><option value="">Barcha guruhlar</option></select></label>' +
-          '<label class="lhw-field"><span>Audio / material havolasi (ixtiyoriy)</span><input type="text" id="lhwMedia" placeholder="https://..."></label>' +
-          '<div class="lhw-answers">' + blanks + '</div>' +
-          '<p class="lhw-err" id="lhwFormErr" hidden></p>' +
-          '<div class="lhw-actions">' +
-            '<button type="submit" class="lhw-btn primary" id="lhwSave">Saqlash</button>' +
-            '<button type="button" class="lhw-btn" id="lhwCancel" hidden>Bekor qilish</button>' +
-          '</div>' +
-        '</form>' +
-        '<div class="lhw-admin-list"><div id="lhwAdminList"></div></div>' +
-      '</div>' +
-      '<div id="lhwAdminLb" class="lhw-lb-panel" hidden></div>';
-
-    document.getElementById('lhwAdminForm').addEventListener('submit', saveExercise);
-    loadGroupOptions();
-    document.getElementById('lhwCancel').addEventListener('click', resetAdminForm);
-    document.getElementById('lhwAdminList').addEventListener('click', onAdminListClick);
-
-    A.unsubs.push(db.collection(COL_EX).onSnapshot(function (snap) {
-      A.exercises = sortByCreated(snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }));
-      if (A.lbId && !A.exercises.some(function (e) { return e.id === A.lbId; })) closeAdminLb();
-      renderAdminList();
-    }, function (e) {
-      var list = document.getElementById('lhwAdminList');
-      if (list) list.innerHTML = '<div class="lhw-empty">Yuklab bo‘lmadi: ' + esc(e && e.message) + '</div>';
-    }));
-  }
-
-  // Guruhlar ro‘yxatini oquv_groups dan to‘ldiradi
-  function loadGroupOptions() {
-    db.collection('oquv_groups').orderBy('name').get().then(function (snap) {
-      var sel = document.getElementById('lhwGroup');
-      if (!sel) return;
-      var keep = sel.value;
-      snap.docs.forEach(function (d) {
-        var o = document.createElement('option');
-        o.value = d.id;
-        o.textContent = d.data().name || d.id;
-        sel.appendChild(o);
-      });
-      sel.value = keep;
-    }).catch(function () { /* guruhlar yuklanmasa ham "Barcha guruhlar" ishlaydi */ });
-  }
-
-  function renderAdminList() {
-    var list = document.getElementById('lhwAdminList');
-    if (!list) return;
-    if (!A.exercises.length) {
-      list.innerHTML = '<div class="lhw-empty">Hali mashq yo‘q. Chap tomondagi forma orqali qo‘shing.</div>';
-      return;
-    }
-    list.innerHTML = A.exercises.map(function (ex, i) {
-      var preview = (ex.answers || []).map(function (a) { return String(a).split('|')[0].trim(); }).join(' · ');
-      return '<div class="lhw-admin-row" data-id="' + esc(ex.id) + '">' +
-        '<div class="lhw-admin-info">' +
-          '<div class="lhw-admin-title"><span class="lhw-num">' + (i + 1) + '</span> ' + esc(ex.title) +
-            ' <span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span></div>' +
-          '<div class="lhw-muted lhw-preview">' + esc(preview) + '</div>' +
-        '</div>' +
-        '<div class="lhw-admin-btns">' +
-          '<button type="button" class="lhw-btn sm" data-act="lb">Natijalar</button>' +
-          '<button type="button" class="lhw-btn sm" data-act="edit">Tahrirlash</button>' +
-          '<button type="button" class="lhw-btn sm danger" data-act="del">O‘chirish</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-  }
-
-  function findAdminEx(id) {
-    return A.exercises.find(function (e) { return e.id === id; });
-  }
-
-  function onAdminListClick(e) {
-    var btn = e.target.closest('button[data-act]');
-    if (!btn) return;
-    var row = btn.closest('.lhw-admin-row');
-    var ex = row && findAdminEx(row.getAttribute('data-id'));
-    if (!ex) return;
-    var act = btn.getAttribute('data-act');
-    if (act === 'lb') openAdminLb(ex);
-    else if (act === 'edit') fillAdminForm(ex);
-    else if (act === 'del') deleteExercise(ex);
-  }
-
-  function openAdminLb(ex) {
-    stopAdminLb();
-    A.lbId = ex.id;
-    var panel = document.getElementById('lhwAdminLb');
-    if (!panel) return;
-    panel.hidden = false;
-    panel.innerHTML =
-      '<div class="lhw-lb-head"><h3>Jonli natijalar — ' + esc(ex.title) + '</h3>' +
-        '<button type="button" class="lhw-btn sm" id="lhwLbClose">Yopish</button></div>' +
-      '<div id="lhwAdminLbBody"><p class="lhw-muted">Yuklanmoqda…</p></div>';
-    document.getElementById('lhwLbClose').addEventListener('click', closeAdminLb);
-    A.lbUnsub = watchLeaderboard(ex.id, ex.groupId || '', function (rows) {
-      var body = document.getElementById('lhwAdminLbBody');
-      if (!body) return;
-      var flagged = (rows || []).filter(function (r) { return r.flagged; });
-      body.innerHTML = leaderboardHTML(rows, null, true) +
-        (rows ? '<p class="lhw-muted">Topshirganlar: ' + rows.length + ' ta</p>' : '') +
-        (flagged.length ? '<div class="lhw-warn">Domlaga taqdim etilgan taxminchilar (−' + PENALTY + ' jazo): ' +
-          flagged.map(function (r) { return esc(r.studentName || 'Talaba'); }).join(', ') + '</div>' : '');
-    });
-    panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function closeAdminLb() {
-    stopAdminLb();
-    A.lbId = null;
-    var panel = document.getElementById('lhwAdminLb');
-    if (panel) { panel.hidden = true; panel.innerHTML = ''; }
-  }
-
-  function setFormMode(editing) {
-    document.getElementById('lhwFormTitle').textContent = editing ? 'Mashqni tahrirlash' : 'Yangi mashq qo‘shish';
-    document.getElementById('lhwCancel').hidden = !editing;
-    document.getElementById('lhwSave').textContent = editing ? 'Yangilash' : 'Saqlash';
-  }
-
-  function fillAdminForm(ex) {
-    A.editingId = ex.id;
-    document.getElementById('lhwTitle').value = ex.title || '';
-    document.getElementById('lhwMedia').value = ex.mediaUrl || '';
-    var gsel = document.getElementById('lhwGroup');
-    if (gsel) gsel.value = ex.groupId || '';
-    document.querySelectorAll('#lhwAdminForm input[data-ans]').forEach(function (inp) {
-      inp.value = (ex.answers || [])[+inp.getAttribute('data-ans')] || '';
-    });
-    setFormMode(true);
-    document.getElementById('lhwAdminForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-
-  function resetAdminForm() {
-    A.editingId = null;
-    var form = document.getElementById('lhwAdminForm');
-    if (form) form.reset();
-    var err = document.getElementById('lhwFormErr');
-    if (err) err.hidden = true;
-    setFormMode(false);
-  }
-
-  function saveExercise(e) {
-    e.preventDefault();
-    var err = document.getElementById('lhwFormErr');
-    var btn = document.getElementById('lhwSave');
-    var title = document.getElementById('lhwTitle').value.trim();
-    var mediaRaw = document.getElementById('lhwMedia').value.trim();
-    var gsel = document.getElementById('lhwGroup');
-    var groupId = gsel ? gsel.value : '';
-    var groupName = groupId && gsel.selectedIndex >= 0 ? gsel.options[gsel.selectedIndex].textContent : '';
-    var answers = [];
-    document.querySelectorAll('#lhwAdminForm input[data-ans]').forEach(function (inp) {
-      answers[+inp.getAttribute('data-ans')] = inp.value.trim();
-    });
-
-    if (!title) { showErr(err, 'Mashq nomini kiriting.'); return; }
-    if (mediaRaw && !safeUrl(mediaRaw)) { showErr(err, 'Havola http:// yoki https:// bilan boshlanishi kerak.'); return; }
-    for (var i = 0; i < BLANKS; i++) {
-      if (!answers[i]) { showErr(err, (i + 1) + '-bo‘sh joy uchun javob kiritilmagan.'); return; }
-    }
-    if (err) err.hidden = true;
-
-    var payload = {
-      title: title,
-      mediaUrl: safeUrl(mediaRaw),
-      groupId: groupId,
-      groupName: groupName,
-      answers: answers,
-      updatedAt: Date.now()
-    };
-    btn.disabled = true;
-    var p = A.editingId
-      ? db.collection(COL_EX).doc(A.editingId).update(payload)
-      : db.collection(COL_EX).add(Object.assign({ createdAt: Date.now() }, payload));
-    p.then(function () {
-      resetAdminForm();
-    }).catch(function (er) {
-      showErr(err, 'Saqlashda xatolik: ' + (er && er.message));
-    }).then(function () {
-      btn.disabled = false;
-    });
-  }
-
-  function deleteExercise(ex) {
-    var msg = '“' + ex.title + '” mashqini o‘chirmoqchimisiz?\n\n' +
-      'Shu mashq bo‘yicha barcha talabalarning natijalari ham o‘chadi.';
-    if (!confirm(msg)) return;
-    db.collection(COL_SUB).where('exerciseId', '==', ex.id).get().then(function (snap) {
-      // Firestore batch — bir martada 500 tagacha yozuv (bitta mashq uchun yetarli)
-      var batch = db.batch();
-      snap.docs.forEach(function (d) { batch.delete(d.ref); });
-      batch.delete(db.collection(COL_EX).doc(ex.id));
-      return batch.commit();
-    }).then(function () {
-      if (A.lbId === ex.id) closeAdminLb();
-      if (A.editingId === ex.id) resetAdminForm();
-    }).catch(function (er) {
-      alert('O‘chirishda xatolik: ' + (er && er.message));
-    });
-  }
-
-  global.ListeningHW = {
-    openStudent: openStudent,
-    openAdmin: openAdmin,
-    grade: grade,
-    norm: norm,
-    leaderboardHTML: leaderboardHTML
-  };
-})(window);
+/* tabrik oynasi (sahifa darajasida) */
+.lhw-modal-bg{
+  position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center;
+  padding:18px; background:rgba(16,27,61,.55); backdrop-filter:blur(3px);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+}
+.lhw-modal{
+  width:100%; max-width:440px; max-height:90vh; overflow:auto; text-align:center; color:#101B3D;
+  background:#FFFFFF; border-radius:22px; padding:26px 22px 22px; box-shadow:0 30px 60px -20px rgba(0,0,0,.4);
+  animation:lhwPop .35s ease-out;
+}
+body.dark .lhw-modal{ background:#171D2C; color:#E8ECF6; }
+@keyframes lhwPop{ from{ transform:scale(.9); opacity:0; } to{ transform:scale(1); opacity:1; } }
+.lhw-modal-emoji{ font-size:3rem; line-height:1; margin-bottom:6px; }
+.lhw-modal h2{ margin:4px 0 10px; font-size:1.35rem; font-weight:900; }
+.lhw-modal p{ margin:8px 0; font-size:.95rem; line-height:1.5; }
+.lhw-modal-prize{
+  margin:14px 0; padding:14px; border-radius:14px; font-weight:700; font-size:.95rem;
+  background:linear-gradient(135deg,#FFF6DD,#FFE7B8); color:#5A3B00;
+}
+body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); color:#F5DCA0; }
+.lhw-modal-warn{ font-size:.84rem; color:#E5484D; font-weight:600; }
+.lhw-modal-btn{
+  margin-top:10px; width:100%; padding:14px; border:none; border-radius:14px; cursor:pointer;
+  background:#2F6FED; color:#fff; font:inherit; font-weight:800; font-size:1rem;
+}
+.lhw-modal-btn:hover{ background:#1E54C4; }
