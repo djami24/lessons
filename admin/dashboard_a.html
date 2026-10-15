@@ -611,6 +611,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
 /* ===== Xabarlar: Telegram kabi butun ekranli chat ===== */
 @media (min-width: 761px){
+  html:has(body.chat-fullscreen), body.chat-fullscreen{ overflow:hidden; height:100%; }
   body.chat-fullscreen .admin-main{ padding:0 !important; max-width:none !important; }
   body.chat-fullscreen #view-chats:not([hidden]){ display:flex; flex-direction:column; height:100vh; height:100dvh; }
   body.chat-fullscreen #view-chats .chat-page-header{ flex:none; margin:0; padding:.7em 1.2em; border-bottom:1px solid var(--adm-line); }
@@ -4559,6 +4560,7 @@ function switchView(view){
   document.getElementById('view-broadcast').hidden = view !== 'broadcast';
   document.getElementById('view-chats').hidden = view !== 'chats';
   document.body.classList.toggle('chat-fullscreen', view === 'chats');
+  if(view === 'chats') window.scrollTo(0, 0);
   document.getElementById('view-parent-chats').hidden = view !== 'parent-chats';
   document.getElementById('navBroadcast').classList.toggle('active', view === 'broadcast');
   document.getElementById('navChats').classList.toggle('active', view === 'chats');
