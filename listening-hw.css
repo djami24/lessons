@@ -155,3 +155,11 @@ body.admin-theme.dark .lhw-root{
   .lhw-detail, .lhw-form{ padding:14px; }
   .lhw-score-big{ font-size:2.2rem; }
 }
+
+/* guruh tanlovi (admin forma) */
+.lhw-field select{
+  width:100%; padding:10px 12px; font:inherit; font-size:.92rem; color:var(--lhw-ink);
+  background:var(--lhw-soft); border:1.5px solid var(--lhw-line); border-radius:11px; outline:none;
+}
+.lhw-field select:focus{ border-color:var(--lhw-blue); background:var(--lhw-card); }
+.lhw-admin-title .lhw-badge{ font-size:.72rem; }

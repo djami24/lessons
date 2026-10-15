@@ -108,9 +108,14 @@
     }).join('') + '</ol>';
   }
 
-  function watchLeaderboard(exId, cb) {
+  // Mashq guruhga biriktirilgan bo‘lsa, reytingda faqat shu guruh talabalari ko‘rinadi
+  function watchLeaderboard(exId, groupId, cb) {
     return db.collection(COL_SUB).where('exerciseId', '==', exId).onSnapshot(
-      function (snap) { cb(snap.docs.map(function (d) { return d.data(); })); },
+      function (snap) {
+        var rows = snap.docs.map(function (d) { return d.data(); });
+        if (groupId) rows = rows.filter(function (r) { return r.groupId === groupId; });
+        cb(rows);
+      },
       function () { cb(null); }
     );
   }
@@ -118,13 +123,18 @@
   /* ============================================================
      TALABA
      ============================================================ */
-  var S = { uid: null, name: 'Talaba', exercises: [], subs: {}, unsubs: [], lbUnsub: null, activeId: null };
+  var S = { uid: null, name: 'Talaba', groupId: '', exercises: [], subs: {}, unsubs: [], lbUnsub: null, activeId: null };
 
   function stopStudentLb() {
     if (S.lbUnsub) { try { S.lbUnsub(); } catch (e) { /* ignore */ } S.lbUnsub = null; }
   }
 
   function studentBody() { return document.getElementById('lhwStudentBody'); }
+
+  // Mashq guruhga biriktirilmagan bo‘lsa (guruhsiz) hamma ko‘radi; aks holda faqat o‘z guruhi
+  function visibleToStudent(ex) {
+    return !ex.groupId || ex.groupId === S.groupId;
+  }
 
   function openStudent(opts) {
     var root = document.getElementById('lhwStudentRoot');
@@ -134,6 +144,7 @@
     S.activeId = null;
     S.uid = (opts && opts.uid) || null;
     S.name = (opts && opts.name) || 'Talaba';
+    S.groupId = (opts && opts.groupId) || '';
     root.innerHTML =
       '<div class="lhw-head"><div>' +
         '<h1>Listening uy vazifalari</h1>' +
@@ -159,13 +170,14 @@
 
   function renderStudentList() {
     if (S.activeId) return; // mashq ochiq bo‘lsa, forma o‘chib ketmasligi uchun
+    var visibleList = S.exercises.filter(visibleToStudent);
     var body = studentBody();
     if (!body) return;
-    if (!S.exercises.length) {
+    if (!visibleList.length) {
       body.innerHTML = '<div class="lhw-empty">Hozircha listening uy vazifasi qo‘yilmagan.</div>';
       return;
     }
-    body.innerHTML = '<div class="lhw-list">' + S.exercises.map(function (ex, i) {
+    body.innerHTML = '<div class="lhw-list">' + visibleList.map(function (ex, i) {
       var sub = S.subs[ex.id];
       var badge = sub
         ? '<span class="lhw-badge done">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>'
@@ -206,7 +218,7 @@
     var sub = S.subs[id];
     if (sub) renderResult(ex, sub); else renderForm(ex);
 
-    S.lbUnsub = watchLeaderboard(id, function (rows) {
+    S.lbUnsub = watchLeaderboard(id, ex.groupId || '', function (rows) {
       var lb = document.getElementById('lhwLeaderboard');
       if (lb) lb.innerHTML = leaderboardHTML(rows, S.uid);
     });
@@ -254,6 +266,7 @@
         exerciseId: ex.id,
         studentId: S.uid,
         studentName: S.name,
+        groupId: S.groupId || '',
         answers: answers,
         score: g.score,
         total: BLANKS,
@@ -328,6 +341,7 @@
         '<form id="lhwAdminForm" class="lhw-form">' +
           '<h3 id="lhwFormTitle">Yangi mashq qo‘shish</h3>' +
           '<label class="lhw-field"><span>Mashq nomi *</span><input type="text" id="lhwTitle" maxlength="120" placeholder="Masalan: 1-mashq"></label>' +
+          '<label class="lhw-field"><span>Guruh</span><select id="lhwGroup"><option value="">Barcha guruhlar</option></select></label>' +
           '<label class="lhw-field"><span>Audio / material havolasi (ixtiyoriy)</span><input type="text" id="lhwMedia" placeholder="https://..."></label>' +
           '<div class="lhw-answers">' + blanks + '</div>' +
           '<p class="lhw-err" id="lhwFormErr" hidden></p>' +
@@ -341,6 +355,7 @@
       '<div id="lhwAdminLb" class="lhw-lb-panel" hidden></div>';
 
     document.getElementById('lhwAdminForm').addEventListener('submit', saveExercise);
+    loadGroupOptions();
     document.getElementById('lhwCancel').addEventListener('click', resetAdminForm);
     document.getElementById('lhwAdminList').addEventListener('click', onAdminListClick);
 
@@ -354,6 +369,22 @@
     }));
   }
 
+  // Guruhlar ro‘yxatini oquv_groups dan to‘ldiradi
+  function loadGroupOptions() {
+    db.collection('oquv_groups').orderBy('name').get().then(function (snap) {
+      var sel = document.getElementById('lhwGroup');
+      if (!sel) return;
+      var keep = sel.value;
+      snap.docs.forEach(function (d) {
+        var o = document.createElement('option');
+        o.value = d.id;
+        o.textContent = d.data().name || d.id;
+        sel.appendChild(o);
+      });
+      sel.value = keep;
+    }).catch(function () { /* guruhlar yuklanmasa ham "Barcha guruhlar" ishlaydi */ });
+  }
+
   function renderAdminList() {
     var list = document.getElementById('lhwAdminList');
     if (!list) return;
@@ -365,7 +396,8 @@
       var preview = (ex.answers || []).map(function (a) { return String(a).split('|')[0].trim(); }).join(' · ');
       return '<div class="lhw-admin-row" data-id="' + esc(ex.id) + '">' +
         '<div class="lhw-admin-info">' +
-          '<div class="lhw-admin-title"><span class="lhw-num">' + (i + 1) + '</span> ' + esc(ex.title) + '</div>' +
+          '<div class="lhw-admin-title"><span class="lhw-num">' + (i + 1) + '</span> ' + esc(ex.title) +
+            ' <span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span></div>' +
           '<div class="lhw-muted lhw-preview">' + esc(preview) + '</div>' +
         '</div>' +
         '<div class="lhw-admin-btns">' +
@@ -404,7 +436,7 @@
         '<button type="button" class="lhw-btn sm" id="lhwLbClose">Yopish</button></div>' +
       '<div id="lhwAdminLbBody"><p class="lhw-muted">Yuklanmoqda…</p></div>';
     document.getElementById('lhwLbClose').addEventListener('click', closeAdminLb);
-    A.lbUnsub = watchLeaderboard(ex.id, function (rows) {
+    A.lbUnsub = watchLeaderboard(ex.id, ex.groupId || '', function (rows) {
       var body = document.getElementById('lhwAdminLbBody');
       if (!body) return;
       body.innerHTML = leaderboardHTML(rows, null) +
@@ -430,6 +462,8 @@
     A.editingId = ex.id;
     document.getElementById('lhwTitle').value = ex.title || '';
     document.getElementById('lhwMedia').value = ex.mediaUrl || '';
+    var gsel = document.getElementById('lhwGroup');
+    if (gsel) gsel.value = ex.groupId || '';
     document.querySelectorAll('#lhwAdminForm input[data-ans]').forEach(function (inp) {
       inp.value = (ex.answers || [])[+inp.getAttribute('data-ans')] || '';
     });
@@ -452,6 +486,9 @@
     var btn = document.getElementById('lhwSave');
     var title = document.getElementById('lhwTitle').value.trim();
     var mediaRaw = document.getElementById('lhwMedia').value.trim();
+    var gsel = document.getElementById('lhwGroup');
+    var groupId = gsel ? gsel.value : '';
+    var groupName = groupId && gsel.selectedIndex >= 0 ? gsel.options[gsel.selectedIndex].textContent : '';
     var answers = [];
     document.querySelectorAll('#lhwAdminForm input[data-ans]').forEach(function (inp) {
       answers[+inp.getAttribute('data-ans')] = inp.value.trim();
@@ -467,6 +504,8 @@
     var payload = {
       title: title,
       mediaUrl: safeUrl(mediaRaw),
+      groupId: groupId,
+      groupName: groupName,
       answers: answers,
       updatedAt: Date.now()
     };
