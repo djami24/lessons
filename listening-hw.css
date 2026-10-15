@@ -223,3 +223,9 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
   background:#2F6FED; color:#fff; font:inherit; font-weight:800; font-size:1rem;
 }
 .lhw-modal-btn:hover{ background:#1E54C4; }
+
+/* admin: talaba javoblari */
+.lhw-row.lhw-click{ cursor:pointer; }
+.lhw-row.lhw-click:hover{ border-color:var(--lhw-blue); }
+.lhw-admin-detail{ margin-top:16px; padding-top:14px; border-top:1px dashed var(--lhw-line); }
+.lhw-admin-detail .lhw-lb-head h3{ font-size:1rem; }
