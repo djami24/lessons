@@ -287,8 +287,15 @@ const CHAT_QUICK_DEFAULT = ['Salom! 👋', 'Rahmat, qabul qilindi ✅', 'Uy vazi
   .chat-react-bar{position:fixed;z-index:9999;display:flex;gap:2px;padding:4px 6px;border-radius:999px;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.25)}
   .chat-react-bar button{border:0;background:none;font-size:20px;cursor:pointer;padding:2px 4px;border-radius:8px}
   .chat-react-bar button:hover{background:rgba(0,0,0,.08)}
-  .chat-msg-actions{display:flex;gap:2px}
-  .chat-msg-actions .chat-msg-action-btn{font-size:14px;line-height:1;padding:2px 5px}
+  .chat-msg-row{position:relative}
+  .chat-msg-actions{position:absolute;top:-14px;z-index:3;gap:2px;padding:2px 4px;border-radius:999px;background:var(--white,#fff);box-shadow:0 2px 10px -2px rgba(20,33,61,.35);pointer-events:none;flex:none}
+  .chat-msg-row.is-mine .chat-msg-actions{right:4px}
+  .chat-msg-row:not(.is-mine) .chat-msg-actions{left:44px}
+  .chat-msg-row:hover .chat-msg-actions,.chat-msg-row.is-open .chat-msg-actions{opacity:1;pointer-events:auto}
+  .chat-msg-actions:empty{display:none}
+  .chat-msg-actions .chat-msg-action-btn{width:26px;height:26px;font-size:13px;line-height:1;padding:0;box-shadow:none}
+  @media (hover:none){.chat-msg-actions{opacity:0}}
+  .chat-quick{width:100%;box-sizing:border-box;flex:none;max-height:80px;overflow-y:auto}
   .chat-msg-row.is-flash .chat-msg-bubble{outline:2px solid #ffb703;outline-offset:2px}
   .chat-msg-quote[data-jump]{cursor:pointer}
   .chat-quick{display:flex;gap:6px;flex-wrap:wrap;padding:6px 12px 0}
@@ -498,7 +505,16 @@ function createChatController(cfg){
     if(e.target === olderBtn){ loadingOlder = true; limit += PAGE; subscribe(); return; }
     if(e.target === jumpBtn){ toBottom(); return; }
     const btn = e.target.closest('[data-act]');
-    const row = btn && btn.closest('.chat-msg-row');
+    if(!btn){
+      const r = e.target.closest('.chat-msg-row');
+      if(r && !e.target.closest('a')){
+        const open = r.classList.contains('is-open');
+        listEl.querySelectorAll('.chat-msg-row.is-open').forEach(x => x.classList.remove('is-open'));
+        if(!open) r.classList.add('is-open');
+      }
+      return;
+    }
+    const row = btn.closest('.chat-msg-row');
     if(!row) return;
     e.stopPropagation();
     const id = row.dataset.msgId;
