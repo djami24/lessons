@@ -80,7 +80,7 @@ function watchPresenceStatus(uid, onUpdate){
     if(!latest){ onUpdate({ online:false, lastSeenDate:null }); return; }
     const ts = latest.lastSeen && latest.lastSeen.toDate ? latest.lastSeen.toDate() : null;
     const fresh = ts ? (Date.now() - ts.getTime()) < PRESENCE_FRESH_MS : false;
-    onUpdate({ online: !!latest.online && fresh, lastSeenDate: ts });
+    onUpdate({ online: !!latest.online && fresh, lastSeenDate: ts, hidden: !!latest.hidden });
   }
 
   const interval = setInterval(tick, 15000);
@@ -106,6 +106,9 @@ function formatLastSeen(date){
 // time instead of the generic "onlayn holati mavjud emas" placeholder.
 function renderPresenceStatus(dotEl, textEl, status, onlineLabel, fallbackDate){
   if(!dotEl || !textEl) return;
+  // O'qituvchi onlayn holatini yashirgan bo'lsa — talabaga hech narsa ko'rsatilmaydi.
+  dotEl.style.display = status.hidden ? 'none' : '';
+  if(status.hidden){ textEl.textContent = ''; return; }
   dotEl.classList.toggle('is-online', !!status.online);
   const seenDate = status.lastSeenDate || fallbackDate || null;
   textEl.textContent = status.online ? (onlineLabel || 'Onlayn') : ('Oxirgi marta: ' + formatLastSeen(seenDate));
@@ -710,6 +713,37 @@ function createChatController(cfg){
     b.textContent = '←';
     b.addEventListener('click', () => back.click());
     header.insertBefore(b, header.firstChild);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+
+
+// Admin: onlayn holatini ko'rsatish / yashirish tugmasi (presence/teacher-status.hidden)
+(function addPresenceToggle(){
+  function init(){
+    const host = document.querySelector('.chat-header-actions');
+    if(!host || host.querySelector('.chat-presence-toggle') || typeof firebase === 'undefined') return;
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'chat-presence-toggle btn';
+    btn.style.cssText = 'white-space:nowrap';
+    host.insertBefore(btn, host.firstChild);
+    let hidden = false;
+    const draw = () => {
+      btn.textContent = hidden ? '⚪ Onlayn: yashirin' : '🟢 Onlayn: ko‘rinadi';
+      btn.title = hidden ? 'Talabalar sizning onlayn holatingizni ko‘rmaydi. Bosib yoqing.' : 'Talabalar sizni onlayn ko‘radi. Bosib yashiring.';
+    };
+    draw();
+    firebase.auth().onAuthStateChanged(user => {
+      if(!user) return;
+      db.collection('presence').doc('teacher-status').onSnapshot(doc => {
+        hidden = !!(doc.exists && doc.data().hidden);
+        draw();
+      }, () => {});
+    });
+    btn.addEventListener('click', () => {
+      db.collection('presence').doc('teacher-status').set({ hidden: !hidden }, { merge:true })
+        .catch(() => alert('Saqlab bo‘lmadi.'));
+    });
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
