@@ -117,7 +117,7 @@
         ? '<span class="lhw-score">' + fin + ' ball</span><small class="lhw-pen">−' + r.penalty + ' jazo</small>'
         : '<span class="lhw-score">' + (r.score || 0) + '/' + BLANKS + '</span>';
       var flag = (adminView && r.flagged) ? ' <span class="lhw-flag">⚠ Domlaga</span>' : '';
-      return '<li class="lhw-row' + (me ? ' me' : '') + '">' +
+      return '<li class="lhw-row' + (me ? ' me' : '') + (adminView ? ' lhw-click' : '') + '" data-sid="' + esc(r._id || '') + '">' +
         '<span class="lhw-rank">' + x.rank + '</span>' +
         '<span class="lhw-name">' + esc(r.studentName || 'Talaba') + (me ? ' <em>(siz)</em>' : '') + flag + '</span>' +
         score +
@@ -129,7 +129,7 @@
   function watchLeaderboard(exId, groupId, cb) {
     return db.collection(COL_SUB).where('exerciseId', '==', exId).onSnapshot(
       function (snap) {
-        var rows = snap.docs.map(function (d) { return d.data(); });
+        var rows = snap.docs.map(function (d) { return Object.assign({ _id: d.id }, d.data()); });
         if (groupId) rows = rows.filter(function (r) { return r.groupId === groupId; });
         cb(rows);
       },
@@ -384,7 +384,7 @@
   /* ============================================================
      ADMIN
      ============================================================ */
-  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null };
+  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [] };
 
   function stopAdminLb() {
     if (A.lbUnsub) { try { A.lbUnsub(); } catch (e) { /* ignore */ } A.lbUnsub = null; }
@@ -500,31 +500,75 @@
   function openAdminLb(ex) {
     stopAdminLb();
     A.lbId = ex.id;
+    A.detailSid = null;
+    A.lastRows = [];
     var panel = document.getElementById('lhwAdminLb');
     if (!panel) return;
     panel.hidden = false;
     panel.innerHTML =
       '<div class="lhw-lb-head"><h3>Jonli natijalar — ' + esc(ex.title) + '</h3>' +
         '<button type="button" class="lhw-btn sm" id="lhwLbClose">Yopish</button></div>' +
-      '<div id="lhwAdminLbBody"><p class="lhw-muted">Yuklanmoqda…</p></div>';
+      '<div id="lhwAdminLbBody"><p class="lhw-muted">Yuklanmoqda…</p></div>' +
+      '<div id="lhwAdminDetail"></div>';
     document.getElementById('lhwLbClose').addEventListener('click', closeAdminLb);
+    // Talabaning qatoriga bosilsa — uning javoblari pastda ochiladi (qayta bossa yopiladi)
+    panel.onclick = function (e) {
+      var row = e.target.closest('.lhw-click');
+      if (!row) return;
+      var sid = row.getAttribute('data-sid');
+      A.detailSid = (A.detailSid === sid) ? null : sid;
+      showAdminDetail(A.detailSid);
+    };
     A.lbUnsub = watchLeaderboard(ex.id, ex.groupId || '', function (rows) {
+      A.lastRows = rows || [];
       var body = document.getElementById('lhwAdminLbBody');
       if (!body) return;
       var flagged = (rows || []).filter(function (r) { return r.flagged; });
       body.innerHTML = leaderboardHTML(rows, null, true) +
-        (rows ? '<p class="lhw-muted">Topshirganlar: ' + rows.length + ' ta</p>' : '') +
+        (rows ? '<p class="lhw-muted">Topshirganlar: ' + rows.length + ' ta — qatorga bosing, javoblarini ko‘ring</p>' : '') +
         (flagged.length ? '<div class="lhw-warn">Domlaga taqdim etilgan taxminchilar (−' + PENALTY + ' jazo): ' +
           flagged.map(function (r) { return esc(r.studentName || 'Talaba'); }).join(', ') + '</div>' : '');
+      if (A.detailSid) showAdminDetail(A.detailSid);
     });
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Tanlangan talabaning javoblari: qaysi bo‘shliq to‘g‘ri/noto‘g‘ri, to‘g‘ri javob qanday
+  function showAdminDetail(sid) {
+    var box = document.getElementById('lhwAdminDetail');
+    if (!box) return;
+    var sub = sid ? (A.lastRows || []).find(function (r) { return r._id === sid; }) : null;
+    var ex = A.lbId ? findAdminEx(A.lbId) : null;
+    if (!sub || !ex) { box.innerHTML = ''; return; }
+    var answers = sub.answers || [];
+    var marks = (sub.marks && sub.marks.length) ? sub.marks : grade(ex.answers, answers).marks;
+    var items = '';
+    for (var i = 0; i < BLANKS; i++) {
+      var ok = !!marks[i];
+      var correct = String((ex.answers || [])[i] || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean).join(' / ') || '—';
+      items += '<li class="lhw-res ' + (ok ? 'ok' : 'bad') + '">' +
+        '<span class="lhw-blank-no">' + (i + 1) + '</span>' +
+        '<span class="lhw-res-yours">' + esc(answers[i] || '—') + '</span>' +
+        (ok ? '<span class="lhw-res-mark">✓</span>'
+            : '<span class="lhw-res-mark">✗ <small>to‘g‘ri: ' + esc(correct) + '</small></span>') +
+        '</li>';
+    }
+    var summary = sub.penalty
+      ? 'Taxmin: 0 ball, −' + sub.penalty + ' jazo'
+      : 'Ball: ' + (sub.score || 0) + '/' + BLANKS;
+    box.innerHTML = '<div class="lhw-admin-detail">' +
+      '<div class="lhw-lb-head"><h3>' + esc(sub.studentName || 'Talaba') + ' — javoblari</h3>' +
+      '<span class="lhw-muted">' + esc(summary) + '</span></div>' +
+      '<ol class="lhw-res-list">' + items + '</ol></div>';
   }
 
   function closeAdminLb() {
     stopAdminLb();
     A.lbId = null;
+    A.detailSid = null;
+    A.lastRows = [];
     var panel = document.getElementById('lhwAdminLb');
-    if (panel) { panel.hidden = true; panel.innerHTML = ''; }
+    if (panel) { panel.hidden = true; panel.innerHTML = ''; panel.onclick = null; }
   }
 
   function setFormMode(editing) {
