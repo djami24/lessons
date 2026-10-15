@@ -2406,7 +2406,7 @@ body.admin-theme .chat-detail-name{ color:var(--adm-ink); }
 /* Student's single-conversation chat view — reuses the admin chat-panel/
    chat-detail-header look, but full width and full height since there's
    no side list (a student only ever has one conversation: the teacher). */
-.chat-panel-solo{ height:calc(100vh - 220px); min-height:440px; }
+.chat-panel-solo{ height:calc(100vh - 130px); height:calc(100dvh - 130px); min-height:440px; }
 .chat-detail-avatar-teacher{ background:var(--teal); }
 body.admin-theme .chat-detail-avatar-teacher{ background:var(--adm-blue); }
 
