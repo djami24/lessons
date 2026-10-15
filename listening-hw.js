@@ -22,6 +22,10 @@
   var COL_SUB = 'listening_submissions';
   var BLANKS = 5;
   var MAX_ANSWER_LEN = 200;
+  // Taxmin qoidasi: bo‘shliqlarning FLAG_WRONG tasi yoki undan ko‘pi noto‘g‘ri bo‘lsa —
+  // mashq uchun 0 ball, PENALTY jazo, natija domlaga taqdim etiladi.
+  var FLAG_WRONG = 5;
+  var PENALTY = 100;
 
   /* ---------- yordamchilar ---------- */
 
@@ -45,13 +49,21 @@
   }
 
   function grade(keyAnswers, studentAnswers) {
-    var marks = [], score = 0;
+    var marks = [], correct = 0;
     for (var i = 0; i < BLANKS; i++) {
       var ok = acceptedVariants((keyAnswers || [])[i]).indexOf(norm((studentAnswers || [])[i])) !== -1;
       marks.push(ok);
-      if (ok) score++;
+      if (ok) correct++;
     }
-    return { score: score, marks: marks };
+    var flagged = (BLANKS - correct) >= FLAG_WRONG;
+    var score = flagged ? 0 : correct;
+    var penalty = flagged ? PENALTY : 0;
+    return { score: score, marks: marks, flagged: flagged, penalty: penalty, finalScore: score - penalty };
+  }
+
+  // Reytingdagi yakuniy ball (jazo ayrilgan)
+  function finalOf(r) {
+    return typeof r.finalScore === 'number' ? r.finalScore : (r.score || 0) - (r.penalty || 0);
   }
 
   function tsMs(t) {
@@ -86,24 +98,29 @@
   // Ball bo‘yicha o‘rin: teng ball — bir xil o‘rin; tengda kim oldin topshirgan bo‘lsa, yuqorida
   function rankRows(rows) {
     var sorted = rows.slice().sort(function (a, b) {
-      return (b.score || 0) - (a.score || 0) || tsMs(a.submittedAt) - tsMs(b.submittedAt);
+      return finalOf(b) - finalOf(a) || tsMs(a.submittedAt) - tsMs(b.submittedAt);
     });
     var rank = 0, prev = null;
     return sorted.map(function (r, idx) {
-      if (r.score !== prev) { rank = idx + 1; prev = r.score; }
+      if (finalOf(r) !== prev) { rank = idx + 1; prev = finalOf(r); }
       return { rank: rank, row: r };
     });
   }
 
-  function leaderboardHTML(rows, myUid) {
+  function leaderboardHTML(rows, myUid, adminView) {
     if (rows === null) return '<p class="lhw-muted">Natijalarni yuklab bo‘lmadi.</p>';
     if (!rows.length) return '<p class="lhw-muted">Hali hech kim topshirmagan. Birinchi bo‘lib toping!</p>';
     return '<ol class="lhw-board">' + rankRows(rows).map(function (x) {
       var r = x.row, me = !!myUid && r.studentId === myUid;
+      var fin = finalOf(r);
+      var score = r.penalty
+        ? '<span class="lhw-score">' + fin + ' ball</span><small class="lhw-pen">−' + r.penalty + ' jazo</small>'
+        : '<span class="lhw-score">' + (r.score || 0) + '/' + BLANKS + '</span>';
+      var flag = (adminView && r.flagged) ? ' <span class="lhw-flag">⚠ Domlaga</span>' : '';
       return '<li class="lhw-row' + (me ? ' me' : '') + '">' +
         '<span class="lhw-rank">' + x.rank + '</span>' +
-        '<span class="lhw-name">' + esc(r.studentName || 'Talaba') + (me ? ' <em>(siz)</em>' : '') + '</span>' +
-        '<span class="lhw-score">' + (r.score || 0) + '/' + BLANKS + '</span>' +
+        '<span class="lhw-name">' + esc(r.studentName || 'Talaba') + (me ? ' <em>(siz)</em>' : '') + flag + '</span>' +
+        score +
         '</li>';
     }).join('') + '</ol>';
   }
@@ -147,9 +164,10 @@
     S.groupId = (opts && opts.groupId) || '';
     root.innerHTML =
       '<div class="lhw-head"><div>' +
-        '<h1>Listening uy vazifalari</h1>' +
+        '<h1>Listening marafon</h1>' +
         '<p>Mashqni oching, bo‘sh joylarni to‘ldiring va topshiring. Har bir to‘g‘ri javob — 1 ball.</p>' +
       '</div></div>' +
+      '<div class="lhw-banner"><span class="lhw-banner-ico">🏆</span><div>Jami <b>12 ta marafon</b> bo‘ladi. Oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div></div>' +
       '<div id="lhwStudentBody"><p class="lhw-muted">Yuklanmoqda…</p></div>';
     if (!S.uid) return;
 
@@ -166,6 +184,40 @@
       snap.docs.forEach(function (d) { var x = d.data(); S.subs[x.exerciseId] = x; });
       renderStudentList();
     }));
+
+    maybeShowWelcome();
+  }
+
+  // Talaba birinchi marta Listening bo‘limiga kirganda tabrik chiqadi (bir martalik)
+  function maybeShowWelcome() {
+    db.collection('students').doc(S.uid).get().then(function (snap) {
+      if (!snap.exists || (snap.data() || {}).listeningWelcomed) return;
+      showWelcomeModal(S.name, function () {
+        db.collection('students').doc(S.uid).update({ listeningWelcomed: true }).catch(function () {});
+      });
+    }).catch(function () {});
+  }
+
+  function showWelcomeModal(name, onClose) {
+    if (document.querySelector('.lhw-modal-bg')) return;
+    var first = String(name || 'Talaba').split(' ')[0];
+    var bg = document.createElement('div');
+    bg.className = 'lhw-modal-bg';
+    bg.innerHTML =
+      '<div class="lhw-modal" role="dialog" aria-modal="true">' +
+        '<div class="lhw-modal-emoji">🎉</div>' +
+        '<h2>Tabriklayman, ' + esc(first) + '!</h2>' +
+        '<p>Siz <b>Listening marafon</b>ga qo‘shildingiz!</p>' +
+        '<p>Jami <b>12 ta marafon</b> bo‘ladi. Har bir mashqda 5 ta bo‘shliq bor — har bir to‘g‘ri javob <b>1 ball</b>.</p>' +
+        '<div class="lhw-modal-prize">🏆 Marafon oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div>' +
+        '<p class="lhw-modal-warn">⚠️ Eslatma: 5 ta bo‘shliqning hammasi noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi — 0 ball, <b>−100 jazo</b> va natija domlaga taqdim etiladi.</p>' +
+        '<button type="button" class="lhw-modal-btn">Boshlaymiz!</button>' +
+      '</div>';
+    document.body.appendChild(bg);
+    bg.querySelector('.lhw-modal-btn').addEventListener('click', function () {
+      bg.remove();
+      if (onClose) onClose();
+    });
   }
 
   function renderStudentList() {
@@ -180,7 +232,7 @@
     body.innerHTML = '<div class="lhw-list">' + visibleList.map(function (ex, i) {
       var sub = S.subs[ex.id];
       var badge = sub
-        ? '<span class="lhw-badge done">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>'
+        ? (sub.penalty ? '<span class="lhw-badge bad">Taxmin −' + sub.penalty + '</span>' : '<span class="lhw-badge done">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>')
         : '<span class="lhw-badge todo">Topshirilmagan</span>';
       return '<button type="button" class="lhw-card" data-id="' + esc(ex.id) + '">' +
         '<span class="lhw-num">' + (i + 1) + '</span>' +
@@ -200,27 +252,43 @@
     S.activeId = id;
     var media = safeUrl(ex.mediaUrl);
     body.innerHTML =
-      '<button type="button" class="lhw-back" id="lhwBack">← Ro‘yxatga qaytish</button>' +
+      '<button type="button" class="lhw-back" id="lhwBack">Ro‘yxatga qaytish</button>' +
       '<div class="lhw-detail">' +
         '<h2>' + esc(ex.title) + '</h2>' +
         (media ? '<a class="lhw-media" href="' + esc(media) + '" target="_blank" rel="noopener noreferrer">🎧 Audio / materialni ochish</a>' : '') +
         '<div id="lhwFormArea"></div>' +
       '</div>' +
-      '<h3 class="lhw-sub-title">Jonli reyting</h3>' +
-      '<div id="lhwLeaderboard" class="lhw-lb"><p class="lhw-muted">Yuklanmoqda…</p></div>';
+      '<div class="lhw-lb-wrap">' +
+        '<h3 class="lhw-sub-title">Reyting</h3>' +
+        '<button type="button" class="lhw-btn primary lhw-lb-btn" id="lhwLbBtn">📊 Jonli reytingni ko‘rish</button>' +
+        '<div id="lhwLeaderboard" class="lhw-lb" hidden></div>' +
+      '</div>';
 
     document.getElementById('lhwBack').addEventListener('click', function () {
       stopStudentLb();
       S.activeId = null;
       renderStudentList();
     });
+    document.getElementById('lhwLbBtn').addEventListener('click', function () {
+      showStudentLeaderboard(ex);
+    });
 
     var sub = S.subs[id];
     if (sub) renderResult(ex, sub); else renderForm(ex);
+  }
 
-    S.lbUnsub = watchLeaderboard(id, ex.groupId || '', function (rows) {
-      var lb = document.getElementById('lhwLeaderboard');
-      if (lb) lb.innerHTML = leaderboardHTML(rows, S.uid);
+  // Tugma bosilganda reyting jonli (real vaqt) rejimda ochiladi
+  function showStudentLeaderboard(ex) {
+    var btn = document.getElementById('lhwLbBtn');
+    var lb = document.getElementById('lhwLeaderboard');
+    if (!lb) return;
+    stopStudentLb();
+    if (btn) btn.hidden = true;
+    lb.hidden = false;
+    lb.innerHTML = '<p class="lhw-live"><span class="lhw-dot"></span> Jonli yangilanmoqda</p><p class="lhw-muted">Yuklanmoqda…</p>';
+    S.lbUnsub = watchLeaderboard(ex.id, ex.groupId || '', function (rows) {
+      var el = document.getElementById('lhwLeaderboard');
+      if (el) el.innerHTML = '<p class="lhw-live"><span class="lhw-dot"></span> Jonli yangilanmoqda</p>' + leaderboardHTML(rows, S.uid, false);
     });
   }
 
@@ -271,6 +339,9 @@
         score: g.score,
         total: BLANKS,
         marks: g.marks,
+        penalty: g.penalty,
+        finalScore: g.finalScore,
+        flagged: g.flagged,
         submittedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       return ref.set(data).then(function () { return data; });
@@ -305,6 +376,7 @@
       '<div class="lhw-result">' +
         '<div class="lhw-score-big">' + score + '<span>/' + BLANKS + '</span></div>' +
         '<p class="lhw-muted">Siz ' + BLANKS + ' ta bo‘shliqdan ' + score + 'tasini to‘g‘ri topdingiz. Natija topshirilgan — o‘zgartirib bo‘lmaydi.</p>' +
+        (sub.penalty ? '<div class="lhw-warn">⚠️ Taxmin aniqlandi: 0 ball, −' + sub.penalty + ' jazo. Natija domlaga taqdim etildi.</div>' : '') +
         '<ol class="lhw-res-list">' + rows + '</ol>' +
       '</div>';
   }
@@ -439,8 +511,11 @@
     A.lbUnsub = watchLeaderboard(ex.id, ex.groupId || '', function (rows) {
       var body = document.getElementById('lhwAdminLbBody');
       if (!body) return;
-      body.innerHTML = leaderboardHTML(rows, null) +
-        (rows ? '<p class="lhw-muted">Topshirganlar: ' + rows.length + ' ta</p>' : '');
+      var flagged = (rows || []).filter(function (r) { return r.flagged; });
+      body.innerHTML = leaderboardHTML(rows, null, true) +
+        (rows ? '<p class="lhw-muted">Topshirganlar: ' + rows.length + ' ta</p>' : '') +
+        (flagged.length ? '<div class="lhw-warn">Domlaga taqdim etilgan taxminchilar (−' + PENALTY + ' jazo): ' +
+          flagged.map(function (r) { return esc(r.studentName || 'Talaba'); }).join(', ') + '</div>' : '');
     });
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
