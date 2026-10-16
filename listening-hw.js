@@ -73,6 +73,14 @@
     return t && typeof t.toMillis === 'function' ? t.toMillis() : Date.now();
   }
 
+  // Sana-vaqt: 16.10.2026 17:48 (Toshkent vaqti, UTC+5)
+  function fmtDT(ms) {
+    var d = new Date(ms + 5 * 3600 * 1000);
+    var p = function (n) { return (n < 10 ? '0' : '') + n; };
+    return p(d.getUTCDate()) + '.' + p(d.getUTCMonth() + 1) + '.' + d.getUTCFullYear() + ' ' +
+      p(d.getUTCHours()) + ':' + p(d.getUTCMinutes());
+  }
+
   function sortByCreated(list) {
     return list.slice().sort(function (a, b) { return tsMs(a.createdAt) - tsMs(b.createdAt); });
   }
@@ -505,7 +513,8 @@
     var by = {};
     A.allSubs.forEach(function (x) {
       var k = x.studentId;
-      if (!by[k]) by[k] = { id: k, name: 'Talaba', groupId: '', total: 0, done: 0, flagged: 0 };
+      if (!by[k]) by[k] = { id: k, name: 'Talaba', groupId: '', total: 0, done: 0, flagged: 0, last: 0 };
+      by[k].last = Math.max(by[k].last, tsMs(x.submittedAt));
       by[k].name = x.studentName || by[k].name;
       if (x.groupId) by[k].groupId = x.groupId;
       by[k].total += finalOf(x);
@@ -524,19 +533,36 @@
         '<td class="lhw-muted">' + esc(grp) + '</td>' +
         '<td class="lhw-t-total">' + r.total + '</td>' +
         '<td>' + r.done + ' / ' + A.exercises.length + '</td>' +
+        '<td>' + fmtDT(r.last) + '</td>' +
         '<td>' + (r.flagged ? '<span class="lhw-flag">⚠ ' + r.flagged + '</span>' : '—') + '</td>' +
         '</tr>';
     }).join('');
     box.innerHTML =
       '<div class="lhw-overall-card">' +
         '<div class="lhw-lb-head"><h3>Umumiy reyting</h3>' +
-          '<span class="lhw-muted">Mashqlar: ' + A.exercises.length + ' ta · Ishtirokchilar: ' + list.length + ' ta</span></div>' +
+          '<div class="lhw-lb-tools"><span class="lhw-muted">Mashqlar: ' + A.exercises.length + ' ta · Ishtirokchilar: ' + list.length + ' ta</span>' +
+          '<button type="button" class="lhw-btn sm" id="lhwOverallRefresh">🔄 Yangilash</button></div></div>' +
         (list.length
           ? '<div class="lhw-overall-wrap"><table class="lhw-table"><thead><tr>' +
-              '<th>O‘rin</th><th>Talaba</th><th>Guruh</th><th>Jami ball</th><th>Topshirgan</th><th>Taxmin</th>' +
+              '<th>O‘rin</th><th>Talaba</th><th>Guruh</th><th>Jami ball</th><th>Topshirgan</th><th>Oxirgi topshirgan vaqti</th><th>Taxmin</th>' +
             '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>'
           : '<p class="lhw-muted">Hali hech kim topshirmagan.</p>') +
       '</div>';
+    var btn = document.getElementById('lhwOverallRefresh');
+    if (btn) btn.addEventListener('click', refreshOverall);
+  }
+
+  // Qo‘lda yangilash: barcha topshiriqlarni qayta o‘qiydi
+  function refreshOverall() {
+    var btn = document.getElementById('lhwOverallRefresh');
+    if (btn) btn.disabled = true;
+    db.collection(COL_SUB).get().then(function (snap) {
+      A.allSubs = snap.docs.map(function (d) { return d.data(); });
+      renderOverall();
+    }).catch(function (e) {
+      alert('Yangilashda xatolik: ' + (e && e.message));
+      if (btn) btn.disabled = false;
+    });
   }
 
   function renderAdminList() {
@@ -635,9 +661,9 @@
             : '<span class="lhw-res-mark">✗ <small>to‘g‘ri: ' + esc(correct) + '</small></span>') +
         '</li>';
     }
-    var summary = sub.penalty
+    var summary = (sub.penalty
       ? 'Taxmin: 0 ball, ' + sub.penalty + ' ta jazo'
-      : 'Ball: ' + (sub.score || 0) + '/' + BLANKS;
+      : 'Ball: ' + (sub.score || 0) + '/' + BLANKS) + ' · Topshirgan: ' + fmtDT(tsMs(sub.submittedAt));
     box.innerHTML = '<div class="lhw-admin-detail">' +
       '<div class="lhw-lb-head"><h3>' + esc(sub.studentName || 'Talaba') + ' — javoblari</h3>' +
       '<span class="lhw-muted">' + esc(summary) + '</span></div>' +
