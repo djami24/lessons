@@ -262,3 +262,6 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .sbn-sheet-item.lhw-menu-btn svg{ stroke:#fff !important; }
 .admin-nav a.lhw-menu-btn:hover,
 .sbn-sheet-item.lhw-menu-btn:hover{ background:#2F8EF0 !important; }
+
+/* admin: umumiy reyting boshqaruvi */
+.lhw-lb-tools{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
