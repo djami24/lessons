@@ -396,13 +396,11 @@
     var rows = '';
     for (var i = 0; i < BLANKS; i++) {
       var ok = !!marks[i];
-      var correct = String((ex.answers || [])[i] || '').split('|')[0].trim();
+      // To‘g‘ri javoblar talabaga ko‘rsatilmaydi — faqat o‘z javobi va belgisi
       rows += '<li class="lhw-res ' + (ok ? 'ok' : 'bad') + '">' +
         '<span class="lhw-blank-no">' + (i + 1) + '</span>' +
         '<span class="lhw-res-yours">' + esc(answers[i] || '—') + '</span>' +
-        (ok
-          ? '<span class="lhw-res-mark">✓</span>'
-          : '<span class="lhw-res-mark">✗ <small>to‘g‘ri: ' + esc(correct) + '</small></span>') +
+        '<span class="lhw-res-mark">' + (ok ? '✓' : '✗') + '</span>' +
         '</li>';
     }
     var score = sub.score || 0;
@@ -412,6 +410,7 @@
         '<p class="lhw-muted">Siz ' + BLANKS + ' ta bo‘shliqdan ' + score + 'tasini to‘g‘ri topdingiz. Natija topshirilgan — o‘zgartirib bo‘lmaydi.</p>' +
         (sub.penalty ? '<div class="lhw-warn">⚠️ Taxmin aniqlandi: 0 ball, ' + sub.penalty + ' ta jazo qayd etildi. Natija domlaga taqdim etildi.</div>' : '') +
         '<ol class="lhw-res-list">' + rows + '</ol>' +
+        '<p class="lhw-hint lhw-ask-teacher">📩 To‘g‘ri javoblarni o‘qituvchingizdan oling.</p>' +
       '</div>';
   }
 
