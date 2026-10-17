@@ -100,6 +100,11 @@
     return dl !== null && Date.now() >= dl;
   }
 
+  // Admin qo‘lda yopib qo‘ygan mashq
+  function isClosed(ex) { return !!(ex && ex.closed === true); }
+  // Talaba javob kirita olmaydi: yopilgan yoki vaqti tugagan
+  function isLocked(ex) { return isClosed(ex) || isExpired(ex); }
+
   function timerColor(left) {
     return left <= 0 ? '#E5484D' : (left < 3600000 ? '#E8890C' : '#1FAE7A');
   }
@@ -247,15 +252,18 @@
     });
     if (S.activeId) {
       var ex = S.exercises.find(function (e) { return e.id === S.activeId; });
-      if (ex && isExpired(ex) && !S.subs[ex.id] && document.getElementById('lhwSubmitForm')) renderExpired();
+      if (ex && isLocked(ex) && !S.subs[ex.id] && document.getElementById('lhwSubmitForm')) renderExpired(ex);
     } else if (listExpired) {
       renderStudentList();
     }
   }
 
-  function renderExpired() {
+  function renderExpired(ex) {
     var area = document.getElementById('lhwFormArea');
-    if (area) area.innerHTML = '<div class="lhw-warn">⛔ Bu mashq uchun vaqt tugagan — javob kiritib bo‘lmaydi.</div>';
+    if (!area) return;
+    area.innerHTML = isClosed(ex)
+      ? '<div class="lhw-warn">🔒 Bu mashq yopilgan — hozircha javob kiritib bo‘lmaydi.</div>'
+      : '<div class="lhw-warn">⛔ Bu mashq uchun vaqt tugagan — javob kiritib bo‘lmaydi.</div>';
   }
 
   // Umumiy reytingdagi o‘rin: mendan yuqori umumiy ballga ega talabalar soni + 1
@@ -320,9 +328,11 @@
       })() + '</div>';
     body.innerHTML = summary + '<div class="lhw-list">' + visibleList.map(function (ex, i) {
       var sub = S.subs[ex.id];
-      var dl = deadlineOf(ex), expired = isExpired(ex);
+      var dl = isClosed(ex) ? null : deadlineOf(ex), expired = isLocked(ex);
       var timer = '';
-      if (dl !== null && !sub) {
+      if (isClosed(ex) && !sub) {
+        timer = '<small class="lhw-timer" style="display:block;font-weight:700;color:#6B7280;">🔒 Yopiq</small>';
+      } else if (dl !== null && !sub) {
         timer = expired
           ? '<small class="lhw-timer" style="display:block;font-weight:700;color:#E5484D;">⛔ Vaqt tugadi</small>'
           : '<small class="lhw-timer" data-dl="' + dl + '" style="display:block;font-weight:700;color:' + timerColor(dl - Date.now()) + ';">⏳ Qoldi: ' + fmtLeft(dl - Date.now()) + '</small>';
@@ -356,7 +366,7 @@
       '<div class="lhw-detail">' +
         '<h2>' + esc(ex.title) + '</h2>' +
         (media ? '<a class="lhw-media" href="' + esc(media) + '" target="_blank" rel="noopener noreferrer">🎧 Audio / materialni ochish</a>' : '') +
-        (deadlineOf(ex) !== null && !S.subs[id]
+        (!isClosed(ex) && deadlineOf(ex) !== null && !S.subs[id]
           ? '<p class="lhw-deadline" data-dl="' + deadlineOf(ex) + '" style="font-weight:700;margin:8px 0;"></p>'
           : '') +
         '<div id="lhwFormArea"></div>' +
@@ -378,7 +388,7 @@
 
     var sub = S.subs[id];
     if (sub) renderResult(ex, sub);
-    else if (isExpired(ex)) renderExpired();
+    else if (isLocked(ex)) renderExpired(ex);
     else renderForm(ex);
     tick();
   }
@@ -421,7 +431,7 @@
   function submitExercise(ex) {
     var err = document.getElementById('lhwSubErr');
     var btn = document.getElementById('lhwSubmitBtn');
-    if (isExpired(ex)) { renderExpired(); return; }
+    if (isLocked(ex)) { renderExpired(ex); return; }
     var answers = [];
     document.querySelectorAll('#lhwFormArea input[data-i]').forEach(function (inp) {
       answers[+inp.getAttribute('data-i')] = inp.value.trim();
@@ -458,8 +468,8 @@
     }).catch(function (e) {
       btn.disabled = false;
       var denied = e && (e.code === 'permission-denied' || /permission/i.test(e.message || ''));
-      showErr(err, denied && isExpired(ex)
-        ? 'Vaqt tugagan — javob qabul qilinmaydi.'
+      showErr(err, denied && isLocked(ex)
+        ? (isClosed(ex) ? 'Mashq yopilgan — javob qabul qilinmaydi.' : 'Vaqt tugagan — javob qabul qilinmaydi.')
         : 'Xatolik: ' + (e && e.message ? e.message : 'topshirib bo‘lmadi'));
     });
   }
@@ -646,7 +656,9 @@
     list.innerHTML = A.exercises.map(function (ex, i) {
       var preview = (ex.answers || []).map(function (a) { return String(a).split('|')[0].trim(); }).join(' · ');
       var dlTxt = '';
-      if (deadlineOf(ex) !== null) {
+      if (isClosed(ex)) {
+        dlTxt = ' <span class="lhw-badge todo" style="background:rgba(120,120,130,.18);color:#6B7280;">🔒 Yopiq</span>';
+      } else if (deadlineOf(ex) !== null) {
         dlTxt = isExpired(ex)
           ? ' <span class="lhw-badge todo" style="background:rgba(229,72,77,.12);color:#E5484D;">⛔ Muddat tugagan: ' + fmtDT(ex.deadlineAt) + '</span>'
           : ' <span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;">⏳ Muddat: ' + fmtDT(ex.deadlineAt) + '</span>';
@@ -661,6 +673,9 @@
         '</div>' +
         '<div class="lhw-admin-btns">' +
           '<button type="button" class="lhw-btn sm" data-act="lb">Natijalar</button>' +
+          (isClosed(ex)
+            ? '<button type="button" class="lhw-btn sm" data-act="open">🔓 Ochish</button>'
+            : '<button type="button" class="lhw-btn sm" data-act="close">🔒 Yopish</button>') +
           '<button type="button" class="lhw-btn sm" data-act="edit">Tahrirlash</button>' +
           '<button type="button" class="lhw-btn sm danger" data-act="del">O‘chirish</button>' +
         '</div>' +
@@ -681,7 +696,31 @@
     var act = btn.getAttribute('data-act');
     if (act === 'lb') openAdminLb(ex);
     else if (act === 'edit') fillAdminForm(ex);
+    else if (act === 'close') closeExercise(ex);
+    else if (act === 'open') openExerciseAdmin(ex);
     else if (act === 'del') deleteExercise(ex);
+  }
+
+  // Yopish: talabalar javob kirita olmaydi; vaqt olib tashlanadi (ochilganda qaytadan qo‘yiladi)
+  function closeExercise(ex) {
+    if (!confirm('“' + ex.title + '” mashqini yopasizmi?\n\nTalabalar javob kirita olmaydi. Muddat olib tashlanadi.')) return;
+    db.collection(COL_EX).doc(ex.id).update({ closed: true, deadlineAt: null, durationHours: null, updatedAt: Date.now() })
+      .catch(function (er) { alert('Yopishda xatolik: ' + (er && er.message)); });
+  }
+
+  // Ochish: yangi muddat (soat) so‘raladi; bo‘sh qoldirilsa — cheklanmagan
+  function openExerciseAdmin(ex) {
+    var v = prompt('“' + ex.title + '” ochiladi.\nNecha soat ochiq bo‘lsin? (masalan 24 yoki 30; bo‘sh qoldirsangiz — cheklanmagan)', '24');
+    if (v === null) return;
+    v = String(v).trim().replace(',', '.');
+    var hours = v === '' ? null : Number(v);
+    if (hours !== null && (!isFinite(hours) || hours <= 0 || hours > 1000)) { alert('Soat 0 dan katta son bo‘lishi kerak.'); return; }
+    db.collection(COL_EX).doc(ex.id).update({
+      closed: false,
+      durationHours: hours,
+      deadlineAt: hours === null ? null : Date.now() + Math.round(hours * 3600000),
+      updatedAt: Date.now()
+    }).catch(function (er) { alert('Ochishda xatolik: ' + (er && er.message)); });
   }
 
   function openAdminLb(ex) {
@@ -823,7 +862,9 @@
     };
     // Muddat: yangi mashqda yoki soat o‘zgarganda — hozirdan boshlab hisoblanadi; o‘zgarmasa avvalgisi saqlanadi
     var prevEx = A.editingId ? findAdminEx(A.editingId) : null;
-    if (hours === null) {
+    if (prevEx && isClosed(prevEx)) {
+      // yopiq mashqda muddat qo‘yilmaydi — avval "Ochish" tugmasini bosing
+    } else if (hours === null) {
       payload.durationHours = null;
       payload.deadlineAt = null;
     } else if (!prevEx || prevEx.durationHours !== hours || typeof prevEx.deadlineAt !== 'number') {
