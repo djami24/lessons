@@ -1,0 +1,113 @@
+/* ============================================================
+   Glassy (shisha) mavzu — talaba kabineti
+   Yorug' rejimda: rangli gradient fon + yarim shaffof xira kartalar.
+   Qorong'i rejimda (body.dark): xuddi shunday, lekin to'q ranglarda.
+   Faqat ko'rinish; mantiq va ma'lumotga tegmaydi.
+   ============================================================ */
+
+/* ---------- Fon ---------- */
+html body.admin-theme:not(.dark){
+  background:linear-gradient(135deg,#E8F0FF 0%,#F3EEFF 48%,#FFF0E3 100%) fixed !important;
+}
+html body.admin-theme.dark{
+  background:linear-gradient(135deg,#0c1224 0%,#141a33 50%,#1a1430 100%) fixed !important;
+}
+body.admin-theme::before{
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+}
+body.admin-theme:not(.dark)::before{
+  background:
+    radial-gradient(520px 420px at 8% 12%,rgba(46,111,237,.26),transparent 70%),
+    radial-gradient(560px 460px at 92% 18%,rgba(155,110,255,.22),transparent 70%),
+    radial-gradient(600px 480px at 80% 90%,rgba(217,142,63,.24),transparent 70%),
+    radial-gradient(480px 400px at 14% 84%,rgba(31,174,122,.16),transparent 70%);
+}
+body.admin-theme.dark::before{
+  background:
+    radial-gradient(520px 420px at 8% 12%,rgba(59,111,240,.30),transparent 70%),
+    radial-gradient(560px 460px at 92% 18%,rgba(124,92,240,.26),transparent 70%),
+    radial-gradient(600px 480px at 80% 90%,rgba(217,142,63,.14),transparent 70%);
+}
+/* asosiy qatlamlar fon ustida shaffof bo'lib, kontent oldinda turadi */
+html body.admin-theme .admin-shell{ position:relative; z-index:1; background:transparent !important; }
+html body.admin-theme .admin-main,
+html body.admin-theme #view-home,
+html body.admin-theme.dark .admin-main,
+html body.admin-theme.dark #view-home{ background:transparent !important; }
+html:has(body.admin-theme){ background:transparent; }
+
+/* ---------- Kartalar (yorug') ---------- */
+html body.admin-theme:not(.dark) :is(
+  .card, .stat-card, .level-card, .course-card, .notif-card, .hwp-card, .hwi-box, .gbx-box,
+  .gb-stats-box, .gb-group-folder, .mystats-card, .schedule-card, .activity-card, .plan-card,
+  .test-card, .profile-card, .profile-card-new, .teacher-card, .home-menu-card, .chat-panel,
+  .profile-user-row, #latestHwBox, #gbResultBox
+){
+  background:rgba(255,255,255,.55) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(170%); backdrop-filter:blur(16px) saturate(170%);
+  border:1px solid rgba(255,255,255,.78) !important;
+  box-shadow:0 12px 32px -14px rgba(20,33,61,.20), inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+html body.admin-theme:not(.dark) .card-head{ border-bottom-color:rgba(20,33,61,.07); }
+
+/* ---------- Kartalar (qorong'i) ---------- */
+html body.admin-theme.dark :is(
+  .card, .stat-card, .level-card, .course-card, .notif-card, .hwp-card, .hwi-box, .gbx-box,
+  .gb-stats-box, .gb-group-folder, .mystats-card, .schedule-card, .activity-card, .plan-card,
+  .test-card, .profile-card, .profile-card-new, .teacher-card, .home-menu-card, .chat-panel,
+  .profile-user-row, #latestHwBox, #gbResultBox
+){
+  background:rgba(23,29,44,.55) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%);
+  border:1px solid rgba(255,255,255,.10) !important;
+  box-shadow:0 12px 32px -14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+
+/* ---------- Yon panel (sidebar) ---------- */
+html body.admin-theme:not(.dark) .admin-sidebar{
+  background:rgba(255,255,255,.55) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(170%); backdrop-filter:blur(18px) saturate(170%);
+  border-right:1px solid rgba(255,255,255,.75) !important;
+  box-shadow:8px 0 30px -18px rgba(20,33,61,.18);
+}
+html body.admin-theme.dark .admin-sidebar{
+  background:rgba(15,20,32,.55) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
+  border-right:1px solid rgba(255,255,255,.08) !important;
+}
+html body.admin-theme .admin-sidebar .brand{ border-bottom-color:rgba(20,33,61,.08) !important; }
+html body.admin-theme.dark .admin-sidebar .brand{ border-bottom-color:rgba(255,255,255,.08) !important; }
+
+/* ---------- Yuqori tugmalar va telefon pastki menyusi ---------- */
+html body.admin-theme:not(.dark) .topbar-icon-btn{
+  background:rgba(255,255,255,.6); border-color:rgba(255,255,255,.8);
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html body.admin-theme:not(.dark) .student-bottom-nav{
+  background:rgba(255,255,255,.62) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(170%); backdrop-filter:blur(18px) saturate(170%);
+  border-top:1px solid rgba(255,255,255,.8) !important;
+}
+html body.admin-theme.dark .student-bottom-nav{
+  background:rgba(15,20,32,.62) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
+  border-top:1px solid rgba(255,255,255,.08) !important;
+}
+html body.admin-theme:not(.dark) .sbn-sheet{
+  background:rgba(255,255,255,.78) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(170%); backdrop-filter:blur(22px) saturate(170%);
+}
+html body.admin-theme.dark .sbn-sheet{
+  background:rgba(20,26,44,.80) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(150%); backdrop-filter:blur(22px) saturate(150%);
+}
+
+/* ---------- Listening marafon kartalari ---------- */
+html body.admin-theme:not(.dark) .lhw-root{ --lhw-card:rgba(255,255,255,.55); --lhw-line:rgba(255,255,255,.8); }
+html body.admin-theme.dark .lhw-root{ --lhw-card:rgba(23,29,44,.55); --lhw-line:rgba(255,255,255,.10); }
+html body.admin-theme .lhw-card, html body.admin-theme .lhw-detail, html body.admin-theme .lhw-total, html body.admin-theme .lhw-banner{
+  -webkit-backdrop-filter:blur(16px) saturate(160%); backdrop-filter:blur(16px) saturate(160%);
+  box-shadow:0 12px 30px -16px rgba(20,33,61,.22), inset 0 1px 0 rgba(255,255,255,.35);
+}
+html body.admin-theme .admin-sidebar .brand,
+html body.admin-theme .admin-sidebar .admin-user{ background:transparent !important; }
