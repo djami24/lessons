@@ -111,3 +111,17 @@ html body.admin-theme .lhw-card, html body.admin-theme .lhw-detail, html body.ad
 }
 html body.admin-theme .admin-sidebar .brand,
 html body.admin-theme .admin-sidebar .admin-user{ background:transparent !important; }
+
+/* Qorong'i rejimda logo qatori va yuqori tugmalar qattiq to'q quti bo'lib qolmasin */
+html body.admin-theme.dark .admin-sidebar .brand,
+html body.admin-theme.dark .admin-sidebar a.brand,
+html body.admin-theme.dark .admin-sidebar #logoHomeBtn{ background:transparent !important; }
+html body.admin-theme.dark .topbar-icon-btn{
+  background:rgba(23,29,44,.55) !important; border-color:rgba(255,255,255,.12) !important;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+
+/* Telefonda "powered by Djami" pastki menyu ustiga chiqib ketmasin — menyudan yuqoriroqda turadi */
+@media (max-width: 900px){
+  body.has-student-bottom-nav .powered-by{ bottom:calc(74px + env(safe-area-inset-bottom,0px)); }
+}
