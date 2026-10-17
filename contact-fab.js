@@ -6,7 +6,7 @@
   if (document.getElementById('cfab')) return;
 
   var css =
-    '#cfab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:900;display:flex;flex-direction:column;gap:12px;}' +
+    '#cfab{position:fixed;right:16px;bottom:calc(42px + env(safe-area-inset-bottom,0px));z-index:900;display:flex;flex-direction:column;gap:12px;}' +
     '#cfab a{width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;' +
       'box-shadow:0 6px 18px rgba(15,35,95,.22);transition:transform .15s ease,box-shadow .15s ease;-webkit-tap-highlight-color:transparent;}' +
     '#cfab a:hover{transform:translateY(-2px) scale(1.05);box-shadow:0 10px 24px rgba(15,35,95,.28);}' +
