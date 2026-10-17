@@ -1,0 +1,50 @@
+/* ============================================================
+   Glassy (shisha) uslub — kirish va ro'yxatdan o'tish sahifalari
+   (kirish.html, student/parent/admin/guest login va register)
+   Faqat ko'rinish; forma mantiqiga tegmaydi.
+   ============================================================ */
+
+/* ---------- Fon ---------- */
+html body.auth-body, html body.role-body, html body.guest-body{
+  background:linear-gradient(135deg,#E8F0FF 0%,#F3EEFF 48%,#FFF0E3 100%) fixed !important;
+  position:relative;
+}
+html body.auth-body::before, html body.role-body::before, html body.guest-body::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(520px 420px at 8% 12%,rgba(46,111,237,.28),transparent 70%),
+    radial-gradient(560px 460px at 92% 20%,rgba(155,110,255,.24),transparent 70%),
+    radial-gradient(600px 480px at 78% 88%,rgba(217,142,63,.26),transparent 70%),
+    radial-gradient(480px 400px at 14% 82%,rgba(31,174,122,.18),transparent 70%);
+}
+
+/* ---------- Asosiy shisha panellar ---------- */
+html body :is(.auth-split, .auth-split-wrap, .auth-card, .auth-folder .folder, .role-card-box, .guest-card){
+  background:rgba(255,255,255,.52) !important;
+  -webkit-backdrop-filter:blur(20px) saturate(170%); backdrop-filter:blur(20px) saturate(170%);
+  border:1px solid rgba(255,255,255,.8) !important;
+  box-shadow:0 30px 60px -28px rgba(20,33,61,.32), inset 0 1px 0 rgba(255,255,255,.9) !important;
+}
+
+/* Split sahifalarida chap tomon: yarim shaffof rangli shisha */
+html body .auth-split-left{
+  background:linear-gradient(155deg,rgba(20,33,61,.80) 0%,rgba(31,78,77,.70) 100%) !important;
+  -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+}
+html body .auth-split-right{ background:transparent !important; }
+
+/* ---------- Ichki elementlar ---------- */
+html body .role-choice{
+  background:rgba(255,255,255,.55); border-color:rgba(255,255,255,.85);
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);
+}
+html body .role-choice:hover{ background:rgba(255,255,255,.8); }
+html body .role-guest-btn{ border-color:rgba(20,33,61,.22); }
+
+html body:is(.auth-body, .role-body, .guest-body) :is(input[type=text],input[type=email],input[type=password],input[type=tel],input[type=number],select,textarea){
+  background:rgba(255,255,255,.65) !important;
+  border-color:rgba(20,33,61,.12) !important;
+}
+html body:is(.auth-body, .role-body, .guest-body) :is(input,select,textarea):focus{
+  background:rgba(255,255,255,.9) !important;
+}
