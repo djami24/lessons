@@ -652,9 +652,11 @@
           : ' <span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;">⏳ Muddat: ' + fmtDT(ex.deadlineAt) + '</span>';
       }
       return '<div class="lhw-admin-row" data-id="' + esc(ex.id) + '">' +
-        '<div class="lhw-admin-info">' +
-          '<div class="lhw-admin-title"><span class="lhw-num">' + (i + 1) + '</span> ' + esc(ex.title) +
-            ' <span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>' + dlTxt + '</div>' +
+        '<div class="lhw-admin-info" style="flex:1 1 220px;min-width:0;">' +
+          '<div class="lhw-admin-title"><span class="lhw-num">' + (i + 1) + '</span>' +
+            '<span style="min-width:0;overflow-wrap:anywhere;">' + esc(ex.title) + '</span></div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;">' +
+            '<span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>' + dlTxt + '</div>' +
           '<div class="lhw-muted lhw-preview">' + esc(preview) + '</div>' +
         '</div>' +
         '<div class="lhw-admin-btns">' +
