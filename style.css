@@ -910,8 +910,11 @@ body.admin-theme:not(.light-mode) .notif-popup-body { color: #9aa1b8; }
   display:flex; align-items:center; justify-content:space-between; gap: 1.4em;
   padding: 1.1em 2em;
   max-width: 1280px; width:100%; margin: 0 auto;
-  background: rgba(255,255,255,.88); backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--line);
+  /* Glassy (shisha) effekt */
+  background: rgba(255,255,255,.55);
+  -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%);
+  border-bottom: 1px solid rgba(255,255,255,.65);
+  box-shadow: 0 8px 28px rgba(20,33,61,.07), inset 0 -1px 0 rgba(20,33,61,.05);
 }
 .home-nav-links{
   display:flex; align-items:center; gap: 2em;
