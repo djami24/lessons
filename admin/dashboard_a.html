@@ -7106,8 +7106,8 @@ async function homeRenderStatsOverview(force){
   const A = stAgg(cur), P = stAgg(prev);
   const D = (...a) => A.marked === 0 ? '' : stDelta(...a);
   const studentCount = groups.reduce((n, g) => n + g.students.length, 0);
-  const expected = groups.reduce((n, g) => n + wins[g.id].n * g.students.length, 0);
-  const pExpected = groups.reduce((n, g) => n + wins[g.id].pn * g.students.length, 0);
+  const expected = groups.reduce((n, g) => n + stExpG(g, wins[g.id].from, wins[g.id].to), 0);
+  const pExpected = groups.reduce((n, g) => n + stExpG(g, wins[g.id].pFrom, wins[g.id].pTo), 0);
   const comp = expected ? Math.min(100, Math.round(A.marked / expected * 100)) : null;
   const pComp = pExpected ? Math.min(100, Math.round(P.marked / pExpected * 100)) : null;
   const froms = groups.map(g => wins[g.id].from).filter(x => x !== '9').sort();
@@ -7297,9 +7297,10 @@ async function stFetch(force, back){
   const groups = await homeFetchGroupsWithStudents();
   const since = stDate(stAdd(new Date(), -(back - 1)));
   const rows = [];
+  _stFirst = {};
   await Promise.all(groups.flatMap(g => g.students.map(s =>
     db.collection('oquv_progress').doc(s.id).collection('entries').where('date', '>=', since).get()
-      .then(snap => snap.docs.forEach(d => { const x = stNorm(d.data(), g, s); if (x) rows.push(x); }))
+      .then(snap => snap.docs.forEach(d => { const x = stNorm(d.data(), g, s); if (x) { rows.push(x); if (!_stFirst[s.id] || x.date < _stFirst[s.id]) _stFirst[s.id] = x.date; } }))
       .catch(() => {})
   )));
   _statsData = { ts: Date.now(), back, groups, rows };
@@ -7317,6 +7318,26 @@ function stLessonDates(g, end, skip, n){
     d = stAdd(d, -1);
   }
   return out.reverse();
+}
+// Talaba guruhga qo'shilgan sanadan OLDINGI darslar unga hisoblanmaydi (yangi qo'shilgan talaba statistikani buzmasin).
+// Boshlanish = qo'shilgan sana; agar undan oldin ham yozuv kiritilgan bo'lsa — eng birinchi yozuv sanasi.
+let _stFirst = {};
+function stStuFrom(st, from){
+  let f = from;
+  if (st && st.joined && st.joined > f) f = st.joined;
+  const fr = st && _stFirst[st.id];
+  if (fr && fr < f) f = fr < from ? from : fr;
+  return f;
+}
+// Guruhning [from..to] oralig'idagi kutilgan "talaba-dars" soni (har talaba o'z qo'shilgan sanasidan boshlab)
+function stExpG(g, from, to){
+  if (!g || from > to) return 0;
+  const ds = [];
+  for (let d = new Date(from + 'T00:00:00'); stDate(d) <= to; d = stAdd(d, 1))
+    if ((g.days || []).includes(OJ_JSDAY_TO_KEY[d.getDay()])) ds.push(stDate(d));
+  let n = 0;
+  (g.students || []).forEach(st => { const f = stStuFrom(st, from); n += ds.filter(x => x >= f).length; });
+  return n;
 }
 // ----- O'quv oylari (guruh hujjatida `periods` massivi: [{start:'YYYY-MM-DD', end:'YYYY-MM-DD'|null, n:1}]) -----
 const UZ_MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
@@ -7508,15 +7529,16 @@ function stOpenKpiDetail(kind, ctx){
       }
       const missByDate = {};
       g.students.forEach(st => {
-        const miss = lessonDates.filter(dt => !markedKey.has(st.id + '|' + dt));
+        const sf = stStuFrom(st, w.from), own = lessonDates.filter(dt => dt >= sf);
+        const miss = own.filter(dt => !markedKey.has(st.id + '|' + dt));
         miss.forEach(dt => { missByDate[dt] = (missByDate[dt] || 0) + 1; });
         if (miss.length) {
           rows.push({ sid: st.id, name: st.name, phone: st.phone || '', gid: g.id, gdays: g.days || [], gname: g.name, dates: miss, line: '',
-                      val: `${lessonDates.length - miss.length} / ${lessonDates.length}`, num: miss.length, color: ST_C.gray, miss: miss.length });
+                      val: `${own.length - miss.length} / ${own.length}`, num: miss.length, color: ST_C.gray, miss: miss.length });
         }
       });
       // Hech bir o'quvchiga belgi qo'yilmagan darslar — o'qituvchi butunlay unutgan bo'lishi mumkin
-      const all = lessonDates.filter(dt => missByDate[dt] === g.students.length);
+      const all = lessonDates.filter(dt => missByDate[dt] === g.students.filter(x => stStuFrom(x, w.from) <= dt).length && missByDate[dt] > 0);
       if (all.length) wholeMissed.push(`${g.name}: ${all.map(dm).join(', ')}`);
     });
     rows.sort((x, y) => y.miss - x.miss);
@@ -7674,8 +7696,8 @@ async function loadStatsPage(days, force){
   const A = stAgg(cur), P = stAgg(prev);
   const D = (...a) => A.marked === 0 ? '' : stDelta(...a);   // shu oyda hali belgi yo'q bo'lsa, «yaxshilandi» deb ko'rsatmaymiz
   const studentCount = groups.reduce((s,g) => s + g.students.length, 0);
-  const expected = groups.reduce((s,g) => s + wins[g.id].n * g.students.length, 0);
-  const pExpected = groups.reduce((s,g) => s + wins[g.id].pn * g.students.length, 0);
+  const expected = groups.reduce((s,g) => s + stExpG(g, wins[g.id].from, wins[g.id].to), 0);
+  const pExpected = groups.reduce((s,g) => s + stExpG(g, wins[g.id].pFrom, wins[g.id].pTo), 0);
   const comp = expected ? Math.min(100, Math.round(A.marked / expected * 100)) : null;
   const pComp = pExpected ? Math.min(100, Math.round(P.marked / pExpected * 100)) : null;
   const minFrom = groups.map(g => wins[g.id].from).filter(x => x !== '9').sort()[0] || tStr;
@@ -7731,7 +7753,7 @@ async function loadStatsPage(days, force){
   // ---- guruhlar jadvali ----
   const gRows = groups.map(g => {
     const w = wins[g.id], gc = cur.filter(r => r.gid === g.id), gp = prev.filter(r => r.gid === g.id);
-    const a = stAgg(gc), p = stAgg(gp), ex = w.n * g.students.length;
+    const a = stAgg(gc), p = stAgg(gp), ex = stExpG(g, w.from, w.to);
     return { g, name: g.name, count: g.students.length, a, p, att: a.att, hw: a.hw, no: a.no, late: a.late, pun: a.pun,
              held: new Set(gc.map(r => r.date)).size, lessons: w.n, win: w,
              comp: ex ? Math.min(100, Math.round(a.marked / ex * 100)) : null, score: stScore(a) };
@@ -11601,7 +11623,8 @@ function rpSignStudent(){
 function rpLessonRows(st, m){
   const today = stDate(new Date()), by = {};
   st.rows.forEach(r => { if (!by[r.date]) by[r.date] = r; });
-  const dates = Array.from(new Set(m.sched.concat(st.rows.map(r => r.date)))).sort();
+  const sf0 = stStuFrom(st.s, m.R.from);
+  const dates = Array.from(new Set(m.sched.filter(d => d >= sf0).concat(st.rows.map(r => r.date)))).sort();
   const td = 'padding:6px 8px;border-bottom:1px solid #eee;';
   return dates.map((d, i) => {
     const r = by[d], dt = new Date(d + 'T00:00:00');
@@ -11646,7 +11669,7 @@ function rpGroupHtml(m){
       '<td style="' + td + '">' + rpStatus(x.sc) + '</td>' +
       '<td style="' + td + 'font-size:10.5px;color:#c0392b;">' + (person && person.reasons.length ? escapeHtml(person.reasons.join('; ')) : '') + '</td></tr>';
   }).join('');
-  const expected = m.sched.length * m.studs.length, comp = expected ? Math.min(100, Math.round(m.A.marked / expected * 100)) : null;
+  const expected = m.studs.reduce((n, x) => { const f = stStuFrom(x.s, m.R.from); return n + m.sched.filter(d => d >= f).length; }, 0), comp = expected ? Math.min(100, Math.round(m.A.marked / expected * 100)) : null;
   return rpWrap(
     rpHeader('Guruhning oylik statistika hisoboti') +
     '<div style="margin-bottom:14px;"><div style="font-size:17px;font-weight:700;">' + escapeHtml(m.g.name) + '</div>' +
