@@ -3,7 +3,8 @@
    ------------------------------------------------------------
    Firestore:
      listening_exercises/{exId}
-       { title, mediaUrl, answers:[5 ta matn], createdAt, updatedAt }
+       { title, mediaUrl, answers:[5 ta matn], createdAt, updatedAt,
+         durationHours, deadlineAt }   // deadlineAt — topshirish tugaydigan vaqt (ms); null — cheksiz
        answers[i] — i-bo‘sh joy uchun to‘g‘ri javob.
        Bir nechta to‘g‘ri variant bo‘lsa "|" bilan ajrating: "color | colour"
      listening_submissions/{exId_uid}
@@ -81,6 +82,28 @@
       p(d.getUTCHours()) + ':' + p(d.getUTCMinutes());
   }
 
+  // Qolgan vaqtni o‘qiladigan ko‘rinishga keltiradi: "1 kun 5 soat", "3 soat 12 daq", "42 daq 10 son"
+  function fmtLeft(ms) {
+    var s = Math.max(0, Math.floor(ms / 1000));
+    var d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+    if (d > 0) return d + ' kun ' + h + ' soat';
+    if (h > 0) return h + ' soat ' + m + ' daq';
+    return m + ' daq ' + sec + ' son';
+  }
+
+  function deadlineOf(ex) {
+    return (ex && typeof ex.deadlineAt === 'number') ? ex.deadlineAt : null;
+  }
+
+  function isExpired(ex) {
+    var dl = deadlineOf(ex);
+    return dl !== null && Date.now() >= dl;
+  }
+
+  function timerColor(left) {
+    return left <= 0 ? '#E5484D' : (left < 3600000 ? '#E8890C' : '#1FAE7A');
+  }
+
   function sortByCreated(list) {
     return list.slice().sort(function (a, b) { return tsMs(a.createdAt) - tsMs(b.createdAt); });
   }
@@ -150,7 +173,7 @@
   /* ============================================================
      TALABA
      ============================================================ */
-  var S = { uid: null, name: 'Talaba', groupId: '', exercises: [], subs: {}, allTotals: {}, unsubs: [], lbUnsub: null, activeId: null };
+  var S = { uid: null, name: 'Talaba', groupId: '', exercises: [], subs: {}, allTotals: {}, unsubs: [], lbUnsub: null, activeId: null, timerId: null };
 
   function stopStudentLb() {
     if (S.lbUnsub) { try { S.lbUnsub(); } catch (e) { /* ignore */ } S.lbUnsub = null; }
@@ -168,6 +191,7 @@
     if (!root || typeof db === 'undefined') return;
     stopList(S.unsubs);
     stopStudentLb();
+    if (S.timerId) { clearInterval(S.timerId); S.timerId = null; }
     S.activeId = null;
     S.uid = (opts && opts.uid) || null;
     S.name = (opts && opts.name) || 'Talaba';
@@ -206,7 +230,32 @@
       renderStudentList();
     }, function () { /* o‘rin ko‘rsatilmasa ham ro‘yxat ishlayveradi */ }));
 
+    S.timerId = setInterval(tick, 1000);
     maybeShowWelcome();
+  }
+
+  // Har soniyada: qolgan vaqtni yangilaydi; muddat tugasa — forma yopiladi
+  function tick() {
+    var root = document.getElementById('lhwStudentRoot');
+    if (!root || !document.body.contains(root)) return;
+    var now = Date.now(), listExpired = false;
+    root.querySelectorAll('[data-dl]').forEach(function (el) {
+      var left = +el.getAttribute('data-dl') - now;
+      el.textContent = left > 0 ? '⏳ Qoldi: ' + fmtLeft(left) : '⛔ Vaqt tugadi';
+      el.style.color = timerColor(left);
+      if (left <= 0 && el.closest('.lhw-card')) listExpired = true;
+    });
+    if (S.activeId) {
+      var ex = S.exercises.find(function (e) { return e.id === S.activeId; });
+      if (ex && isExpired(ex) && !S.subs[ex.id] && document.getElementById('lhwSubmitForm')) renderExpired();
+    } else if (listExpired) {
+      renderStudentList();
+    }
+  }
+
+  function renderExpired() {
+    var area = document.getElementById('lhwFormArea');
+    if (area) area.innerHTML = '<div class="lhw-warn">⛔ Bu mashq uchun vaqt tugagan — javob kiritib bo‘lmaydi.</div>';
   }
 
   // Umumiy reytingdagi o‘rin: mendan yuqori umumiy ballga ega talabalar soni + 1
@@ -271,14 +320,23 @@
       })() + '</div>';
     body.innerHTML = summary + '<div class="lhw-list">' + visibleList.map(function (ex, i) {
       var sub = S.subs[ex.id];
+      var dl = deadlineOf(ex), expired = isExpired(ex);
+      var timer = '';
+      if (dl !== null && !sub) {
+        timer = expired
+          ? '<small class="lhw-timer" style="display:block;font-weight:700;color:#E5484D;">⛔ Vaqt tugadi</small>'
+          : '<small class="lhw-timer" data-dl="' + dl + '" style="display:block;font-weight:700;color:' + timerColor(dl - Date.now()) + ';">⏳ Qoldi: ' + fmtLeft(dl - Date.now()) + '</small>';
+      }
       var badge = sub
         ? (sub.penalty
             ? '<span class="lhw-badge bad" style="background:rgba(229,72,77,.12);color:#E5484D;">Taxmin: ' + sub.penalty + ' ta jazo</span>'
             : '<span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>')
-        : '<span class="lhw-badge todo" style="background:rgba(229,72,77,.12);color:#E5484D;">Topshirilmagan</span>';
+        : (expired
+            ? '<span class="lhw-badge todo" style="background:rgba(120,120,130,.18);color:#6B7280;">Yopilgan</span>'
+            : '<span class="lhw-badge todo" style="background:rgba(229,72,77,.12);color:#E5484D;">Topshirilmagan</span>');
       return '<button type="button" class="lhw-card" data-id="' + esc(ex.id) + '">' +
         '<span class="lhw-num">' + (i + 1) + '</span>' +
-        '<span class="lhw-card-title">' + esc(ex.title) + '</span>' + badge +
+        '<span class="lhw-card-title">' + esc(ex.title) + timer + '</span>' + badge +
         '</button>';
     }).join('') + '</div>';
     body.querySelectorAll('.lhw-card').forEach(function (b) {
@@ -298,6 +356,9 @@
       '<div class="lhw-detail">' +
         '<h2>' + esc(ex.title) + '</h2>' +
         (media ? '<a class="lhw-media" href="' + esc(media) + '" target="_blank" rel="noopener noreferrer">🎧 Audio / materialni ochish</a>' : '') +
+        (deadlineOf(ex) !== null && !S.subs[id]
+          ? '<p class="lhw-deadline" data-dl="' + deadlineOf(ex) + '" style="font-weight:700;margin:8px 0;"></p>'
+          : '') +
         '<div id="lhwFormArea"></div>' +
       '</div>' +
       '<div class="lhw-lb-wrap">' +
@@ -316,7 +377,10 @@
     });
 
     var sub = S.subs[id];
-    if (sub) renderResult(ex, sub); else renderForm(ex);
+    if (sub) renderResult(ex, sub);
+    else if (isExpired(ex)) renderExpired();
+    else renderForm(ex);
+    tick();
   }
 
   // Tugma bosilganda reyting jonli (real vaqt) rejimda ochiladi
@@ -357,6 +421,7 @@
   function submitExercise(ex) {
     var err = document.getElementById('lhwSubErr');
     var btn = document.getElementById('lhwSubmitBtn');
+    if (isExpired(ex)) { renderExpired(); return; }
     var answers = [];
     document.querySelectorAll('#lhwFormArea input[data-i]').forEach(function (inp) {
       answers[+inp.getAttribute('data-i')] = inp.value.trim();
@@ -392,7 +457,10 @@
       if (S.activeId === ex.id) renderResult(ex, data); // talaba boshqa mashqqa o‘tib ketmagan bo‘lsa
     }).catch(function (e) {
       btn.disabled = false;
-      showErr(err, 'Xatolik: ' + (e && e.message ? e.message : 'topshirib bo‘lmadi'));
+      var denied = e && (e.code === 'permission-denied' || /permission/i.test(e.message || ''));
+      showErr(err, denied && isExpired(ex)
+        ? 'Vaqt tugagan — javob qabul qilinmaydi.'
+        : 'Xatolik: ' + (e && e.message ? e.message : 'topshirib bo‘lmadi'));
     });
   }
 
@@ -456,6 +524,9 @@
           '<h3 id="lhwFormTitle">Yangi mashq qo‘shish</h3>' +
           '<label class="lhw-field"><span>Mashq nomi *</span><input type="text" id="lhwTitle" maxlength="120" placeholder="Masalan: 1-mashq"></label>' +
           '<label class="lhw-field"><span>Guruh</span><select id="lhwGroup"><option value="">Barcha guruhlar</option></select></label>' +
+          '<label class="lhw-field"><span>Topshirish muddati, soat (ixtiyoriy)</span>' +
+            '<input type="number" id="lhwHours" min="0.1" max="1000" step="any" placeholder="Masalan: 24 yoki 30 (bo‘sh — cheklanmagan)"></label>' +
+          '<p class="lhw-hint">Muddat saqlangan paytdan boshlab hisoblanadi. Tahrirlashda soatni o‘zgartirsangiz, muddat qaytadan hozirdan boshlanadi. Vaqt tugagach talabalar javob kirita olmaydi.</p>' +
           '<label class="lhw-field"><span>Audio / material havolasi (ixtiyoriy)</span><input type="text" id="lhwMedia" placeholder="https://..."></label>' +
           '<div class="lhw-answers">' + blanks + '</div>' +
           '<p class="lhw-err" id="lhwFormErr" hidden></p>' +
@@ -574,10 +645,16 @@
     }
     list.innerHTML = A.exercises.map(function (ex, i) {
       var preview = (ex.answers || []).map(function (a) { return String(a).split('|')[0].trim(); }).join(' · ');
+      var dlTxt = '';
+      if (deadlineOf(ex) !== null) {
+        dlTxt = isExpired(ex)
+          ? ' <span class="lhw-badge todo" style="background:rgba(229,72,77,.12);color:#E5484D;">⛔ Muddat tugagan: ' + fmtDT(ex.deadlineAt) + '</span>'
+          : ' <span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;">⏳ Muddat: ' + fmtDT(ex.deadlineAt) + '</span>';
+      }
       return '<div class="lhw-admin-row" data-id="' + esc(ex.id) + '">' +
         '<div class="lhw-admin-info">' +
           '<div class="lhw-admin-title"><span class="lhw-num">' + (i + 1) + '</span> ' + esc(ex.title) +
-            ' <span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span></div>' +
+            ' <span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>' + dlTxt + '</div>' +
           '<div class="lhw-muted lhw-preview">' + esc(preview) + '</div>' +
         '</div>' +
         '<div class="lhw-admin-btns">' +
@@ -689,6 +766,7 @@
     A.editingId = ex.id;
     document.getElementById('lhwTitle').value = ex.title || '';
     document.getElementById('lhwMedia').value = ex.mediaUrl || '';
+    document.getElementById('lhwHours').value = (typeof ex.durationHours === 'number') ? ex.durationHours : '';
     var gsel = document.getElementById('lhwGroup');
     if (gsel) gsel.value = ex.groupId || '';
     document.querySelectorAll('#lhwAdminForm input[data-ans]').forEach(function (inp) {
@@ -726,6 +804,11 @@
     for (var i = 0; i < BLANKS; i++) {
       if (!answers[i]) { showErr(err, (i + 1) + '-bo‘sh joy uchun javob kiritilmagan.'); return; }
     }
+    var hoursRaw = document.getElementById('lhwHours').value.trim().replace(',', '.');
+    var hours = hoursRaw === '' ? null : Number(hoursRaw);
+    if (hours !== null && (!isFinite(hours) || hours <= 0 || hours > 1000)) {
+      showErr(err, 'Muddat 0 dan katta son bo‘lishi kerak (soatda), yoki bo‘sh qoldiring.'); return;
+    }
     if (err) err.hidden = true;
 
     var payload = {
@@ -736,6 +819,15 @@
       answers: answers,
       updatedAt: Date.now()
     };
+    // Muddat: yangi mashqda yoki soat o‘zgarganda — hozirdan boshlab hisoblanadi; o‘zgarmasa avvalgisi saqlanadi
+    var prevEx = A.editingId ? findAdminEx(A.editingId) : null;
+    if (hours === null) {
+      payload.durationHours = null;
+      payload.deadlineAt = null;
+    } else if (!prevEx || prevEx.durationHours !== hours || typeof prevEx.deadlineAt !== 'number') {
+      payload.durationHours = hours;
+      payload.deadlineAt = Date.now() + Math.round(hours * 3600000);
+    }
     btn.disabled = true;
     var p = A.editingId
       ? db.collection(COL_EX).doc(A.editingId).update(payload)
