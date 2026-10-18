@@ -5697,6 +5697,44 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   const siteLink = document.querySelector('.admin-nav a[href="../index.html"]');
   if(siteLink) addSheetItem(siteLink, null);
 
+  // ---- Menyuning eng pastida: foydalanuvchi kartasi (avatar, ism, "Chiqish") ----
+  (function(){
+    const srcAvatar = document.getElementById('sidebarAvatar');
+    const srcName = document.getElementById('sidebarUsername');
+    const srcRoleEl = document.querySelector('#profileUserRow .admin-user-role');
+    const srcLogout = document.getElementById('logoutBtn');
+    if(!srcAvatar || !srcName || !srcLogout) return;
+
+    const card = document.createElement('div');
+    card.className = 'sbn-sheet-user';
+    card.innerHTML =
+      '<span class="sbn-su-avatar"></span>' +
+      '<div class="sbn-su-info"><div class="sbn-su-name"></div><div class="sbn-su-role"></div></div>' +
+      '<button type="button" class="sbn-su-logout">Chiqish</button>';
+    const avatarEl = card.querySelector('.sbn-su-avatar');
+    const nameEl = card.querySelector('.sbn-su-name');
+    const roleEl = card.querySelector('.sbn-su-role');
+
+    // Asl kartadagi avatar va ismni nusxalab turadi (profil yangilansa, bu ham yangilanadi)
+    function sync(){
+      avatarEl.className = 'sbn-su-avatar ' + (srcAvatar.className || '');
+      avatarEl.setAttribute('style', srcAvatar.getAttribute('style') || '');
+      avatarEl.innerHTML = srcAvatar.innerHTML;
+      nameEl.textContent = srcName.textContent;
+      roleEl.textContent = srcRoleEl ? srcRoleEl.textContent : '';
+    }
+    sync();
+    const mo = new MutationObserver(sync);
+    mo.observe(srcAvatar, { attributes:true, childList:true, characterData:true, subtree:true });
+    mo.observe(srcName, { attributes:true, childList:true, characterData:true, subtree:true });
+
+    card.querySelector('.sbn-su-logout').addEventListener('click', () => {
+      closeSheet();
+      srcLogout.click(); // asl "Chiqish" tugmasi (tasdiqlash bilan)
+    });
+    document.getElementById('sbnSheet').appendChild(card);
+  })();
+
   items.menu.addEventListener('click', () => { wrap.hidden ? openSheet() : closeSheet(); });
 
   // Bosilganda darrov effekt (iOS/Android'da :active kechikmasligi uchun)
