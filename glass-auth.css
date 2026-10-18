@@ -48,3 +48,53 @@ html body:is(.auth-body, .role-body, .guest-body) :is(input[type=text],input[typ
 html body:is(.auth-body, .role-body, .guest-body) :is(input,select,textarea):focus{
   background:rgba(255,255,255,.9) !important;
 }
+
+/* ============================================================
+   To'liq ekranli split dizayn: chap — rasm/brend tomoni, o'ng — forma.
+   Markazdagi karta emas, butun sahifa ikkiga bo'lingan.
+   (student/parent/admin login va register)
+   Chap tomonga haqiqiy rasm qo'ymoqchi bo'lsangiz: pastdagi --auth-photo qatorini oching.
+   ============================================================ */
+/* :root{ --auth-photo:url("../assets/login-bg.jpg"); }  */
+html body.auth-body:has(.auth-split){
+  padding:0 !important; display:block !important; min-height:100vh;
+}
+html body.auth-body .auth-wrap.auth-wrap-split{
+  max-width:none !important; width:100% !important; display:block !important; min-height:100vh;
+}
+html body.auth-body .auth-wrap .auth-split{
+  width:100% !important; min-height:100vh !important; border-radius:0 !important;
+  border:0 !important; box-shadow:none !important; background:transparent !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; overflow:visible;
+}
+html body.auth-body .auth-wrap .auth-split-left{
+  flex:0 0 50% !important; min-height:100vh; padding:2.6em clamp(1.6em,4vw,4em) !important;
+  background:
+    var(--auth-photo, linear-gradient(0deg,transparent,transparent)) center/cover no-repeat,
+    linear-gradient(155deg,rgba(20,33,61,.92) 0%,rgba(31,78,77,.82) 100%) !important;
+  background-blend-mode:normal,normal;
+}
+html body.auth-body .auth-wrap .auth-split-left::before{ width:420px; height:420px; top:-140px; right:-120px; }
+html body.auth-body .auth-wrap .auth-split-left::after{ width:300px; height:300px; bottom:-110px; left:-80px; }
+html body.auth-body .auth-wrap .auth-split-hero h2{ font-size:clamp(2rem,3.4vw,3rem); }
+html body.auth-body .auth-wrap .auth-split-hero p{ font-size:1.05rem; max-width:380px; }
+html body.auth-body .auth-wrap .auth-split-right{
+  flex:1 1 50% !important; min-height:100vh;
+  padding:3em clamp(1.6em,6vw,6em) !important;
+  background:rgba(255,255,255,.55) !important;
+  -webkit-backdrop-filter:blur(22px) saturate(170%); backdrop-filter:blur(22px) saturate(170%);
+  border-left:1px solid rgba(255,255,255,.8);
+}
+html body.auth-body .auth-wrap .auth-split-right > *{ width:100%; max-width:460px; margin-left:auto; margin-right:auto; }
+
+@media (max-width:760px){
+  html body.auth-body .auth-wrap .auth-split{ flex-direction:column; min-height:100vh !important; }
+  html body.auth-body .auth-wrap .auth-split-left{ flex:0 0 auto !important; min-height:0; padding:1.6em 1.4em !important; }
+  html body.auth-body .auth-wrap .auth-split-hero{ margin:1.6em 0 1em; }
+  html body.auth-body .auth-wrap .auth-split-right{ flex:1 1 auto !important; min-height:0; padding:1.8em 1.4em 2.4em !important; border-left:0; }
+}
+/* Ro'yxatdan o'tish kabi uzun formalarda chap tomon joyida turadi, o'ng tomon aylanadi */
+@media (min-width:761px){
+  html body.auth-body .auth-wrap .auth-split{ align-items:flex-start; }
+  html body.auth-body .auth-wrap .auth-split-left{ position:sticky; top:0; align-self:flex-start; height:100vh; }
+}
