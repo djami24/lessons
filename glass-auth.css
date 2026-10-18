@@ -98,3 +98,23 @@ html body.auth-body .auth-wrap .auth-split-right > *{ width:100%; max-width:460p
   html body.auth-body .auth-wrap .auth-split{ align-items:flex-start; }
   html body.auth-body .auth-wrap .auth-split-left{ position:sticky; top:0; align-self:flex-start; height:100vh; }
 }
+
+/* ---------- Ixcham (kichikroq) forma maydonlari ---------- */
+html body.auth-body .auth-wrap .auth-split-right > *{ max-width:400px; }
+html body.auth-body .auth-split-right{ padding-top:2.2em !important; padding-bottom:2.2em !important; }
+html body.auth-body .auth-split-right .auth-title{ font-size:1.3rem; margin-bottom:.2em; }
+html body.auth-body .auth-split-right .auth-sub{ font-size:.85rem; margin-bottom:1.1em; }
+html body.auth-body .auth-split-right .auth-form{ gap:.85em; }
+html body.auth-body .auth-split-right .field{ gap:.35em; font-size:.78rem; }
+html body.auth-body .auth-split-right .field input,
+html body.auth-body .auth-split-right .field select,
+html body.auth-body .auth-split-right .field textarea{
+  font-size:.88rem; padding:.55em .8em; border-radius:9px; min-height:0;
+}
+html body.auth-body .auth-split-right .password-field input{ padding-right:4.6em; }
+html body.auth-body .auth-split-right .pw-toggle{ font-size:.68rem; }
+html body.auth-body .auth-split-right .auth-remember-row{ font-size:.78rem; }
+html body.auth-body .auth-split-right .auth-submit{ padding:.7em 1em; font-size:.9rem; margin-top:.2em; }
+html body.auth-body .auth-split-right .form-error,
+html body.auth-body .auth-split-right .form-notice{ font-size:.8rem; padding:.6em .8em; }
+html body.auth-body .auth-split-right .auth-split-foot{ font-size:.82rem; margin-top:1em !important; }
