@@ -1,0 +1,108 @@
+/* ============================================================
+   Glassy (shisha) mavzu — ADMIN panel
+   Yorug' rejim: rangli gradient fon + yarim shaffof xira kartalar.
+   Qorong'i rejim (body.dark): xuddi shunday, to'q ranglarda.
+   Faqat ko'rinish; mantiq va ma'lumotga tegmaydi.
+   ============================================================ */
+
+/* ---------- Fon ---------- */
+html:has(body.admin-theme){ background:transparent !important; }
+html body.admin-theme:not(.dark){
+  background:linear-gradient(135deg,#E8F0FF 0%,#F3EEFF 48%,#FFF0E3 100%) fixed !important;
+}
+html body.admin-theme.dark{
+  background:linear-gradient(135deg,#0c1224 0%,#141a33 50%,#1a1430 100%) fixed !important;
+}
+body.admin-theme::before{ content:""; position:fixed; inset:0; z-index:0; pointer-events:none; }
+body.admin-theme:not(.dark)::before{
+  background:
+    radial-gradient(520px 420px at 8% 12%,rgba(46,111,237,.26),transparent 70%),
+    radial-gradient(560px 460px at 92% 18%,rgba(155,110,255,.22),transparent 70%),
+    radial-gradient(600px 480px at 80% 90%,rgba(217,142,63,.24),transparent 70%),
+    radial-gradient(480px 400px at 14% 84%,rgba(31,174,122,.16),transparent 70%);
+}
+body.admin-theme.dark::before{
+  background:
+    radial-gradient(520px 420px at 8% 12%,rgba(59,111,240,.30),transparent 70%),
+    radial-gradient(560px 460px at 92% 18%,rgba(124,92,240,.26),transparent 70%),
+    radial-gradient(600px 480px at 80% 90%,rgba(217,142,63,.14),transparent 70%);
+}
+html body.admin-theme .admin-shell{ position:relative; z-index:1; background:transparent !important; }
+html body.admin-theme .admin-main,
+html body.admin-theme.dark .admin-main{ background:transparent !important; }
+
+/* ---------- Kartalar (yorug') ---------- */
+html body.admin-theme:not(.dark) :is(
+  .profile-card, .stat-card, .table-wrap, .blog-admin-card, .home-section-card, .home-lesson-card, .home-mini-card,
+  .today-hw-card, .today-hw-stat, .today-assign-card, .gb-stats-box, .gb-group-folder, .chat-panel,
+  .oj-group-card, .oj-student-card, .oj-stat-card, .oj-form-card, .oj-entry-card, .oj-left-card, .oj-gh-bar,
+  .st-kpi, .st-card, .st-panel, .rm-group-card, .lesson-detail-box, .folder-body, .home-features-box,
+  .lhw-form, .lhw-overall-card, .lhw-lb-panel, .lhw-admin-row, .lhw-admin-detail
+){
+  background:rgba(255,255,255,.55) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(170%); backdrop-filter:blur(16px) saturate(170%);
+  border-color:rgba(255,255,255,.78) !important;
+  box-shadow:0 12px 32px -14px rgba(20,33,61,.20), inset 0 1px 0 rgba(255,255,255,.85) !important;
+}
+html body.admin-theme:not(.dark) :is(.student-row, .lesson-row, .oj-student-row, .kd-row, .rm-mock-row, .comment-admin-item, .placement-level-row){
+  background:rgba(255,255,255,.5) !important; border-color:rgba(255,255,255,.75) !important;
+}
+html body.admin-theme:not(.dark) table.data-table th{ background:rgba(255,255,255,.35) !important; }
+
+/* ---------- Kartalar (qorong'i) ---------- */
+html body.admin-theme.dark :is(
+  .profile-card, .stat-card, .table-wrap, .blog-admin-card, .home-section-card, .home-lesson-card, .home-mini-card,
+  .today-hw-card, .today-hw-stat, .today-assign-card, .gb-stats-box, .gb-group-folder, .chat-panel,
+  .oj-group-card, .oj-student-card, .oj-stat-card, .oj-form-card, .oj-entry-card, .oj-left-card, .oj-gh-bar,
+  .st-kpi, .st-card, .st-panel, .rm-group-card, .lesson-detail-box, .folder-body, .home-features-box,
+  .lhw-form, .lhw-overall-card, .lhw-lb-panel, .lhw-admin-row, .lhw-admin-detail
+){
+  background:rgba(23,29,44,.55) !important;
+  -webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%);
+  border-color:rgba(255,255,255,.10) !important;
+  box-shadow:0 12px 32px -14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06) !important;
+}
+html body.admin-theme.dark :is(.student-row, .lesson-row, .oj-student-row, .kd-row, .rm-mock-row, .comment-admin-item, .placement-level-row){
+  background:rgba(23,29,44,.5) !important; border-color:rgba(255,255,255,.09) !important;
+}
+html body.admin-theme.dark table.data-table th{ background:rgba(23,29,44,.45) !important; }
+
+/* ---------- Yon panel ---------- */
+html body.admin-theme:not(.dark) .admin-sidebar{
+  background:rgba(255,255,255,.55) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(170%); backdrop-filter:blur(18px) saturate(170%);
+  border-right:1px solid rgba(255,255,255,.75) !important;
+  box-shadow:8px 0 30px -18px rgba(20,33,61,.18) !important;
+}
+html body.admin-theme.dark .admin-sidebar{
+  background:rgba(15,20,32,.55) !important;
+  -webkit-backdrop-filter:blur(18px) saturate(150%); backdrop-filter:blur(18px) saturate(150%);
+  border-right:1px solid rgba(255,255,255,.08) !important;
+}
+html body.admin-theme .admin-sidebar .sb-head,
+html body.admin-theme .admin-sidebar .brand,
+html body.admin-theme .admin-sidebar a.brand,
+html body.admin-theme.dark .admin-sidebar .sb-head,
+html body.admin-theme.dark .admin-sidebar .brand,
+html body.admin-theme.dark .admin-sidebar a.brand{ background:transparent !important; }
+html body.admin-theme:not(.dark) .admin-sidebar .brand{ border-bottom-color:rgba(20,33,61,.08) !important; }
+html body.admin-theme.dark .admin-sidebar .brand{ border-bottom-color:rgba(255,255,255,.08) !important; }
+
+/* ---------- Yuqori tugmalar ---------- */
+html body.admin-theme:not(.dark) :is(.topbar-icon-btn,.theme-btn){
+  background:rgba(255,255,255,.6) !important; border-color:rgba(255,255,255,.8) !important;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+html body.admin-theme.dark :is(.topbar-icon-btn,.theme-btn){
+  background:rgba(23,29,44,.55) !important; border-color:rgba(255,255,255,.12) !important;
+  -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+}
+
+/* ---------- Listening (admin) kartalari ---------- */
+html body.admin-theme:not(.dark) .lhw-root{ --lhw-card:rgba(255,255,255,.55); --lhw-line:rgba(255,255,255,.8); }
+html body.admin-theme.dark .lhw-root{ --lhw-card:rgba(23,29,44,.55); --lhw-line:rgba(255,255,255,.10); }
+
+/* "powered by Djami" yozuvi tepada turgan elementlar ustiga chiqmasin */
+.powered-by{ z-index:2; }
+html body.admin-theme.dark .admin-sidebar .admin-user{ background:rgba(255,255,255,.05) !important; border-color:rgba(255,255,255,.08) !important; }
+html body.admin-theme:not(.dark) .admin-sidebar .admin-user{ background:rgba(255,255,255,.35) !important; }
