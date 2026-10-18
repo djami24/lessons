@@ -414,3 +414,9 @@ html body.admin-theme .hwi-n{
   border:1px solid rgba(255,255,255,.55);
   box-shadow:0 6px 14px -6px rgba(36,92,230,.55), inset 0 1px 0 rgba(255,255,255,.6);
 }
+
+/* Telefonda profil bo'limidagi foydalanuvchi kartasi (ism + "Chiqish") olib tashlandi —
+   u endi pastki "Menyu" ro'yxatining eng pastida. Element DOM'da qoladi (avatar/ism/chiqish mantig'i shunga bog'liq). */
+@media (max-width: 900px){
+  #view-profile .profile-user-row{ display:none !important; }
+}
