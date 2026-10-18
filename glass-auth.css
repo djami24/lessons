@@ -127,3 +127,54 @@ html body.auth-body .avatar-choice label{
 }
 html body.auth-body .avatar-choice img{ width:36px; height:36px; }
 html body.auth-body .avatar-hint{ font-size:.72rem; line-height:1.4; margin-top:.1em; }
+
+/* ============================================================
+   Chap tomon: jonli (animatsiyali) rangli fon.
+   Sekin siljiydigan gradient + suzuvchi yorug' dog'lar + yengil yaltirash.
+   ============================================================ */
+html body.auth-body .auth-wrap .auth-split-left{
+  background:
+    var(--auth-photo, linear-gradient(0deg,transparent,transparent)) center/cover no-repeat,
+    linear-gradient(125deg,#16255e 0%,#2b3fa8 28%,#5b3fc4 52%,#1f78c8 76%,#16a39a 100%) !important;
+  background-size:cover, 240% 240% !important;
+  animation:authGradShift 18s ease-in-out infinite;
+}
+@keyframes authGradShift{
+  0%{ background-position:center, 0% 50%; }
+  50%{ background-position:center, 100% 50%; }
+  100%{ background-position:center, 0% 50%; }
+}
+/* suzuvchi yorug' dog'lar (mavjud ::before / ::after ni almashtiradi) */
+html body.auth-body .auth-wrap .auth-split-left::before{
+  width:460px; height:460px; top:-150px; right:-130px; border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,rgba(120,175,255,.60),rgba(120,175,255,0) 68%) !important;
+  animation:authFloatA 14s ease-in-out infinite;
+}
+html body.auth-body .auth-wrap .auth-split-left::after{
+  width:380px; height:380px; bottom:-130px; left:-90px; border-radius:50%;
+  background:radial-gradient(circle at 60% 40%,rgba(255,130,200,.45),rgba(255,130,200,0) 68%) !important;
+  animation:authFloatB 17s ease-in-out infinite;
+}
+@keyframes authFloatA{
+  0%,100%{ transform:translate(0,0) scale(1); }
+  50%{ transform:translate(-90px,70px) scale(1.18); }
+}
+@keyframes authFloatB{
+  0%,100%{ transform:translate(0,0) scale(1); }
+  50%{ transform:translate(80px,-70px) scale(1.2); }
+}
+/* yengil yaltirash chizig'i */
+html body.auth-body .auth-wrap .auth-split-hero::after{
+  content:""; position:absolute; left:-20%; top:-60%; width:40%; height:220%; pointer-events:none;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.10),transparent);
+  transform:rotate(12deg); animation:authSheen 9s ease-in-out infinite;
+}
+@keyframes authSheen{
+  0%{ left:-45%; opacity:0; } 15%{ opacity:1; } 55%{ left:125%; opacity:1; } 70%,100%{ left:125%; opacity:0; }
+}
+@media (prefers-reduced-motion:reduce){
+  html body.auth-body .auth-wrap .auth-split-left,
+  html body.auth-body .auth-wrap .auth-split-left::before,
+  html body.auth-body .auth-wrap .auth-split-left::after,
+  html body.auth-body .auth-wrap .auth-split-hero::after{ animation:none !important; }
+}
