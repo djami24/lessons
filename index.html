@@ -73,12 +73,33 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
 }
 /* ===== Glassy (shisha) fon va kartalar ===== */
 .home-body{background:linear-gradient(135deg,#E8F0FF 0%,#F3EEFF 48%,#FFF0E3 100%) fixed;}
-.home-body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+/* Orqa fondagi xira sharchalar — shisha ortida sekin suzib yuradi */
+.home-body::before,.home-body::after{content:"";position:fixed;inset:-18%;z-index:-1;pointer-events:none;will-change:transform;}
+.home-body::before{
   background:
-    radial-gradient(520px 420px at 8% 12%,rgba(46,111,237,.28),transparent 70%),
-    radial-gradient(560px 460px at 92% 20%,rgba(155,110,255,.24),transparent 70%),
-    radial-gradient(600px 480px at 78% 88%,rgba(217,142,63,.26),transparent 70%),
-    radial-gradient(480px 400px at 14% 82%,rgba(31,174,122,.18),transparent 70%);}
+    radial-gradient(circle 300px at 14% 20%,rgba(46,111,237,.40),transparent 72%),
+    radial-gradient(circle 280px at 86% 16%,rgba(155,110,255,.36),transparent 72%),
+    radial-gradient(circle 220px at 52% 58%,rgba(46,111,237,.22),transparent 72%);
+  animation:hmDriftA 26s ease-in-out infinite alternate;}
+.home-body::after{
+  background:
+    radial-gradient(circle 320px at 82% 86%,rgba(217,142,63,.40),transparent 72%),
+    radial-gradient(circle 260px at 16% 84%,rgba(31,174,122,.32),transparent 72%),
+    radial-gradient(circle 200px at 66% 40%,rgba(155,110,255,.22),transparent 72%);
+  animation:hmDriftB 32s ease-in-out infinite alternate;}
+@keyframes hmDriftA{
+  0%{transform:translate3d(0,0,0) scale(1);}
+  33%{transform:translate3d(7%,5%,0) scale(1.08);}
+  66%{transform:translate3d(-4%,9%,0) scale(.96);}
+  100%{transform:translate3d(5%,-6%,0) scale(1.06);}
+}
+@keyframes hmDriftB{
+  0%{transform:translate3d(0,0,0) scale(1);}
+  33%{transform:translate3d(-8%,-5%,0) scale(1.07);}
+  66%{transform:translate3d(5%,-8%,0) scale(.95);}
+  100%{transform:translate3d(-6%,6%,0) scale(1.1);}
+}
+@media (prefers-reduced-motion:reduce){ .home-body::before,.home-body::after{animation:none;} }
 .hm-tool,.hm-card,.hm-stats{
   background:rgba(255,255,255,.5);
   -webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%);
