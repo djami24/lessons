@@ -1,0 +1,81 @@
+/* ============================================================
+   Ochiq sahifalar (blogs.html, blog.html) uchun glassy (shisha) uslub
+   index.html dagi uslub bilan bir xil. Faqat ko'rinish.
+   ============================================================ */
+
+/* ---- Fon: rangli dog'lar (shisha ostida ko'rinib turadi) ---- */
+body.home-body{ background:linear-gradient(135deg,#E8F0FF 0%,#F3EEFF 48%,#FFF0E3 100%) fixed; }
+body.home-body::before{
+  content:""; position:fixed; inset:0; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(520px 420px at 8% 12%,rgba(46,111,237,.28),transparent 70%),
+    radial-gradient(560px 460px at 92% 20%,rgba(155,110,255,.24),transparent 70%),
+    radial-gradient(600px 480px at 78% 88%,rgba(217,142,63,.26),transparent 70%),
+    radial-gradient(480px 400px at 14% 82%,rgba(31,174,122,.18),transparent 70%);
+}
+
+/* ---- Blog kartalari ---- */
+body.home-body .home-blog-card{
+  background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0) 40%),linear-gradient(135deg,rgba(255,255,255,.58),rgba(200,220,255,.30));
+  -webkit-backdrop-filter:blur(16px) saturate(170%); backdrop-filter:blur(16px) saturate(170%);
+  border:1px solid rgba(255,255,255,.85);
+  box-shadow:0 14px 34px -16px rgba(36,92,230,.35), inset 0 1px 0 rgba(255,255,255,.9);
+}
+body.home-body .home-blog-card:hover{
+  border-color:rgba(255,255,255,.95);
+  box-shadow:0 20px 42px -16px rgba(36,92,230,.5), inset 0 1px 0 rgba(255,255,255,1);
+}
+
+/* ---- Och shisha tugmalar (B) ---- */
+body.home-body :is(.home-admin-link,.btn-ghost,.blog-vote-btn,.blog-share-btn,.comment-vote-btn,.comment-reply-btn){
+  color:#1d4fd1;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%),linear-gradient(135deg,rgba(255,255,255,.72),rgba(190,213,255,.40));
+  -webkit-backdrop-filter:blur(14px) saturate(180%); backdrop-filter:blur(14px) saturate(180%);
+  border:1px solid rgba(255,255,255,.85);
+  box-shadow:0 8px 20px -12px rgba(36,92,230,.40), inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(46,111,237,.18);
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease;
+}
+body.home-body :is(.home-admin-link,.btn-ghost,.blog-vote-btn,.blog-share-btn,.comment-vote-btn,.comment-reply-btn):hover:not(:disabled){
+  color:#1d4fd1; border-color:rgba(255,255,255,.95);
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0) 55%),linear-gradient(135deg,rgba(150,190,255,.55),rgba(90,140,245,.35));
+  box-shadow:0 10px 24px -12px rgba(36,92,230,.55), inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(46,111,237,.30);
+}
+/* kichik pill shakli (like/dislike/javob) */
+body.home-body :is(.blog-vote-btn,.comment-vote-btn,.comment-reply-btn){ border-radius:99px; padding:.35em .85em; }
+body.home-body :is(.blog-vote-btn,.comment-vote-btn).is-active{
+  color:#fff;
+  background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,0) 52%),linear-gradient(135deg,rgba(60,125,255,.80),rgba(24,72,205,.86));
+  border-color:rgba(255,255,255,.55); text-shadow:0 1px 2px rgba(10,35,110,.35);
+}
+body.home-body .blog-share-btn.is-copied{
+  color:#fff;
+  background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,0) 52%),linear-gradient(135deg,rgba(60,205,135,.85),rgba(20,155,95,.88));
+  border-color:rgba(255,255,255,.6);
+}
+
+/* ---- To'q ko'k shisha tugmalar (A) ---- */
+body.home-body .btn-amber{
+  color:#fff; text-shadow:0 1px 2px rgba(10,35,110,.35);
+  background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,0) 52%),linear-gradient(135deg,rgba(60,125,255,.80),rgba(24,72,205,.86));
+  -webkit-backdrop-filter:blur(14px) saturate(180%); backdrop-filter:blur(14px) saturate(180%);
+  border:1px solid rgba(255,255,255,.55);
+  box-shadow:0 12px 26px -10px rgba(36,92,230,.55), inset 0 1px 0 rgba(255,255,255,.65), inset 0 -1px 0 rgba(255,255,255,.12);
+  transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+}
+body.home-body .btn-amber:hover:not(:disabled){
+  background:linear-gradient(180deg,rgba(255,255,255,.40),rgba(255,255,255,0) 52%),linear-gradient(135deg,rgba(72,137,255,.90),rgba(30,82,220,.94));
+  border-color:rgba(255,255,255,.75);
+  box-shadow:0 16px 32px -10px rgba(36,92,230,.65), inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 0 rgba(255,255,255,.16);
+}
+
+/* ---- Footer ham glassy (bosh sahifadagidek) ---- */
+body.home-body .site-footer{
+  --footer-text:#14213D;
+  background:rgba(255,255,255,.5);
+  -webkit-backdrop-filter:blur(18px) saturate(170%); backdrop-filter:blur(18px) saturate(170%);
+  border-top:1px solid rgba(255,255,255,.8);
+  box-shadow:0 -12px 32px -16px rgba(20,33,61,.16), inset 0 1px 0 rgba(255,255,255,.85);
+}
+body.home-body .site-footer .site-footer-brand-row .brand-mark-logo{ background:var(--ink) !important; padding:4px; border-radius:10px; }
+body.home-body .site-footer-col a:hover, body.home-body .site-footer-bottom a:hover{ color:var(--amber-deep); }
+body.home-body .site-footer-bottom{ border-top-color:rgba(20,33,61,.1); }
