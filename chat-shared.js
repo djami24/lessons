@@ -264,6 +264,7 @@ function initChatEmojiPicker(opts){
 // Ish vaqti (Toshkent vaqti bilan). Talaba chatida eslatma sifatida ko'rinadi.
 const CHAT_WORK_HOURS = { from: 9, to: 21 };
 const CHAT_REACTIONS = ['👍','❤️','😂','😮','🙏'];
+const CHAT_QUICK_EMOJIS = ['😊','😂','😍','😘','💋','❤️','👍','👏','🙏','🔥','💪','🎉','✅','😉','🤗','🥰'];
 const CHAT_QUICK_DEFAULT = ['Salom! 👋', 'Rahmat, qabul qilindi ✅', 'Uy vazifasini yuboring, iltimos', 'Dars o‘z vaqtida boshlanadi'];
 
 (function injectChatCss(){
@@ -298,11 +299,13 @@ const CHAT_QUICK_DEFAULT = ['Salom! 👋', 'Rahmat, qabul qilindi ✅', 'Uy vazi
   .chat-msg-actions:empty{display:none}
   .chat-msg-actions .chat-msg-action-btn{width:26px;height:26px;font-size:13px;line-height:1;padding:0;box-shadow:none}
   @media (hover:none){.chat-msg-actions{opacity:0}}
-  .chat-quick{width:100%;box-sizing:border-box;flex:none;max-height:80px;overflow-y:auto}
+  .chat-quick{width:100%;box-sizing:border-box;flex:none;max-height:110px;overflow-y:auto}
   .chat-msg-row.is-flash .chat-msg-bubble{outline:2px solid #ffb703;outline-offset:2px}
   .chat-msg-quote[data-jump]{cursor:pointer}
   .chat-quick{display:flex;gap:6px;flex-wrap:wrap;padding:6px 12px 0}
   .chat-quick button{border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}
+  .chat-quick button.chat-quick-emoji{padding:1px 6px;font-size:16px;line-height:1.3;border-color:transparent}
+  .chat-quick button.chat-quick-emoji:hover{background:rgba(127,127,127,.18)}
   .chat-filter-chips{display:flex;gap:6px;padding:6px 10px;flex-wrap:wrap}
   .chat-filter-chips button{border:1px solid rgba(127,127,127,.35);background:transparent;color:inherit;border-radius:999px;padding:3px 10px;font-size:12px;cursor:pointer}
   .chat-filter-chips button.is-active{background:var(--teal,#0f9d8a);color:#fff;border-color:transparent}
@@ -660,6 +663,16 @@ function createChatController(cfg){
           inputEl.focus(); inputEl.dispatchEvent(new Event('input', { bubbles:true }));
         });
         qbar.appendChild(b);
+      });
+      // Eng ko'p ishlatiladigan emojilar (bosilsa xabar matniga qo'shiladi)
+      CHAT_QUICK_EMOJIS.forEach(em => {
+        const eb = document.createElement('button');
+        eb.type = 'button'; eb.textContent = em; eb.className = 'chat-quick-emoji';
+        eb.addEventListener('click', () => {
+          inputEl.value = inputEl.value + em;
+          inputEl.focus(); inputEl.dispatchEvent(new Event('input', { bubbles:true }));
+        });
+        qbar.appendChild(eb);
       });
       const edit = document.createElement('button');
       edit.type = 'button'; edit.textContent = '✎ Tahrirlash';
