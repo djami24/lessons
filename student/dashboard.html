@@ -2273,7 +2273,7 @@ async function loadScheduleTable(){
 // ===== MENING STATISTIKAM =====
 // Admin paneldagi "Statistika" / talaba sahifasidagi hisob-kitob bilan bir xil qoidalar,
 // lekin faqat shu talaba uchun: oquv_progress/{ID}/entries (davomat, uy vazifa, jazo).
-// Davomat = (keldi + kech qoldi) / belgilangan darslar; ball = 60% davomat + 40% uy vazifa.
+// Davomat = (keldi + kech qoldi) / belgilangan darslar; ball = 60% davomat + 40% uy vazifa − jazo (har jazolangan kun −2 ball, ko'pi bilan −20).
 const MYST_C = { green:'#1FAE7A', blue:'#2F6FED', orange:'#F0923D', red:'#E5484D', purple:'#7C5CFC', gray:'#98A2B3' };
 const MYST_MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
 const MYST_JSKEY = ['sun','mon','tue','wed','thu','fri','sat'];
@@ -2327,8 +2327,11 @@ function mystAgg(list){
   return r;
 }
 function mystScore(a){
-  if(a.att === null) return a.hw === null ? null : a.hw;
-  return Math.round(0.6 * a.att + 0.4 * (a.hw === null ? a.att : a.hw));
+  let v;
+  if(a.att === null){ if(a.hw === null) return null; v = a.hw; }
+  else v = 0.6 * a.att + 0.4 * (a.hw === null ? a.att : a.hw);
+  v -= Math.min(20, (a.pun || 0) * 2);   // jazolangan har bir kun uchun −2 ball (ko'pi bilan −20)
+  return Math.round(Math.max(0, Math.min(100, v)));
 }
 
 function mystDelta(cur, prev, invert, unit){
@@ -2710,7 +2713,7 @@ function renderMyStats(){
     mystKpi('Kelmadi', A.no, D(A.no, P.no, true), `${mystLabel(prevYm)}: ${P.no}`, mystSpark(bAgg.map(a => a.no), MYST_C.red), MYST_C.red) +
     mystKpi('Kech qoldi', A.late, D(A.late, P.late, true), `${mystLabel(prevYm)}: ${P.late}`, mystSpark(bAgg.map(a => a.late), MYST_C.orange), MYST_C.orange) +
     mystKpi('Jazolangan', A.pun, D(A.pun, P.pun, true), A.punCnt ? `jami jazo: ${A.punCnt} ta` : 'jazo yo\'q', mystSpark(bAgg.map(a => a.pun), MYST_C.purple), MYST_C.purple) +
-    mystKpi('Ball', sc === null ? '—' : sc, D(sc, pSc, false, ''), '60% davomat + 40% uy vazifa', '<svg viewBox="0 0 100 30"></svg>', MYST_C.gray);
+    mystKpi('Ball', sc === null ? '—' : sc, D(sc, pSc, false, ''), '60% davomat + 40% uy vazifa − jazo', '<svg viewBox="0 0 100 30"></svg>', MYST_C.gray);
 
   document.getElementById('mystTrend').innerHTML = buckets.length
     ? mystLine(buckets.map(b => b.label), [
