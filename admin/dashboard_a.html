@@ -125,6 +125,8 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 .oj-row-del{background:rgba(231,76,60,.08);border:1.5px solid rgba(231,76,60,.25);border-radius:6px;cursor:pointer;font-size:.8rem;color:#e74c3c;padding:4px 9px;flex-shrink:0;}
 .oj-row-out{background:rgba(230,126,34,.10);border:1.5px solid rgba(230,126,34,.4);border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:800;color:#d35400;padding:4px 10px;flex-shrink:0;letter-spacing:.02em;}
 .oj-row-out:hover{background:rgba(230,126,34,.2);}
+.oj-row-move{background:rgba(41,128,185,.10);border:1.5px solid rgba(41,128,185,.4);border-radius:6px;cursor:pointer;font-size:.78rem;font-weight:800;color:#1f6fa5;padding:4px 10px;flex-shrink:0;letter-spacing:.02em;}
+.oj-row-move:hover{background:rgba(41,128,185,.2);}
 .oj-left-card{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--paper);}
 .oj-left-card h4{margin:0 0 2px;font-size:1rem;}
 .oj-left-meta{font-size:.78rem;color:var(--gray);margin-bottom:8px;}
@@ -138,6 +140,7 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 .oj-punish-btn{padding:.3em .55em;font-size:.7rem;border-radius:7px;}
 .oj-punish-btn .ic{width:12px;height:12px;}
 .oj-row-out{padding:3px 8px;font-size:.7rem;}
+.oj-row-move{padding:3px 8px;font-size:.7rem;}
 .oj-row-del{padding:3px 7px;}
 .oj-row-del .ic{width:12px;height:12px;}
 .oj-filter-btn.active{background:var(--teal,#2e6f6e);color:#fff;border-color:var(--teal,#2e6f6e);}
@@ -2722,6 +2725,21 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
     <div id="ojLeftList" style="display:flex; flex-direction:column; gap:10px;"></div>
     <div class="modal-actions" style="margin-top:14px;">
       <button class="btn btn-ghost" type="button" onclick="closeModal('modalOjLeft')">Yopish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Talabani boshqa guruhga ko'chirish ===== -->
+<div class="modal-overlay" id="modalOjMove" hidden>
+  <div class="modal-box" style="max-width:460px; width:94vw;">
+    <h2 class="modal-title">Boshqa guruhga ko'chirish</h2>
+    <p id="ojMoveInfo" style="font-size:.9rem; margin:0 0 6px; font-weight:700;"></p>
+    <p style="font-size:.82rem; color:var(--gray); margin:0 0 12px;">Talabaning ID raqami, davomati, uy vazifalari va barcha tarixi o'zgarmaydi — faqat guruhi almashadi.</p>
+    <select id="ojMoveSelect" style="width:100%; padding:.6em .8em; border:1.5px solid var(--line); border-radius:8px; font-size:.95rem;"></select>
+    <p id="ojMoveErr" style="color:#c0392b; font-size:.85rem; margin:8px 0 0;" hidden></p>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn btn-primary" id="ojMoveConfirmBtn" type="button">Ko'chirish</button>
+      <button class="btn btn-ghost" type="button" onclick="closeModal('modalOjMove')">Bekor</button>
     </div>
   </div>
 </div>
@@ -8643,6 +8661,76 @@ async function ojMoveStudentOut(groupId, groupName, sid, s){
     showToast('Out qilib bo\u02bblmadi. Firestore qoidalariga "leftStudents" qo\u02bbshilganini tekshiring.', true);
   }
 }
+// ===== Talabani boshqa guruhga ko'chirish =====
+// Talaba hujjati (ID, name, phone, createdAt va boshqa barcha maydonlari) aynan o'sha ID bilan
+// yangi guruhga ko'chiriladi. oquv_progress/{id}/entries (davomat, uy vazifa, baho, jazo) talaba ID
+// bo'yicha saqlanadi, shuning uchun ularga tegilmaydi — faqat group/groupId maydoni yangilanadi.
+let _ojMoveCtx = null;
+async function ojOpenMoveModal(groupId, groupName, sid, s){
+  _ojMoveCtx = { groupId, groupName, sid, name: (s && s.name) || '' };
+  const sel = document.getElementById('ojMoveSelect');
+  const err = document.getElementById('ojMoveErr');
+  err.hidden = true;
+  document.getElementById('ojMoveInfo').textContent = _ojMoveCtx.name + ' (ID: ' + sid + ') \u2014 hozirgi guruh: ' + (groupName || '');
+  sel.innerHTML = '<option value="">Yuklanmoqda\u2026</option>';
+  document.getElementById('ojMoveConfirmBtn').disabled = true;
+  openModal('modalOjMove');
+  try{
+    const snap = await db.collection('oquv_groups').get();
+    const groups = snap.docs.filter(d => d.id !== groupId)
+      .map(d => ({ id: d.id, name: d.data().name || d.id }))
+      .sort((a,b) => String(a.name).localeCompare(String(b.name)));
+    if(!groups.length){ sel.innerHTML = '<option value="">Boshqa guruh yo\u02bbq</option>'; return; }
+    sel.innerHTML = '';
+    const ph = document.createElement('option'); ph.value = ''; ph.textContent = 'Guruhni tanlang\u2026'; sel.appendChild(ph);
+    groups.forEach(g => { const o = document.createElement('option'); o.value = g.id; o.textContent = g.name; o.dataset.name = g.name; sel.appendChild(o); });
+    document.getElementById('ojMoveConfirmBtn').disabled = false;
+  }catch(e){
+    console.error(e);
+    sel.innerHTML = '<option value="">Guruhlarni yuklab bo\u02bblmadi</option>';
+  }
+}
+async function ojMoveStudentToGroup(){
+  const ctx = _ojMoveCtx; if(!ctx) return;
+  const sel = document.getElementById('ojMoveSelect');
+  const err = document.getElementById('ojMoveErr');
+  const btn = document.getElementById('ojMoveConfirmBtn');
+  err.hidden = true;
+  const targetId = sel.value;
+  if(!targetId){ err.textContent = 'Avval yangi guruhni tanlang.'; err.hidden = false; return; }
+  const targetName = sel.options[sel.selectedIndex].dataset.name || '';
+  btn.disabled = true;
+  try{
+    const oldRef = db.collection('oquv_groups').doc(ctx.groupId).collection('students').doc(ctx.sid);
+    const newRef = db.collection('oquv_groups').doc(targetId).collection('students').doc(ctx.sid);
+    const [oldDoc, newDoc] = await Promise.all([oldRef.get(), newRef.get()]);
+    if(!oldDoc.exists){ err.textContent = 'Talaba eski guruhda topilmadi (sahifani yangilang).'; err.hidden = false; btn.disabled = false; return; }
+    if(newDoc.exists){ err.textContent = 'Bu ID bilan talaba tanlangan guruhda allaqachon bor.'; err.hidden = false; btn.disabled = false; return; }
+    // Bitta batch: yangi guruhga yozish + eskisidan o'chirish + group nomini yangilash (hammasi yoki hech narsa)
+    const batch = db.batch();
+    batch.set(newRef, oldDoc.data());
+    batch.delete(oldRef);
+    batch.set(db.collection('oquv_progress').doc(ctx.sid), { group: targetName, groupId: targetId }, { merge: true });
+    await batch.commit();
+    // Kutilayotgan "qo'ng'iroq" ro'yxatidagi guruh nomini ham yangilaymiz (xato bo'lsa e'tibor bermaymiz)
+    try{
+      const cq = await db.collection('callQueue').where('studentId', '==', ctx.sid).get();
+      const b2 = db.batch(); let n = 0;
+      cq.docs.forEach(d => { if((d.data().status || 'pending') === 'pending'){ b2.update(d.ref, { groupName: targetName }); n++; } });
+      if(n) await b2.commit();
+    }catch(e){ console.warn('callQueue group update skipped:', e); }
+    closeModal('modalOjMove');
+    if(typeof stScheduleLeaderboard === 'function') stScheduleLeaderboard();
+    showToast('"' + ctx.name + '" \u201c' + targetName + '\u201d guruhiga o\u02bbtkazildi');
+    loadOjStudents(ctx.groupId, ctx.groupName);
+  }catch(e){
+    console.error('Move failed:', e);
+    err.textContent = 'Ko\u02bbchirib bo\u02bblmadi. Hech narsa o\u02bbzgarmadi, qayta urinib ko\u02bbring.'; err.hidden = false;
+  }
+  btn.disabled = false;
+}
+document.getElementById('ojMoveConfirmBtn').addEventListener('click', ojMoveStudentToGroup);
+
 async function ojOpenLeftModal(){
   const gid = _ojActiveGroupId;
   if(!gid) return;
@@ -8807,6 +8895,7 @@ async function loadOjStudents(groupId, groupName, days) {
           <input type="number" min="0" step="1" class="oj-row-grade" data-field="punishCount" placeholder="Nechta jazo" ${punishedVal ? '' : 'hidden'}>
           <span class="oj-row-save"></span>
         </div>
+        <button class="oj-row-move" title="Boshqa guruhga o'tkazish">Ko'chirish</button>
         <button class="oj-row-out" title="Guruhdan chiqarish (Out)">Out</button>
         <button class="oj-row-del" title="O'chirish"><svg class="ic" aria-hidden="true"><use href="#i-x"></use></svg></button>`;
       row.querySelector('[data-field="homeworkPercent"]').value = entry.homeworkPercent || '';
@@ -8916,6 +9005,11 @@ async function loadOjStudents(groupId, groupName, days) {
       hwMissingInput.addEventListener('click', (e) => e.stopPropagation());
       hwMissingInput.addEventListener('blur', () => ojQuickSave({ homeworkMissing: hwMissingInput.value.trim() }));
       hwMissingInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); hwMissingInput.blur(); } });
+
+      row.querySelector('.oj-row-move').addEventListener('click', (e) => {
+        e.stopPropagation();
+        ojOpenMoveModal(groupId, groupName, sid, s);
+      });
 
       row.querySelector('.oj-row-out').addEventListener('click', async (e) => {
         e.stopPropagation();
