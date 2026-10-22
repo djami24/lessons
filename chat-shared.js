@@ -299,7 +299,7 @@ const CHAT_QUICK_DEFAULT = ['Salom! 👋', 'Rahmat, qabul qilindi ✅', 'Uy vazi
   .chat-msg-actions:empty{display:none}
   .chat-msg-actions .chat-msg-action-btn{width:26px;height:26px;font-size:13px;line-height:1;padding:0;box-shadow:none}
   @media (hover:none){.chat-msg-actions{opacity:0}}
-  .chat-quick{width:100%;box-sizing:border-box;flex:none;max-height:110px;overflow-y:auto}
+  .chat-quick{width:100%;box-sizing:border-box;flex:none;max-height:80px;overflow-y:auto}
   .chat-msg-row.is-flash .chat-msg-bubble{outline:2px solid #ffb703;outline-offset:2px}
   .chat-msg-quote[data-jump]{cursor:pointer}
   .chat-quick{display:flex;gap:6px;flex-wrap:wrap;padding:6px 12px 0}
@@ -651,20 +651,9 @@ function createChatController(cfg){
     qbar.className = 'chat-quick';
     const inputRow = inputEl.closest('.chat-input-row');
     inputRow.parentNode.insertBefore(qbar, inputRow);
-    const load = () => { try{ const v = JSON.parse(localStorage.getItem(KEY)); if(Array.isArray(v)) return v; }catch(e){} return CHAT_QUICK_DEFAULT.slice(); };
-    const save = list => { try{ localStorage.setItem(KEY, JSON.stringify(list)); }catch(e){} };
+    // Faqat emojilar (bosilsa xabar matniga qo'shiladi)
     const draw = () => {
       qbar.innerHTML = '';
-      load().forEach(t => {
-        const b = document.createElement('button');
-        b.type = 'button'; b.textContent = t; b.title = t;
-        b.addEventListener('click', () => {
-          inputEl.value = inputEl.value ? inputEl.value + ' ' + t : t;
-          inputEl.focus(); inputEl.dispatchEvent(new Event('input', { bubbles:true }));
-        });
-        qbar.appendChild(b);
-      });
-      // Eng ko'p ishlatiladigan emojilar (bosilsa xabar matniga qo'shiladi)
       CHAT_QUICK_EMOJIS.forEach(em => {
         const eb = document.createElement('button');
         eb.type = 'button'; eb.textContent = em; eb.className = 'chat-quick-emoji';
@@ -674,15 +663,6 @@ function createChatController(cfg){
         });
         qbar.appendChild(eb);
       });
-      const edit = document.createElement('button');
-      edit.type = 'button'; edit.textContent = '✎ Tahrirlash';
-      edit.addEventListener('click', () => {
-        const v = prompt('Tayyor javoblar. Har birini yangi qatordan yozing (| bilan ajrating):', load().join(' | '));
-        if(v === null) return;
-        save(v.split('|').map(x => x.trim()).filter(Boolean));
-        draw();
-      });
-      qbar.appendChild(edit);
     };
     draw();
   }
