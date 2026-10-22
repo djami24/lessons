@@ -2114,6 +2114,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
       <p class="oj-month-stats-title"><svg class="ic" aria-hidden="true"><use href="#i-calendar-days"></use></svg> Oylar bo'yicha tarix <span style="font-weight:400;">(qatorni bossangiz shu oy ochiladi)</span></p>
       <div class="table-wrap" style="margin-bottom:24px;"><table class="data-table"><thead><tr><th>Oy</th><th>Darslar</th><th>Davomat</th><th>Uy vazifa</th><th>Kelmadi</th><th>Kech</th><th>Jazo</th><th>Ball</th><th></th></tr></thead><tbody id="ojMonthHistoryBody"></tbody></table></div>
+      <div style="font-size:.78rem;color:var(--gray);margin:-16px 0 20px;">Ball = 60% davomat + 40% uy vazifa (testi bo'lsa: 40% davomat + 30% uy vazifa + 30% test o'rtachasi), so'ng jazolangan har bir kun uchun −2 ball (ko'pi bilan −20).</div>
       <!-- Entry form - modern design -->
       <div class="oj-form-card">
         <h3 style="margin:0 0 18px; font-size:1rem; font-weight:600;">Yangi yozuv qo'shish</h3>
@@ -7191,11 +7192,18 @@ const ST_TEST_LOW = 55;    // test o'rtachasi shundan past bo'lsa — «Diqqat t
 const ST_TEST_DROP = 15;   // oxirgi test(lar) oldingilaridan shuncha ball (yoki ko'p) past bo'lsa — «Diqqat talab qiladi»
 let _stTestsCache = null;
 
+const ST_PUN_PER_DAY = 2, ST_PUN_MAX = 20;   // jazolangan har bir kun uchun −2 ball, ko'pi bilan −20 ball
+function stPenalty(a){ return Math.min(ST_PUN_MAX, ((a && a.pun) || 0) * ST_PUN_PER_DAY); }
+function stClamp100(v){ return Math.max(0, Math.min(100, v)); }
 function stScoreT(a, t){
   if (t === null || t === undefined) return stScore(a);
-  if (a.att === null) return a.hw === null ? Math.round(t) : Math.round((a.hw + t) / 2);
-  const hw = a.hw === null ? a.att : a.hw;   // uy vazifa belgilanmagan bo'lsa — davomat o'rniga olinadi (stScore bilan bir xil)
-  return Math.round(ST_W.att * a.att + ST_W.hw * hw + ST_W.test * t);
+  let v;
+  if (a.att === null) v = a.hw === null ? t : (a.hw + t) / 2;
+  else {
+    const hw = a.hw === null ? a.att : a.hw;   // uy vazifa belgilanmagan bo'lsa — davomat o'rniga olinadi (stScore bilan bir xil)
+    v = ST_W.att * a.att + ST_W.hw * hw + ST_W.test * t;
+  }
+  return Math.round(stClamp100(v - stPenalty(a)));
 }
 function stNameKey(s){ return String(s || '').toLowerCase().replace(/[\u02bb\u02bc\u2019\u2018`\u00b4']/g, '').replace(/\s+/g, ' ').trim(); }
 
@@ -7248,8 +7256,8 @@ async function stLoadTests(force){
 }
 function stScoreNote(tIdx){
   return '<div class="st-note">' + (tIdx
-    ? 'Ball = 40% davomat + 30% uy vazifa + 30% test (testi yo\'q o\'quvchilarda: 60% davomat + 40% uy vazifa). Yaxshilanganlar/Pasayganlar\'da test o\'zgarishi — oxirgi test(lar) o\'rtachasi oldingilariga nisbatan.'
-    : 'Test natijalari yuklanmadi — ball faqat davomat va uy vazifadan hisoblandi (60% + 40%).') + '</div>';
+    ? 'Ball = 40% davomat + 30% uy vazifa + 30% test (testi yo\'q o\'quvchilarda: 60% davomat + 40% uy vazifa), keyin jazolangan har bir kun uchun −2 ball (ko\'pi bilan −20). Yaxshilanganlar/Pasayganlar\'da test o\'zgarishi — oxirgi test(lar) o\'rtachasi oldingilariga nisbatan.'
+    : 'Test natijalari yuklanmadi — ball faqat davomat va uy vazifadan hisoblandi (60% + 40%), jazolangan kunlar uchun −2 ball (ko\'pi bilan −20).') + '</div>';
 }
 
 function stBuildPeople(cur, tIdx){
@@ -7303,11 +7311,13 @@ function stAgg(list){
   r.hw = r.hwN ? Math.round(r.hwSum / r.hwN) : null;
   return r;
 }
-// Yagona ball formulasi: 60% davomat + 40% uy vazifa (jadval, xavf ro'yxati, top reyting va saytdagi reyting uchun bir xil).
+// Yagona ball formulasi: 60% davomat + 40% uy vazifa − jazo (har jazolangan kun −2 ball, ko'pi bilan −20) (jadval, xavf ro'yxati, top reyting va saytdagi reyting uchun bir xil).
 // Uy vazifa belgilanmagan bo'lsa — davomat o'zi olinadi; davomat belgilanmagan bo'lsa — uy vazifa (yoki null).
 function stScore(a){
-  if (a.att === null) return a.hw === null ? null : a.hw;
-  return Math.round(0.6 * a.att + 0.4 * (a.hw === null ? a.att : a.hw));
+  let v;
+  if (a.att === null) { if (a.hw === null) return null; v = a.hw; }
+  else v = 0.6 * a.att + 0.4 * (a.hw === null ? a.att : a.hw);
+  return Math.round(stClamp100(v - stPenalty(a)));   // jazolangan kunlar ballni kamaytiradi
 }
 
 async function stFetch(force, back){
@@ -7941,7 +7951,7 @@ function stTopChunks(){
   if (!m || !m.top.length) return [];
   const d = new Date(), dl = stPad(d.getDate()) + '.' + stPad(d.getMonth() + 1) + '.' + d.getFullYear();
   const medal = ['🥇', '🥈', '🥉'];
-  let t = `🏆 ENG FAOL O'QUVCHILAR\n📅 ${dl} · ${m.periodLabel}\n👥 ${m.groupLabel}\n(Ball = 40% davomat + 30% uy vazifa + 30% test; testi yo'q bo'lsa 60% + 40%)\n`;
+  let t = `🏆 ENG FAOL O'QUVCHILAR\n📅 ${dl} · ${m.periodLabel}\n👥 ${m.groupLabel}\n(Ball = 40% davomat + 30% uy vazifa + 30% test; testi yo'q bo'lsa 60% + 40%; jazolangan kun −2 ball)\n`;
   m.top.forEach((p, i) => {
     const a = p.a, n = (m.wins[p.gid] || {}).n || 0;
     t += `\n${medal[i] || (i + 1) + '.'} ${p.name} — ${p.sc} ball\n` +
@@ -9281,7 +9291,20 @@ function ojEntriesOfSelection(){
   return _ojProgressEntries.filter(e => e.date && e.date >= r.from && e.date <= r.to);
 }
 
+// Talabaning test o'rtachasi (gradebook) — oylik jadvaldagi ballga qo'shiladi (40% davomat + 30% uy vazifa + 30% test)
+let _ojMonthTestKey = null, _ojMonthTestAvg = null;
+function ojEnsureMonthTest(){
+  const key = String(_ojActiveStudentId) + '|' + String(_ojActiveStudentName);
+  if (_ojMonthTestKey === key) return;
+  _ojMonthTestKey = key; _ojMonthTestAvg = null;
+  stLoadTests(false).then(idx => {
+    if (!idx || _ojMonthTestKey !== key) return;
+    const t = idx.get(_ojActiveStudentId, _ojActiveStudentName);
+    if (t && t.avg !== null && t.avg !== undefined) { _ojMonthTestAvg = t.avg; ojRenderMonthStats(); }
+  }).catch(() => {});
+}
 function ojRenderMonthStats(){
+  ojEnsureMonthTest();
   const g = { id: _ojActiveGroupId, name: _ojActiveGroupName }, s = { id: _ojActiveStudentId, name: _ojActiveStudentName };
   const norm = _ojProgressEntries.map(e => stNorm(e, g, s)).filter(Boolean);
   const inM = ym => { const r = rpRange(ym); return norm.filter(x => x.date >= r.from && x.date <= r.to); };
@@ -9319,7 +9342,7 @@ function ojRenderMonthStats(){
   // Oylar bo'yicha tarix (arxiv)
   const td = 'padding:8px 10px;';
   document.getElementById('ojMonthHistoryBody').innerHTML = months.map(ym => {
-    const m = inM(ym), ag = stAgg(m), pa = stAgg(inM(rpPrevYm(ym))), h = pa.marked > 0, n = rpSched(_ojActiveGroupDays, rpRange(ym)).length, sc = stScore(ag);
+    const m = inM(ym), ag = stAgg(m), pa = stAgg(inM(rpPrevYm(ym))), h = pa.marked > 0, n = rpSched(_ojActiveGroupDays, rpRange(ym)).length, sc = stScoreT(ag, _ojMonthTestAvg);
     const c = (v, pv) => '<b>' + rpPct(v) + '</b> <span style="font-size:.72rem;">' + (h ? rpDelta(v, pv, false, '') : '') + '</span>';
     return '<tr data-ym="' + ym + '" style="cursor:pointer;' + (ym === _ojMonthSel ? 'background:rgba(47,111,237,.08);' : '') + '">' +
       '<td style="' + td + '"><b>' + rpLabel(ym) + '</b>' + (ym === nowYm ? ' <span style="font-size:.72rem;color:var(--gray);">(joriy)</span>' : '') + '</td>' +
@@ -11776,7 +11799,7 @@ function rpGroupHtml(m){
     '<table style="width:100%;border-collapse:collapse;font-size:11.5px;"><thead><tr style="background:#2e6f6e;color:#fff;">' +
     '<th style="' + th + '">№</th><th style="' + th + '">Talaba</th><th style="' + th + '">Davomat</th><th style="' + th + '">Uy vazifa</th><th style="' + th + '">Kelmadi</th><th style="' + th + '">Kech</th><th style="' + th + '">Jazo</th><th style="' + th + '">Ball</th><th style="' + th + '">Holat</th><th style="' + th + '">Izoh</th>' +
     '</tr></thead><tbody>' + rows + '</tbody></table>' +
-    '<div style="font-size:10.5px;color:#888;margin-top:8px;">Ball = 60% davomat + 40% uy vazifa. Farq (▲/▼) — o\'tgan oyga nisbatan.</div>' + rpSign());
+    '<div style="font-size:10.5px;color:#888;margin-top:8px;">Ball = 60% davomat + 40% uy vazifa − jazo (har jazolangan kun −2 ball, ko\'pi bilan −20). Farq (▲/▼) — o\'tgan oyga nisbatan.</div>' + rpSign());
 }
 
 function rpOverviewHtml(models, ym){
