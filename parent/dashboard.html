@@ -938,7 +938,7 @@ function pmAgg(list){
     if(x.pun){ r.pun++; r.punCnt += x.pc || 1; }
   });
   r.marked = r.yes + r.late + r.no;
-  r.att = r.marked ? Math.round((r.yes + r.late) / r.marked * 100) : null;
+  r.att = r.marked ? Math.round((r.yes + 0.5 * r.late) / r.marked * 100) : null;
   r.hw = r.hwN ? Math.round(r.hwSum / r.hwN) : null;
   return r;
 }
