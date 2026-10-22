@@ -2114,7 +2114,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
       <p class="oj-month-stats-title"><svg class="ic" aria-hidden="true"><use href="#i-calendar-days"></use></svg> Oylar bo'yicha tarix <span style="font-weight:400;">(qatorni bossangiz shu oy ochiladi)</span></p>
       <div class="table-wrap" style="margin-bottom:24px;"><table class="data-table"><thead><tr><th>Oy</th><th>Darslar</th><th>Davomat</th><th>Uy vazifa</th><th>Kelmadi</th><th>Kech</th><th>Jazo</th><th>Ball</th><th></th></tr></thead><tbody id="ojMonthHistoryBody"></tbody></table></div>
-      <div style="font-size:.78rem;color:var(--gray);margin:-16px 0 20px;">Ball = 60% davomat + 40% uy vazifa (testi bo'lsa: 40% davomat + 30% uy vazifa + 30% test o'rtachasi), so'ng jazolangan har bir kun uchun −2 ball (ko'pi bilan −20).</div>
+      <div style="font-size:.78rem;color:var(--gray);margin:-16px 0 20px;">Davomat = (Keldi + ½ × Kech qoldi) / belgilangan darslar. Ball = 60% davomat + 40% uy vazifa (testi bo'lsa: 40% davomat + 30% uy vazifa + 30% test o'rtachasi), so'ng jazolangan har bir kun uchun −2 ball (ko'pi bilan −20).</div>
       <!-- Entry form - modern design -->
       <div class="oj-form-card">
         <h3 style="margin:0 0 18px; font-size:1rem; font-weight:600;">Yangi yozuv qo'shish</h3>
@@ -7307,7 +7307,7 @@ function stAgg(list){
     if (x.pun) { r.pun++; r.punCnt += x.pc || 1; }
   });
   r.marked = r.yes + r.late + r.no;
-  r.att = r.marked ? Math.round((r.yes + r.late) / r.marked * 100) : null;
+  r.att = r.marked ? Math.round((r.yes + 0.5 * r.late) / r.marked * 100) : null;
   r.hw = r.hwN ? Math.round(r.hwSum / r.hwN) : null;
   return r;
 }
