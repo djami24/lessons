@@ -2273,7 +2273,7 @@ async function loadScheduleTable(){
 // ===== MENING STATISTIKAM =====
 // Admin paneldagi "Statistika" / talaba sahifasidagi hisob-kitob bilan bir xil qoidalar,
 // lekin faqat shu talaba uchun: oquv_progress/{ID}/entries (davomat, uy vazifa, jazo).
-// Davomat = (keldi + kech qoldi) / belgilangan darslar; ball = 60% davomat + 40% uy vazifa − jazo (har jazolangan kun −2 ball, ko'pi bilan −20).
+// Davomat = (keldi + 0.5 × kech qoldi) / belgilangan darslar; ball = 60% davomat + 40% uy vazifa − jazo (har jazolangan kun −2 ball, ko'pi bilan −20).
 const MYST_C = { green:'#1FAE7A', blue:'#2F6FED', orange:'#F0923D', red:'#E5484D', purple:'#7C5CFC', gray:'#98A2B3' };
 const MYST_MONTHS = ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr'];
 const MYST_JSKEY = ['sun','mon','tue','wed','thu','fri','sat'];
@@ -2322,7 +2322,7 @@ function mystAgg(list){
     if(x.pun){ r.pun++; r.punCnt += x.pc || 1; }
   });
   r.marked = r.yes + r.late + r.no;
-  r.att = r.marked ? Math.round((r.yes + r.late) / r.marked * 100) : null;
+  r.att = r.marked ? Math.round((r.yes + 0.5 * r.late) / r.marked * 100) : null;
   r.hw = r.hwN ? Math.round(r.hwSum / r.hwN) : null;
   return r;
 }
