@@ -451,6 +451,9 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
 .a-tel{cursor:pointer;padding:3px 6px;margin:-3px -6px;border-radius:6px;transition:background .15s,color .15s;user-select:none;-webkit-user-select:none;}
 .a-tel:hover{background:rgba(47,111,237,.12);color:var(--adm-blue,#2F6FED);}
 .a-tel.copied{background:rgba(25,170,110,.16);color:#14935c;}
+@keyframes aSpin{to{transform:rotate(360deg);}}
+#aRefreshBtn.loading .ic{animation:aSpin .8s linear infinite;}
+#aRefreshBtn.loading{pointer-events:none;opacity:.7;}
 
 /* ============================================================
    DARK MODE (body.dark) — talaba paneldagi palitra bilan bir xil
@@ -2651,6 +2654,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <div style="padding:16px 20px;border-bottom:1px solid var(--adm-line,var(--line));display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
             <div style="font-weight:700;font-size:1rem;"><svg class="ic" aria-hidden="true"><use href="#i-bar-chart"></use></svg> Barcha talabalar</div>
             <div style="display:flex;gap:8px;">
+              <button class="btn btn-ghost btn-sm" id="aRefreshBtn" onclick="aSahifaYangila()" title="Ma'lumotlarni qayta yuklash" style="border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg> Yangilash</button>
               <button class="btn btn-ghost btn-sm" onclick="anketaExcelYuklash()" style="border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-download"></use></svg> Excel</button>
               <button class="btn btn-sm" onclick="aHammasniOchir()" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:10px;"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> Barchasini o'chirish</button>
             </div>
@@ -13585,6 +13589,14 @@ function aTelUyasi(v) {
   return `<span class="a-tel" data-tel="${clean}" title="Nusxalash uchun bosing" onclick="aTelNusxala(this)">${clean}</span>`;
 }
 
+// Ism-familiya ustiga bosilsa nusxalanadi (telefon raqamlari bilan bir xil)
+function aIsmUyasi(v) {
+  const full = String(v || '').replace(/\s+/g, ' ').trim();
+  if (!full) return '<span>\u2014</span>';
+  const attr = full.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return `<span class="a-tel" data-tel="${attr}" title="Nusxalash uchun bosing" onclick="aTelNusxala(this)">${attr}</span>`;
+}
+
 function aTelNusxala(el) {
   const raqam = el.dataset.tel;
   if (!raqam) return;
@@ -13617,7 +13629,7 @@ function aJadvalChiz() {
     <tr>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));">${i+1}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><span style="background:rgba(47,111,237,.1);color:var(--adm-blue,#2F6FED);padding:3px 8px;border-radius:6px;font-size:.78rem;font-weight:700;">${t.guruhNom}</span></td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-weight:600;">${t.ism} ${t.familiya}</td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-weight:600;">${aIsmUyasi(t.ism + ' ' + t.familiya)}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${aTelUyasi(t.telOz)}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${aTelUyasi(t.tel1)}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${aTelUyasi(t.tel2)}</td>
@@ -13625,6 +13637,21 @@ function aJadvalChiz() {
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><button class="btn btn-sm" onclick="aTalabaOchir('${t.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.75rem;"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></button></td>
     </tr>
   `).join('');
+}
+
+// Faqat shu sahifani (Barcha talabalar) yangilaydi: Firestore'dan qayta o'qib, statistika va jadvalni qayta chizadi.
+// Tanlangan guruh va qidiruv matni saqlanib qoladi.
+async function aSahifaYangila() {
+  const btn = document.getElementById('aRefreshBtn');
+  if (btn) btn.classList.add('loading');
+  try {
+    await aStatsYangi();
+    showToast('Yangilandi');
+  } catch (e) {
+    console.error(e);
+    showToast('Yangilab bo\'lmadi', 'warn');
+  }
+  if (btn) btn.classList.remove('loading');
 }
 
 function aTalabaOchir(id) {
