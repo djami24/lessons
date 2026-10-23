@@ -90,9 +90,9 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 .oj-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:.78rem;font-weight:600;}
 .oj-badge-yes{background:rgba(46,111,110,.12);color:#2e6f6e;}
 .oj-badge-no{background:rgba(192,57,43,.1);color:#c0392b;}
-.oj-badge-partial{background:rgba(217,142,63,.16);color:var(--amber-deep,#c08a2e);}
+.oj-badge-partial{background:rgba(217,142,63,.18);color:#a8630a;}   /* qat'iy rang: sayt rangi sozlamasi (--amber) ta'sir qilmasin */
 .oj-badge-pending{background:rgba(200,200,200,.2);color:var(--gray);}
-.oj-grade-pill{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;font-weight:800;font-size:.95rem;background:linear-gradient(135deg,var(--amber,#e6a817),var(--amber-deep,#c08a2e));color:#fff;}
+.oj-grade-pill{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;font-weight:800;font-size:.95rem;background:linear-gradient(135deg,#e6a817,#c47a12);color:#fff;}
 .oj-entry-actions{display:flex;gap:6px;}
 
 .oj-empty{text-align:center;padding:48px 24px;color:var(--gray);}
@@ -111,8 +111,8 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 .oj-toggle-btn{padding:6px 10px;font-size:.78rem;font-weight:600;border:none;background:var(--surface,#f8f9fa);color:var(--gray);cursor:pointer;transition:background .15s,color .15s;white-space:nowrap;}
 .oj-toggle-btn.active-yes{background:rgba(46,111,110,.14);color:#2e6f6e;}
 .oj-toggle-btn.active-no{background:rgba(192,57,43,.12);color:#c0392b;}
-.oj-toggle-btn.active-partial{background:rgba(217,142,63,.18);color:var(--amber-deep,#c08a2e);}
-.oj-toggle-btn.active-late{background:rgba(217,142,63,.18);color:var(--amber-deep,#c08a2e);}
+.oj-toggle-btn.active-partial{background:rgba(217,142,63,.18);color:#a8630a;}
+.oj-toggle-btn.active-late{background:rgba(217,142,63,.18);color:#a8630a;}
 .oj-month-stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-bottom:24px;}
 .oj-month-stats-title{font-size:.85rem;font-weight:700;color:var(--gray);margin:0 0 10px;}
 .oj-row-grade{padding:.4em .5em;border:1.5px solid var(--line);border-radius:8px;font-size:.8rem;background:var(--surface,#f8f9fa);color:var(--ink);flex-shrink:0;}
@@ -555,6 +555,9 @@ body.admin-theme.dark .form-error{background:rgba(240,118,95,.16)}
 body.admin-theme.dark .form-notice{background:#1b2235}
 body.admin-theme.dark .oj-schedule-banner{background:rgba(240,146,61,.14);color:#f0b878}
 body.admin-theme.dark .kd-note{color:#e0a25a}
+body.admin-theme.dark .oj-badge-partial,
+body.admin-theme.dark .oj-toggle-btn.active-partial,
+body.admin-theme.dark .oj-toggle-btn.active-late{color:#f0b878}
 body.admin-theme.dark .oj-badge-yes,
 body.admin-theme.dark .oj-row-save,
 body.admin-theme.dark .oj-toggle-btn.active-yes{color:#4fd1a1}
