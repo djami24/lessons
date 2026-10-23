@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Anketa — Djami Lessons</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -271,6 +273,77 @@
   .success-circle .ic { width: 40px; height: 40px; }
   .error-icon { color: var(--red); margin-bottom: 16px; }
   .error-icon .ic { width: 48px; height: 48px; }
+
+  /* ============================================================
+     Glassy (shisha) uslub — sayt dizayniga moslangan
+     (glass-public.css / glass-auth.css bilan bir xil ranglar). Faqat ko'rinish.
+     ============================================================ */
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #E8F0FF 0%, #F3EEFF 48%, #FFF0E3 100%) fixed;
+    position: relative;
+    justify-content: center;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(520px 420px at 8% 12%, rgba(46,111,237,.28), transparent 70%),
+      radial-gradient(560px 460px at 92% 20%, rgba(155,110,255,.24), transparent 70%),
+      radial-gradient(600px 480px at 78% 88%, rgba(217,142,63,.26), transparent 70%),
+      radial-gradient(480px 400px at 14% 82%, rgba(31,174,122,.18), transparent 70%);
+  }
+  .logo { opacity: 1; color: #14213D; font-size: .95rem; font-weight: 700; }
+
+  .card {
+    background: rgba(255,255,255,.52);
+    -webkit-backdrop-filter: blur(20px) saturate(170%); backdrop-filter: blur(20px) saturate(170%);
+    border: 1px solid rgba(255,255,255,.8);
+    box-shadow: 0 30px 60px -28px rgba(20,33,61,.32), inset 0 1px 0 rgba(255,255,255,.9);
+    border-radius: 24px;
+  }
+  .card-header {
+    background: linear-gradient(135deg, rgba(47,111,237,.86) 0%, rgba(124,92,252,.74) 100%);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(255,255,255,.55);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.45);
+  }
+  .card-header .icon {
+    background: rgba(255,255,255,.22);
+    border: 1px solid rgba(255,255,255,.5);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  }
+  .guruh-badge {
+    background: rgba(255,255,255,.24);
+    border: 1px solid rgba(255,255,255,.55);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  }
+  .field label { color: #5B6472; }
+  .field input {
+    background: rgba(255,255,255,.65);
+    border: 1.5px solid rgba(20,33,61,.12);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    transition: border-color .15s, background .15s, box-shadow .15s;
+  }
+  .field input::placeholder { color: #9aa3b5; }
+  .field input:focus {
+    background: rgba(255,255,255,.92);
+    border-color: var(--blue);
+    box-shadow: 0 0 0 4px rgba(47,111,237,.14);
+  }
+  .field input.error { border-color: var(--red); background: rgba(255,240,238,.75); }
+  .divider::before, .divider::after { background: rgba(20,33,61,.12); }
+  .btn-submit {
+    background: linear-gradient(135deg, rgba(31,174,122,.95), rgba(20,147,92,.95));
+    border: 1px solid rgba(255,255,255,.45);
+    box-shadow: 0 14px 28px -14px rgba(31,174,122,.75), inset 0 1px 0 rgba(255,255,255,.4);
+  }
+  .btn-submit:hover { background: linear-gradient(135deg, #1FAE7A, #129056); }
+  .success-circle {
+    background: rgba(31,174,122,.16);
+    border: 1px solid rgba(255,255,255,.7);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+  }
+  .spinner { border-color: rgba(20,33,61,.12); border-top-color: var(--blue); }
 </style>
 </head>
 <body>
