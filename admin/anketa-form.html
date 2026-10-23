@@ -292,7 +292,17 @@
       radial-gradient(600px 480px at 78% 88%, rgba(217,142,63,.26), transparent 70%),
       radial-gradient(480px 400px at 14% 82%, rgba(31,174,122,.18), transparent 70%);
   }
-  .logo { opacity: 1; color: #14213D; font-size: .95rem; font-weight: 700; }
+  .logo { opacity: 1; color: #14213D; font-size: 1.05rem; font-weight: 800; gap: 12px; }
+  /* Logotip (oq rangda) — rangli shisha kvadrat ichida */
+  .logo-mark {
+    width: 48px; height: 48px; flex: none;
+    border-radius: 14px; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, rgba(47,111,237,.95), rgba(124,92,252,.9));
+    border: 1px solid rgba(255,255,255,.7);
+    box-shadow: 0 10px 22px -10px rgba(47,111,237,.6), inset 0 1px 0 rgba(255,255,255,.5);
+  }
+  .logo-mark img { width: 100%; height: 100%; object-fit: contain; display: block; transform: scale(1.4); }
 
   .card {
     background: rgba(255,255,255,.52);
@@ -350,7 +360,7 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false"><symbol id="i-graduation-cap" viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M22 10v6M6 12v5c3 3 9 3 12 0v-5"/></symbol><symbol id="i-books" viewBox="0 0 24 24"><path d="M4 3v18M9 3v18"/><path d="M14 5.5l4.5-1L22 19.5l-4.5 1z"/></symbol><symbol id="i-clipboard" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol><symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></symbol><symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12.5l3 3 5-6"/></symbol><symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol></svg>
 
-<div class="logo"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg> Djami Lessons</div>
+<div class="logo"><span class="logo-mark"><img id="siteLogoImg" src="../assets/logo.png" alt="Djami Lessons"></span> Djami Lessons</div>
 
 <div class="card" id="mainCard">
   <!-- LOADING -->
@@ -563,6 +573,15 @@ async function formSaqlash() {
     alert('Xatolik yuz berdi. Iltimos qayta urinib ko\'ring.\n\n' + e.message);
   }
 }
+
+// Saytning sozlamalarida logotip berilgan bo'lsa, shuni ko'rsatamiz (admin paneldagi bilan bir xil manba)
+(async function loadSiteLogo() {
+  try {
+    const sd = await db.collection('settings').doc('site').get();
+    const u = sd.exists ? String(sd.data().logoUrl || '').trim() : '';
+    if (u) document.getElementById('siteLogoImg').src = u;
+  } catch (e) { /* ochiq o'qish ruxsat etilmagan bo'lsa — standart logotip qoladi */ }
+})();
 
 // Sahifani yuklash
 init();
