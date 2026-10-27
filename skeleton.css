@@ -1,0 +1,96 @@
+/* ===== Skeleton screens — barcha "Yuklanmoqda…" va spinner o'rniga =====
+   Ishlatilishi:
+   .sk            — yagona shimmer element (kenglik/balandlikni o'zingiz bering)
+   .sk-rows       — 4 qatorli matn ro'yxati  (<i></i> × N)
+   .sk-cards      — kartalar to'ri           (<i></i> × N)
+   .sk-app        — to'liq sahifa skeleti (sidebar + kontent)
+   .sk-home       — bosh sahifa skeleti                                  */
+:root{
+  --sk-base:#e6e9f0;
+  --sk-shine:#f5f6fa;
+}
+body.dark, body.admin-theme.dark, .dark{
+  --sk-base:#222a3d;
+  --sk-shine:#2d3752;
+}
+
+@keyframes skShimmer{
+  0%{ background-position:-300px 0; }
+  100%{ background-position:calc(300px + 100%) 0; }
+}
+
+.sk,
+.sk-rows > i, .sk-cards > i,
+.sk-app i, .sk-home i{
+  display:block;
+  background-color:var(--sk-base);
+  background-image:linear-gradient(90deg, transparent 0, var(--sk-shine) 50%, transparent 100%);
+  background-size:300px 100%;
+  background-repeat:no-repeat;
+  animation:skShimmer 1.3s ease-in-out infinite;
+  border-radius:8px;
+}
+.sk{ display:inline-block; vertical-align:middle; }
+.sk-name{ width:140px; height:1.1em; max-width:60%; }
+.sk-line{ height:12px; }
+
+/* --- ro'yxat --- */
+.sk-rows{ display:flex; flex-direction:column; gap:12px; width:min(100%,560px); padding:10px 0; margin:0 auto; text-align:left; }
+.sk-rows > i{ height:14px; }
+.sk-rows > i:nth-child(1){ width:92%; }
+.sk-rows > i:nth-child(2){ width:78%; }
+.sk-rows > i:nth-child(3){ width:86%; }
+.sk-rows > i:nth-child(4){ width:55%; }
+.sk-rows > i:nth-child(n+5){ width:70%; }
+
+/* --- kartalar --- */
+.sk-cards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; grid-column:1/-1; width:100%; padding:8px 0; }
+.sk-cards > i{ height:120px; border-radius:14px; }
+
+/* --- to'liq sahifa (dashboard) --- */
+.loading-screen.sk-screen, #authLoading.sk-screen{
+  display:block; align-items:initial; justify-content:initial;
+  background:var(--paper, var(--bg, #f6f7fb)); padding:0;
+}
+.sk-app{ display:flex; min-height:100vh; width:100%; }
+.sk-side{ width:240px; flex:none; padding:22px 18px; display:flex; flex-direction:column; gap:14px;
+  border-right:1px solid rgba(128,128,128,.14); }
+.sk-side i{ height:36px; border-radius:10px; }
+.sk-side i.sk-logo{ height:44px; width:70%; margin-bottom:12px; }
+.sk-main{ flex:1; min-width:0; padding:28px 30px; display:flex; flex-direction:column; gap:20px; }
+.sk-main i.sk-h{ height:30px; width:min(320px,60%); }
+.sk-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:16px; }
+.sk-stats i{ height:96px; border-radius:16px; }
+.sk-main i.sk-block{ height:180px; border-radius:16px; }
+@media (max-width:900px){
+  .sk-side{ display:none; }
+  .sk-main{ padding:20px 16px; }
+  .sk-stats{ grid-template-columns:repeat(2,1fr); }
+}
+
+/* --- bosh sahifa --- */
+.sk-home{ width:min(1100px,92%); margin:0 auto; padding:22px 0 40px; }
+.sk-home .sk-nav{ display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:54px; }
+.sk-home .sk-nav i:first-child{ width:150px; height:34px; }
+.sk-home .sk-nav i:last-child{ width:min(320px,45%); height:20px; }
+.sk-home .sk-hero{ display:grid; grid-template-columns:1.1fr .9fr; gap:46px; align-items:center; }
+.sk-home .sk-copy{ display:flex; flex-direction:column; gap:16px; }
+.sk-home .sk-copy .sk-t{ height:38px; }
+.sk-home .sk-copy .sk-t:nth-child(1){ width:92%; }
+.sk-home .sk-copy .sk-t:nth-child(2){ width:74%; }
+.sk-home .sk-copy .sk-p{ height:14px; width:88%; }
+.sk-home .sk-copy .sk-p.s{ width:60%; }
+.sk-home .sk-btns{ display:flex; gap:12px; margin-top:8px; }
+.sk-home .sk-btns i{ width:150px; height:44px; border-radius:999px; }
+.sk-home .sk-img{ height:300px; border-radius:22px; }
+.sk-home .sk-stats{ margin-top:46px; }
+.sk-home .sk-stats i{ height:84px; }
+@media (max-width:820px){
+  .sk-home .sk-hero{ grid-template-columns:1fr; gap:26px; }
+  .sk-home .sk-img{ height:200px; }
+  .sk-home .sk-nav{ margin-bottom:30px; }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .sk, .sk-rows > i, .sk-cards > i, .sk-app i, .sk-home i{ animation:none; background-image:none; }
+}
