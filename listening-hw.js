@@ -207,7 +207,7 @@
         '<p>Mashqni oching, bo‘sh joylarni to‘ldiring va topshiring.</p>' +
       '</div></div>' +
       '<div class="lhw-banner"><span class="lhw-banner-ico">🏆</span><div><b>Abduraxmonova Mufazzalxon</b> listening marafon g‘olibi bo‘ldilar!<br>Marafon o‘z nihoyasiga yetdi. Qolgan vazifalarga mukofot berilmaydi. Har bir qilinmagan listening uchun <b>100 ta jazo</b>.</div></div>' +
-      '<div id="lhwStudentBody"><p class="lhw-muted">Yuklanmoqda…</p></div>';
+      '<div id="lhwStudentBody"><div class="lhw-muted"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div></div>';
     if (!S.uid) return;
 
     S.unsubs.push(db.collection(COL_EX).onSnapshot(function (snap) {
@@ -401,7 +401,7 @@
     stopStudentLb();
     if (btn) btn.hidden = true;
     lb.hidden = false;
-    lb.innerHTML = '<p class="lhw-live"><span class="lhw-dot"></span> Jonli yangilanmoqda</p><p class="lhw-muted">Yuklanmoqda…</p>';
+    lb.innerHTML = '<p class="lhw-live"><span class="lhw-dot"></span> Jonli yangilanmoqda</p><div class="lhw-muted"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div>';
     S.lbUnsub = watchLeaderboard(ex.id, ex.groupId || '', function (rows) {
       var el = document.getElementById('lhwLeaderboard');
       if (el) el.innerHTML = '<p class="lhw-live"><span class="lhw-dot"></span> Jonli yangilanmoqda</p>' + leaderboardHTML(rows, S.uid, false);
@@ -734,7 +734,7 @@
     panel.innerHTML =
       '<div class="lhw-lb-head"><h3>Jonli natijalar — ' + esc(ex.title) + '</h3>' +
         '<button type="button" class="lhw-btn sm" id="lhwLbClose">Yopish</button></div>' +
-      '<div id="lhwAdminLbBody"><p class="lhw-muted">Yuklanmoqda…</p></div>' +
+      '<div id="lhwAdminLbBody"><div class="lhw-muted"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div></div>' +
       '<div id="lhwAdminDetail"></div>';
     document.getElementById('lhwLbClose').addEventListener('click', closeAdminLb);
     // Talabaning qatoriga bosilsa — uning javoblari pastda ochiladi (qayta bossa yopiladi)
