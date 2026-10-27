@@ -361,6 +361,7 @@
     .empty-icon svg { width:32px; height:32px; color:var(--gray); }
     .empty-title { font-weight: 600; color: var(--ink); margin-bottom: 4px; }
   </style>
+<link rel="stylesheet" href="skeleton.css">
 </head>
 <body>
 
@@ -388,8 +389,7 @@
 
   <!-- LOADER -->
   <div id="loaderEl" class="loader">
-    <div class="spinner"></div>
-    Yuklanmoqda…
+    <div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div>
   </div>
 
   <!-- TABLE -->
@@ -432,8 +432,7 @@
     </div>
 
     <div id="anketaLoaderEl" class="loader">
-      <div class="spinner"></div>
-      Anketa ma'lumotlari yuklanmoqda…
+      <div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div>
     </div>
 
     <div id="anketaTableWrap" class="table-wrap" style="display:none;">
