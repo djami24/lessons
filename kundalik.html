@@ -278,10 +278,11 @@
   window.vmtrc = window.vmtrc || function (){window.vmtrcq.push(Array.prototype.slice.call(arguments))};
 </script>
 <script defer src="https://cdn.vemetric.com/main.js" data-token="CHdcoB75KN2xKaYh"></script>
+<link rel="stylesheet" href="skeleton.css">
 </head>
 <body>
 
-<div id="authLoading">Yuklanmoqda…</div>
+<div id="authLoading" class="sk-screen" role="status" aria-label="Yuklanmoqda"><div class="sk-app"><aside class="sk-side"><i class="sk-logo"></i><i></i><i></i><i></i><i></i><i></i><i></i></aside><main class="sk-main"><i class="sk-h"></i><div class="sk-stats"><i></i><i></i><i></i><i></i></div><i class="sk-block"></i><i class="sk-block"></i></main></div></div>
 
 <div id="appShell" style="display:none;">
 
@@ -334,7 +335,7 @@
       </div>
       <p class="hw-heading" id="hwCountLabel">UY VAZIFALARI</p>
       <div id="hwGrid" class="hw-grid">
-        <div class="loading">Yuklanmoqda…</div>
+        <div class="loading"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div>
       </div>
     </div>
   </div>
@@ -569,7 +570,7 @@ async function openGroup(groupId, displayName){
   document.getElementById('hwGroupName').textContent = displayName || groupId;
   const grid = document.getElementById('hwGrid');
   const countLabel = document.getElementById('hwCountLabel');
-  grid.innerHTML = '<div class="loading">Yuklanmoqda…</div>';
+  grid.innerHTML = '<div class="loading"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div>';
 
   try{
     const snap = await db.collection('kundalik').doc(groupId)
