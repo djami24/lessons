@@ -195,6 +195,12 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
 </script>
 <script defer src="https://cdn.vemetric.com/main.js" data-token="CHdcoB75KN2xKaYh"></script>
 <link rel="stylesheet" href="skeleton.css">
+<style>
+/* Scroll reveal: pastga scroll qilinganda bloklar sekin paydo bo'ladi */
+html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,.home-blog-section,.site-footer):not(.rv-done){opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.2,.7,.2,1) var(--rv-d,0s),transform .7s cubic-bezier(.2,.7,.2,1) var(--rv-d,0s);}
+html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,.home-blog-section,.site-footer).is-in:not(.rv-done){opacity:1;transform:none;}
+</style>
+<script>(function(){var d=document.documentElement;if("IntersectionObserver" in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("rv-on");}})();</script>
 </head>
 <body class="home-body">
 <div class="site-marquee" data-site-marquee style="display:none">
@@ -989,5 +995,25 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
   <span>powered by <b>Djami</b></span>
 </div>
 
+<script>
+(function(){
+  if(!document.documentElement.classList.contains("rv-on")) return;
+  var els=document.querySelectorAll('.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,.home-blog-section,.site-footer');
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      var el=e.target; io.unobserve(el); el.classList.add("is-in");
+      // animatsiya tugagach, elementning o'z hover/transition uslublari qaytadi
+      setTimeout(function(){ el.classList.add("rv-done"); }, 1300);
+    });
+  },{threshold:0.08,rootMargin:"0px 0px -6% 0px"});
+  var seen=new Map();
+  els.forEach(function(el){
+    var n=seen.get(el.parentNode)||0; seen.set(el.parentNode,n+1);
+    el.style.setProperty("--rv-d",(Math.min(n,4)*0.09).toFixed(2)+"s");
+    io.observe(el);
+  });
+})();
+</script>
 </body>
 </html>
