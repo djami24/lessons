@@ -203,10 +203,10 @@
     S.groupId = (opts && opts.groupId) || '';
     root.innerHTML =
       '<div class="lhw-head"><div>' +
-        '<h1>Listening marafon</h1>' +
-        '<p>Mashqni oching, bo‘sh joylarni to‘ldiring va topshiring. Har bir to‘g‘ri javob — 1 ball.</p>' +
+        '<h1>Exercises</h1>' +
+        '<p>Mashqni oching, bo‘sh joylarni to‘ldiring va topshiring.</p>' +
       '</div></div>' +
-      '<div class="lhw-banner"><span class="lhw-banner-ico">🏆</span><div>Jami <b>12 ta marafon</b> bo‘ladi. Oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div></div>' +
+      '<div class="lhw-banner"><span class="lhw-banner-ico">🏆</span><div><b>Abduraxmonova Mufazzalxon</b> listening marafon g‘olibi bo‘ldilar!<br>Marafon o‘z nihoyasiga yetdi. Qolgan vazifalarga mukofot berilmaydi. Har bir qilinmagan listening uchun <b>100 ta jazo</b>.</div></div>' +
       '<div id="lhwStudentBody"><p class="lhw-muted">Yuklanmoqda…</p></div>';
     if (!S.uid) return;
 
@@ -326,7 +326,7 @@
         var o = overallRank();
         return o ? '<div class="lhw-total-meta">🏅 Umumiy o‘rin: ' + o.rank + '-o‘rin / ' + o.of + '</div>' : '';
       })() + '</div>';
-    body.innerHTML = summary + '<div class="lhw-list">' + visibleList.map(function (ex, i) {
+    body.innerHTML = '<div class="lhw-list">' + visibleList.map(function (ex, i) {
       var sub = S.subs[ex.id];
       var dl = isClosed(ex) ? null : deadlineOf(ex), expired = isLocked(ex);
       var timer = '';
