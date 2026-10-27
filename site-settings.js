@@ -36,7 +36,7 @@
     if(!url) return;
     const safeUrl = url.replace(/"/g, '&quot;');
     document.querySelectorAll('[data-site-hero-visual]').forEach(el => {
-      el.innerHTML = `<img src="${safeUrl}" alt="" style="width:100%;height:100%;object-fit:cover;">`;
+      el.innerHTML = `<img src="${safeUrl}" alt="" fetchpriority="high" decoding="async" style="width:100%;height:100%;object-fit:cover;">`;
     });
   }
 
@@ -556,14 +556,13 @@
   const SETTINGS_CACHE_KEY = 'efSiteSettingsCache';
 
   // ---- Welcome loading overlay (#siteLoadingOverlay, if present on the
-  // page) — kept up for a short minimum time so "Xush kelibsiz!" is
-  // actually readable, and hidden as soon as branding is ready. If a
+  // page) — shown as a skeleton screen (no artificial minimum time) and hidden as soon as branding is ready. If a
   // cached copy of the settings exists that happens almost instantly; on
   // a visitor's very first-ever visit (no cache yet) it stays up until
   // the real Firestore fetch below finishes, with a safety-net timeout so
   // it never gets stuck if the network is slow or offline. ----
   const OVERLAY_SHOWN_AT = Date.now();
-  const MIN_OVERLAY_MS = 500;
+  const MIN_OVERLAY_MS = 0;
   let overlayHidden = false;
   function hideLoadingOverlay(){
     if(overlayHidden) return;
@@ -637,7 +636,7 @@
     const hadCache = applyCachedSettings();
     init();
     if(hadCache) hideLoadingOverlay();
-    setTimeout(hideLoadingOverlay, 4000); // safety net — never leave the overlay stuck up
+    setTimeout(hideLoadingOverlay, 2000); // safety net — never leave the overlay stuck up
     renderPoweredByBadge();
   }
 
