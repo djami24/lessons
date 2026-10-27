@@ -221,6 +221,7 @@
   .btn-s { background: #f1f5f9; color: #374151; border: none; border-radius: 10px; padding: 11px 24px; font-size: .9rem; font-weight: 700; cursor: pointer; transition: background .15s; }
   .btn-s:hover { background: #e2e8f0; }
 </style>
+<link rel="stylesheet" href="../skeleton.css">
 </head>
 <body>
 
@@ -323,7 +324,7 @@
       <button class="mock-filter-btn" onclick="filterMocks('full_mock', this)">Full Mock</button>
     </div>
     <div id="mockListContainer">
-      <div class="mock-loading">⏳ Yuklanmoqda…</div>
+      <div class="mock-loading"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div>
     </div>
   </div>
 
@@ -467,7 +468,7 @@ var _activeFilter = 'all';
 
 async function loadReadingMocks() {
   var container = document.getElementById('mockListContainer');
-  container.innerHTML = '<div class="mock-loading">⏳ Yuklanmoqda…</div>';
+  container.innerHTML = '<div class="mock-loading"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div>';
   try {
     var snap = await db.collection('reading_mocks').get();
     _allMocks = snap.docs
