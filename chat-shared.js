@@ -370,6 +370,72 @@ function chatInWorkHours(){
           tickHtml:(read)=>string, studentName:()=>string,
           afterRender:(listEl,isEmpty)=>void, onSent:()=>void,
           quickReplies:bool, workHours:bool } */
+/* ---------- RASM YUBORISH (chat) ---------- */
+// Rasm telefonda/kompyuterda siqiladi (maks. 1280px, JPEG) va xabar bilan
+// birga Firestore'ga data-URL sifatida saqlanadi (Storage kerak emas).
+const CHAT_IMG_MAX_CHARS = 230000;   // ~170 KB — Firestore hujjat limiti (1 MB) dan ancha past
+
+function chatCompressImage(file){
+  return new Promise((resolve, reject) => {
+    if(!file || !/^image\//.test(file.type)) return reject(new Error('type'));
+    if(file.size > 25 * 1024 * 1024) return reject(new Error('big'));
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const w = img.naturalWidth, h = img.naturalHeight;
+      if(!w || !h) return reject(new Error('bad'));
+      let scale = Math.min(1, 1280 / Math.max(w, h)), q = 0.8;
+      for(let i = 0; i < 9; i++){
+        const cw = Math.max(1, Math.round(w * scale)), ch = Math.max(1, Math.round(h * scale));
+        const c = document.createElement('canvas');
+        c.width = cw; c.height = ch;
+        const x = c.getContext('2d');
+        x.fillStyle = '#fff'; x.fillRect(0, 0, cw, ch);
+        x.drawImage(img, 0, 0, cw, ch);
+        const out = c.toDataURL('image/jpeg', q);
+        if(out.length <= CHAT_IMG_MAX_CHARS) return resolve({ data: out, w: cw, h: ch });
+        if(q > 0.55) q -= 0.1; else scale *= 0.8;
+      }
+      reject(new Error('big'));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('bad')); };
+    img.src = url;
+  });
+}
+
+function chatOpenLightbox(src){
+  const box = document.createElement('div');
+  box.className = 'chat-lightbox';
+  const im = document.createElement('img');
+  im.src = src; im.alt = 'Rasm';
+  box.appendChild(im);
+  const close = () => { box.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = e => { if(e.key === 'Escape') close(); };
+  box.addEventListener('click', close);
+  document.addEventListener('keydown', onKey);
+  document.body.appendChild(box);
+}
+
+(function injectChatImageStyles(){
+  if(document.getElementById('chatImageStyles')) return;
+  const st = document.createElement('style');
+  st.id = 'chatImageStyles';
+  st.textContent =
+    '.chat-attach-btn{flex-shrink:0;width:40px;height:40px;border:0;background:transparent;color:var(--gray,#6b7280);border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0}' +
+    '.chat-attach-btn:hover{background:rgba(120,130,160,.15)}' +
+    '.chat-img-preview{display:flex;align-items:center;gap:10px;padding:8px 12px;border-top:1.5px solid var(--line,#e5e7eb)}' +
+    '.chat-img-preview[hidden]{display:none}' +
+    '.chat-img-preview img{width:56px;height:56px;object-fit:cover;border-radius:10px;background:rgba(128,128,128,.15)}' +
+    '.chat-img-preview span{flex:1;font-size:.85rem;opacity:.75}' +
+    '.chat-img-preview button{border:0;background:rgba(120,130,160,.18);color:inherit;width:28px;height:28px;border-radius:50%;cursor:pointer}' +
+    '.chat-msg-img{display:block;width:min(240px,100%);height:auto;border-radius:12px;cursor:zoom-in;margin-bottom:4px;background:rgba(128,128,128,.15)}' +
+    '.chat-msg-bubble .chat-msg-img:last-child{margin-bottom:0}' +
+    '.chat-lightbox{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}' +
+    '.chat-lightbox img{max-width:100%;max-height:100%;border-radius:8px}';
+  document.head.appendChild(st);
+})();
+
 function createChatController(cfg){
   const role = cfg.role;
   const PAGE = 50, BIG = 1000;
@@ -377,6 +443,7 @@ function createChatController(cfg){
   let chatRef = null, unsub = null, unsubMeta = null;
   let limit = PAGE, docs = [], first = true, loadingOlder = false;
   let replyTarget = null, editTarget = null, query = '', pinned = null;
+  let pendingImg = null, imgBusy = false;
   let missed = 0, lastId = null, pendingJump = null, ctx = {};
 
   const host = listEl.parentNode;
@@ -447,6 +514,9 @@ function createChatController(cfg){
           chatEsc(d.replyTo.senderRole === role ? 'Siz' : otherName()) + '</span>' + chatEsc(d.replyTo.text || '') + '</div>'
         : '';
       const body = d.deleted ? '<span class="is-deleted">Xabar o‘chirildi</span>' : chatLinkify(d.text || '', q);
+      const imgHtml = (!d.deleted && typeof d.image === 'string' && d.image.indexOf('data:image/') === 0)
+        ? '<img class="chat-msg-img" src="' + d.image + '" alt="Rasm"' + (d.imgW > 0 && d.imgH > 0 ? ' width="' + (+d.imgW) + '" height="' + (+d.imgH) + '" style="aspect-ratio:' + (+d.imgW) + '/' + (+d.imgH) + '"' : '') + '>'
+        : '';
       const rx = d.reactions ? Object.keys(d.reactions).filter(k => d.reactions[k]).map(k => '<span class="chat-react-chip" title="' + (k === role ? 'Siz' : otherName()) + '">' + chatEsc(d.reactions[k]) + '</span>').join('') : '';
       let acts = '';
       if(!d.deleted && !pending){
@@ -461,7 +531,7 @@ function createChatController(cfg){
       parts.push('<div class="chat-msg-row' + (mine ? ' is-mine' : '') + '" data-msg-id="' + doc.id + '">' +
         (mine ? '' : cfg.otherAvatarHtml()) +
         '<div class="chat-msg ' + (mine ? 'chat-msg-student' : 'chat-msg-teacher') + '">' +
-        '<div class="chat-msg-bubble">' + quote + body + '</div>' +
+        '<div class="chat-msg-bubble">' + quote + imgHtml + body + '</div>' +
         (rx ? '<div class="chat-react-row">' + rx + '</div>' : '') +
         '<div class="chat-msg-meta">' + (d.edited && !d.deleted ? '<span class="chat-msg-edited">tahrirlangan</span> ' : '') + time + ' ' + tick + '</div></div>' +
         '<div class="chat-msg-actions">' + acts + '</div></div>');
@@ -532,6 +602,8 @@ function createChatController(cfg){
   document.addEventListener('click', closeReactBar);
 
   listEl.addEventListener('click', e => {
+    const im = e.target.closest('.chat-msg-img');
+    if(im){ chatOpenLightbox(im.src); return; }
     const jq = e.target.closest('[data-jump]');
     if(jq){ jumpTo(jq.dataset.jump); return; }
     if(e.target === olderBtn){ loadingOlder = true; limit += PAGE; subscribe(); return; }
@@ -556,7 +628,7 @@ function createChatController(cfg){
     const act = btn.dataset.act;
     if(act === 'reply'){
       cancel();
-      replyTarget = { id:id, text:truncateForReply(d.text), senderRole:d.senderRole };
+      replyTarget = { id:id, text:truncateForReply(d.text || (d.image ? '📷 Rasm' : '')), senderRole:d.senderRole };
       showReplyBox(d.senderRole === role ? 'Siz' : otherName(), replyTarget.text);
       inputEl.focus();
     } else if(act === 'react'){
@@ -569,7 +641,7 @@ function createChatController(cfg){
       inputEl.focus();
     } else if(act === 'del'){
       if(confirm('Bu xabar o‘chirilsinmi?')){
-        chatRef.collection('messages').doc(id).update({ deleted:true, text:'', edited:false, reactions:firebase.firestore.FieldValue.delete() }).catch(() => alert('O‘chirib bo‘lmadi.'));
+        chatRef.collection('messages').doc(id).update({ deleted:true, text:'', edited:false, reactions:firebase.firestore.FieldValue.delete(), image:firebase.firestore.FieldValue.delete(), imgW:firebase.firestore.FieldValue.delete(), imgH:firebase.firestore.FieldValue.delete() }).catch(() => alert('O‘chirib bo‘lmadi.'));
       }
     } else if(act === 'pin'){
       chatRef.set({ pinned:{ id:id, text:truncateForReply(d.text, 120) } }, { merge:true }).catch(() => {});
@@ -603,13 +675,72 @@ function createChatController(cfg){
     pinEl.innerHTML = '<span>📌 ' + chatEsc(pinned.text || '') + '</span>' + (role === 'teacher' ? '<button type="button" title="Qadashni olib tashlash">✕</button>' : '');
   }
 
+  // ----- Rasm biriktirish -----
+  const inputRow = inputEl.closest('.chat-input-row');
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.hidden = true;
+  const attachBtn = document.createElement('button');
+  attachBtn.type = 'button'; attachBtn.className = 'chat-attach-btn';
+  attachBtn.title = 'Rasm yuborish'; attachBtn.setAttribute('aria-label', 'Rasm yuborish');
+  attachBtn.innerHTML = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg>';
+  const prevEl = document.createElement('div');
+  prevEl.className = 'chat-img-preview'; prevEl.hidden = true;
+  prevEl.innerHTML = '<img alt=""><span></span><button type="button" title="Olib tashlash" aria-label="Olib tashlash">✕</button>';
+  if(inputRow){
+    inputRow.insertBefore(attachBtn, inputEl);
+    inputRow.appendChild(fileInput);
+    inputRow.parentNode.insertBefore(prevEl, inputRow);
+  }
+  const prevImg = prevEl.querySelector('img'), prevTxt = prevEl.querySelector('span');
+
+  function setPending(img){
+    pendingImg = img;
+    prevImg.src = img.data; prevTxt.textContent = 'Rasm yuborishga tayyor';
+    prevEl.hidden = false;
+  }
+  function clearImg(){
+    pendingImg = null; imgBusy = false;
+    prevEl.hidden = true; prevImg.removeAttribute('src'); fileInput.value = '';
+  }
+  async function pickFile(file){
+    if(!file) return;
+    if(editTarget){ alert('Tahrirlash paytida rasm biriktirib bo‘lmaydi.'); return; }
+    imgBusy = true; pendingImg = null;
+    prevImg.removeAttribute('src'); prevTxt.textContent = 'Rasm tayyorlanmoqda…'; prevEl.hidden = false;
+    try{
+      const out = await chatCompressImage(file);
+      imgBusy = false;
+      setPending(out);
+    }catch(err){
+      clearImg();
+      alert(err && err.message === 'type' ? 'Faqat rasm yuborish mumkin.' :
+            err && err.message === 'big' ? 'Rasm juda katta. Boshqa rasm tanlang.' :
+            'Rasmni o‘qib bo‘lmadi. Boshqa rasm tanlang.');
+    }
+    fileInput.value = '';
+  }
+  attachBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => pickFile(fileInput.files && fileInput.files[0]));
+  prevEl.querySelector('button').addEventListener('click', clearImg);
+  inputEl.addEventListener('paste', e => {
+    const items = (e.clipboardData && e.clipboardData.items) || [];
+    for(let i = 0; i < items.length; i++){
+      if(items[i].kind === 'file' && /^image\//.test(items[i].type)){
+        e.preventDefault(); pickFile(items[i].getAsFile()); return;
+      }
+    }
+  });
+
   // ----- Yuborish -----
   async function send(){
     const text = inputEl.value.trim();
-    if(!text || !chatRef) return;
+    if(!chatRef || imgBusy) return;
+    if(editTarget ? !text : (!text && !pendingImg)) return;
     const ref = chatRef;
     const edit = editTarget, reply = replyTarget;
+    const img = edit ? null : pendingImg;
     inputEl.value = '';
+    clearImg();
     cancel();
     if(cfg.onSent) cfg.onSent();
     inputEl.focus();
@@ -624,17 +755,19 @@ function createChatController(cfg){
         read: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       if(reply) msg.replyTo = reply;
+      if(img){ msg.image = img.data; msg.imgW = img.w; msg.imgH = img.h; }
       const ts = firebase.firestore.FieldValue.serverTimestamp();
       const inc = firebase.firestore.FieldValue.increment(1);
       const meta = role === 'student'
-        ? { studentId:uid(), studentName:cfg.studentName(), lastMessage:text, lastAt:ts, lastSenderRole:'student', unreadByTeacher:inc, unreadByStudent:0 }
-        : { studentName:ctx.otherName || '', lastMessage:text, lastAt:ts, lastSenderRole:'teacher', unreadByStudent:inc };
+        ? { studentId:uid(), studentName:cfg.studentName(), lastMessage:(text || '📷 Rasm'), lastAt:ts, lastSenderRole:'student', unreadByTeacher:inc, unreadByStudent:0 }
+        : { studentName:ctx.otherName || '', lastMessage:(text || '📷 Rasm'), lastAt:ts, lastSenderRole:'teacher', unreadByStudent:inc };
       const b = db.batch();
       b.set(ref.collection('messages').doc(), msg);
       b.set(ref, meta, { merge:true });
       await b.commit();
     } catch(err){
       if(!inputEl.value) inputEl.value = text;
+      if(img) setPending(img);
       alert('Xabar yuborilmadi. Internetni tekshirib, qayta urinib ko‘ring.');
     }
   }
@@ -681,7 +814,7 @@ function createChatController(cfg){
       chatRef = db.collection('chats').doc(chatId);
       limit = PAGE; docs = []; first = true; missed = 0; lastId = null; query = ''; pinned = null;
       searchInput.value = ''; searchInput.hidden = true;
-      cancel(); updateHours(); renderPinned();
+      cancel(); clearImg(); updateHours(); renderPinned();
       subscribe();
       unsubMeta = chatRef.onSnapshot(doc => { pinned = doc.exists ? (doc.data().pinned || null) : null; renderPinned(); }, () => {});
     },
