@@ -652,6 +652,8 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <link rel="stylesheet" href="../listening-hw.css">
 <link rel="stylesheet" href="../glass-admin.css">
 <link rel="stylesheet" href="../skeleton.css">
+<style>html.av-restoring #view-home{display:none !important}html.av-restoring .admin-main::before{content:"";display:block;height:240px;margin:8px 0;border-radius:16px;background-color:var(--sk-base,#e6e9f0);background-image:linear-gradient(90deg,transparent,var(--sk-shine,#f5f6fa),transparent);background-size:300px 100%;background-repeat:no-repeat;animation:skShimmer 1.3s ease-in-out infinite}</style>
+<script>try{var __v=sessionStorage.getItem('adminLastView');if(__v&&__v!=='home'){document.documentElement.classList.add('av-restoring');setTimeout(function(){document.documentElement.classList.remove('av-restoring')},10000);}}catch(e){}</script>
 </head>
 
 <body class="admin-theme">
@@ -4548,6 +4550,10 @@ const ADMIN_VIEW_NAV_MAP = {
 };
 
 function restoreLastAdminView(){
+  try{ _restoreLastAdminView(); } finally { document.documentElement.classList.remove('av-restoring'); }
+}
+
+function _restoreLastAdminView(){
   let saved;
   try{ saved = sessionStorage.getItem('adminLastView'); }catch(err){ saved = null; }
   if(!saved || saved === 'home') return;
