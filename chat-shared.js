@@ -873,3 +873,78 @@ function createChatController(cfg){
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
+
+// Kompyuterda: chatlar ro'yxati kengligini sichqoncha bilan surib o'zgartirish (Telegram kabi).
+// Kenglik brauzerda eslab qolinadi; ikki marta bosilsa asl holatiga qaytadi.
+(function initChatListResizer(){
+  const KEY = 'djamiChatListW';
+  const st = document.createElement('style');
+  st.textContent =
+    '@media (min-width:761px){.chat-grid.is-resizable{grid-template-columns:var(--chat-list-w,300px) minmax(0,1fr) !important}}' +
+    '.chat-resizer{display:none;position:absolute;top:0;bottom:0;width:12px;margin-left:-6px;cursor:col-resize;z-index:5;touch-action:none}' +
+    '@media (min-width:761px){.chat-resizer{display:block}}' +
+    '.chat-resizer::after{content:"";position:absolute;left:5px;top:0;bottom:0;width:2px;background:transparent;transition:background .15s}' +
+    '.chat-resizer:hover::after,.chat-resizer.is-drag::after{background:rgba(59,130,246,.75)}' +
+    'body.chat-resizing{cursor:col-resize !important;user-select:none !important}';
+  document.head.appendChild(st);
+
+  function setup(grid){
+    if(grid.dataset.rsz) return;
+    const list = grid.querySelector(':scope > .chat-panel-list');
+    if(!list) return;
+    grid.dataset.rsz = '1';
+    grid.style.position = 'relative';
+    const h = document.createElement('div');
+    h.className = 'chat-resizer';
+    h.title = 'Kengligini o‘zgartirish (ikki marta bosing — asl holatiga qaytadi)';
+    grid.appendChild(h);
+
+    const clamp = w => {
+      const max = grid.clientWidth ? Math.min(620, grid.clientWidth * 0.6) : 620;
+      return Math.round(Math.max(240, Math.min(w, max)));
+    };
+    const apply = w => { grid.classList.add('is-resizable'); grid.style.setProperty('--chat-list-w', w + 'px'); };
+    const place = () => {
+      const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+      h.style.left = (list.offsetLeft + list.offsetWidth + gap / 2) + 'px';
+    };
+
+    let saved = 0;
+    try{ saved = parseInt(localStorage.getItem(KEY), 10) || 0; }catch(e){}
+    if(saved) apply(clamp(saved));
+    if(window.ResizeObserver) new ResizeObserver(place).observe(list);
+    window.addEventListener('resize', place);
+    place();
+
+    h.addEventListener('pointerdown', e => {
+      if(e.button !== 0) return;
+      e.preventDefault();
+      h.setPointerCapture(e.pointerId);
+      h.classList.add('is-drag');
+      document.body.classList.add('chat-resizing');
+      const left = grid.getBoundingClientRect().left;
+      let last = 0;
+      const move = ev => { last = clamp(ev.clientX - left); apply(last); place(); };
+      const up = () => {
+        h.removeEventListener('pointermove', move);
+        h.removeEventListener('pointerup', up);
+        h.removeEventListener('pointercancel', up);
+        h.classList.remove('is-drag');
+        document.body.classList.remove('chat-resizing');
+        if(last){ try{ localStorage.setItem(KEY, String(last)); }catch(e){} }
+      };
+      h.addEventListener('pointermove', move);
+      h.addEventListener('pointerup', up);
+      h.addEventListener('pointercancel', up);
+    });
+    h.addEventListener('dblclick', () => {
+      grid.classList.remove('is-resizable');
+      grid.style.removeProperty('--chat-list-w');
+      try{ localStorage.removeItem(KEY); }catch(e){}
+      place();
+    });
+  }
+
+  function init(){ document.querySelectorAll('.chat-grid').forEach(setup); }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
