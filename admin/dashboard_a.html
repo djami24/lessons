@@ -1034,6 +1034,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <button class="btn btn-primary btn-sm" id="statsWinnerBtn" title="Tanlangan oy (va guruh) bo'yicha eng yuqori ballli o'quvchiga tabrik rasmi tayyorlash"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Oy o'quvchisi</button>
           <button class="btn btn-ghost btn-sm" id="statsShotAllBtn" title="Diqqat talab qiladi, Eng faol, Yaxshilanganlar va Pasayganlar — hammasini bitta rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm (hammasi)</button>
           <button class="btn btn-ghost btn-sm" id="statsExportBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Excel</button>
+          <button class="btn btn-primary btn-sm" id="statsGroupReportBtn" title="Guruhni tanlab, uning oylik statistika hisobotini ko'rish"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Guruh hisoboti</button>
           <a class="btn btn-primary btn-sm" href="https://lucent-cranachan-4e0ef2.netlify.app/" target="_blank" rel="noopener noreferrer" id="statsFinanceBtn">Finance</a>
         </div>
       </div>
@@ -2700,6 +2701,23 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
 <!-- ===== MODAL: Add O'quv Jarayoni Group ===== -->
 <!-- ===== MODAL: Ustoz guruhlari va natijalari ===== -->
+<div class="modal-overlay" id="modalGroupReport" hidden>
+<div class="modal-box" style="max-width:860px;width:96vw;max-height:92vh;overflow:auto;">
+<h2 class="modal-title">Guruh hisoboti</h2>
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+  <select id="grpRepGroup" class="st-select" aria-label="Guruh"><option value="">Guruhni tanlang…</option></select>
+  <select id="grpRepMonth" class="st-select rp-month-select" aria-label="Oy"></select>
+</div>
+<div id="grpRepBody" style="background:#fff;border:1px solid rgba(128,128,128,.25);border-radius:12px;overflow-x:auto;color:#1c1c22;">
+  <p style="padding:28px;text-align:center;color:#777;margin:0;">Hisobotni ko'rish uchun guruhni tanlang.</p>
+</div>
+<div class="modal-actions" style="margin-top:14px;">
+  <button class="btn btn-primary" id="grpRepPdfBtn" hidden>PDF yuklab olish</button>
+  <button class="btn btn-ghost" onclick="closeModal('modalGroupReport')">Yopish</button>
+</div>
+</div>
+</div>
+
 <div class="modal-overlay" id="modalTeacherGroups" hidden>
   <div class="modal-box" style="max-width:920px;width:94vw;max-height:90vh;overflow:auto;">
     <h2 class="modal-title" id="tgTitle">Ustoz guruhlari</h2>
@@ -11901,6 +11919,55 @@ if (rpStudentBtn) rpStudentBtn.addEventListener('click', () => rpRun(rpStudentBt
   await ojAppendStudentReportToPdf(pdf, rpStudentHtml(m, m.studs[0]), true);
   pdf.save((_ojActiveStudentName || 'talaba') + ' - ' + rpLabel(_rpMonth) + '.pdf');
 }));
+
+// ----- 4) Statistika: "Guruh hisoboti" — guruh tanlanadi, hisobot (PDF 1-sahifasi kabi) ekranda chiqadi -----
+let _grpRepGroups = [], _grpRepToken = 0;
+async function grpRepRender(){
+  const sel = document.getElementById('grpRepGroup'), body = document.getElementById('grpRepBody'), pdfBtn = document.getElementById('grpRepPdfBtn');
+  const g = _grpRepGroups.find(x => x.id === sel.value);
+  if (!g) {
+    pdfBtn.hidden = true;
+    body.innerHTML = '<p style="padding:28px;text-align:center;color:#777;margin:0;">Hisobotni ko\'rish uchun guruhni tanlang.</p>';
+    return;
+  }
+  const token = ++_grpRepToken;
+  pdfBtn.hidden = true;
+  body.innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda" style="padding:24px;"><i></i><i></i><i></i><i></i></div>';
+  try {
+    const emap = await rpFetchEntries(g.students, rpRange(rpPrevYm(_rpMonth)).from);
+    if (token !== _grpRepToken) return;           // shu orada boshqa guruh/oy tanlangan bo'lsa — eskisini tashlab yuboramiz
+    body.innerHTML = rpGroupHtml(rpGroupModel(g, g.students, emap, _rpMonth));
+    pdfBtn.hidden = false;
+  } catch (err) {
+    console.error(err);
+    if (token === _grpRepToken) body.innerHTML = '<p style="padding:28px;text-align:center;color:#c0392b;margin:0;">Hisobotni yuklashda xatolik yuz berdi.</p>';
+  }
+}
+async function grpRepOpen(){
+  openModal('modalGroupReport');
+  const sel = document.getElementById('grpRepGroup');
+  const keep = (document.getElementById('statsGroupFilter') || {}).value || '';
+  sel.innerHTML = '<option value="">Yuklanmoqda…</option>';
+  try { _grpRepGroups = (await homeFetchGroupsWithStudents()).filter(g => g.students.length); }
+  catch (err) { console.error(err); _grpRepGroups = []; }
+  sel.innerHTML = '<option value="">Guruhni tanlang…</option>' +
+    _grpRepGroups.map(g => '<option value="' + escapeHtml(g.id) + '">' + escapeHtml(g.name) + '</option>').join('');
+  if (keep && _grpRepGroups.some(g => g.id === keep)) sel.value = keep;   // statistikada guruh tanlangan bo'lsa — o'sha oldindan tanlanadi
+  document.getElementById('grpRepMonth').value = _rpMonth;
+  grpRepRender();
+}
+document.getElementById('statsGroupReportBtn').addEventListener('click', grpRepOpen);
+document.getElementById('grpRepGroup').addEventListener('change', grpRepRender);
+document.getElementById('grpRepMonth').addEventListener('change', e => { _rpMonth = e.target.value; grpRepRender(); });
+(function(){
+  const btn = document.getElementById('grpRepPdfBtn');
+  btn.addEventListener('click', () => rpRun(btn, async prog => {
+    const g = _grpRepGroups.find(x => x.id === document.getElementById('grpRepGroup').value);
+    if (!g) return;
+    const pdf = await rpMakeReport([g], _rpMonth, true, prog);
+    pdf.save(g.name + ' - ' + rpLabel(_rpMonth) + ' - hisobot.pdf');
+  }));
+})();
 
 rpInitMonthSelects();
 
