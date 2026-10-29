@@ -2712,7 +2712,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
   <p style="padding:28px;text-align:center;color:#777;margin:0;">Hisobotni ko'rish uchun guruhni tanlang.</p>
 </div>
 <div class="modal-actions" style="margin-top:14px;">
-  <button class="btn btn-primary" id="grpRepPdfBtn" hidden>PDF yuklab olish</button>
+  <button class="btn btn-primary" id="grpRepPdfBtn" hidden>Rasm yuklab olish</button>
   <button class="btn btn-ghost" onclick="closeModal('modalGroupReport')">Yopish</button>
 </div>
 </div>
@@ -11921,7 +11921,7 @@ if (rpStudentBtn) rpStudentBtn.addEventListener('click', () => rpRun(rpStudentBt
 }));
 
 // ----- 4) Statistika: "Guruh hisoboti" — guruh tanlanadi, hisobot (PDF 1-sahifasi kabi) ekranda chiqadi -----
-let _grpRepGroups = [], _grpRepToken = 0;
+let _grpRepGroups = [], _grpRepToken = 0, _grpRepHtml = '';
 async function grpRepRender(){
   const sel = document.getElementById('grpRepGroup'), body = document.getElementById('grpRepBody'), pdfBtn = document.getElementById('grpRepPdfBtn');
   const g = _grpRepGroups.find(x => x.id === sel.value);
@@ -11936,7 +11936,8 @@ async function grpRepRender(){
   try {
     const emap = await rpFetchEntries(g.students, rpRange(rpPrevYm(_rpMonth)).from);
     if (token !== _grpRepToken) return;           // shu orada boshqa guruh/oy tanlangan bo'lsa — eskisini tashlab yuboramiz
-    body.innerHTML = rpGroupHtml(rpGroupModel(g, g.students, emap, _rpMonth));
+    _grpRepHtml = rpGroupHtml(rpGroupModel(g, g.students, emap, _rpMonth));
+    body.innerHTML = _grpRepHtml;
     pdfBtn.hidden = false;
   } catch (err) {
     console.error(err);
@@ -11961,11 +11962,18 @@ document.getElementById('grpRepGroup').addEventListener('change', grpRepRender);
 document.getElementById('grpRepMonth').addEventListener('change', e => { _rpMonth = e.target.value; grpRepRender(); });
 (function(){
   const btn = document.getElementById('grpRepPdfBtn');
+  // Faqat tanlangan guruhning hisobot sahifasi (PDFdagi 1-sahifa) — bitta PNG rasm sifatida
   btn.addEventListener('click', () => rpRun(btn, async prog => {
     const g = _grpRepGroups.find(x => x.id === document.getElementById('grpRepGroup').value);
-    if (!g) return;
-    const pdf = await rpMakeReport([g], _rpMonth, true, prog);
-    pdf.save(g.name + ' - ' + rpLabel(_rpMonth) + ' - hisobot.pdf');
+    if (!g || !_grpRepHtml) return;
+    prog('Rasm tayyorlanmoqda…');
+    const canvas = await ojRenderNodeToCanvas(_grpRepHtml);
+    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+    if (!blob) throw new Error('toBlob');
+    const url = URL.createObjectURL(blob), a = document.createElement('a');
+    a.href = url; a.download = g.name + ' - ' + rpLabel(_rpMonth) + ' - hisobot.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
   }));
 })();
 
