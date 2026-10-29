@@ -159,6 +159,15 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 
 /* ====== STATISTIKA (yangi) ====== */
 .st-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.st-controls.st-toolbar{flex-direction:column;align-items:stretch;gap:10px;}
+.st-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.st-actions{padding-top:10px;border-top:1px solid rgba(120,130,160,.22);}
+.st-actions .st-cap{font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;opacity:.55;margin-right:4px;}
+.st-actions #statsFinanceBtn{margin-left:auto;}
+#statsPeriodPicker{display:inline-flex;flex-wrap:nowrap;gap:2px;padding:3px;background:rgba(120,130,160,.13);border-radius:999px;}
+#statsPeriodPicker .stats-period-btn{border:0;background:transparent;box-shadow:none;border-radius:999px;}
+#statsPeriodPicker .stats-period-btn.active{background:var(--adm-blue,var(--teal));color:#fff;}
+@media (max-width:700px){#statsPeriodPicker{flex-wrap:wrap;border-radius:16px;}.st-actions #statsFinanceBtn{margin-left:0;}}
 .st-select{padding:7px 12px;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;background:var(--paper);color:var(--adm-ink,var(--ink));font:inherit;font-size:.85rem;font-weight:600;max-width:200px;}
 .st-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:20px;}
 .st-kpi{background:var(--paper);border:1.5px solid var(--adm-line,var(--line));border-top:4px solid var(--c);border-radius:16px;padding:14px 16px 10px;display:flex;flex-direction:column;gap:2px;}
@@ -1019,23 +1028,28 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <h1><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Statistika</h1>
           <p id="statsSubline">Davomat, uy vazifa va o'quvchilar dinamikasi.</p>
         </div>
-        <div class="st-controls">
-          <select id="statsGroupFilter" class="st-select"><option value="">Barcha guruhlar</option></select>
-          <div class="oj-days-preset-row" id="statsPeriodPicker">
+        <div class="st-controls st-toolbar">
+          <div class="st-row">
+            <select id="statsGroupFilter" class="st-select"><option value="">Barcha guruhlar</option></select>
+            <select class="st-select rp-month-select" id="statsMonthSelect" title="Oyni tanlang — statistika shu oy uchun ko'rsatiladi (PDF hisobot ham shu oy uchun)"></select>
+            <div class="oj-days-preset-row" id="statsPeriodPicker">
             <button class="btn btn-ghost btn-sm stats-period-btn active" data-days="M" title="O'ngdagi ro'yxatdan tanlangan oy — o'tgan oy bilan solishtiriladi"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg> Tanlangan oy</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="L12" title="Har bir guruhning oxirgi 12 ta darsi">12 dars</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="7">7 kun</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="30">30 kun</button>
             <button class="btn btn-ghost btn-sm stats-period-btn" data-days="90">90 kun</button>
           </div>
-          <button class="btn btn-ghost btn-sm" id="statsRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
-          <select class="st-select rp-month-select" id="statsMonthSelect" title="Oyni tanlang — statistika shu oy uchun ko'rsatiladi (PDF hisobot ham shu oy uchun)"></select>
-          <button class="btn btn-primary btn-sm" id="statsMonthPdfBtn" title="Tanlangan oy uchun PDF hisobot (o'tgan oy bilan solishtirilgan)"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
-          <button class="btn btn-primary btn-sm" id="statsWinnerBtn" title="Tanlangan oy (va guruh) bo'yicha eng yuqori ballli o'quvchiga tabrik rasmi tayyorlash"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Oy o'quvchisi</button>
-          <button class="btn btn-ghost btn-sm" id="statsShotAllBtn" title="Diqqat talab qiladi, Eng faol, Yaxshilanganlar va Pasayganlar — hammasini bitta rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm (hammasi)</button>
-          <button class="btn btn-ghost btn-sm" id="statsExportBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Excel</button>
-          <button class="btn btn-primary btn-sm" id="statsGroupReportBtn" title="Guruhni tanlab, uning oylik statistika hisobotini ko'rish"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Guruh hisoboti</button>
-          <a class="btn btn-primary btn-sm" href="https://lucent-cranachan-4e0ef2.netlify.app/" target="_blank" rel="noopener noreferrer" id="statsFinanceBtn">Finance</a>
+            <button class="btn btn-ghost btn-sm" id="statsRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
+          </div>
+          <div class="st-row st-actions">
+            <span class="st-cap">Hisobotlar</span>
+            <button class="btn btn-ghost btn-sm" id="statsGroupReportBtn" title="Guruhni tanlab, uning oylik statistika hisobotini ko'rish"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Guruh hisoboti</button>
+            <button class="btn btn-ghost btn-sm" id="statsMonthPdfBtn" title="Tanlangan oy uchun PDF hisobot (o'tgan oy bilan solishtirilgan)"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button>
+            <button class="btn btn-ghost btn-sm" id="statsWinnerBtn" title="Tanlangan oy (va guruh) bo'yicha eng yuqori ballli o'quvchiga tabrik rasmi tayyorlash"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Oy o'quvchisi</button>
+            <button class="btn btn-ghost btn-sm" id="statsShotAllBtn" title="Diqqat talab qiladi, Eng faol, Yaxshilanganlar va Pasayganlar — hammasini bitta rasm (PNG) qilib yuklab olish"><svg class="ic" aria-hidden="true"><use href="#i-image"></use></svg> Rasm (hammasi)</button>
+            <button class="btn btn-ghost btn-sm" id="statsExportBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Excel</button>
+            <a class="btn btn-primary btn-sm" href="https://lucent-cranachan-4e0ef2.netlify.app/" target="_blank" rel="noopener noreferrer" id="statsFinanceBtn">Finance</a>
+          </div>
         </div>
       </div>
 
