@@ -3041,9 +3041,9 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="crl-ans-grid" id="crlAnsGrid"></div>
         <p class="crl-hint" style="margin-top:6px;">Bir nechta to&#39;g&#39;ri variant bo&#39;lsa <b>/</b> bilan ajrating: <code>colour/color</code>. Katta-kichik harf farq qilmaydi. Enter &mdash; keyingi katak.</p>
       </div>
-      <details>
+      <details open>
         <summary style="cursor:pointer;font-weight:700;font-size:.85rem;">Hammasini birdan qo&#39;yish (paste)</summary>
-        <textarea id="crlBulk" rows="5" style="width:100%;margin-top:8px;padding:.6em;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:inherit;font:inherit;" placeholder="Har qatorga bitta javob (yoki 1. B  2. A ... ko&#39;rinishida)"></textarea>
+        <textarea id="crlBulk" rows="5" style="width:100%;margin-top:8px;padding:.6em;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:inherit;font:inherit;" placeholder="Javoblarni shu yerga tagma-tag qo&#39;ying (har qatorga bitta) va &laquo;Kataklarga joylash&raquo; ni bosing. Yoki to&#39;g&#39;ridan-to&#39;g&#39;ri 1-katakka paste qiling."></textarea>
         <button type="button" class="btn btn-ghost btn-sm" id="crlBulkApply" style="margin-top:6px;">Kataklarga joylash</button>
       </details>
       <div>
@@ -14307,15 +14307,19 @@ const CefrRL = (function(){
     if(!test) setTimeout(() => $('crlTitle').focus(), 80);
   }
 
-  function applyBulk(){
-    let lines = $('crlBulk').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
-    if(lines.length === 1 && lines[0].indexOf(',') >= 0) lines = lines[0].split(',').map(s => s.trim());
-    lines = lines.map(s => s.replace(/^\s*\d{1,2}\s*[.):\-]\s*/, ''));
-    const inputs = ansInputs();
-    lines.slice(0, COUNT).forEach((v, i) => { inputs[i].value = v; });
-    updateFilled();
-    showToast(Math.min(lines.length, COUNT) + ' ta javob joylandi');
+  function parseList(text){
+    let lines = String(text).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if(lines.length === 1) lines = lines[0].split(/[,\t;]+/).map(s => s.trim()).filter(Boolean);
+    return lines.map(s => s.replace(/^\s*\d{1,2}\s*[.):\-]\s*(?=\S)/, ''));
   }
+  function fillFrom(start, lines){
+    const inputs = ansInputs();
+    let n = 0;
+    lines.forEach((v, k) => { if(inputs[start + k]){ inputs[start + k].value = v; n++; } });
+    updateFilled();
+    showToast(n + ' ta javob joylandi');
+  }
+  function applyBulk(){ fillFrom(0, parseList($('crlBulk').value)); }
 
   async function save(){
     const err = $('crlFormError');
@@ -14439,6 +14443,14 @@ const CefrRL = (function(){
     else if(b.dataset.crl === 'del') removeTest(id);
   });
   $('crlAnsGrid').addEventListener('input', updateFilled);
+  // Istalgan katakka ko'p qatorli matn paste qilinsa, shu katakdan boshlab hammasi joylashadi
+  $('crlAnsGrid').addEventListener('paste', e => {
+    const t = (e.clipboardData || window.clipboardData).getData('text');
+    if(!/[\r\n\t,;]/.test(t.trim())) return;
+    e.preventDefault();
+    const inputs = ansInputs();
+    fillFrom(Math.max(0, inputs.indexOf(e.target)), parseList(t));
+  });
   $('crlAnsGrid').addEventListener('keydown', e => {
     if(e.key !== 'Enter' || !e.target.matches('input')) return;
     e.preventDefault();
