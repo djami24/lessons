@@ -239,9 +239,21 @@ body.home-body .hm-nav .home-nav-toggle{ border-radius:14px; }
   body.home-body .hm-nav .home-nav-links a{ padding:.75em 1em; width:auto; }
   body.home-body .hm-nav-login{ padding:.6em 1.05em; font-size:.86rem; }
 }
-@media (max-width:360px){
-  body.home-body .hm-nav-login{ padding:.55em .8em; gap:.35em; }
-  body.home-body .hm-nav .brand{ font-size:.95rem; }
+/* Telefonda: logo yozuvi bir qatorda, sarlavha kichikroq */
+@media (max-width:860px){
+  body.home-body .hm-nav .brand{ font-size:1rem; gap:.5em; white-space:nowrap; min-width:0; flex-shrink:1; }
+  body.home-body .hm-nav .brand-mark{ width:32px; height:32px; }
+  body.home-body .hm-nav .brand > span:last-child{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  body.home-body .hm-nav .home-topbar-links{ flex-shrink:0; }
+}
+@media (max-width:640px){
+  body.home-body .hm-title{ font-size:1.7rem; line-height:1.22; }
+  body.home-body .hm-lead{ font-size:1rem; line-height:1.6; }
+}
+@media (max-width:400px){
+  body.home-body .hm-nav .brand{ font-size:.92rem; }
+  body.home-body .hm-nav-login{ padding:.55em .85em; gap:.4em; font-size:.84rem; }
+  body.home-body .hm-nav .home-nav-toggle{ width:36px; height:36px; }
 }
 </style>
 <script>
