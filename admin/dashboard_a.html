@@ -1956,12 +1956,21 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
                 <span style="font-size:11px;color:var(--gray);">Ekran o&#39;rtasida modal oyna</span>
               </span>
             </label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typeRatingLabel">
+              <input type="radio" name="broadcastType" value="rating" id="typeRating" style="accent-color:#2563eb;">
+              <span>
+                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true" viewBox="0 0 24 24" style="fill:currentColor;stroke:none;"><path d="M12 2.5l2.94 5.96 6.58.96-4.76 4.64 1.12 6.55L12 17.52l-5.88 3.09 1.12-6.55L2.48 9.42l6.58-.96L12 2.5z"/></svg> Baholash</span><br>
+                <span style="font-size:11px;color:var(--gray);">5 yulduzli baho so&#39;rash oynasi</span>
+              </span>
+            </label>
           </div>
         </label>
         <p id="broadcastStatus" style="margin:.6em 0 0;font-size:.9rem;color:var(--gray);"></p>
         <div style="margin-top:1em;">
           <button class="btn btn-amber" id="broadcastSendBtn">Yuborish</button>
         </div>
+
+        <div id="ratingSummaryBox" style="margin-top:2em;"></div>
 
         <div style="margin-top:2em;">
           <h3 style="margin:0 0 .8em;">Yuborilgan xabarlar</h3>
@@ -10242,11 +10251,101 @@ document.getElementById('navBroadcast').addEventListener('click', (e) => {
   loadBroadcastHistory();
 });
 
+// ---- Baholash (yulduzcha) yordamchilari ----
+const RATING_STAR_PATH = 'M12 2.5l2.94 5.96 6.58.96-4.76 4.64 1.12 6.55L12 17.52l-5.88 3.09 1.12-6.55L2.48 9.42l6.58-.96L12 2.5z';
+function ratingStarsRow(n, size){
+  size = size || 16;
+  let h = '';
+  for(let i = 1; i <= 5; i++){
+    h += '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" aria-hidden="true" style="flex-shrink:0;fill:currentColor;color:' + (i <= Math.round(n) ? '#f59e0b' : 'var(--line)') + ';"><path d="' + RATING_STAR_PATH + '"/></svg>';
+  }
+  return '<span style="display:inline-flex;gap:2px;vertical-align:middle;" aria-label="' + n + ' / 5">' + h + '</span>';
+}
+
+// Barcha "rating" turidagi xabarlar va ularning baholarini o'qiydi: { notifId: [ {id, stars, name, ...} ] }
+async function loadRatingData(){
+  try{
+    const out = {};
+    const nsnap = await db.collection('notifications').where('displayType','==','rating').get();
+    await Promise.all(nsnap.docs.map(async nd => {
+      const rs = await nd.ref.collection('ratings').get();
+      out[nd.id] = rs.docs.map(r => Object.assign({ id: r.id }, r.data()));
+    }));
+    return out;
+  } catch(err){
+    console.warn('Baholarni o‘qib bo‘lmadi:', err);
+    return null;
+  }
+}
+
+function ratingAvg(list){
+  if(!list.length) return 0;
+  return list.reduce((s, r) => s + (Number(r.stars) || 0), 0) / list.length;
+}
+
+function renderRatingSummary(data){
+  const box = document.getElementById('ratingSummaryBox');
+  if(!box) return;
+  if(!data || !Object.keys(data).length){ box.innerHTML = ''; return; }
+  const all = [].concat.apply([], Object.values(data));
+  if(!all.length){
+    box.innerHTML = '<div style="background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-s);padding:1em;color:var(--gray);">Sayt bahosi: hali hech kim baho bermagan.</div>';
+    return;
+  }
+  const avg = ratingAvg(all);
+  const students = new Set(all.map(r => r.uid || r.id)).size;
+  const counts = [0,0,0,0,0,0];
+  all.forEach(r => { const k = Math.min(5, Math.max(1, Number(r.stars) || 1)); counts[k]++; });
+  const bars = [5,4,3,2,1].map(k => {
+    const pct = Math.round(counts[k] / all.length * 100);
+    return '<div style="display:flex;align-items:center;gap:.6em;font-size:.82rem;">' +
+      '<span style="width:1.2em;text-align:right;">' + k + '</span>' +
+      '<div style="flex:1;height:8px;border-radius:99px;background:var(--line);overflow:hidden;"><div style="width:' + pct + '%;height:100%;background:#f59e0b;"></div></div>' +
+      '<span style="width:5.5em;color:var(--gray);">' + counts[k] + ' ta (' + pct + '%)</span></div>';
+  }).join('');
+  box.innerHTML =
+    '<div style="background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-s);padding:1.1em 1.2em;">' +
+      '<h3 style="margin:0 0 .8em;">Sayt bahosi</h3>' +
+      '<div style="display:flex;gap:1.4em;align-items:center;flex-wrap:wrap;">' +
+        '<div style="text-align:center;min-width:110px;">' +
+          '<div style="font-size:2.6rem;font-weight:800;line-height:1;">' + avg.toFixed(1) + '<span style="font-size:1rem;font-weight:600;color:var(--gray);"> / 5</span></div>' +
+          '<div style="margin-top:.4em;">' + ratingStarsRow(avg, 20) + '</div>' +
+          '<div style="margin-top:.3em;font-size:.8rem;color:var(--gray);">' + all.length + ' ta baho · ' + students + ' ta talaba</div>' +
+        '</div>' +
+        '<div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:.3em;">' + bars + '</div>' +
+      '</div>' +
+    '</div>';
+}
+
+function renderRatingList(list){
+  if(!list.length) return '<p style="margin:.5em 0 0;font-size:.85rem;color:var(--gray);">Hali hech kim baho bermagan.</p>';
+  const sorted = list.slice().sort((x, y) => {
+    const tx = (x.updatedAt || x.createdAt); const ty = (y.updatedAt || y.createdAt);
+    return (ty && ty.toMillis ? ty.toMillis() : 0) - (tx && tx.toMillis ? tx.toMillis() : 0);
+  });
+  return sorted.map(r => {
+    const t = r.updatedAt || r.createdAt;
+    const date = t && t.toDate ? t.toDate().toLocaleString('uz-UZ') : '';
+    return '<div style="display:flex;flex-direction:column;gap:.15em;padding:.55em 0;border-top:1px solid var(--line);">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:.5em;flex-wrap:wrap;">' +
+        '<span><strong>' + escapeHtml(r.name || '—') + '</strong>' + (r.code ? ' <span style="color:var(--gray);font-size:.8rem;">(ID: ' + escapeHtml(String(r.code)) + ')</span>' : '') + '</span>' +
+        '<span style="display:inline-flex;align-items:center;gap:.4em;">' + ratingStarsRow(r.stars, 15) + '<strong>' + escapeHtml(String(r.stars)) + '</strong></span>' +
+      '</div>' +
+      (r.comment ? '<div style="font-size:.88rem;">' + escapeHtml(r.comment) + '</div>' : '') +
+      '<div style="font-size:.75rem;color:var(--gray);">' + date + '</div>' +
+    '</div>';
+  }).join('');
+}
+
 async function loadBroadcastHistory(){
   const listEl = document.getElementById('broadcastHistoryList');
   listEl.innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div>';
   try{
-    const snap = await db.collection('notifications').orderBy('createdAt','desc').limit(20).get();
+    const [snap, ratingData] = await Promise.all([
+      db.collection('notifications').orderBy('createdAt','desc').limit(20).get(),
+      loadRatingData()
+    ]);
+    renderRatingSummary(ratingData);
     if(snap.empty){ listEl.innerHTML = '<p style="color:var(--gray);">Hali xabar yuborilmagan.</p>'; return; }
     listEl.innerHTML = snap.docs.map(doc => {
       const d = doc.data();
@@ -10254,6 +10353,21 @@ async function loadBroadcastHistory(){
       const thumb = d.imageUrl
         ? `<img src="${escapeHtml(d.imageUrl)}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'">`
         : '';
+      const isRating = d.displayType === 'rating';
+      let ratingBlock = '';
+      if(isRating){
+        const list = (ratingData && ratingData[doc.id]) || [];
+        const avg = ratingAvg(list);
+        ratingBlock = `<div style="margin-top:.6em;">
+          <div style="display:flex;align-items:center;gap:.6em;flex-wrap:wrap;">
+            <span style="font-size:.75rem;font-weight:700;color:#b45309;background:rgba(245,158,11,.15);border-radius:99px;padding:.15em .7em;">Baholash</span>
+            ${list.length ? ratingStarsRow(avg, 16) + `<strong>${avg.toFixed(1)}</strong>` : ''}
+            <span style="font-size:.82rem;color:var(--gray);">${list.length} ta baho</span>
+            <button class="btn btn-sm" data-toggle-rate="${doc.id}" style="padding:.2em .7em;">Kim qancha baho berdi</button>
+          </div>
+          <div id="rateList_${doc.id}" hidden style="margin-top:.5em;">${renderRatingList(list)}</div>
+        </div>`;
+      }
       return `<div style="background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-s);padding:.8em 1em;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:.5em;flex-wrap:wrap;">
           <div style="display:flex;align-items:center;gap:.6em;min-width:0;">
@@ -10261,16 +10375,31 @@ async function loadBroadcastHistory(){
             <strong>${escapeHtml(d.title||'')}</strong>
           </div>
           <span style="font-size:.8rem;color:var(--gray);">${date}</span>
-          <button class="btn btn-danger btn-sm" data-del-notif="${doc.id}" style="padding:.2em .6em;">O‘chirish</button>
+          <button class="btn btn-danger btn-sm" data-del-notif="${doc.id}" data-del-rating="${isRating ? '1' : ''}" style="padding:.2em .6em;">O‘chirish</button>
         </div>
         <p style="margin:.4em 0 0;font-size:.9rem;color:var(--gray);">${escapeHtml(d.body||'')}</p>
+        ${ratingBlock}
       </div>`;
     }).join('');
 
+    listEl.querySelectorAll('[data-toggle-rate]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const el = document.getElementById('rateList_' + btn.dataset.toggleRate);
+        if(el) el.hidden = !el.hidden;
+      });
+    });
+
     listEl.querySelectorAll('[data-del-notif]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        if(!confirm("Bu xabarni oʼchirishni tasdiqlaysizmi?")) return;
-        await db.collection('notifications').doc(btn.dataset.delNotif).delete();
+        const isRating = !!btn.dataset.delRating;
+        if(!confirm(isRating ? "Bu xabarni va unga berilgan barcha baholarni oʼchirishni tasdiqlaysizmi?" : "Bu xabarni oʼchirishni tasdiqlaysizmi?")) return;
+        const ref = db.collection('notifications').doc(btn.dataset.delNotif);
+        if(isRating){
+          // Subkolleksiya o'z-o'zidan o'chmaydi — baholarni avval o'chiramiz
+          const rs = await ref.collection('ratings').get();
+          await Promise.all(rs.docs.map(r => r.ref.delete()));
+        }
+        await ref.delete();
         loadBroadcastHistory();
       });
     });
@@ -10281,20 +10410,26 @@ async function loadBroadcastHistory(){
 
 // Broadcast type radio highlight
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('input[name="broadcastType"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      document.getElementById('typeNotifLabel').style.borderColor = document.getElementById('typeNotif').checked ? '#2563eb' : 'var(--line)';
-      document.getElementById('typePopupLabel').style.borderColor = document.getElementById('typePopup').checked ? '#2563eb' : 'var(--line)';
+  const paint = () => {
+    [['typeNotif','typeNotifLabel'],['typePopup','typePopupLabel'],['typeRating','typeRatingLabel']].forEach(([i, l]) => {
+      const inp = document.getElementById(i), lab = document.getElementById(l);
+      if(inp && lab) lab.style.borderColor = inp.checked ? '#2563eb' : 'var(--line)';
     });
-  });
+  };
+  document.querySelectorAll('input[name="broadcastType"]').forEach(radio => radio.addEventListener('change', paint));
 });
 
 document.getElementById('broadcastSendBtn').addEventListener('click', async () => {
-  const title = document.getElementById('broadcastTitle').value.trim();
-  const body = document.getElementById('broadcastBody').value.trim();
+  let title = document.getElementById('broadcastTitle').value.trim();
+  let body = document.getElementById('broadcastBody').value.trim();
   const imageUrl = document.getElementById('broadcastImageUrl').value.trim();
   const statusEl = document.getElementById('broadcastStatus');
   const displayType = (document.querySelector('input[name="broadcastType"]:checked') || {}).value || 'notification';
+  if(displayType === 'rating'){
+    // Baholash uchun sarlavha/matn bo'sh bo'lsa, tayyor matn qo'yiladi
+    if(!title) title = 'Saytni baholang';
+    if(!body) body = 'Sayt sizga qanchalik yoqdi? Yulduzchalarni bosib baho bering.';
+  }
   if(!title || !body){ statusEl.textContent = 'Sarlavha va xabar matni to‘ldirilishi shart.'; return; }
   const btn = document.getElementById('broadcastSendBtn');
   btn.disabled = true;
