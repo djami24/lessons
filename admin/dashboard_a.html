@@ -1931,7 +1931,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         .bc-side{display:flex;flex-direction:column;gap:20px;min-width:0;}
         #ratingSummaryBox:empty{display:none;}
         .bc-type{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 12px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:150px;transition:all .2s;}
-        .bc-type input{margin:3px 0 0;flex-shrink:0;}
+        .bc-type input[type="radio"]{width:auto;height:auto;padding:0;margin:3px 0 0;flex:none;}
         .bc-type .bc-t{display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;line-height:1.3;}
         .bc-type .bc-d{display:block;font-size:11px;color:var(--gray);line-height:1.4;margin-top:3px;font-weight:400;}
         @media (max-width:1100px){.bc-grid{grid-template-columns:1fr;}}
@@ -1950,7 +1950,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <span>Rasm havolasi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy)</span></span>
           <input type="text" id="broadcastImageUrl" placeholder="https://... (rasm manzili)">
         </label>
-        <label class="field" style="margin-top:1em;">
+        <div style="margin-top:1em;display:flex;flex-direction:column;gap:.5em;font-weight:700;font-size:.85rem;">
           <span>Ko&#39;rinish turi</span>
           <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
             <label class="bc-type" id="typeNotifLabel">
@@ -1975,7 +1975,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
               </span>
             </label>
           </div>
-        </label>
+        </div>
         <p id="broadcastStatus" style="margin:.6em 0 0;font-size:.9rem;color:var(--gray);"></p>
         <div style="margin-top:1em;">
           <button class="btn btn-amber" id="broadcastSendBtn">Yuborish</button>
