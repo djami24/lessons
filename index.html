@@ -188,6 +188,59 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
   box-shadow:0 14px 30px -10px rgba(36,92,230,.6), inset 0 1px 0 rgba(255,255,255,.7);
 }
 .home-body .hm-tg:hover .hm-ic{ color:#fff; }
+/* ===== Suzib yuruvchi glassy navbar (bosh sahifa) ===== */
+body.home-body header.home-topbar.hm-nav{
+  position:sticky; top:14px; z-index:60;
+  width:min(1200px,calc(100% - 28px)); max-width:none; margin:14px auto 0; box-sizing:border-box;
+  padding:.5em .55em .5em 1.1em; padding-inline:1.1em .55em;
+  gap:1em; border-radius:22px;
+  background:linear-gradient(135deg,rgba(255,255,255,.68) 0%,rgba(255,255,255,.34) 100%);
+  -webkit-backdrop-filter:blur(22px) saturate(190%); backdrop-filter:blur(22px) saturate(190%);
+  border:1px solid rgba(255,255,255,.88);
+  box-shadow:0 18px 40px -18px rgba(20,33,61,.38), inset 0 1px 0 rgba(255,255,255,.95), inset 0 -1px 0 rgba(255,255,255,.25), inset 0 0 0 1px rgba(46,111,237,.07);
+}
+body.home-body .hm-nav .brand{ font-weight:800; letter-spacing:-.01em; }
+body.home-body .hm-nav .home-nav-links{ flex:1; justify-content:center; gap:.3em; }
+body.home-body .hm-nav .home-nav-links a{
+  padding:.55em 1.05em; border-radius:14px; color:var(--ink-soft);
+  transition:background .18s ease,color .18s ease,box-shadow .18s ease;
+}
+body.home-body .hm-nav .home-nav-links a:hover{ background:rgba(255,255,255,.65); color:var(--ink); box-shadow:inset 0 1px 0 rgba(255,255,255,.9); }
+body.home-body .hm-nav .home-nav-links a.is-current{ background:rgba(46,111,237,.12); color:#1d4fd1; box-shadow:inset 0 0 0 1px rgba(46,111,237,.18); }
+body.home-body .hm-nav .home-nav-links a.is-current::after{ display:none; }
+body.home-body .hm-nav .home-topbar-links{ gap:.5em; }
+/* "Kirish" tugmasi — glassy */
+body.home-body .hm-nav-login{
+  position:relative; overflow:hidden; isolation:isolate;
+  display:inline-flex; align-items:center; gap:.5em; text-decoration:none;
+  padding:.68em 1.3em; border-radius:15px; font-weight:700; font-size:.92rem; color:#fff;
+  background:linear-gradient(135deg,rgba(60,125,255,.80) 0%,rgba(24,72,205,.86) 100%);
+  border:1px solid rgba(255,255,255,.6);
+  -webkit-backdrop-filter:blur(14px) saturate(180%); backdrop-filter:blur(14px) saturate(180%);
+  text-shadow:0 1px 2px rgba(10,35,110,.35);
+  box-shadow:0 12px 26px -10px rgba(36,92,230,.6), inset 0 1px 0 rgba(255,255,255,.65), inset 0 -1px 0 rgba(255,255,255,.12);
+  transition:transform .18s ease,box-shadow .18s ease,filter .18s ease;
+}
+body.home-body .hm-nav-login::before{ content:""; position:absolute; z-index:-1; left:0; right:0; top:0; height:50%; background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0)); }
+body.home-body .hm-nav-login svg{ width:17px; height:17px; flex-shrink:0; }
+body.home-body .hm-nav-login:hover{ transform:translateY(-1px); filter:brightness(1.07); box-shadow:0 16px 30px -10px rgba(36,92,230,.7), inset 0 1px 0 rgba(255,255,255,.7); }
+body.home-body .hm-nav-login:active{ transform:translateY(0); }
+body.home-body .hm-nav .home-nav-toggle{ border-radius:14px; }
+@media (max-width:860px){
+  body.home-body header.home-topbar.hm-nav{ top:10px; margin-top:10px; width:calc(100% - 20px); border-radius:20px; padding:.45em .5em .45em .9em; }
+  body.home-body .hm-nav .home-nav-links{
+    top:calc(100% + 10px); left:0; right:0; flex:none; justify-content:flex-start; align-items:stretch; gap:.2em;
+    padding:.7em; border-radius:20px; border:1px solid rgba(255,255,255,.88);
+    background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(255,255,255,.58));
+    -webkit-backdrop-filter:blur(22px) saturate(190%); backdrop-filter:blur(22px) saturate(190%);
+    box-shadow:0 20px 44px -18px rgba(20,33,61,.4), inset 0 1px 0 rgba(255,255,255,.95);
+  }
+  body.home-body .hm-nav .home-nav-links a{ padding:.75em 1em; width:auto; }
+  body.home-body .hm-nav-login{ padding:.6em 1.05em; font-size:.86rem; }
+}
+@media (max-width:420px){
+  body.home-body .hm-nav-login svg{ display:none; }
+}
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -208,7 +261,7 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
 </div>
 <div id="siteLoadingOverlay"><div class="sk-home" role="status" aria-label="Yuklanmoqda"><div class="sk-nav"><i></i><i></i></div><div class="sk-hero"><div class="sk-copy"><i class="sk-t"></i><i class="sk-t"></i><i class="sk-p"></i><i class="sk-p s"></i><div class="sk-btns"><i></i><i></i></div></div><i class="sk-img"></i></div><div class="sk-stats"><i></i><i></i><i></i><i></i></div></div></div>
 
-<header class="home-topbar">
+<header class="home-topbar hm-nav">
   <a href="./" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
 
   <nav class="home-nav-links" id="homeNavLinks">
@@ -219,6 +272,7 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
   </nav>
 
   <div class="home-topbar-links">
+    <a href="kirish.html?mode=login" class="hm-nav-login"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span data-site-login-btn>Kirish</span></a>
     <button type="button" class="home-nav-toggle" id="homeNavToggle" aria-label="Menyu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
