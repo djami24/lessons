@@ -231,15 +231,17 @@ body.home-body .hm-nav .home-nav-toggle{ border-radius:14px; }
   body.home-body .hm-nav .home-nav-links{
     top:calc(100% + 10px); left:0; right:0; flex:none; justify-content:flex-start; align-items:stretch; gap:.2em;
     padding:.7em; border-radius:20px; border:1px solid rgba(255,255,255,.88);
-    background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(255,255,255,.58));
-    -webkit-backdrop-filter:blur(22px) saturate(190%); backdrop-filter:blur(22px) saturate(190%);
-    box-shadow:0 20px 44px -18px rgba(20,33,61,.4), inset 0 1px 0 rgba(255,255,255,.95);
+    /* Eslatma: navbar o'zi backdrop-filter ishlatadi, ichidagi menyuda esa u ishlamaydi (orqadagi matn ko'rinib qolardi) — shuning uchun menyu deyarli zich fon bilan */
+    background:linear-gradient(135deg,#ffffff,#f1f5ff);
+    -webkit-backdrop-filter:none; backdrop-filter:none;
+    box-shadow:0 22px 48px -16px rgba(20,33,61,.45), inset 0 1px 0 rgba(255,255,255,1);
   }
   body.home-body .hm-nav .home-nav-links a{ padding:.75em 1em; width:auto; }
   body.home-body .hm-nav-login{ padding:.6em 1.05em; font-size:.86rem; }
 }
-@media (max-width:420px){
-  body.home-body .hm-nav-login svg{ display:none; }
+@media (max-width:360px){
+  body.home-body .hm-nav-login{ padding:.55em .8em; gap:.35em; }
+  body.home-body .hm-nav .brand{ font-size:.95rem; }
 }
 </style>
 <script>
