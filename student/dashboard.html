@@ -1028,6 +1028,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <li><a href="#" id="navPlacementTest"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> Darajani bilish testi</a></li>
       <li><a href="#" id="navMyEssays" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Insholarim</a></li>
       <li><a href="#" id="navCEFR" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> CEFR</a></li>
+      <li><a href="#" id="navCefrRL" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg> CEFR RL</a></li>
       <li><a href="#" id="navWordGame"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M7 12h.01"/><path d="M17 12h.01"/></svg> So’z o’yini</a></li>
       <li><a href="../index.html" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Saytni ko’rish</a></li>
     </ul>
@@ -1387,6 +1388,52 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         <h3>Hali insho yubormagansiz</h3>
         <p>Writing bo‘limidan savol tanlab, birinchi inshoyingizni yuboring.</p>
       </div>
+    </section>
+
+    <!-- ===== CEFR RL (Reading / Listening — 35 ta javob) ===== -->
+    <section id="view-cefr-rl" hidden>
+      <style>
+        .crls-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;transition:border-color .15s,transform .15s;margin-bottom:12px;}
+        .crls-card:hover{border-color:var(--blue-600);transform:translateY(-1px);}
+        .crls-card .t{flex:1;min-width:160px;}
+        .crls-card .t strong{display:block;font-size:15px;color:var(--gray-900);overflow-wrap:anywhere;}
+        .crls-card .t span{font-size:12px;color:var(--gray-500);}
+        .crls-tag{font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:99px;}
+        .crls-tag.reading{background:var(--blue-50);color:var(--blue-600);}
+        .crls-tag.listening{background:var(--purple-50);color:var(--purple-500);}
+        .crls-st{font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:99px;}
+        .crls-st.todo{background:var(--gray-100);color:var(--gray-700);}
+        .crls-st.done{background:var(--green-50);color:var(--green-500);}
+        .crls-panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;}
+        .crls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:14px 0;}
+        .crls-in{display:flex;align-items:center;border:1.5px solid var(--gray-200);border-radius:10px;overflow:hidden;background:var(--white);}
+        .crls-in:focus-within{border-color:var(--blue-600);}
+        .crls-in span{flex:none;width:34px;text-align:center;font-size:12px;font-weight:800;color:var(--gray-500);background:var(--gray-25);align-self:stretch;display:flex;align-items:center;justify-content:center;}
+        .crls-in input{flex:1;min-width:0;border:0;outline:0;font:inherit;font-size:15px;padding:10px;background:transparent;color:var(--gray-900);}
+        .crls-bar{height:8px;border-radius:99px;background:var(--gray-100);overflow:hidden;margin-top:6px;}
+        .crls-bar i{display:block;height:100%;background:var(--blue-600);width:0;transition:width .2s;}
+        .crls-btn{background:var(--blue-600);color:#fff;border:0;border-radius:10px;font:inherit;font-weight:700;font-size:14px;padding:11px 22px;cursor:pointer;}
+        .crls-btn:disabled{opacity:.55;cursor:default;}
+        .crls-score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+        .crls-score b{font-size:40px;color:var(--gray-900);line-height:1;}
+        .crls-score small{font-size:16px;color:var(--gray-500);font-weight:700;}
+        .crls-tbl{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px;}
+        .crls-tbl th{text-align:left;font-size:11.5px;color:var(--gray-500);padding:6px 8px;border-bottom:1px solid var(--gray-200);}
+        .crls-tbl td{padding:7px 8px;border-bottom:1px solid var(--gray-100);color:var(--gray-900);overflow-wrap:anywhere;}
+        .crls-tbl tr.ok td:last-child{color:var(--green-500);font-weight:800;}
+        .crls-tbl tr.bad{background:var(--red-50);}
+        .crls-tbl tr.bad td:last-child{color:var(--red-500);font-weight:800;}
+        @media (max-width:520px){.crls-grid{grid-template-columns:repeat(2,1fr);}}
+      </style>
+      <a href="#" id="backToHomeFromCrl" class="back-link">Bosh sahifaga</a>
+      <div class="admin-header">
+        <div>
+          <h1>CEFR RL</h1>
+          <p>Sizga biriktirilgan Reading va Listening testlari. Javoblaringizni kiriting va natijangizni bilib oling.</p>
+        </div>
+      </div>
+      <div id="crlsListPane"><div id="crlsList"></div></div>
+      <div id="crlsTestPane" hidden></div>
     </section>
 
     <!-- ===== PLACEMENT TEST (Darajani bilish testi) ===== -->
@@ -1887,6 +1934,7 @@ async function enterDashboard(){
   await loadCourses();
   await loadWriting();
   await loadMySubmissions();
+  await loadCefrRLTests();
   loadScheduleTable();     // ta'lim jadvali (fon, kutilmaydi)
   loadMyStats();           // shaxsiy statistika (fon, kutilmaydi)
   let _savedStudentView = null;
@@ -2092,7 +2140,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking'];
+const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-rl'];
 
 // Bir vaqtning o'zida faqat bitta sidebar bandi ko'k (active) bo'lishi uchun:
 // avval BARCHA bandlardan 'active' klassini olib tashlaydi, so'ng kerakli
@@ -2123,6 +2171,7 @@ const STUDENT_VIEW_NAV_MAP = {
   'cefr-menu': 'navCEFR',
   'cefr-writing': 'navCEFR',
   'cefr-speaking': 'navCEFR',
+  'cefr-rl': 'navCefrRL',
   'notifications': 'navNotifications',
   'chat': 'navChat',
   'teacher': 'navTeacher'
@@ -5238,6 +5287,200 @@ function ivShowResult(){
 // ---- Irr Verbs navigation handled by wgBackLink ----
 
 
+// ===== CEFR RL — admin biriktirgan Reading / Listening testlari (35 ta javob) =====
+// cefrRL/{testId}            — test (faqat biriktirilgan talaba o'qiydi)
+// cefrRL/{testId}/private/key — javob kaliti (talaba topshirgandan KEYIN o'qiy oladi)
+// cefrRLAttempts/{testId__uid} — talabaning javoblari (bir marta yuboriladi)
+const CRLS_COUNT = 35;
+const crls = { tests: [], attempts: {}, cur: null };
+function crlsNorm(s){
+  return String(s == null ? '' : s).toLowerCase()
+    .replace(/[‘’ʻʼ`´]/g, "'")
+    .replace(/\s+/g, ' ').trim().replace(/[.,;:!]+$/, '').trim();
+}
+function crlsRight(given, key){
+  const g = crlsNorm(given);
+  if(!g) return false;
+  return String(key == null ? '' : key).split('/').some(k => { const n = crlsNorm(k); return n && n === g; });
+}
+function crlsScore(answers, keys){
+  let n = 0;
+  for(let i = 0; i < CRLS_COUNT; i++) if(crlsRight((answers || [])[i], (keys || [])[i])) n++;
+  return n;
+}
+function crlsEsc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function crlsTypeLabel(t){ return t === 'listening' ? 'Listening' : 'Reading'; }
+function crlsDraftKey(id){ return 'crlsDraft_' + currentUid + '_' + id; }
+
+async function loadCefrRLTests(){
+  try{
+    const [t, a] = await Promise.all([
+      db.collection('cefrRL').where('assignedTo', 'array-contains', currentUid).get(),
+      db.collection('cefrRLAttempts').where('studentId', '==', currentUid).get()
+    ]);
+    crls.tests = t.docs.map(d => Object.assign({ id: d.id }, d.data()))
+      .sort((x, y) => ((y.createdAt && y.createdAt.toMillis ? y.createdAt.toMillis() : 0) - (x.createdAt && x.createdAt.toMillis ? x.createdAt.toMillis() : 0)));
+    crls.attempts = {};
+    a.docs.forEach(d => { const x = d.data(); crls.attempts[x.testId] = x; });
+  } catch(err){
+    console.warn('CEFR RL yuklanmadi:', err);
+    crls.tests = []; crls.attempts = {};
+  }
+  document.getElementById('navCefrRL').style.display = crls.tests.length ? '' : 'none';
+}
+
+function renderCefrRLList(){
+  const box = document.getElementById('crlsList');
+  if(!crls.tests.length){
+    box.innerHTML = '<div class="empty-state"><h3>Hozircha test yo‘q</h3><p>Ustoz sizga Reading yoki Listening test biriktirganda shu yerda ko‘rinadi.</p></div>';
+    return;
+  }
+  box.innerHTML = crls.tests.map(t => {
+    const a = crls.attempts[t.id];
+    return '<div class="crls-card" data-id="' + crlsEsc(t.id) + '">' +
+      '<span class="crls-tag ' + crlsEsc(t.type) + '">' + crlsTypeLabel(t.type) + '</span>' +
+      '<div class="t"><strong>' + crlsEsc(t.title || 'Test') + '</strong><span>' + CRLS_COUNT + ' ta savol</span></div>' +
+      (a ? '<span class="crls-st done">Topshirilgan — natijani ko‘rish</span>' : '<span class="crls-st todo">Javob kiritish</span>') +
+    '</div>';
+  }).join('');
+}
+
+function showCefrRLList(){
+  document.getElementById('crlsTestPane').hidden = true;
+  document.getElementById('crlsListPane').hidden = false;
+  crls.cur = null;
+  renderCefrRLList();
+}
+
+function openCefrRLTest(id){
+  const t = crls.tests.find(x => x.id === id);
+  if(!t) return;
+  crls.cur = t;
+  document.getElementById('crlsListPane').hidden = true;
+  const pane = document.getElementById('crlsTestPane');
+  pane.hidden = false;
+  window.scrollTo(0, 0);
+  if(crls.attempts[id]) showCefrRLResult(t); else renderCefrRLForm(t);
+}
+
+function renderCefrRLForm(t){
+  const pane = document.getElementById('crlsTestPane');
+  let draft = [];
+  try{ draft = JSON.parse(localStorage.getItem(crlsDraftKey(t.id)) || '[]') || []; }catch(e){}
+  let inputs = '';
+  for(let i = 0; i < CRLS_COUNT; i++){
+    inputs += '<label class="crls-in"><span>' + (i + 1) + '</span><input type="text" data-i="' + i + '" maxlength="80" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Javob ' + (i + 1) + '" value="' + crlsEsc(draft[i] || '') + '"></label>';
+  }
+  pane.innerHTML =
+    '<button type="button" class="back-link" id="crlsBack" style="background:none;border:0;cursor:pointer;">Testlar ro‘yxatiga</button>' +
+    '<div class="crls-panel">' +
+      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span class="crls-tag ' + crlsEsc(t.type) + '">' + crlsTypeLabel(t.type) + '</span><h2 style="margin:0;font-size:18px;color:var(--gray-900);">' + crlsEsc(t.title || 'Test') + '</h2></div>' +
+      '<p style="font-size:13px;color:var(--gray-500);margin:8px 0 0;">Barcha ' + CRLS_COUNT + ' ta javobni kiriting. Yuborgandan keyin o‘zgartirib bo‘lmaydi. Yozganlaringiz shu qurilmada avtomatik saqlanib turadi.</p>' +
+      '<div style="margin-top:14px;font-size:12.5px;font-weight:700;color:var(--gray-700);"><span id="crlsFilled">0</span> / ' + CRLS_COUNT + ' to‘ldirildi<div class="crls-bar"><i id="crlsBarFill"></i></div></div>' +
+      '<div class="crls-grid" id="crlsGrid">' + inputs + '</div>' +
+      '<p id="crlsErr" hidden style="font-size:13px;color:var(--red-500);margin:0 0 10px;"></p>' +
+      '<button type="button" class="crls-btn" id="crlsSubmit">Javoblarni yuborish</button>' +
+    '</div>';
+  crlsUpdateFilled();
+}
+
+function crlsInputs(){ return Array.prototype.slice.call(document.querySelectorAll('#crlsGrid input')); }
+function crlsUpdateFilled(){
+  const vals = crlsInputs().map(i => i.value.trim());
+  const n = vals.filter(Boolean).length;
+  const f = document.getElementById('crlsFilled'); if(f) f.textContent = n;
+  const b = document.getElementById('crlsBarFill'); if(b) b.style.width = Math.round(n / CRLS_COUNT * 100) + '%';
+  if(crls.cur){ try{ localStorage.setItem(crlsDraftKey(crls.cur.id), JSON.stringify(vals)); }catch(e){} }
+}
+
+async function submitCefrRL(){
+  const t = crls.cur;
+  if(!t) return;
+  const answers = crlsInputs().map(i => i.value.trim());
+  const filled = answers.filter(Boolean).length;
+  const err = document.getElementById('crlsErr');
+  err.hidden = true;
+  if(!filled){ err.textContent = 'Hech bo‘lmaganda bitta javob kiriting.'; err.hidden = false; return; }
+  const msg = filled < CRLS_COUNT
+    ? 'Faqat ' + filled + ' ta javob kiritilgan (' + CRLS_COUNT + ' tadan). Bo‘sh javoblar xato hisoblanadi. Yuborasizmi?'
+    : 'Javoblar yuboriladi, keyin o‘zgartirib bo‘lmaydi. Yuborasizmi?';
+  if(!confirm(msg)) return;
+  const btn = document.getElementById('crlsSubmit');
+  btn.disabled = true; btn.textContent = 'Yuborilmoqda…';
+  try{
+    const data = {
+      testId: t.id,
+      studentId: currentUid,
+      studentName: state.student.name || state.student.email || '',
+      answers: answers,
+      submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    await db.collection('cefrRLAttempts').doc(t.id + '__' + currentUid).set(data);
+    crls.attempts[t.id] = Object.assign({}, data, { submittedAt: null });
+    try{ localStorage.removeItem(crlsDraftKey(t.id)); }catch(e){}
+    await showCefrRLResult(t);
+  } catch(e){
+    console.error(e);
+    err.textContent = 'Yuborib bo‘lmadi: ' + e.message;
+    err.hidden = false;
+    btn.disabled = false; btn.textContent = 'Javoblarni yuborish';
+  }
+}
+
+async function showCefrRLResult(t){
+  const pane = document.getElementById('crlsTestPane');
+  pane.innerHTML = '<div class="crls-panel"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i></div></div>';
+  let keys = [];
+  try{
+    const k = await db.collection('cefrRL').doc(t.id).collection('private').doc('key').get();
+    keys = (k.exists && k.data().answers) || [];
+  } catch(e){
+    pane.innerHTML = '<button type="button" class="back-link" id="crlsBack" style="background:none;border:0;cursor:pointer;">Testlar ro‘yxatiga</button><div class="crls-panel"><p style="color:var(--red-500);">Natijani yuklab bo‘lmadi: ' + crlsEsc(e.message) + '</p></div>';
+    return;
+  }
+  const a = crls.attempts[t.id] || { answers: [] };
+  const sc = crlsScore(a.answers, keys);
+  const pct = Math.round(sc / CRLS_COUNT * 100);
+  let rows = '';
+  for(let i = 0; i < CRLS_COUNT; i++){
+    const g = (a.answers || [])[i];
+    const ok = crlsRight(g, keys[i]);
+    rows += '<tr class="' + (ok ? 'ok' : 'bad') + '"><td>' + (i + 1) + '</td><td>' + (g ? crlsEsc(g) : '—') + '</td><td>' + crlsEsc(String(keys[i] || '').split('/').join(' / ')) + '</td><td>' + (ok ? '✓' : '✗') + '</td></tr>';
+  }
+  pane.innerHTML =
+    '<button type="button" class="back-link" id="crlsBack" style="background:none;border:0;cursor:pointer;">Testlar ro‘yxatiga</button>' +
+    '<div class="crls-panel">' +
+      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;"><span class="crls-tag ' + crlsEsc(t.type) + '">' + crlsTypeLabel(t.type) + '</span><h2 style="margin:0;font-size:18px;color:var(--gray-900);">' + crlsEsc(t.title || 'Test') + '</h2></div>' +
+      '<div class="crls-score"><b>' + sc + '</b><small>/ ' + CRLS_COUNT + ' &nbsp;·&nbsp; ' + pct + '%</small></div>' +
+      '<p style="font-size:13px;color:var(--gray-500);margin:8px 0 0;">To‘g‘ri: ' + sc + ' · Xato yoki bo‘sh: ' + (CRLS_COUNT - sc) + '</p>' +
+      '<table class="crls-tbl"><thead><tr><th>№</th><th>Sizning javobingiz</th><th>To‘g‘ri javob</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>' +
+    '</div>';
+}
+
+document.getElementById('navCefrRL').addEventListener('click', (e) => {
+  e.preventDefault();
+  setActiveNav('navCefrRL');
+  switchView('cefr-rl');
+  showCefrRLList();
+});
+document.getElementById('backToHomeFromCrl').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
+document.getElementById('crlsList').addEventListener('click', (e) => {
+  const c = e.target.closest('.crls-card');
+  if(c) openCefrRLTest(c.dataset.id);
+});
+document.getElementById('crlsTestPane').addEventListener('click', (e) => {
+  if(e.target.closest('#crlsBack')){ showCefrRLList(); return; }
+  if(e.target.closest('#crlsSubmit')) submitCefrRL();
+});
+document.getElementById('crlsTestPane').addEventListener('input', (e) => { if(e.target.matches('#crlsGrid input')) crlsUpdateFilled(); });
+document.getElementById('crlsTestPane').addEventListener('keydown', (e) => {
+  if(e.key !== 'Enter' || !e.target.matches('#crlsGrid input')) return;
+  e.preventDefault();
+  const all = crlsInputs();
+  const n = all[all.indexOf(e.target) + 1];
+  if(n) n.focus();
+});
+
 // ===== READING MOCKS - Student =====
 document.getElementById('navCEFR').addEventListener('click', function(e) {
   e.preventDefault();
@@ -5859,7 +6102,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   // ---- "Menyu": yon menyudagi qolgan bo'limlar pastdan chiqadigan ro'yxatda ----
   const wrap = document.getElementById('sbnSheetWrap');
   const list = document.getElementById('sbnSheetList');
-  const SHEET_IDS = ['navChat','navTeacher','navResultsCard','navPlacementTest','navWordGame'];
+  const SHEET_IDS = ['navChat','navTeacher','navResultsCard','navPlacementTest','navCefrRL','navWordGame'];
   const sheetLinks = {}; // navId -> ro'yxatdagi element
   function closeSheet(){ wrap.hidden = true; items.menu.setAttribute('aria-expanded','false'); }
   function openSheet(){ wrap.hidden = false; items.menu.setAttribute('aria-expanded','true'); }
@@ -5882,6 +6125,10 @@ document.getElementById('themeToggle').addEventListener('click',function(){
       closeSheet();
       if(href === '#'){ e.preventDefault(); orig.click(); }
     });
+    // yon menyuda yashirilgan/ko'rsatilgan bo'lsa, ro'yxatda ham shunday bo'lsin
+    const syncDisplay = () => { el.style.display = orig.style.display === 'none' ? 'none' : ''; };
+    syncDisplay();
+    new MutationObserver(syncDisplay).observe(orig, { attributes:true, attributeFilter:['style'] });
     list.appendChild(el);
     if(key) sheetLinks[key] = el;
   }
