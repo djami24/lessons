@@ -5296,6 +5296,7 @@ const crls = { tests: [], attempts: {}, cur: null };
 function crlsNorm(s){
   return String(s == null ? '' : s).toLowerCase()
     .replace(/[‘’ʻʼ`´]/g, "'")
+    .replace(/[\\\u200b\u00a0]/g, ' ')
     .replace(/\s+/g, ' ').trim().replace(/[.,;:!]+$/, '').trim();
 }
 function crlsRight(given, key){
