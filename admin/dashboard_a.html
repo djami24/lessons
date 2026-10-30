@@ -14154,6 +14154,7 @@ const CefrRL = (function(){
   function norm(s){
     return String(s == null ? '' : s).toLowerCase()
       .replace(/[‘’ʻʼ`´]/g, "'")
+      .replace(/[\\\u200b\u00a0]/g, ' ')
       .replace(/\s+/g, ' ').trim().replace(/[.,;:!]+$/, '').trim();
   }
   function isRight(given, key){
@@ -14310,7 +14311,7 @@ const CefrRL = (function(){
   function parseList(text){
     let lines = String(text).split(/\r?\n/).map(s => s.trim()).filter(Boolean);
     if(lines.length === 1) lines = lines[0].split(/[,\t;]+/).map(s => s.trim()).filter(Boolean);
-    return lines.map(s => s.replace(/^\s*\d{1,2}\s*[.):\-]\s*(?=\S)/, ''));
+    return lines.map(s => s.replace(/^\s*\d{1,2}\s*[.):\-]\s*(?=\S)/, '').replace(/[\\\s]+$/, '').trim());
   }
   function fillFrom(start, lines){
     const inputs = ansInputs();
@@ -14327,7 +14328,7 @@ const CefrRL = (function(){
     const title = $('crlTitle').value.trim();
     const typeEl = document.querySelector('input[name="crlType"]:checked');
     const type = typeEl ? typeEl.value : 'reading';
-    const answers = ansInputs().map(i => i.value.trim());
+    const answers = ansInputs().map(i => i.value.replace(/[\\\s]+$/, '').trim());
     if(!title){ err.textContent = 'Test nomini yozing.'; err.hidden = false; return; }
     const filled = answers.filter(Boolean).length;
     if(filled < COUNT && !confirm('Faqat ' + filled + ' ta javob kiritilgan (35 tadan). Boʻsh kataklar har doim xato hisoblanadi. Baribir saqlaysizmi?')) return;
