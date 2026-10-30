@@ -1404,6 +1404,9 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         .crls-st{font-size:12.5px;font-weight:700;padding:5px 12px;border-radius:99px;}
         .crls-st.todo{background:var(--gray-100);color:var(--gray-700);}
         .crls-st.done{background:var(--green-50);color:var(--green-500);}
+        .crls-tabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+        .crls-tab{padding:9px 20px;border-radius:10px;border:1.5px solid var(--gray-200);background:var(--white);color:var(--gray-700);font:inherit;font-weight:700;font-size:14px;cursor:pointer;}
+        .crls-tab.active{background:var(--blue-600);border-color:var(--blue-600);color:#fff;}
         .crls-panel{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;}
         .crls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:14px 0;}
         .crls-in{display:flex;align-items:center;border:1.5px solid var(--gray-200);border-radius:10px;overflow:hidden;background:var(--white);}
@@ -5287,16 +5290,18 @@ function ivShowResult(){
 // ---- Irr Verbs navigation handled by wgBackLink ----
 
 
-// ===== CEFR RL — admin biriktirgan Reading / Listening testlari (35 ta javob) =====
-// cefrRL/{testId}            — test (faqat biriktirilgan talaba o'qiydi)
-// cefrRL/{testId}/private/key — javob kaliti (talaba topshirgandan KEYIN o'qiy oladi)
-// cefrRLAttempts/{testId__uid} — talabaning javoblari (bir marta yuboriladi)
+// ===== CEFR RL — admin biriktirgan mock: Reading + Listening (har biri 35 ta javob) =====
+// cefrRL/{testId}                 — mock (faqat biriktirilgan talaba o'qiydi)
+// cefrRL/{testId}/private/reading|listening — javob kaliti (talaba shu bo'limni topshirgandan KEYIN o'qiy oladi)
+// cefrRLAttempts/{testId__uid__section} — talabaning javoblari (har bo'lim bir marta yuboriladi)
 const CRLS_COUNT = 35;
-const crls = { tests: [], attempts: {}, cur: null };
+const CRLS_SECS = ['reading', 'listening'];
+const CRLS_LABEL = { reading: 'Reading', listening: 'Listening' };
+const crls = { tests: [], attempts: {}, cur: null, sec: 'reading' };
 function crlsNorm(s){
   return String(s == null ? '' : s).toLowerCase()
     .replace(/[‘’ʻʼ`´]/g, "'")
-    .replace(/[\\\u200b\u00a0]/g, ' ')
+    .replace(/[\\​ ]/g, ' ')
     .replace(/\s+/g, ' ').trim().replace(/[.,;:!]+$/, '').trim();
 }
 function crlsRight(given, key){
@@ -5310,8 +5315,8 @@ function crlsScore(answers, keys){
   return n;
 }
 function crlsEsc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function crlsTypeLabel(t){ return t === 'listening' ? 'Listening' : 'Reading'; }
-function crlsDraftKey(id){ return 'crlsDraft_' + currentUid + '_' + id; }
+function crlsDraftKey(id, sec){ return 'crlsDraft_' + currentUid + '_' + id + '_' + sec; }
+function crlsAtt(testId, sec){ return (crls.attempts[testId] || {})[sec] || null; }
 
 async function loadCefrRLTests(){
   try{
@@ -5322,7 +5327,7 @@ async function loadCefrRLTests(){
     crls.tests = t.docs.map(d => Object.assign({ id: d.id }, d.data()))
       .sort((x, y) => ((y.createdAt && y.createdAt.toMillis ? y.createdAt.toMillis() : 0) - (x.createdAt && x.createdAt.toMillis ? x.createdAt.toMillis() : 0)));
     crls.attempts = {};
-    a.docs.forEach(d => { const x = d.data(); crls.attempts[x.testId] = x; });
+    a.docs.forEach(d => { const x = d.data(); if(!x.section) return; (crls.attempts[x.testId] = crls.attempts[x.testId] || {})[x.section] = x; });
   } catch(err){
     console.warn('CEFR RL yuklanmadi:', err);
     crls.tests = []; crls.attempts = {};
@@ -5333,15 +5338,16 @@ async function loadCefrRLTests(){
 function renderCefrRLList(){
   const box = document.getElementById('crlsList');
   if(!crls.tests.length){
-    box.innerHTML = '<div class="empty-state"><h3>Hozircha test yo‘q</h3><p>Ustoz sizga Reading yoki Listening test biriktirganda shu yerda ko‘rinadi.</p></div>';
+    box.innerHTML = '<div class="empty-state"><h3>Hozircha mock yo‘q</h3><p>Ustoz sizga mock biriktirganda shu yerda ko‘rinadi.</p></div>';
     return;
   }
   box.innerHTML = crls.tests.map(t => {
-    const a = crls.attempts[t.id];
+    const st = CRLS_SECS.map(sec => {
+      const a = crlsAtt(t.id, sec);
+      return '<span class="crls-st ' + (a ? 'done' : 'todo') + '">' + CRLS_LABEL[sec] + (a ? ' ✓' : '') + '</span>';
+    }).join(' ');
     return '<div class="crls-card" data-id="' + crlsEsc(t.id) + '">' +
-      '<span class="crls-tag ' + crlsEsc(t.type) + '">' + crlsTypeLabel(t.type) + '</span>' +
-      '<div class="t"><strong>' + crlsEsc(t.title || 'Test') + '</strong><span>' + CRLS_COUNT + ' ta savol</span></div>' +
-      (a ? '<span class="crls-st done">Topshirilgan — natijani ko‘rish</span>' : '<span class="crls-st todo">Javob kiritish</span>') +
+      '<div class="t"><strong>' + crlsEsc(t.title || 'Mock') + '</strong><span>Reading 35 ta · Listening 35 ta</span></div>' + st +
     '</div>';
   }).join('');
 }
@@ -5357,30 +5363,45 @@ function openCefrRLTest(id){
   const t = crls.tests.find(x => x.id === id);
   if(!t) return;
   crls.cur = t;
+  crls.sec = !crlsAtt(id, 'reading') ? 'reading' : (!crlsAtt(id, 'listening') ? 'listening' : 'reading');
   document.getElementById('crlsListPane').hidden = true;
-  const pane = document.getElementById('crlsTestPane');
-  pane.hidden = false;
+  document.getElementById('crlsTestPane').hidden = false;
   window.scrollTo(0, 0);
-  if(crls.attempts[id]) showCefrRLResult(t); else renderCefrRLForm(t);
+  renderCefrRLPane();
 }
 
-function renderCefrRLForm(t){
+function crlsHead(t){
+  const tabs = CRLS_SECS.map(sec => {
+    const a = crlsAtt(t.id, sec);
+    return '<button type="button" class="crls-tab' + (crls.sec === sec ? ' active' : '') + '" data-sec="' + sec + '">' + CRLS_LABEL[sec] + (a ? ' ✓' : '') + '</button>';
+  }).join('');
+  return '<button type="button" class="back-link" id="crlsBack" style="background:none;border:0;cursor:pointer;">Mocklar ro‘yxatiga</button>' +
+    '<h2 style="margin:0 0 12px;font-size:19px;color:var(--gray-900);">' + crlsEsc(t.title || 'Mock') + '</h2>' +
+    '<div class="crls-tabs">' + tabs + '</div>';
+}
+
+function renderCefrRLPane(){
+  const t = crls.cur;
+  if(!t) return;
+  if(crlsAtt(t.id, crls.sec)) showCefrRLResult(t, crls.sec); else renderCefrRLForm(t, crls.sec);
+}
+
+function renderCefrRLForm(t, sec){
   const pane = document.getElementById('crlsTestPane');
   let draft = [];
-  try{ draft = JSON.parse(localStorage.getItem(crlsDraftKey(t.id)) || '[]') || []; }catch(e){}
+  try{ draft = JSON.parse(localStorage.getItem(crlsDraftKey(t.id, sec)) || '[]') || []; }catch(e){}
   let inputs = '';
   for(let i = 0; i < CRLS_COUNT; i++){
     inputs += '<label class="crls-in"><span>' + (i + 1) + '</span><input type="text" data-i="' + i + '" maxlength="80" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Javob ' + (i + 1) + '" value="' + crlsEsc(draft[i] || '') + '"></label>';
   }
-  pane.innerHTML =
-    '<button type="button" class="back-link" id="crlsBack" style="background:none;border:0;cursor:pointer;">Testlar ro‘yxatiga</button>' +
+  pane.innerHTML = crlsHead(t) +
     '<div class="crls-panel">' +
-      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><span class="crls-tag ' + crlsEsc(t.type) + '">' + crlsTypeLabel(t.type) + '</span><h2 style="margin:0;font-size:18px;color:var(--gray-900);">' + crlsEsc(t.title || 'Test') + '</h2></div>' +
+      '<h3 style="margin:0;font-size:16px;color:var(--gray-900);">' + CRLS_LABEL[sec] + ' javoblari</h3>' +
       '<p style="font-size:13px;color:var(--gray-500);margin:8px 0 0;">Barcha ' + CRLS_COUNT + ' ta javobni kiriting. Yuborgandan keyin o‘zgartirib bo‘lmaydi. Yozganlaringiz shu qurilmada avtomatik saqlanib turadi.</p>' +
       '<div style="margin-top:14px;font-size:12.5px;font-weight:700;color:var(--gray-700);"><span id="crlsFilled">0</span> / ' + CRLS_COUNT + ' to‘ldirildi<div class="crls-bar"><i id="crlsBarFill"></i></div></div>' +
       '<div class="crls-grid" id="crlsGrid">' + inputs + '</div>' +
       '<p id="crlsErr" hidden style="font-size:13px;color:var(--red-500);margin:0 0 10px;"></p>' +
-      '<button type="button" class="crls-btn" id="crlsSubmit">Javoblarni yuborish</button>' +
+      '<button type="button" class="crls-btn" id="crlsSubmit">' + CRLS_LABEL[sec] + ' javoblarini yuborish</button>' +
     '</div>';
   crlsUpdateFilled();
 }
@@ -5391,55 +5412,57 @@ function crlsUpdateFilled(){
   const n = vals.filter(Boolean).length;
   const f = document.getElementById('crlsFilled'); if(f) f.textContent = n;
   const b = document.getElementById('crlsBarFill'); if(b) b.style.width = Math.round(n / CRLS_COUNT * 100) + '%';
-  if(crls.cur){ try{ localStorage.setItem(crlsDraftKey(crls.cur.id), JSON.stringify(vals)); }catch(e){} }
+  if(crls.cur){ try{ localStorage.setItem(crlsDraftKey(crls.cur.id, crls.sec), JSON.stringify(vals)); }catch(e){} }
 }
 
 async function submitCefrRL(){
-  const t = crls.cur;
+  const t = crls.cur, sec = crls.sec;
   if(!t) return;
-  const answers = crlsInputs().map(i => i.value.trim());
+  const answers = crlsInputs().map(i => i.value.replace(/[\\\s]+$/, '').trim());
   const filled = answers.filter(Boolean).length;
   const err = document.getElementById('crlsErr');
   err.hidden = true;
   if(!filled){ err.textContent = 'Hech bo‘lmaganda bitta javob kiriting.'; err.hidden = false; return; }
   const msg = filled < CRLS_COUNT
     ? 'Faqat ' + filled + ' ta javob kiritilgan (' + CRLS_COUNT + ' tadan). Bo‘sh javoblar xato hisoblanadi. Yuborasizmi?'
-    : 'Javoblar yuboriladi, keyin o‘zgartirib bo‘lmaydi. Yuborasizmi?';
+    : CRLS_LABEL[sec] + ' javoblari yuboriladi, keyin o‘zgartirib bo‘lmaydi. Yuborasizmi?';
   if(!confirm(msg)) return;
   const btn = document.getElementById('crlsSubmit');
   btn.disabled = true; btn.textContent = 'Yuborilmoqda…';
   try{
     const data = {
       testId: t.id,
+      section: sec,
       studentId: currentUid,
       studentName: state.student.name || state.student.email || '',
       answers: answers,
       submittedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    await db.collection('cefrRLAttempts').doc(t.id + '__' + currentUid).set(data);
-    crls.attempts[t.id] = Object.assign({}, data, { submittedAt: null });
-    try{ localStorage.removeItem(crlsDraftKey(t.id)); }catch(e){}
-    await showCefrRLResult(t);
+    await db.collection('cefrRLAttempts').doc(t.id + '__' + currentUid + '__' + sec).set(data);
+    (crls.attempts[t.id] = crls.attempts[t.id] || {})[sec] = Object.assign({}, data, { submittedAt: null });
+    try{ localStorage.removeItem(crlsDraftKey(t.id, sec)); }catch(e){}
+    await showCefrRLResult(t, sec);
   } catch(e){
     console.error(e);
     err.textContent = 'Yuborib bo‘lmadi: ' + e.message;
     err.hidden = false;
-    btn.disabled = false; btn.textContent = 'Javoblarni yuborish';
+    btn.disabled = false; btn.textContent = CRLS_LABEL[sec] + ' javoblarini yuborish';
   }
 }
 
-async function showCefrRLResult(t){
+async function showCefrRLResult(t, sec){
   const pane = document.getElementById('crlsTestPane');
-  pane.innerHTML = '<div class="crls-panel"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i></div></div>';
+  pane.innerHTML = crlsHead(t) + '<div class="crls-panel"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i></div></div>';
   let keys = [];
   try{
-    const k = await db.collection('cefrRL').doc(t.id).collection('private').doc('key').get();
+    const k = await db.collection('cefrRL').doc(t.id).collection('private').doc(sec).get();
     keys = (k.exists && k.data().answers) || [];
   } catch(e){
-    pane.innerHTML = '<button type="button" class="back-link" id="crlsBack" style="background:none;border:0;cursor:pointer;">Testlar ro‘yxatiga</button><div class="crls-panel"><p style="color:var(--red-500);">Natijani yuklab bo‘lmadi: ' + crlsEsc(e.message) + '</p></div>';
+    pane.innerHTML = crlsHead(t) + '<div class="crls-panel"><p style="color:var(--red-500);">Natijani yuklab bo‘lmadi: ' + crlsEsc(e.message) + '</p></div>';
     return;
   }
-  const a = crls.attempts[t.id] || { answers: [] };
+  if(crls.cur !== t || crls.sec !== sec) return;
+  const a = crlsAtt(t.id, sec) || { answers: [] };
   const sc = crlsScore(a.answers, keys);
   const pct = Math.round(sc / CRLS_COUNT * 100);
   let rows = '';
@@ -5448,10 +5471,9 @@ async function showCefrRLResult(t){
     const ok = crlsRight(g, keys[i]);
     rows += '<tr class="' + (ok ? 'ok' : 'bad') + '"><td>' + (i + 1) + '</td><td>' + (g ? crlsEsc(g) : '—') + '</td><td>' + crlsEsc(String(keys[i] || '').split('/').join(' / ')) + '</td><td>' + (ok ? '✓' : '✗') + '</td></tr>';
   }
-  pane.innerHTML =
-    '<button type="button" class="back-link" id="crlsBack" style="background:none;border:0;cursor:pointer;">Testlar ro‘yxatiga</button>' +
+  pane.innerHTML = crlsHead(t) +
     '<div class="crls-panel">' +
-      '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;"><span class="crls-tag ' + crlsEsc(t.type) + '">' + crlsTypeLabel(t.type) + '</span><h2 style="margin:0;font-size:18px;color:var(--gray-900);">' + crlsEsc(t.title || 'Test') + '</h2></div>' +
+      '<div style="font-size:12.5px;font-weight:800;color:var(--gray-500);margin-bottom:6px;">' + CRLS_LABEL[sec].toUpperCase() + ' NATIJASI</div>' +
       '<div class="crls-score"><b>' + sc + '</b><small>/ ' + CRLS_COUNT + ' &nbsp;·&nbsp; ' + pct + '%</small></div>' +
       '<p style="font-size:13px;color:var(--gray-500);margin:8px 0 0;">To‘g‘ri: ' + sc + ' · Xato yoki bo‘sh: ' + (CRLS_COUNT - sc) + '</p>' +
       '<table class="crls-tbl"><thead><tr><th>№</th><th>Sizning javobingiz</th><th>To‘g‘ri javob</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>' +
@@ -5471,9 +5493,22 @@ document.getElementById('crlsList').addEventListener('click', (e) => {
 });
 document.getElementById('crlsTestPane').addEventListener('click', (e) => {
   if(e.target.closest('#crlsBack')){ showCefrRLList(); return; }
+  const tab = e.target.closest('.crls-tab');
+  if(tab){ crls.sec = tab.dataset.sec; renderCefrRLPane(); return; }
   if(e.target.closest('#crlsSubmit')) submitCefrRL();
 });
 document.getElementById('crlsTestPane').addEventListener('input', (e) => { if(e.target.matches('#crlsGrid input')) crlsUpdateFilled(); });
+document.getElementById('crlsTestPane').addEventListener('paste', (e) => {
+  if(!e.target.matches('#crlsGrid input')) return;
+  const txt = (e.clipboardData || window.clipboardData).getData('text');
+  if(!/[\r\n\t;]/.test(txt.trim())) return;
+  e.preventDefault();
+  const all = crlsInputs();
+  let lines = txt.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+  if(lines.length === 1) lines = lines[0].split(/[\t;]+/).map(s => s.trim()).filter(Boolean);
+  lines.forEach((v, k) => { const inp = all[all.indexOf(e.target) + k]; if(inp) inp.value = v.replace(/^\s*\d{1,2}\s*[.):\-]\s*(?=\S)/, '').replace(/[\\\s]+$/, ''); });
+  crlsUpdateFilled();
+});
 document.getElementById('crlsTestPane').addEventListener('keydown', (e) => {
   if(e.key !== 'Enter' || !e.target.matches('#crlsGrid input')) return;
   e.preventDefault();
