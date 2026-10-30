@@ -2340,6 +2340,10 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           </div>
           <button class="btn btn-primary" id="indAddBtn">+ Talaba qo&#39;shish</button>
         </div>
+        <div class="ind-tabs" role="tablist">
+          <button type="button" class="ind-tab active" data-main-tab="students" role="tab">Talabalar</button>
+          <button type="button" class="ind-tab" data-main-tab="cefr" role="tab">CEFR RL</button>
+        </div>
         <div class="ind-tools">
           <input type="search" id="indSearch" placeholder="Ism, email yoki ID bo&#39;yicha qidirish" aria-label="Qidirish">
           <select id="indDirFilter" aria-label="Yo&#39;nalish bo&#39;yicha filtr">
@@ -2351,6 +2355,53 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <span id="indCount" style="color:var(--gray);font-size:.85rem;"></span>
         </div>
         <div id="indGrid" class="ind-grid"></div>
+      </div>
+
+      <style>
+        .crl-tag{display:inline-flex;align-items:center;font-size:.72rem;font-weight:800;padding:.2em .75em;border-radius:99px;}
+        .crl-tag--reading{color:#2563eb;background:rgba(37,99,235,.12);}
+        .crl-tag--listening{color:#7c3aed;background:rgba(124,58,237,.12);}
+        .crl-card{border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding:14px;display:flex;flex-direction:column;gap:10px;}
+        .crl-card h3{margin:0;font-size:1rem;overflow-wrap:anywhere;}
+        .crl-meta{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--gray);}
+        .crl-meta b{color:inherit;}
+        .crl-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto;}
+        .crl-ans-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+        .crl-ans{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:10px;padding:2px 8px 2px 0;background:transparent;}
+        .crl-ans span{flex:none;width:30px;text-align:center;font-size:.74rem;font-weight:800;color:var(--gray);}
+        .crl-ans input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:inherit;font:inherit;font-size:.9rem;padding:.5em 0;}
+        .crl-ans:focus-within{border-color:#2563eb;}
+        .crl-seg{display:flex;gap:8px;}
+        .crl-seg label{flex-direction:row !important;align-items:center;gap:6px !important;border:1.5px solid var(--line);border-radius:10px;padding:.5em .9em;cursor:pointer;font-weight:700;}
+        .crl-seg input{width:auto;margin:0;}
+        .crl-cmp td,.crl-cmp th{padding:.35em .6em;font-size:.84rem;}
+        .crl-ok{color:#059669;font-weight:800;} .crl-bad{color:#dc2626;font-weight:800;}
+        .crl-hint{font-size:.78rem;color:var(--gray);margin:0;}
+        @media (max-width:640px){.crl-ans-grid{grid-template-columns:repeat(2,1fr);}}
+      </style>
+      <!-- CEFR RL -->
+      <div id="indCefrPane" hidden>
+        <div class="ind-top">
+          <div>
+            <h1>CEFR RL</h1>
+            <p>CEFR Reading va Listening: 35 tadan javob kalitini kiriting va testni individual talabaga biriktiring. Faqat biriktirilgan talaba ko&#39;radi.</p>
+          </div>
+          <button class="btn btn-primary" id="crlAddBtn">+ Yangi test</button>
+        </div>
+        <div class="ind-tabs" role="tablist">
+          <button type="button" class="ind-tab" data-main-tab="students" role="tab">Talabalar</button>
+          <button type="button" class="ind-tab active" data-main-tab="cefr" role="tab">CEFR RL</button>
+        </div>
+        <div class="ind-tools">
+          <select id="crlTypeFilter" aria-label="Turi bo&#39;yicha filtr">
+            <option value="">Reading va Listening</option>
+            <option value="reading">Reading</option>
+            <option value="listening">Listening</option>
+          </select>
+          <input type="search" id="crlSearch" placeholder="Test nomi yoki talaba ismi" aria-label="Qidirish">
+          <span id="crlCount" style="color:var(--gray);font-size:.85rem;"></span>
+        </div>
+        <div id="crlGrid" class="ind-grid"></div>
       </div>
 
       <!-- Talaba sahifasi -->
@@ -2966,6 +3017,56 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <button class="btn btn-primary" id="indPickSave">Qo&#39;shish</button>
         <button class="btn btn-ghost" onclick="closeModal('modalIndAdd')">Bekor</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: CEFR RL test (yaratish / tahrirlash) ===== -->
+<div class="modal-overlay" id="modalCefrRL" hidden>
+  <div class="modal-box" style="max-width:860px;width:96vw;max-height:92vh;overflow:auto;">
+    <h2 class="modal-title" id="crlFormTitle">Yangi CEFR RL test</h2>
+    <div class="modal-form">
+      <label>Test nomi
+        <input type="text" id="crlTitle" maxlength="120" placeholder="Masalan: Reading Mock 1" autocomplete="off">
+      </label>
+      <div>
+        <div class="ind-lbl">Turi</div>
+        <div class="crl-seg" id="crlTypeSeg">
+          <label><input type="radio" name="crlType" value="reading" checked> Reading</label>
+          <label><input type="radio" name="crlType" value="listening"> Listening</label>
+        </div>
+      </div>
+      <div>
+        <div class="ind-lbl">To&#39;g&#39;ri javoblar (35 ta) <span id="crlFilled" style="font-weight:600;color:var(--gray);"></span></div>
+        <div class="crl-ans-grid" id="crlAnsGrid"></div>
+        <p class="crl-hint" style="margin-top:6px;">Bir nechta to&#39;g&#39;ri variant bo&#39;lsa <b>/</b> bilan ajrating: <code>colour/color</code>. Katta-kichik harf farq qilmaydi. Enter &mdash; keyingi katak.</p>
+      </div>
+      <details>
+        <summary style="cursor:pointer;font-weight:700;font-size:.85rem;">Hammasini birdan qo&#39;yish (paste)</summary>
+        <textarea id="crlBulk" rows="5" style="width:100%;margin-top:8px;padding:.6em;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:inherit;font:inherit;" placeholder="Har qatorga bitta javob (yoki 1. B  2. A ... ko&#39;rinishida)"></textarea>
+        <button type="button" class="btn btn-ghost btn-sm" id="crlBulkApply" style="margin-top:6px;">Kataklarga joylash</button>
+      </details>
+      <div>
+        <div class="ind-lbl">Biriktiriladigan talabalar (Individuals) <span id="crlSelCount" style="font-weight:600;color:var(--gray);"></span></div>
+        <input type="text" id="crlStuSearch" placeholder="Talaba qidirish" autocomplete="off" style="width:100%;margin-bottom:8px;padding:.55em .8em;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:inherit;font:inherit;">
+        <div id="crlStuList" class="ind-pick-list"></div>
+      </div>
+      <p class="form-error" id="crlFormError" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="crlSaveBtn">Saqlash</button>
+        <button class="btn btn-ghost" onclick="closeModal('modalCefrRL')">Bekor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: CEFR RL natijalar ===== -->
+<div class="modal-overlay" id="modalCefrRLRes" hidden>
+  <div class="modal-box" style="max-width:760px;width:96vw;max-height:92vh;overflow:auto;">
+    <h2 class="modal-title" id="crlResTitle">Natijalar</h2>
+    <div id="crlResBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalCefrRLRes')">Yopish</button>
     </div>
   </div>
 </div>
@@ -13593,6 +13694,7 @@ const Individuals = (function(){
   async function open(){
     $('indListPane').hidden = false;
     $('indDetailPane').hidden = true;
+    if($('indCefrPane')) $('indCefrPane').hidden = true;
     cur = null;
     await loadList();
   }
@@ -14028,6 +14130,347 @@ document.getElementById('navIndividuals').addEventListener('click', function(e){
   switchView('individuals');
   Individuals.open();
 });
+
+
+// ===== CEFR RL — Individuals ichida Reading / Listening (35 ta javob) =====
+// Firestore:
+//   cefrRL/{testId} { title, type:'reading'|'listening', count:35, assignedTo:[uid], assignedNames:{uid:name}, createdAt }
+//   cefrRL/{testId}/private/key { answers:[35 ta] }      (faqat admin; talaba topshirgandan keyin o'qiy oladi)
+//   cefrRLAttempts/{testId__uid} { testId, studentId, studentName, answers:[35 ta], submittedAt }
+const CefrRL = (function(){
+  const COUNT = 35;
+  const TYPES = { reading: 'Reading', listening: 'Listening' };
+  const $ = id => document.getElementById(id);
+  const esc = s => escapeHtml(String(s == null ? '' : s));
+  const col = () => db.collection('cefrRL');
+  const attCol = () => db.collection('cefrRLAttempts');
+  const TS = () => firebase.firestore.FieldValue.serverTimestamp();
+
+  let tests = [], attempts = [], inds = [], indsLoaded = false;
+  let editing = null;
+  const sel = new Set();
+  let resTest = null, resKey = [], resAtts = [], resOpen = null;
+
+  function norm(s){
+    return String(s == null ? '' : s).toLowerCase()
+      .replace(/[‘’ʻʼ`´]/g, "'")
+      .replace(/\s+/g, ' ').trim().replace(/[.,;:!]+$/, '').trim();
+  }
+  function isRight(given, key){
+    const g = norm(given);
+    if(!g) return false;
+    return String(key == null ? '' : key).split('/').some(k => { const n = norm(k); return n && n === g; });
+  }
+  function scoreOf(answers, keys){
+    let n = 0;
+    for(let i = 0; i < COUNT; i++) if(isRight((answers || [])[i], (keys || [])[i])) n++;
+    return n;
+  }
+  function fmtTs(ts){
+    try{
+      const d = ts && ts.toDate ? ts.toDate() : null;
+      if(!d) return '';
+      const p = n => String(n).padStart(2, '0');
+      return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+    } catch(e){ return ''; }
+  }
+  function nameOf(uid, test){
+    const i = inds.find(x => x.id === uid);
+    if(i && i.name) return i.name;
+    return (test && test.assignedNames && test.assignedNames[uid]) || uid;
+  }
+
+  // ---------- Asosiy ro'yxat ----------
+  async function loadInds(){
+    if(indsLoaded) return;
+    const snap = await db.collection('individuals').get();
+    inds = snap.docs.map(d => Object.assign({ id: d.id }, d.data()))
+      .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    indsLoaded = true;
+  }
+
+  async function open(){
+    $('indListPane').hidden = true;
+    $('indDetailPane').hidden = true;
+    $('indCefrPane').hidden = false;
+    $('crlGrid').innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div>';
+    try{
+      const [t, a] = await Promise.all([ col().orderBy('createdAt', 'desc').get(), attCol().get() ]);
+      tests = t.docs.map(d => Object.assign({ id: d.id }, d.data()));
+      attempts = a.docs.map(d => Object.assign({ id: d.id }, d.data()));
+      await loadInds().catch(() => {});
+    } catch(err){
+      $('crlGrid').innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Yuklashda xatolik: ' + esc(err.message) + '<br>Firestore qoidalariga <b>cefrRL</b> va <b>cefrRLAttempts</b> qo&#39;shilganini tekshiring (FIRESTORE_RULES.txt).</p>';
+      return;
+    }
+    render();
+  }
+
+  function render(){
+    const type = $('crlTypeFilter').value;
+    const q = $('crlSearch').value.trim().toLowerCase();
+    const items = tests.filter(t =>
+      (!type || t.type === type) &&
+      (!q || (String(t.title || '') + ' ' + Object.keys(t.assignedNames || {}).map(k => t.assignedNames[k]).join(' ')).toLowerCase().indexOf(q) >= 0)
+    );
+    $('crlCount').textContent = tests.length ? (items.length + ' / ' + tests.length + ' ta') : '';
+    const box = $('crlGrid');
+    if(!tests.length){
+      box.innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Hali test yo&#39;q. &laquo;+ Yangi test&raquo; tugmasi bilan Reading yoki Listening javoblarini kiriting.</p>';
+      return;
+    }
+    if(!items.length){
+      box.innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Hech narsa topilmadi.</p>';
+      return;
+    }
+    box.innerHTML = items.map(t => {
+      const asg = t.assignedTo || [];
+      const done = attempts.filter(a => a.testId === t.id && asg.indexOf(a.studentId) >= 0).length;
+      const names = asg.map(u => nameOf(u, t)).slice(0, 3).join(', ') + (asg.length > 3 ? ' +' + (asg.length - 3) : '');
+      return '<div class="crl-card" data-id="' + esc(t.id) + '">' +
+        '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">' +
+          '<h3>' + esc(t.title || 'Nomsiz') + '</h3>' +
+          '<span class="crl-tag crl-tag--' + esc(t.type) + '">' + esc(TYPES[t.type] || t.type) + '</span>' +
+        '</div>' +
+        '<div class="crl-meta"><span>Biriktirilgan: <b>' + asg.length + '</b></span><span>Topshirgan: <b>' + done + '/' + asg.length + '</b></span></div>' +
+        '<div class="ind-sub" title="' + esc(names) + '">' + (names ? esc(names) : 'Hech kimga biriktirilmagan') + '</div>' +
+        '<div class="crl-actions">' +
+          '<button type="button" class="btn btn-primary btn-sm" data-crl="res">Natijalar</button>' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-crl="edit">Tahrirlash</button>' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-crl="del" style="color:#dc2626;">O&#39;chirish</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  // ---------- Forma ----------
+  function buildGrid(){
+    const g = $('crlAnsGrid');
+    if(g.childElementCount) return;
+    let h = '';
+    for(let i = 0; i < COUNT; i++){
+      h += '<label class="crl-ans"><span>' + (i + 1) + '</span><input type="text" data-i="' + i + '" maxlength="80" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Javob ' + (i + 1) + '"></label>';
+    }
+    g.innerHTML = h;
+  }
+  function ansInputs(){ return Array.prototype.slice.call($('crlAnsGrid').querySelectorAll('input')); }
+  function updateFilled(){
+    const n = ansInputs().filter(i => i.value.trim()).length;
+    $('crlFilled').textContent = '(' + n + '/' + COUNT + ' kiritildi)';
+  }
+  function updateSelCount(){ $('crlSelCount').textContent = '(' + sel.size + ' ta tanlandi)'; }
+
+  function renderStuList(){
+    const q = $('crlStuSearch').value.trim().toLowerCase();
+    const items = inds.filter(s => !q || [s.name, s.email, s.code].join(' ').toLowerCase().indexOf(q) >= 0);
+    const box = $('crlStuList');
+    if(!inds.length){
+      box.innerHTML = '<p class="ind-empty" style="border:0;">Individuals ro&#39;yxatida talaba yo&#39;q. Avval &laquo;Talabalar&raquo; bo&#39;limida talaba qo&#39;shing.</p>';
+      return;
+    }
+    if(!items.length){ box.innerHTML = '<p class="ind-empty" style="border:0;">Hech narsa topilmadi.</p>'; return; }
+    box.innerHTML = items.map(s =>
+      '<label class="ind-pick' + (sel.has(s.id) ? ' sel' : '') + '" style="flex-direction:row;align-items:center;gap:10px;cursor:pointer;">' +
+        '<input type="checkbox" data-uid="' + esc(s.id) + '"' + (sel.has(s.id) ? ' checked' : '') + '>' +
+        '<span style="display:flex;flex-direction:column;"><strong>' + esc(s.name || s.email || 'Nomsiz') + '</strong>' +
+        '<small>' + esc([s.email, s.code ? 'ID: ' + s.code : ''].filter(Boolean).join(' · ')) + '</small></span>' +
+      '</label>'
+    ).join('');
+  }
+
+  async function openForm(test){
+    editing = test || null;
+    buildGrid();
+    $('crlFormError').hidden = true;
+    $('crlFormTitle').textContent = test ? 'Testni tahrirlash' : 'Yangi CEFR RL test';
+    $('crlTitle').value = test ? (test.title || '') : '';
+    document.querySelectorAll('input[name="crlType"]').forEach(r => { r.checked = r.value === (test ? test.type : 'reading'); });
+    $('crlBulk').value = '';
+    $('crlStuSearch').value = '';
+    sel.clear();
+    (test ? (test.assignedTo || []) : []).forEach(u => sel.add(u));
+    ansInputs().forEach(i => { i.value = ''; });
+    openModal('modalCefrRL');
+    $('crlStuList').innerHTML = '<div class="sk-rows" style="padding:12px;"><i></i><i></i></div>';
+    try{
+      await loadInds();
+      if(test){
+        const k = await col().doc(test.id).collection('private').doc('key').get();
+        const arr = (k.exists && k.data().answers) || [];
+        ansInputs().forEach((inp, i) => { inp.value = arr[i] == null ? '' : arr[i]; });
+      }
+    } catch(err){
+      $('crlFormError').textContent = 'Yuklashda xatolik: ' + err.message;
+      $('crlFormError').hidden = false;
+    }
+    updateFilled(); updateSelCount(); renderStuList();
+    if(!test) setTimeout(() => $('crlTitle').focus(), 80);
+  }
+
+  function applyBulk(){
+    let lines = $('crlBulk').value.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    if(lines.length === 1 && lines[0].indexOf(',') >= 0) lines = lines[0].split(',').map(s => s.trim());
+    lines = lines.map(s => s.replace(/^\s*\d{1,2}\s*[.):\-]\s*/, ''));
+    const inputs = ansInputs();
+    lines.slice(0, COUNT).forEach((v, i) => { inputs[i].value = v; });
+    updateFilled();
+    showToast(Math.min(lines.length, COUNT) + ' ta javob joylandi');
+  }
+
+  async function save(){
+    const err = $('crlFormError');
+    err.hidden = true;
+    const title = $('crlTitle').value.trim();
+    const typeEl = document.querySelector('input[name="crlType"]:checked');
+    const type = typeEl ? typeEl.value : 'reading';
+    const answers = ansInputs().map(i => i.value.trim());
+    if(!title){ err.textContent = 'Test nomini yozing.'; err.hidden = false; return; }
+    const filled = answers.filter(Boolean).length;
+    if(filled < COUNT && !confirm('Faqat ' + filled + ' ta javob kiritilgan (35 tadan). Boʻsh kataklar har doim xato hisoblanadi. Baribir saqlaysizmi?')) return;
+    const assigned = Array.from(sel);
+    const names = {};
+    assigned.forEach(u => { const s = inds.find(x => x.id === u); names[u] = s ? (s.name || s.email || '') : ((editing && editing.assignedNames && editing.assignedNames[u]) || ''); });
+    const btn = $('crlSaveBtn');
+    btn.disabled = true;
+    try{
+      const ref = editing ? col().doc(editing.id) : col().doc();
+      const data = { title: title, type: type, count: COUNT, assignedTo: assigned, assignedNames: names, updatedAt: TS() };
+      const batch = db.batch();
+      if(editing) batch.update(ref, data); else { data.createdAt = TS(); batch.set(ref, data); }
+      batch.set(ref.collection('private').doc('key'), { answers: answers, updatedAt: TS() });
+      await batch.commit();
+      closeModal('modalCefrRL');
+      showToast(editing ? 'Test yangilandi' : 'Test saqlandi');
+      await open();
+    } catch(e){
+      err.textContent = 'Xatolik: ' + e.message;
+      err.hidden = false;
+    } finally { btn.disabled = false; }
+  }
+
+  async function removeTest(id){
+    const t = tests.find(x => x.id === id);
+    if(!t || !confirm('"' + (t.title || '') + '" testini va talabalarning shu testdagi barcha javoblarini oʻchirasizmi?')) return;
+    try{
+      const as = await attCol().where('testId', '==', id).get();
+      const batch = db.batch();
+      as.docs.forEach(d => batch.delete(d.ref));
+      batch.delete(col().doc(id).collection('private').doc('key'));
+      batch.delete(col().doc(id));
+      await batch.commit();
+      showToast("Test o'chirildi");
+      await open();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  // ---------- Natijalar ----------
+  async function openResults(id){
+    resTest = tests.find(x => x.id === id);
+    if(!resTest) return;
+    resOpen = null;
+    $('crlResTitle').textContent = (resTest.title || '') + ' — natijalar';
+    $('crlResBody').innerHTML = '<div class="sk-rows" role="status"><i></i><i></i><i></i></div>';
+    openModal('modalCefrRLRes');
+    try{
+      const [k, a] = await Promise.all([
+        col().doc(id).collection('private').doc('key').get(),
+        attCol().where('testId', '==', id).get()
+      ]);
+      resKey = (k.exists && k.data().answers) || [];
+      resAtts = a.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    } catch(e){
+      $('crlResBody').innerHTML = '<p class="ind-empty">Xatolik: ' + esc(e.message) + '</p>';
+      return;
+    }
+    renderResults();
+  }
+
+  function renderResults(){
+    const t = resTest;
+    const uids = (t.assignedTo || []).slice();
+    resAtts.forEach(a => { if(uids.indexOf(a.studentId) < 0) uids.push(a.studentId); });
+    if(!uids.length){ $('crlResBody').innerHTML = '<p class="ind-empty">Bu test hech kimga biriktirilmagan.</p>'; return; }
+    let rows = '';
+    uids.forEach(u => {
+      const a = resAtts.find(x => x.studentId === u);
+      const sc = a ? scoreOf(a.answers, resKey) : null;
+      rows += '<tr><td><strong>' + esc(nameOf(u, t)) + '</strong></td>' +
+        '<td>' + (a ? '<span class="ind-badge ind-badge--done">' + sc + ' / ' + COUNT + '</span> <small style="color:var(--gray);">' + Math.round(sc / COUNT * 100) + '%</small>' : '<span class="ind-badge ind-badge--none">Topshirmagan</span>') + '</td>' +
+        '<td style="white-space:nowrap;color:var(--gray);font-size:.82rem;">' + esc(a ? fmtTs(a.submittedAt) : '') + '</td>' +
+        '<td style="text-align:right;white-space:nowrap;">' + (a
+          ? '<button class="btn btn-ghost btn-sm" data-res-view="' + esc(a.id) + '">' + (resOpen === a.id ? 'Yopish' : 'Ko&#39;rish') + '</button> ' +
+            '<button class="btn btn-ghost btn-sm" data-res-reset="' + esc(a.id) + '" style="color:#dc2626;" title="Javobni o&#39;chirib, talabaga qayta topshirish imkonini beradi">Qayta</button>'
+          : '') + '</td></tr>';
+      if(a && resOpen === a.id){
+        let d = '';
+        for(let i = 0; i < COUNT; i++){
+          const g = (a.answers || [])[i], ok = isRight(g, resKey[i]);
+          d += '<tr><td>' + (i + 1) + '</td><td>' + (g ? esc(g) : '<span style="color:var(--gray);">—</span>') + '</td><td>' + esc(resKey[i] || '') + '</td><td class="' + (ok ? 'crl-ok' : 'crl-bad') + '">' + (ok ? '✓' : '✗') + '</td></tr>';
+        }
+        rows += '<tr><td colspan="4" style="padding:0 0 12px;"><table class="data-table crl-cmp" style="width:100%;"><thead><tr><th>№</th><th>Talaba javobi</th><th>To&#39;g&#39;ri javob</th><th></th></tr></thead><tbody>' + d + '</tbody></table></td></tr>';
+      }
+    });
+    $('crlResBody').innerHTML = '<div class="table-wrap"><table class="data-table"><thead><tr><th>Talaba</th><th>Natija</th><th>Topshirgan vaqt</th><th></th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+  }
+
+  async function resetAttempt(id){
+    if(!confirm('Talabaning javobi oʻchiriladi va u testni qayta topshira oladi. Davom etasizmi?')) return;
+    try{
+      await attCol().doc(id).delete();
+      resAtts = resAtts.filter(a => a.id !== id);
+      attempts = attempts.filter(a => a.id !== id);
+      if(resOpen === id) resOpen = null;
+      renderResults();
+      render();
+      showToast('Qayta topshirishga ruxsat berildi');
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  // ---------- Hodisalar ----------
+  $('crlAddBtn').addEventListener('click', () => openForm(null));
+  $('crlTypeFilter').addEventListener('change', render);
+  $('crlSearch').addEventListener('input', render);
+  $('crlGrid').addEventListener('click', e => {
+    const b = e.target.closest('[data-crl]');
+    if(!b) return;
+    const id = b.closest('.crl-card').dataset.id;
+    if(b.dataset.crl === 'res') openResults(id);
+    else if(b.dataset.crl === 'edit') openForm(tests.find(x => x.id === id));
+    else if(b.dataset.crl === 'del') removeTest(id);
+  });
+  $('crlAnsGrid').addEventListener('input', updateFilled);
+  $('crlAnsGrid').addEventListener('keydown', e => {
+    if(e.key !== 'Enter' || !e.target.matches('input')) return;
+    e.preventDefault();
+    const inputs = ansInputs();
+    const n = inputs[inputs.indexOf(e.target) + 1];
+    if(n) n.focus();
+  });
+  $('crlBulkApply').addEventListener('click', applyBulk);
+  $('crlStuSearch').addEventListener('input', renderStuList);
+  $('crlStuList').addEventListener('change', e => {
+    const c = e.target.closest('[data-uid]');
+    if(!c) return;
+    if(c.checked) sel.add(c.dataset.uid); else sel.delete(c.dataset.uid);
+    c.closest('.ind-pick').classList.toggle('sel', c.checked);
+    updateSelCount();
+  });
+  $('crlSaveBtn').addEventListener('click', save);
+  $('crlResBody').addEventListener('click', e => {
+    let b;
+    if((b = e.target.closest('[data-res-view]'))){ resOpen = resOpen === b.dataset.resView ? null : b.dataset.resView; renderResults(); }
+    else if((b = e.target.closest('[data-res-reset]'))) resetAttempt(b.dataset.resReset);
+  });
+
+  // Talabalar | CEFR RL almashtirgich (ikkala panelda ham bor)
+  document.getElementById('view-individuals').addEventListener('click', e => {
+    const b = e.target.closest('[data-main-tab]');
+    if(!b) return;
+    if(b.dataset.mainTab === 'cefr') open(); else Individuals.open();
+  });
+
+  return { open: open };
+})();
 
 // ===== GURUH ANKETA =====
 document.getElementById('navAnketa').addEventListener('click', function(e) {
