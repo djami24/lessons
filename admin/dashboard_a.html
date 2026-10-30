@@ -850,6 +850,10 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         <span class="nav-label">O’quv jarayoni</span>
       </a></li>
+      <li><a href="#" id="navIndividuals">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="nav-label">Individuals</span>
+      </a></li>
       <li><a href="#" id="navStats">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         <span class="nav-label">Statistika</span>
@@ -1926,18 +1930,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <p>Barcha talabalar profilidagi bildirishnomalar bo‘limiga xabar yuboring.</p>
         </div>
       </div>
-      <style>
-        .bc-grid{display:grid;grid-template-columns:minmax(320px,540px) minmax(320px,1fr);gap:20px;align-items:start;}
-        .bc-side{display:flex;flex-direction:column;gap:20px;min-width:0;}
-        #ratingSummaryBox:empty{display:none;}
-        .bc-type{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 12px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:150px;transition:all .2s;}
-        .bc-type input[type="radio"]{width:auto;height:auto;padding:0;margin:3px 0 0;flex:none;}
-        .bc-type .bc-t{display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;line-height:1.3;}
-        .bc-type .bc-d{display:block;font-size:11px;color:var(--gray);line-height:1.4;margin-top:3px;font-weight:400;}
-        @media (max-width:1100px){.bc-grid{grid-template-columns:1fr;}}
-      </style>
-      <div class="bc-grid">
-      <div class="table-wrap" style="padding:20px;">
+      <div class="table-wrap" style="padding:20px; max-width:600px;">
         <label class="field">
           <span>Sarlavha</span>
           <input type="text" id="broadcastTitle" placeholder="Masalan: Sinov vaqti o‘zgardi" maxlength="100">
@@ -1950,46 +1943,34 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <span>Rasm havolasi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy)</span></span>
           <input type="text" id="broadcastImageUrl" placeholder="https://... (rasm manzili)">
         </label>
-        <div style="margin-top:1em;display:flex;flex-direction:column;gap:.5em;font-weight:700;font-size:.85rem;">
+        <label class="field" style="margin-top:1em;">
           <span>Ko&#39;rinish turi</span>
-          <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
-            <label class="bc-type" id="typeNotifLabel">
+          <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typeNotifLabel">
               <input type="radio" name="broadcastType" value="notification" id="typeNotif" checked style="accent-color:#2563eb;">
               <span>
-                <span class="bc-t"><svg class="ic" aria-hidden="true"><use href="#i-bell"></use></svg> Bildirishnoma</span>
-                <span class="bc-d">Pastda o'ng tomonda kichik popup</span>
+                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true"><use href="#i-bell"></use></svg> Bildirishnoma</span><br>
+                <span style="font-size:11px;color:var(--gray);">Pastda o&#39;ng tomonda kichik popup</span>
               </span>
             </label>
-            <label class="bc-type" id="typePopupLabel">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typePopupLabel">
               <input type="radio" name="broadcastType" value="popup" id="typePopup" style="accent-color:#2563eb;">
               <span>
-                <span class="bc-t"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg> Katta Popup</span>
-                <span class="bc-d">Ekran o'rtasida modal oyna</span>
-              </span>
-            </label>
-            <label class="bc-type" id="typeRatingLabel">
-              <input type="radio" name="broadcastType" value="rating" id="typeRating" style="accent-color:#2563eb;">
-              <span>
-                <span class="bc-t"><svg class="ic" aria-hidden="true" viewBox="0 0 24 24" style="fill:currentColor;stroke:none;"><path d="M12 2.5l2.94 5.96 6.58.96-4.76 4.64 1.12 6.55L12 17.52l-5.88 3.09 1.12-6.55L2.48 9.42l6.58-.96L12 2.5z"/></svg> Baholash</span>
-                <span class="bc-d">5 yulduzli baho so'rash oynasi</span>
+                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg> Katta Popup</span><br>
+                <span style="font-size:11px;color:var(--gray);">Ekran o&#39;rtasida modal oyna</span>
               </span>
             </label>
           </div>
-        </div>
+        </label>
         <p id="broadcastStatus" style="margin:.6em 0 0;font-size:.9rem;color:var(--gray);"></p>
         <div style="margin-top:1em;">
           <button class="btn btn-amber" id="broadcastSendBtn">Yuborish</button>
         </div>
 
-      </div>
-
-      <div class="bc-side">
-        <div id="ratingSummaryBox"></div>
-        <div class="table-wrap" style="padding:20px;">
+        <div style="margin-top:2em;">
           <h3 style="margin:0 0 .8em;">Yuborilgan xabarlar</h3>
           <div id="broadcastHistoryList" style="display:flex;flex-direction:column;gap:.6em;"></div>
         </div>
-      </div>
       </div>
     </section>
 
@@ -2278,6 +2259,111 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-clipboard"></use></svg></div>
         <h3>Hali yozuv yo'q</h3>
         <p>Yuqoridagi forma orqali birinchi yozuvni qo'shing.</p>
+      </div>
+    </section>
+
+    <!-- ===== INDIVIDUALS (yakka tartibdagi talabalar) ===== -->
+    <section id="view-individuals" hidden>
+      <style>
+        .ind-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+        .ind-top h1{margin:0;}
+        .ind-top p{margin:.3em 0 0;color:var(--gray);font-size:.9rem;}
+        .ind-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+        .ind-tools input[type=search],.ind-tools select{padding:.55em .8em;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:inherit;font:inherit;font-size:.9rem;}
+        .ind-tools input[type=search]{flex:1;min-width:200px;max-width:340px;}
+        .ind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+        .ind-card{display:flex;gap:12px;align-items:flex-start;text-align:left;width:100%;padding:14px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);color:inherit;font:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;}
+        .ind-card:hover{transform:translateY(-2px);border-color:#2563eb;box-shadow:0 10px 24px -14px rgba(37,99,235,.55);}
+        .ind-av{width:42px;height:42px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;background:linear-gradient(135deg,#3b82f6,#6366f1);}
+        .ind-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px;}
+        .ind-main strong{font-size:.98rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .ind-sub{font-size:.8rem;color:var(--gray);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+        .ind-dirs{display:flex;gap:6px;flex-wrap:wrap;}
+        .ind-dir{display:inline-flex;align-items:center;font-size:.72rem;font-weight:700;padding:.18em .7em;border-radius:99px;border:1px solid transparent;}
+        .ind-dir--general{color:#2563eb;background:rgba(37,99,235,.12);}
+        .ind-dir--cefr{color:#7c3aed;background:rgba(124,58,237,.12);}
+        .ind-dir--speaking{color:#059669;background:rgba(5,150,105,.12);}
+        button.ind-dir{cursor:pointer;font-family:inherit;opacity:.55;border-color:currentColor;background:transparent;}
+        button.ind-dir.on{opacity:1;}
+        button.ind-dir--general.on{background:rgba(37,99,235,.14);}
+        button.ind-dir--cefr.on{background:rgba(124,58,237,.14);}
+        button.ind-dir--speaking.on{background:rgba(5,150,105,.14);}
+        .ind-mini{display:flex;gap:12px;flex-wrap:wrap;font-size:.78rem;color:var(--gray);margin-top:4px;}
+        .ind-mini b{color:inherit;font-weight:700;}
+        .ind-empty{padding:2em 1em;text-align:center;color:var(--gray);border:1.5px dashed var(--line);border-radius:14px;}
+        .ind-head{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:16px;}
+        .ind-head .ind-av{width:52px;height:52px;font-size:1.2rem;}
+        .ind-head-info{flex:1;min-width:200px;display:flex;flex-direction:column;gap:6px;}
+        .ind-head-info h1{margin:0;}
+        .ind-lbl{font-size:.8rem;font-weight:700;margin-bottom:6px;}
+        .ind-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px;}
+        .ind-stat{border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface);}
+        .ind-stat small{display:block;color:var(--gray);font-size:.76rem;font-weight:600;}
+        .ind-stat strong{display:block;font-size:1.35rem;margin-top:2px;}
+        .ind-stat span{font-size:.78rem;color:var(--gray);}
+        .ind-tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;}
+        .ind-tab{padding:.55em 1.1em;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:inherit;font:inherit;font-size:.88rem;font-weight:600;cursor:pointer;}
+        .ind-tab.active{background:#2563eb;border-color:#2563eb;color:#fff;}
+        .ind-form{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;padding:14px;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);}
+        .ind-form label{display:flex;flex-direction:column;gap:5px;font-size:.78rem;font-weight:700;}
+        .ind-form input,.ind-form select{padding:.55em .75em;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:inherit;font:inherit;font-size:.9rem;}
+        .ind-form .grow{flex:1;min-width:200px;}
+        .ind-seg{display:flex;gap:8px;flex-wrap:wrap;}
+        .ind-b{padding:.6em 1.1em;border-radius:10px;border:1.5px solid var(--line);background:transparent;color:inherit;font:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:transform .12s,background .15s;}
+        .ind-b:hover{transform:translateY(-1px);}
+        .ind-b-yes{color:#059669;border-color:rgba(5,150,105,.45);} .ind-b-yes:hover{background:rgba(5,150,105,.12);}
+        .ind-b-late{color:#d97706;border-color:rgba(217,119,6,.45);} .ind-b-late:hover{background:rgba(217,119,6,.12);}
+        .ind-b-no{color:#dc2626;border-color:rgba(220,38,38,.45);} .ind-b-no:hover{background:rgba(220,38,38,.1);}
+        .ind-badge{display:inline-block;font-size:.76rem;font-weight:700;padding:.2em .7em;border-radius:99px;}
+        .ind-badge--yes,.ind-badge--done{color:#059669;background:rgba(5,150,105,.12);}
+        .ind-badge--late,.ind-badge--partial{color:#d97706;background:rgba(217,119,6,.14);}
+        .ind-badge--no,.ind-badge--none{color:#dc2626;background:rgba(220,38,38,.12);}
+        .ind-badge--pending{color:#2563eb;background:rgba(37,99,235,.12);}
+        .ind-x{border:0;background:transparent;color:var(--gray);cursor:pointer;font-size:1.1rem;line-height:1;padding:.2em .4em;border-radius:6px;}
+        .ind-x:hover{color:#dc2626;background:rgba(220,38,38,.1);}
+        .ind-pick-list{max-height:240px;overflow-y:auto;border:1.5px solid var(--line);border-radius:12px;display:flex;flex-direction:column;}
+        .ind-pick{display:flex;flex-direction:column;gap:2px;text-align:left;padding:.6em .9em;border:0;border-bottom:1px solid var(--line);background:transparent;color:inherit;font:inherit;cursor:pointer;}
+        .ind-pick:last-child{border-bottom:0;}
+        .ind-pick:hover{background:rgba(37,99,235,.07);}
+        .ind-pick.sel{background:rgba(37,99,235,.14);box-shadow:inset 3px 0 0 #2563eb;}
+        .ind-pick small{color:var(--gray);}
+        .ind-hw-task{max-width:360px;white-space:pre-wrap;word-break:break-word;}
+        @media (max-width:640px){.ind-grid{grid-template-columns:1fr;}}
+      </style>
+
+      <!-- Ro'yxat -->
+      <div id="indListPane">
+        <div class="ind-top">
+          <div>
+            <h1>Individuals</h1>
+            <p>Yakka tartibda o&#39;qiydigan talabalar: yo&#39;nalishi, davomati, uy vazifalari va to&#39;lovlari.</p>
+          </div>
+          <button class="btn btn-primary" id="indAddBtn">+ Talaba qo&#39;shish</button>
+        </div>
+        <div class="ind-tools">
+          <input type="search" id="indSearch" placeholder="Ism, email yoki ID bo&#39;yicha qidirish" aria-label="Qidirish">
+          <select id="indDirFilter" aria-label="Yo&#39;nalish bo&#39;yicha filtr">
+            <option value="">Barcha yo&#39;nalishlar</option>
+            <option value="general">General English</option>
+            <option value="cefr">CEFR</option>
+            <option value="speaking">Speaking</option>
+          </select>
+          <span id="indCount" style="color:var(--gray);font-size:.85rem;"></span>
+        </div>
+        <div id="indGrid" class="ind-grid"></div>
+      </div>
+
+      <!-- Talaba sahifasi -->
+      <div id="indDetailPane" hidden>
+        <button class="btn btn-ghost btn-sm" id="indBackBtn" style="margin-bottom:14px;"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Individuals</button>
+        <div id="indHead"></div>
+        <div id="indStats" class="ind-stats"></div>
+        <div class="ind-tabs" id="indTabs" role="tablist">
+          <button type="button" class="ind-tab active" data-tab="att" role="tab">Davomat</button>
+          <button type="button" class="ind-tab" data-tab="hw" role="tab">Uy vazifalar</button>
+          <button type="button" class="ind-tab" data-tab="pay" role="tab">To&#39;lovlar</button>
+        </div>
+        <div id="indTabBody"></div>
       </div>
     </section>
 
@@ -2863,6 +2949,27 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 </div>
 
 <!-- ===== MODAL: Add Teacher ===== -->
+<div class="modal-overlay" id="modalIndAdd" hidden>
+  <div class="modal-box" style="max-width:520px;">
+    <h2 class="modal-title">Individuals ga talaba qo&#39;shish</h2>
+    <div class="modal-form">
+      <label>Saytdagi talabani tanlang
+        <input type="text" id="indPickSearch" placeholder="Ism, email yoki ID bo&#39;yicha qidiring" autocomplete="off">
+      </label>
+      <div id="indPickList" class="ind-pick-list"></div>
+      <div>
+        <div class="ind-lbl">Yo&#39;nalish (bir yoki bir nechtasi)</div>
+        <div id="indPickDirs" class="ind-dirs"></div>
+      </div>
+      <p class="form-error" id="indPickError" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="indPickSave">Qo&#39;shish</button>
+        <button class="btn btn-ghost" onclick="closeModal('modalIndAdd')">Bekor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modalAddTeacher" hidden>
   <div class="modal-box" style="max-width:420px;">
     <h2 class="modal-title">Yangi ustoz</h2>
@@ -4648,6 +4755,7 @@ const ADMIN_VIEW_NAV_MAP = {
   'parent-chats': 'navParentChats',
   'activity-log': 'navActivityLog',
   'caller': 'navCaller',
+  'individuals': 'navIndividuals',
   'levels': 'navLevels',
   'lessons': 'navLevels',
   'writing-tracks': 'navWriting',
@@ -4743,6 +4851,8 @@ function switchView(view){
   document.getElementById('navCaller').classList.toggle('active', view === 'caller');
   document.getElementById('view-anketa').hidden = view !== 'anketa';
   document.getElementById('navAnketa').classList.toggle('active', view === 'anketa');
+  document.getElementById('view-individuals').hidden = view !== 'individuals';
+  document.getElementById('navIndividuals').classList.toggle('active', view === 'individuals');
   document.getElementById('view-reading-mocks').hidden = view !== 'reading-mocks';
   document.getElementById('view-reading-mock-builder').hidden = view !== 'reading-mock-builder';
   document.getElementById('view-reading-attempts').hidden = view !== 'reading-attempts';
@@ -10265,101 +10375,11 @@ document.getElementById('navBroadcast').addEventListener('click', (e) => {
   loadBroadcastHistory();
 });
 
-// ---- Baholash (yulduzcha) yordamchilari ----
-const RATING_STAR_PATH = 'M12 2.5l2.94 5.96 6.58.96-4.76 4.64 1.12 6.55L12 17.52l-5.88 3.09 1.12-6.55L2.48 9.42l6.58-.96L12 2.5z';
-function ratingStarsRow(n, size){
-  size = size || 16;
-  let h = '';
-  for(let i = 1; i <= 5; i++){
-    h += '<svg viewBox="0 0 24 24" width="' + size + '" height="' + size + '" aria-hidden="true" style="flex-shrink:0;fill:currentColor;color:' + (i <= Math.round(n) ? '#f59e0b' : 'var(--line)') + ';"><path d="' + RATING_STAR_PATH + '"/></svg>';
-  }
-  return '<span style="display:inline-flex;gap:2px;vertical-align:middle;" aria-label="' + n + ' / 5">' + h + '</span>';
-}
-
-// Barcha "rating" turidagi xabarlar va ularning baholarini o'qiydi: { notifId: [ {id, stars, name, ...} ] }
-async function loadRatingData(){
-  try{
-    const out = {};
-    const nsnap = await db.collection('notifications').where('displayType','==','rating').get();
-    await Promise.all(nsnap.docs.map(async nd => {
-      const rs = await nd.ref.collection('ratings').get();
-      out[nd.id] = rs.docs.map(r => Object.assign({ id: r.id }, r.data()));
-    }));
-    return out;
-  } catch(err){
-    console.warn('Baholarni o‘qib bo‘lmadi:', err);
-    return null;
-  }
-}
-
-function ratingAvg(list){
-  if(!list.length) return 0;
-  return list.reduce((s, r) => s + (Number(r.stars) || 0), 0) / list.length;
-}
-
-function renderRatingSummary(data){
-  const box = document.getElementById('ratingSummaryBox');
-  if(!box) return;
-  if(!data || !Object.keys(data).length){ box.innerHTML = ''; return; }
-  const all = [].concat.apply([], Object.values(data));
-  if(!all.length){
-    box.innerHTML = '<div style="background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-s);padding:1em;color:var(--gray);">Sayt bahosi: hali hech kim baho bermagan.</div>';
-    return;
-  }
-  const avg = ratingAvg(all);
-  const students = new Set(all.map(r => r.uid || r.id)).size;
-  const counts = [0,0,0,0,0,0];
-  all.forEach(r => { const k = Math.min(5, Math.max(1, Number(r.stars) || 1)); counts[k]++; });
-  const bars = [5,4,3,2,1].map(k => {
-    const pct = Math.round(counts[k] / all.length * 100);
-    return '<div style="display:flex;align-items:center;gap:.6em;font-size:.82rem;">' +
-      '<span style="width:1.2em;text-align:right;">' + k + '</span>' +
-      '<div style="flex:1;height:8px;border-radius:99px;background:var(--line);overflow:hidden;"><div style="width:' + pct + '%;height:100%;background:#f59e0b;"></div></div>' +
-      '<span style="width:5.5em;color:var(--gray);">' + counts[k] + ' ta (' + pct + '%)</span></div>';
-  }).join('');
-  box.innerHTML =
-    '<div style="background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-s);padding:1.1em 1.2em;">' +
-      '<h3 style="margin:0 0 .8em;">Sayt bahosi</h3>' +
-      '<div style="display:flex;gap:1.4em;align-items:center;flex-wrap:wrap;">' +
-        '<div style="text-align:center;min-width:110px;">' +
-          '<div style="font-size:2.6rem;font-weight:800;line-height:1;">' + avg.toFixed(1) + '<span style="font-size:1rem;font-weight:600;color:var(--gray);"> / 5</span></div>' +
-          '<div style="margin-top:.4em;">' + ratingStarsRow(avg, 20) + '</div>' +
-          '<div style="margin-top:.3em;font-size:.8rem;color:var(--gray);">' + all.length + ' ta baho · ' + students + ' ta talaba</div>' +
-        '</div>' +
-        '<div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:.3em;">' + bars + '</div>' +
-      '</div>' +
-    '</div>';
-}
-
-function renderRatingList(list){
-  if(!list.length) return '<p style="margin:.5em 0 0;font-size:.85rem;color:var(--gray);">Hali hech kim baho bermagan.</p>';
-  const sorted = list.slice().sort((x, y) => {
-    const tx = (x.updatedAt || x.createdAt); const ty = (y.updatedAt || y.createdAt);
-    return (ty && ty.toMillis ? ty.toMillis() : 0) - (tx && tx.toMillis ? tx.toMillis() : 0);
-  });
-  return sorted.map(r => {
-    const t = r.updatedAt || r.createdAt;
-    const date = t && t.toDate ? t.toDate().toLocaleString('uz-UZ') : '';
-    return '<div style="display:flex;flex-direction:column;gap:.15em;padding:.55em 0;border-top:1px solid var(--line);">' +
-      '<div style="display:flex;justify-content:space-between;align-items:center;gap:.5em;flex-wrap:wrap;">' +
-        '<span><strong>' + escapeHtml(r.name || '—') + '</strong>' + (r.code ? ' <span style="color:var(--gray);font-size:.8rem;">(ID: ' + escapeHtml(String(r.code)) + ')</span>' : '') + '</span>' +
-        '<span style="display:inline-flex;align-items:center;gap:.4em;">' + ratingStarsRow(r.stars, 15) + '<strong>' + escapeHtml(String(r.stars)) + '</strong></span>' +
-      '</div>' +
-      (r.comment ? '<div style="font-size:.88rem;">' + escapeHtml(r.comment) + '</div>' : '') +
-      '<div style="font-size:.75rem;color:var(--gray);">' + date + '</div>' +
-    '</div>';
-  }).join('');
-}
-
 async function loadBroadcastHistory(){
   const listEl = document.getElementById('broadcastHistoryList');
   listEl.innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div>';
   try{
-    const [snap, ratingData] = await Promise.all([
-      db.collection('notifications').orderBy('createdAt','desc').limit(20).get(),
-      loadRatingData()
-    ]);
-    renderRatingSummary(ratingData);
+    const snap = await db.collection('notifications').orderBy('createdAt','desc').limit(20).get();
     if(snap.empty){ listEl.innerHTML = '<p style="color:var(--gray);">Hali xabar yuborilmagan.</p>'; return; }
     listEl.innerHTML = snap.docs.map(doc => {
       const d = doc.data();
@@ -10367,21 +10387,6 @@ async function loadBroadcastHistory(){
       const thumb = d.imageUrl
         ? `<img src="${escapeHtml(d.imageUrl)}" alt="" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'">`
         : '';
-      const isRating = d.displayType === 'rating';
-      let ratingBlock = '';
-      if(isRating){
-        const list = (ratingData && ratingData[doc.id]) || [];
-        const avg = ratingAvg(list);
-        ratingBlock = `<div style="margin-top:.6em;">
-          <div style="display:flex;align-items:center;gap:.6em;flex-wrap:wrap;">
-            <span style="font-size:.75rem;font-weight:700;color:#b45309;background:rgba(245,158,11,.15);border-radius:99px;padding:.15em .7em;">Baholash</span>
-            ${list.length ? ratingStarsRow(avg, 16) + `<strong>${avg.toFixed(1)}</strong>` : ''}
-            <span style="font-size:.82rem;color:var(--gray);">${list.length} ta baho</span>
-            <button class="btn btn-sm" data-toggle-rate="${doc.id}" style="padding:.2em .7em;">Kim qancha baho berdi</button>
-          </div>
-          <div id="rateList_${doc.id}" hidden style="margin-top:.5em;">${renderRatingList(list)}</div>
-        </div>`;
-      }
       return `<div style="background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius-s);padding:.8em 1em;">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:.5em;flex-wrap:wrap;">
           <div style="display:flex;align-items:center;gap:.6em;min-width:0;">
@@ -10389,31 +10394,16 @@ async function loadBroadcastHistory(){
             <strong>${escapeHtml(d.title||'')}</strong>
           </div>
           <span style="font-size:.8rem;color:var(--gray);">${date}</span>
-          <button class="btn btn-danger btn-sm" data-del-notif="${doc.id}" data-del-rating="${isRating ? '1' : ''}" style="padding:.2em .6em;">O‘chirish</button>
+          <button class="btn btn-danger btn-sm" data-del-notif="${doc.id}" style="padding:.2em .6em;">O‘chirish</button>
         </div>
         <p style="margin:.4em 0 0;font-size:.9rem;color:var(--gray);">${escapeHtml(d.body||'')}</p>
-        ${ratingBlock}
       </div>`;
     }).join('');
 
-    listEl.querySelectorAll('[data-toggle-rate]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const el = document.getElementById('rateList_' + btn.dataset.toggleRate);
-        if(el) el.hidden = !el.hidden;
-      });
-    });
-
     listEl.querySelectorAll('[data-del-notif]').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const isRating = !!btn.dataset.delRating;
-        if(!confirm(isRating ? "Bu xabarni va unga berilgan barcha baholarni oʼchirishni tasdiqlaysizmi?" : "Bu xabarni oʼchirishni tasdiqlaysizmi?")) return;
-        const ref = db.collection('notifications').doc(btn.dataset.delNotif);
-        if(isRating){
-          // Subkolleksiya o'z-o'zidan o'chmaydi — baholarni avval o'chiramiz
-          const rs = await ref.collection('ratings').get();
-          await Promise.all(rs.docs.map(r => r.ref.delete()));
-        }
-        await ref.delete();
+        if(!confirm("Bu xabarni oʼchirishni tasdiqlaysizmi?")) return;
+        await db.collection('notifications').doc(btn.dataset.delNotif).delete();
         loadBroadcastHistory();
       });
     });
@@ -10424,26 +10414,20 @@ async function loadBroadcastHistory(){
 
 // Broadcast type radio highlight
 document.addEventListener('DOMContentLoaded', () => {
-  const paint = () => {
-    [['typeNotif','typeNotifLabel'],['typePopup','typePopupLabel'],['typeRating','typeRatingLabel']].forEach(([i, l]) => {
-      const inp = document.getElementById(i), lab = document.getElementById(l);
-      if(inp && lab) lab.style.borderColor = inp.checked ? '#2563eb' : 'var(--line)';
+  document.querySelectorAll('input[name="broadcastType"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.getElementById('typeNotifLabel').style.borderColor = document.getElementById('typeNotif').checked ? '#2563eb' : 'var(--line)';
+      document.getElementById('typePopupLabel').style.borderColor = document.getElementById('typePopup').checked ? '#2563eb' : 'var(--line)';
     });
-  };
-  document.querySelectorAll('input[name="broadcastType"]').forEach(radio => radio.addEventListener('change', paint));
+  });
 });
 
 document.getElementById('broadcastSendBtn').addEventListener('click', async () => {
-  let title = document.getElementById('broadcastTitle').value.trim();
-  let body = document.getElementById('broadcastBody').value.trim();
+  const title = document.getElementById('broadcastTitle').value.trim();
+  const body = document.getElementById('broadcastBody').value.trim();
   const imageUrl = document.getElementById('broadcastImageUrl').value.trim();
   const statusEl = document.getElementById('broadcastStatus');
   const displayType = (document.querySelector('input[name="broadcastType"]:checked') || {}).value || 'notification';
-  if(displayType === 'rating'){
-    // Baholash uchun sarlavha/matn bo'sh bo'lsa, tayyor matn qo'yiladi
-    if(!title) title = 'Saytni baholang';
-    if(!body) body = 'Sayt sizga qanchalik yoqdi? Yulduzchalarni bosib baho bering.';
-  }
   if(!title || !body){ statusEl.textContent = 'Sarlavha va xabar matni to‘ldirilishi shart.'; return; }
   const btn = document.getElementById('broadcastSendBtn');
   btn.disabled = true;
@@ -13563,6 +13547,486 @@ document.getElementById('navCaller').addEventListener('click', function(e) {
   e.preventDefault();
   switchView('caller');
   loadCaller();
+});
+
+// ===== INDIVIDUALS — yakka tartibdagi talabalar =====
+// Firestore: individuals/{studentUid} { uid, name, email, code, directions:['general'|'cefr'|'speaking'], summary, createdAt }
+//   ichida: attendance/{YYYY-MM-DD} {date,status}, homework/{id} {date,task,status}, payments/{id} {date,amount,note}
+const Individuals = (function(){
+  const DIRS = [
+    { id: 'general', label: 'General English' },
+    { id: 'cefr', label: 'CEFR' },
+    { id: 'speaking', label: 'Speaking' }
+  ];
+  const ATT = { yes: 'Keldi', late: 'Kech qoldi', no: 'Kelmadi' };
+  const HW = { pending: 'Berilgan', done: 'Qildi', partial: 'Qisman', none: 'Qilmadi' };
+  const $ = id => document.getElementById(id);
+  const esc = s => escapeHtml(String(s == null ? '' : s));
+  const col = () => db.collection('individuals');
+  const subCol = name => col().doc(cur.id).collection(name);
+
+  let list = [], cur = null, att = [], hw = [], pay = [], tab = 'att';
+  let pickId = null;
+  const pickDirs = new Set();
+  const formDate = { att: '', hw: '', pay: '' };
+
+  function todayKey(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function fmtDate(k){
+    if(!k) return '';
+    const p = String(k).split('-');
+    return p.length === 3 ? p[2] + '.' + p[1] + '.' + p[0] : k;
+  }
+  function fmtMoney(n){
+    return (Number(n) || 0).toLocaleString('ru-RU').replace(/\u00a0|\u202f/g, ' ') + " so'm";
+  }
+  function initial(name){ return (String(name || '?').trim().charAt(0) || '?').toUpperCase(); }
+  function dirLabel(id){ const d = DIRS.find(x => x.id === id); return d ? d.label : id; }
+  function dirChips(arr){
+    return (arr || []).map(id => '<span class="ind-dir ind-dir--' + esc(id) + '">' + esc(dirLabel(id)) + '</span>').join('');
+  }
+  function byDateDesc(a, b){ return String(b.date || '').localeCompare(String(a.date || '')); }
+
+  // ---------- Ro'yxat ----------
+  async function open(){
+    $('indListPane').hidden = false;
+    $('indDetailPane').hidden = true;
+    cur = null;
+    await loadList();
+  }
+
+  async function loadList(){
+    const box = $('indGrid');
+    box.innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div>';
+    try{
+      const snap = await col().orderBy('createdAt', 'desc').get();
+      list = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    } catch(err){
+      box.innerHTML = '<p class="ind-empty">Yuklashda xatolik: ' + esc(err.message) + '</p>';
+      return;
+    }
+    renderList();
+  }
+
+  function renderList(){
+    const q = $('indSearch').value.trim().toLowerCase();
+    const dir = $('indDirFilter').value;
+    const items = list.filter(it =>
+      (!dir || (it.directions || []).indexOf(dir) >= 0) &&
+      (!q || [it.name, it.email, it.code].join(' ').toLowerCase().indexOf(q) >= 0)
+    );
+    $('indCount').textContent = list.length ? (items.length + ' / ' + list.length + ' ta') : '';
+    const box = $('indGrid');
+    if(!list.length){
+      box.innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Hali hech kim qo&#39;shilmagan. &laquo;+ Talaba qo&#39;shish&raquo; tugmasi bilan saytdagi talabani tanlang.</p>';
+      return;
+    }
+    if(!items.length){
+      box.innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Hech narsa topilmadi.</p>';
+      return;
+    }
+    box.innerHTML = items.map(it => {
+      const sm = it.summary || {};
+      return '<button type="button" class="ind-card" data-id="' + esc(it.id) + '">' +
+        '<div class="ind-av">' + esc(initial(it.name)) + '</div>' +
+        '<div class="ind-main">' +
+          '<strong>' + esc(it.name || 'Nomsiz') + '</strong>' +
+          '<span class="ind-sub">' + esc(it.code ? 'ID: ' + it.code : (it.email || '')) + '</span>' +
+          '<div class="ind-dirs">' + dirChips(it.directions) + '</div>' +
+          '<div class="ind-mini">' +
+            '<span>Keldi: <b>' + (sm.came || 0) + '</b></span>' +
+            '<span>Kelmadi: <b>' + (sm.absent || 0) + '</b></span>' +
+            '<span>Uy vazifa: <b>' + (sm.hwDone || 0) + '/' + (sm.hwTotal || 0) + '</b></span>' +
+          '</div>' +
+          '<div class="ind-mini"><span>To&#39;langan: <b>' + esc(fmtMoney(sm.paid || 0)) + '</b></span></div>' +
+        '</div>' +
+      '</button>';
+    }).join('');
+  }
+
+  // ---------- Talaba qo'shish ----------
+  async function openAdd(){
+    pickId = null;
+    pickDirs.clear();
+    $('indPickSearch').value = '';
+    $('indPickError').hidden = true;
+    openModal('modalIndAdd');
+    $('indPickList').innerHTML = '<div class="sk-rows" style="padding:12px;"><i></i><i></i><i></i></div>';
+    try{
+      if(!state.students || !state.students.length) await loadStudents();
+      if(!list.length) { try{ const snap = await col().get(); list = snap.docs.map(d => Object.assign({ id: d.id }, d.data())); }catch(e){} }
+    } catch(err){
+      $('indPickList').innerHTML = '<p class="ind-empty">Talabalarni yuklab bo&#39;lmadi: ' + esc(err.message) + '</p>';
+      return;
+    }
+    renderPickDirs();
+    renderPick();
+    setTimeout(() => $('indPickSearch').focus(), 80);
+  }
+
+  function renderPickDirs(){
+    $('indPickDirs').innerHTML = DIRS.map(d =>
+      '<button type="button" class="ind-dir ind-dir--' + d.id + (pickDirs.has(d.id) ? ' on' : '') + '" data-dir="' + d.id + '" aria-pressed="' + pickDirs.has(d.id) + '">' + esc(d.label) + '</button>'
+    ).join('');
+  }
+
+  function renderPick(){
+    const q = $('indPickSearch').value.trim().toLowerCase();
+    const taken = new Set(list.map(i => i.id));
+    const all = (state.students || []).filter(s => !taken.has(s.id));
+    const items = all.filter(s => !q || [s.name, s.email, s.oquvProgressCode].join(' ').toLowerCase().indexOf(q) >= 0);
+    const box = $('indPickList');
+    if(!items.length){
+      box.innerHTML = '<p class="ind-empty" style="border:0;">' + (all.length ? 'Hech narsa topilmadi.' : 'Qo&#39;shiladigan talaba qolmadi.') + '</p>';
+      return;
+    }
+    const shown = items.slice(0, 60);
+    box.innerHTML = shown.map(s =>
+      '<button type="button" class="ind-pick' + (s.id === pickId ? ' sel' : '') + '" data-id="' + esc(s.id) + '">' +
+        '<strong>' + esc(s.name || s.email || 'Nomsiz') + '</strong>' +
+        '<small>' + esc([s.email, s.oquvProgressCode ? 'ID: ' + s.oquvProgressCode : ''].filter(Boolean).join(' · ')) + '</small>' +
+      '</button>'
+    ).join('') + (items.length > shown.length ? '<p style="margin:0;padding:.6em .9em;font-size:.78rem;color:var(--gray);">Yana ' + (items.length - shown.length) + ' ta bor — qidiruvni aniqlashtiring.</p>' : '');
+  }
+
+  async function savePick(){
+    const err = $('indPickError');
+    err.hidden = true;
+    const st = (state.students || []).find(s => s.id === pickId);
+    if(!st){ err.textContent = 'Avval ro\u02bbyxatdan talabani tanlang.'; err.hidden = false; return; }
+    if(!pickDirs.size){ err.textContent = 'Kamida bitta yo\u02bbnalishni tanlang.'; err.hidden = false; return; }
+    const btn = $('indPickSave');
+    btn.disabled = true;
+    try{
+      const doc = {
+        uid: st.id,
+        name: st.name || st.email || '',
+        email: st.email || '',
+        code: st.oquvProgressCode || '',
+        directions: DIRS.map(d => d.id).filter(id => pickDirs.has(id)),
+        summary: { came: 0, late: 0, absent: 0, hwDone: 0, hwTotal: 0, paid: 0 },
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      await col().doc(st.id).set(doc);
+      const local = Object.assign({ id: st.id }, doc, { createdAt: null });
+      list.unshift(local);
+      closeModal('modalIndAdd');
+      showToast('Talaba Individuals ga qo\u02bbshildi');
+      openDetail(st.id);
+    } catch(e){
+      err.textContent = 'Xatolik: ' + e.message;
+      err.hidden = false;
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ---------- Talaba sahifasi ----------
+  async function openDetail(id){
+    cur = list.find(i => i.id === id);
+    if(!cur) return;
+    att = []; hw = []; pay = [];
+    tab = 'att';
+    formDate.att = formDate.hw = formDate.pay = todayKey();
+    $('indListPane').hidden = true;
+    $('indDetailPane').hidden = false;
+    window.scrollTo(0, 0);
+    renderHead();
+    $('indStats').innerHTML = '';
+    $('indTabBody').innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i></div>';
+    syncTabs();
+    try{
+      const [a, h, p] = await Promise.all([
+        subCol('attendance').get(), subCol('homework').get(), subCol('payments').get()
+      ]);
+      att = a.docs.map(d => Object.assign({ id: d.id }, d.data())).sort(byDateDesc);
+      hw = h.docs.map(d => Object.assign({ id: d.id }, d.data())).sort(byDateDesc);
+      pay = p.docs.map(d => Object.assign({ id: d.id }, d.data())).sort(byDateDesc);
+    } catch(err){
+      $('indTabBody').innerHTML = '<p class="ind-empty">Yuklashda xatolik: ' + esc(err.message) + '</p>';
+      return;
+    }
+    renderStats();
+    renderTab();
+  }
+
+  function renderHead(){
+    $('indHead').innerHTML =
+      '<div class="ind-head">' +
+        '<div class="ind-av">' + esc(initial(cur.name)) + '</div>' +
+        '<div class="ind-head-info">' +
+          '<h1>' + esc(cur.name || 'Nomsiz') + '</h1>' +
+          '<span class="ind-sub">' + esc([cur.email, cur.code ? 'ID: ' + cur.code : ''].filter(Boolean).join(' · ')) + '</span>' +
+        '</div>' +
+        '<button class="btn btn-ghost btn-sm" id="indDeleteBtn" style="color:#dc2626;">Ro&#39;yxatdan chiqarish</button>' +
+      '</div>' +
+      '<div style="margin-bottom:16px;">' +
+        '<div class="ind-lbl">Yo&#39;nalish</div>' +
+        '<div class="ind-dirs" id="indDirEdit">' +
+          DIRS.map(d => '<button type="button" class="ind-dir ind-dir--' + d.id + ((cur.directions || []).indexOf(d.id) >= 0 ? ' on' : '') + '" data-dir="' + d.id + '" aria-pressed="' + ((cur.directions || []).indexOf(d.id) >= 0) + '">' + esc(d.label) + '</button>').join('') +
+        '</div>' +
+      '</div>';
+  }
+
+  function calc(){
+    const came = att.filter(a => a.status === 'yes').length;
+    const late = att.filter(a => a.status === 'late').length;
+    const absent = att.filter(a => a.status === 'no').length;
+    const total = att.length;
+    const pct = total ? Math.round((came + late * 0.5) / total * 100) : 0;
+    const hwTotal = hw.length;
+    const hwDone = hw.filter(h => h.status === 'done').length;
+    const hwPartial = hw.filter(h => h.status === 'partial').length;
+    const paid = pay.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+    return { came, late, absent, total, pct, hwTotal, hwDone, hwPartial, paid,
+      lastPay: pay.length ? pay[0].date : '', lastLesson: att.length ? att[0].date : '' };
+  }
+
+  function renderStats(){
+    const c = calc();
+    $('indStats').innerHTML =
+      '<div class="ind-stat"><small>Davomat</small><strong>' + c.pct + '%</strong><span>Keldi ' + c.came + ' · Kech ' + c.late + ' · Kelmadi ' + c.absent + '</span></div>' +
+      '<div class="ind-stat"><small>Uy vazifa</small><strong>' + c.hwDone + ' / ' + c.hwTotal + '</strong><span>Qisman: ' + c.hwPartial + '</span></div>' +
+      '<div class="ind-stat"><small>Jami to&#39;langan</small><strong>' + esc(fmtMoney(c.paid)) + '</strong><span>' + (c.lastPay ? 'Oxirgi: ' + esc(fmtDate(c.lastPay)) : 'To&#39;lov yo&#39;q') + '</span></div>';
+    const tabs = $('indTabs').querySelectorAll('.ind-tab');
+    tabs[0].textContent = 'Davomat (' + att.length + ')';
+    tabs[1].textContent = 'Uy vazifalar (' + hw.length + ')';
+    tabs[2].textContent = "To'lovlar (" + pay.length + ')';
+  }
+
+  function syncTabs(){
+    $('indTabs').querySelectorAll('.ind-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  }
+
+  // Yig'ma ko'rsatkichlarni ota hujjatga yozib qo'yamiz (ro'yxatda tez ko'rinishi uchun)
+  function persistSummary(){
+    const c = calc();
+    const summary = { came: c.came, late: c.late, absent: c.absent, hwDone: c.hwDone, hwTotal: c.hwTotal, paid: c.paid, lastPay: c.lastPay, lastLesson: c.lastLesson };
+    cur.summary = summary;
+    col().doc(cur.id).update({ summary: summary }).catch(() => {});
+  }
+
+  function refresh(){
+    renderStats();
+    renderTab();
+    persistSummary();
+  }
+
+  function renderTab(){
+    syncTabs();
+    const body = $('indTabBody');
+    if(tab === 'att'){
+      body.innerHTML =
+        '<div class="ind-form">' +
+          '<label>Sana<input type="date" id="indAttDate" value="' + esc(formDate.att) + '"></label>' +
+          '<div class="ind-seg">' +
+            '<button type="button" class="ind-b ind-b-yes" data-att="yes">Keldi</button>' +
+            '<button type="button" class="ind-b ind-b-late" data-att="late">Kech qoldi</button>' +
+            '<button type="button" class="ind-b ind-b-no" data-att="no">Kelmadi</button>' +
+          '</div>' +
+        '</div>' +
+        (att.length
+          ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Sana</th><th>Holat</th><th></th></tr></thead><tbody>' +
+            att.map(a => '<tr><td>' + esc(fmtDate(a.date)) + '</td><td><span class="ind-badge ind-badge--' + esc(a.status) + '">' + esc(ATT[a.status] || a.status) + '</span></td>' +
+              '<td style="text-align:right;"><button class="ind-x" data-del-att="' + esc(a.id) + '" aria-label="O&#39;chirish" title="O&#39;chirish">&times;</button></td></tr>').join('') +
+            '</tbody></table></div>'
+          : '<p class="ind-empty">Hali davomat belgilanmagan. Sanani tanlab, &laquo;Keldi&raquo; yoki &laquo;Kelmadi&raquo; tugmasini bosing.</p>');
+    } else if(tab === 'hw'){
+      body.innerHTML =
+        '<div class="ind-form">' +
+          '<label>Sana<input type="date" id="indHwDate" value="' + esc(formDate.hw) + '"></label>' +
+          '<label class="grow">Uy vazifa<input type="text" id="indHwTask" placeholder="Masalan: Unit 5, 1–3 mashqlar" maxlength="300"></label>' +
+          '<label>Holati<select id="indHwStatus">' + Object.keys(HW).map(k => '<option value="' + k + '">' + esc(HW[k]) + '</option>').join('') + '</select></label>' +
+          '<button type="button" class="btn btn-primary" data-add-hw="1">Qo&#39;shish</button>' +
+        '</div>' +
+        (hw.length
+          ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Sana</th><th>Vazifa</th><th>Holat</th><th></th></tr></thead><tbody>' +
+            hw.map(h => '<tr><td style="white-space:nowrap;">' + esc(fmtDate(h.date)) + '</td><td class="ind-hw-task">' + esc(h.task) + '</td>' +
+              '<td><select data-hw-status="' + esc(h.id) + '" class="ind-badge ind-badge--' + esc(h.status) + '" style="border:0;cursor:pointer;font-family:inherit;">' +
+                Object.keys(HW).map(k => '<option value="' + k + '"' + (k === h.status ? ' selected' : '') + '>' + esc(HW[k]) + '</option>').join('') +
+              '</select></td>' +
+              '<td style="text-align:right;"><button class="ind-x" data-del-hw="' + esc(h.id) + '" aria-label="O&#39;chirish" title="O&#39;chirish">&times;</button></td></tr>').join('') +
+            '</tbody></table></div>'
+          : '<p class="ind-empty">Hali uy vazifa qo&#39;shilmagan.</p>');
+    } else {
+      const total = pay.reduce((s, p) => s + (Number(p.amount) || 0), 0);
+      body.innerHTML =
+        '<div class="ind-form">' +
+          '<label>Sana<input type="date" id="indPayDate" value="' + esc(formDate.pay) + '"></label>' +
+          '<label>Summa (so&#39;m)<input type="number" id="indPayAmount" min="1" step="1000" inputmode="numeric" placeholder="500000"></label>' +
+          '<label class="grow">Izoh (ixtiyoriy)<input type="text" id="indPayNote" placeholder="Masalan: noyabr oyi uchun" maxlength="150"></label>' +
+          '<button type="button" class="btn btn-primary" data-add-pay="1">Qo&#39;shish</button>' +
+        '</div>' +
+        (pay.length
+          ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Sana</th><th>Summa</th><th>Izoh</th><th></th></tr></thead><tbody>' +
+            pay.map(p => '<tr><td style="white-space:nowrap;">' + esc(fmtDate(p.date)) + '</td><td><strong>' + esc(fmtMoney(p.amount)) + '</strong></td><td>' + esc(p.note || '') + '</td>' +
+              '<td style="text-align:right;"><button class="ind-x" data-del-pay="' + esc(p.id) + '" aria-label="O&#39;chirish" title="O&#39;chirish">&times;</button></td></tr>').join('') +
+            '</tbody><tfoot><tr><td><strong>Jami</strong></td><td colspan="3"><strong>' + esc(fmtMoney(total)) + '</strong></td></tr></tfoot></table></div>'
+          : '<p class="ind-empty">Hali to&#39;lov kiritilmagan.</p>');
+    }
+  }
+
+  // ---------- Amallar ----------
+  async function markAtt(status){
+    const date = ($('indAttDate').value || '').trim();
+    if(!date){ showToast('Sanani tanlang', true); return; }
+    formDate.att = date;
+    try{
+      await subCol('attendance').doc(date).set({ date: date, status: status, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      const i = att.findIndex(a => a.id === date);
+      if(i >= 0) att[i] = { id: date, date: date, status: status }; else att.push({ id: date, date: date, status: status });
+      att.sort(byDateDesc);
+      refresh();
+      showToast(fmtDate(date) + ': ' + ATT[status]);
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  async function addHw(){
+    const date = ($('indHwDate').value || '').trim();
+    const task = $('indHwTask').value.trim();
+    const status = $('indHwStatus').value;
+    if(!date){ showToast('Sanani tanlang', true); return; }
+    if(!task){ showToast('Uy vazifa matnini yozing', true); return; }
+    formDate.hw = date;
+    try{
+      const ref = await subCol('homework').add({ date: date, task: task, status: status, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      hw.unshift({ id: ref.id, date: date, task: task, status: status });
+      hw.sort(byDateDesc);
+      refresh();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  async function setHwStatus(id, status){
+    try{
+      await subCol('homework').doc(id).update({ status: status });
+      const h = hw.find(x => x.id === id);
+      if(h) h.status = status;
+      refresh();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  async function addPay(){
+    const date = ($('indPayDate').value || '').trim();
+    const amount = Math.round(Number($('indPayAmount').value));
+    const note = $('indPayNote').value.trim();
+    if(!date){ showToast('Sanani tanlang', true); return; }
+    if(!(amount > 0)){ showToast("To'lov summasini kiriting", true); return; }
+    formDate.pay = date;
+    try{
+      const ref = await subCol('payments').add({ date: date, amount: amount, note: note, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      pay.unshift({ id: ref.id, date: date, amount: amount, note: note });
+      pay.sort(byDateDesc);
+      refresh();
+      showToast("To'lov qo'shildi: " + fmtMoney(amount));
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  async function delEntry(name, arr, id, confirmText){
+    if(!confirm(confirmText)) return;
+    try{
+      await subCol(name).doc(id).delete();
+      const i = arr.findIndex(x => x.id === id);
+      if(i >= 0) arr.splice(i, 1);
+      refresh();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  async function toggleDir(id){
+    const dirs = (cur.directions || []).slice();
+    const i = dirs.indexOf(id);
+    if(i >= 0){
+      if(dirs.length === 1){ showToast("Kamida bitta yo'nalish qolishi kerak", true); return; }
+      dirs.splice(i, 1);
+    } else dirs.push(id);
+    const ordered = DIRS.map(d => d.id).filter(x => dirs.indexOf(x) >= 0);
+    try{
+      await col().doc(cur.id).update({ directions: ordered });
+      cur.directions = ordered;
+      renderHead();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  async function removeIndividual(){
+    if(!confirm("Bu talabani Individuals ro\u2018yxatidan va uning barcha yozuvlarini (davomat, uy vazifa, to\u2018lov) o\u2018chirasizmi?\nSaytdagi talaba hisobi o\u2018chmaydi.")) return;
+    try{
+      for(const name of ['attendance', 'homework', 'payments']){
+        const snap = await subCol(name).get();
+        for(let i = 0; i < snap.docs.length; i += 400){
+          const batch = db.batch();
+          snap.docs.slice(i, i + 400).forEach(d => batch.delete(d.ref));
+          await batch.commit();
+        }
+      }
+      await col().doc(cur.id).delete();
+      list = list.filter(x => x.id !== cur.id);
+      showToast("Ro'yxatdan chiqarildi");
+      open();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  // ---------- Hodisalar ----------
+  $('indAddBtn').addEventListener('click', openAdd);
+  $('indBackBtn').addEventListener('click', () => { $('indDetailPane').hidden = true; $('indListPane').hidden = false; cur = null; renderList(); });
+  $('indSearch').addEventListener('input', renderList);
+  $('indDirFilter').addEventListener('change', renderList);
+  $('indGrid').addEventListener('click', e => {
+    const card = e.target.closest('.ind-card');
+    if(card) openDetail(card.dataset.id);
+  });
+
+  $('indPickSearch').addEventListener('input', renderPick);
+  $('indPickList').addEventListener('click', e => {
+    const b = e.target.closest('.ind-pick');
+    if(!b) return;
+    pickId = b.dataset.id;
+    renderPick();
+  });
+  $('indPickDirs').addEventListener('click', e => {
+    const b = e.target.closest('[data-dir]');
+    if(!b) return;
+    if(pickDirs.has(b.dataset.dir)) pickDirs.delete(b.dataset.dir); else pickDirs.add(b.dataset.dir);
+    renderPickDirs();
+  });
+  $('indPickSave').addEventListener('click', savePick);
+
+  $('indHead').addEventListener('click', e => {
+    const d = e.target.closest('#indDirEdit [data-dir]');
+    if(d){ toggleDir(d.dataset.dir); return; }
+    if(e.target.closest('#indDeleteBtn')) removeIndividual();
+  });
+  $('indTabs').addEventListener('click', e => {
+    const b = e.target.closest('.ind-tab');
+    if(!b || !cur) return;
+    tab = b.dataset.tab;
+    renderTab();
+  });
+  $('indTabBody').addEventListener('click', e => {
+    const t = e.target;
+    let b;
+    if((b = t.closest('[data-att]'))) return markAtt(b.dataset.att);
+    if((b = t.closest('[data-del-att]'))) return delEntry('attendance', att, b.dataset.delAtt, "Bu kundagi davomat belgisini o'chirasizmi?");
+    if(t.closest('[data-add-hw]')) return addHw();
+    if((b = t.closest('[data-del-hw]'))) return delEntry('homework', hw, b.dataset.delHw, "Bu uy vazifani o'chirasizmi?");
+    if(t.closest('[data-add-pay]')) return addPay();
+    if((b = t.closest('[data-del-pay]'))) return delEntry('payments', pay, b.dataset.delPay, "Bu to'lov yozuvini o'chirasizmi?");
+  });
+  $('indTabBody').addEventListener('change', e => {
+    const sel = e.target.closest('[data-hw-status]');
+    if(sel) setHwStatus(sel.dataset.hwStatus, sel.value);
+    if(e.target.id === 'indAttDate') formDate.att = e.target.value;
+    if(e.target.id === 'indHwDate') formDate.hw = e.target.value;
+    if(e.target.id === 'indPayDate') formDate.pay = e.target.value;
+  });
+
+  return { open: open };
+})();
+
+document.getElementById('navIndividuals').addEventListener('click', function(e){
+  e.preventDefault();
+  switchView('individuals');
+  Individuals.open();
 });
 
 // ===== GURUH ANKETA =====
