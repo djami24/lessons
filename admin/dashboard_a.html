@@ -1926,7 +1926,18 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <p>Barcha talabalar profilidagi bildirishnomalar bo‘limiga xabar yuboring.</p>
         </div>
       </div>
-      <div class="table-wrap" style="padding:20px; max-width:600px;">
+      <style>
+        .bc-grid{display:grid;grid-template-columns:minmax(320px,540px) minmax(320px,1fr);gap:20px;align-items:start;}
+        .bc-side{display:flex;flex-direction:column;gap:20px;min-width:0;}
+        #ratingSummaryBox:empty{display:none;}
+        .bc-type{display:flex;align-items:flex-start;gap:10px;cursor:pointer;padding:10px 12px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:150px;transition:all .2s;}
+        .bc-type input{margin:3px 0 0;flex-shrink:0;}
+        .bc-type .bc-t{display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;line-height:1.3;}
+        .bc-type .bc-d{display:block;font-size:11px;color:var(--gray);line-height:1.4;margin-top:3px;font-weight:400;}
+        @media (max-width:1100px){.bc-grid{grid-template-columns:1fr;}}
+      </style>
+      <div class="bc-grid">
+      <div class="table-wrap" style="padding:20px;">
         <label class="field">
           <span>Sarlavha</span>
           <input type="text" id="broadcastTitle" placeholder="Masalan: Sinov vaqti o‘zgardi" maxlength="100">
@@ -1941,26 +1952,26 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </label>
         <label class="field" style="margin-top:1em;">
           <span>Ko&#39;rinish turi</span>
-          <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typeNotifLabel">
+          <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;">
+            <label class="bc-type" id="typeNotifLabel">
               <input type="radio" name="broadcastType" value="notification" id="typeNotif" checked style="accent-color:#2563eb;">
               <span>
-                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true"><use href="#i-bell"></use></svg> Bildirishnoma</span><br>
-                <span style="font-size:11px;color:var(--gray);">Pastda o&#39;ng tomonda kichik popup</span>
+                <span class="bc-t"><svg class="ic" aria-hidden="true"><use href="#i-bell"></use></svg> Bildirishnoma</span>
+                <span class="bc-d">Pastda o'ng tomonda kichik popup</span>
               </span>
             </label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typePopupLabel">
+            <label class="bc-type" id="typePopupLabel">
               <input type="radio" name="broadcastType" value="popup" id="typePopup" style="accent-color:#2563eb;">
               <span>
-                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg> Katta Popup</span><br>
-                <span style="font-size:11px;color:var(--gray);">Ekran o&#39;rtasida modal oyna</span>
+                <span class="bc-t"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg> Katta Popup</span>
+                <span class="bc-d">Ekran o'rtasida modal oyna</span>
               </span>
             </label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typeRatingLabel">
+            <label class="bc-type" id="typeRatingLabel">
               <input type="radio" name="broadcastType" value="rating" id="typeRating" style="accent-color:#2563eb;">
               <span>
-                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true" viewBox="0 0 24 24" style="fill:currentColor;stroke:none;"><path d="M12 2.5l2.94 5.96 6.58.96-4.76 4.64 1.12 6.55L12 17.52l-5.88 3.09 1.12-6.55L2.48 9.42l6.58-.96L12 2.5z"/></svg> Baholash</span><br>
-                <span style="font-size:11px;color:var(--gray);">5 yulduzli baho so&#39;rash oynasi</span>
+                <span class="bc-t"><svg class="ic" aria-hidden="true" viewBox="0 0 24 24" style="fill:currentColor;stroke:none;"><path d="M12 2.5l2.94 5.96 6.58.96-4.76 4.64 1.12 6.55L12 17.52l-5.88 3.09 1.12-6.55L2.48 9.42l6.58-.96L12 2.5z"/></svg> Baholash</span>
+                <span class="bc-d">5 yulduzli baho so'rash oynasi</span>
               </span>
             </label>
           </div>
@@ -1970,12 +1981,15 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <button class="btn btn-amber" id="broadcastSendBtn">Yuborish</button>
         </div>
 
-        <div id="ratingSummaryBox" style="margin-top:2em;"></div>
+      </div>
 
-        <div style="margin-top:2em;">
+      <div class="bc-side">
+        <div id="ratingSummaryBox"></div>
+        <div class="table-wrap" style="padding:20px;">
           <h3 style="margin:0 0 .8em;">Yuborilgan xabarlar</h3>
           <div id="broadcastHistoryList" style="display:flex;flex-direction:column;gap:.6em;"></div>
         </div>
+      </div>
       </div>
     </section>
 
