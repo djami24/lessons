@@ -3996,22 +3996,28 @@ async function submitRating(){
   }
 }
 
-(function initRatingModal(){
-  const starsWrap = document.getElementById('ratingStars');
-  if(!starsWrap) return;
-  starsWrap.querySelectorAll('.rate-star').forEach(btn => {
-    const v = Number(btn.dataset.v);
-    btn.addEventListener('click', () => {
-      _rating.value = v;
-      paintRatingStars(v);
-      document.getElementById('ratingSubmitBtn').disabled = false;
-    });
-    btn.addEventListener('mouseenter', () => paintRatingStars(v));
-  });
-  starsWrap.addEventListener('mouseleave', () => paintRatingStars(_rating.value));
-  document.getElementById('ratingSubmitBtn').addEventListener('click', submitRating);
-  document.getElementById('ratingCloseBtn').addEventListener('click', closeRatingModal);
-})();
+// Modal HTML sahifaning pastida joylashgan (skriptdan keyin), shuning uchun hodisalar document'da tutiladi
+document.addEventListener('click', function(e){
+  const t = e.target;
+  if(!t || !t.closest) return;
+  const star = t.closest('#ratingStars .rate-star');
+  if(star){
+    _rating.value = Number(star.dataset.v);
+    paintRatingStars(_rating.value);
+    document.getElementById('ratingSubmitBtn').disabled = false;
+    return;
+  }
+  if(t.closest('#ratingSubmitBtn')){ submitRating(); return; }
+  if(t.closest('#ratingCloseBtn')){ closeRatingModal(); }
+});
+document.addEventListener('mouseover', function(e){
+  const star = e.target && e.target.closest && e.target.closest('#ratingStars .rate-star');
+  if(star) paintRatingStars(Number(star.dataset.v));
+});
+document.addEventListener('mouseout', function(e){
+  const wrap = e.target && e.target.closest && e.target.closest('#ratingStars');
+  if(wrap && !(e.relatedTarget && wrap.contains(e.relatedTarget))) paintRatingStars(_rating.value);
+});
 
 // ===== KATTA ANNOUNCEMENT MODAL =====
 function showAnnouncementModal(docId, title, body, imageUrl, onClosed){
@@ -5621,35 +5627,68 @@ async function rmToggleSave(mockId) {
 </div>
 
 <style>
-.rate-overlay{position:fixed;inset:0;z-index:10001;background:rgba(10,14,30,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:20px}
+/* ===== Baholash modali — glassy (shisha) uslub ===== */
+.rate-overlay{position:fixed;inset:0;z-index:10001;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:radial-gradient(600px 460px at 15% 10%,rgba(46,111,237,.30),transparent 70%),
+             radial-gradient(560px 440px at 88% 90%,rgba(155,110,255,.28),transparent 70%),
+             rgba(15,23,42,.38);
+  -webkit-backdrop-filter:blur(10px) saturate(140%);backdrop-filter:blur(10px) saturate(140%)}
 .rate-overlay[hidden]{display:none}
-.rate-box{position:relative;background:#fff;border-radius:20px;box-shadow:0 24px 64px rgba(0,0,0,.22);max-width:420px;width:100%;max-height:90vh;overflow-y:auto;padding:30px 24px 22px;text-align:center;animation:announcementIn .38s cubic-bezier(.22,.68,0,1.2) both}
-.rate-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border:0;border-radius:8px;background:#f1f3f8;color:#64748b;font-size:20px;line-height:1;cursor:pointer}
-.rate-close:hover{background:#e5e9f2}
-.rate-badge{width:56px;height:56px;margin:0 auto 12px;border-radius:50%;background:#fef3c7;color:#f59e0b;display:flex;align-items:center;justify-content:center}
+.rate-box{position:relative;max-width:420px;width:100%;max-height:90vh;overflow-y:auto;padding:30px 24px 24px;text-align:center;border-radius:26px;
+  background:linear-gradient(160deg,rgba(255,255,255,.72),rgba(255,255,255,.44));
+  -webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);
+  border:1px solid rgba(255,255,255,.85);
+  box-shadow:0 24px 60px -16px rgba(20,33,61,.38),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.3);
+  animation:announcementIn .38s cubic-bezier(.22,.68,0,1.2) both}
+.rate-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:50%;cursor:pointer;color:#475569;font-size:20px;line-height:1;
+  background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.85);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 10px -4px rgba(20,33,61,.25);transition:transform .15s,background .15s}
+.rate-close:hover{background:rgba(255,255,255,.85);transform:rotate(90deg)}
+.rate-badge{width:60px;height:60px;margin:0 auto 12px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#f59e0b;
+  background:linear-gradient(145deg,rgba(255,236,179,.85),rgba(255,214,102,.45));border:1px solid rgba(255,255,255,.9);
+  box-shadow:0 10px 24px -8px rgba(245,158,11,.55),inset 0 1px 0 rgba(255,255,255,.95)}
 .rate-badge svg{width:30px;height:30px;fill:currentColor}
-.rate-title{margin:0 0 6px;font-size:18px;font-weight:700;color:#0f172a;line-height:1.3}
+.rate-title{margin:0 0 6px;font-size:19px;font-weight:700;color:#0f172a;line-height:1.3}
 .rate-body{margin:0 0 14px;font-size:14px;color:#475569;line-height:1.6;white-space:pre-line}
-.rate-stars{display:flex;justify-content:center;gap:4px;margin:6px 0 2px}
-.rate-star{background:none;border:0;padding:4px;cursor:pointer;color:#cbd5e1;transition:transform .12s,color .12s;-webkit-tap-highlight-color:transparent}
-.rate-star svg{width:42px;height:42px;fill:currentColor;display:block}
-.rate-star.on{color:#f59e0b}
-.rate-star:hover{transform:scale(1.14)}
-.rate-star:focus-visible{outline:2px solid #2563eb;border-radius:8px}
-.rate-label{min-height:22px;margin:2px 0 12px;font-size:14px;font-weight:600;color:#64748b}
-.rate-comment{width:100%;box-sizing:border-box;font-family:inherit;font-size:14px;padding:10px 12px;border:1.5px solid #e2e5ec;border-radius:12px;resize:vertical;background:#fff;color:#0f172a}
-.rate-submit{width:100%;margin-top:12px;padding:13px;border:0;border-radius:12px;background:#2563eb;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s,opacity .15s}
-.rate-submit:hover:not(:disabled){background:#1d4ed8}
-.rate-submit:disabled{opacity:.45;cursor:not-allowed}
-.rate-status{min-height:18px;margin-top:8px;font-size:13px;color:#64748b}
-body.dark .rate-box{background:#171d2c !important;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.rate-stars{display:flex;justify-content:center;gap:2px;margin:8px 0 2px}
+.rate-star{background:none;border:0;padding:4px;cursor:pointer;color:rgba(148,163,184,.55);-webkit-tap-highlight-color:transparent;
+  transition:transform .15s cubic-bezier(.22,.68,0,1.4),color .15s,filter .15s}
+.rate-star svg{width:42px;height:42px;fill:currentColor;display:block;pointer-events:none;filter:drop-shadow(0 2px 3px rgba(15,23,42,.12))}
+.rate-star.on{color:#fbbf24;filter:drop-shadow(0 0 8px rgba(251,191,36,.65))}
+.rate-star:hover{transform:scale(1.18)}
+.rate-star:active{transform:scale(.95)}
+.rate-star:focus-visible{outline:2px solid #2563eb;border-radius:10px}
+.rate-label{min-height:22px;margin:2px 0 12px;font-size:14px;font-weight:600;color:#475569}
+.rate-comment{width:100%;box-sizing:border-box;font-family:inherit;font-size:14px;padding:11px 13px;border-radius:14px;resize:vertical;color:#0f172a;
+  background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.85);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  box-shadow:inset 0 2px 6px rgba(20,33,61,.07);outline:none;transition:box-shadow .15s,border-color .15s}
+.rate-comment::placeholder{color:#7b8799}
+.rate-comment:focus{border-color:rgba(37,99,235,.55);box-shadow:0 0 0 3px rgba(37,99,235,.18),inset 0 2px 6px rgba(20,33,61,.05)}
+.rate-submit{width:100%;margin-top:12px;padding:13px;border-radius:14px;cursor:pointer;color:#fff;font-size:14px;font-weight:600;letter-spacing:.01em;
+  background:linear-gradient(135deg,rgba(59,130,246,.92),rgba(99,102,241,.88));
+  border:1px solid rgba(255,255,255,.55);
+  -webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);
+  box-shadow:0 12px 26px -10px rgba(59,100,246,.65),inset 0 1px 0 rgba(255,255,255,.55);
+  text-shadow:0 1px 2px rgba(15,23,42,.25);transition:transform .15s,box-shadow .15s,opacity .15s,filter .15s}
+.rate-submit:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.06);box-shadow:0 16px 30px -10px rgba(59,100,246,.75),inset 0 1px 0 rgba(255,255,255,.6)}
+.rate-submit:active:not(:disabled){transform:translateY(0)}
+.rate-submit:disabled{opacity:.5;cursor:not-allowed;filter:saturate(.7)}
+.rate-status{min-height:18px;margin-top:8px;font-size:13px;color:#475569}
+/* qorong'i rejim */
+body.dark .rate-overlay{background:radial-gradient(600px 460px at 15% 10%,rgba(59,111,240,.32),transparent 70%),radial-gradient(560px 440px at 88% 90%,rgba(124,92,240,.28),transparent 70%),rgba(5,8,20,.55)}
+body.dark .rate-box{background:linear-gradient(160deg,rgba(35,43,64,.72),rgba(23,29,44,.5));border-color:rgba(255,255,255,.14);
+  box-shadow:0 24px 60px -16px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.12)}
 body.dark .rate-title{color:#eef1f7}
-body.dark .rate-body{color:#c3cada}
-body.dark .rate-close{background:#232b40;color:#aab3c5}
-body.dark .rate-star{color:#3a4560}
-body.dark .rate-star.on{color:#f59e0b}
-body.dark .rate-comment{background:#1b2235;border-color:#2a3248;color:#e6e9f1}
-body.dark .rate-badge{background:rgba(245,158,11,.15)}
+body.dark .rate-body,body.dark .rate-label,body.dark .rate-status{color:#c3cada}
+body.dark .rate-close{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.16);color:#c3cada;box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+body.dark .rate-close:hover{background:rgba(255,255,255,.16)}
+body.dark .rate-badge{background:linear-gradient(145deg,rgba(245,158,11,.35),rgba(245,158,11,.12));border-color:rgba(255,255,255,.18);box-shadow:0 10px 24px -8px rgba(245,158,11,.4),inset 0 1px 0 rgba(255,255,255,.2)}
+body.dark .rate-star{color:rgba(148,163,184,.3)}
+body.dark .rate-star.on{color:#fbbf24}
+body.dark .rate-comment{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#e6e9f1;box-shadow:inset 0 2px 6px rgba(0,0,0,.3)}
+body.dark .rate-comment::placeholder{color:#7f8aa0}
 </style>
 
 <!-- ===== KATTA MODAL POPUP (admin yuborgan e'lon) ===== -->
