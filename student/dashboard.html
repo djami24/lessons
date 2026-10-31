@@ -232,8 +232,15 @@
   .bal-total{ border-top:2px solid rgba(100,116,139,.35); margin-top:4px; padding-top:12px; }
   .bal-total .bal-row-v{ font-size:24px; color:#2563eb; }
   .hwi-overlay{ background:rgba(8,12,24,.55); }
-  html body.admin-theme:not(.dark) .hwi-overlay .hwi-box{ background:#fff !important; -webkit-backdrop-filter:none; backdrop-filter:none; color:#1f2937; }
-  html body.admin-theme.dark .hwi-overlay .hwi-box{ background:#171d2c !important; -webkit-backdrop-filter:none; backdrop-filter:none; color:#e8ecf5; }
+  /* glass-theme.css ID selektorli qoidasidan kuchliroq bo'lishi uchun ID ishlatildi: oyna to'liq yopiq (shaffof emas) */
+  html body:not(.dark) #ballInfoOverlay .hwi-box, html body:not(.dark) #gbDetailOverlay .hwi-box,
+  html body.admin-theme:not(.dark) #ballInfoOverlay .hwi-box, html body.admin-theme:not(.dark) #gbDetailOverlay .hwi-box{
+    background:#fff !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important; color:#1f2937 !important;
+    border:1px solid #e5e8ef !important; box-shadow:0 24px 60px rgba(0,0,0,.35) !important; }
+  html body.dark #ballInfoOverlay .hwi-box, html body.dark #gbDetailOverlay .hwi-box,
+  html body.admin-theme.dark #ballInfoOverlay .hwi-box, html body.admin-theme.dark #gbDetailOverlay .hwi-box{
+    background:#171d2c !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important; color:#e8ecf5 !important;
+    border:1px solid #2a3248 !important; box-shadow:0 24px 60px rgba(0,0,0,.55) !important; }
   .bal-sub{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:6px 0 6px 14px; border-left:2px solid rgba(100,116,139,.22); margin:0 0 4px 4px; }
   .bal-sub-l b{ display:block; font-size:13px; font-weight:600; }
   .bal-sub-l span{ display:block; font-size:11.5px; opacity:.65; margin-top:1px; line-height:1.35; }
