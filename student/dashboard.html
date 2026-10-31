@@ -1479,6 +1479,87 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         .crls-tbl tr.ok td:last-child{color:var(--green-500);font-weight:800;}
         .crls-tbl tr.bad{background:var(--red-50);}
         .crls-tbl tr.bad td:last-child{color:var(--red-500);font-weight:800;}
+        /* Tungi rejim */
+        body.dark .crls-card,body.dark .crls-panel{background:#171d2c !important;border-color:#2a3248 !important;box-shadow:none !important;}
+        body.dark .crls-card:hover{border-color:#4f8cff !important;}
+        body.dark .crls-card .t strong,body.dark .crls-panel h3,body.dark #crlsTestPane h2{color:#e8ecf5 !important;}
+        body.dark .crls-card .t span,body.dark .crls-panel p,body.dark .crls-score small,body.dark .crls-tbl th{color:#9aa4ba !important;}
+        body.dark .crls-st.todo{background:#232b40 !important;color:#c3cbe0 !important;}
+        body.dark .crls-st.done{background:rgba(34,197,94,.16) !important;color:#4ade80 !important;}
+        body.dark .crls-tab{background:#1b2235 !important;border-color:#2a3248 !important;color:#c3cbe0 !important;}
+        body.dark .crls-tab.active{background:var(--blue-600) !important;border-color:var(--blue-600) !important;color:#fff !important;}
+        body.dark .crls-in{background:#1b2235 !important;border-color:#2a3248 !important;}
+        body.dark .crls-in:focus-within{border-color:#4f8cff !important;}
+        body.dark .crls-in span{background:#232b40 !important;color:#9aa4ba !important;}
+        body.dark .crls-in input,body.dark .crls-score b,body.dark .crls-tbl td{color:#e8ecf5 !important;}
+        body.dark .crls-bar{background:#232b40 !important;}
+        body.dark .crls-tbl td{border-bottom-color:#2a3248 !important;}
+        body.dark .crls-tbl th{border-bottom-color:#2a3248 !important;}
+        body.dark .crls-tbl tr.bad{background:rgba(239,68,68,.12) !important;}
+        body.dark .crls-tbl tr.ok td:last-child{color:#4ade80 !important;}
+        body.dark #view-cefr-rl .back-link,body.dark #view-cefr-rl h1{color:#e8ecf5 !important;}
+        body.dark #view-cefr-rl .admin-header p,body.dark #view-cefr-rl > p{color:#9aa4ba !important;}
+        /* Glassy (shisha) uslub — CEFR RL va individual bosh sahifa */
+        html body.admin-theme:not(.dark) :is(.crls-card,.crls-panel,.indh-card){
+          background:rgba(255,255,255,.55) !important;
+          -webkit-backdrop-filter:blur(16px) saturate(170%); backdrop-filter:blur(16px) saturate(170%);
+          border:1px solid rgba(255,255,255,.78) !important;
+          box-shadow:0 12px 32px -14px rgba(20,33,61,.20), inset 0 1px 0 rgba(255,255,255,.85) !important;
+        }
+        html body.admin-theme.dark :is(.crls-card,.crls-panel,.indh-card){
+          background:rgba(23,29,44,.55) !important;
+          -webkit-backdrop-filter:blur(16px) saturate(150%); backdrop-filter:blur(16px) saturate(150%);
+          border:1px solid rgba(255,255,255,.10) !important;
+          box-shadow:0 12px 32px -14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06) !important;
+        }
+        /* asosiy tugmalar — ko'k shisha */
+        html body.admin-theme :is(.crls-btn,.crls-tab.active){
+          color:#fff !important; text-shadow:0 1px 2px rgba(10,35,110,.35);
+          background:linear-gradient(180deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,0) 52%),linear-gradient(135deg,rgba(60,125,255,.80) 0%,rgba(24,72,205,.86) 100%) !important;
+          border:1px solid rgba(255,255,255,.55) !important;
+          -webkit-backdrop-filter:blur(14px) saturate(180%); backdrop-filter:blur(14px) saturate(180%);
+          box-shadow:0 12px 26px -10px rgba(36,92,230,.55), inset 0 1px 0 rgba(255,255,255,.65), inset 0 -1px 0 rgba(255,255,255,.12) !important;
+          transition:transform .15s ease, box-shadow .15s ease;
+        }
+        html body.admin-theme .crls-btn:hover:not(:disabled){ box-shadow:0 16px 32px -10px rgba(36,92,230,.65), inset 0 1px 0 rgba(255,255,255,.75) !important; }
+        html body.admin-theme .crls-btn:active:not(:disabled){ transform:scale(.97); }
+        /* ikkinchi darajali (Reading / Listening / tablar) — och shisha */
+        html body.admin-theme:not(.dark) :is(.crls-tab:not(.active),.crls-st.todo){
+          color:#1d4fd1 !important;
+          background:linear-gradient(180deg,rgba(255,255,255,.55) 0%,rgba(255,255,255,0) 55%),linear-gradient(135deg,rgba(255,255,255,.72) 0%,rgba(190,213,255,.40) 100%) !important;
+          border:1px solid rgba(255,255,255,.85) !important;
+          -webkit-backdrop-filter:blur(14px) saturate(180%); backdrop-filter:blur(14px) saturate(180%);
+          box-shadow:0 8px 20px -12px rgba(36,92,230,.40), inset 0 1px 0 rgba(255,255,255,.9), inset 0 0 0 1px rgba(46,111,237,.18) !important;
+        }
+        html body.admin-theme.dark :is(.crls-tab:not(.active),.crls-st.todo){
+          color:#bcd0ff !important;
+          background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,0) 55%),linear-gradient(135deg,rgba(255,255,255,.10) 0%,rgba(125,162,255,.10) 100%) !important;
+          border:1px solid rgba(255,255,255,.14) !important;
+          -webkit-backdrop-filter:blur(14px) saturate(160%); backdrop-filter:blur(14px) saturate(160%);
+          box-shadow:0 8px 20px -12px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.10) !important;
+        }
+        /* topshirilgan (✓) — yashil shisha */
+        html body.admin-theme .crls-st.done{
+          color:#0f7a3d !important;
+          background:linear-gradient(180deg,rgba(255,255,255,.45) 0%,rgba(255,255,255,0) 55%),linear-gradient(135deg,rgba(74,222,128,.30) 0%,rgba(22,163,74,.22) 100%) !important;
+          border:1px solid rgba(255,255,255,.6) !important;
+          -webkit-backdrop-filter:blur(14px) saturate(170%); backdrop-filter:blur(14px) saturate(170%);
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.7), inset 0 0 0 1px rgba(22,163,74,.25) !important;
+        }
+        html body.admin-theme.dark .crls-st.done{ color:#4ade80 !important; border-color:rgba(255,255,255,.14) !important; }
+        /* javob kataklari */
+        html body.admin-theme:not(.dark) .crls-in{ background:rgba(255,255,255,.55) !important; border:1px solid rgba(255,255,255,.8) !important; box-shadow:inset 0 1px 0 rgba(255,255,255,.8); }
+        html body.admin-theme.dark .crls-in{ background:rgba(255,255,255,.06) !important; border:1px solid rgba(255,255,255,.12) !important; }
+        html body.admin-theme .crls-in:focus-within{ border-color:#4f8cff !important; box-shadow:0 0 0 3px rgba(79,140,255,.20); }
+        /* individual talabaning menyusidagi CEFR RL — yashil shisha */
+        html body.admin-theme .ind-cefr-btn{
+          color:#fff !important; font-weight:800 !important; text-shadow:0 1px 2px rgba(6,70,36,.35);
+          background:linear-gradient(180deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,0) 52%),linear-gradient(135deg,rgba(52,211,120,.85) 0%,rgba(16,150,80,.90) 100%) !important;
+          border:1px solid rgba(255,255,255,.55) !important;
+          -webkit-backdrop-filter:blur(14px) saturate(180%); backdrop-filter:blur(14px) saturate(180%);
+          box-shadow:0 12px 26px -10px rgba(22,163,74,.55), inset 0 1px 0 rgba(255,255,255,.65), inset 0 -1px 0 rgba(255,255,255,.12) !important;
+        }
+        html body.admin-theme .ind-cefr-btn svg{ color:#fff !important; }
         @media (max-width:520px){.crls-grid{grid-template-columns:repeat(2,1fr);}}
       </style>
       <a href="#" id="backToHomeFromCrl" class="back-link">Bosh sahifaga</a>
@@ -2294,6 +2375,7 @@ function applyIndividualMode(){
   if(cefr){
     const li = cefr.parentElement, ul = li && li.parentElement;
     if(ul && ul.firstElementChild !== li) ul.insertBefore(li, ul.firstElementChild);
+    cefr.classList.add('ind-cefr-btn');
     cefr.style.background = '#22c55e';
     cefr.style.borderColor = '#22c55e';
     cefr.style.color = '#fff';
@@ -6514,6 +6596,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     const el = sheetLinks.navCefrRL;
     if(!el || !document.body.classList.contains('ind-mode')) return;
     if(list.firstElementChild !== el) list.insertBefore(el, list.firstElementChild);
+    el.classList.add('ind-cefr-btn');
     el.style.background = '#22c55e';
     el.style.borderColor = '#22c55e';
     el.style.color = '#fff';
