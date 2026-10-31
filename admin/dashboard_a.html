@@ -2253,6 +2253,32 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
       </div>
 
+      <!-- Qo'shimcha ball (admin talabaga qo'lda ball qo'shadi) -->
+      <div class="oj-form-card" id="ojBonusCard">
+        <h3 style="margin:0 0 6px; font-size:1rem; font-weight:600;">Qo'shimcha ball</h3>
+        <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;">Talaba umumiy ballariga qo'shiladi. Ball qo'shilgan sana qaysi oyga to'g'ri kelsa, o'sha oyda hisoblanadi.</div>
+        <div class="oj-form-grid">
+          <label class="oj-label">
+            <span>Sana</span>
+            <input type="date" id="ojBonusDate" class="oj-input">
+          </label>
+          <label class="oj-label">
+            <span>Ball (1–100)</span>
+            <input type="number" min="1" max="100" step="1" id="ojBonusPoints" class="oj-input" placeholder="Masalan: 5">
+          </label>
+          <label class="oj-label" style="grid-column:1/-1;">
+            <span>Sabab (talaba ko'radi)</span>
+            <input type="text" id="ojBonusReason" class="oj-input" maxlength="120" placeholder="Masalan: darsda faol ishtirok etdi">
+          </label>
+        </div>
+        <div style="display:flex; gap:.8em; align-items:center; margin-top:14px; flex-wrap:wrap;">
+          <button type="button" class="btn btn-primary" id="ojBonusAddBtn">Ball qo'shish</button>
+          <span class="save-status" id="ojBonusStatus"></span>
+          <span style="margin-left:auto;font-size:.85rem;" id="ojBonusTotal"></span>
+        </div>
+        <div id="ojBonusList" style="margin-top:14px;"></div>
+      </div>
+
       <!-- Entries timeline -->
       <div id="ojEntriesList" class="oj-entries-list"></div>
       <div id="ojEntriesEmpty" class="oj-empty" style="display:none; margin-top:24px;">
@@ -9608,6 +9634,74 @@ function openOjProgress(studentId, studentName) {
   loadOjProgressEntries();
 }
 
+// ============================================================
+// QO'SHIMCHA BALL — oquv_progress/{studentId}/bonus/{autoId}  { date, points, reason, createdAt }
+// Talaba sahifasida umumiy ballga qo'shiladi (davomat/uy vazifa/jazo hisobiga tegmaydi).
+// ============================================================
+let _ojBonuses = [];
+async function loadOjBonuses(){
+  const list = document.getElementById('ojBonusList');
+  if (!list || !_ojActiveStudentId) return;
+  const dEl = document.getElementById('ojBonusDate');
+  if (dEl && !dEl.value) dEl.value = new Date().toISOString().slice(0,10);
+  try {
+    const snap = await db.collection('oquv_progress').doc(_ojActiveStudentId).collection('bonus').get();
+    _ojBonuses = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+    renderOjBonuses();
+  } catch(err) {
+    _ojBonuses = [];
+    list.innerHTML = '<p style="color:#c0392b;font-size:.85rem;">Qo\'shimcha ballni yuklab bo\'lmadi. Firestore qoidalariga <b>bonus</b> bo\'limi qo\'shilganini tekshiring (FIRESTORE_RULES.txt).</p>';
+  }
+}
+function renderOjBonuses(){
+  const list = document.getElementById('ojBonusList');
+  const totalEl = document.getElementById('ojBonusTotal');
+  if (!list) return;
+  const all = _ojBonuses;
+  const inSel = (_ojMonthSel === 'all' || !_ojMonthSel) ? all : all.filter(b => String(b.date || '').slice(0, 7) === _ojMonthSel);
+  const sum = inSel.reduce((t, b) => t + (Number(b.points) || 0), 0);
+  if (totalEl) totalEl.innerHTML = 'Tanlangan oy: <b>+' + sum + '</b> ball';
+  if (!inSel.length) { list.innerHTML = '<div style="color:var(--gray);font-size:.85rem;">Bu oyda qo\'shimcha ball yo\'q.</div>'; return; }
+  list.innerHTML = inSel.map(b =>
+    '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);">' +
+      '<b style="min-width:44px;color:#1FAE7A;">+' + (Number(b.points) || 0) + '</b>' +
+      '<span style="flex:1;font-size:.88rem;">' + escHtml(b.reason || '—') + '</span>' +
+      '<span style="font-size:.78rem;color:var(--gray);">' + escHtml(b.date || '') + '</span>' +
+      '<button type="button" class="btn btn-danger btn-sm" data-bonus-del="' + escHtml(b.id) + '" aria-label="O\'chirish">×</button>' +
+    '</div>').join('');
+  list.querySelectorAll('[data-bonus-del]').forEach(btn => btn.addEventListener('click', () => ojDeleteBonus(btn.dataset.bonusDel)));
+}
+async function ojDeleteBonus(id){
+  if (!confirm("Bu qo\u02bcshimcha ballni o\u02bcchirmoqchimisiz?")) return;
+  try {
+    await db.collection('oquv_progress').doc(_ojActiveStudentId).collection('bonus').doc(id).delete();
+    loadOjBonuses();
+  } catch(err) { alert("O\u02bcchirishda xatolik."); }
+}
+document.getElementById('ojBonusAddBtn').addEventListener('click', async () => {
+  const status = document.getElementById('ojBonusStatus');
+  const date = document.getElementById('ojBonusDate').value;
+  const points = Math.round(Number(document.getElementById('ojBonusPoints').value));
+  const reason = document.getElementById('ojBonusReason').value.trim();
+  if (!_ojActiveStudentId) return;
+  if (!date) { status.textContent = 'Sanani kiriting'; return; }
+  if (!points || points < 1 || points > 100) { status.textContent = 'Ball 1 dan 100 gacha bo\'lsin'; return; }
+  status.textContent = 'Saqlanmoqda…';
+  try {
+    await db.collection('oquv_progress').doc(_ojActiveStudentId).collection('bonus').add({
+      date, points, reason, createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById('ojBonusPoints').value = '';
+    document.getElementById('ojBonusReason').value = '';
+    status.textContent = 'Saqlandi!';
+    setTimeout(() => status.textContent = '', 2500);
+    if (/^\d{4}-\d{2}/.test(date) && _ojMonthSel !== 'all') _ojMonthSel = date.slice(0, 7);
+    loadOjBonuses();
+    renderOjEntries();
+  } catch(err) { status.textContent = 'Xatolik (qoidalarni tekshiring)'; }
+});
+
 async function loadOjProgressEntries() {
   const list = document.getElementById('ojEntriesList');
   const empty = document.getElementById('ojEntriesEmpty');
@@ -9617,6 +9711,7 @@ async function loadOjProgressEntries() {
       .collection('entries').orderBy('date', 'desc').get();
     _ojProgressEntries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderOjEntries();
+    loadOjBonuses();
   } catch(err) { list.innerHTML = '<p style="color:red;">Xatolik.</p>'; }
 }
 
@@ -9723,6 +9818,7 @@ function renderOjEntries() {
   const empty = document.getElementById('ojEntriesEmpty');
   // Oylik statistika (tanlangan oy) + oylar bo'yicha tarix
   ojRenderMonthStats();
+  if (typeof renderOjBonuses === 'function') renderOjBonuses();
   const shown = ojEntriesOfSelection();
   const total = shown.length;
   ojRenderPeriodStats(7, 'ojWeekStatHw', 'ojWeekStatMissed', 'ojWeekStatLate');
