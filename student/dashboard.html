@@ -325,7 +325,14 @@
 
   .plan-card{padding:0;display:flex;flex-direction:column;min-width:0;}
   .plan-head{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--gray-100);}
-  .plan-head h3{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  .plan-head h3{font-size:14.5px;font-weight:700;margin:0;color:var(--gray-900);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+  /* Yopiladigan kartochkalar: sarlavha bosilsa ochiladi, har safar kirganda yopiq turadi */
+  .cc-card > .card-head, .cc-card > .plan-head{ cursor:pointer; user-select:none; -webkit-tap-highlight-color:transparent; }
+  .cc-card.cc-closed > .card-head, .cc-card.cc-closed > .plan-head{ border-bottom-color:transparent; }
+  .cc-card.cc-closed > :not(.card-head):not(.plan-head){ display:none !important; }
+  .cc-chev{ flex:none; width:18px; height:18px; margin-left:4px; color:var(--gray-400); transition:transform .2s; }
+  .cc-card:not(.cc-closed) .cc-chev{ transform:rotate(180deg); }
+  .cc-card > .card-head:focus-visible, .cc-card > .plan-head:focus-visible{ outline:2px solid #2563eb; outline-offset:-2px; border-radius:14px; }
   .plan-date{margin-left:auto;font-size:12px;color:var(--gray-400);flex-shrink:0;white-space:nowrap;}
   table{width:100%;border-collapse:collapse;font-size:12.5px;}
   thead th{
@@ -7195,5 +7202,45 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     <div id="ballInfoBody"></div>
   </div>
 </div>
+<script>
+// "So'nggi test natijasi", "Ta'lim jadvali", "Mening statistikam": doim yopiq boshlanadi, sarlavha bosilsa ochiladi.
+// Bosh sahifaga har safar qaytganda ham yana yopiladi.
+(function(){
+  var cards = [document.getElementById('gbResultBox'), document.querySelector('.schedule-card'), document.getElementById('myStatsCard')].filter(Boolean);
+  var CHEV = '<svg class="cc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+  function setOpen(card, open){
+    var head = card.querySelector(':scope > .card-head, :scope > .plan-head');
+    card.classList.toggle('cc-closed', !open);
+    if(head) head.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function closeAll(){ cards.forEach(function(c){ setOpen(c, false); }); }
+  cards.forEach(function(card){
+    var head = card.querySelector(':scope > .card-head, :scope > .plan-head');
+    if(!head) return;
+    card.classList.add('cc-card');
+    head.setAttribute('role', 'button');
+    head.setAttribute('tabindex', '0');
+    head.insertAdjacentHTML('beforeend', CHEV);
+    head.addEventListener('click', function(e){
+      if(e.target.closest('.myst-nav, a, select, button')) return;   // oy tanlash va havolalar bosilganda ochilib-yopilmaydi
+      setOpen(card, card.classList.contains('cc-closed'));
+    });
+    head.addEventListener('keydown', function(e){
+      if(e.target !== head) return;
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); setOpen(card, card.classList.contains('cc-closed')); }
+    });
+  });
+  closeAll();
+  var orig = window.switchView;
+  if(typeof orig === 'function'){
+    window.switchView = function(view){
+      var home = document.getElementById('view-home');
+      if(view === 'home' && home && home.hidden) closeAll();   // boshqa sahifadan bosh sahifaga qaytganda
+      return orig.apply(this, arguments);
+    };
+  }
+})();
+</script>
+<script src="../uz-translit.js?v=1"></script>
 </body>
 </html>
