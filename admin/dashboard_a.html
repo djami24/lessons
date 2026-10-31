@@ -2328,6 +2328,18 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         .ind-pick.sel{background:rgba(37,99,235,.14);box-shadow:inset 3px 0 0 #2563eb;}
         .ind-pick small{color:var(--gray);}
         .ind-hw-task{max-width:360px;white-space:pre-wrap;word-break:break-word;}
+        .ind-set{border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 16px;margin-bottom:18px;}
+        .ind-set-title{font-size:.9rem;font-weight:800;margin-bottom:12px;}
+        .ind-set-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
+        .ind-set-grid label{display:flex;flex-direction:column;gap:5px;font-size:.78rem;font-weight:700;min-width:0;}
+        .ind-set-grid input,.ind-set-grid select{padding:.55em .75em;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:inherit;font:inherit;font-size:.9rem;min-width:0;}
+        .ind-set-grid small{font-weight:500;color:var(--gray);font-size:.74rem;line-height:1.35;}
+        .ind-set-row{display:flex;gap:8px;align-items:center;}
+        .ind-set-row input{flex:1;}
+        .ind-set-full{grid-column:1/-1;}
+        .ind-day{padding:.45em .95em;border-radius:99px;border:1.5px solid var(--line);background:transparent;color:inherit;font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;opacity:.65;}
+        .ind-day.on{opacity:1;background:rgba(37,99,235,.14);border-color:#2563eb;color:#2563eb;}
+        .ind-days{display:flex;gap:8px;flex-wrap:wrap;}
         @media (max-width:640px){.ind-grid{grid-template-columns:1fr;}}
       </style>
 
@@ -2403,6 +2415,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
       <div id="indDetailPane" hidden>
         <button class="btn btn-ghost btn-sm" id="indBackBtn" style="margin-bottom:14px;"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Individuals</button>
         <div id="indHead"></div>
+        <div id="indSettings"></div>
         <div id="indStats" class="ind-stats"></div>
         <div class="ind-tabs" id="indTabs" role="tablist">
           <button type="button" class="ind-tab active" data-tab="att" role="tab">Davomat</button>
@@ -13718,7 +13731,7 @@ const Individuals = (function(){
     const dir = $('indDirFilter').value;
     const items = list.filter(it =>
       (!dir || (it.directions || []).indexOf(dir) >= 0) &&
-      (!q || [it.name, it.email, it.code].join(' ').toLowerCase().indexOf(q) >= 0)
+      (!q || [it.name, it.email, it.code, it.accessCode].join(' ').toLowerCase().indexOf(q) >= 0)
     );
     $('indCount').textContent = list.length ? (items.length + ' / ' + list.length + ' ta') : '';
     const box = $('indGrid');
@@ -13736,14 +13749,17 @@ const Individuals = (function(){
         '<div class="ind-av">' + esc(initial(it.name)) + '</div>' +
         '<div class="ind-main">' +
           '<strong>' + esc(it.name || 'Nomsiz') + '</strong>' +
-          '<span class="ind-sub">' + esc(it.code ? 'ID: ' + it.code : (it.email || '')) + '</span>' +
+          '<span class="ind-sub">' + esc(it.accessCode ? 'ID: ' + it.accessCode : (it.email || '')) + '</span>' +
           '<div class="ind-dirs">' + dirChips(it.directions) + '</div>' +
           '<div class="ind-mini">' +
             '<span>Keldi: <b>' + (sm.came || 0) + '</b></span>' +
             '<span>Kelmadi: <b>' + (sm.absent || 0) + '</b></span>' +
             '<span>Uy vazifa: <b>' + (sm.hwDone || 0) + '/' + (sm.hwTotal || 0) + '</b></span>' +
           '</div>' +
-          '<div class="ind-mini"><span>To&#39;langan: <b>' + esc(fmtMoney(sm.paid || 0)) + '</b></span></div>' +
+          '<div class="ind-mini"><span>To&#39;langan: <b>' + esc(fmtMoney(sm.paid || 0)) + '</b></span>' +
+            (it.payStatus === 'unpaid' ? '<span class="ind-badge ind-badge--no">To&#39;lanmagan</span>' : (it.payStatus === 'paid' ? '<span class="ind-badge ind-badge--yes">To&#39;langan</span>' : '')) +
+            (it.accessCode ? '' : '<span style="color:#d97706;">ID kiritilmagan</span>') +
+          '</div>' +
         '</div>' +
       '</button>';
     }).join('');
@@ -13837,6 +13853,7 @@ const Individuals = (function(){
     $('indDetailPane').hidden = false;
     window.scrollTo(0, 0);
     renderHead();
+    renderSettings();
     $('indStats').innerHTML = '';
     $('indTabBody').innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i></div>';
     syncTabs();
@@ -13861,7 +13878,7 @@ const Individuals = (function(){
         '<div class="ind-av">' + esc(initial(cur.name)) + '</div>' +
         '<div class="ind-head-info">' +
           '<h1>' + esc(cur.name || 'Nomsiz') + '</h1>' +
-          '<span class="ind-sub">' + esc([cur.email, cur.code ? 'ID: ' + cur.code : ''].filter(Boolean).join(' · ')) + '</span>' +
+          '<span class="ind-sub">' + esc([cur.email, cur.accessCode ? 'ID: ' + cur.accessCode : ''].filter(Boolean).join(' · ')) + '</span>' +
         '</div>' +
         '<button class="btn btn-ghost btn-sm" id="indDeleteBtn" style="color:#dc2626;">Ro&#39;yxatdan chiqarish</button>' +
       '</div>' +
@@ -13971,6 +13988,81 @@ const Individuals = (function(){
     }
   }
 
+  // ---------- Talaba profili sozlamalari: ID, dars kunlari, dars vaqti, to'lov muddati ----------
+  // individuals/{uid} ga yoziladi: accessCode, lessonDays:['mon','wed','fri'], lessonTime:'18:00-19:30', payStatus:'paid'|'unpaid'|'', payDueDate:'YYYY-MM-DD'
+  const DAYS = [
+    { id: 'mon', label: 'Dushanba' }, { id: 'tue', label: 'Seshanba' }, { id: 'wed', label: 'Chorshanba' },
+    { id: 'thu', label: 'Payshanba' }, { id: 'fri', label: 'Juma' }, { id: 'sat', label: 'Shanba' }, { id: 'sun', label: 'Yakshanba' }
+  ];
+  const setDays = new Set();
+  function splitTime(t){ const p = String(t || '').split('-'); return { a: (p[0] || '').trim(), b: (p[1] || '').trim() }; }
+
+  function renderSettings(){
+    if(!cur){ $('indSettings').innerHTML = ''; return; }
+    const tm = splitTime(cur.lessonTime);
+    setDays.clear();
+    (cur.lessonDays || []).forEach(d => setDays.add(d));
+    $('indSettings').innerHTML =
+      '<div class="ind-set">' +
+        '<div class="ind-set-title">Talaba profili sozlamalari</div>' +
+        '<div class="ind-set-grid">' +
+          '<label>Talaba uchun ID' +
+            '<span class="ind-set-row"><input type="text" id="indSetCode" maxlength="40" autocomplete="off" placeholder="Masalan: ali-ind01" value="' + esc(cur.accessCode || '') + '">' +
+            '<button type="button" class="ind-b" id="indSetGen">Yaratish</button></span>' +
+            '<small>Talaba shu ID ni o&#39;z profilida kiritgach, unga individual bosh sahifa ochiladi.</small>' +
+          '</label>' +
+          '<label>Dars vaqti' +
+            '<span class="ind-set-row"><input type="time" id="indSetT1" value="' + esc(tm.a) + '"><span>&ndash;</span><input type="time" id="indSetT2" value="' + esc(tm.b) + '"></span>' +
+            '<small>Boshlanish va tugash vaqti.</small>' +
+          '</label>' +
+          '<label>To&#39;lov holati' +
+            '<select id="indSetPay">' +
+              '<option value=""' + (!cur.payStatus ? ' selected' : '') + '>Belgilanmagan</option>' +
+              '<option value="paid"' + (cur.payStatus === 'paid' ? ' selected' : '') + '>To&#39;langan</option>' +
+              '<option value="unpaid"' + (cur.payStatus === 'unpaid' ? ' selected' : '') + '>To&#39;lanmagan</option>' +
+            '</select>' +
+          '</label>' +
+          '<label>To&#39;lov muddati' +
+            '<input type="date" id="indSetDue" value="' + esc(cur.payDueDate || '') + '">' +
+            '<small>Talaba shu sanagacha to&#39;lashi kerak.</small>' +
+          '</label>' +
+          '<div class="ind-set-full">' +
+            '<div class="ind-lbl">Dars kunlari (keladigan kunlari)</div>' +
+            '<div class="ind-days" id="indSetDays">' +
+              DAYS.map(d => '<button type="button" class="ind-day' + (setDays.has(d.id) ? ' on' : '') + '" data-day="' + d.id + '" aria-pressed="' + setDays.has(d.id) + '">' + d.label + '</button>').join('') +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="margin-top:14px;"><button type="button" class="btn btn-primary" id="indSetSave">Saqlash</button></div>' +
+      '</div>';
+  }
+
+  async function saveSettings(){
+    const code = $('indSetCode').value.trim();
+    if(code && list.some(x => x.id !== cur.id && String(x.accessCode || '').trim().toLowerCase() === code.toLowerCase())){
+      showToast("Bu ID boshqa talabada bor, boshqa ID kiriting", true);
+      return;
+    }
+    const a = $('indSetT1').value, b = $('indSetT2').value;
+    if(a && b && b <= a){ showToast("Dars tugash vaqti boshlanish vaqtidan keyin bo'lishi kerak", true); return; }
+    const data = {
+      accessCode: code,
+      lessonDays: DAYS.map(d => d.id).filter(id => setDays.has(id)),
+      lessonTime: (a && b) ? (a + '-' + b) : (a || ''),
+      payStatus: $('indSetPay').value,
+      payDueDate: $('indSetDue').value || ''
+    };
+    const btn = $('indSetSave');
+    btn.disabled = true;
+    try{
+      await col().doc(cur.id).update(data);
+      Object.assign(cur, data);
+      renderHead();
+      showToast('Saqlandi');
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+    finally { btn.disabled = false; }
+  }
+
   // ---------- Amallar ----------
   async function markAtt(status){
     const date = ($('indAttDate').value || '').trim();
@@ -14023,6 +14115,13 @@ const Individuals = (function(){
       pay.sort(byDateDesc);
       refresh();
       showToast("To'lov qo'shildi: " + fmtMoney(amount));
+      if(cur.payStatus !== 'paid'){
+        try{
+          await col().doc(cur.id).update({ payStatus: 'paid' });
+          cur.payStatus = 'paid';
+          const sel = $('indSetPay'); if(sel) sel.value = 'paid';
+        } catch(e){}
+      }
     } catch(e){ showToast('Xatolik: ' + e.message, true); }
   }
 
@@ -14098,6 +14197,25 @@ const Individuals = (function(){
     const d = e.target.closest('#indDirEdit [data-dir]');
     if(d){ toggleDir(d.dataset.dir); return; }
     if(e.target.closest('#indDeleteBtn')) removeIndividual();
+  });
+  $('indSettings').addEventListener('click', e => {
+    const t = e.target;
+    let b;
+    if((b = t.closest('#indSetDays [data-day]'))){
+      const id = b.dataset.day;
+      if(setDays.has(id)) setDays.delete(id); else setDays.add(id);
+      b.classList.toggle('on', setDays.has(id));
+      b.setAttribute('aria-pressed', setDays.has(id));
+      return;
+    }
+    if(t.closest('#indSetGen')){
+      let c, tries = 0;
+      do { c = 'ID' + (1000 + Math.floor(Math.random() * 9000)); tries++; }
+      while(tries < 20 && list.some(x => String(x.accessCode || '').toLowerCase() === c.toLowerCase()));
+      $('indSetCode').value = c;
+      return;
+    }
+    if(t.closest('#indSetSave')) saveSettings();
   });
   $('indTabs').addEventListener('click', e => {
     const b = e.target.closest('.ind-tab');
