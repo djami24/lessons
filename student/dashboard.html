@@ -2589,7 +2589,7 @@ async function renderIndividualHome(){
         if(keys.length){
           const sc = crlsScore(L.a.answers, keys);
           const pct = Math.round(sc / CRLS_COUNT * 100);
-          scoreHtml = '<div class="indh-mock-score">' + sc + ' <small>/ ' + CRLS_COUNT + ' &middot; ' + pct + '%</small></div>';
+          scoreHtml = '<div class="indh-mock-score">' + crlsBall(sec, sc) + ' <small>ball &middot; ' + sc + ' / ' + CRLS_COUNT + ' ta to&#8216;g&#8216;ri</small></div>';
         }
       } catch(err){}
       const dt = new Date(L.ms);
@@ -5765,6 +5765,16 @@ function crlsScore(answers, keys){
   for(let i = 0; i < CRLS_COUNT; i++) if(crlsRight((answers || [])[i], (keys || [])[i])) n++;
   return n;
 }
+const CRLS_BALL = {
+  // index = to'g'ri javoblar soni (0..35), qiymat = ball
+  listening: [0,23,26,28,30,33,34,36,38,39,41,42,44,45,47,48,50,51,53,54,55,57,58,60,61,63,65,66,68,70,72,73,74,75,75,75],
+  reading:   [0,20,24,27,29,32,34,36,38,39,41,42,44,45,46,48,49,51,52,54,55,57,58,60,61,63,65,66,68,70,71,73,74,75,75,75]
+};
+function crlsBall(sec, correct){
+  const t = CRLS_BALL[sec];
+  const n = Math.max(0, Math.min(35, Math.round(Number(correct) || 0)));
+  return t ? t[n] : 0;
+}
 function crlsEsc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function crlsDraftKey(id, sec){ return 'crlsDraft_' + currentUid + '_' + id + '_' + sec; }
 function crlsAtt(testId, sec){ return (crls.attempts[testId] || {})[sec] || null; }
@@ -5916,6 +5926,7 @@ async function showCefrRLResult(t, sec){
   const a = crlsAtt(t.id, sec) || { answers: [] };
   const sc = crlsScore(a.answers, keys);
   const pct = Math.round(sc / CRLS_COUNT * 100);
+  const ball = crlsBall(sec, sc);
   let rows = '';
   for(let i = 0; i < CRLS_COUNT; i++){
     const g = (a.answers || [])[i];
@@ -5925,7 +5936,7 @@ async function showCefrRLResult(t, sec){
   pane.innerHTML = crlsHead(t) +
     '<div class="crls-panel">' +
       '<div style="font-size:12.5px;font-weight:800;color:var(--gray-500);margin-bottom:6px;">' + CRLS_LABEL[sec].toUpperCase() + ' NATIJASI</div>' +
-      '<div class="crls-score"><b>' + sc + '</b><small>/ ' + CRLS_COUNT + ' &nbsp;·&nbsp; ' + pct + '%</small></div>' +
+      '<div class="crls-score"><b>' + ball + '</b><small>ball &nbsp;·&nbsp; ' + sc + ' / ' + CRLS_COUNT + ' ta to‘g‘ri</small></div>' +
       '<p style="font-size:13px;color:var(--gray-500);margin:8px 0 0;">To‘g‘ri: ' + sc + ' · Xato yoki bo‘sh: ' + (CRLS_COUNT - sc) + '</p>' +
       '<table class="crls-tbl"><thead><tr><th>№</th><th>Sizning javobingiz</th><th>To‘g‘ri javob</th><th></th></tr></thead><tbody>' + rows + '</tbody></table>' +
     '</div>';
