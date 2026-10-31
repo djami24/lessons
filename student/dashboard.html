@@ -219,6 +219,19 @@
   .hwi-step p{ margin:0; font-size:13.5px; line-height:1.5; opacity:.9; }
   .hwi-box ul{ margin:6px 0 0; padding-left:18px; font-size:13.5px; line-height:1.55; }
   body.dark .hwi-box{ background:#171d2c; color:#e8ecf5; border:1px solid #2a3248; }
+  /* Umumiy ball tafsiloti */
+  .bal-month{ font-size:12.5px; opacity:.65; margin:-6px 0 8px; }
+  .bal-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid rgba(100,116,139,.18); }
+  .bal-row.first{ border-top:0; }
+  .bal-row-l{ min-width:0; }
+  .bal-row-l b{ display:block; font-size:14px; }
+  .bal-row-l span{ display:block; font-size:12px; opacity:.7; margin-top:2px; line-height:1.4; }
+  .bal-row-v{ font-size:17px; font-weight:800; white-space:nowrap; text-align:right; }
+  .bal-row-v small{ font-size:11px; font-weight:600; opacity:.6; }
+  .bal-bonus-item{ font-size:12px; opacity:.8; padding:0 0 6px 0; display:flex; justify-content:space-between; gap:10px; }
+  .bal-total{ border-top:2px solid rgba(100,116,139,.35); margin-top:4px; padding-top:12px; }
+  .bal-total .bal-row-v{ font-size:24px; color:#2563eb; }
+  .bal-link{ margin-top:14px; width:100%; padding:10px 12px; border-radius:12px; border:1px solid rgba(100,116,139,.3); background:transparent; color:inherit; font:inherit; font-size:13px; font-weight:600; cursor:pointer; }
   /* Test natijasi (gb-utils.js) ranglari — body'da e'lon qilinadi, shunda dark rejimga ham moslashadi */
   body{ --gb-ink:var(--gray-900); --gb-dim:var(--gray-500); --gb-line:var(--gray-200); --gb-panel:var(--gray-25); --gb-accent:var(--blue-600); }
   .gbx-box{ max-width:680px; }
@@ -1063,10 +1076,10 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
             </svg>
           </div>
           <!-- Uy vazifa balli (shu oy) -->
-          <div id="hwPointsBadge" class="hwp-card" role="button" tabindex="0" aria-label="Ball tizimi haqida batafsil" hidden>
+          <div id="hwPointsBadge" class="hwp-card" role="button" tabindex="0" aria-label="Umumiy ball tafsilotlari" hidden>
             <div class="hwp-top">
               <span class="hwp-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.5 6.1 20.7l1.2-6.6L2.5 9.5l6.6-.9z"/></svg></span>
-              Uy vazifa balli
+              Umumiy ball
             </div>
             <div class="hwp-main">
               <span class="hwp-num" id="hwPointsNum">0</span>
@@ -3176,14 +3189,15 @@ async function loadMyStats(force){
     mystShowMessage('Statistikani ko\'rish uchun «O\'quv jarayoni» kartochkasida administrator bergan ID\'ni kiriting.');
     return;
   }
-  if(!force && _mystRows && _mystCode === code){ renderMyStats(); return; }
+  if(!force && _mystRows && _mystCode === code){ await mystLoadBonus(code); renderMyStats(); return; }
 
   const tok = ++_mystToken;
   info.innerHTML = '<span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span>';
   try{
     const [snap, pDoc] = await Promise.all([
       db.collection('oquv_progress').doc(code).collection('entries').get(),
-      db.collection('oquv_progress').doc(code).get().catch(() => null)
+      db.collection('oquv_progress').doc(code).get().catch(() => null),
+      mystLoadBonus(code, true)
     ]);
     if(tok !== _mystToken) return;
 
@@ -3457,7 +3471,8 @@ function renderMyStats(){
   const buckets = rng.from <= endStr ? mystBuckets(rng.from, endStr) : [];
   const bAgg = buckets.map(b => mystAgg(cur.filter(r => r.date >= b.from && r.date <= b.to)));
   const attS = bAgg.map(a => a.att), hwS = bAgg.map(a => a.hw);
-  const sc = mystScore(A), pSc = mystScore(P);
+  const bonusCur = mystBonusSum(_mystMonth), bonusPrev = mystBonusSum(prevYm);
+  const sc = mystTotal(A, bonusCur), pSc = mystTotal(P, bonusPrev);
 
   document.getElementById('mystKpis').innerHTML =
     mystKpi('Davomat', A.att === null ? '—' : A.att + '%', D(A.att, P.att, false, ' %'), `${A.yes + A.late} / ${A.marked} ta dars`, mystSpark(attS, MYST_C.green), MYST_C.green) +
@@ -3465,7 +3480,7 @@ function renderMyStats(){
     mystKpi('Kelmadi', A.no, D(A.no, P.no, true), `${mystLabel(prevYm)}: ${P.no}`, mystSpark(bAgg.map(a => a.no), MYST_C.red), MYST_C.red) +
     mystKpi('Kech qoldi', A.late, D(A.late, P.late, true), `${mystLabel(prevYm)}: ${P.late}`, mystSpark(bAgg.map(a => a.late), MYST_C.orange), MYST_C.orange) +
     mystKpi('Jazolangan', A.pun, D(A.pun, P.pun, true), A.punCnt ? `jami jazo: ${A.punCnt} ta` : 'jazo yo\'q', mystSpark(bAgg.map(a => a.pun), MYST_C.purple), MYST_C.purple) +
-    mystKpi('Ball', sc === null ? '—' : sc, D(sc, pSc, false, ''), '60% davomat + 40% uy vazifa − jazo', '<svg viewBox="0 0 100 30"></svg>', MYST_C.gray);
+    mystKpi('Ball', sc === null ? '—' : sc, D(sc, pSc, false, ''), '60% davomat + 40% uy vazifa − jazo' + (bonusCur ? ' + ' + bonusCur + " qo'shimcha" : ''), '<svg viewBox="0 0 100 30"></svg>', MYST_C.gray);
 
   document.getElementById('mystTrend').innerHTML = buckets.length
     ? mystLine(buckets.map(b => b.label), [
@@ -3784,67 +3799,138 @@ function _esc(str){
     .replace(/"/g,'&quot;');
 }
 
-// Uy vazifa balli: har dars 0–10 bal (uy vazifa foizi / 10); kelmagan yoki qilmagan — 0.
-// Hisob shu oy (guruhning davom etayotgan o'quv oyi, bo'lmasa kalendar oy) bo'yicha.
+// ===== UMUMIY BALL (profil kartochkasi) =====
+// Statistika sahifasidagi "Ball" bilan bir xil: 60% davomat + 40% uy vazifa − jazo, ustiga admin bergan qo'shimcha ball.
+// Hisob joriy kalendar oy bo'yicha. Bosilganda tafsilot oynasi ochiladi (davomat, kech qolish, uy vazifa, jazo, test, qo'shimcha).
+let _mystBonus = null, _mystBonusCode = null;
+async function mystLoadBonus(code, force){
+  if(!force && _mystBonus && _mystBonusCode === code) return _mystBonus;
+  try{
+    const snap = await db.collection('oquv_progress').doc(code).collection('bonus').get();
+    _mystBonus = snap.docs.map(d => { const x = d.data() || {}; return { date: String(x.date || ''), points: Number(x.points) || 0, reason: String(x.reason || '') }; })
+      .filter(x => x.points && x.date)
+      .sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+  } catch(e){ _mystBonus = []; }   // qoida hali qo'shilmagan bo'lsa ham ball ko'rinaveradi
+  _mystBonusCode = code;
+  return _mystBonus;
+}
+function mystBonusIn(ym){ const r = mystRange(ym); return (_mystBonus || []).filter(b => b.date >= r.from && b.date <= r.to); }
+function mystBonusSum(ym){ return mystBonusIn(ym).reduce((t, b) => t + b.points, 0); }
+function mystTotal(a, bonus){
+  const base = mystScore(a);
+  if(base === null) return bonus ? bonus : null;
+  return base + (bonus || 0);
+}
+// Umumiy ballning qismlari (jami = davomat + kech qolish + uy vazifa − jazo)
+function mystBreakdown(A){
+  let att = 0, late = 0, hw = 0;
+  if(A.att !== null){
+    att  = 0.6 * (A.yes / A.marked * 100);
+    late = 0.6 * (0.5 * A.late / A.marked * 100);
+    hw   = 0.4 * (A.hw === null ? A.att : A.hw);
+  } else if(A.hw !== null){ hw = A.hw; }
+  return { att, late, hw, pen: Math.min(20, (A.pun || 0) * 2) };
+}
+
 async function loadHwPointsBadge(){
   const box = document.getElementById('hwPointsBadge');
   if(!box) return;
   const code = state.student.oquvProgressCode;
   if(!code){ box.hidden = true; return; }
   try{
-    const pad = n => String(n).padStart(2, '0');
-    const now = new Date();
-    const tStr = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
-    let from = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-01';
-    const gid = await resolveStudentKundalikGroupId();
-    if(gid){
-      const gd = await db.collection('oquv_groups').doc(gid).get();
-      const ps = ((gd.exists && gd.data().periods) || [])
-        .filter(p => p && /^\d{4}-\d{2}-\d{2}$/.test(p.start) && p.start <= tStr && (!p.end || p.end >= tStr))
-        .sort((a, b) => a.start < b.start ? -1 : 1);
-      if(ps.length) from = ps[ps.length - 1].start;
-    }
-    const snap = await db.collection('oquv_progress').doc(code).collection('entries')
-      .where('date', '>=', from).where('date', '<=', tStr).get();
-    let pts = 0, lessons = 0;
-    snap.docs.forEach(doc => {
-      const e = doc.data();
-      const a = (e.attended === true || e.attended === 'yes') ? 'yes' : e.attended === 'late' ? 'late'
-              : (e.attended === false || e.attended === 'no') ? 'no' : '';
-      let hw = null;
-      if(e.homeworkDone === true || e.homeworkDone === 'yes') hw = 100;
-      else if(e.homeworkDone === false || e.homeworkDone === 'no') hw = 0;
-      else if(e.homeworkDone === 'partial') hw = Math.max(0, Math.min(100, Number(e.homeworkPercent) || 0));
-      if(a === '' && hw === null) return;
+    const ym = mystYm(new Date()), rng = mystRange(ym);
+    const [snap] = await Promise.all([
+      db.collection('oquv_progress').doc(code).collection('entries').where('date', '>=', rng.from).where('date', '<=', rng.to).get(),
+      mystLoadBonus(code, true)
+    ]);
+    const rows = [];
+    snap.forEach(d => { const x = mystNorm(d.data()); if(x) rows.push(x); });
+    const A = mystAgg(rows);
+    const bonus = mystBonusSum(ym);
+    const total = mystTotal(A, bonus);
+
+    // Uy vazifa dars ballari (har dars 0–10): mukofot hisobi uchun, tafsilot oynasida ko'rsatiladi
+    let hwPts = 0, lessons = 0;
+    rows.forEach(r => {
+      if(r.a === '' && r.hw === null) return;
       lessons++;
-      if(a !== 'no' && hw !== null) pts += Math.round(hw / 10);
+      if(r.a !== 'no' && r.hw !== null) hwPts += Math.round(r.hw / 10);
     });
-    const maxPts = lessons * 10;
-    document.getElementById('hwPointsNum').textContent = pts;
-    document.getElementById('hwPointsMax').textContent = lessons ? ('/ ' + maxPts) : '';
-    document.getElementById('hwPointsSub').textContent = lessons ? ('Shu oy · ' + lessons + ' ta dars hisobida') : 'Shu oy · hali dars belgilanmagan';
+    state._ballCtx = { ym, A, bonus, bonusList: mystBonusIn(ym), total, hwPts, hwMax: lessons * 10, lessons };
+
+    const shown = total === null ? 0 : total;
+    document.getElementById('hwPointsNum').textContent = shown;
+    document.getElementById('hwPointsMax').textContent = '/ 100';
+    document.getElementById('hwPointsSub').textContent = 'Shu oy · ' + (A.marked ? A.marked + ' ta dars hisobida' : 'hali dars belgilanmagan') + (bonus ? ' · +' + bonus + ' qo\'shimcha' : '');
     const bar = document.getElementById('hwPointsBar');
     bar.style.width = '0';
     box.hidden = false;
-    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = (maxPts ? Math.round(pts / maxPts * 100) : 0) + '%'; }));
+    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = Math.max(0, Math.min(100, shown)) + '%'; }));
   } catch(err){
-    console.error('HW points load failed:', err);
+    console.error('Umumiy ball load failed:', err);
     box.hidden = true;
   }
 }
 
-// Ball kartochkasi bosilganda tushuntirish oynasi (hodisalar document'da — elementlar keyinroq yuklansa ham ishlaydi)
+// Talabaning test o'rtachasi (gradebook) — tafsilot oynasida ko'rsatiladi
+async function getMyTestAvg(){
+  try{
+    if(state._gbCtx && state._gbCtx.sum) return state._gbCtx.sum.avg;
+    const code = state.student && state.student.oquvProgressCode;
+    if(!code) return null;
+    const data = await fetchGbLookupData();
+    let match = data.students.find(s => s.progressId && normalizeGbId(s.progressId) === normalizeGbId(code));
+    if(!match && state.student._progressName) match = data.students.find(s => !s.progressId && normalizeGbName(s.name) === normalizeGbName(state.student._progressName));
+    if(!match) return null;
+    const units = (data.unitsByGroup && data.unitsByGroup[match.group]) || [];
+    return GB.summarize(match, units).avg;
+  } catch(e){ return null; }
+}
+
+function openBallInfo(){
+  const c = state._ballCtx;
+  const ov = document.getElementById('ballInfoOverlay'), body = document.getElementById('ballInfoBody');
+  if(!ov || !body || !c) return;
+  const f = n => String(Math.round(n * 10) / 10);
+  const A = c.A, b = mystBreakdown(A);
+  const row = (title, val, detail, color, first) =>
+    `<div class="bal-row${first ? ' first' : ''}"><div class="bal-row-l"><b>${title}</b><span>${detail}</span></div><div class="bal-row-v" style="color:${color}">${val}</div></div>`;
+  let h = `<div class="bal-month">${mystLabel(c.ym)}</div>`;
+  h += row('Davomat bali', `+${f(b.att)} <small>/ 60</small>`, A.marked ? `${A.yes} ta darsga o'z vaqtida keldingiz (${A.marked} ta dars belgilangan)` : 'Hali dars belgilanmagan', MYST_C.green, true);
+  h += row('Kech qolish bali', `+${f(b.late)}`, A.late ? `${A.late} marta kech qoldingiz — kech qolish yarim dars sifatida hisoblanadi` : 'Kech qolmagansiz', MYST_C.orange);
+  h += row('Uy vazifa bali', `+${f(b.hw)} <small>/ 40</small>`, A.hw === null ? 'Hali uy vazifa belgilanmagan' : `O'rtacha bajarilish: ${A.hw}% · dars ballari: ${c.hwPts} / ${c.hwMax}`, MYST_C.blue);
+  h += row('Jazolangan bali', b.pen ? `−${f(b.pen)}` : '0', A.pun ? `${A.pun} kun jazolangan (har kun −2, ko'pi bilan −20)` : 'Jazo yo\'q', MYST_C.red);
+  h += row('Test natijasi bali', '<span id="ballTestVal">…</span>', '<span id="ballTestNote">Test o\'rtachasi</span>', MYST_C.purple);
+  h += row('Qo\'shimcha bal', c.bonus ? `+${c.bonus}` : '0', c.bonus ? 'O\'qituvchi tomonidan berilgan' : 'Bu oy qo\'shimcha bal berilmagan', '#0e9f6e');
+  if(c.bonusList.length){
+    h += c.bonusList.map(x => `<div class="bal-bonus-item"><span>+${x.points} · ${_esc(x.reason || 'Qo\'shimcha bal')}</span><span>${_esc(x.date.slice(5).replace('-', '.'))}</span></div>`).join('');
+  }
+  h += `<div class="bal-row bal-total"><div class="bal-row-l"><b>Jami</b><span>Davomat + kech qolish + uy vazifa − jazo + qo'shimcha</span></div><div class="bal-row-v">${c.total === null ? '—' : c.total}</div></div>`;
+  body.innerHTML = h;
+  ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
+
+  getMyTestAvg().then(avg => {
+    const v = document.getElementById('ballTestVal'), n = document.getElementById('ballTestNote');
+    if(!v || !n) return;
+    if(avg === null || avg === undefined){ v.textContent = '—'; n.textContent = 'Hali test natijasi kiritilmagan'; }
+    else { v.innerHTML = Math.round(avg) + ' <small>/ 100</small>'; n.textContent = "Test o'rtachasi (umumiy ballga qo'shilmaydi)"; }
+  });
+}
+
+// Hodisalar document'da — elementlar keyinroq yuklansa ham ishlaydi
 (function(){
-  const ov = () => document.getElementById('hwInfoOverlay');
-  const open = () => { const o = ov(); if(o){ o.classList.add('open'); o.setAttribute('aria-hidden', 'false'); } };
-  const close = () => { const o = ov(); if(o){ o.classList.remove('open'); o.setAttribute('aria-hidden', 'true'); } };
+  const $ = id => document.getElementById(id);
+  const show = id => { const o = $(id); if(o){ o.classList.add('open'); o.setAttribute('aria-hidden', 'false'); } };
+  const hide = id => { const o = $(id); if(o){ o.classList.remove('open'); o.setAttribute('aria-hidden', 'true'); } };
   document.addEventListener('click', e => {
-    if(e.target.closest('#hwPointsBadge')) { open(); return; }
-    if(e.target.closest('#hwInfoClose') || e.target === ov()) close();
+    if(e.target.closest('#hwPointsBadge')){ openBallInfo(); return; }
+    if(e.target.closest('#ballInfoClose') || e.target === $('ballInfoOverlay')){ hide('ballInfoOverlay'); return; }
+    if(e.target.closest('#ballHwRewardBtn')){ hide('ballInfoOverlay'); show('hwInfoOverlay'); return; }
+    if(e.target.closest('#hwInfoClose') || e.target === $('hwInfoOverlay')) hide('hwInfoOverlay');
   });
   document.addEventListener('keydown', e => {
-    if(e.key === 'Escape') close();
-    else if((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.id === 'hwPointsBadge'){ e.preventDefault(); open(); }
+    if(e.key === 'Escape'){ hide('ballInfoOverlay'); hide('hwInfoOverlay'); }
+    else if((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.id === 'hwPointsBadge'){ e.preventDefault(); openBallInfo(); }
   });
 })();
 
@@ -7042,6 +7128,15 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     <div id="gbDetailBody"></div>
   </div>
 </div>
+<!-- Umumiy ball: tafsilot oynasi -->
+<div class="hwi-overlay" id="ballInfoOverlay" aria-hidden="true">
+  <div class="hwi-box" role="dialog" aria-modal="true" aria-labelledby="ballInfoTitle">
+    <button type="button" class="hwi-close" id="ballInfoClose" aria-label="Yopish">&times;</button>
+    <h3 id="ballInfoTitle">Umumiy ball</h3>
+    <div id="ballInfoBody"></div>
+    <button type="button" class="bal-link" id="ballHwRewardBtn">Uy vazifa mukofoti qanday ishlaydi?</button>
+  </div>
+</div>
 <!-- Uy vazifa ballari: tushuntirish oynasi -->
 <div class="hwi-overlay" id="hwInfoOverlay" aria-hidden="true">
   <div class="hwi-box" role="dialog" aria-modal="true" aria-labelledby="hwInfoTitle">
@@ -7072,7 +7167,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     </div></div>
     <div class="hwi-step" style="margin-bottom:0;"><span class="hwi-n">5</span><div>
       <b class="t">Ballingizni o'zingiz ko'rasiz</b>
-      <p>Profilingizdagi rasmingiz yonida "shu oy" balli va nechta darsdan ekani turadi.</p>
+      <p>Profilingizdagi "Umumiy ball" kartochkasini bossangiz, uy vazifa ballingiz ham tafsilotlari bilan ko'rinadi.</p>
     </div></div>
   </div>
 </div>
