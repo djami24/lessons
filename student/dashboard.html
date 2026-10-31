@@ -1110,7 +1110,19 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
           .indh-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px;}
           .indh-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;min-width:0;}
           .indh-card h3{font-size:14px;font-weight:700;margin:0 0 12px;color:var(--gray-900);display:flex;align-items:center;gap:8px;}
-          .indh-ico{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;background:var(--blue-50);}
+          .indh-ico{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:var(--blue-50);color:var(--blue-600);flex:none;}
+          .indh-big svg{vertical-align:-3px;margin-right:4px;}
+          .indh-chip,.indh-pill{display:inline-flex;align-items:center;gap:4px;}
+          .indh-prompt{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(79,140,255,.10);border:1px solid rgba(79,140,255,.25);}
+          .indh-prompt-t{flex:1;min-width:150px;display:flex;flex-direction:column;gap:2px;}
+          .indh-prompt-t b{font-size:14px;color:var(--gray-900);}
+          .indh-prompt-t span{font-size:12px;color:var(--gray-500);line-height:1.4;}
+          html body.admin-theme .indh-go{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font:inherit;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;color:#fff !important;text-shadow:0 1px 2px rgba(10,35,110,.35);
+            background:linear-gradient(180deg,rgba(255,255,255,.34) 0%,rgba(255,255,255,0) 52%),linear-gradient(135deg,rgba(60,125,255,.80) 0%,rgba(24,72,205,.86) 100%) !important;
+            border:1px solid rgba(255,255,255,.55) !important;-webkit-backdrop-filter:blur(14px) saturate(180%);backdrop-filter:blur(14px) saturate(180%);
+            box-shadow:0 12px 26px -10px rgba(36,92,230,.55), inset 0 1px 0 rgba(255,255,255,.65) !important;transition:transform .15s ease;}
+          html body.admin-theme .indh-go:active{transform:scale(.97);}
+          body.dark .indh-prompt-t b{color:#e8ecf5;}
           .indh-big{font-size:22px;font-weight:800;line-height:1.25;color:var(--gray-900);}
           .indh-sub{font-size:12.5px;color:var(--gray-500);margin-top:4px;line-height:1.45;}
           .indh-ok{color:#1e7e34;} .indh-late{color:#a15c00;} .indh-bad{color:#c0392b;}
@@ -1138,19 +1150,19 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         </style>
         <div class="indh-grid">
           <div class="indh-card">
-            <h3><span class="indh-ico">&#9989;</span> Darsga qatnashish</h3>
+            <h3><span class="indh-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span> Darsga qatnashish</h3>
             <div id="indAttBody"><span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span></div>
           </div>
           <div class="indh-card">
-            <h3><span class="indh-ico">&#128197;</span> Keyingi dars</h3>
+            <h3><span class="indh-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span> Keyingi dars</h3>
             <div id="indNextBody"><span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span></div>
           </div>
           <div class="indh-card">
-            <h3><span class="indh-ico">&#128221;</span> So&#8216;nggi mock natijalari</h3>
+            <h3><span class="indh-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8M16 17H8M10 9H8"/></svg></span> So&#8216;nggi mock natijalari</h3>
             <div id="indMockBody"><span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span></div>
           </div>
           <div class="indh-card">
-            <h3><span class="indh-ico">&#128179;</span> To&#8216;lov</h3>
+            <h3><span class="indh-ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span> To&#8216;lov</h3>
             <div id="indPayBody"><span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span></div>
           </div>
         </div>
@@ -2438,6 +2450,16 @@ function updateIndividualQuickInfo(){
   updateHomeQuickInfo({ group: 'Individual', time: indFmtTime(ind.lessonTime) || null, nextLesson: label });
 }
 
+const IND_ICON_PATHS = {
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  x: '<path d="M18 6 6 18M6 6l12 12"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  arrow: '<path d="M5 12h14M12 5l7 7-7 7"/>'
+};
+function indIcon(name, size){
+  return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IND_ICON_PATHS[name] + '</svg>';
+}
+
 function indLatestAttempt(sec){
   let best = null, bestMs = -1;
   Object.keys(crls.attempts || {}).forEach(tid => {
@@ -2479,7 +2501,7 @@ async function renderIndividualHome(){
       const time = indFmtTime(ind.lessonTime);
       el.innerHTML =
         '<div class="indh-big">' + E(label) + '</div>' +
-        '<div class="indh-sub">' + (time ? '&#128339; ' + E(time) : 'Dars vaqti kiritilmagan') + (rel ? ' &middot; <b>' + E(rel) + '</b>' : '') + '</div>' +
+        '<div class="indh-sub">' + (time ? indIcon('clock', 13) + ' ' + E(time) : 'Dars vaqti kiritilmagan') + (rel ? ' &middot; <b>' + E(rel) + '</b>' : '') + '</div>' +
         '<div class="indh-chips">' + IND_DAY_KEYS.map(k => '<span class="indh-chip' + (days.indexOf(k) >= 0 ? ' on' : '') + '">' + E(SCHEDULE_DAY_LABELS[k]) + '</span>').join('') + '</div>';
     }
   }
@@ -2488,7 +2510,7 @@ async function renderIndividualHome(){
   {
     const el = document.getElementById('indPayBody');
     const st = ind.payStatus;
-    const pill = st === 'paid' ? '<span class="indh-pill yes">&#10003; To&#8216;langan</span>'
+    const pill = st === 'paid' ? '<span class="indh-pill yes">' + indIcon('check', 14) + ' To&#8216;langan</span>'
       : st === 'unpaid' ? '<span class="indh-pill no">To&#8216;lanmagan</span>'
       : '<span class="indh-pill none">Ma&#8217;lumot yo&#8216;q</span>';
     let due = '';
@@ -2523,7 +2545,7 @@ async function renderIndividualHome(){
     }
     if(att){
       const LBL = { yes: 'Keldi', late: 'Kech qoldi', no: 'Kelmadi' };
-      const ICO = { yes: '&#10003;', late: '&#9200;', no: '&#10007;' };
+      const ICOF = (st, sz) => IND_ICON_PATHS[({ yes: 'check', late: 'clock', no: 'x' })[st]] ? indIcon(({ yes: 'check', late: 'clock', no: 'x' })[st], sz) : '';
       const CLS = { yes: 'indh-ok', late: 'indh-late', no: 'indh-bad' };
       const todayK = indTodayKey();
       const days = ind.lessonDays || [];
@@ -2539,9 +2561,9 @@ async function renderIndividualHome(){
         let extra = '';
         if(todayLesson && last.date !== todayK) extra = '<div class="indh-sub">Bugun dars kuni &mdash; davomat hali belgilanmagan.</div>';
         el.innerHTML =
-          '<div class="indh-big ' + (CLS[last.status] || '') + '">' + (ICO[last.status] || '') + ' ' + E(LBL[last.status] || '—') + '</div>' +
+          '<div class="indh-big ' + (CLS[last.status] || '') + '">' + ICOF(last.status, 20) + ' ' + E(LBL[last.status] || '—') + '</div>' +
           '<div class="indh-sub">' + E(when) + ' (oxirgi dars) &middot; Umumiy davomat: <b>' + pct + '%</b></div>' + extra +
-          '<div class="indh-chips">' + att.slice(0, 6).map(a => '<span class="indh-chip ' + E(a.status) + '">' + E(indFmtDate(a.date).slice(0, 5)) + ' ' + (ICO[a.status] || '') + '</span>').join('') + '</div>';
+          '<div class="indh-chips">' + att.slice(0, 6).map(a => '<span class="indh-chip ' + E(a.status) + '">' + E(indFmtDate(a.date).slice(0, 5)) + ' ' + ICOF(a.status, 11) + '</span>').join('') + '</div>';
       }
     }
   }
@@ -2550,6 +2572,9 @@ async function renderIndividualHome(){
   {
     const el = document.getElementById('indMockBody');
     const rows = [];
+    if(!crls.tests.length){
+      el.innerHTML = '<div class="indh-sub" style="margin-top:0;">Hozircha sizga mock biriktirilmagan.</div>';
+    } else
     for(const sec of CRLS_SECS){
       const L = indLatestAttempt(sec);
       if(!L){
@@ -2572,9 +2597,27 @@ async function renderIndividualHome(){
       rows.push('<div class="indh-mock"><div class="indh-mock-lbl">' + E(CRLS_LABEL[sec]) + '</div><div class="indh-mock-info">' + scoreHtml +
         '<div class="indh-mock-meta">' + E((t && t.title) || 'Mock') + ' &middot; ' + E(dstr) + '</div></div></div>');
     }
-    el.innerHTML = rows.join('');
+    if(crls.tests.length){
+      let prompt = '';
+      const latest = crls.tests[0];
+      const left = CRLS_SECS.filter(sec => !crlsAtt(latest.id, sec));
+      if(left.length){
+        prompt = '<div class="indh-prompt"><div class="indh-prompt-t"><b>Mock yechasizmi?</b><span>' + E(latest.title || 'Mock') + ' &middot; ' +
+          left.map(sec => E(CRLS_LABEL[sec])).join(' va ') + ' hali yechilmagan</span></div>' +
+          '<button type="button" class="indh-go" id="indMockGo" data-id="' + E(latest.id) + '">Mock yechish ' + indIcon('arrow', 15) + '</button></div>';
+      }
+      el.innerHTML = rows.join('') + prompt;
+    }
   }
 }
+
+document.addEventListener('click', (e) => {
+  const go = e.target.closest('#indMockGo');
+  if(!go) return;
+  const nav = document.getElementById('navCefrRL');
+  if(nav) nav.click();                 // CEFR RL (mocklar) sahifasiga o'tadi
+  openCefrRLTest(go.dataset.id);       // eng so'nggi mockni ochadi
+});
 
 document.addEventListener('click', async (e) => {
   if(!e.target.closest('#indChangeIdBtn')) return;
