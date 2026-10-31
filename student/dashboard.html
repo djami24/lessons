@@ -1023,7 +1023,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <li><a href="#" id="navProfile"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> Profil</a></li>
       <li><a href="#" id="navChat" style="position:relative;"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> O‘qituvchiga xabar yozish <span id="chatBadge" class="notif-badge" hidden style="position:static;margin-left:auto;">0</span></a></li>
       <li><a href="#" id="navTeacher"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><circle cx="12" cy="20" r="0"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> O‘qituvchi haqida</a></li>
-      <li><a href="../kundalik.html"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Homework</a></li>
+      <li><a href="../kundalik.html" id="navKundalik"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Homework</a></li>
       <li><a href="../natijalar.html" id="navResultsCard"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> Test natijalar</a></li>
       <li><a href="#" id="navPlacementTest"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> Darajani bilish testi</a></li>
       <li><a href="#" id="navMyEssays" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Insholarim</a></li>
@@ -2288,7 +2288,20 @@ function applyIndividualMode(){
   if(!state.indVerified) return;
   const idEl = document.getElementById('homeStudentId');
   if(idEl) idEl.textContent = state.student.individualCode || '—';
-  ['navResultsCard', 'navPlacementTest'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+  ['navResultsCard', 'navPlacementTest', 'navListeningHw', 'navKundalik'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+  // CEFR RL — menyuda 1-o'rinda va yashil rangda
+  const cefr = document.getElementById('navCefrRL');
+  if(cefr){
+    const li = cefr.parentElement, ul = li && li.parentElement;
+    if(ul && ul.firstElementChild !== li) ul.insertBefore(li, ul.firstElementChild);
+    cefr.style.background = '#22c55e';
+    cefr.style.borderColor = '#22c55e';
+    cefr.style.color = '#fff';
+    cefr.style.fontWeight = '800';
+    const ic = cefr.querySelector('svg');
+    if(ic) ic.style.color = '#fff';
+  }
+  if(typeof window.sbnApplyIndividual === 'function') window.sbnApplyIndividual();
   updateIndividualQuickInfo();
 }
 
@@ -6495,6 +6508,19 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   SHEET_IDS.forEach(id => { const o = document.getElementById(id); if(o) addSheetItem(o, id); });
   const siteLink = document.querySelector('.admin-nav a[href="../index.html"]');
   if(siteLink) addSheetItem(siteLink, null);
+
+  // Individual talaba: CEFR RL ro'yxatning eng tepasida va yashil rangda
+  window.sbnApplyIndividual = function(){
+    const el = sheetLinks.navCefrRL;
+    if(!el || !document.body.classList.contains('ind-mode')) return;
+    if(list.firstElementChild !== el) list.insertBefore(el, list.firstElementChild);
+    el.style.background = '#22c55e';
+    el.style.borderColor = '#22c55e';
+    el.style.color = '#fff';
+    el.style.fontWeight = '800';
+    const ic = el.querySelector('svg');
+    if(ic) ic.style.color = '#fff';
+  };
 
   // ---- Menyuning eng pastida: foydalanuvchi kartasi (avatar, ism, "Chiqish") ----
   (function(){
