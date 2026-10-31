@@ -1104,6 +1104,59 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         </div>
       </div>
 
+<!-- INDIVIDUAL bosh sahifa (faqat admin bergan ID kiritilgan talabalar uchun) -->
+      <div id="indHomeBox" hidden>
+        <style>
+          .indh-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:18px;}
+          .indh-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;min-width:0;}
+          .indh-card h3{font-size:14px;font-weight:700;margin:0 0 12px;color:var(--gray-900);display:flex;align-items:center;gap:8px;}
+          .indh-ico{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;background:var(--blue-50);}
+          .indh-big{font-size:22px;font-weight:800;line-height:1.25;color:var(--gray-900);}
+          .indh-sub{font-size:12.5px;color:var(--gray-500);margin-top:4px;line-height:1.45;}
+          .indh-ok{color:#1e7e34;} .indh-late{color:#a15c00;} .indh-bad{color:#c0392b;}
+          .indh-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+          .indh-chip{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:99px;background:var(--gray-100);color:var(--gray-500);}
+          .indh-chip.on{background:var(--blue-50);color:var(--blue-600);}
+          .indh-chip.yes{background:#e6f4ea;color:#1e7e34;} .indh-chip.late{background:#fff4e0;color:#a15c00;} .indh-chip.no{background:#fdeaec;color:#c0392b;}
+          .indh-pill{display:inline-block;font-size:13px;font-weight:800;padding:6px 14px;border-radius:99px;}
+          .indh-pill.yes{background:#e6f4ea;color:#1e7e34;} .indh-pill.no{background:#fdeaec;color:#c0392b;} .indh-pill.none{background:var(--gray-100);color:var(--gray-500);}
+          .indh-mock{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--gray-100);}
+          .indh-mock:first-of-type{border-top:0;padding-top:0;}
+          .indh-mock-lbl{font-size:12px;font-weight:800;color:var(--gray-500);width:74px;flex:none;}
+          .indh-mock-score{font-size:20px;font-weight:800;color:var(--gray-900);}
+          .indh-mock-score small{font-size:12px;font-weight:600;color:var(--gray-500);}
+          .indh-mock-info{min-width:0;flex:1;}
+          .indh-mock-meta{font-size:11.5px;color:var(--gray-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+          .indh-link{font-size:11.5px;color:var(--gray-400);background:none;border:none;cursor:pointer;padding:0;margin-top:14px;}
+          @media (max-width:760px){.indh-grid{grid-template-columns:1fr;}}
+          body.dark .indh-card{background:#171d2c !important;border-color:#2a3248 !important;}
+          body.dark .indh-chip{background:#1b2235;} body.dark .indh-chip.on{background:#1d2b4a;}
+          /* individual rejimda guruhga oid kartochkalar yashiriladi */
+          body.ind-mode #progressIdForm, body.ind-mode #progressView, body.ind-mode #gbResultBox,
+          body.ind-mode #latestHwBox, body.ind-mode .row-top, body.ind-mode .schedule-card,
+          body.ind-mode #myStatsCard, body.ind-mode #hwPointsBadge{display:none !important;}
+        </style>
+        <div class="indh-grid">
+          <div class="indh-card">
+            <h3><span class="indh-ico">&#9989;</span> Darsga qatnashish</h3>
+            <div id="indAttBody"><span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span></div>
+          </div>
+          <div class="indh-card">
+            <h3><span class="indh-ico">&#128197;</span> Keyingi dars</h3>
+            <div id="indNextBody"><span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span></div>
+          </div>
+          <div class="indh-card">
+            <h3><span class="indh-ico">&#128221;</span> So&#8216;nggi mock natijalari</h3>
+            <div id="indMockBody"><span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span></div>
+          </div>
+          <div class="indh-card">
+            <h3><span class="indh-ico">&#128179;</span> To&#8216;lov</h3>
+            <div id="indPayBody"><span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span></div>
+          </div>
+        </div>
+        <button type="button" class="indh-link" id="indChangeIdBtn">ID&#8217;ni o&#8216;zgartirish</button>
+      </div>
+
 <!-- O'quv jarayoni kartochkasi (progressIdForm / progressView) -->
       <div id="progressIdForm" hidden style="background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-top:18px;">
         <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
@@ -1889,7 +1942,8 @@ auth.onAuthStateChanged(async (user) => {
   // before showing the dashboard at all. Once saved on the student's own
   // account (students/{uid}.oquvProgressCode), every later login skips
   // straight past this screen into the dashboard.
-  if(!state.student.oquvProgressCode){
+  await loadIndividualState();
+  if(!state.student.oquvProgressCode && !state.indVerified){
     document.getElementById('idGateScreen').hidden = false;
     return;
   }
@@ -1911,7 +1965,8 @@ async function enterDashboard(){
   const homeNameEl = document.getElementById('homeStudentName');
   if(homeNameEl) homeNameEl.textContent = state.student.name || state.student.email || '—';
   const homeIdEl = document.getElementById('homeStudentId');
-  if(homeIdEl) homeIdEl.textContent = state.student.oquvProgressCode || '—';
+  if(homeIdEl) homeIdEl.textContent = (state.indVerified ? state.student.individualCode : state.student.oquvProgressCode) || '—';
+  applyIndividualMode();
 
   // Faollik jurnali: talaba profiliga kirdi
   try {
@@ -1928,7 +1983,7 @@ async function enterDashboard(){
 
   // Individual students only see Homework, Kurslarim and Insholarim on the
   // home page — no Test natijalar and no Darajani bilish testi.
-  if(state.student.studentType === 'individual'){
+  if(state.student.studentType === 'individual' || state.indVerified){
     document.getElementById('navResultsCard').style.display = 'none';
     document.getElementById('navPlacementTest').style.display = 'none';
   }
@@ -1973,6 +2028,10 @@ document.getElementById('idGateSubmitBtn').addEventListener('click', async () =>
   const originalLabel = btn.textContent;
   btn.textContent = 'Tekshirilmoqda…';
   try{
+    if(await tryIndividualCode(code)){
+      await enterDashboard();
+      return;
+    }
     const doc = await db.collection('oquv_progress').doc(code).get();
     if(!doc.exists){
       errorEl.textContent = `"${code}" ID topilmadi. ID’ni tekshirib, qayta kiriting.`;
@@ -2187,6 +2246,252 @@ function restoreLastStudentView(saved){
   if(nav && nav.style.display !== 'none') nav.click();
 }
 
+// ===== INDIVIDUAL talaba: admin bergan ID orqali alohida bosh sahifa =====
+// individuals/{uid} { accessCode, lessonDays:['mon','wed',...], lessonTime:'18:00-19:30', payStatus:'paid'|'unpaid'|'', payDueDate:'YYYY-MM-DD' }
+// individuals/{uid}/attendance/{YYYY-MM-DD} { date, status:'yes'|'late'|'no' }
+// students/{uid}.individualCode — talaba kiritgan ID (har kirishda individuals.accessCode bilan solishtiriladi)
+function indNorm(x){ return String(x == null ? '' : x).trim().toLowerCase(); }
+
+async function loadIndividualState(){
+  state.individual = null;
+  state.indVerified = false;
+  try{
+    const d = await db.collection('individuals').doc(currentUid).get();
+    if(d.exists){
+      state.individual = d.data();
+      const saved = state.student.individualCode;
+      state.indVerified = !!(saved && state.individual.accessCode && indNorm(state.individual.accessCode) === indNorm(saved));
+    }
+  } catch(err){ console.warn('Individual holati yuklanmadi:', err); }
+}
+
+// Kiritilgan ID shu talabaga admin bergan ID bo'lsa — saqlaydi va true qaytaradi.
+async function tryIndividualCode(code){
+  try{
+    const d = await db.collection('individuals').doc(currentUid).get();
+    if(!d.exists) return false;
+    const data = d.data();
+    if(!data.accessCode || indNorm(data.accessCode) !== indNorm(code)) return false;
+    await db.collection('students').doc(currentUid).update({ individualCode: data.accessCode });
+    state.student.individualCode = data.accessCode;
+    state.individual = data;
+    state.indVerified = true;
+    return true;
+  } catch(err){
+    console.warn('Individual ID tekshirilmadi:', err);
+    return false;
+  }
+}
+
+function applyIndividualMode(){
+  document.body.classList.toggle('ind-mode', !!state.indVerified);
+  if(!state.indVerified) return;
+  const idEl = document.getElementById('homeStudentId');
+  if(idEl) idEl.textContent = state.student.individualCode || '—';
+  ['navResultsCard', 'navPlacementTest'].forEach(id => { const el = document.getElementById(id); if(el) el.style.display = 'none'; });
+  updateIndividualQuickInfo();
+}
+
+const IND_DAY_KEYS = ['mon','tue','wed','thu','fri','sat','sun'];
+function indTodayKey(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function indFmtDate(k){
+  const p = String(k || '').split('-');
+  return p.length === 3 ? p[2] + '.' + p[1] + '.' + p[0] : (k || '');
+}
+function indFmtTime(t){ return String(t || '').split('-').map(x => x.trim()).filter(Boolean).join(' – '); }
+function indDayDiff(dateStr){
+  const t = new Date(); t.setHours(0, 0, 0, 0);
+  const d = new Date(dateStr + 'T00:00:00');
+  return Math.round((d - t) / 86400000);
+}
+function indNextLessonDate(days, timeRange){
+  if(!days || !days.length) return null;
+  const JS = { sun:0, mon:1, tue:2, wed:3, thu:4, fri:5, sat:6 };
+  const now = new Date();
+  const today = new Date(now); today.setHours(0, 0, 0, 0);
+  const todayKey = Object.keys(JS).find(k => JS[k] === today.getDay());
+  let startFrom = 0;
+  if(timeRange && days.includes(todayKey)){
+    const endStr = String(timeRange).split('-')[1];
+    if(endStr){
+      const parts = endStr.trim().split(':').map(Number);
+      if(!isNaN(parts[0])){
+        const end = new Date(today); end.setHours(parts[0], parts[1] || 0, 0, 0);
+        if(now > end) startFrom = 1;
+      }
+    }
+  }
+  for(let i = startFrom; i < startFrom + 8; i++){
+    const d = new Date(today); d.setDate(d.getDate() + i);
+    const key = Object.keys(JS).find(k => JS[k] === d.getDay());
+    if(days.includes(key)) return d;
+  }
+  return null;
+}
+
+function updateIndividualQuickInfo(){
+  const ind = state.individual || {};
+  const nd = indNextLessonDate(ind.lessonDays, ind.lessonTime);
+  let label = null;
+  if(nd){
+    label = nd.toLocaleDateString('uz-UZ', { weekday:'long', day:'numeric', month:'long' });
+    label = label.charAt(0).toUpperCase() + label.slice(1);
+  }
+  updateHomeQuickInfo({ group: 'Individual', time: indFmtTime(ind.lessonTime) || null, nextLesson: label });
+}
+
+function indLatestAttempt(sec){
+  let best = null, bestMs = -1;
+  Object.keys(crls.attempts || {}).forEach(tid => {
+    const a = (crls.attempts[tid] || {})[sec];
+    if(!a) return;
+    const ms = a.submittedAt && a.submittedAt.toMillis ? a.submittedAt.toMillis() : Date.now();
+    if(ms > bestMs){ bestMs = ms; best = a; }
+  });
+  return best ? { a: best, ms: bestMs } : null;
+}
+
+async function renderIndividualHome(){
+  const box = document.getElementById('indHomeBox');
+  if(!box) return;
+  if(!state.indVerified){ box.hidden = true; return; }
+  box.hidden = false;
+  const E = crlsEsc;
+
+  // Eng yangi sozlamalar (admin o'zgartirgan bo'lishi mumkin)
+  try{
+    const d = await db.collection('individuals').doc(currentUid).get();
+    if(d.exists) state.individual = d.data();
+  } catch(err){}
+  const ind = state.individual || {};
+  updateIndividualQuickInfo();
+
+  // --- Keyingi dars ---
+  {
+    const el = document.getElementById('indNextBody');
+    const days = ind.lessonDays || [];
+    const nd = indNextLessonDate(days, ind.lessonTime);
+    if(!days.length){
+      el.innerHTML = '<div class="indh-sub" style="margin-top:0;">Ustoz hali dars kunlarini kiritmagan.</div>';
+    } else {
+      const diff = nd ? Math.round((nd - (function(){ const t = new Date(); t.setHours(0,0,0,0); return t; })()) / 86400000) : null;
+      const rel = diff === 0 ? 'Bugun' : diff === 1 ? 'Ertaga' : (diff != null ? diff + ' kundan keyin' : '');
+      let label = nd ? nd.toLocaleDateString('uz-UZ', { weekday:'long', day:'numeric', month:'long' }) : '—';
+      label = label.charAt(0).toUpperCase() + label.slice(1);
+      const time = indFmtTime(ind.lessonTime);
+      el.innerHTML =
+        '<div class="indh-big">' + E(label) + '</div>' +
+        '<div class="indh-sub">' + (time ? '&#128339; ' + E(time) : 'Dars vaqti kiritilmagan') + (rel ? ' &middot; <b>' + E(rel) + '</b>' : '') + '</div>' +
+        '<div class="indh-chips">' + IND_DAY_KEYS.map(k => '<span class="indh-chip' + (days.indexOf(k) >= 0 ? ' on' : '') + '">' + E(SCHEDULE_DAY_LABELS[k]) + '</span>').join('') + '</div>';
+    }
+  }
+
+  // --- To'lov ---
+  {
+    const el = document.getElementById('indPayBody');
+    const st = ind.payStatus;
+    const pill = st === 'paid' ? '<span class="indh-pill yes">&#10003; To&#8216;langan</span>'
+      : st === 'unpaid' ? '<span class="indh-pill no">To&#8216;lanmagan</span>'
+      : '<span class="indh-pill none">Ma&#8217;lumot yo&#8216;q</span>';
+    let due = '';
+    if(ind.payDueDate){
+      const diff = indDayDiff(ind.payDueDate);
+      let note = '', cls = '';
+      if(st !== 'paid'){
+        if(diff > 1){ note = diff + ' kun qoldi'; }
+        else if(diff === 1){ note = 'ertaga oxirgi kun'; cls = 'indh-late'; }
+        else if(diff === 0){ note = 'bugun oxirgi kun'; cls = 'indh-late'; }
+        else { note = Math.abs(diff) + ' kun o&#8216;tib ketdi'; cls = 'indh-bad'; }
+      }
+      due = '<div class="indh-sub" style="margin-top:12px;">' + (st === 'paid' ? 'Keyingi to&#8216;lov muddati' : 'To&#8216;lov muddati') + ':</div>' +
+        '<div class="indh-big ' + cls + '" style="font-size:18px;">' + E(indFmtDate(ind.payDueDate)) + '</div>' +
+        (note ? '<div class="indh-sub ' + cls + '" style="font-weight:700;">' + note + '</div>' : '');
+    } else {
+      due = '<div class="indh-sub" style="margin-top:12px;">To&#8216;lov muddati belgilanmagan.</div>';
+    }
+    el.innerHTML = pill + due;
+  }
+
+  // --- Davomat ---
+  {
+    const el = document.getElementById('indAttBody');
+    let att = [];
+    try{
+      const snap = await db.collection('individuals').doc(currentUid).collection('attendance').get();
+      att = snap.docs.map(d => d.data()).filter(a => a && a.date).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    } catch(err){
+      el.innerHTML = '<div class="indh-sub" style="margin-top:0;">Davomatni yuklab bo&#8216;lmadi.</div>';
+      att = null;
+    }
+    if(att){
+      const LBL = { yes: 'Keldi', late: 'Kech qoldi', no: 'Kelmadi' };
+      const ICO = { yes: '&#10003;', late: '&#9200;', no: '&#10007;' };
+      const CLS = { yes: 'indh-ok', late: 'indh-late', no: 'indh-bad' };
+      const todayK = indTodayKey();
+      const days = ind.lessonDays || [];
+      const todayLesson = days.indexOf(IND_DAY_KEYS[(new Date().getDay() + 6) % 7]) >= 0;
+      if(!att.length){
+        el.innerHTML = '<div class="indh-sub" style="margin-top:0;">Hali davomat belgilanmagan.</div>';
+      } else {
+        const last = att[0];
+        const when = last.date === todayK ? 'Bugun' : indFmtDate(last.date);
+        const came = att.filter(a => a.status === 'yes').length;
+        const late = att.filter(a => a.status === 'late').length;
+        const pct = Math.round((came + late * 0.5) / att.length * 100);
+        let extra = '';
+        if(todayLesson && last.date !== todayK) extra = '<div class="indh-sub">Bugun dars kuni &mdash; davomat hali belgilanmagan.</div>';
+        el.innerHTML =
+          '<div class="indh-big ' + (CLS[last.status] || '') + '">' + (ICO[last.status] || '') + ' ' + E(LBL[last.status] || '—') + '</div>' +
+          '<div class="indh-sub">' + E(when) + ' (oxirgi dars) &middot; Umumiy davomat: <b>' + pct + '%</b></div>' + extra +
+          '<div class="indh-chips">' + att.slice(0, 6).map(a => '<span class="indh-chip ' + E(a.status) + '">' + E(indFmtDate(a.date).slice(0, 5)) + ' ' + (ICO[a.status] || '') + '</span>').join('') + '</div>';
+      }
+    }
+  }
+
+  // --- So'nggi Reading / Listening mock natijalari ---
+  {
+    const el = document.getElementById('indMockBody');
+    const rows = [];
+    for(const sec of CRLS_SECS){
+      const L = indLatestAttempt(sec);
+      if(!L){
+        rows.push('<div class="indh-mock"><div class="indh-mock-lbl">' + E(CRLS_LABEL[sec]) + '</div><div class="indh-mock-info"><div class="indh-sub" style="margin:0;">Hali yechilmagan</div></div></div>');
+        continue;
+      }
+      const t = crls.tests.find(x => x.id === L.a.testId);
+      let scoreHtml = '<span class="indh-sub" style="margin:0;">Topshirilgan</span>';
+      try{
+        const k = await db.collection('cefrRL').doc(L.a.testId).collection('private').doc(sec).get();
+        const keys = (k.exists && k.data().answers) || [];
+        if(keys.length){
+          const sc = crlsScore(L.a.answers, keys);
+          const pct = Math.round(sc / CRLS_COUNT * 100);
+          scoreHtml = '<div class="indh-mock-score">' + sc + ' <small>/ ' + CRLS_COUNT + ' &middot; ' + pct + '%</small></div>';
+        }
+      } catch(err){}
+      const dt = new Date(L.ms);
+      const dstr = String(dt.getDate()).padStart(2, '0') + '.' + String(dt.getMonth() + 1).padStart(2, '0') + '.' + dt.getFullYear();
+      rows.push('<div class="indh-mock"><div class="indh-mock-lbl">' + E(CRLS_LABEL[sec]) + '</div><div class="indh-mock-info">' + scoreHtml +
+        '<div class="indh-mock-meta">' + E((t && t.title) || 'Mock') + ' &middot; ' + E(dstr) + '</div></div></div>');
+    }
+    el.innerHTML = rows.join('');
+  }
+}
+
+document.addEventListener('click', async (e) => {
+  if(!e.target.closest('#indChangeIdBtn')) return;
+  if(!confirm('ID\u2019ni o\u2018zgartirmoqchimisiz? Individual bosh sahifa o\u2018chadi, ID\u2019ni qayta kiritishingiz mumkin.')) return;
+  try{
+    await db.collection('students').doc(currentUid).update({ individualCode: firebase.firestore.FieldValue.delete() });
+  } catch(err){ console.warn(err); }
+  delete state.student.individualCode;
+  state.indVerified = false;
+  window.location.reload();
+});
+
 // ---------- Home (default landing page) ----------
 
 function renderHomeView(){
@@ -2212,6 +2517,7 @@ function renderHomeView(){
   loadHwPointsBadge();
   renderGbResultBox();
   renderProgressBox();
+  if(state.indVerified) renderIndividualHome();
 }
 
 // Shows the student's own attendance/homework/grade diary from the admin
@@ -2797,6 +3103,7 @@ function renderMyStats(){
 })();
 
 async function renderProgressBox(){
+  if(state.indVerified) return;   // individual talabada guruh kartochkasi ishlamaydi
   const formEl = document.getElementById('progressIdForm');
   const viewEl = document.getElementById('progressView');
   const errorEl = document.getElementById('progressIdError');
@@ -2931,6 +3238,12 @@ async function renderProgressBox(){
       if(!code){ errorEl.textContent = 'ID kiriting.'; errorEl.hidden = false; return; }
       btn.disabled = true;
       try{
+        if(await tryIndividualCode(code)){
+          applyIndividualMode();
+          renderIndividualHome();
+          btn.disabled = false;
+          return;
+        }
         await db.collection('students').doc(currentUid).update({ oquvProgressCode: code });
         state.student.oquvProgressCode = code;
         await renderProgressBox();
