@@ -1029,6 +1029,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <li><a href="#" id="navMyEssays" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Insholarim</a></li>
       <li><a href="#" id="navCEFR" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> CEFR</a></li>
       <li><a href="#" id="navCefrRL" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg> CEFR RL</a></li>
+      <li><a href="#" id="navIndArchive" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg> Arxiv</a></li>
       <li><a href="#" id="navWordGame"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M7 12h.01"/><path d="M17 12h.01"/></svg> So’z o’yini</a></li>
       <li><a href="../index.html" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Saytni ko’rish</a></li>
     </ul>
@@ -1123,6 +1124,21 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
             box-shadow:0 12px 26px -10px rgba(36,92,230,.55), inset 0 1px 0 rgba(255,255,255,.65) !important;transition:transform .15s ease;}
           html body.admin-theme .indh-go:active{transform:scale(.97);}
           body.dark .indh-prompt-t b{color:#e8ecf5;}
+          .indh-delta{display:inline-flex;align-items:center;gap:2px;font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:99px;vertical-align:2px;}
+          .indh-delta.up{background:#e6f4ea;color:#1e7e34;} .indh-delta.down{background:#fdeaec;color:#c0392b;} .indh-delta.flat{background:var(--gray-100);color:var(--gray-500);}
+          body.dark .indh-delta.up{background:rgba(34,197,94,.16);color:#4ade80;} body.dark .indh-delta.down{background:rgba(239,68,68,.16);color:#f87171;} body.dark .indh-delta.flat{background:#232b40;color:#9aa4ba;}
+          .indh-more{display:inline-flex;align-items:center;gap:4px;margin-top:12px;background:none;border:none;cursor:pointer;padding:0;font:inherit;font-size:12.5px;font-weight:700;color:var(--blue-600);}
+          body.dark .indh-more{color:#9fc0ff;}
+          .indh-modal-ov{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(10,16,35,.45);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);}
+          .indh-modal{max-width:380px;width:100%;border-radius:20px;padding:24px 22px;text-align:center;background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.85);box-shadow:0 24px 60px -18px rgba(10,20,60,.5), inset 0 1px 0 rgba(255,255,255,.9);-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);}
+          body.dark .indh-modal{background:rgba(23,29,44,.85);border-color:rgba(255,255,255,.12);box-shadow:0 24px 60px -18px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.06);}
+          .indh-modal-ico{width:54px;height:54px;border-radius:16px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:rgba(245,158,11,.16);color:#d97706;}
+          .indh-modal h3{margin:0 0 8px;font-size:18px;color:var(--gray-900);}
+          .indh-modal p{margin:0 0 18px;font-size:13.5px;line-height:1.55;color:var(--gray-500);}
+          body.dark .indh-modal h3{color:#e8ecf5;}
+          .indh-modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+          .indh-later{cursor:pointer;font:inherit;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;color:var(--gray-700);background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);}
+          body.dark .indh-later{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:#c3cbe0;}
           .indh-big{font-size:22px;font-weight:800;line-height:1.25;color:var(--gray-900);}
           .indh-sub{font-size:12.5px;color:var(--gray-500);margin-top:4px;line-height:1.45;}
           .indh-ok{color:#1e7e34;} .indh-late{color:#a15c00;} .indh-bad{color:#c0392b;}
@@ -1453,6 +1469,47 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         <h3>Hali insho yubormagansiz</h3>
         <p>Writing bo‘limidan savol tanlab, birinchi inshoyingizni yuboring.</p>
       </div>
+    </section>
+
+    <!-- ===== ARXIV (individual talaba: yechilgan mocklar natijalari va grafik) ===== -->
+    <section id="view-ind-archive" hidden>
+      <style>
+        .arch-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:18px;}
+        .arch-headline{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:14px;margin-bottom:18px;font-weight:700;font-size:14px;}
+        .arch-headline.up{background:#e6f4ea;color:#1e7e34;} .arch-headline.down{background:#fdeaec;color:#c0392b;} .arch-headline.flat,.arch-headline.none{background:var(--gray-100);color:var(--gray-700);}
+        .arch-legend{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;font-weight:700;color:var(--gray-500);margin-bottom:8px;}
+        .arch-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px;}
+        .arch-chart{width:100%;height:auto;display:block;color:var(--gray-500);}
+        .arch-list{display:flex;flex-direction:column;gap:10px;margin-top:6px;}
+        .arch-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:14px;cursor:pointer;background:var(--white);border:1px solid var(--gray-200);box-shadow:var(--shadow);transition:transform .15s,border-color .15s;}
+        .arch-row:hover{border-color:var(--blue-600);transform:translateY(-1px);}
+        .arch-info{flex:1;min-width:150px;display:flex;flex-direction:column;gap:3px;}
+        .arch-info b{font-size:14px;color:var(--gray-900);overflow-wrap:anywhere;}
+        .arch-info span{font-size:12px;color:var(--gray-500);}
+        .arch-tag{font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:99px;}
+        .arch-tag.reading{background:var(--blue-50);color:var(--blue-600);} .arch-tag.listening{background:#f1eaff;color:#7c3aed;}
+        .arch-score{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:2px;}
+        .arch-score b{font-size:22px;font-weight:800;line-height:1.1;color:var(--gray-900);}
+        .arch-score small{font-size:11.5px;color:var(--gray-500);}
+        html body.admin-theme:not(.dark) .arch-row{background:rgba(255,255,255,.55) !important;-webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%);border:1px solid rgba(255,255,255,.78) !important;box-shadow:0 12px 32px -14px rgba(20,33,61,.20), inset 0 1px 0 rgba(255,255,255,.85) !important;}
+        html body.admin-theme.dark .arch-row{background:rgba(23,29,44,.55) !important;-webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);border:1px solid rgba(255,255,255,.10) !important;box-shadow:0 12px 32px -14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06) !important;}
+        body.dark .arch-info b,body.dark .arch-score b{color:#e8ecf5;}
+        body.dark .arch-info span,body.dark .arch-score small,body.dark .arch-legend{color:#9aa4ba;}
+        body.dark .arch-chart{color:#9aa4ba;}
+        body.dark .arch-tag.listening{background:rgba(139,92,246,.18);color:#c4b5fd;} body.dark .arch-tag.reading{background:rgba(79,140,255,.18);color:#9fc0ff;}
+        body.dark .arch-headline.up{background:rgba(34,197,94,.14);color:#4ade80;} body.dark .arch-headline.down{background:rgba(239,68,68,.14);color:#f87171;} body.dark .arch-headline.flat,body.dark .arch-headline.none{background:#232b40;color:#c3cbe0;}
+        body.dark #view-ind-archive .back-link,body.dark #view-ind-archive h1{color:#e8ecf5 !important;}
+        body.dark #view-ind-archive .admin-header p{color:#9aa4ba !important;}
+        @media (max-width:760px){.arch-grid{grid-template-columns:1fr;}}
+      </style>
+      <a href="#" id="backToHomeFromArch" class="back-link">Bosh sahifaga</a>
+      <div class="admin-header">
+        <div>
+          <h1>Arxiv</h1>
+          <p>Yechgan barcha mocklaringiz natijalari shu yerda saqlanadi. O&#8216;sayotganingizni yoki pasayayotganingizni kuzating.</p>
+        </div>
+      </div>
+      <div id="archBody"></div>
     </section>
 
     <!-- ===== CEFR RL (Reading / Listening — 35 ta javob) ===== -->
@@ -2107,6 +2164,7 @@ async function enterDashboard(){
     }
   });
   restoreLastStudentView(_savedStudentView);
+  if(state.indVerified) setTimeout(showIndMockReminder, 700);
 }
 
 document.getElementById('idGateSubmitBtn').addEventListener('click', async () => {
@@ -2295,7 +2353,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-rl'];
+const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-rl', 'ind-archive'];
 
 // Bir vaqtning o'zida faqat bitta sidebar bandi ko'k (active) bo'lishi uchun:
 // avval BARCHA bandlardan 'active' klassini olib tashlaydi, so'ng kerakli
@@ -2327,6 +2385,7 @@ const STUDENT_VIEW_NAV_MAP = {
   'cefr-writing': 'navCEFR',
   'cefr-speaking': 'navCEFR',
   'cefr-rl': 'navCefrRL',
+  'ind-archive': 'navIndArchive',
   'notifications': 'navNotifications',
   'chat': 'navChat',
   'teacher': 'navTeacher'
@@ -2395,6 +2454,12 @@ function applyIndividualMode(){
     const ic = cefr.querySelector('svg');
     if(ic) ic.style.color = '#fff';
   }
+  const archNav = document.getElementById('navIndArchive');
+  if(archNav){
+    archNav.style.display = '';
+    const aLi = archNav.parentElement;
+    if(cefr && cefr.parentElement && aLi) cefr.parentElement.after(aLi);
+  }
   if(typeof window.sbnApplyIndividual === 'function') window.sbnApplyIndividual();
   updateIndividualQuickInfo();
 }
@@ -2454,11 +2519,208 @@ const IND_ICON_PATHS = {
   check: '<polyline points="20 6 9 17 4 12"/>',
   x: '<path d="M18 6 6 18M6 6l12 12"/>',
   clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
-  arrow: '<path d="M5 12h14M12 5l7 7-7 7"/>'
+  arrow: '<path d="M5 12h14M12 5l7 7-7 7"/>',
+  up: '<path d="M12 19V5M5 12l7-7 7 7"/>',
+  down: '<path d="M12 5v14M19 12l-7 7-7-7"/>',
+  flat: '<path d="M5 12h14"/>',
+  alert: '<circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>'
 };
 function indIcon(name, size){
   return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + IND_ICON_PATHS[name] + '</svg>';
 }
+
+// ---------- ARXIV: barcha yechilgan mocklar, ball, o'sish/pasayish, grafik ----------
+const indKeyCache = {};
+async function indGetKeys(tid, sec){
+  const ck = tid + '__' + sec;
+  if(indKeyCache[ck]) return indKeyCache[ck];
+  try{
+    const k = await db.collection('cefrRL').doc(tid).collection('private').doc(sec).get();
+    const keys = (k.exists && k.data().answers) || [];
+    if(keys.length) indKeyCache[ck] = keys;
+    return keys;
+  } catch(err){ return []; }
+}
+// Qaytaradi: vaqt bo'yicha o'sish tartibida [{tid, sec, a, ms, title, correct, ball, delta}]
+async function indArchiveData(){
+  const items = [];
+  Object.keys(crls.attempts || {}).forEach(tid => {
+    CRLS_SECS.forEach(sec => {
+      const a = (crls.attempts[tid] || {})[sec];
+      if(!a) return;
+      const ms = a.submittedAt && a.submittedAt.toMillis ? a.submittedAt.toMillis() : Date.now();
+      items.push({ tid: tid, sec: sec, a: a, ms: ms });
+    });
+  });
+  items.sort((x, y) => x.ms - y.ms);
+  await Promise.all(items.map(async it => {
+    const keys = await indGetKeys(it.tid, it.sec);
+    if(keys.length){ it.correct = crlsScore(it.a.answers, keys); it.ball = crlsBall(it.sec, it.correct); }
+    else { it.correct = null; it.ball = null; }
+    const t = crls.tests.find(x => x.id === it.tid);
+    it.title = (t && t.title) || 'Mock';
+  }));
+  const last = {};
+  items.forEach(it => {
+    if(it.ball == null){ it.delta = null; return; }
+    it.delta = last[it.sec] != null ? it.ball - last[it.sec] : null;
+    last[it.sec] = it.ball;
+  });
+  return items;
+}
+function indDeltaBadge(d){
+  if(d == null) return '';
+  const cls = d > 0 ? 'up' : d < 0 ? 'down' : 'flat';
+  const txt = d > 0 ? '+' + d : d < 0 ? '\u2212' + Math.abs(d) : '0';
+  return '<span class="indh-delta ' + cls + '">' + (d === 0 ? '' : indIcon(d > 0 ? 'up' : 'down', 11)) + txt + '</span>';
+}
+function indShortDate(ms){
+  const d = new Date(ms);
+  return String(d.getDate()).padStart(2, '0') + '.' + String(d.getMonth() + 1).padStart(2, '0');
+}
+function indFullDate(ms){
+  const d = new Date(ms);
+  return indShortDate(ms) + '.' + d.getFullYear();
+}
+function indChartSvg(items){
+  const pts = items.filter(x => x.ball != null);
+  if(!pts.length) return '';
+  const W = 600, H = 250, L = 34, R = 18, T = 24, B = 32, n = pts.length;
+  const X = i => n === 1 ? (L + (W - L - R) / 2) : L + i * (W - L - R) / (n - 1);
+  const Y = v => T + (1 - v / 75) * (H - T - B);
+  const COL = { reading: '#2563eb', listening: '#8b5cf6' };
+  let g = '', lines = '', dots = '', xl = '';
+  [0, 25, 50, 75].forEach(v => {
+    g += '<line x1="' + L + '" y1="' + Y(v) + '" x2="' + (W - R) + '" y2="' + Y(v) + '" stroke="currentColor" stroke-opacity=".16"/>' +
+         '<text x="' + (L - 6) + '" y="' + (Y(v) + 4) + '" text-anchor="end" font-size="10" fill="currentColor" fill-opacity=".75">' + v + '</text>';
+  });
+  CRLS_SECS.forEach(sec => {
+    const sp = pts.map((p, i) => ({ p: p, i: i })).filter(o => o.p.sec === sec);
+    if(sp.length > 1){
+      lines += '<polyline fill="none" stroke="' + COL[sec] + '" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="' +
+        sp.map(o => X(o.i).toFixed(1) + ',' + Y(o.p.ball).toFixed(1)).join(' ') + '"/>';
+    }
+    sp.forEach(o => {
+      const cx = X(o.i).toFixed(1), cy = Y(o.p.ball).toFixed(1);
+      const ly = sec === 'reading' ? (Y(o.p.ball) - 9) : (Y(o.p.ball) + 17);
+      dots += '<circle cx="' + cx + '" cy="' + cy + '" r="4.5" fill="' + COL[sec] + '" stroke="#fff" stroke-width="1.5"/>' +
+              '<text x="' + cx + '" y="' + ly.toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" fill="' + COL[sec] + '">' + o.p.ball + '</text>';
+    });
+  });
+  pts.forEach((p, i) => {
+    if(n <= 8 || i % 2 === 0 || i === n - 1){
+      xl += '<text x="' + X(i).toFixed(1) + '" y="' + (H - 10) + '" text-anchor="middle" font-size="10" fill="currentColor" fill-opacity=".75">' + indShortDate(p.ms) + '</text>';
+    }
+  });
+  return '<svg class="arch-chart" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Reading va Listening natijalari grafigi">' + g + lines + dots + xl + '</svg>';
+}
+
+async function renderIndArchive(){
+  const body = document.getElementById('archBody');
+  if(!body) return;
+  const E = crlsEsc;
+  body.innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i></div>';
+  const items = await indArchiveData();
+  if(!items.length){
+    body.innerHTML = '<div class="empty-state"><h3>Arxiv hozircha bo&#8216;sh</h3><p>Mock yechganingizdan keyin natijalaringiz shu yerda saqlanadi.</p></div>';
+    return;
+  }
+  // Bo'limlar bo'yicha o'zgarish
+  let sumDelta = 0, haveDelta = false;
+  const cards = CRLS_SECS.map(sec => {
+    const arr = items.filter(x => x.sec === sec && x.ball != null);
+    if(!arr.length) return '<div class="indh-card"><h3>' + E(CRLS_LABEL[sec]) + '</h3><div class="indh-sub" style="margin-top:0;">Hali yechilmagan</div></div>';
+    const last = arr[arr.length - 1];
+    const best = Math.max.apply(null, arr.map(x => x.ball));
+    if(last.delta != null){ sumDelta += last.delta; haveDelta = true; }
+    return '<div class="indh-card"><h3>' + E(CRLS_LABEL[sec]) + '</h3>' +
+      '<div class="indh-big">' + last.ball + ' <small style="font-size:13px;font-weight:600;color:var(--gray-500);">ball</small> ' + indDeltaBadge(last.delta) + '</div>' +
+      '<div class="indh-sub">Oxirgi: ' + E(indFullDate(last.ms)) + ' &middot; Eng yuqori: <b>' + best + '</b> &middot; Yechilgan: <b>' + arr.length + '</b> ta</div></div>';
+  }).join('');
+  let head;
+  if(!haveDelta) head = '<div class="arch-headline none">' + indIcon('flat', 18) + ' O&#8216;sishni ko&#8216;rish uchun har bo&#8216;limdan kamida 2 ta mock yeching.</div>';
+  else if(sumDelta > 0) head = '<div class="arch-headline up">' + indIcon('up', 18) + ' Ajoyib! Natijalaringiz o&#8216;syapti. Shu tempda davom eting.</div>';
+  else if(sumDelta < 0) head = '<div class="arch-headline down">' + indIcon('down', 18) + ' So&#8216;nggi mockda natija biroz pasaydi. Xatolar ustida ishlab, qayta urinib ko&#8216;ring.</div>';
+  else head = '<div class="arch-headline flat">' + indIcon('flat', 18) + ' Natijalaringiz barqaror. Yana bir qadam oldinga!</div>';
+
+  const chart = '<div class="indh-card" style="margin-bottom:18px;"><h3>Natijalar dinamikasi</h3>' +
+    '<div class="arch-legend"><span><i class="arch-dot" style="background:#2563eb"></i>Reading</span><span><i class="arch-dot" style="background:#8b5cf6"></i>Listening</span><span>(ball, 0&ndash;75)</span></div>' +
+    indChartSvg(items) + '</div>';
+
+  const rows = items.slice().reverse().map(it =>
+    '<div class="arch-row" role="button" tabindex="0" data-tid="' + E(it.tid) + '" data-sec="' + E(it.sec) + '">' +
+      '<div class="arch-info"><b>' + E(it.title) + '</b><span>' + E(indFullDate(it.ms)) + '</span></div>' +
+      '<span class="arch-tag ' + E(it.sec) + '">' + E(CRLS_LABEL[it.sec]) + '</span>' +
+      '<div class="arch-score">' + (it.ball != null
+        ? '<b>' + it.ball + ' <small style="font-size:12px;font-weight:600;">ball</small></b><small>' + it.correct + ' / ' + CRLS_COUNT + ' ta to&#8216;g&#8216;ri</small>' + indDeltaBadge(it.delta)
+        : '<small>Natija yuklanmadi</small>') + '</div>' +
+    '</div>').join('');
+
+  body.innerHTML = head + '<div class="arch-grid">' + cards + '</div>' + chart +
+    '<h3 style="font-size:15px;margin:6px 0 10px;">Barcha yechilgan testlar (' + items.length + ')</h3><div class="arch-list">' + rows + '</div>';
+}
+
+// Har safar kirganda: yechilmagan mock bo'lsa eslatma
+function showIndMockReminder(){
+  if(!state.indVerified || window._indRemindShown) return;
+  const pending = (crls.tests || []).filter(t => CRLS_SECS.some(sec => !crlsAtt(t.id, sec)));
+  if(!pending.length) return;
+  window._indRemindShown = true;
+  const E = crlsEsc;
+  const t = pending[0];
+  const left = CRLS_SECS.filter(sec => !crlsAtt(t.id, sec)).map(sec => CRLS_LABEL[sec]).join(' va ');
+  const solvedAny = Object.keys(crls.attempts || {}).length > 0;
+  const ov = document.createElement('div');
+  ov.className = 'indh-modal-ov';
+  ov.setAttribute('role', 'dialog');
+  ov.setAttribute('aria-modal', 'true');
+  ov.innerHTML =
+    '<div class="indh-modal">' +
+      '<div class="indh-modal-ico">' + indIcon('alert', 28) + '</div>' +
+      '<h3>' + (solvedAny ? 'Mock yechmadingiz' : 'Hali mock yechmagansiz') + '</h3>' +
+      '<p><b>' + E(t.title || 'Mock') + '</b> &mdash; ' + E(left) + ' hali yechilmagan.' +
+        (pending.length > 1 ? ' Yana ' + (pending.length - 1) + ' ta mock kutmoqda.' : '') +
+        ' Muntazam mock yechish natijangizni oshiradi.</p>' +
+      '<div class="indh-modal-actions">' +
+        '<button type="button" class="indh-go" id="indRemGo" data-id="' + E(t.id) + '">Mock yechish ' + indIcon('arrow', 15) + '</button>' +
+        '<button type="button" class="indh-later" id="indRemLater">Keyinroq</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+  const close = () => { if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown', onKey); };
+  const onKey = (e) => { if(e.key === 'Escape') close(); };
+  document.addEventListener('keydown', onKey);
+  ov.addEventListener('click', (e) => {
+    if(e.target === ov || e.target.closest('#indRemLater')){ close(); return; }
+    const go = e.target.closest('#indRemGo');
+    if(go){
+      close();
+      const nav = document.getElementById('navCefrRL');
+      if(nav) nav.click();
+      openCefrRLTest(go.dataset.id);
+    }
+  });
+}
+
+document.addEventListener('click', (e) => {
+  if(e.target.closest('#navIndArchive')){
+    e.preventDefault();
+    setActiveNav('navIndArchive');
+    switchView('ind-archive');
+    renderIndArchive();
+    return;
+  }
+  if(e.target.closest('#backToHomeFromArch')){ e.preventDefault(); renderHomeView(); return; }
+  if(e.target.closest('#indArchGo')){ const n = document.getElementById('navIndArchive'); if(n) n.click(); return; }
+  const row = e.target.closest('.arch-row');
+  if(row){
+    const nav = document.getElementById('navCefrRL');
+    if(nav) nav.click();
+    openCefrRLTest(row.dataset.tid);
+    crls.sec = row.dataset.sec;
+    renderCefrRLPane();
+  }
+});
 
 function indLatestAttempt(sec){
   let best = null, bestMs = -1;
@@ -2571,33 +2833,24 @@ async function renderIndividualHome(){
   // --- So'nggi Reading / Listening mock natijalari ---
   {
     const el = document.getElementById('indMockBody');
-    const rows = [];
     if(!crls.tests.length){
       el.innerHTML = '<div class="indh-sub" style="margin-top:0;">Hozircha sizga mock biriktirilmagan.</div>';
-    } else
-    for(const sec of CRLS_SECS){
-      const L = indLatestAttempt(sec);
-      if(!L){
-        rows.push('<div class="indh-mock"><div class="indh-mock-lbl">' + E(CRLS_LABEL[sec]) + '</div><div class="indh-mock-info"><div class="indh-sub" style="margin:0;">Hali yechilmagan</div></div></div>');
-        continue;
-      }
-      const t = crls.tests.find(x => x.id === L.a.testId);
-      let scoreHtml = '<span class="indh-sub" style="margin:0;">Topshirilgan</span>';
-      try{
-        const k = await db.collection('cefrRL').doc(L.a.testId).collection('private').doc(sec).get();
-        const keys = (k.exists && k.data().answers) || [];
-        if(keys.length){
-          const sc = crlsScore(L.a.answers, keys);
-          const pct = Math.round(sc / CRLS_COUNT * 100);
-          scoreHtml = '<div class="indh-mock-score">' + crlsBall(sec, sc) + ' <small>ball &middot; ' + sc + ' / ' + CRLS_COUNT + ' ta to&#8216;g&#8216;ri</small></div>';
+    } else {
+      const arch = await indArchiveData();
+      const rows = [];
+      for(const sec of CRLS_SECS){
+        const L = arch.slice().reverse().find(x => x.sec === sec);
+        if(!L){
+          rows.push('<div class="indh-mock"><div class="indh-mock-lbl">' + E(CRLS_LABEL[sec]) + '</div><div class="indh-mock-info"><div class="indh-sub" style="margin:0;">Hali yechilmagan</div></div></div>');
+          continue;
         }
-      } catch(err){}
-      const dt = new Date(L.ms);
-      const dstr = String(dt.getDate()).padStart(2, '0') + '.' + String(dt.getMonth() + 1).padStart(2, '0') + '.' + dt.getFullYear();
-      rows.push('<div class="indh-mock"><div class="indh-mock-lbl">' + E(CRLS_LABEL[sec]) + '</div><div class="indh-mock-info">' + scoreHtml +
-        '<div class="indh-mock-meta">' + E((t && t.title) || 'Mock') + ' &middot; ' + E(dstr) + '</div></div></div>');
-    }
-    if(crls.tests.length){
+        let scoreHtml = '<span class="indh-sub" style="margin:0;">Topshirilgan</span>';
+        if(L.ball != null){
+          scoreHtml = '<div class="indh-mock-score">' + L.ball + ' <small>ball &middot; ' + L.correct + ' / ' + CRLS_COUNT + ' ta to&#8216;g&#8216;ri</small> ' + indDeltaBadge(L.delta) + '</div>';
+        }
+        rows.push('<div class="indh-mock"><div class="indh-mock-lbl">' + E(CRLS_LABEL[sec]) + '</div><div class="indh-mock-info">' + scoreHtml +
+          '<div class="indh-mock-meta">' + E(L.title) + ' &middot; ' + E(indFullDate(L.ms)) + '</div></div></div>');
+      }
       let prompt = '';
       const latest = crls.tests[0];
       const left = CRLS_SECS.filter(sec => !crlsAtt(latest.id, sec));
@@ -2606,7 +2859,8 @@ async function renderIndividualHome(){
           left.map(sec => E(CRLS_LABEL[sec])).join(' va ') + ' hali yechilmagan</span></div>' +
           '<button type="button" class="indh-go" id="indMockGo" data-id="' + E(latest.id) + '">Mock yechish ' + indIcon('arrow', 15) + '</button></div>';
       }
-      el.innerHTML = rows.join('') + prompt;
+      const more = arch.length ? '<div><button type="button" class="indh-more" id="indArchGo">Arxiv va grafik ' + indIcon('arrow', 14) + '</button></div>' : '';
+      el.innerHTML = rows.join('') + prompt + more;
     }
   }
 }
@@ -6600,7 +6854,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   // ---- "Menyu": yon menyudagi qolgan bo'limlar pastdan chiqadigan ro'yxatda ----
   const wrap = document.getElementById('sbnSheetWrap');
   const list = document.getElementById('sbnSheetList');
-  const SHEET_IDS = ['navChat','navTeacher','navResultsCard','navPlacementTest','navCefrRL','navWordGame'];
+  const SHEET_IDS = ['navChat','navTeacher','navResultsCard','navPlacementTest','navCefrRL','navIndArchive','navWordGame'];
   const sheetLinks = {}; // navId -> ro'yxatdagi element
   function closeSheet(){ wrap.hidden = true; items.menu.setAttribute('aria-expanded','false'); }
   function openSheet(){ wrap.hidden = false; items.menu.setAttribute('aria-expanded','true'); }
@@ -6650,6 +6904,8 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     const el = sheetLinks.navCefrRL;
     if(!el || !document.body.classList.contains('ind-mode')) return;
     if(list.firstElementChild !== el) list.insertBefore(el, list.firstElementChild);
+    const arSheet = sheetLinks.navIndArchive;
+    if(arSheet) list.insertBefore(arSheet, el.nextSibling);
     el.classList.add('ind-cefr-btn');
     el.style.background = '#22c55e';
     el.style.borderColor = '#22c55e';
