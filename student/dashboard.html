@@ -1968,6 +1968,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
     <button type="button" class="sbn-item" id="sbnMenu" data-target="menu" aria-haspopup="dialog" aria-expanded="false">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
       <span>Menyu</span>
+      <span class="sbn-dot" id="sbnMenuBadge" hidden aria-label="Yangi xabar">0</span>
     </button>
     <button type="button" class="sbn-item sbn-center active" id="sbnHome" data-target="home">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
@@ -6761,6 +6762,11 @@ body.dark .rate-comment::placeholder{color:#7f8aa0}
     -webkit-tap-highlight-color:transparent;
   }
   .student-bottom-nav .sbn-item svg{width:22px;height:22px;}
+  .student-bottom-nav .sbn-item{position:relative;}
+  .student-bottom-nav .sbn-dot{position:absolute;top:1px;left:calc(50% + 4px);min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:99px;background:#ef4444;color:#fff;font-size:10.5px;font-weight:800;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(255,255,255,.9), 0 4px 10px -2px rgba(239,68,68,.6);animation:sbnDotPop .35s ease;}
+  .student-bottom-nav .sbn-dot[hidden]{display:none;}
+  body.dark .student-bottom-nav .sbn-dot{box-shadow:0 0 0 2px #0f1526, 0 4px 10px -2px rgba(239,68,68,.6);}
+  @keyframes sbnDotPop{0%{transform:scale(.3);}60%{transform:scale(1.2);}100%{transform:scale(1);}}
   .student-bottom-nav .sbn-item.active{color:var(--blue-600,#2f5fd8);}
   /* O'rtadagi "Bosh sahifa" biroz ajralib tursin */
   .student-bottom-nav .sbn-item.sbn-center.active{background:rgba(47,95,216,.10);}
@@ -6884,6 +6890,20 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     list.appendChild(el);
     if(key) sheetLinks[key] = el;
   }
+  // Yangi xabar kelsa, "Menyu" tugmasida qizil belgi chiqadi
+  (function(){
+    const src = document.getElementById('chatBadge');
+    const dot = document.getElementById('sbnMenuBadge');
+    if(!src || !dot) return;
+    const sync = () => {
+      const n = parseInt(src.textContent, 10) || 0;
+      if(src.hidden || n <= 0){ dot.hidden = true; return; }
+      dot.textContent = n > 9 ? '9+' : String(n);
+      dot.hidden = false;
+    };
+    new MutationObserver(sync).observe(src, { attributes: true, childList: true, characterData: true, subtree: true });
+    sync();
+  })();
   const lhwLink = document.getElementById('navListeningHw');
   if(lhwLink) {
     addSheetItem(lhwLink, 'navListeningHw');
