@@ -226,6 +226,51 @@
   body.dark .pts-more{ background:rgba(255,255,255,.08); color:#b9c4ff; border-color:rgba(255,255,255,.14); }
   @media (max-width:760px){ .pts-card{ flex:1 1 100%; } .pts-num{ font-size:46px; } }
 
+  .pts-actions{ display:flex; gap:8px; flex-wrap:wrap; position:relative; }
+  .pts-rankline{ display:flex; align-items:center; gap:8px; position:relative; padding:8px 12px; border-radius:12px; font-size:12.5px; font-weight:700;
+    background:rgba(255,255,255,.7); border:1px solid rgba(99,102,241,.22); color:#3b3f8f; }
+  .pts-rankline[hidden]{ display:none; }
+  .pts-rankline b{ font-size:15px; font-weight:900; background:linear-gradient(135deg,#2563eb,#7c3aed); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+  .pts-rankline small{ margin-left:auto; font-size:11px; font-weight:600; opacity:.7; }
+  body.dark .pts-rankline{ background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.14); color:#c9d2ff; }
+
+  /* ===== Top Pointers ===== */
+  .tp-me{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px; margin-bottom:14px; color:#fff;
+    background:linear-gradient(135deg,#3b82f6,#7c3aed); box-shadow:0 14px 28px -16px rgba(79,70,229,.8); }
+  .tp-me-rank{ font-size:30px; font-weight:900; line-height:1; letter-spacing:-.03em; }
+  .tp-me-rank small{ font-size:13px; font-weight:800; opacity:.9; margin-left:2px; }
+  .tp-me-t{ min-width:0; font-size:12.5px; line-height:1.35; font-weight:600; opacity:.95; }
+  .tp-me-t b{ display:block; font-size:14px; font-weight:800; }
+  .tp-pod{ display:grid; grid-template-columns:1fr 1.12fr 1fr; gap:8px; align-items:end; margin:6px 0 14px; }
+  .tp-pc{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:5px; padding:12px 6px 10px; border-radius:16px; min-width:0; position:relative;
+    background:rgba(100,116,139,.09); border:1px solid rgba(100,116,139,.16); }
+  .tp-pc.r1{ padding-top:18px; padding-bottom:14px; background:linear-gradient(180deg,rgba(251,191,36,.28),rgba(251,191,36,.07)); border-color:rgba(245,158,11,.5); box-shadow:0 14px 26px -16px rgba(217,119,6,.8); }
+  .tp-pc.r2{ background:linear-gradient(180deg,rgba(148,163,184,.30),rgba(148,163,184,.07)); border-color:rgba(148,163,184,.55); }
+  .tp-pc.r3{ background:linear-gradient(180deg,rgba(217,119,6,.22),rgba(217,119,6,.06)); border-color:rgba(194,120,50,.5); }
+  .tp-pc.me{ outline:2px solid #6366f1; outline-offset:1px; }
+  .tp-crown{ position:absolute; top:-13px; left:50%; transform:translateX(-50%); }
+  .tp-av{ width:44px; height:44px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:17px; color:#fff;
+    background:linear-gradient(135deg,#60a5fa,#8b5cf6); box-shadow:0 6px 14px -6px rgba(79,70,229,.7); }
+  .tp-pc.r1 .tp-av{ width:54px; height:54px; font-size:21px; background:linear-gradient(135deg,#fbbf24,#f59e0b); box-shadow:0 8px 18px -6px rgba(217,119,6,.8); }
+  .tp-pc.r2 .tp-av{ background:linear-gradient(135deg,#94a3b8,#64748b); }
+  .tp-pc.r3 .tp-av{ background:linear-gradient(135deg,#d6894a,#b45309); }
+  .tp-medal{ font-size:11px; font-weight:900; padding:1px 9px; border-radius:99px; color:#fff; background:#64748b; }
+  .tp-pc.r1 .tp-medal{ background:#f59e0b; } .tp-pc.r3 .tp-medal{ background:#b45309; }
+  .tp-nm{ font-size:12.5px; font-weight:800; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .tp-gr{ font-size:10.5px; opacity:.6; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-top:-3px; }
+  .tp-pt{ font-size:17px; font-weight:900; letter-spacing:-.02em; background:linear-gradient(135deg,#2563eb,#7c3aed); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+  .tp-list{ display:flex; flex-direction:column; gap:6px; }
+  .tp-row{ display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:13px; background:rgba(100,116,139,.08); border:1px solid transparent; }
+  .tp-row.me{ background:rgba(99,102,241,.14); border-color:rgba(99,102,241,.55); }
+  .tp-rk{ width:26px; text-align:center; font-size:13px; font-weight:900; opacity:.7; flex:none; }
+  .tp-row .tp-av{ width:34px; height:34px; font-size:14px; }
+  .tp-info{ flex:1; min-width:0; }
+  .tp-info .tp-nm{ font-size:13.5px; }
+  .tp-you{ font-size:10px; font-weight:900; color:#fff; background:#6366f1; padding:1px 7px; border-radius:99px; margin-left:5px; vertical-align:1px; }
+  .tp-row .tp-pt{ font-size:16px; flex:none; }
+  .tp-dots{ text-align:center; opacity:.5; letter-spacing:.3em; font-size:14px; line-height:1; }
+  .tp-foot{ margin-top:12px; font-size:11.5px; opacity:.65; text-align:center; }
+
   /* Point oynasi: tablar va qoidalar */
   .pts-tabs{ display:flex; gap:6px; padding:4px; margin:0 0 14px; border-radius:12px; background:rgba(100,116,139,.12); }
   .pts-tabs button{ flex:1; border:0; cursor:pointer; font:inherit; font-size:13px; font-weight:700; padding:8px 10px; border-radius:9px; background:transparent; color:inherit; opacity:.7; }
@@ -1196,7 +1241,11 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
             <span class="pts-trophy" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span>
             <span class="pts-prize-t"><b>100 000 so'm mukofot</b><span>Oy oxirida eng ko'p point yig'gan talabaga beriladi</span></span>
           </div>
-          <div class="pts-more">Shartlar va qoidalar <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>
+          <div class="pts-rankline" id="hwPointsRank" hidden></div>
+          <div class="pts-actions">
+            <div class="pts-more pts-top-btn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg> Top Pointers</div>
+            <div class="pts-more">Qoidalar <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>
+          </div>
         </div>
       </div>
 
@@ -3971,6 +4020,7 @@ async function loadHwPointsBadge(){
       else dl.hidden = true;
     }
     box.hidden = false;
+    loadTopPointers();
   } catch(err){
     console.error('Umumiy ball load failed:', err);
     box.hidden = true;
@@ -3992,11 +4042,82 @@ async function getMyTestAvg(){
   } catch(e){ return null; }
 }
 
+// ===== TOP POINTERS: settings/topPointers (admin yuboradi) — saytdagi barcha point yig'qanlar reytingi =====
+function tpHash(str){ str = String(str); let h = 5381; for(let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+async function loadTopPointers(){
+  try{ const d = await db.collection('settings').doc('topPointers').get(); state._tp = d.exists ? d.data() : null; }
+  catch(e){ state._tp = null; }
+  tpUpdateRank();
+}
+function tpPublicName(n){
+  const p = String(n || '').trim().split(/\s+/).filter(Boolean);
+  return p.length > 1 ? p[0] + ' ' + p[1].charAt(0).toUpperCase() + '.' : (p[0] || 'Siz');
+}
+// Reyting: o'z pointim jonli hisobdan olinadi, boshqalarniki — admin yuborgan ro'yxatdan
+function tpBoard(){
+  const tp = state._tp; if(!tp || !Array.isArray(tp.top)) return null;
+  const c = state._ballCtx, code = state.student && state.student.oquvProgressCode, me = code ? tpHash(code) : null;
+  let rows = tp.top.map(x => ({ h: x.h, name: String(x.name || '—'), group: String(x.group || ''), points: Number(x.points) || 0, me: !!me && x.h === me }));
+  if(me && c && c.total !== null && c.total !== undefined){
+    const mine = rows.find(r => r.me);
+    if(mine) mine.points = c.total; else rows.push({ h: me, name: tpPublicName(state.student && state.student.name), group: '', points: c.total, me: true });
+  }
+  rows = rows.filter(r => r.points > 0);
+  rows.sort((a, b) => b.points - a.points);
+  rows.forEach(r => { r.rank = 1 + rows.filter(o => o.points > r.points).length; });
+  const mine = rows.find(r => r.me) || null;
+  return { rows, mine, tp };
+}
+function tpUpdateRank(){
+  const el = document.getElementById('hwPointsRank'); if(!el) return;
+  const b = tpBoard();
+  if(!b || !b.mine){ el.hidden = true; return; }
+  el.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span><b>${b.mine.rank}-o'rin</b></span><small>${b.rows.length} ta talabadan</small>`;
+  el.hidden = false;
+}
+function tpInitial(n){ return _esc(String(n || '?').trim().charAt(0).toUpperCase() || '?'); }
+function renderTopPointers(){
+  const box = document.getElementById('ballTopBody'); if(!box) return;
+  const b = tpBoard();
+  if(!b || !b.rows.length){
+    box.innerHTML = '<div class="bal-note">Top Pointers hali tayyor emas. Pointlar hisoblangach, bu yerda barcha talabalar reytingi chiqadi.</div>';
+    return;
+  }
+  const rows = b.rows, n2 = x => String(x);
+  let h = '';
+  if(b.mine){
+    const gap = rows[0].points - b.mine.points;
+    h += `<div class="tp-me"><div class="tp-me-rank">${b.mine.rank}<small>-o'rin</small></div><div class="tp-me-t"><b>Siz ${n2(b.mine.points)} point bilan ${b.mine.rank}-o'rindasiz</b>${b.mine.rank === 1 ? 'Siz hozir yetakchisiz — 100 000 so\'m mukofot sizniki bo\'lishi mumkin!' : 'Birinchi o\'ringacha ' + gap + ' point qoldi'}</div></div>`;
+  } else {
+    h += `<div class="tp-me"><div class="tp-me-t"><b>Siz hali reytingda yo'qsiz</b>Point yig'sangiz, shu yerda o'z o'ringizni ko'rasiz.</div></div>`;
+  }
+  // Podium: 2 - 1 - 3
+  const crown = '<svg class="tp-crown" width="26" height="20" viewBox="0 0 24 18" fill="#f59e0b" aria-hidden="true"><path d="M2 14L1 4l5 4 6-7 6 7 5-4-1 10z"/><rect x="2" y="15" width="20" height="2.5" rx="1"/></svg>';
+  const pod = r => !r ? '<div></div>' :
+    `<div class="tp-pc r${Math.min(r.rank, 3)}${r.me ? ' me' : ''}">${r.rank === 1 ? crown : ''}<div class="tp-av">${tpInitial(r.name)}</div><span class="tp-medal">${r.rank}</span><div class="tp-nm">${_esc(r.name)}${r.me ? '<span class="tp-you">Siz</span>' : ''}</div><div class="tp-gr">${_esc(r.group)}</div><div class="tp-pt">${n2(r.points)}</div></div>`;
+  h += `<div class="tp-pod">${pod(rows[1])}${pod(rows[0])}${pod(rows[2])}</div>`;
+  // Qolganlar
+  const rest = rows.slice(3, 20);
+  const row = r => `<div class="tp-row${r.me ? ' me' : ''}"><div class="tp-rk">${r.rank}</div><div class="tp-av">${tpInitial(r.name)}</div><div class="tp-info"><div class="tp-nm">${_esc(r.name)}${r.me ? '<span class="tp-you">Siz</span>' : ''}</div><div class="tp-gr">${_esc(r.group)}</div></div><div class="tp-pt">${n2(r.points)}</div></div>`;
+  if(rest.length){
+    h += `<div class="tp-list">${rest.map(row).join('')}`;
+    if(b.mine && rows.indexOf(b.mine) >= 20) h += `<div class="tp-dots">• • •</div>${row(b.mine)}`;
+    h += '</div>';
+  } else if(b.mine && rows.indexOf(b.mine) >= 3){
+    h += `<div class="tp-list">${row(b.mine)}</div>`;
+  }
+  let when = '';
+  if(b.tp.updatedAtMs){ const d = new Date(b.tp.updatedAtMs); when = ' · yangilangan ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
+  h += `<div class="tp-foot">${_esc(b.tp.period || '')} · ${rows.length} ta talaba${when}<br>1-o'rin oy oxirida 100 000 so'm oladi</div>`;
+  box.innerHTML = h;
+}
+
 // Pastki bardagi "Point" tugmasi: point kartochkasi (qancha point yig'ilgani) oynada chiqadi
 function openPtsCard(){
   const src = document.getElementById('hwPointsBadge');
   const ov = document.getElementById('ptsCardOverlay'), slot = document.getElementById('ptsCardSlot');
   if(!src || src.hidden || !ov || !slot || !state._ballCtx){ openBallInfo('mine'); return; }
+  tpUpdateRank();
   const clone = src.cloneNode(true);
   clone.removeAttribute('id'); clone.removeAttribute('hidden');
   clone.style.cssText = 'display:flex;flex:none;width:100%;';
@@ -4004,9 +4125,10 @@ function openPtsCard(){
   ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
 }
 function ballSwitchTab(t){
-  const mine = document.getElementById('ballInfoBody'), rules = document.getElementById('ballRulesBody');
-  if(mine) mine.hidden = (t === 'rules');
+  const mine = document.getElementById('ballInfoBody'), rules = document.getElementById('ballRulesBody'), top = document.getElementById('ballTopBody');
+  if(mine) mine.hidden = (t !== 'mine');
   if(rules) rules.hidden = (t !== 'rules');
+  if(top){ top.hidden = (t !== 'top'); if(t === 'top') renderTopPointers(); }
   document.querySelectorAll('.pts-tabs [data-ptab]').forEach(b => b.classList.toggle('on', b.dataset.ptab === t));
 }
 function openBallInfo(tab){
@@ -4015,7 +4137,7 @@ function openBallInfo(tab){
   if(!ov || !body) return;
   if(!c){   // point hali hisoblanmagan bo'lsa ham qoidalar ko'rinsin
     body.innerHTML = '<div class="bal-note">Point hali hisoblanmadi. Birozdan keyin qayta urinib ko\'ring yoki «Shartlar va qoidalar» bo\'limini ko\'ring.</div>';
-    ballSwitchTab('rules');
+    ballSwitchTab(tab === 'top' ? 'top' : 'rules');
     ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
     return;
   }
@@ -4069,7 +4191,7 @@ function openBallInfo(tab){
 
   h += `<div class="bal-note">Oy oxirida eng ko'p point yig'gan talabaga 100 000 so'm mukofot beriladi. Point oyma-oy qaytadan hisoblanadi. Batafsil: «Shartlar va qoidalar» bo'limi.</div>`;
   body.innerHTML = h;
-  ballSwitchTab(tab === 'rules' ? 'rules' : 'mine');
+  ballSwitchTab(tab === 'rules' ? 'rules' : tab === 'top' ? 'top' : 'mine');
   ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
 
   getMyTestAvg().then(avg => {
@@ -4087,13 +4209,13 @@ function openBallInfo(tab){
   const hide = id => { const o = $(id); if(o){ o.classList.remove('open'); o.setAttribute('aria-hidden', 'true'); } };
   document.addEventListener('click', e => {
     if(e.target.closest('#ptsCardSlot')){
-      const tab = e.target.closest('.pts-more') ? 'rules' : 'mine';
+      const tab = e.target.closest('.pts-top-btn') ? 'top' : e.target.closest('.pts-more') ? 'rules' : 'mine';
       hide('ptsCardOverlay'); openBallInfo(tab); return;
     }
     if(e.target === $('ptsCardOverlay') || e.target === $('ptsCardHost')){ hide('ptsCardOverlay'); return; }
     const tb = e.target.closest('.pts-tabs [data-ptab]');
     if(tb){ ballSwitchTab(tb.dataset.ptab); return; }
-    if(e.target.closest('#hwPointsBadge')){ openBallInfo(e.target.closest('.pts-more') ? 'rules' : 'mine'); return; }
+    if(e.target.closest('#hwPointsBadge')){ openBallInfo(e.target.closest('.pts-top-btn') ? 'top' : e.target.closest('.pts-more') ? 'rules' : 'mine'); return; }
     if(e.target.closest('#ballInfoClose') || e.target === $('ballInfoOverlay')){ hide('ballInfoOverlay'); return; }
   });
   document.addEventListener('keydown', e => {
@@ -7315,10 +7437,12 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     <button type="button" class="hwi-close" id="ballInfoClose" aria-label="Yopish">&times;</button>
     <h3 id="ballInfoTitle">Sizning 1 oylik POINT laringiz</h3>
     <div class="pts-tabs" role="tablist">
-      <button type="button" class="on" data-ptab="mine" role="tab">Mening pointlarim</button>
-      <button type="button" data-ptab="rules" role="tab">Shartlar va qoidalar</button>
+      <button type="button" class="on" data-ptab="mine" role="tab">Pointlarim</button>
+      <button type="button" data-ptab="top" role="tab">Top Pointers</button>
+      <button type="button" data-ptab="rules" role="tab">Qoidalar</button>
     </div>
     <div id="ballInfoBody"></div>
+    <div id="ballTopBody" hidden></div>
     <div id="ballRulesBody" hidden>
       <div class="pts-rule-prize">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
