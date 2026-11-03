@@ -4103,7 +4103,7 @@ function tpPublicName(n){
 // Reyting: o'z pointim jonli hisobdan olinadi, boshqalarniki — admin yuborgan ro'yxatdan
 function tpBoard(){
   const tp = state._tp; if(!tp || !Array.isArray(tp.top)) return null;
-  const c = state._ballCtx, code = state.student && state.student.oquvProgressCode, me = code ? tpHash(code) : null;
+  const c = state._ballCtx, code = state.student && state.student.oquvProgressCode, me = code ? tpHash(String(code).trim().toLowerCase()) : null;
   let rows = tp.top.map(x => ({ h: x.h, name: String(x.name || '—'), group: String(x.group || ''), points: Number(x.points) || 0, av: String(x.av || ''), ph: String(x.ph || ''), me: !!me && x.h === me }));
   if(me && c && c.total !== null && c.total !== undefined){
     const mine = rows.find(r => r.me);
