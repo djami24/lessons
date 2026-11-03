@@ -34,8 +34,9 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
 .hm-login a{color:var(--ink);font-weight:700;text-decoration:underline;text-underline-offset:3px;}
 .hm-login a:hover{color:var(--amber-deep);}
 .hm-visual-wrap{display:flex;flex-direction:column;gap:.8em;align-items:flex-start;}
-.hm-visual{position:relative;width:100%;aspect-ratio:4/3;border-radius:var(--radius-l);overflow:hidden;background:var(--paper-2);border:1px solid var(--line);display:grid;place-items:center;}
+.hm-visual{position:relative;width:100%;aspect-ratio:1/1;border-radius:var(--radius-l);overflow:hidden;background:var(--paper-2);border:1px solid var(--line);display:grid;place-items:center;}
 .hm-visual-art{width:100%;height:100%;display:block;}
+.hm-visual > img, .hm-visual > svg, .hm-visual img{width:100%;height:100%;object-fit:cover;display:block;}
 .hm-tg{display:inline-flex;align-items:center;gap:.55em;padding:.5em 1em;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none;font-weight:600;font-size:.92rem;background:var(--paper);transition:border-color .2s;}
 .hm-tg:hover{border-color:var(--amber);}
 .hm-tg .hm-ic{width:1.1em;height:1.1em;color:var(--teal);}
