@@ -2310,7 +2310,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
       <!-- Qo'shimcha ball (admin talabaga qo'lda ball qo'shadi) -->
       <div class="oj-form-card" id="ojBonusCard">
         <h3 style="margin:0 0 6px; font-size:1rem; font-weight:600;">Point qo'shish / ayirish</h3>
-        <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;">Davomat (keldi 10 / kech 5 / kelmadi 0), uy vazifa (to'liq 10) va eng so'nggi test ball pointga AVTOMATIK qo'shiladi — buni bu yerda kiritish shart emas. Bu bo'limda esa istagan talabaga istagan paytda qo'shimcha point qo'shasiz yoki ayirasiz (yuqori chegara yo'q). Sana qaysi oyga to'g'ri kelsa, o'sha oyda hisoblanadi. Sabab talabaning profilida ko'rinadi.</div>
+        <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;">Davomat (keldi 10 / kech 5 / kelmadi 0), uy vazifa (to'liq 10) pointga AVTOMATIK qo'shiladi — buni bu yerda kiritish shart emas. Bu bo'limda esa istagan talabaga istagan paytda qo'shimcha point qo'shasiz yoki ayirasiz (yuqori chegara yo'q). Sana qaysi oyga to'g'ri kelsa, o'sha oyda hisoblanadi. Sabab talabaning profilida ko'rinadi.</div>
         <div class="oj-form-grid">
           <label class="oj-label">
             <span>Sana</span>
@@ -8501,7 +8501,7 @@ function stScheduleLeaderboard(){
 
 // ----- "Top Pointers" (settings/topPointers): barcha talabalarning joriy oydagi POINT i -----
 // Hisob talaba sahifasidagi bilan bir xil, statistikadan MUSTAQIL: davomat (keldi 10 / kech 5 / kelmadi 0) + uy vazifa (to'liq 10, qisman foiziga qarab, qilinmagan 0)
-// + eng so'nggi test ball + admin qo'lda qo'shgan/ayirgan point (chegarasiz, 0 dan past emas). Jazo pointga ta'sir qilmaydi.
+// + admin qo'lda qo'shgan/ayirgan point (chegarasiz, 0 dan past emas). Jazo pointga ta'sir qilmaydi.
 // Saytga faqat ism + familiya bosh harfi, guruh va point chiqadi; talaba o'zini ID'ning xeshi orqali topadi.
 function stTpHash(str){ str = String(str); let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
 function stTpBase(list){
@@ -8541,7 +8541,7 @@ async function stPublishTopPointers(mode){
       try { const o = await ref.get(); if (o.exists && Date.now() - (o.data().updatedAtMs || 0) < 30 * 60e3) return; } catch (e) {}
     }
     const data = await stFetch(mode === 'force', 100);
-    const tIdx = await stLoadTests(mode === 'force');   // eng so'nggi test ball pointga qo'shiladi
+    const tIdx = null;   // test natijalari pointga qo'shilmaydi
     const lctx = await apLisCtx(mode === 'force');      // listening: har mashqdan to'g'ri javoblar soni
     const ym = rpYm(new Date()), r = rpRange(ym);
     const bySt = {};
@@ -8559,7 +8559,7 @@ async function stPublishTopPointers(mode){
       apLisLive(lctx, s.id, r, doneLis).forEach(x => { bonus += x.points; });
       const base = stTpBase(bySt[s.id] || []);
       const tst = tIdx ? tIdx.get(s.id, s.name) : null;
-      const test = tst && tst.latest !== undefined ? tst.latest : 0;
+      const test = 0;
       const total = (base === null && !bonus && !test) ? null : Math.max(0, (base || 0) + test + bonus);
       if (total && total > 0) {
         const row = { h: stTpHash(s.id), name: stPublicName(s.name), group: g.name || '', points: total };
@@ -8570,15 +8570,15 @@ async function stPublishTopPointers(mode){
     }));
     out.sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
     const top = out.slice(0, 500);
-    // Yuklangan rasmlar: hujjat 1 MB dan oshmasligi uchun faqat dastlabki 150 tasiga kichik rasmcha qo'yiladi
+    // Yuklangan rasmlar: hujjat 1 MB chegarasiga sig'ishi uchun kichik (48px) rasmcha qilinadi — barcha talabalarniki ko'rinadi
     let nPh = 0;
-    await Promise.all(top.map(async row => {
+    for (const row of top) {
       const raw = row._ph; delete row._ph;
-      if (!raw || nPh >= 150) return;
+      if (!raw || nPh >= 300) continue;
       nPh++;
-      const th = await stTpThumb(raw, 56);
+      const th = await stTpThumb(raw, 48);
       if (th) { row.ph = th; delete row.av; }
-    }));
+    }
     await ref.set({
       period: rpLabel(ym) + ' oyi', ym, count: out.length, top,
       updatedAtMs: Date.now(), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -8635,7 +8635,7 @@ function apLisItems(ctx, sid, r, archived){
 
 function apCalc(list, bonus, test, lis){
   const o = { lessons: [], yes: 0, late: 0, no: 0, att: 0, attMax: 0, hwN: 0, hwFull: 0, hwPart: 0, hwNo: 0, hw: 0, hwMax: 0,
-              test: test ? test.score : 0, testInfo: test || null, bonusList: bonus || [], plus: 0, minus: 0,
+              test: 0, testInfo: null, bonusList: bonus || [], plus: 0, minus: 0,
               lisItems: lis || [], lis: 0, lisMax: 0 };
   o.lisItems.forEach(x => { o.lis += x.points; o.lisMax += x.max; });
   list.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0).forEach(x => {
@@ -8750,9 +8750,8 @@ function apExplainText(r){
   t.push('Davomat: ' + P.att + (P.attMax ? ' / ' + P.attMax : '') + ' (keldi ' + P.yes + ' × 10, kech qoldi ' + P.late + ' × 5, kelmadi ' + P.no + ' × 0)' + (P.attMax - P.att > 0 ? ' — yo\'qotilgan ' + (P.attMax - P.att) : '') + '.');
   t.push('Uy vazifa: ' + P.hw + (P.hwMax ? ' / ' + P.hwMax : '') + ' (to\'liq ' + P.hwFull + ', qisman ' + P.hwPart + ', qilinmagan ' + P.hwNo + ')' + (P.hwMax - P.hw > 0 ? ' — yo\'qotilgan ' + (P.hwMax - P.hw) : '') + '.');
   t.push(P.lisItems.length ? 'Listening uy vazifa: ' + P.lis + ' / ' + P.lisMax + ' (' + P.lisItems.length + ' ta mashq, har biridan to\'g\'ri topilgan javoblar soni)' + (P.lisMax - P.lis > 0 ? ' — yo\'qotilgan ' + (P.lisMax - P.lis) : '') + '.' : 'Listening mashqi topshirilmagan.');
-  t.push(P.testInfo ? 'So\'nggi test (' + (P.testInfo.unit || 'test') + '): ' + P.test + ' ball → +' + P.test + ' point.' : 'So\'nggi test natijasi kiritilmagan.');
   P.bonusList.slice().reverse().forEach(b => t.push((b.points > 0 ? '+' : '\u2212') + Math.abs(b.points) + ' — ' + (b.reason || 'sabab ko\'rsatilmagan') + ' (' + apDmy(b.date) + ')'));
-  t.push('Jami: ' + P.att + ' + ' + P.hw + ' + ' + P.lis + ' + ' + P.test + (P.bonus ? (P.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(P.bonus) : '') + ' = ' + P.total + '.');
+  t.push('Jami: ' + P.att + ' + ' + P.hw + ' + ' + P.lis + (P.bonus ? (P.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(P.bonus) : '') + ' = ' + P.total + '.');
   return t.join('\n');
 }
 
@@ -8769,16 +8768,10 @@ function apOpenDetail(sid){
   h += '<tr><td class="l"><b>Davomat</b><small>' + (P.attMax ? 'keldi ' + P.yes + ' × 10 · kech qoldi ' + P.late + ' × 5 · kelmadi ' + P.no + ' × 0' : 'hali davomat belgilanmagan') + '</small></td><td class="ap-pos">' + (P.attMax ? '+' + P.att : '—') + '</td><td>' + (P.attMax || '—') + '</td><td class="' + (lostAtt ? 'ap-neg' : 'ap-mut') + '">' + (lostAtt ? '\u2212' + lostAtt : '0') + '</td></tr>';
   h += '<tr><td class="l"><b>Uy vazifa</b><small>' + (P.hwN ? 'to\'liq ' + P.hwFull + ' · qisman ' + P.hwPart + ' · qilinmagan ' + P.hwNo : 'hali uy vazifa belgilanmagan') + '</small></td><td class="ap-pos">' + (P.hwN ? '+' + P.hw : '—') + '</td><td>' + (P.hwMax || '—') + '</td><td class="' + (lostHw ? 'ap-neg' : 'ap-mut') + '">' + (lostHw ? '\u2212' + lostHw : '0') + '</td></tr>';
   h += '<tr><td class="l"><b>Listening uy vazifa</b><small>' + (P.lisItems.length ? P.lisItems.length + ' ta mashq · har biridan to\'g\'ri topilgan javoblar soni (0–5)' : 'bu oy listening mashqi topshirilmagan') + '</small></td><td class="ap-pos">' + (P.lisItems.length ? '+' + P.lis : '—') + '</td><td>' + (P.lisMax || '—') + '</td><td class="' + (P.lisMax - P.lis ? 'ap-neg' : 'ap-mut') + '">' + (P.lisMax - P.lis ? '\u2212' + (P.lisMax - P.lis) : '0') + '</td></tr>';
-  if (P.testInfo) {
-    const ts = P.testInfo.ts > 0 ? ' · ' + apDmy(new Date(P.testInfo.ts).toISOString().slice(0, 10)) : '';
-    h += '<tr><td class="l"><b>So\'nggi test</b><small>' + escHtml(P.testInfo.unit || 'Test') + ts + ' · ' + P.test + ' ball pointga qo\'shildi</small></td><td class="ap-pos">+' + P.test + '</td><td>100</td><td class="' + (P.test < 100 ? 'ap-neg' : 'ap-mut') + '">' + (P.test < 100 ? '\u2212' + (100 - P.test) : '0') + '</td></tr>';
-  } else {
-    h += '<tr><td class="l"><b>So\'nggi test</b><small>test natijasi kiritilmagan</small></td><td class="ap-mut">—</td><td>—</td><td class="ap-mut">—</td></tr>';
-  }
   h += '<tr><td class="l"><b>Qo\'shimcha point</b><small>admin qo\'lda bergan</small></td><td class="' + (P.plus ? 'ap-pos' : 'ap-mut') + '">' + (P.plus ? '+' + P.plus : '0') + '</td><td>—</td><td>—</td></tr>';
   h += '<tr><td class="l"><b>Ayirilgan point</b><small>admin qo\'lda ayirgan</small></td><td>—</td><td>—</td><td class="' + (P.minus ? 'ap-neg' : 'ap-mut') + '">' + (P.minus ? '\u2212' + Math.abs(P.minus) : '0') + '</td></tr>';
   h += '</tbody></table>';
-  h += '<div class="ap-formula">Jami: ' + P.att + ' + ' + P.hw + ' + ' + P.lis + ' + ' + P.test + (P.bonus ? (P.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(P.bonus) : '') + ' = ' + P.total + (P.raw < 0 ? ' (point 0 dan past bo\'lmaydi)' : '') + '</div>';
+  h += '<div class="ap-formula">Jami: ' + P.att + ' + ' + P.hw + ' + ' + P.lis + (P.bonus ? (P.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(P.bonus) : '') + ' = ' + P.total + (P.raw < 0 ? ' (point 0 dan past bo\'lmaydi)' : '') + '</div>';
 
   h += '<div class="ap-h">Dars-ma-dars</div>';
   if (P.lessons.length) {
