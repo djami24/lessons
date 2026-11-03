@@ -8562,8 +8562,8 @@ async function stPublishTopPointers(mode){
       const test = 0;
       const total = (base === null && !bonus && !test) ? null : Math.max(0, (base || 0) + test + bonus);
       if (total && total > 0) {
-        const row = { h: stTpHash(s.id), name: stPublicName(s.name), group: g.name || '', points: total };
-        const av = lctx && lctx.avByCode && lctx.avByCode[s.id];
+        const row = { h: stTpHash(apNorm(s.id)), name: stPublicName(s.name), group: g.name || '', points: total };
+        const av = apFindAv(lctx, s);
         if (av) { if (av.img) row.av = av.img; if (av.photo) row._ph = av.photo; }   // av — tayyor avatar kaliti, _ph — yuklangan rasm (pastda kichraytiriladi)
         out.push(row);
       }
@@ -8599,21 +8599,39 @@ let _apMonth = '', _apData = null, _apToken = 0, _apSort = 'total', _apDir = -1,
 // --- Listening uy vazifasi pointlari ---
 // Har mashqdan nechta to'g'ri topilsa (0–5) shuncha point. Mashq o'chirilsa — natija bonus ichiga (source:'listening', ID: ls_{mashq}_{uid}) ko'chirilgan bo'ladi.
 let _apLisCtx = null;
+const apNorm = v => String(v || '').trim().toLowerCase();
+const apDigits = v => String(v || '').replace(/\D/g, '').slice(-9);
 async function apLisCtx(force){
   if (!force && _apLisCtx && Date.now() - _apLisCtx.ts < 60000) return _apLisCtx;
-  const ctx = { ts: Date.now(), byUid: {}, titles: {}, codeToUid: {}, avByCode: {}, ok: true };
+  const ctx = { ts: Date.now(), byUid: {}, titles: {}, codeToUid: {}, avList: [], ok: true };
   try {
-    const [subs, exs, stus] = await Promise.all([
+    const [subs, exs] = await Promise.all([
       db.collection('listening_submissions').get(),
-      db.collection('listening_exercises').get(),
-      db.collection('students').get()
+      db.collection('listening_exercises').get()
     ]);
     subs.forEach(d => { const x = d.data() || {}; if (x.studentId) (ctx.byUid[x.studentId] = ctx.byUid[x.studentId] || []).push({ id: d.id, exId: x.exerciseId, x }); });
     exs.forEach(d => { ctx.titles[d.id] = String((d.data() || {}).title || ''); });
-    stus.forEach(d => { const x = d.data() || {}, c = x.oquvProgressCode; if (c) { ctx.codeToUid[c] = d.id; if (x.avatarPhoto || x.avatarImg) ctx.avByCode[c] = { img: x.avatarImg || '', photo: x.avatarPhoto || '' }; } });
   } catch (e) { ctx.ok = false; console.warn('Listening natijalari yuklanmadi:', e); }
+  // Talabalar profillari (rasm uchun) — alohida olinadi, shunda listening xatosi rasmlarni o'chirib qo'ymaydi
+  try {
+    const stus = await db.collection('students').get();
+    stus.forEach(d => {
+      const x = d.data() || {}, c = x.oquvProgressCode;
+      if (c) ctx.codeToUid[String(c).trim()] = d.id;
+      if (x.avatarPhoto || x.avatarImg) ctx.avList.push({ code: apNorm(c), phone: apDigits(x.phone), name: apNorm(x.name).replace(/\s+/g, ' '), img: x.avatarImg || '', photo: x.avatarPhoto || '' });
+    });
+  } catch (e) { console.warn('Talaba rasmlari yuklanmadi:', e); }
   _apLisCtx = ctx;
   return ctx;
+}
+// Guruh talabasi uchun profil rasmini topish: avval O'quv ID (registrda bir xil bo'lmasligi mumkin, shuning uchun registrga bog'lamay), keyin telefon, keyin yagona to'liq ism
+function apFindAv(ctx, s){
+  if (!ctx || !ctx.avList || !ctx.avList.length) return null;
+  let m = ctx.avList.find(x => x.code && x.code === apNorm(s.id));
+  const ph = apDigits(s.phone);
+  if (!m && ph.length >= 9) m = ctx.avList.find(x => x.phone === ph);
+  if (!m) { const nm = apNorm(s.name).replace(/\s+/g, ' '); const same = ctx.avList.filter(x => x.name === nm); if (same.length === 1) m = same[0]; }
+  return m ? { img: m.img, photo: m.photo } : null;
 }
 // Hali o'chirilmagan mashqlar (jonli), arxivlanganlari `done` ichida bo'lsa o'tkazib yuboriladi
 function apLisLive(ctx, sid, r, done){
