@@ -8512,6 +8512,24 @@ function stTpBase(list){
   });
   return any ? att + hw : null;
 }
+// Reyting uchun kichik (56px) rasmcha: yuklangan profil rasmi katta (256px) bo'ladi, hujjatga sig'ishi uchun kichraytiramiz.
+function stTpThumb(dataUrl, size){
+  return new Promise(resolve => {
+    const im = new Image();
+    const t = setTimeout(() => resolve(''), 4000);
+    im.onload = () => {
+      clearTimeout(t);
+      try {
+        const c = document.createElement('canvas'); c.width = c.height = size;
+        const s = Math.min(im.width, im.height), sx = (im.width - s) / 2, sy = (im.height - s) / 2;
+        c.getContext('2d').drawImage(im, sx, sy, s, s, 0, 0, size, size);
+        resolve(c.toDataURL('image/jpeg', 0.72));
+      } catch (e) { resolve(''); }
+    };
+    im.onerror = () => { clearTimeout(t); resolve(''); };
+    im.src = dataUrl;
+  });
+}
 let _tpBusy = false;
 // mode: 'auto' (30 daqiqadan eski bo'lsagina) yoki 'force'
 async function stPublishTopPointers(mode){
@@ -8543,11 +8561,26 @@ async function stPublishTopPointers(mode){
       const tst = tIdx ? tIdx.get(s.id, s.name) : null;
       const test = tst && tst.latest !== undefined ? tst.latest : 0;
       const total = (base === null && !bonus && !test) ? null : Math.max(0, (base || 0) + test + bonus);
-      if (total && total > 0) out.push({ h: stTpHash(s.id), name: stPublicName(s.name), group: g.name || '', points: total });
+      if (total && total > 0) {
+        const row = { h: stTpHash(s.id), name: stPublicName(s.name), group: g.name || '', points: total };
+        const av = lctx && lctx.avByCode && lctx.avByCode[s.id];
+        if (av) { if (av.img) row.av = av.img; if (av.photo) row._ph = av.photo; }   // av — tayyor avatar kaliti, _ph — yuklangan rasm (pastda kichraytiriladi)
+        out.push(row);
+      }
     }));
     out.sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+    const top = out.slice(0, 500);
+    // Yuklangan rasmlar: hujjat 1 MB dan oshmasligi uchun faqat dastlabki 150 tasiga kichik rasmcha qo'yiladi
+    let nPh = 0;
+    await Promise.all(top.map(async row => {
+      const raw = row._ph; delete row._ph;
+      if (!raw || nPh >= 150) return;
+      nPh++;
+      const th = await stTpThumb(raw, 56);
+      if (th) { row.ph = th; delete row.av; }
+    }));
     await ref.set({
-      period: rpLabel(ym) + ' oyi', ym, count: out.length, top: out.slice(0, 500),
+      period: rpLabel(ym) + ' oyi', ym, count: out.length, top,
       updatedAtMs: Date.now(), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (err) {
@@ -8568,7 +8601,7 @@ let _apMonth = '', _apData = null, _apToken = 0, _apSort = 'total', _apDir = -1,
 let _apLisCtx = null;
 async function apLisCtx(force){
   if (!force && _apLisCtx && Date.now() - _apLisCtx.ts < 60000) return _apLisCtx;
-  const ctx = { ts: Date.now(), byUid: {}, titles: {}, codeToUid: {}, ok: true };
+  const ctx = { ts: Date.now(), byUid: {}, titles: {}, codeToUid: {}, avByCode: {}, ok: true };
   try {
     const [subs, exs, stus] = await Promise.all([
       db.collection('listening_submissions').get(),
@@ -8577,7 +8610,7 @@ async function apLisCtx(force){
     ]);
     subs.forEach(d => { const x = d.data() || {}; if (x.studentId) (ctx.byUid[x.studentId] = ctx.byUid[x.studentId] || []).push({ id: d.id, exId: x.exerciseId, x }); });
     exs.forEach(d => { ctx.titles[d.id] = String((d.data() || {}).title || ''); });
-    stus.forEach(d => { const c = (d.data() || {}).oquvProgressCode; if (c) ctx.codeToUid[c] = d.id; });
+    stus.forEach(d => { const x = d.data() || {}, c = x.oquvProgressCode; if (c) { ctx.codeToUid[c] = d.id; if (x.avatarPhoto || x.avatarImg) ctx.avByCode[c] = { img: x.avatarImg || '', photo: x.avatarPhoto || '' }; } });
   } catch (e) { ctx.ok = false; console.warn('Listening natijalari yuklanmadi:', e); }
   _apLisCtx = ctx;
   return ctx;
