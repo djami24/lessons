@@ -268,6 +268,15 @@
   .tp-info .tp-nm{ font-size:13.5px; }
   .tp-you{ font-size:10px; font-weight:900; color:#fff; background:#6366f1; padding:1px 7px; border-radius:99px; margin-left:5px; vertical-align:1px; }
   .tp-row .tp-pt{ font-size:16px; flex:none; }
+  .tp-row.r1{ background:linear-gradient(90deg,rgba(251,191,36,.28),rgba(251,191,36,.08)); border-color:rgba(245,158,11,.5); }
+  .tp-row.r2{ background:linear-gradient(90deg,rgba(148,163,184,.28),rgba(148,163,184,.08)); border-color:rgba(148,163,184,.5); }
+  .tp-row.r3{ background:linear-gradient(90deg,rgba(217,119,6,.2),rgba(217,119,6,.06)); border-color:rgba(194,120,50,.45); }
+  .tp-row.r1 .tp-rk{ color:#d97706; opacity:1; } .tp-row.r2 .tp-rk{ color:#64748b; opacity:1; } .tp-row.r3 .tp-rk{ color:#b45309; opacity:1; }
+  .tp-row.r1 .tp-av{ background:linear-gradient(135deg,#fbbf24,#f59e0b); }
+  .tp-row.r2 .tp-av{ background:linear-gradient(135deg,#94a3b8,#64748b); }
+  .tp-row.r3 .tp-av{ background:linear-gradient(135deg,#d6894a,#b45309); }
+  .tp-row.me.r1,.tp-row.me.r2,.tp-row.me.r3{ outline:2px solid #6366f1; outline-offset:1px; }
+  .tp-crown-i{ vertical-align:-1px; margin-right:5px; }
   .tp-dots{ text-align:center; opacity:.5; letter-spacing:.3em; font-size:14px; line-height:1; }
   .tp-foot{ margin-top:12px; font-size:11.5px; opacity:.65; text-align:center; }
 
@@ -4127,21 +4136,12 @@ function renderTopPointers(){
   } else {
     h += `<div class="tp-me"><div class="tp-me-t"><b>Siz hali reytingda yo'qsiz</b>Point yig'sangiz, shu yerda o'z o'ringizni ko'rasiz.</div></div>`;
   }
-  // Podium: 2 - 1 - 3
-  const crown = '<svg class="tp-crown" width="26" height="20" viewBox="0 0 24 18" fill="#f59e0b" aria-hidden="true"><path d="M2 14L1 4l5 4 6-7 6 7 5-4-1 10z"/><rect x="2" y="15" width="20" height="2.5" rx="1"/></svg>';
-  const pod = r => !r ? '<div></div>' :
-    `<div class="tp-pc r${Math.min(r.rank, 3)}${r.me ? ' me' : ''}">${r.rank === 1 ? crown : ''}<div class="tp-av">${tpInitial(r.name)}</div><span class="tp-medal">${r.rank}</span><div class="tp-nm">${_esc(r.name)}${r.me ? '<span class="tp-you">Siz</span>' : ''}</div><div class="tp-gr">${_esc(r.group)}</div><div class="tp-pt">${n2(r.points)}</div></div>`;
-  h += `<div class="tp-pod">${pod(rows[1])}${pod(rows[0])}${pod(rows[2])}</div>`;
-  // Qolganlar
-  const rest = rows.slice(3, 20);
-  const row = r => `<div class="tp-row${r.me ? ' me' : ''}"><div class="tp-rk">${r.rank}</div><div class="tp-av">${tpInitial(r.name)}</div><div class="tp-info"><div class="tp-nm">${_esc(r.name)}${r.me ? '<span class="tp-you">Siz</span>' : ''}</div><div class="tp-gr">${_esc(r.group)}</div></div><div class="tp-pt">${n2(r.points)}</div></div>`;
-  if(rest.length){
-    h += `<div class="tp-list">${rest.map(row).join('')}`;
-    if(b.mine && rows.indexOf(b.mine) >= 20) h += `<div class="tp-dots">• • •</div>${row(b.mine)}`;
-    h += '</div>';
-  } else if(b.mine && rows.indexOf(b.mine) >= 3){
-    h += `<div class="tp-list">${row(b.mine)}</div>`;
-  }
+  // Ro'yxat: 1–3-o'rinlar rangli (oltin / kumush / bronza), qolganlari oddiy
+  const crown = '<svg class="tp-crown-i" width="16" height="13" viewBox="0 0 24 18" fill="#f59e0b" aria-hidden="true"><path d="M2 14L1 4l5 4 6-7 6 7 5-4-1 10z"/><rect x="2" y="15" width="20" height="2.5" rx="1"/></svg>';
+  const row = r => `<div class="tp-row${r.rank <= 3 ? ' r' + r.rank : ''}${r.me ? ' me' : ''}"><div class="tp-rk">${r.rank}</div><div class="tp-av">${tpInitial(r.name)}</div><div class="tp-info"><div class="tp-nm">${r.rank === 1 ? crown : ''}${_esc(r.name)}${r.me ? '<span class="tp-you">Siz</span>' : ''}</div><div class="tp-gr">${_esc(r.group)}</div></div><div class="tp-pt">${n2(r.points)}</div></div>`;
+  h += `<div class="tp-list">${rows.slice(0, 20).map(row).join('')}`;
+  if(b.mine && rows.indexOf(b.mine) >= 20) h += `<div class="tp-dots">• • •</div>${row(b.mine)}`;
+  h += '</div>';
   let when = '';
   if(b.tp.updatedAtMs){ const d = new Date(b.tp.updatedAtMs); when = ' · yangilangan ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
   h += `<div class="tp-foot">${_esc(b.tp.period || '')} · ${rows.length} ta talaba${when}<br>1-o'rin oy oxirida 100 000 so'm oladi</div>`;
