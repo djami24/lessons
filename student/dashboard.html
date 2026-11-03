@@ -179,6 +179,8 @@
   .profile-card-new .pnew-main{ flex:1 1 280px; }
 
   /* ===== 1 oylik POINT kartochkasi ===== */
+  /* Point kartochkasi bosh sahifada ko'rsatilmaydi — pastki bardagi "Point" tugmasi orqali ochiladi */
+  #hwPointsBadge{ display:none !important; }
   .pts-card[hidden]{ display:none !important; }
   .pts-card{
     position:relative; overflow:hidden; flex:0 0 340px; max-width:100%; box-sizing:border-box;
@@ -3990,6 +3992,17 @@ async function getMyTestAvg(){
   } catch(e){ return null; }
 }
 
+// Pastki bardagi "Point" tugmasi: point kartochkasi (qancha point yig'ilgani) oynada chiqadi
+function openPtsCard(){
+  const src = document.getElementById('hwPointsBadge');
+  const ov = document.getElementById('ptsCardOverlay'), slot = document.getElementById('ptsCardSlot');
+  if(!src || src.hidden || !ov || !slot || !state._ballCtx){ openBallInfo('mine'); return; }
+  const clone = src.cloneNode(true);
+  clone.removeAttribute('id'); clone.removeAttribute('hidden');
+  clone.style.cssText = 'display:flex;flex:none;width:100%;';
+  slot.innerHTML = ''; slot.appendChild(clone);
+  ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
+}
 function ballSwitchTab(t){
   const mine = document.getElementById('ballInfoBody'), rules = document.getElementById('ballRulesBody');
   if(mine) mine.hidden = (t === 'rules');
@@ -4073,13 +4086,18 @@ function openBallInfo(tab){
   const show = id => { const o = $(id); if(o){ o.classList.add('open'); o.setAttribute('aria-hidden', 'false'); } };
   const hide = id => { const o = $(id); if(o){ o.classList.remove('open'); o.setAttribute('aria-hidden', 'true'); } };
   document.addEventListener('click', e => {
+    if(e.target.closest('#ptsCardSlot')){
+      const tab = e.target.closest('.pts-more') ? 'rules' : 'mine';
+      hide('ptsCardOverlay'); openBallInfo(tab); return;
+    }
+    if(e.target === $('ptsCardOverlay') || e.target === $('ptsCardHost')){ hide('ptsCardOverlay'); return; }
     const tb = e.target.closest('.pts-tabs [data-ptab]');
     if(tb){ ballSwitchTab(tb.dataset.ptab); return; }
     if(e.target.closest('#hwPointsBadge')){ openBallInfo(e.target.closest('.pts-more') ? 'rules' : 'mine'); return; }
     if(e.target.closest('#ballInfoClose') || e.target === $('ballInfoOverlay')){ hide('ballInfoOverlay'); return; }
   });
   document.addEventListener('keydown', e => {
-    if(e.key === 'Escape'){ hide('ballInfoOverlay'); }
+    if(e.key === 'Escape'){ hide('ballInfoOverlay'); hide('ptsCardOverlay'); }
     else if((e.key === 'Enter' || e.key === ' ') && document.activeElement && document.activeElement.id === 'hwPointsBadge'){ e.preventDefault(); openBallInfo(); }
   });
 })();
@@ -7097,7 +7115,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   items.profile.addEventListener('click', () => { document.getElementById('navProfile').click(); });
   // "Point": 1 oylik POINT oynasini ochadi (tafsilot + shartlar va qoidalar)
   const sbnPts = document.getElementById('sbnPoints');
-  if(sbnPts) sbnPts.addEventListener('click', () => { if(typeof openBallInfo === 'function') openBallInfo('mine'); });
+  if(sbnPts) sbnPts.addEventListener('click', () => { if(typeof openPtsCard === 'function') openPtsCard(); });
 
   // ---- "Menyu": yon menyudagi qolgan bo'limlar pastdan chiqadigan ro'yxatda ----
   const wrap = document.getElementById('sbnSheetWrap');
@@ -7282,6 +7300,13 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     <button type="button" class="hwi-close" id="gbDetailClose" aria-label="Yopish">&times;</button>
     <h3 id="gbDetailTitle">Test natijalari</h3>
     <div id="gbDetailBody"></div>
+  </div>
+</div>
+<!-- Point kartochkasi oynasi (pastki bardagi "Point" tugmasi) -->
+<div class="hwi-overlay" id="ptsCardOverlay" aria-hidden="true">
+  <div id="ptsCardHost" style="width:100%;max-width:360px;position:relative;">
+    <div id="ptsCardSlot"></div>
+    <div style="text-align:center;margin-top:12px;font-size:12px;font-weight:600;color:rgba(255,255,255,.85);">Batafsil ko'rish uchun kartochkani bosing</div>
   </div>
 </div>
 <!-- Umumiy ball: tafsilot oynasi -->
