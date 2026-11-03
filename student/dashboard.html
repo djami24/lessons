@@ -2146,7 +2146,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 <script src="../gb-utils.js?v=3"></script>
 <script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
-<script src="../listening-hw.js?v=20261103"></script>
+<script src="../listening-hw.js?v=20261104"></script>
 <script>
 /* ============================================================
    Djami Lessons — Student dashboard logic (Firestore-backed)
@@ -3943,7 +3943,7 @@ async function mystLoadBonus(code, force){
   if(!force && _mystBonus && _mystBonusCode === code) return _mystBonus;
   try{
     const snap = await db.collection('oquv_progress').doc(code).collection('bonus').get();
-    _mystBonus = snap.docs.map(d => { const x = d.data() || {}; return { date: String(x.date || ''), points: Number(x.points) || 0, reason: String(x.reason || '') }; })
+    _mystBonus = snap.docs.map(d => { const x = d.data() || {}; return { id: d.id, date: String(x.date || ''), points: Number(x.points) || 0, reason: String(x.reason || ''), source: String(x.source || ''), max: Number(x.max) || 0 }; })
       .filter(x => x.points && x.date)
       .sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
   } catch(e){ _mystBonus = []; }   // qoida hali qo'shilmagan bo'lsa ham ball ko'rinaveradi
@@ -3961,9 +3961,11 @@ function mystSigned(n){ return n > 0 ? '+' + n : n < 0 ? '\u2212' + Math.abs(n) 
 //   Qo'lda:    admin istagan talabaga istagan paytda qo'shadi / ayiradi (sabab bilan) — oquv_progress/{ID}/bonus
 // Jami: yuqori chegara yo'q, 0 dan pastga tushmaydi. Jazo (punished) pointga ta'sir qilmaydi.
 const PTS = { attYes: 10, attLate: 5, attNo: 0, hwFull: 10 };
-function ptsCalc(rows, bonusList, latestTest){
+function ptsCalc(rows, bonusList, latestTest, lisItems){
   const o = { lessons: 0, yes: 0, late: 0, no: 0, att: 0, hwMarked: 0, hwFull: 0, hwPart: 0, hwNo: 0, hw: 0,
-              test: latestTest ? latestTest.score : 0, testInfo: latestTest || null, bonusPlus: 0, bonusMinus: 0, bonusList: bonusList || [] };
+              test: latestTest ? latestTest.score : 0, testInfo: latestTest || null, bonusPlus: 0, bonusMinus: 0, bonusList: bonusList || [],
+              lisItems: lisItems || [], lis: 0, lisMax: 0 };
+  o.lisItems.forEach(x => { o.lis += x.points; o.lisMax += x.max; });
   rows.forEach(r => {
     if(r.a === 'yes'){ o.yes++; o.att += PTS.attYes; }
     else if(r.a === 'late'){ o.late++; o.att += PTS.attLate; }
@@ -3978,9 +3980,36 @@ function ptsCalc(rows, bonusList, latestTest){
   });
   o.bonusList.forEach(x => { if(x.points > 0) o.bonusPlus += x.points; else if(x.points < 0) o.bonusMinus += x.points; });
   o.bonus = o.bonusPlus + o.bonusMinus;
-  o.raw = o.att + o.hw + o.test + o.bonus;
+  o.raw = o.att + o.hw + o.lis + o.test + o.bonus;
   o.total = Math.max(0, Math.round(o.raw));
   return o;
+}
+
+// Listening uy vazifasi: har bir mashqdan nechta to'g'ri topilsa (0–5) shuncha point.
+// Mashq admin tomonidan o'chirilsa ham point saqlanadi: o'chirishdan oldin natija oquv_progress/{ID}/bonus ichiga
+// source:'listening', id: ls_{mashqId}_{uid} bilan ko'chiriladi. Hali o'chirilmagan mashqlar jonli hisoblanadi (takror sanalmaydi).
+async function getMyListening(ym, archived){
+  const out = [];
+  archived.forEach(b => out.push({ title: String(b.reason || '').replace(/^Listening:\s*/i, '') || 'Listening', points: b.points, max: b.max || 5, date: b.date }));
+  const uid = currentUid; if(!uid) return out;
+  try{
+    const rng = mystRange(ym), done = new Set(archived.map(b => b.id));
+    const [subs, exs] = await Promise.all([
+      db.collection('listening_submissions').where('studentId', '==', uid).get(),
+      db.collection('listening_exercises').get().catch(() => null)
+    ]);
+    const titles = {}; if(exs) exs.forEach(d => { titles[d.id] = String((d.data() || {}).title || ''); });
+    subs.forEach(d => {
+      if(done.has('ls_' + d.id)) return;   // allaqachon arxivlangan — ikki marta sanalmasin
+      const x = d.data() || {}, t = x.submittedAt;
+      const ms = t && typeof t.toMillis === 'function' ? t.toMillis() : typeof t === 'number' ? t : Date.now();
+      const date = mystDate(new Date(ms));
+      if(date < rng.from || date > rng.to) return;
+      const pts = typeof x.finalScore === 'number' ? x.finalScore : (Number(x.score) || 0);
+      out.push({ title: titles[x.exerciseId] || 'Listening', points: pts, max: 5, date });
+    });
+  } catch(e){ console.warn('Listening pointlari yuklanmadi:', e); }
+  return out.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
 }
 
 // Talabaning eng so'nggi test natijasi (gradebook) — 0–100 ball, to'g'ridan-to'g'ri pointga qo'shiladi
@@ -4013,7 +4042,10 @@ async function loadHwPointsBadge(){
     ]);
     const rows = [];
     snap.forEach(d => { const x = mystNorm(d.data()); if(x) rows.push(x); });
-    const P = ptsCalc(rows, mystBonusIn(ym), latest);
+    const allBonus = mystBonusIn(ym);
+    const lisArch = allBonus.filter(b => b.source === 'listening'), manual = allBonus.filter(b => b.source !== 'listening');
+    const lis = await getMyListening(ym, lisArch);
+    const P = ptsCalc(rows, manual, latest, lis);
     state._ballCtx = Object.assign({ ym }, P);
 
     document.getElementById('hwPointsNum').textContent = P.total;
@@ -4172,6 +4204,14 @@ function openBallInfo(tab){
     h += grp('Uy vazifa', '—', 'Hali uy vazifa belgilanmagan', MYST_C.gray);
   }
 
+  // Listening uy vazifasi: har mashqdan nechta to'g'ri topilsa shuncha point
+  if(c.lisItems.length){
+    h += grp('Listening uy vazifa', `+${c.lis} <small>/ ${c.lisMax}</small>`, `${c.lisItems.length} ta mashq · har biridan to'g'ri topilgan javoblar soni`, MYST_C.orange);
+    h += c.lisItems.map(x => sub(_esc(x.title), _esc(x.date.slice(5).replace('-', '.')) + ' · ' + x.points + ' / ' + x.max + ' to\'g\'ri', '+' + x.points)).join('');
+  } else {
+    h += grp('Listening uy vazifa', '—', 'Bu oy listening mashqi topshirilmagan', MYST_C.gray);
+  }
+
   // So'nggi test natijasi: ball pointga to'liq qo'shiladi
   if(c.testInfo){
     h += grp('So\'nggi test', `+${c.test}`, `${_esc(c.testInfo.unit || 'Test')} · ${c.test} ball pointga qo\'shildi (faqat eng so\'nggi test)`, MYST_C.purple);
@@ -4188,7 +4228,7 @@ function openBallInfo(tab){
   h += minusList.map(x => itemRow(x, true)).join('');
 
   // Jami
-  h += `<div class="bal-row bal-total"><div class="bal-row-l"><b>Jami</b><span>${c.att} + ${c.hw} + ${c.test}${c.bonus ? (c.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(c.bonus) : ''}${c.raw < 0 ? ' (point 0 dan past bo\'lmaydi)' : ''}</span></div><div class="bal-row-v">${c.total}</div></div>`;
+  h += `<div class="bal-row bal-total"><div class="bal-row-l"><b>Jami</b><span>${c.att} + ${c.hw} + ${c.lis} + ${c.test}${c.bonus ? (c.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(c.bonus) : ''}${c.raw < 0 ? ' (point 0 dan past bo\'lmaydi)' : ''}</span></div><div class="bal-row-v">${c.total}</div></div>`;
 
   h += `<div class="bal-note">Oy oxirida eng ko'p point yig'gan talabaga 100 000 so'm mukofot beriladi. Davomat, uy vazifa va qo'shimcha pointlar oyma-oy qaytadan hisoblanadi. Batafsil: «Qoidalar» bo'limi.</div>`;
   body.innerHTML = h;
@@ -7446,6 +7486,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
       <ul class="pts-rule-list up">
         <li><b>Darsga kelsangiz — 10 point</b> (kech qolsangiz 5, kelmasangiz 0). Ustoz davomatni belgilagach avtomatik qo'shiladi</li>
         <li><b>Uy vazifani to'liq bajarsangiz — 10 point</b> (qisman bajarsangiz bajarilgan foiziga qarab, qilmasangiz 0)</li>
+        <li><b>Listening uy vazifa — har bir mashqdan nechta to'g'ri topsangiz, shuncha point</b> (5 tadan). Mashq keyin o'chirib tashlansa ham point saqlanib qoladi</li>
         <li><b>So'nggi test natijangiz</b> — masalan 90 ball olsangiz, 90 point qo'shiladi (faqat eng so'nggi test)</li>
         <li>Darsda yaxshi o'tirsangiz</li>
         <li>Xulqingiz yaxshi bo'lsa</li>
