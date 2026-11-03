@@ -8617,7 +8617,7 @@ async function apLisCtx(force){
     const stus = await db.collection('students').get();
     stus.forEach(d => {
       const x = d.data() || {}, c = x.oquvProgressCode;
-      if (c) ctx.codeToUid[String(c).trim()] = d.id;
+      if (c) { ctx.codeToUid[String(c).trim()] = d.id; ctx.codeToUid[apNorm(c)] = d.id; }
       if (x.avatarPhoto || x.avatarImg) ctx.avList.push({ code: apNorm(c), phone: apDigits(x.phone), name: apNorm(x.name).replace(/\s+/g, ' '), img: x.avatarImg || '', photo: x.avatarPhoto || '' });
     });
   } catch (e) { console.warn('Talaba rasmlari yuklanmadi:', e); }
@@ -8635,7 +8635,7 @@ function apFindAv(ctx, s){
 }
 // Hali o'chirilmagan mashqlar (jonli), arxivlanganlari `done` ichida bo'lsa o'tkazib yuboriladi
 function apLisLive(ctx, sid, r, done){
-  const out = [], uid = ctx.codeToUid[sid];
+  const out = [], uid = ctx.codeToUid[sid] || ctx.codeToUid[apNorm(sid)];
   if (!uid) return out;
   (ctx.byUid[uid] || []).forEach(it => {
     if (done && done.has('ls_' + it.id)) return;
