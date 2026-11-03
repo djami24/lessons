@@ -3968,13 +3968,13 @@ function mystSigned(n){ return n > 0 ? '+' + n : n < 0 ? '\u2212' + Math.abs(n) 
 // Point statistikadagi foiz/ball formulasidan olinmaydi — o'zining alohida hisobi bor:
 //   Davomat:   keldi = 10, kech qoldi = 5, kelmadi = 0           (admin «O'quv jarayoni»da belgilaydi, avtomatik qo'shiladi)
 //   Uy vazifa: to'liq = 10, qisman = foiziga qarab (0–10), qilinmagan = 0
-//   Test:      eng so'nggi test natijasi (masalan 90 ball = +90 point)
 //   Qo'lda:    admin istagan talabaga istagan paytda qo'shadi / ayiradi (sabab bilan) — oquv_progress/{ID}/bonus
 // Jami: yuqori chegara yo'q, 0 dan pastga tushmaydi. Jazo (punished) pointga ta'sir qilmaydi.
+// Test natijasi pointga QO'SHILMAYDI (test faqat statistika/gradebook uchun).
 const PTS = { attYes: 10, attLate: 5, attNo: 0, hwFull: 10 };
 function ptsCalc(rows, bonusList, latestTest, lisItems){
   const o = { lessons: 0, yes: 0, late: 0, no: 0, att: 0, hwMarked: 0, hwFull: 0, hwPart: 0, hwNo: 0, hw: 0,
-              test: latestTest ? latestTest.score : 0, testInfo: latestTest || null, bonusPlus: 0, bonusMinus: 0, bonusList: bonusList || [],
+              test: 0, testInfo: null, bonusPlus: 0, bonusMinus: 0, bonusList: bonusList || [],
               lisItems: lisItems || [], lis: 0, lisMax: 0 };
   o.lisItems.forEach(x => { o.lis += x.points; o.lisMax += x.max; });
   rows.forEach(r => {
@@ -4049,7 +4049,7 @@ async function loadHwPointsBadge(){
     const [snap, , latest] = await Promise.all([
       db.collection('oquv_progress').doc(code).collection('entries').where('date', '>=', rng.from).where('date', '<=', rng.to).get(),
       mystLoadBonus(code, true),
-      getMyLatestTest()
+      Promise.resolve(null)   // test ballari pointga qo'shilmaydi
     ]);
     const rows = [];
     snap.forEach(d => { const x = mystNorm(d.data()); if(x) rows.push(x); });
@@ -4226,13 +4226,6 @@ function openBallInfo(tab){
     h += grp('Listening uy vazifa', '—', 'Bu oy listening mashqi topshirilmagan', MYST_C.gray);
   }
 
-  // So'nggi test natijasi: ball pointga to'liq qo'shiladi
-  if(c.testInfo){
-    h += grp('So\'nggi test', `+${c.test}`, `${_esc(c.testInfo.unit || 'Test')} · ${c.test} ball pointga qo\'shildi (faqat eng so\'nggi test)`, MYST_C.purple);
-  } else {
-    h += grp('So\'nggi test', '—', 'Hali test natijasi kiritilmagan', MYST_C.gray);
-  }
-
   // Qo'shimcha point (admin qo'shgan) va ayirilgan point — sababi bilan
   const plusList = c.bonusList.filter(x => x.points > 0), minusList = c.bonusList.filter(x => x.points < 0);
   const itemRow = (x, neg) => `<div class="bal-bonus-item"><span style="color:${neg ? '#e5484d' : '#16a34a'};font-weight:700">${mystSigned(x.points)}</span><span style="flex:1;opacity:1">${_esc(x.reason || (neg ? 'Sabab ko\'rsatilmagan' : 'Qo\'shimcha point'))}</span><span>${_esc(x.date.slice(5).replace('-', '.'))}</span></div>`;
@@ -4242,7 +4235,7 @@ function openBallInfo(tab){
   h += minusList.map(x => itemRow(x, true)).join('');
 
   // Jami
-  h += `<div class="bal-row bal-total"><div class="bal-row-l"><b>Jami</b><span>${c.att} + ${c.hw} + ${c.lis} + ${c.test}${c.bonus ? (c.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(c.bonus) : ''}${c.raw < 0 ? ' (point 0 dan past bo\'lmaydi)' : ''}</span></div><div class="bal-row-v">${c.total}</div></div>`;
+  h += `<div class="bal-row bal-total"><div class="bal-row-l"><b>Jami</b><span>${c.att} + ${c.hw} + ${c.lis}${c.bonus ? (c.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(c.bonus) : ''}${c.raw < 0 ? ' (point 0 dan past bo\'lmaydi)' : ''}</span></div><div class="bal-row-v">${c.total}</div></div>`;
 
   h += `<div class="bal-note">Oy oxirida eng ko'p point yig'gan talabaga 100 000 so'm mukofot beriladi. Davomat, uy vazifa va qo'shimcha pointlar oyma-oy qaytadan hisoblanadi. Batafsil: «Qoidalar» bo'limi.</div>`;
   body.innerHTML = h;
@@ -7502,7 +7495,6 @@ document.getElementById('themeToggle').addEventListener('click',function(){
         <li><b>Darsga kelsangiz — 10 point</b> (kech qolsangiz 5, kelmasangiz 0). Ustoz davomatni belgilagach avtomatik qo'shiladi</li>
         <li><b>Uy vazifani to'liq bajarsangiz — 10 point</b> (qisman bajarsangiz bajarilgan foiziga qarab, qilmasangiz 0)</li>
         <li><b>Listening uy vazifa — har bir mashqdan nechta to'g'ri topsangiz, shuncha point</b> (5 tadan). Mashq keyin o'chirib tashlansa ham point saqlanib qoladi</li>
-        <li><b>So'nggi test natijangiz</b> — masalan 90 ball olsangiz, 90 point qo'shiladi (faqat eng so'nggi test)</li>
         <li>Darsda yaxshi o'tirsangiz</li>
         <li>Xulqingiz yaxshi bo'lsa</li>
         <li>Qo'shimcha point olsangiz</li>
@@ -7515,7 +7507,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
         <li>Uy vazifa qilmasangiz (0 point)</li>
         <li>Darsda gaplashib o'tirsangiz</li>
       </ul>
-      <div class="bal-note">Pointlar har oy boshida qaytadan hisoblanadi. Davomat, uy vazifa va test pointlari avtomatik hisoblanadi. Ustoz qo'lda qo'shgan yoki ayirgan pointlar sababi bilan «Pointlarim» bo'limida ko'rinadi. Point statistikadagi foizlardan olinmaydi — alohida hisoblanadi.</div>
+      <div class="bal-note">Pointlar har oy boshida qaytadan hisoblanadi. Davomat, uy vazifa va listening pointlari avtomatik hisoblanadi. Ustoz qo'lda qo'shgan yoki ayirgan pointlar sababi bilan «Pointlarim» bo'limida ko'rinadi. Point statistikadagi foizlardan olinmaydi — alohida hisoblanadi.</div>
     </div>
   </div>
 </div>
