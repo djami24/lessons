@@ -175,13 +175,73 @@
     gap:22px;
     align-items:flex-start;
   }
-  .pnew-avatar-col{ flex-shrink:0; display:flex; align-items:center; gap:16px; }
-  @media (min-width:601px){ .pnew-avatar-col{ flex-direction:column; gap:12px; } }
-  /* Ball kartochkasi — o'ng tomonda */
-  .profile-card-new{ position:relative; }
-  @media (min-width:601px){ .pnew-avatar-col .hwp-card{ position:absolute; top:24px; right:26px; margin-left:0; } }
-  @media (max-width:600px){ .pnew-avatar-col{ width:100%; } .pnew-avatar-col .hwp-card{ margin-left:auto; } }
+  .profile-card-new{ position:relative; flex-wrap:wrap; align-items:stretch; }
+  .profile-card-new .pnew-main{ flex:1 1 280px; }
 
+  /* ===== 1 oylik POINT kartochkasi ===== */
+  .pts-card[hidden]{ display:none !important; }
+  .pts-card{
+    position:relative; overflow:hidden; flex:0 0 340px; max-width:100%; box-sizing:border-box;
+    display:flex; flex-direction:column; gap:10px; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    padding:18px 20px 16px; border-radius:22px; color:#1e2a4a;
+    background:linear-gradient(145deg,#eaf2ff 0%,#f1ecff 55%,#fbefff 100%);
+    border:1px solid rgba(255,255,255,.9);
+    box-shadow:0 18px 40px -20px rgba(70,80,220,.5), inset 0 1px 0 rgba(255,255,255,.95);
+    transition:transform .18s, box-shadow .18s;
+  }
+  .pts-card:hover{ transform:translateY(-2px); box-shadow:0 24px 46px -20px rgba(70,80,220,.6), inset 0 1px 0 #fff; }
+  .pts-card:active{ transform:scale(.985); }
+  .pts-card:focus-visible{ outline:2px solid #4f46e5; outline-offset:2px; }
+  .pts-glow{ position:absolute; right:-50px; top:-60px; width:180px; height:180px; border-radius:50%; pointer-events:none;
+    background:radial-gradient(circle,rgba(124,92,255,.28),rgba(124,92,255,0) 70%); }
+  .pts-head{ display:flex; align-items:center; gap:9px; position:relative; }
+  .pts-ico{ width:28px; height:28px; border-radius:9px; flex:none; display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,#3b82f6,#7c3aed); box-shadow:0 6px 14px -6px rgba(79,70,229,.7); }
+  .pts-title{ font-size:12px; font-weight:800; letter-spacing:.02em; color:#4b557a; line-height:1.25; }
+  .pts-main{ display:flex; align-items:baseline; gap:8px; position:relative; flex-wrap:wrap; }
+  .pts-num{ font-size:52px; font-weight:900; line-height:1; letter-spacing:-.04em;
+    background:linear-gradient(135deg,#2563eb,#7c3aed); -webkit-background-clip:text; background-clip:text; color:transparent; -webkit-text-fill-color:transparent; }
+  .pts-unit{ font-size:15px; font-weight:800; color:#6b7599; text-transform:uppercase; letter-spacing:.06em; }
+  .pts-delta{ margin-left:auto; font-size:11.5px; font-weight:800; padding:3px 9px; border-radius:99px; background:#e6f4ea; color:#1e7e34; }
+  .pts-delta.down{ background:#fdeaec; color:#c0392b; }
+  .pts-sub{ font-size:12px; font-weight:600; color:#6b7599; position:relative; }
+  .pts-prize{ display:flex; align-items:center; gap:11px; padding:11px 12px; border-radius:14px; position:relative;
+    background:linear-gradient(135deg,#fff6d6,#ffe9a6); border:1px solid rgba(245,180,40,.5); color:#7a4a00;
+    box-shadow:0 8px 18px -12px rgba(217,150,10,.7), inset 0 1px 0 rgba(255,255,255,.8); }
+  .pts-trophy{ width:36px; height:36px; flex:none; border-radius:11px; display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#fff; box-shadow:0 6px 12px -6px rgba(217,119,6,.8); }
+  .pts-prize-t{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .pts-prize-t b{ font-size:14px; font-weight:900; color:#6b3f00; }
+  .pts-prize-t span{ font-size:11px; font-weight:600; line-height:1.35; color:#8a5a10; }
+  .pts-more{ display:inline-flex; align-items:center; gap:5px; align-self:flex-start; font-size:12px; font-weight:800; color:#4f46e5;
+    padding:7px 13px; border-radius:99px; background:rgba(255,255,255,.75); border:1px solid rgba(99,102,241,.25); position:relative; }
+  body.dark .pts-card{ color:#e8ecf5; background:linear-gradient(145deg,#1a2240 0%,#231c47 60%,#2a1c46 100%); border-color:rgba(255,255,255,.1);
+    box-shadow:0 18px 40px -20px rgba(0,0,0,.7); }
+  body.dark .pts-title, body.dark .pts-sub, body.dark .pts-unit{ color:#a9b3d6; }
+  body.dark .pts-num{ background:linear-gradient(135deg,#7fb0ff,#b79bff); -webkit-background-clip:text; background-clip:text; }
+  body.dark .pts-prize{ background:linear-gradient(135deg,rgba(251,191,36,.18),rgba(245,158,11,.12)); border-color:rgba(251,191,36,.35); color:#fde68a; }
+  body.dark .pts-prize-t b{ color:#fde68a; } body.dark .pts-prize-t span{ color:#e9c878; }
+  body.dark .pts-more{ background:rgba(255,255,255,.08); color:#b9c4ff; border-color:rgba(255,255,255,.14); }
+  @media (max-width:760px){ .pts-card{ flex:1 1 100%; } .pts-num{ font-size:46px; } }
+
+  /* Point oynasi: tablar va qoidalar */
+  .pts-tabs{ display:flex; gap:6px; padding:4px; margin:0 0 14px; border-radius:12px; background:rgba(100,116,139,.12); }
+  .pts-tabs button{ flex:1; border:0; cursor:pointer; font:inherit; font-size:13px; font-weight:700; padding:8px 10px; border-radius:9px; background:transparent; color:inherit; opacity:.7; }
+  .pts-tabs button.on{ background:#fff; color:#4f46e5; opacity:1; box-shadow:0 2px 8px rgba(30,40,90,.12); }
+  body.dark .pts-tabs button.on{ background:#2a3248; color:#b9c4ff; }
+  .pts-rule-prize{ display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:14px; margin-bottom:14px;
+    background:linear-gradient(135deg,#fff6d6,#ffe9a6); border:1px solid rgba(245,180,40,.5); color:#6b3f00; }
+  .pts-rule-prize b{ display:block; font-size:17px; font-weight:900; }
+  .pts-rule-prize span{ font-size:12.5px; line-height:1.4; }
+  .pts-rule-h{ display:flex; align-items:center; gap:8px; font-size:14px; font-weight:800; margin:14px 0 8px; }
+  .pts-rule-h i{ width:22px; height:22px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; font-style:normal; font-weight:900; color:#fff; font-size:14px; }
+  .pts-rule-h.up i{ background:#16a34a; } .pts-rule-h.down i{ background:#e5484d; }
+  .pts-rule-list{ list-style:none; margin:0; padding:0; display:grid; gap:6px; }
+  .pts-rule-list li{ display:flex; align-items:center; gap:9px; font-size:13.5px; padding:9px 11px; border-radius:11px; }
+  .pts-rule-list.up li{ background:rgba(22,163,74,.10); } .pts-rule-list.down li{ background:rgba(229,72,77,.09); }
+  .pts-rule-list li::before{ content:'+'; font-weight:900; color:#16a34a; width:14px; text-align:center; }
+  .pts-rule-list.down li::before{ content:'\2212'; color:#e5484d; }
+  .bal-sub-v.plus{ color:#16a34a; }
   /* Uy vazifa balli kartochkasi */
   .hwp-card{
     position:relative; overflow:hidden; min-width:150px; max-width:190px;
@@ -1091,29 +1151,6 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <div class="kb-content">
       <!-- profile — dinamik (Firestore'dan to'ldiriladi) -->
       <div class="card profile-card-new">
-        <div class="pnew-avatar-col">
-          <div class="pnew-avatar-circle" id="homeAvatarCircle">
-            <svg viewBox="0 0 80 80" fill="none" width="80" height="80">
-              <circle cx="40" cy="30" r="20" fill="#c7ddf8"/>
-              <ellipse cx="40" cy="76" rx="30" ry="18" fill="#c7ddf8"/>
-            </svg>
-          </div>
-          <!-- Uy vazifa balli (shu oy) -->
-          <div id="hwPointsBadge" class="hwp-card" role="button" tabindex="0" aria-label="Umumiy ball tafsilotlari" hidden>
-            <div class="hwp-top">
-              <span class="hwp-ico"><svg width="12" height="12" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.5 6.1 20.7l1.2-6.6L2.5 9.5l6.6-.9z"/></svg></span>
-              Umumiy ball
-            </div>
-            <div class="hwp-main">
-              <span class="hwp-num" id="hwPointsNum">0</span>
-              <span class="hwp-unit">bal</span>
-              <span class="hwp-max" id="hwPointsMax"></span>
-            </div>
-            <div class="hwp-bar"><i id="hwPointsBar"></i></div>
-            <div class="hwp-sub" id="hwPointsSub"></div>
-            <div class="hwp-more">Qanday ishlaydi? <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>
-          </div>
-        </div>
         <div class="pnew-main">
           <div class="pnew-name" id="homeStudentName"><span class="sk sk-name" role="status" aria-label="Yuklanmoqda"></span></div>
           <div class="pnew-badge-row">
@@ -1138,6 +1175,26 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
               <span class="pnew-val" id="qiNextLessonVal">—</span>
             </div>
           </div>
+        </div>
+
+        <!-- 1 oylik POINT kartochkasi -->
+        <div id="hwPointsBadge" class="pts-card" role="button" tabindex="0" aria-label="Point tafsilotlari va qoidalar" hidden>
+          <span class="pts-glow" aria-hidden="true"></span>
+          <div class="pts-head">
+            <span class="pts-ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.6 1.2 6.6L12 17.5 6.1 20.7l1.2-6.6L2.5 9.5l6.6-.9z"/></svg></span>
+            <span class="pts-title">Sizning 1 oylik POINT laringiz</span>
+          </div>
+          <div class="pts-main">
+            <span class="pts-num" id="hwPointsNum">0</span>
+            <span class="pts-unit">point</span>
+            <span class="pts-delta" id="hwPointsDelta" hidden></span>
+          </div>
+          <div class="pts-sub" id="hwPointsSub"></div>
+          <div class="pts-prize">
+            <span class="pts-trophy" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg></span>
+            <span class="pts-prize-t"><b>100 000 so'm mukofot</b><span>Oy oxirida eng ko'p point yig'gan talabaga beriladi</span></span>
+          </div>
+          <div class="pts-more">Shartlar va qoidalar <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></div>
         </div>
       </div>
 
@@ -3505,7 +3562,7 @@ function renderMyStats(){
     mystKpi('Kelmadi', A.no, D(A.no, P.no, true), `${mystLabel(prevYm)}: ${P.no}`, mystSpark(bAgg.map(a => a.no), MYST_C.red), MYST_C.red) +
     mystKpi('Kech qoldi', A.late, D(A.late, P.late, true), `${mystLabel(prevYm)}: ${P.late}`, mystSpark(bAgg.map(a => a.late), MYST_C.orange), MYST_C.orange) +
     mystKpi('Jazolangan', A.pun, D(A.pun, P.pun, true), A.punCnt ? `jami jazo: ${A.punCnt} ta` : 'jazo yo\'q', mystSpark(bAgg.map(a => a.pun), MYST_C.purple), MYST_C.purple) +
-    mystKpi('Ball', sc === null ? '—' : sc, D(sc, pSc, false, ''), '60% davomat + 40% uy vazifa − jazo' + (bonusCur ? ' + ' + bonusCur + " qo'shimcha" : ''), '<svg viewBox="0 0 100 30"></svg>', MYST_C.gray);
+    mystKpi('Ball', sc === null ? '—' : sc, D(sc, pSc, false, ''), '60% davomat + 40% uy vazifa − jazo' + (bonusCur ? (bonusCur > 0 ? ' + ' : ' \u2212 ') + Math.abs(bonusCur) + " qo'shimcha" : ''), '<svg viewBox="0 0 100 30"></svg>', MYST_C.gray);
 
   document.getElementById('mystTrend').innerHTML = buckets.length
     ? mystLine(buckets.map(b => b.label), [
@@ -3841,10 +3898,12 @@ async function mystLoadBonus(code, force){
 }
 function mystBonusIn(ym){ const r = mystRange(ym); return (_mystBonus || []).filter(b => b.date >= r.from && b.date <= r.to); }
 function mystBonusSum(ym){ return mystBonusIn(ym).reduce((t, b) => t + b.points, 0); }
+function mystSigned(n){ return n > 0 ? '+' + n : n < 0 ? '\u2212' + Math.abs(n) : '0'; }
+// Umumiy point: yuqori chegara yo'q (100 dan oshishi mumkin), pastda 0 dan tushmaydi
 function mystTotal(a, bonus){
   const base = mystScore(a);
-  if(base === null) return bonus ? bonus : null;
-  return base + (bonus || 0);
+  if(base === null) return bonus ? Math.max(0, bonus) : null;
+  return Math.max(0, base + (bonus || 0));
 }
 // Umumiy ball qismlari: 100 ball − (kech qolish + kelmaslik + uy vazifa kamchiligi + jazo) + qo'shimcha
 // Davomat 60 ball (bir dars = 60/M; kech qolish yarim dars; kelmaslik to'liq), uy vazifa 40 ball (bir dars = 40/K).
@@ -3884,6 +3943,9 @@ async function loadHwPointsBadge(){
     const A = mystAgg(rows);
     const bonus = mystBonusSum(ym);
     const total = mystTotal(A, bonus);
+    const bonusList = mystBonusIn(ym);
+    const bonusPlus = bonusList.filter(x => x.points > 0).reduce((t, x) => t + x.points, 0);
+    const bonusMinus = bonusList.filter(x => x.points < 0).reduce((t, x) => t + x.points, 0);
 
     // Uy vazifa dars ballari (har dars 0–10): mukofot hisobi uchun, tafsilot oynasida ko'rsatiladi
     let hwPts = 0, lessons = 0;
@@ -3892,16 +3954,17 @@ async function loadHwPointsBadge(){
       lessons++;
       if(r.a !== 'no' && r.hw !== null) hwPts += Math.round(r.hw / 10);
     });
-    state._ballCtx = { ym, A, bonus, bonusList: mystBonusIn(ym), total, hwPts, hwMax: lessons * 10, lessons };
+    state._ballCtx = { ym, A, bonus, bonusPlus, bonusMinus, bonusList, total, hwPts, hwMax: lessons * 10, lessons };
 
     const shown = total === null ? 0 : total;
     document.getElementById('hwPointsNum').textContent = shown;
-    document.getElementById('hwPointsMax').textContent = '/ 100';
-    document.getElementById('hwPointsSub').textContent = 'Shu oy · ' + (A.marked ? A.marked + ' ta dars hisobida' : 'hali dars belgilanmagan') + (bonus ? ' · +' + bonus + ' qo\'shimcha' : '');
-    const bar = document.getElementById('hwPointsBar');
-    bar.style.width = '0';
+    document.getElementById('hwPointsSub').textContent = 'Shu oy · ' + (A.marked ? A.marked + ' ta dars hisobida' : 'hali dars belgilanmagan');
+    const dl = document.getElementById('hwPointsDelta');
+    if(dl){
+      if(bonus){ dl.hidden = false; dl.classList.toggle('down', bonus < 0); dl.textContent = mystSigned(bonus) + ' qo\'shimcha'; }
+      else dl.hidden = true;
+    }
     box.hidden = false;
-    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = Math.max(0, Math.min(100, shown)) + '%'; }));
   } catch(err){
     console.error('Umumiy ball load failed:', err);
     box.hidden = true;
@@ -3923,7 +3986,13 @@ async function getMyTestAvg(){
   } catch(e){ return null; }
 }
 
-function openBallInfo(){
+function ballSwitchTab(t){
+  const mine = document.getElementById('ballInfoBody'), rules = document.getElementById('ballRulesBody');
+  if(mine) mine.hidden = (t === 'rules');
+  if(rules) rules.hidden = (t !== 'rules');
+  document.querySelectorAll('.pts-tabs [data-ptab]').forEach(b => b.classList.toggle('on', b.dataset.ptab === t));
+}
+function openBallInfo(tab){
   const c = state._ballCtx;
   const ov = document.getElementById('ballInfoOverlay'), body = document.getElementById('ballInfoBody');
   if(!ov || !body || !c) return;
@@ -3935,7 +4004,7 @@ function openBallInfo(){
   const sub = (label, detail, val) =>
     `<div class="bal-sub"><div class="bal-sub-l"><b>${label}</b><span>${detail}</span></div><div class="bal-sub-v">${val}</div></div>`;
 
-  let h = `<div class="bal-month">${mystLabel(c.ym)} · eng ko'p ball: 100</div>`;
+  let h = `<div class="bal-month">${mystLabel(c.ym)} · point chegarasi yo'q</div>`;
 
   // Davomat (60 ball)
   if(b.hasAtt){
@@ -3961,20 +4030,23 @@ function openBallInfo(){
   // Jazo
   h += grp('Jazolangan', `<span style="color:${MYST_C.red}">${neg(b.pen)}</span>`, A.pun ? `${A.pun} kun × \u22122 (ko'pi bilan \u221220)` : 'Jazo yo\'q', MYST_C.red);
 
-  // Qo'shimcha ball
-  h += grp('Qo\'shimcha ball', c.bonus ? '+' + c.bonus : '0', c.bonus ? 'O\'qituvchi tomonidan berilgan' : 'Bu oy qo\'shimcha ball berilmagan', '#0e9f6e');
-  if(c.bonusList.length){
-    h += c.bonusList.map(x => `<div class="bal-bonus-item"><span>+${x.points} · ${_esc(x.reason || 'Qo\'shimcha ball')}</span><span>${_esc(x.date.slice(5).replace('-', '.'))}</span></div>`).join('');
-  }
+  // Qo'shimcha point (o'qituvchi qo'shgan) va ayirilgan point — sababi bilan
+  const plusList = c.bonusList.filter(x => x.points > 0), minusList = c.bonusList.filter(x => x.points < 0);
+  const itemRow = (x, neg) => `<div class="bal-bonus-item"><span style="color:${neg ? '#e5484d' : '#16a34a'};font-weight:700">${mystSigned(x.points)}</span><span style="flex:1;opacity:1">${_esc(x.reason || (neg ? 'Sabab ko\'rsatilmagan' : 'Qo\'shimcha point'))}</span><span>${_esc(x.date.slice(5).replace('-', '.'))}</span></div>`;
+  h += grp('Qo\'shimcha point', c.bonusPlus ? '+' + c.bonusPlus : '0', c.bonusPlus ? 'O\'qituvchi tomonidan berilgan' : 'Bu oy qo\'shimcha point berilmagan', '#0e9f6e');
+  h += plusList.map(x => itemRow(x, false)).join('');
+  h += grp('Ayirilgan point', c.bonusMinus ? '\u2212' + Math.abs(c.bonusMinus) : '0', c.bonusMinus ? 'O\'qituvchi tomonidan ayirilgan — sababi pastda' : 'Bu oy point ayirilmagan', '#e5484d');
+  h += minusList.map(x => itemRow(x, true)).join('');
 
   // Jami
-  h += `<div class="bal-row bal-total"><div class="bal-row-l"><b>Jami</b><span>${n2(b.attEarn)} + ${n2(b.hwEarn)} \u2212 ${n2(b.pen)}${c.bonus ? ' + ' + c.bonus : ''}${b.raw < 0 ? ' (ball 0 dan past bo\'lmaydi)' : ''} · butun songa yaxlitlanadi</span></div><div class="bal-row-v">${c.total === null ? '—' : c.total}</div></div>`;
+  h += `<div class="bal-row bal-total"><div class="bal-row-l"><b>Jami</b><span>${n2(b.attEarn)} + ${n2(b.hwEarn)} \u2212 ${n2(b.pen)}${c.bonus ? (c.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(c.bonus) : ''}${(b.raw + c.bonus) < 0 ? ' (ball 0 dan past bo\'lmaydi)' : ''} · butun songa yaxlitlanadi</span></div><div class="bal-row-v">${c.total === null ? '—' : c.total}</div></div>`;
 
   // Test natijasi: faqat ma'lumot uchun
   h += `<div class="bal-row bal-info"><div class="bal-row-l"><b>Test natijasi</b><span id="ballTestNote">Test o'rtachasi (umumiy ballga kirmaydi)</span></div><div class="bal-row-v" id="ballTestVal" style="color:${MYST_C.purple}">…</div></div>`;
 
-  h += `<div class="bal-note">Eslatma: ball o'quv faoliyatini baholash uchun hisoblanadi, mukofot berilmaydi. To'liq ma'lumotni «Statistika» bo'limidan yoki o'qituvchingizdan olishingiz mumkin.</div>`;
+  h += `<div class="bal-note">Oy oxirida eng ko'p point yig'gan talabaga 100 000 so'm mukofot beriladi. Point oyma-oy qaytadan hisoblanadi. Batafsil: «Shartlar va qoidalar» bo'limi.</div>`;
   body.innerHTML = h;
+  ballSwitchTab(tab === 'rules' ? 'rules' : 'mine');
   ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
 
   getMyTestAvg().then(avg => {
@@ -3991,7 +4063,9 @@ function openBallInfo(){
   const show = id => { const o = $(id); if(o){ o.classList.add('open'); o.setAttribute('aria-hidden', 'false'); } };
   const hide = id => { const o = $(id); if(o){ o.classList.remove('open'); o.setAttribute('aria-hidden', 'true'); } };
   document.addEventListener('click', e => {
-    if(e.target.closest('#hwPointsBadge')){ openBallInfo(); return; }
+    const tb = e.target.closest('.pts-tabs [data-ptab]');
+    if(tb){ ballSwitchTab(tb.dataset.ptab); return; }
+    if(e.target.closest('#hwPointsBadge')){ openBallInfo(e.target.closest('.pts-more') ? 'rules' : 'mine'); return; }
     if(e.target.closest('#ballInfoClose') || e.target === $('ballInfoOverlay')){ hide('ballInfoOverlay'); return; }
   });
   document.addEventListener('keydown', e => {
@@ -7198,8 +7272,36 @@ document.getElementById('themeToggle').addEventListener('click',function(){
 <div class="hwi-overlay" id="ballInfoOverlay" aria-hidden="true">
   <div class="hwi-box" role="dialog" aria-modal="true" aria-labelledby="ballInfoTitle">
     <button type="button" class="hwi-close" id="ballInfoClose" aria-label="Yopish">&times;</button>
-    <h3 id="ballInfoTitle">Umumiy ball</h3>
+    <h3 id="ballInfoTitle">Sizning 1 oylik POINT laringiz</h3>
+    <div class="pts-tabs" role="tablist">
+      <button type="button" class="on" data-ptab="mine" role="tab">Mening pointlarim</button>
+      <button type="button" data-ptab="rules" role="tab">Shartlar va qoidalar</button>
+    </div>
     <div id="ballInfoBody"></div>
+    <div id="ballRulesBody" hidden>
+      <div class="pts-rule-prize">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
+        <div><b>100 000 so'm mukofot</b><span>Oy oxirida eng ko'p point yig'gan talabaga beriladi. Point chegarasi yo'q — qancha yig'sangiz shuncha.</span></div>
+      </div>
+      <div class="pts-rule-h up"><i>+</i> Point qanday yig'iladi</div>
+      <ul class="pts-rule-list up">
+        <li>Uy vazifani bajarsangiz</li>
+        <li>Darsga kelsangiz</li>
+        <li>Darsda yaxshi o'tirsangiz</li>
+        <li>Xulqingiz yaxshi bo'lsa</li>
+        <li>Qo'shimcha point olsangiz</li>
+        <li>Flashcard o'yinida guruhingiz yutsa</li>
+        <li>O'zingizni ko'rsata olsangiz</li>
+      </ul>
+      <div class="pts-rule-h down"><i>&minus;</i> Qachon point ayiriladi</div>
+      <ul class="pts-rule-list down">
+        <li>Uy vazifa qilmasangiz</li>
+        <li>Darsga kelmasangiz</li>
+        <li>Darsga kech qolsangiz</li>
+        <li>Darsda gaplashib o'tirsangiz</li>
+      </ul>
+      <div class="bal-note">Pointlar har oy boshida qaytadan hisoblanadi. Nima uchun point qo'shilgani yoki ayirilgani «Mening pointlarim» bo'limida sababi bilan ko'rinadi.</div>
+    </div>
   </div>
 </div>
 <script>
