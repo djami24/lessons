@@ -224,6 +224,37 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 .st-table tbody tr{cursor:pointer;}
 .st-table tbody tr:hover{background:rgba(47,111,237,.06);}
 .st-table-card{margin-bottom:20px;}
+/* ===== Pointlar sahifasi ===== */
+.ap-card{background:var(--paper);border:1px solid var(--adm-line,var(--line));border-radius:16px;padding:6px 6px 10px;overflow-x:auto;}
+.ap-table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:640px;}
+.ap-table th{position:sticky;top:0;text-align:right;padding:11px 12px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--adm-gray,var(--gray));border-bottom:1px solid var(--adm-line,var(--line));white-space:nowrap;user-select:none;}
+.ap-table th.l,.ap-table td.l{text-align:left;}
+.ap-table th[data-sort]{cursor:pointer;}
+.ap-table th.on{color:var(--adm-blue,#2F6FED);}
+.ap-table th.on::after{content:attr(data-arrow);margin-left:4px;}
+.ap-table td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--adm-line,var(--line));font-variant-numeric:tabular-nums;}
+.ap-table tbody tr{cursor:pointer;}
+.ap-table tbody tr:hover{background:rgba(47,111,237,.06);}
+.ap-table tbody tr:last-child td{border-bottom:0;}
+.ap-rk{width:44px;font-weight:800;color:var(--adm-gray,var(--gray));}
+.ap-rk.r1{color:#d99a00}.ap-rk.r2{color:#8a93a6}.ap-rk.r3{color:#b8743a}
+.ap-nm{font-weight:700;}
+.ap-gr{display:block;font-size:.72rem;font-weight:500;color:var(--adm-gray,var(--gray));}
+.ap-tot{font-weight:800;font-size:1rem;}
+.ap-pos{color:#1FAE7A}.ap-neg{color:#E5484D}.ap-mut{color:var(--adm-gray,var(--gray))}
+.ap-sum{font-size:.82rem;color:var(--adm-gray,var(--gray));margin:0 0 12px;}
+.ap-search{padding:7px 12px;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;background:var(--paper);color:var(--adm-ink,var(--ink));font:inherit;font-size:.85rem;min-width:150px;}
+.ap-big{display:flex;align-items:center;gap:14px;margin:0 0 14px;}
+.ap-big b{font-size:2.4rem;font-weight:800;line-height:1;}
+.ap-big span{font-size:.85rem;color:var(--adm-gray,var(--gray));}
+.ap-h{font-size:.8rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--adm-gray,var(--gray));margin:18px 0 8px;}
+.ap-mini{width:100%;border-collapse:collapse;font-size:.85rem;}
+.ap-mini th{text-align:right;font-size:.7rem;font-weight:700;text-transform:uppercase;color:var(--adm-gray,var(--gray));padding:6px 8px;border-bottom:1px solid var(--adm-line,var(--line));}
+.ap-mini td{text-align:right;padding:8px;border-bottom:1px solid var(--adm-line,var(--line));font-variant-numeric:tabular-nums;vertical-align:top;}
+.ap-mini th.l,.ap-mini td.l{text-align:left;}
+.ap-mini td small{display:block;color:var(--adm-gray,var(--gray));font-size:.72rem;font-weight:500;}
+.ap-formula{margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(47,111,237,.07);font-size:.88rem;font-weight:700;}
+.ap-scroll{max-height:320px;overflow:auto;border:1px solid var(--adm-line,var(--line));border-radius:10px;}
 .st-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.74rem;font-weight:800;}
 .st-person{display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid var(--adm-line,var(--line));cursor:pointer;border-radius:8px;}
 .st-person:hover{background:rgba(47,111,237,.06);}
@@ -858,6 +889,10 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
         <span class="nav-label">Statistika</span>
       </a></li>
+      <li><a href="#" id="navPoints">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <span class="nav-label">Pointlar</span>
+      </a></li>
       <li><a href="#" id="navGradebook">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         <span class="nav-label">Test natijalar</span>
@@ -1154,6 +1189,25 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <p>Hali "O'quv jarayoni" bo'limida guruh va talaba yaratilmagan.</p>
       </div>
       <p id="statsLoading" style="color:var(--gray); text-align:center; padding:12px;"></p>
+    </section>
+
+    <!-- ===== POINTLAR ===== -->
+    <section id="view-points" hidden>
+      <div class="oj-header">
+        <div>
+          <h1><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> Pointlar</h1>
+          <p>Talabalar reytingi. Talabani bossangiz — qaysi yo'nalishdan point olgani yoki yo'qotgani va nega umumiy point shuncha ekani ko'rinadi.</p>
+        </div>
+        <div class="st-controls st-toolbar">
+          <div class="st-row">
+            <select id="apGroup" class="st-select"><option value="">Barcha guruhlar</option></select>
+            <select id="apMonth" class="st-select" title="Oyni tanlang"></select>
+            <input type="search" id="apSearch" class="ap-search" placeholder="Talaba qidirish…">
+            <button class="btn btn-ghost btn-sm" id="apRefresh" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
+          </div>
+        </div>
+      </div>
+      <div id="apBody"></div>
     </section>
 
     <!-- ===== LEVELS OVERVIEW ===== -->
@@ -3025,6 +3079,17 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 </div>
 
 <!-- ===== MODAL: Chiqib ketgan talabalar ===== -->
+<div class="modal-overlay" id="modalPointsDetail" hidden>
+  <div class="modal-box" style="max-width:720px; width:94vw; max-height:90vh; overflow:auto;">
+    <h2 class="modal-title" id="apDetTitle">Point tafsiloti</h2>
+    <div id="apDetBody"></div>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn btn-ghost" type="button" id="apDetCopy">Tushuntirish matnini nusxalash</button>
+      <button class="btn btn-ghost" type="button" onclick="closeModal('modalPointsDetail')">Yopish</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modalOjLeft" hidden>
   <div class="modal-box" style="max-width:640px; width:94vw; max-height:90vh; overflow:auto;">
     <h2 class="modal-title" id="ojLeftTitle">Chiqib ketgan talabalar</h2>
@@ -4907,6 +4972,7 @@ const ADMIN_VIEW_NAV_MAP = {
   'oquv-students': 'navOquvJarayoni',
   'oquv-progress': 'navOquvJarayoni',
   'stats': 'navStats',
+  'points': 'navPoints',
   'gradebook': 'navGradebook',
   'teachers': 'navTeachers',
   'broadcast': 'navBroadcast',
@@ -4952,6 +5018,8 @@ function switchView(view){
   }catch(err){}
   document.getElementById('view-home').hidden = view !== 'home';
   document.getElementById('view-stats').hidden = view !== 'stats';
+  document.getElementById('view-points').hidden = view !== 'points';
+  document.getElementById('navPoints').classList.toggle('active', view === 'points');
   document.getElementById('navHome').classList.toggle('active', view === 'home');
   document.getElementById('navStats').classList.toggle('active', view === 'stats');
   viewLevels.hidden = view !== 'levels';
@@ -5058,6 +5126,11 @@ document.getElementById('navTeachers').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('teachers');
   loadTeachers();
+});
+document.getElementById('navPoints').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('points');
+  apOpenPage();
 });
 document.getElementById('navGradebook').addEventListener('click', (e) => {
   e.preventDefault();
@@ -7606,14 +7679,14 @@ function stTestInfo(s, unitsByGroup){
   const take = u => {
     if (seen[u]) return; seen[u] = true;
     const v = sc[u]; if (v === undefined || v === null || v === '') return;
-    const n = Number(v); if (isFinite(n)) { vals.push(Math.max(0, Math.min(100, n))); dated.push({ v: Math.max(0, Math.min(100, n)), ts: typeof stamps[u] === 'number' ? stamps[u] : -1, i: dated.length }); }
+    const n = Number(v); if (isFinite(n)) { vals.push(Math.max(0, Math.min(100, n))); dated.push({ v: Math.max(0, Math.min(100, n)), ts: typeof stamps[u] === 'number' ? stamps[u] : -1, i: dated.length, u }); }
   };
   units.forEach(take);
   Object.keys(sc).forEach(take);
   const n = vals.length; if (!n) return null;
   const mean = arr => arr.reduce((x, y) => x + y, 0) / arr.length;
   dated.sort((a, b) => a.ts !== b.ts ? a.ts - b.ts : a.i - b.i);
-  const info = { n, avg: Math.round(mean(vals)), last: Math.round(vals[n - 1]), latest: Math.round(dated[dated.length - 1].v), recent: null, earlier: null, delta: null };
+  const info = { n, avg: Math.round(mean(vals)), last: Math.round(vals[n - 1]), latest: Math.round(dated[dated.length - 1].v), latestUnit: dated[dated.length - 1].u, latestTs: dated[dated.length - 1].ts, recent: null, earlier: null, delta: null };
   if (n >= 2) {
     const k = n >= 4 ? 2 : 1;
     info.recent = Math.round(mean(vals.slice(n - k)));
@@ -8478,6 +8551,187 @@ async function stPublishTopPointers(mode){
     console.warn('Top Pointers yuborilmadi:', err);
   } finally { _tpBusy = false; }
 }
+// ============================================================
+// POINTLAR (admin): barcha talabalar reytingi + har bir talaba uchun "nega shuncha point" tafsiloti.
+// Hisob talaba profilidagi bilan bir xil (statistikadan mustaqil):
+//   davomat: keldi 10 / kech 5 / kelmadi 0;  uy vazifa: to'liq 10, qisman foiziga qarab, qilinmagan 0;
+//   so'nggi test ball (gradebook);  qo'lda qo'shilgan/ayirilgan point (oquv_progress/{ID}/bonus).
+// ============================================================
+const AP = { attYes: 10, attLate: 5, attNo: 0, hwFull: 10 };
+let _apMonth = '', _apData = null, _apToken = 0, _apSort = 'total', _apDir = -1, _apInited = false, _apCur = null;
+
+function apCalc(list, bonus, test){
+  const o = { lessons: [], yes: 0, late: 0, no: 0, att: 0, attMax: 0, hwN: 0, hwFull: 0, hwPart: 0, hwNo: 0, hw: 0, hwMax: 0,
+              test: test ? test.score : 0, testInfo: test || null, bonusList: bonus || [], plus: 0, minus: 0 };
+  list.slice().sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0).forEach(x => {
+    if (x.a === '' && x.hw === null) return;
+    let ap = null, hp = null;
+    if (x.a === 'yes') { ap = AP.attYes; o.yes++; } else if (x.a === 'late') { ap = AP.attLate; o.late++; } else if (x.a === 'no') { ap = AP.attNo; o.no++; }
+    if (ap !== null) { o.att += ap; o.attMax += AP.attYes; }
+    if (x.hw !== null) {
+      hp = x.hw >= 100 ? AP.hwFull : x.hw <= 0 ? 0 : Math.round(x.hw / 100 * AP.hwFull);
+      o.hw += hp; o.hwMax += AP.hwFull; o.hwN++;
+      if (x.hw >= 100) o.hwFull++; else if (x.hw <= 0) o.hwNo++; else o.hwPart++;
+    }
+    o.lessons.push({ date: x.date, a: x.a, ap, hw: x.hw, hp });
+  });
+  o.bonusList.forEach(b => { if (b.points > 0) o.plus += b.points; else if (b.points < 0) o.minus += b.points; });
+  o.bonus = o.plus + o.minus;
+  o.raw = o.att + o.hw + o.test + o.bonus;
+  o.total = Math.max(0, Math.round(o.raw));
+  return o;
+}
+function apSigned(n){ return n > 0 ? '+' + n : n < 0 ? '\u2212' + Math.abs(n) : '0'; }
+function apDmy(d){ return d ? d.slice(8, 10) + '.' + d.slice(5, 7) + '.' + d.slice(0, 4) : ''; }
+
+function apInit(){
+  if (_apInited) return; _apInited = true;
+  const now = new Date(), opts = [], FIRST = '2026-09';
+  _apMonth = rpYm(now);
+  for (let i = 0; i < 60; i++) { const ym = rpYm(new Date(now.getFullYear(), now.getMonth() - i, 1)); if (ym < FIRST && i > 0) break; opts.push('<option value="' + ym + '">' + rpLabel(ym) + '</option>'); }
+  const ms = document.getElementById('apMonth'); ms.innerHTML = opts.join(''); ms.value = _apMonth;
+  ms.addEventListener('change', () => { _apMonth = ms.value; apLoad(false); });
+  document.getElementById('apGroup').addEventListener('change', apRender);
+  document.getElementById('apSearch').addEventListener('input', apRender);
+  document.getElementById('apRefresh').addEventListener('click', () => apLoad(true));
+  document.getElementById('apBody').addEventListener('click', e => {
+    const th = e.target.closest('th[data-sort]');
+    if (th) { const k = th.dataset.sort; if (_apSort === k) _apDir = -_apDir; else { _apSort = k; _apDir = k === 'name' ? 1 : -1; } apRender(); return; }
+    const tr = e.target.closest('tr[data-sid]');
+    if (tr) apOpenDetail(tr.dataset.sid);
+  });
+  document.getElementById('apDetCopy').addEventListener('click', apCopyExplain);
+}
+function apOpenPage(){ apInit(); apLoad(false); }
+
+async function apLoad(force){
+  const body = document.getElementById('apBody');
+  const token = ++_apToken, ym = _apMonth, r = rpRange(ym);
+  body.innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i><i></i></div>';
+  try {
+    const back = Math.max(100, Math.ceil((Date.now() - new Date(r.from + 'T00:00:00').getTime()) / 864e5) + 2);
+    const [data, tIdx] = await Promise.all([stFetch(!!force, back), stLoadTests(!!force)]);
+    const bySt = {}, people = [];
+    data.rows.forEach(x => { if (x.date >= r.from && x.date <= r.to) (bySt[x.sid] = bySt[x.sid] || []).push(x); });
+    data.groups.forEach(g => g.students.forEach(s => people.push({ g, s })));
+    const rows = await Promise.all(people.map(async ({ g, s }) => {
+      const bonus = [];
+      try {
+        const bs = await db.collection('oquv_progress').doc(s.id).collection('bonus').where('date', '>=', r.from).where('date', '<=', r.to).get();
+        bs.forEach(d => { const x = d.data() || {}, pt = Number(x.points) || 0; if (pt) bonus.push({ id: d.id, date: String(x.date || ''), points: pt, reason: String(x.reason || '') }); });
+      } catch (e) {}
+      bonus.sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+      const tst = tIdx ? tIdx.get(s.id, s.name) : null;
+      const test = tst && tst.latest !== undefined ? { score: tst.latest, unit: tst.latestUnit || '', ts: tst.latestTs } : null;
+      return { sid: s.id, name: s.name || '—', gid: g.id, group: g.name || '', P: apCalc(bySt[s.id] || [], bonus, test) };
+    }));
+    if (token !== _apToken) return;
+    _apData = { ym, rows, groups: data.groups, tests: !!tIdx };
+    const sel = document.getElementById('apGroup'), cur = sel.value;
+    sel.innerHTML = '<option value="">Barcha guruhlar</option>' + data.groups.map(g => '<option value="' + escHtml(g.id) + '">' + escHtml(g.name || '—') + '</option>').join('');
+    sel.value = data.groups.some(g => g.id === cur) ? cur : '';
+    apRender();
+  } catch (err) {
+    console.error('Pointlar yuklanmadi:', err);
+    if (token === _apToken) body.innerHTML = '<p style="color:#c0392b;">Pointlarni yuklab bo\'lmadi. Internetni tekshirib, yangilash tugmasini bosing.</p>';
+  }
+}
+
+function apRender(){
+  const body = document.getElementById('apBody');
+  if (!_apData) return;
+  const gid = document.getElementById('apGroup').value, q = document.getElementById('apSearch').value.trim().toLowerCase();
+  let rows = _apData.rows.filter(r => (!gid || r.gid === gid) && (!q || r.name.toLowerCase().includes(q)));
+  if (!_apData.rows.length) { body.innerHTML = '<div class="oj-empty"><h3>Ma\'lumot yo\'q</h3><p>Hali "O\'quv jarayoni" bo\'limida talaba yaratilmagan.</p></div>'; return; }
+  const val = r => _apSort === 'name' ? r.name.toLowerCase() : _apSort === 'att' ? r.P.att : _apSort === 'hw' ? r.P.hw : _apSort === 'test' ? r.P.test : _apSort === 'bonus' ? r.P.bonus : r.P.total;
+  const byTotal = rows.slice().sort((a, b) => b.P.total - a.P.total);
+  const rank = {}; byTotal.forEach(r => { rank[r.sid] = 1 + byTotal.filter(o => o.P.total > r.P.total).length; });
+  rows.sort((a, b) => { const x = val(a), y = val(b); return (x < y ? -1 : x > y ? 1 : a.name.localeCompare(b.name)) * _apDir; });
+  const avg = rows.length ? Math.round(rows.reduce((t, r) => t + r.P.total, 0) / rows.length) : 0;
+  const th = (k, label, l) => '<th class="' + (l ? 'l ' : '') + (_apSort === k ? 'on' : '') + '" data-sort="' + k + '" data-arrow="' + (_apDir < 0 ? '\u25BC' : '\u25B2') + '">' + label + '</th>';
+  const cls = n => n > 0 ? 'ap-pos' : n < 0 ? 'ap-neg' : 'ap-mut';
+  let h = '<p class="ap-sum">' + rpLabel(_apData.ym) + ' · ' + rows.length + ' ta talaba · o\'rtacha ' + avg + ' point' + (_apData.tests ? '' : ' · <span class="ap-neg">test natijalari yuklanmadi</span>') + '</p>';
+  h += '<div class="ap-card"><table class="ap-table"><thead><tr><th class="l">#</th>' + th('name', 'Talaba', true) + th('att', 'Davomat') + th('hw', 'Uy vazifa') + th('test', 'Test') + th('bonus', 'Qo\'shimcha') + th('total', 'Jami') + '</tr></thead><tbody>';
+  rows.forEach(r => {
+    const rk = rank[r.sid];
+    h += '<tr data-sid="' + escHtml(r.sid) + '"><td class="l ap-rk r' + Math.min(rk, 4) + '">' + rk + '</td>' +
+      '<td class="l ap-nm">' + escHtml(r.name) + '<span class="ap-gr">' + escHtml(r.group) + '</span></td>' +
+      '<td>' + (r.P.attMax ? r.P.att + ' <small class="ap-mut">/ ' + r.P.attMax + '</small>' : '<span class="ap-mut">—</span>') + '</td>' +
+      '<td>' + (r.P.hwMax ? r.P.hw + ' <small class="ap-mut">/ ' + r.P.hwMax + '</small>' : '<span class="ap-mut">—</span>') + '</td>' +
+      '<td>' + (r.P.testInfo ? r.P.test : '<span class="ap-mut">—</span>') + '</td>' +
+      '<td class="' + cls(r.P.bonus) + '">' + apSigned(r.P.bonus) + '</td>' +
+      '<td class="ap-tot">' + r.P.total + '</td></tr>';
+  });
+  if (!rows.length) h += '<tr><td colspan="7" class="l ap-mut" style="padding:18px;cursor:default;">Hech narsa topilmadi.</td></tr>';
+  h += '</tbody></table></div>';
+  body.innerHTML = h;
+}
+
+// Talabaga tushuntirish uchun: qaysi yo'nalishdan nechta point olgan / yo'qotgan
+function apExplainText(r){
+  const P = r.P, t = [];
+  t.push(r.name + ' — ' + rpLabel(_apData.ym) + ' uchun jami ' + P.total + ' point.');
+  t.push('Davomat: ' + P.att + (P.attMax ? ' / ' + P.attMax : '') + ' (keldi ' + P.yes + ' × 10, kech qoldi ' + P.late + ' × 5, kelmadi ' + P.no + ' × 0)' + (P.attMax - P.att > 0 ? ' — yo\'qotilgan ' + (P.attMax - P.att) : '') + '.');
+  t.push('Uy vazifa: ' + P.hw + (P.hwMax ? ' / ' + P.hwMax : '') + ' (to\'liq ' + P.hwFull + ', qisman ' + P.hwPart + ', qilinmagan ' + P.hwNo + ')' + (P.hwMax - P.hw > 0 ? ' — yo\'qotilgan ' + (P.hwMax - P.hw) : '') + '.');
+  t.push(P.testInfo ? 'So\'nggi test (' + (P.testInfo.unit || 'test') + '): ' + P.test + ' ball → +' + P.test + ' point.' : 'So\'nggi test natijasi kiritilmagan.');
+  P.bonusList.slice().reverse().forEach(b => t.push((b.points > 0 ? '+' : '\u2212') + Math.abs(b.points) + ' — ' + (b.reason || 'sabab ko\'rsatilmagan') + ' (' + apDmy(b.date) + ')'));
+  t.push('Jami: ' + P.att + ' + ' + P.hw + ' + ' + P.test + (P.bonus ? (P.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(P.bonus) : '') + ' = ' + P.total + '.');
+  return t.join('\n');
+}
+
+function apOpenDetail(sid){
+  const r = _apData && _apData.rows.find(x => x.sid === sid); if (!r) return;
+  _apCur = r;
+  const P = r.P, lostAtt = P.attMax - P.att, lostHw = P.hwMax - P.hw;
+  const cls = n => n > 0 ? 'ap-pos' : n < 0 ? 'ap-neg' : 'ap-mut';
+  document.getElementById('apDetTitle').textContent = r.name;
+  const aLbl = { yes: 'Keldi', late: 'Kech qoldi', no: 'Kelmadi' };
+  let h = '<div class="ap-big"><b>' + P.total + '</b><span>point · ' + escHtml(r.group) + ' · ' + rpLabel(_apData.ym) + '</span></div>';
+
+  h += '<div class="ap-h">Qaysi yo\'nalishdan qancha</div><table class="ap-mini"><thead><tr><th class="l">Yo\'nalish</th><th>Olgan</th><th>Imkoniyat</th><th>Yo\'qotgan</th></tr></thead><tbody>';
+  h += '<tr><td class="l"><b>Davomat</b><small>' + (P.attMax ? 'keldi ' + P.yes + ' × 10 · kech qoldi ' + P.late + ' × 5 · kelmadi ' + P.no + ' × 0' : 'hali davomat belgilanmagan') + '</small></td><td class="ap-pos">' + (P.attMax ? '+' + P.att : '—') + '</td><td>' + (P.attMax || '—') + '</td><td class="' + (lostAtt ? 'ap-neg' : 'ap-mut') + '">' + (lostAtt ? '\u2212' + lostAtt : '0') + '</td></tr>';
+  h += '<tr><td class="l"><b>Uy vazifa</b><small>' + (P.hwN ? 'to\'liq ' + P.hwFull + ' · qisman ' + P.hwPart + ' · qilinmagan ' + P.hwNo : 'hali uy vazifa belgilanmagan') + '</small></td><td class="ap-pos">' + (P.hwN ? '+' + P.hw : '—') + '</td><td>' + (P.hwMax || '—') + '</td><td class="' + (lostHw ? 'ap-neg' : 'ap-mut') + '">' + (lostHw ? '\u2212' + lostHw : '0') + '</td></tr>';
+  if (P.testInfo) {
+    const ts = P.testInfo.ts > 0 ? ' · ' + apDmy(new Date(P.testInfo.ts).toISOString().slice(0, 10)) : '';
+    h += '<tr><td class="l"><b>So\'nggi test</b><small>' + escHtml(P.testInfo.unit || 'Test') + ts + ' · ' + P.test + ' ball pointga qo\'shildi</small></td><td class="ap-pos">+' + P.test + '</td><td>100</td><td class="' + (P.test < 100 ? 'ap-neg' : 'ap-mut') + '">' + (P.test < 100 ? '\u2212' + (100 - P.test) : '0') + '</td></tr>';
+  } else {
+    h += '<tr><td class="l"><b>So\'nggi test</b><small>test natijasi kiritilmagan</small></td><td class="ap-mut">—</td><td>—</td><td class="ap-mut">—</td></tr>';
+  }
+  h += '<tr><td class="l"><b>Qo\'shimcha point</b><small>admin qo\'lda bergan</small></td><td class="' + (P.plus ? 'ap-pos' : 'ap-mut') + '">' + (P.plus ? '+' + P.plus : '0') + '</td><td>—</td><td>—</td></tr>';
+  h += '<tr><td class="l"><b>Ayirilgan point</b><small>admin qo\'lda ayirgan</small></td><td>—</td><td>—</td><td class="' + (P.minus ? 'ap-neg' : 'ap-mut') + '">' + (P.minus ? '\u2212' + Math.abs(P.minus) : '0') + '</td></tr>';
+  h += '</tbody></table>';
+  h += '<div class="ap-formula">Jami: ' + P.att + ' + ' + P.hw + ' + ' + P.test + (P.bonus ? (P.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(P.bonus) : '') + ' = ' + P.total + (P.raw < 0 ? ' (point 0 dan past bo\'lmaydi)' : '') + '</div>';
+
+  h += '<div class="ap-h">Dars-ma-dars</div>';
+  if (P.lessons.length) {
+    h += '<div class="ap-scroll"><table class="ap-mini"><thead><tr><th class="l">Sana</th><th class="l">Davomat</th><th>Point</th><th class="l">Uy vazifa</th><th>Point</th><th>Dars jami</th></tr></thead><tbody>';
+    P.lessons.forEach(l => {
+      const hwTxt = l.hw === null ? '—' : l.hw >= 100 ? 'To\'liq' : l.hw <= 0 ? 'Qilinmagan' : 'Qisman (' + Math.round(l.hw) + '%)';
+      const tot = (l.ap || 0) + (l.hp || 0);
+      h += '<tr><td class="l">' + apDmy(l.date) + '</td><td class="l">' + (aLbl[l.a] || '—') + '</td><td class="' + (l.ap === null ? 'ap-mut' : l.ap < AP.attYes ? 'ap-neg' : 'ap-pos') + '">' + (l.ap === null ? '—' : l.ap) + '</td><td class="l">' + hwTxt + '</td><td class="' + (l.hp === null ? 'ap-mut' : l.hp < AP.hwFull ? 'ap-neg' : 'ap-pos') + '">' + (l.hp === null ? '—' : l.hp) + '</td><td><b>' + tot + '</b></td></tr>';
+    });
+    h += '</tbody></table></div><p class="st-note">Qizil — shu darsda to\'liq 10 pointdan kam olingan.</p>';
+  } else {
+    h += '<p class="st-note">Bu oy hali davomat yoki uy vazifa belgilanmagan.</p>';
+  }
+
+  h += '<div class="ap-h">Qo\'lda qo\'shilgan / ayirilgan pointlar</div>';
+  if (P.bonusList.length) {
+    h += '<table class="ap-mini"><tbody>' + P.bonusList.map(b => '<tr><td class="l" style="width:70px;">' + apDmy(b.date) + '</td><td class="' + cls(b.points) + '" style="width:56px;"><b>' + apSigned(b.points) + '</b></td><td class="l">' + escHtml(b.reason || 'Sabab ko\'rsatilmagan') + '</td></tr>').join('') + '</tbody></table>';
+  } else {
+    h += '<p class="st-note">Bu oy qo\'lda point qo\'shilmagan ham, ayirilmagan ham. Qo\'shish uchun: O\'quv jarayoni → talaba → «Point qo\'shish / ayirish».</p>';
+  }
+  document.getElementById('apDetBody').innerHTML = h;
+  openModal('modalPointsDetail');
+}
+function apCopyExplain(){
+  if (!_apCur) return;
+  const txt = apExplainText(_apCur), btn = document.getElementById('apDetCopy'), old = btn.textContent;
+  const done = () => { btn.textContent = 'Nusxalandi!'; setTimeout(() => { btn.textContent = old; }, 1800); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, () => window.prompt('Nusxalang:', txt));
+  else window.prompt('Nusxalang:', txt);
+}
+
 async function loadOjGroups() {
   const grid = document.getElementById('ojGroupsGrid');
   const empty = document.getElementById('ojGroupsEmpty');
