@@ -2256,7 +2256,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
       <!-- Qo'shimcha ball (admin talabaga qo'lda ball qo'shadi) -->
       <div class="oj-form-card" id="ojBonusCard">
         <h3 style="margin:0 0 6px; font-size:1rem; font-weight:600;">Point qo'shish / ayirish</h3>
-        <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;">Talabaning 1 oylik POINT iga qo'shiladi yoki undan ayiriladi (yuqori chegara yo'q). Sana qaysi oyga to'g'ri kelsa, o'sha oyda hisoblanadi. Sabab talabaning profilida ko'rinadi.</div>
+        <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;">Davomat (keldi 10 / kech 5 / kelmadi 0), uy vazifa (to'liq 10) va eng so'nggi test ball pointga AVTOMATIK qo'shiladi — buni bu yerda kiritish shart emas. Bu bo'limda esa istagan talabaga istagan paytda qo'shimcha point qo'shasiz yoki ayirasiz (yuqori chegara yo'q). Sana qaysi oyga to'g'ri kelsa, o'sha oyda hisoblanadi. Sabab talabaning profilida ko'rinadi.</div>
         <div class="oj-form-grid">
           <label class="oj-label">
             <span>Sana</span>
@@ -2273,16 +2273,12 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <div style="grid-column:1/-1;">
             <div style="font-size:.72rem;color:var(--gray);margin-bottom:6px;">Tez sabab tanlash:</div>
             <div id="ojBonusChips" style="display:flex;flex-wrap:wrap;gap:6px;">
-              <button type="button" class="oj-bchip up" data-reason="Uy vazifa qildi">Uy vazifa</button>
               <button type="button" class="oj-bchip up" data-reason="Darsda yaxshi o'tirdi">Darsda yaxshi o'tirdi</button>
               <button type="button" class="oj-bchip up" data-reason="Xulqi yaxshi">Xulqi yaxshi</button>
-              <button type="button" class="oj-bchip up" data-reason="Darsga keldi">Darsga keldi</button>
+              <button type="button" class="oj-bchip up" data-reason="Qo'shimcha point">Qo'shimcha point</button>
               <button type="button" class="oj-bchip up" data-reason="Flashcardda guruhi yutdi">Flashcard g'alabasi</button>
               <button type="button" class="oj-bchip up" data-reason="O'zini ko'rsata oldi">O'zini ko'rsatdi</button>
               <button type="button" class="oj-bchip down" data-reason="Darsda gaplashib o'tirdi">Darsda gaplashdi</button>
-              <button type="button" class="oj-bchip down" data-reason="Uy vazifa qilmadi">Uy vazifa qilmadi</button>
-              <button type="button" class="oj-bchip down" data-reason="Darsga kelmadi">Darsga kelmadi</button>
-              <button type="button" class="oj-bchip down" data-reason="Darsga kech qoldi">Kech qoldi</button>
             </div>
           </div>
           <style>
@@ -7606,16 +7602,18 @@ function stNameKey(s){ return String(s || '').toLowerCase().replace(/[\u02bb\u02
 //  delta = recent − earlier (kamida 2 ta test bo'lsagina).
 function stTestInfo(s, unitsByGroup){
   const sc = s.scores || {}, units = (unitsByGroup && unitsByGroup[s.group]) || [], vals = [], seen = {};
+  const stamps = s.scoreTimestamps || {}, dated = [];
   const take = u => {
     if (seen[u]) return; seen[u] = true;
     const v = sc[u]; if (v === undefined || v === null || v === '') return;
-    const n = Number(v); if (isFinite(n)) vals.push(Math.max(0, Math.min(100, n)));
+    const n = Number(v); if (isFinite(n)) { vals.push(Math.max(0, Math.min(100, n))); dated.push({ v: Math.max(0, Math.min(100, n)), ts: typeof stamps[u] === 'number' ? stamps[u] : -1, i: dated.length }); }
   };
   units.forEach(take);
   Object.keys(sc).forEach(take);
   const n = vals.length; if (!n) return null;
   const mean = arr => arr.reduce((x, y) => x + y, 0) / arr.length;
-  const info = { n, avg: Math.round(mean(vals)), last: Math.round(vals[n - 1]), recent: null, earlier: null, delta: null };
+  dated.sort((a, b) => a.ts !== b.ts ? a.ts - b.ts : a.i - b.i);
+  const info = { n, avg: Math.round(mean(vals)), last: Math.round(vals[n - 1]), latest: Math.round(dated[dated.length - 1].v), recent: null, earlier: null, delta: null };
   if (n >= 2) {
     const k = n >= 4 ? 2 : 1;
     info.recent = Math.round(mean(vals.slice(n - k)));
@@ -8429,24 +8427,17 @@ function stScheduleLeaderboard(){
 }
 
 // ----- "Top Pointers" (settings/topPointers): barcha talabalarning joriy oydagi POINT i -----
-// Hisob talaba sahifasidagi bilan bir xil: 60% davomat + 40% uy vazifa − jazo (0–100) + qo'shimcha/ayirilgan point (chegarasiz, 0 dan past emas).
+// Hisob talaba sahifasidagi bilan bir xil, statistikadan MUSTAQIL: davomat (keldi 10 / kech 5 / kelmadi 0) + uy vazifa (to'liq 10, qisman foiziga qarab, qilinmagan 0)
+// + eng so'nggi test ball + admin qo'lda qo'shgan/ayirgan point (chegarasiz, 0 dan past emas). Jazo pointga ta'sir qilmaydi.
 // Saytga faqat ism + familiya bosh harfi, guruh va point chiqadi; talaba o'zini ID'ning xeshi orqali topadi.
 function stTpHash(str){ str = String(str); let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
 function stTpBase(list){
-  let yes = 0, late = 0, no = 0, hwSum = 0, hwN = 0, pun = 0;
+  let att = 0, hw = 0, any = false;
   list.forEach(x => {
-    if (x.a === 'yes') yes++; else if (x.a === 'late') late++; else if (x.a === 'no') no++;
-    if (x.hw !== null) { hwSum += x.hw; hwN++; }
-    if (x.pun) pun++;
+    if (x.a === 'yes') { att += 10; any = true; } else if (x.a === 'late') { att += 5; any = true; } else if (x.a === 'no') any = true;
+    if (x.hw !== null) { any = true; hw += x.hw >= 100 ? 10 : x.hw <= 0 ? 0 : Math.round(x.hw / 10); }
   });
-  const marked = yes + late + no;
-  const attRaw = marked ? (yes + 0.5 * late) / marked * 100 : null;
-  const hwRaw = hwN ? hwSum / hwN : null;
-  let v;
-  if (attRaw === null) { if (hwRaw === null) return null; v = hwRaw; }
-  else v = 0.6 * attRaw + 0.4 * (hwRaw === null ? attRaw : hwRaw);
-  v -= Math.min(20, pun * 2);
-  return Math.round(Math.max(0, Math.min(100, v)));
+  return any ? att + hw : null;
 }
 let _tpBusy = false;
 // mode: 'auto' (30 daqiqadan eski bo'lsagina) yoki 'force'
@@ -8459,6 +8450,7 @@ async function stPublishTopPointers(mode){
       try { const o = await ref.get(); if (o.exists && Date.now() - (o.data().updatedAtMs || 0) < 30 * 60e3) return; } catch (e) {}
     }
     const data = await stFetch(mode === 'force', 100);
+    const tIdx = await stLoadTests(mode === 'force');   // eng so'nggi test ball pointga qo'shiladi
     const ym = rpYm(new Date()), r = rpRange(ym);
     const bySt = {};
     data.rows.forEach(x => { if (x.date >= r.from && x.date <= r.to) (bySt[x.sid] = bySt[x.sid] || []).push(x); });
@@ -8472,7 +8464,9 @@ async function stPublishTopPointers(mode){
         bs.forEach(d => { bonus += Number(d.data().points) || 0; });
       } catch (e) {}
       const base = stTpBase(bySt[s.id] || []);
-      const total = base === null ? (bonus ? Math.max(0, bonus) : null) : Math.max(0, base + bonus);
+      const tst = tIdx ? tIdx.get(s.id, s.name) : null;
+      const test = tst && tst.latest !== undefined ? tst.latest : 0;
+      const total = (base === null && !bonus && !test) ? null : Math.max(0, (base || 0) + test + bonus);
       if (total && total > 0) out.push({ h: stTpHash(s.id), name: stPublicName(s.name), group: g.name || '', points: total });
     }));
     out.sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
