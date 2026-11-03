@@ -2255,24 +2255,46 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
       <!-- Qo'shimcha ball (admin talabaga qo'lda ball qo'shadi) -->
       <div class="oj-form-card" id="ojBonusCard">
-        <h3 style="margin:0 0 6px; font-size:1rem; font-weight:600;">Qo'shimcha ball</h3>
-        <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;">Talaba umumiy ballariga qo'shiladi. Ball qo'shilgan sana qaysi oyga to'g'ri kelsa, o'sha oyda hisoblanadi.</div>
+        <h3 style="margin:0 0 6px; font-size:1rem; font-weight:600;">Point qo'shish / ayirish</h3>
+        <div style="font-size:.78rem;color:var(--gray);margin-bottom:14px;">Talabaning 1 oylik POINT iga qo'shiladi yoki undan ayiriladi (yuqori chegara yo'q). Sana qaysi oyga to'g'ri kelsa, o'sha oyda hisoblanadi. Sabab talabaning profilida ko'rinadi.</div>
         <div class="oj-form-grid">
           <label class="oj-label">
             <span>Sana</span>
             <input type="date" id="ojBonusDate" class="oj-input">
           </label>
           <label class="oj-label">
-            <span>Ball (1–100)</span>
+            <span>Point (1–100)</span>
             <input type="number" min="1" max="100" step="1" id="ojBonusPoints" class="oj-input" placeholder="Masalan: 5">
           </label>
           <label class="oj-label" style="grid-column:1/-1;">
             <span>Sabab (talaba ko'radi)</span>
             <input type="text" id="ojBonusReason" class="oj-input" maxlength="120" placeholder="Masalan: darsda faol ishtirok etdi">
           </label>
+          <div style="grid-column:1/-1;">
+            <div style="font-size:.72rem;color:var(--gray);margin-bottom:6px;">Tez sabab tanlash:</div>
+            <div id="ojBonusChips" style="display:flex;flex-wrap:wrap;gap:6px;">
+              <button type="button" class="oj-bchip up" data-reason="Uy vazifa qildi">Uy vazifa</button>
+              <button type="button" class="oj-bchip up" data-reason="Darsda yaxshi o'tirdi">Darsda yaxshi o'tirdi</button>
+              <button type="button" class="oj-bchip up" data-reason="Xulqi yaxshi">Xulqi yaxshi</button>
+              <button type="button" class="oj-bchip up" data-reason="Darsga keldi">Darsga keldi</button>
+              <button type="button" class="oj-bchip up" data-reason="Flashcardda guruhi yutdi">Flashcard g'alabasi</button>
+              <button type="button" class="oj-bchip up" data-reason="O'zini ko'rsata oldi">O'zini ko'rsatdi</button>
+              <button type="button" class="oj-bchip down" data-reason="Darsda gaplashib o'tirdi">Darsda gaplashdi</button>
+              <button type="button" class="oj-bchip down" data-reason="Uy vazifa qilmadi">Uy vazifa qilmadi</button>
+              <button type="button" class="oj-bchip down" data-reason="Darsga kelmadi">Darsga kelmadi</button>
+              <button type="button" class="oj-bchip down" data-reason="Darsga kech qoldi">Kech qoldi</button>
+            </div>
+          </div>
+          <style>
+            .oj-bchip{padding:.32em .75em;border-radius:99px;font-size:.74rem;font-weight:600;cursor:pointer;border:1.5px solid var(--line);background:var(--surface,#f8f9fa);color:var(--gray);}
+            .oj-bchip.up{border-color:rgba(31,174,122,.4);color:#1FAE7A;}
+            .oj-bchip.down{border-color:rgba(192,57,43,.4);color:#c0392b;}
+            .oj-bchip:hover{filter:brightness(.96);}
+          </style>
         </div>
         <div style="display:flex; gap:.8em; align-items:center; margin-top:14px; flex-wrap:wrap;">
-          <button type="button" class="btn btn-primary" id="ojBonusAddBtn">Ball qo'shish</button>
+          <button type="button" class="btn btn-primary" id="ojBonusAddBtn">+ Point qo'shish</button>
+          <button type="button" class="btn btn-danger" id="ojBonusSubBtn">&minus; Point ayirish</button>
           <span class="save-status" id="ojBonusStatus"></span>
           <span style="margin-left:auto;font-size:.85rem;" id="ojBonusTotal"></span>
         </div>
@@ -9661,11 +9683,11 @@ function renderOjBonuses(){
   const all = _ojBonuses;
   const inSel = (_ojMonthSel === 'all' || !_ojMonthSel) ? all : all.filter(b => String(b.date || '').slice(0, 7) === _ojMonthSel);
   const sum = inSel.reduce((t, b) => t + (Number(b.points) || 0), 0);
-  if (totalEl) totalEl.innerHTML = 'Tanlangan oy: <b>+' + sum + '</b> ball';
-  if (!inSel.length) { list.innerHTML = '<div style="color:var(--gray);font-size:.85rem;">Bu oyda qo\'shimcha ball yo\'q.</div>'; return; }
+  if (totalEl) totalEl.innerHTML = 'Tanlangan oy: <b style="color:' + (sum < 0 ? '#c0392b' : '#1FAE7A') + '">' + (sum > 0 ? '+' : sum < 0 ? '\u2212' : '') + Math.abs(sum) + '</b> point';
+  if (!inSel.length) { list.innerHTML = '<div style="color:var(--gray);font-size:.85rem;">Bu oyda qo\'shilgan yoki ayirilgan point yo\'q.</div>'; return; }
   list.innerHTML = inSel.map(b =>
     '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line);">' +
-      '<b style="min-width:44px;color:#1FAE7A;">+' + (Number(b.points) || 0) + '</b>' +
+      '<b style="min-width:44px;color:' + ((Number(b.points) || 0) < 0 ? '#c0392b' : '#1FAE7A') + ';">' + ((Number(b.points) || 0) < 0 ? '\u2212' : '+') + Math.abs(Number(b.points) || 0) + '</b>' +
       '<span style="flex:1;font-size:.88rem;">' + escHtml(b.reason || '—') + '</span>' +
       '<span style="font-size:.78rem;color:var(--gray);">' + escHtml(b.date || '') + '</span>' +
       '<button type="button" class="btn btn-danger btn-sm" data-bonus-del="' + escHtml(b.id) + '" aria-label="O\'chirish">×</button>' +
@@ -9673,20 +9695,22 @@ function renderOjBonuses(){
   list.querySelectorAll('[data-bonus-del]').forEach(btn => btn.addEventListener('click', () => ojDeleteBonus(btn.dataset.bonusDel)));
 }
 async function ojDeleteBonus(id){
-  if (!confirm("Bu qo\u02bcshimcha ballni o\u02bcchirmoqchimisiz?")) return;
+  if (!confirm("Bu yozuvni o\u02bcchirmoqchimisiz?")) return;
   try {
     await db.collection('oquv_progress').doc(_ojActiveStudentId).collection('bonus').doc(id).delete();
     loadOjBonuses();
   } catch(err) { alert("O\u02bcchirishda xatolik."); }
 }
-document.getElementById('ojBonusAddBtn').addEventListener('click', async () => {
+async function ojSaveBonus(sign){
   const status = document.getElementById('ojBonusStatus');
   const date = document.getElementById('ojBonusDate').value;
-  const points = Math.round(Number(document.getElementById('ojBonusPoints').value));
+  const raw = Math.round(Math.abs(Number(document.getElementById('ojBonusPoints').value)));
   const reason = document.getElementById('ojBonusReason').value.trim();
   if (!_ojActiveStudentId) return;
   if (!date) { status.textContent = 'Sanani kiriting'; return; }
-  if (!points || points < 1 || points > 100) { status.textContent = 'Ball 1 dan 100 gacha bo\'lsin'; return; }
+  if (!raw || raw < 1 || raw > 100) { status.textContent = 'Point 1 dan 100 gacha bo\'lsin'; return; }
+  if (sign < 0 && !reason) { status.textContent = 'Ayirish sababini yozing (talaba ko\'radi)'; return; }
+  const points = raw * sign;
   status.textContent = 'Saqlanmoqda…';
   try {
     await db.collection('oquv_progress').doc(_ojActiveStudentId).collection('bonus').add({
@@ -9699,7 +9723,14 @@ document.getElementById('ojBonusAddBtn').addEventListener('click', async () => {
     if (/^\d{4}-\d{2}/.test(date) && _ojMonthSel !== 'all') _ojMonthSel = date.slice(0, 7);
     loadOjBonuses();
     renderOjEntries();
-  } catch(err) { status.textContent = 'Xatolik (qoidalarni tekshiring)'; }
+  } catch(err) { status.textContent = 'Xatolik (Firestore qoidalarini tekshiring)'; }
+}
+document.getElementById('ojBonusAddBtn').addEventListener('click', () => ojSaveBonus(1));
+document.getElementById('ojBonusSubBtn').addEventListener('click', () => ojSaveBonus(-1));
+document.getElementById('ojBonusChips').addEventListener('click', e => {
+  const c = e.target.closest('[data-reason]');
+  if (!c) return;
+  document.getElementById('ojBonusReason').value = c.dataset.reason;
 });
 
 async function loadOjProgressEntries() {
