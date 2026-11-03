@@ -8547,7 +8547,7 @@ async function stPublishTopPointers(mode){
     }));
     out.sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
     await ref.set({
-      period: rpLabel(ym) + ' oyi', ym, count: out.length, top: out.slice(0, 100),
+      period: rpLabel(ym) + ' oyi', ym, count: out.length, top: out.slice(0, 500),
       updatedAtMs: Date.now(), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (err) {
