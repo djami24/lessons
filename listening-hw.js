@@ -538,6 +538,11 @@
             '<input type="number" id="lhwHours" min="0.1" max="1000" step="any" placeholder="Masalan: 24 yoki 30 (bo‘sh — cheklanmagan)"></label>' +
           '<p class="lhw-hint">Muddat saqlangan paytdan boshlab hisoblanadi. Tahrirlashda soatni o‘zgartirsangiz, muddat qaytadan hozirdan boshlanadi. Vaqt tugagach talabalar javob kirita olmaydi.</p>' +
           '<label class="lhw-field"><span>Audio / material havolasi (ixtiyoriy)</span><input type="text" id="lhwMedia" placeholder="https://..."></label>' +
+          '<div class="lhw-bulk">' +
+            '<label class="lhw-field"><span>⚡ Tezkor kiritish — 5 ta javobni bittada qo‘ying</span>' +
+              '<textarea id="lhwBulk" rows="5" spellcheck="false" placeholder="Har qatorda bitta javob (Enter bilan ajrating):&#10;apple&#10;banana | bananas&#10;cat&#10;dog&#10;egg"></textarea></label>' +
+            '<p class="lhw-bulk-st" id="lhwBulkSt">Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying — pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.</p>' +
+          '</div>' +
           '<div class="lhw-answers">' + blanks + '</div>' +
           '<p class="lhw-err" id="lhwFormErr" hidden></p>' +
           '<div class="lhw-actions">' +
@@ -550,6 +555,7 @@
       '<div id="lhwAdminLb" class="lhw-lb-panel" hidden></div>';
 
     document.getElementById('lhwAdminForm').addEventListener('submit', saveExercise);
+    initBulkAnswers();
     loadGroupOptions();
     document.getElementById('lhwCancel').addEventListener('click', resetAdminForm);
     document.getElementById('lhwAdminList').addEventListener('click', onAdminListClick);
@@ -568,6 +574,50 @@
       var list = document.getElementById('lhwAdminList');
       if (list) list.innerHTML = '<div class="lhw-empty">Yuklab bo‘lmadi: ' + esc(e && e.message) + '</div>';
     }));
+  }
+
+  // Tezkor kiritish: bitta oynaga har qatorga bitta javob — bo‘sh joylar avtomatik to‘ladi
+  function parseBulkLines(text) {
+    return String(text || '').split(/\r?\n/)
+      .map(function (l) { return l.replace(/^\s*\d{1,2}\s*[.)\-:]\s+/, '').trim(); })
+      .filter(function (l) { return l.length; });
+  }
+  function initBulkAnswers() {
+    var ta = document.getElementById('lhwBulk');
+    var st = document.getElementById('lhwBulkSt');
+    var inputs = document.querySelectorAll('#lhwAdminForm input[data-ans]');
+    if (!ta || !inputs.length) return;
+    var defaultMsg = st ? st.textContent : '';
+    function setStatus(msg, kind) { if (st) { st.textContent = msg; st.className = 'lhw-bulk-st' + (kind ? ' ' + kind : ''); } }
+    function fill(lines, start) {
+      var n = 0;
+      for (var i = 0; i < lines.length && start + i < BLANKS; i++) {
+        inputs[start + i].value = lines[i].slice(0, MAX_ANSWER_LEN);
+        n++;
+      }
+      return n;
+    }
+    ta.addEventListener('input', function () {
+      var lines = parseBulkLines(ta.value);
+      if (!lines.length) { setStatus(defaultMsg); return; }
+      // oyna bo‘sh qolsa ham, kiritilgan qatorlar sonicha maydonlar to‘ladi; qolganlari tegilmaydi
+      for (var i = 0; i < BLANKS; i++) inputs[i].value = lines[i] ? lines[i].slice(0, MAX_ANSWER_LEN) : '';
+      if (lines.length === BLANKS) setStatus('✓ ' + BLANKS + ' ta javob joylashtirildi — pastda tekshirib, “Saqlash” ni bosing.', 'ok');
+      else if (lines.length < BLANKS) setStatus(lines.length + ' / ' + BLANKS + ' ta javob topildi. Yana ' + (BLANKS - lines.length) + ' ta qator kerak.', 'warn');
+      else setStatus(lines.length + ' ta qator kiritildi, faqat dastlabki ' + BLANKS + ' tasi olindi.', 'warn');
+    });
+    // Istalgan bo‘sh joy maydoniga ko‘p qatorli matn joylansa — shu maydondan boshlab hammasiga taqsimlanadi
+    inputs.forEach(function (inp, idx) {
+      inp.addEventListener('paste', function (e) {
+        var txt = (e.clipboardData || window.clipboardData).getData('text');
+        if (!/\r?\n/.test(txt.trim())) return;
+        var lines = parseBulkLines(txt);
+        if (lines.length < 2) return;
+        e.preventDefault();
+        var n = fill(lines, idx);
+        setStatus('✓ ' + n + ' ta javob joylashtirildi' + (lines.length > n ? ' (ortiqcha qatorlar olinmadi)' : '') + '.', 'ok');
+      });
+    });
   }
 
   // Guruhlar ro‘yxatini oquv_groups dan to‘ldiradi
@@ -821,6 +871,8 @@
     A.editingId = null;
     var form = document.getElementById('lhwAdminForm');
     if (form) form.reset();
+    var bst = document.getElementById('lhwBulkSt');
+    if (bst) { bst.className = 'lhw-bulk-st'; bst.textContent = 'Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying — pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.'; }
     var err = document.getElementById('lhwFormErr');
     if (err) err.hidden = true;
     setFormMode(false);
