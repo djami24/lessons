@@ -10,6 +10,8 @@
      listening_submissions/{exId_uid}
        { exerciseId, studentId, studentName, answers:[5], score, total, marks, submittedAt }
        Talaba har mashqni faqat bir marta topshiradi (hujjat ID = exId_uid).
+     Point: har mashqdan nechta to'g'ri topilsa (0–5) shuncha point. Mashq o'chirilganda natija
+     oquv_progress/{ID}/bonus/ls_{exId}_{uid} (source:'listening') ga ko'chiriladi — point yo'qolmaydi.
 
    Ishlatish:
      ListeningHW.openStudent({ uid, name })  — talaba paneli (#lhwStudentRoot)
@@ -936,19 +938,57 @@
     });
   }
 
+  // Mashq o'chirilganda talabalarning POINTI yo'qolmasligi uchun: o'chirishdan oldin har bir talabaning shu mashqdan
+  // olgan balli (nechta to'g'ri topgani, 0–5) oquv_progress/{ID}/bonus ichiga source:'listening' bilan ko'chiriladi.
+  // Hujjat ID = ls_{mashqId}_{uid} — qayta bosilsa ikki marta qo'shilmaydi; point sanasi — topshirilgan sana.
+  function archiveSubmissions(ex, subDocs) {
+    var by = {};
+    subDocs.forEach(function (d) { var x = d.data(); if (x && x.studentId) by[x.studentId] = x; });
+    var uids = Object.keys(by);
+    return Promise.all(uids.map(function (uid) {
+      return db.collection('students').doc(uid).get().then(function (st) {
+        return { uid: uid, x: by[uid], code: st.exists ? (st.data().oquvProgressCode || '') : '' };
+      }).catch(function () { return { uid: uid, x: by[uid], code: '' }; });
+    })).then(function (list) {
+      var batch = db.batch(), saved = 0, skipped = [];
+      var p2 = function (n) { return (n < 10 ? '0' : '') + n; };
+      list.forEach(function (it) {
+        var pts = finalOf(it.x);
+        if (!pts) return;   // 0 point — saqlash shart emas
+        if (!it.code) { skipped.push(it.x.studentName || it.uid); return; }
+        var d = new Date(tsMs(it.x.submittedAt));
+        batch.set(db.collection('oquv_progress').doc(it.code).collection('bonus').doc('ls_' + ex.id + '_' + it.uid), {
+          date: d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()),
+          points: pts, reason: 'Listening: ' + (ex.title || 'mashq'), source: 'listening',
+          exId: ex.id, uid: it.uid, max: BLANKS,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        saved++;
+      });
+      return (saved ? batch.commit() : Promise.resolve()).then(function () { return { saved: saved, skipped: skipped }; });
+    });
+  }
+
   function deleteExercise(ex) {
     var msg = '“' + ex.title + '” mashqini o‘chirmoqchimisiz?\n\n' +
-      'Shu mashq bo‘yicha barcha talabalarning natijalari ham o‘chadi.';
+      'Talabalarning bu mashqdan olgan POINTLARI saqlanib qoladi (profilidagi pointlarida ko‘rinaveradi). ' +
+      'Faqat mashqning o‘zi va javoblari o‘chadi.';
     if (!confirm(msg)) return;
+    var subsDocs = [];
     db.collection(COL_SUB).where('exerciseId', '==', ex.id).get().then(function (snap) {
+      subsDocs = snap.docs;
+      return archiveSubmissions(ex, subsDocs);
+    }).then(function (r) {
+      if (r.skipped.length && !confirm('Diqqat: quyidagi talabalarning pointi saqlanmaydi (ularga «O‘quv jarayoni» ID biriktirilmagan):\n\n' +
+        r.skipped.join(', ') + '\n\nBaribir o‘chiraymi?')) return null;
       // Firestore batch — bir martada 500 tagacha yozuv (bitta mashq uchun yetarli)
       var batch = db.batch();
-      snap.docs.forEach(function (d) { batch.delete(d.ref); });
+      subsDocs.forEach(function (d) { batch.delete(d.ref); });
       batch.delete(db.collection(COL_EX).doc(ex.id));
-      return batch.commit();
-    }).then(function () {
-      if (A.lbId === ex.id) closeAdminLb();
-      if (A.editingId === ex.id) resetAdminForm();
+      return batch.commit().then(function () {
+        if (A.lbId === ex.id) closeAdminLb();
+        if (A.editingId === ex.id) resetAdminForm();
+      });
     }).catch(function (er) {
       alert('O‘chirishda xatolik: ' + (er && er.message));
     });
