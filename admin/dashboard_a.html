@@ -8228,6 +8228,7 @@ async function loadStatsPage(days, force){
   }));
 
   stPublishLeaderboard('sync');   // saytdagi reytingni shu ma'lumot bilan yangilaymiz
+  stPublishTopPointers('auto');   // talabalar sahifasidagi "Top Pointers" ni yangilaymiz
   _statsModel = { days, gRows, people, wins, riskAll, top, groupLabel: sel.value ? (groups[0] && groups[0].name) : 'Barcha guruhlar',
     periodLabel: isM ? rpLabel(selYm) + ' oyi' : isL ? `oxirgi ${ST_LESSONS} dars` : `so'nggi ${days} kun` };
 }
@@ -8424,7 +8425,64 @@ async function stPublishLeaderboard(mode){
 function stScheduleLeaderboard(){
   _statsData = null;
   clearTimeout(_lbTimer);
-  _lbTimer = setTimeout(() => stPublishLeaderboard('force'), 60000);
+  _lbTimer = setTimeout(() => { stPublishLeaderboard('force'); stPublishTopPointers('force'); }, 60000);
+}
+
+// ----- "Top Pointers" (settings/topPointers): barcha talabalarning joriy oydagi POINT i -----
+// Hisob talaba sahifasidagi bilan bir xil: 60% davomat + 40% uy vazifa − jazo (0–100) + qo'shimcha/ayirilgan point (chegarasiz, 0 dan past emas).
+// Saytga faqat ism + familiya bosh harfi, guruh va point chiqadi; talaba o'zini ID'ning xeshi orqali topadi.
+function stTpHash(str){ str = String(str); let h = 5381; for (let i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+function stTpBase(list){
+  let yes = 0, late = 0, no = 0, hwSum = 0, hwN = 0, pun = 0;
+  list.forEach(x => {
+    if (x.a === 'yes') yes++; else if (x.a === 'late') late++; else if (x.a === 'no') no++;
+    if (x.hw !== null) { hwSum += x.hw; hwN++; }
+    if (x.pun) pun++;
+  });
+  const marked = yes + late + no;
+  const attRaw = marked ? (yes + 0.5 * late) / marked * 100 : null;
+  const hwRaw = hwN ? hwSum / hwN : null;
+  let v;
+  if (attRaw === null) { if (hwRaw === null) return null; v = hwRaw; }
+  else v = 0.6 * attRaw + 0.4 * (hwRaw === null ? attRaw : hwRaw);
+  v -= Math.min(20, pun * 2);
+  return Math.round(Math.max(0, Math.min(100, v)));
+}
+let _tpBusy = false;
+// mode: 'auto' (30 daqiqadan eski bo'lsagina) yoki 'force'
+async function stPublishTopPointers(mode){
+  if (_tpBusy || window.IS_TEACHER) return;
+  _tpBusy = true;
+  try {
+    const ref = db.collection('settings').doc('topPointers');
+    if (mode === 'auto') {
+      try { const o = await ref.get(); if (o.exists && Date.now() - (o.data().updatedAtMs || 0) < 30 * 60e3) return; } catch (e) {}
+    }
+    const data = await stFetch(mode === 'force', 100);
+    const ym = rpYm(new Date()), r = rpRange(ym);
+    const bySt = {};
+    data.rows.forEach(x => { if (x.date >= r.from && x.date <= r.to) (bySt[x.sid] = bySt[x.sid] || []).push(x); });
+    const people = [];
+    data.groups.forEach(g => g.students.forEach(s => people.push({ g, s })));
+    const out = [];
+    await Promise.all(people.map(async ({ g, s }) => {
+      let bonus = 0;
+      try {
+        const bs = await db.collection('oquv_progress').doc(s.id).collection('bonus').where('date', '>=', r.from).where('date', '<=', r.to).get();
+        bs.forEach(d => { bonus += Number(d.data().points) || 0; });
+      } catch (e) {}
+      const base = stTpBase(bySt[s.id] || []);
+      const total = base === null ? (bonus ? Math.max(0, bonus) : null) : Math.max(0, base + bonus);
+      if (total && total > 0) out.push({ h: stTpHash(s.id), name: stPublicName(s.name), group: g.name || '', points: total });
+    }));
+    out.sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+    await ref.set({
+      period: rpLabel(ym) + ' oyi', ym, count: out.length, top: out.slice(0, 100),
+      updatedAtMs: Date.now(), updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (err) {
+    console.warn('Top Pointers yuborilmadi:', err);
+  } finally { _tpBusy = false; }
 }
 async function loadOjGroups() {
   const grid = document.getElementById('ojGroupsGrid');
@@ -9699,6 +9757,7 @@ async function ojDeleteBonus(id){
   try {
     await db.collection('oquv_progress').doc(_ojActiveStudentId).collection('bonus').doc(id).delete();
     loadOjBonuses();
+    try { stScheduleLeaderboard(); } catch (e) {}
   } catch(err) { alert("O\u02bcchirishda xatolik."); }
 }
 async function ojSaveBonus(sign){
@@ -9723,6 +9782,7 @@ async function ojSaveBonus(sign){
     if (/^\d{4}-\d{2}/.test(date) && _ojMonthSel !== 'all') _ojMonthSel = date.slice(0, 7);
     loadOjBonuses();
     renderOjEntries();
+    try { stScheduleLeaderboard(); } catch (e) {}
   } catch(err) { status.textContent = 'Xatolik (Firestore qoidalarini tekshiring)'; }
 }
 document.getElementById('ojBonusAddBtn').addEventListener('click', () => ojSaveBonus(1));
