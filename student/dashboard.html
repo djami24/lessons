@@ -3608,8 +3608,7 @@ function renderMyStats(){
   const buckets = rng.from <= endStr ? mystBuckets(rng.from, endStr) : [];
   const bAgg = buckets.map(b => mystAgg(cur.filter(r => r.date >= b.from && r.date <= b.to)));
   const attS = bAgg.map(a => a.att), hwS = bAgg.map(a => a.hw);
-  const bonusCur = mystBonusSum(_mystMonth), bonusPrev = mystBonusSum(prevYm);
-  const sc = mystTotal(A, bonusCur), pSc = mystTotal(P, bonusPrev);
+  const sc = mystScore(A), pSc = mystScore(P);   // statistika balli — pointdan mustaqil
 
   document.getElementById('mystKpis').innerHTML =
     mystKpi('Davomat', A.att === null ? '—' : A.att + '%', D(A.att, P.att, false, ' %'), `${A.yes + A.late} / ${A.marked} ta dars`, mystSpark(attS, MYST_C.green), MYST_C.green) +
@@ -3617,7 +3616,7 @@ function renderMyStats(){
     mystKpi('Kelmadi', A.no, D(A.no, P.no, true), `${mystLabel(prevYm)}: ${P.no}`, mystSpark(bAgg.map(a => a.no), MYST_C.red), MYST_C.red) +
     mystKpi('Kech qoldi', A.late, D(A.late, P.late, true), `${mystLabel(prevYm)}: ${P.late}`, mystSpark(bAgg.map(a => a.late), MYST_C.orange), MYST_C.orange) +
     mystKpi('Jazolangan', A.pun, D(A.pun, P.pun, true), A.punCnt ? `jami jazo: ${A.punCnt} ta` : 'jazo yo\'q', mystSpark(bAgg.map(a => a.pun), MYST_C.purple), MYST_C.purple) +
-    mystKpi('Ball', sc === null ? '—' : sc, D(sc, pSc, false, ''), '60% davomat + 40% uy vazifa − jazo' + (bonusCur ? (bonusCur > 0 ? ' + ' : ' \u2212 ') + Math.abs(bonusCur) + " qo'shimcha" : ''), '<svg viewBox="0 0 100 30"></svg>', MYST_C.gray);
+    mystKpi('Ball', sc === null ? '—' : sc, D(sc, pSc, false, ''), '60% davomat + 40% uy vazifa − jazo', '<svg viewBox="0 0 100 30"></svg>', MYST_C.gray);
 
   document.getElementById('mystTrend').innerHTML = buckets.length
     ? mystLine(buckets.map(b => b.label), [
@@ -3936,9 +3935,9 @@ function _esc(str){
     .replace(/"/g,'&quot;');
 }
 
-// ===== UMUMIY BALL (profil kartochkasi) =====
-// Statistika sahifasidagi "Ball" bilan bir xil: 60% davomat + 40% uy vazifa − jazo, ustiga admin bergan qo'shimcha ball.
-// Hisob joriy kalendar oy bo'yicha. Bosilganda tafsilot oynasi ochiladi (davomat, kech qolish, uy vazifa, jazo, test, qo'shimcha).
+// ===== POINT (profil kartochkasi) =====
+// Statistikadan MUSTAQIL: davomat (10/5/0) + uy vazifa (0–10) + so'nggi test + admin qo'lda bergan/ayirgan point. Joriy kalendar oy bo'yicha.
+// Bosilganda tafsilot oynasi ochiladi.
 let _mystBonus = null, _mystBonusCode = null;
 async function mystLoadBonus(code, force){
   if(!force && _mystBonus && _mystBonusCode === code) return _mystBonus;
@@ -3954,32 +3953,50 @@ async function mystLoadBonus(code, force){
 function mystBonusIn(ym){ const r = mystRange(ym); return (_mystBonus || []).filter(b => b.date >= r.from && b.date <= r.to); }
 function mystBonusSum(ym){ return mystBonusIn(ym).reduce((t, b) => t + b.points, 0); }
 function mystSigned(n){ return n > 0 ? '+' + n : n < 0 ? '\u2212' + Math.abs(n) : '0'; }
-// Umumiy point: yuqori chegara yo'q (100 dan oshishi mumkin), pastda 0 dan tushmaydi
-function mystTotal(a, bonus){
-  const base = mystScore(a);
-  if(base === null) return bonus ? Math.max(0, bonus) : null;
-  return Math.max(0, base + (bonus || 0));
-}
-// Umumiy ball qismlari: 100 ball − (kech qolish + kelmaslik + uy vazifa kamchiligi + jazo) + qo'shimcha
-// Davomat 60 ball (bir dars = 60/M; kech qolish yarim dars; kelmaslik to'liq), uy vazifa 40 ball (bir dars = 40/K).
-function mystBreakdown(A){
-  const M = A.marked, K = A.hwN;
-  const hasAtt = A.attRaw !== null, hasHw = A.hwRaw !== null;
-  const o = { hasAtt, hasHw, M, K, attMax: 0, hwMax: 0, lateEach: 0, noEach: 0, late: 0, no: 0,
-              hwNoEach: 0, hwNo: 0, hwPart: 0, hwFallback: 0, pen: Math.min(20, (A.pun || 0) * 2) };
-  if(hasAtt){
-    o.attMax = 60; o.hwMax = 40;
-    o.noEach = 60 / M; o.lateEach = 30 / M;
-    o.no = A.no * o.noEach; o.late = A.late * o.lateEach;
-  } else if(hasHw){ o.hwMax = 100; }
-  if(hasHw){
-    o.hwNoEach = o.hwMax / K; o.hwNo = A.hwNo * o.hwNoEach;
-    o.hwPart = Math.max(0, (o.hwMax - o.hwMax * A.hwRaw / 100) - o.hwNo);
-  } else if(hasAtt){ o.hwFallback = 40 - 0.4 * A.attRaw; }
-  o.attEarn = o.attMax - o.late - o.no;
-  o.hwEarn = o.hwMax - o.hwNo - o.hwPart - o.hwFallback;
-  o.raw = o.attEarn + o.hwEarn - o.pen;
+// ===== POINT TIZIMI (statistikadan MUSTAQIL) =====
+// Point statistikadagi foiz/ball formulasidan olinmaydi — o'zining alohida hisobi bor:
+//   Davomat:   keldi = 10, kech qoldi = 5, kelmadi = 0           (admin «O'quv jarayoni»da belgilaydi, avtomatik qo'shiladi)
+//   Uy vazifa: to'liq = 10, qisman = foiziga qarab (0–10), qilinmagan = 0
+//   Test:      eng so'nggi test natijasi (masalan 90 ball = +90 point)
+//   Qo'lda:    admin istagan talabaga istagan paytda qo'shadi / ayiradi (sabab bilan) — oquv_progress/{ID}/bonus
+// Jami: yuqori chegara yo'q, 0 dan pastga tushmaydi. Jazo (punished) pointga ta'sir qilmaydi.
+const PTS = { attYes: 10, attLate: 5, attNo: 0, hwFull: 10 };
+function ptsCalc(rows, bonusList, latestTest){
+  const o = { lessons: 0, yes: 0, late: 0, no: 0, att: 0, hwMarked: 0, hwFull: 0, hwPart: 0, hwNo: 0, hw: 0,
+              test: latestTest ? latestTest.score : 0, testInfo: latestTest || null, bonusPlus: 0, bonusMinus: 0, bonusList: bonusList || [] };
+  rows.forEach(r => {
+    if(r.a === 'yes'){ o.yes++; o.att += PTS.attYes; }
+    else if(r.a === 'late'){ o.late++; o.att += PTS.attLate; }
+    else if(r.a === 'no'){ o.no++; o.att += PTS.attNo; }
+    if(r.a !== '' || r.hw !== null) o.lessons++;
+    if(r.hw !== null){
+      o.hwMarked++;
+      if(r.hw >= 100){ o.hwFull++; o.hw += PTS.hwFull; }
+      else if(r.hw <= 0){ o.hwNo++; }
+      else { o.hwPart++; o.hw += Math.round(r.hw / 100 * PTS.hwFull); }
+    }
+  });
+  o.bonusList.forEach(x => { if(x.points > 0) o.bonusPlus += x.points; else if(x.points < 0) o.bonusMinus += x.points; });
+  o.bonus = o.bonusPlus + o.bonusMinus;
+  o.raw = o.att + o.hw + o.test + o.bonus;
+  o.total = Math.max(0, Math.round(o.raw));
   return o;
+}
+
+// Talabaning eng so'nggi test natijasi (gradebook) — 0–100 ball, to'g'ridan-to'g'ri pointga qo'shiladi
+async function getMyLatestTest(){
+  try{
+    const code = state.student && state.student.oquvProgressCode;
+    if(!code) return null;
+    const data = await fetchGbLookupData();
+    let match = data.students.find(s => s.progressId && normalizeGbId(s.progressId) === normalizeGbId(code));
+    if(!match && state.student._progressName) match = data.students.find(s => !s.progressId && normalizeGbName(s.name) === normalizeGbName(state.student._progressName));
+    if(!match) return null;
+    const units = (data.unitsByGroup && data.unitsByGroup[match.group]) || [];
+    const sm = GB.summarize(match, units);
+    if(!sm.latest) return null;
+    return { score: Math.max(0, Math.min(100, Math.round(sm.latest.score))), unit: sm.latest.unit, ts: sm.latest.ts };
+  } catch(e){ return null; }
 }
 
 async function loadHwPointsBadge(){
@@ -3989,40 +4006,27 @@ async function loadHwPointsBadge(){
   if(!code){ box.hidden = true; return; }
   try{
     const ym = mystYm(new Date()), rng = mystRange(ym);
-    const [snap] = await Promise.all([
+    const [snap, , latest] = await Promise.all([
       db.collection('oquv_progress').doc(code).collection('entries').where('date', '>=', rng.from).where('date', '<=', rng.to).get(),
-      mystLoadBonus(code, true)
+      mystLoadBonus(code, true),
+      getMyLatestTest()
     ]);
     const rows = [];
     snap.forEach(d => { const x = mystNorm(d.data()); if(x) rows.push(x); });
-    const A = mystAgg(rows);
-    const bonus = mystBonusSum(ym);
-    const total = mystTotal(A, bonus);
-    const bonusList = mystBonusIn(ym);
-    const bonusPlus = bonusList.filter(x => x.points > 0).reduce((t, x) => t + x.points, 0);
-    const bonusMinus = bonusList.filter(x => x.points < 0).reduce((t, x) => t + x.points, 0);
+    const P = ptsCalc(rows, mystBonusIn(ym), latest);
+    state._ballCtx = Object.assign({ ym }, P);
 
-    // Uy vazifa dars ballari (har dars 0–10): mukofot hisobi uchun, tafsilot oynasida ko'rsatiladi
-    let hwPts = 0, lessons = 0;
-    rows.forEach(r => {
-      if(r.a === '' && r.hw === null) return;
-      lessons++;
-      if(r.a !== 'no' && r.hw !== null) hwPts += Math.round(r.hw / 10);
-    });
-    state._ballCtx = { ym, A, bonus, bonusPlus, bonusMinus, bonusList, total, hwPts, hwMax: lessons * 10, lessons };
-
-    const shown = total === null ? 0 : total;
-    document.getElementById('hwPointsNum').textContent = shown;
-    document.getElementById('hwPointsSub').textContent = 'Shu oy · ' + (A.marked ? A.marked + ' ta dars hisobida' : 'hali dars belgilanmagan');
+    document.getElementById('hwPointsNum').textContent = P.total;
+    document.getElementById('hwPointsSub').textContent = 'Shu oy · ' + (P.lessons ? P.lessons + ' ta dars hisobida' : 'hali dars belgilanmagan');
     const dl = document.getElementById('hwPointsDelta');
     if(dl){
-      if(bonus){ dl.hidden = false; dl.classList.toggle('down', bonus < 0); dl.textContent = mystSigned(bonus) + ' qo\'shimcha'; }
+      if(P.bonus){ dl.hidden = false; dl.classList.toggle('down', P.bonus < 0); dl.textContent = mystSigned(P.bonus) + ' qo\'shimcha'; }
       else dl.hidden = true;
     }
     box.hidden = false;
     loadTopPointers();
   } catch(err){
-    console.error('Umumiy ball load failed:', err);
+    console.error('Point load failed:', err);
     box.hidden = true;
   }
 }
@@ -4141,9 +4145,6 @@ function openBallInfo(tab){
     ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
     return;
   }
-  const A = c.A, b = mystBreakdown(A);
-  const n2 = x => String(Math.round(x * 100) / 100);
-  const neg = x => x > 0.004 ? '\u2212' + n2(x) : '0';
   const grp = (title, val, detail, color, first) =>
     `<div class="bal-row${first ? ' first' : ''}"><div class="bal-row-l"><b>${title}</b><span>${detail}</span></div><div class="bal-row-v" style="color:${color}">${val}</div></div>`;
   const sub = (label, detail, val) =>
@@ -4151,55 +4152,48 @@ function openBallInfo(tab){
 
   let h = `<div class="bal-month">${mystLabel(c.ym)} · point chegarasi yo'q</div>`;
 
-  // Davomat (60 ball)
-  if(b.hasAtt){
-    h += grp('Davomat', `${n2(b.attEarn)} <small>/ 60</small>`, `${b.M} ta dars belgilangan · bir dars = 60 / ${b.M} = ${n2(60 / b.M)} ball`, MYST_C.green, true);
-    h += sub('Kech qolish', `${A.late} marta × \u2212${n2(b.lateEach)} (kech qolish yarim dars hisoblanadi)`, neg(b.late));
-    h += sub('Kelmagan', `${A.no} marta × \u2212${n2(b.noEach)}`, neg(b.no));
+  // Davomat: keldi 10, kech qoldi 5, kelmadi 0 — admin belgilagach avtomatik qo'shiladi
+  if(c.yes + c.late + c.no){
+    h += grp('Davomat', `+${c.att}`, `${c.yes + c.late + c.no} ta dars belgilangan`, MYST_C.green, true);
+    h += sub('Darsga keldi', `${c.yes} marta × ${PTS.attYes}`, '+' + (c.yes * PTS.attYes));
+    h += sub('Kech qoldi', `${c.late} marta × ${PTS.attLate}`, '+' + (c.late * PTS.attLate));
+    h += sub('Kelmadi', `${c.no} marta × ${PTS.attNo}`, '0');
   } else {
     h += grp('Davomat', '—', 'Hali davomat belgilanmagan', MYST_C.gray, true);
   }
 
-  // Uy vazifa (40 ball)
-  if(b.hasHw){
-    h += grp('Uy vazifa', `${n2(b.hwEarn)} <small>/ ${b.hwMax}</small>`, `${b.K} ta dars belgilangan · bir dars = ${b.hwMax} / ${b.K} = ${n2(b.hwMax / b.K)} ball`, MYST_C.blue);
-    h += sub('Qilinmagan', `${A.hwNo} ta dars × \u2212${n2(b.hwNoEach)}`, neg(b.hwNo));
-    h += sub('Qisman bajarilgan', `${A.hwPart} ta dars — qilinmagan qismi hisobidan`, neg(b.hwPart));
-  } else if(b.hasAtt){
-    h += grp('Uy vazifa', `${n2(b.hwEarn)} <small>/ 40</small>`, 'Hali uy vazifa belgilanmagan — bu qism davomat foiziga teng olinadi', MYST_C.blue);
-    h += sub('Davomatdagi kamchilik hisobidan', 'Uy vazifa belgilangach aniq hisoblanadi', neg(b.hwFallback));
+  // Uy vazifa: to'liq 10, qisman — foiziga qarab, qilinmagan 0
+  if(c.hwMarked){
+    h += grp('Uy vazifa', `+${c.hw}`, `${c.hwMarked} ta dars belgilangan`, MYST_C.blue);
+    h += sub('To\'liq bajarilgan', `${c.hwFull} ta × ${PTS.hwFull}`, '+' + (c.hwFull * PTS.hwFull));
+    if(c.hwPart) h += sub('Qisman bajarilgan', `${c.hwPart} ta — bajarilgan foiziga qarab (0–${PTS.hwFull})`, '+' + (c.hw - c.hwFull * PTS.hwFull));
+    h += sub('Qilinmagan', `${c.hwNo} ta × 0`, '0');
   } else {
     h += grp('Uy vazifa', '—', 'Hali uy vazifa belgilanmagan', MYST_C.gray);
   }
 
-  // Jazo
-  h += grp('Jazolangan', `<span style="color:${MYST_C.red}">${neg(b.pen)}</span>`, A.pun ? `${A.pun} kun × \u22122 (ko'pi bilan \u221220)` : 'Jazo yo\'q', MYST_C.red);
+  // So'nggi test natijasi: ball pointga to'liq qo'shiladi
+  if(c.testInfo){
+    h += grp('So\'nggi test', `+${c.test}`, `${_esc(c.testInfo.unit || 'Test')} · ${c.test} ball pointga qo\'shildi (faqat eng so\'nggi test)`, MYST_C.purple);
+  } else {
+    h += grp('So\'nggi test', '—', 'Hali test natijasi kiritilmagan', MYST_C.gray);
+  }
 
-  // Qo'shimcha point (o'qituvchi qo'shgan) va ayirilgan point — sababi bilan
+  // Qo'shimcha point (admin qo'shgan) va ayirilgan point — sababi bilan
   const plusList = c.bonusList.filter(x => x.points > 0), minusList = c.bonusList.filter(x => x.points < 0);
   const itemRow = (x, neg) => `<div class="bal-bonus-item"><span style="color:${neg ? '#e5484d' : '#16a34a'};font-weight:700">${mystSigned(x.points)}</span><span style="flex:1;opacity:1">${_esc(x.reason || (neg ? 'Sabab ko\'rsatilmagan' : 'Qo\'shimcha point'))}</span><span>${_esc(x.date.slice(5).replace('-', '.'))}</span></div>`;
-  h += grp('Qo\'shimcha point', c.bonusPlus ? '+' + c.bonusPlus : '0', c.bonusPlus ? 'O\'qituvchi tomonidan berilgan' : 'Bu oy qo\'shimcha point berilmagan', '#0e9f6e');
+  h += grp('Qo\'shimcha point', c.bonusPlus ? '+' + c.bonusPlus : '0', c.bonusPlus ? 'O\'qituvchi tomonidan berilgan — sababi pastda' : 'Bu oy qo\'shimcha point berilmagan', '#0e9f6e');
   h += plusList.map(x => itemRow(x, false)).join('');
   h += grp('Ayirilgan point', c.bonusMinus ? '\u2212' + Math.abs(c.bonusMinus) : '0', c.bonusMinus ? 'O\'qituvchi tomonidan ayirilgan — sababi pastda' : 'Bu oy point ayirilmagan', '#e5484d');
   h += minusList.map(x => itemRow(x, true)).join('');
 
   // Jami
-  h += `<div class="bal-row bal-total"><div class="bal-row-l"><b>Jami</b><span>${n2(b.attEarn)} + ${n2(b.hwEarn)} \u2212 ${n2(b.pen)}${c.bonus ? (c.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(c.bonus) : ''}${(b.raw + c.bonus) < 0 ? ' (ball 0 dan past bo\'lmaydi)' : ''} · butun songa yaxlitlanadi</span></div><div class="bal-row-v">${c.total === null ? '—' : c.total}</div></div>`;
+  h += `<div class="bal-row bal-total"><div class="bal-row-l"><b>Jami</b><span>${c.att} + ${c.hw} + ${c.test}${c.bonus ? (c.bonus > 0 ? ' + ' : ' \u2212 ') + Math.abs(c.bonus) : ''}${c.raw < 0 ? ' (point 0 dan past bo\'lmaydi)' : ''}</span></div><div class="bal-row-v">${c.total}</div></div>`;
 
-  // Test natijasi: faqat ma'lumot uchun
-  h += `<div class="bal-row bal-info"><div class="bal-row-l"><b>Test natijasi</b><span id="ballTestNote">Test o'rtachasi (umumiy ballga kirmaydi)</span></div><div class="bal-row-v" id="ballTestVal" style="color:${MYST_C.purple}">…</div></div>`;
-
-  h += `<div class="bal-note">Oy oxirida eng ko'p point yig'gan talabaga 100 000 so'm mukofot beriladi. Point oyma-oy qaytadan hisoblanadi. Batafsil: «Shartlar va qoidalar» bo'limi.</div>`;
+  h += `<div class="bal-note">Oy oxirida eng ko'p point yig'gan talabaga 100 000 so'm mukofot beriladi. Davomat, uy vazifa va qo'shimcha pointlar oyma-oy qaytadan hisoblanadi. Batafsil: «Qoidalar» bo'limi.</div>`;
   body.innerHTML = h;
   ballSwitchTab(tab === 'rules' ? 'rules' : tab === 'top' ? 'top' : 'mine');
   ov.classList.add('open'); ov.setAttribute('aria-hidden', 'false');
-
-  getMyTestAvg().then(avg => {
-    const v = document.getElementById('ballTestVal'), n = document.getElementById('ballTestNote');
-    if(!v || !n) return;
-    if(avg === null || avg === undefined){ v.textContent = '—'; n.textContent = 'Hali test natijasi kiritilmagan'; }
-    else { v.innerHTML = Math.round(avg) + ' <small>/ 100</small>'; }
-  });
 }
 
 // Hodisalar document'da — elementlar keyinroq yuklansa ham ishlaydi
@@ -7450,8 +7444,9 @@ document.getElementById('themeToggle').addEventListener('click',function(){
       </div>
       <div class="pts-rule-h up"><i>+</i> Point qanday yig'iladi</div>
       <ul class="pts-rule-list up">
-        <li>Uy vazifani bajarsangiz</li>
-        <li>Darsga kelsangiz</li>
+        <li><b>Darsga kelsangiz — 10 point</b> (kech qolsangiz 5, kelmasangiz 0). Ustoz davomatni belgilagach avtomatik qo'shiladi</li>
+        <li><b>Uy vazifani to'liq bajarsangiz — 10 point</b> (qisman bajarsangiz bajarilgan foiziga qarab, qilmasangiz 0)</li>
+        <li><b>So'nggi test natijangiz</b> — masalan 90 ball olsangiz, 90 point qo'shiladi (faqat eng so'nggi test)</li>
         <li>Darsda yaxshi o'tirsangiz</li>
         <li>Xulqingiz yaxshi bo'lsa</li>
         <li>Qo'shimcha point olsangiz</li>
@@ -7460,12 +7455,11 @@ document.getElementById('themeToggle').addEventListener('click',function(){
       </ul>
       <div class="pts-rule-h down"><i>&minus;</i> Qachon point ayiriladi</div>
       <ul class="pts-rule-list down">
-        <li>Uy vazifa qilmasangiz</li>
-        <li>Darsga kelmasangiz</li>
-        <li>Darsga kech qolsangiz</li>
+        <li>Darsga kelmasangiz (0 point) yoki kech qolsangiz (faqat 5 point)</li>
+        <li>Uy vazifa qilmasangiz (0 point)</li>
         <li>Darsda gaplashib o'tirsangiz</li>
       </ul>
-      <div class="bal-note">Pointlar har oy boshida qaytadan hisoblanadi. Nima uchun point qo'shilgani yoki ayirilgani «Mening pointlarim» bo'limida sababi bilan ko'rinadi.</div>
+      <div class="bal-note">Pointlar har oy boshida qaytadan hisoblanadi. Davomat, uy vazifa va test pointlari avtomatik hisoblanadi. Ustoz qo'lda qo'shgan yoki ayirgan pointlar sababi bilan «Pointlarim» bo'limida ko'rinadi. Point statistikadagi foizlardan olinmaydi — alohida hisoblanadi.</div>
     </div>
   </div>
 </div>
