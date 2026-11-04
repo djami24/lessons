@@ -4074,6 +4074,10 @@ async function loadHwPointsBadge(){
   }
 }
 
+// Pointlar jonli yangilanib turadi: har 60 soniyada va sahifa qaytib ko'ringanda qayta hisoblanadi
+setInterval(() => { if(!document.hidden && state.student && state.student.oquvProgressCode) loadHwPointsBadge(); }, 60000);
+document.addEventListener('visibilitychange', () => { if(!document.hidden && state.student && state.student.oquvProgressCode) loadHwPointsBadge(); });
+
 // Talabaning test o'rtachasi (gradebook) — tafsilot oynasida ko'rsatiladi
 async function getMyTestAvg(){
   try{
