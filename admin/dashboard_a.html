@@ -8618,7 +8618,7 @@ const apNorm = v => String(v || '').trim().toLowerCase();
 const apDigits = v => String(v || '').replace(/\D/g, '').slice(-9);
 async function apLisCtx(force){
   if (!force && _apLisCtx && Date.now() - _apLisCtx.ts < 60000) return _apLisCtx;
-  const ctx = { ts: Date.now(), byUid: {}, titles: {}, codeToUid: {}, avList: [], stuList: [], ok: true };
+  const ctx = { ts: Date.now(), byUid: {}, titles: {}, codeToUid: {}, codeToUids: {}, avList: [], stuList: [], ok: true };
   try {
     const [subs, exs] = await Promise.all([
       db.collection('listening_submissions').get(),
@@ -8632,7 +8632,7 @@ async function apLisCtx(force){
     const stus = await db.collection('students').get();
     stus.forEach(d => {
       const x = d.data() || {}, c = x.oquvProgressCode;
-      if (c) { ctx.codeToUid[String(c).trim()] = d.id; ctx.codeToUid[apNorm(c)] = d.id; }
+      if (c) { ctx.codeToUid[String(c).trim()] = d.id; ctx.codeToUid[apNorm(c)] = d.id; (ctx.codeToUids[apNorm(c)] = ctx.codeToUids[apNorm(c)] || []).push(d.id); }
       ctx.stuList.push({ uid: d.id, code: apNorm(c), phone: apDigits(x.phone), name: apNorm(x.name).replace(/\s+/g, ' ') });
       if (x.avatarPhoto || x.avatarImg) ctx.avList.push({ code: apNorm(c), phone: apDigits(x.phone), name: apNorm(x.name).replace(/\s+/g, ' '), img: x.avatarImg || '', photo: x.avatarPhoto || '' });
     });
@@ -8662,16 +8662,27 @@ function apFindUid(ctx, p){
   if (!m) { const nm = apNorm(o.name).replace(/\s+/g, ' '); const same = nm ? list.filter(x => x.name === nm) : []; if (same.length === 1) m = same[0]; }
   return m ? m.uid : null;
 }
+// Bir O'quv ID ga bir nechta hisob bog'langan bo'lishi mumkin: ularning hammasi ko'riladi
+function apFindUids(ctx, p){
+  const o = typeof p === 'string' ? { id: p } : (p || {});
+  const code = apNorm(o.id);
+  if (!code) return [];
+  const byCode = (ctx.codeToUids || {})[code];
+  if (byCode && byCode.length) return byCode;
+  const one = apFindUid(ctx, o);
+  return one ? [one] : [];
+}
 function apLisLive(ctx, sid, r, done){
-  const out = [], uid = apFindUid(ctx, sid);
-  if (!uid) return out;
-  (ctx.byUid[uid] || []).forEach(it => {
+  const out = [], seenEx = new Set();
+  apFindUids(ctx, sid).forEach(uid => (ctx.byUid[uid] || []).forEach(it => {
     if (done && done.has('ls_' + it.id)) return;
+    if (seenEx.has(it.exId)) return;   // bir mashq ikki hisobda bo'lsa bir marta sanaladi
+    seenEx.add(it.exId);
     const t = it.x.submittedAt, ms = t && typeof t.toMillis === 'function' ? t.toMillis() : typeof t === 'number' ? t : Date.now();
     const date = stDate(new Date(ms));
     if (date < r.from || date > r.to) return;
     out.push({ title: ctx.titles[it.exId] || 'Listening', points: typeof it.x.finalScore === 'number' ? it.x.finalScore : (Number(it.x.score) || 0), max: 5, date, archived: false });
-  });
+  }));
   return out;
 }
 function apLisItems(ctx, sid, r, archived){
