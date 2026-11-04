@@ -8553,7 +8553,7 @@ async function stPublishTopPointers(mode){
   try {
     const ref = db.collection('settings').doc('topPointers');
     if (mode === 'auto') {
-      try { const o = await ref.get(); if (o.exists && Date.now() - (o.data().updatedAtMs || 0) < 30 * 60e3) return; } catch (e) {}
+      try { const o = await ref.get(); if (o.exists && Date.now() - (o.data().updatedAtMs || 0) < 60e3) return; } catch (e) {}
     }
     const data = await stFetch(mode === 'force', 100);
     const tIdx = null;   // test natijalari pointga qo'shilmaydi
@@ -8571,7 +8571,7 @@ async function stPublishTopPointers(mode){
         const bs = await db.collection('oquv_progress').doc(s.id).collection('bonus').where('date', '>=', r.from).where('date', '<=', r.to).get();
         bs.forEach(d => { const x = d.data() || {}; bonus += Number(x.points) || 0; if (x.source === 'listening') doneLis.add(d.id); });   // arxivlangan listening ham shu yerda sanaladi
       } catch (e) {}
-      apLisLive(lctx, s.id, r, doneLis).forEach(x => { bonus += x.points; });
+      apLisLive(lctx, s, r, doneLis).forEach(x => { bonus += x.points; });
       const base = stTpBase(bySt[s.id] || []);
       const tst = tIdx ? tIdx.get(s.id, s.name) : null;
       const test = 0;
@@ -8618,7 +8618,7 @@ const apNorm = v => String(v || '').trim().toLowerCase();
 const apDigits = v => String(v || '').replace(/\D/g, '').slice(-9);
 async function apLisCtx(force){
   if (!force && _apLisCtx && Date.now() - _apLisCtx.ts < 60000) return _apLisCtx;
-  const ctx = { ts: Date.now(), byUid: {}, titles: {}, codeToUid: {}, avList: [], ok: true };
+  const ctx = { ts: Date.now(), byUid: {}, titles: {}, codeToUid: {}, avList: [], stuList: [], ok: true };
   try {
     const [subs, exs] = await Promise.all([
       db.collection('listening_submissions').get(),
@@ -8633,6 +8633,7 @@ async function apLisCtx(force){
     stus.forEach(d => {
       const x = d.data() || {}, c = x.oquvProgressCode;
       if (c) { ctx.codeToUid[String(c).trim()] = d.id; ctx.codeToUid[apNorm(c)] = d.id; }
+      ctx.stuList.push({ uid: d.id, code: apNorm(c), phone: apDigits(x.phone), name: apNorm(x.name).replace(/\s+/g, ' ') });
       if (x.avatarPhoto || x.avatarImg) ctx.avList.push({ code: apNorm(c), phone: apDigits(x.phone), name: apNorm(x.name).replace(/\s+/g, ' '), img: x.avatarImg || '', photo: x.avatarPhoto || '' });
     });
   } catch (e) { console.warn('Talaba rasmlari yuklanmadi:', e); }
@@ -8649,8 +8650,20 @@ function apFindAv(ctx, s){
   return m ? { img: m.img, photo: m.photo } : null;
 }
 // Hali o'chirilmagan mashqlar (jonli), arxivlanganlari `done` ichida bo'lsa o'tkazib yuboriladi
+// Guruh talabasini ro'yxatdagi (students) hisob bilan bog'lash: avval O'quv ID, keyin telefon, keyin yagona to'liq ism
+function apFindUid(ctx, p){
+  const o = typeof p === 'string' ? { id: p } : (p || {});
+  const code = apNorm(o.id);
+  if (!code) return null;
+  if (ctx.codeToUid[code]) return ctx.codeToUid[code];
+  const list = ctx.stuList || [];
+  let m = list.find(x => x.code && x.code === code);
+  if (!m) { const ph = apDigits(o.phone); if (ph.length >= 9) m = list.find(x => x.phone === ph); }
+  if (!m) { const nm = apNorm(o.name).replace(/\s+/g, ' '); const same = nm ? list.filter(x => x.name === nm) : []; if (same.length === 1) m = same[0]; }
+  return m ? m.uid : null;
+}
 function apLisLive(ctx, sid, r, done){
-  const out = [], uid = ctx.codeToUid[sid] || ctx.codeToUid[apNorm(sid)];
+  const out = [], uid = apFindUid(ctx, sid);
   if (!uid) return out;
   (ctx.byUid[uid] || []).forEach(it => {
     if (done && done.has('ls_' + it.id)) return;
@@ -8692,8 +8705,19 @@ function apCalc(list, bonus, test, lis){
 function apSigned(n){ return n > 0 ? '+' + n : n < 0 ? '\u2212' + Math.abs(n) : '0'; }
 function apDmy(d){ return d ? d.slice(8, 10) + '.' + d.slice(5, 7) + '.' + d.slice(0, 4) : ''; }
 
+let _apPollTimer = null;
+// Pointlar jonli yangilanib turadi: sahifa ochiq va ko'rinib turganda har 60 soniyada qayta hisoblanadi
+function apStartPoll(){
+  if (_apPollTimer) return;
+  _apPollTimer = setInterval(() => {
+    const sec = document.getElementById('view-points');
+    if (!sec || sec.hidden || document.hidden || !_apInited) return;
+    apLoad(true, true);
+  }, 60000);
+}
 function apInit(){
   if (_apInited) return; _apInited = true;
+  apStartPoll();
   const now = new Date(), opts = [], FIRST = '2026-09';
   _apMonth = rpYm(now);
   for (let i = 0; i < 60; i++) { const ym = rpYm(new Date(now.getFullYear(), now.getMonth() - i, 1)); if (ym < FIRST && i > 0) break; opts.push('<option value="' + ym + '">' + rpLabel(ym) + '</option>'); }
@@ -8713,10 +8737,10 @@ function apInit(){
 }
 function apOpenPage(){ apInit(); apLoad(false); }
 
-async function apLoad(force){
+async function apLoad(force, silent){
   const body = document.getElementById('apBody');
   const token = ++_apToken, ym = _apMonth, r = rpRange(ym);
-  body.innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i><i></i></div>';
+  if (!silent || !_apData) body.innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i><i></i></div>';
   try {
     const back = Math.max(100, Math.ceil((Date.now() - new Date(r.from + 'T00:00:00').getTime()) / 864e5) + 2);
     const [data, tIdx, lctx] = await Promise.all([stFetch(!!force, back), stLoadTests(!!force), apLisCtx(!!force)]);
@@ -8732,7 +8756,7 @@ async function apLoad(force){
       bonus.sort((a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
       const tst = tIdx ? tIdx.get(s.id, s.name) : null;
       const test = tst && tst.latest !== undefined ? { score: tst.latest, unit: tst.latestUnit || '', ts: tst.latestTs } : null;
-      return { sid: s.id, name: s.name || '—', gid: g.id, group: g.name || '', P: apCalc(bySt[s.id] || [], bonus, test, apLisItems(lctx, s.id, r, arch)) };
+      return { sid: s.id, name: s.name || '—', gid: g.id, group: g.name || '', P: apCalc(bySt[s.id] || [], bonus, test, apLisItems(lctx, s, r, arch)) };
     }));
     if (token !== _apToken) return;
     _apData = { ym, rows, groups: data.groups, tests: !!tIdx, lis: lctx.ok };
@@ -8740,6 +8764,7 @@ async function apLoad(force){
     sel.innerHTML = '<option value="">Barcha guruhlar</option>' + data.groups.map(g => '<option value="' + escHtml(g.id) + '">' + escHtml(g.name || '—') + '</option>').join('');
     sel.value = data.groups.some(g => g.id === cur) ? cur : '';
     apRender();
+    stPublishTopPointers('auto');   // talaba saytidagi Top Pointers ham yangilansin
   } catch (err) {
     console.error('Pointlar yuklanmadi:', err);
     if (token === _apToken) body.innerHTML = '<p style="color:#c0392b;">Pointlarni yuklab bo\'lmadi. Internetni tekshirib, yangilash tugmasini bosing.</p>';
