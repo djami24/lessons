@@ -15124,6 +15124,14 @@ const CefrRL = (function(){
     return Array.from(map.entries()).map(([id, name]) => ({ id: id, name: name || id }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }
+  // CEFR RL: to'g'ri javoblar soni (0–35) -> test sinovi natijasi (0–75). Index = to'g'ri javoblar soni.
+  const CEFR_RL_LIS = [0, 23, 26, 28, 30, 33, 34, 36, 38, 39, 41, 42, 44, 45, 47, 48, 50, 51, 53, 54, 55, 57, 58, 60, 61, 63, 65, 66, 68, 70, 72, 73, 74, 75, 75, 75];
+  const CEFR_RL_REA = [0, 20, 24, 27, 29, 32, 34, 36, 38, 39, 41, 42, 44, 45, 46, 48, 49, 51, 52, 54, 55, 57, 58, 60, 61, 63, 65, 66, 68, 70, 71, 73, 74, 75, 75, 75];
+  function cefrRLScore(sec, raw){
+    if(raw === null || raw === undefined) return null;
+    const tbl = sec === 'listening' ? CEFR_RL_LIS : CEFR_RL_REA;
+    return tbl[Math.max(0, Math.min(COUNT, raw))];
+  }
   function openStudentResults(){
     const list = allStudentUids();
     $('crlStuSel').innerHTML = '<option value="">— talabani tanlang —</option>' +
@@ -15163,27 +15171,27 @@ const CefrRL = (function(){
     rows.sort((a, b) => b.order - a.order);
     if(!rows.length){ body.innerHTML = '<p class="ind-empty">Topshirilgan mock natijalari topilmadi.</p>'; return; }
 
+    rows.forEach(r => { r.rS = cefrRLScore('reading', r.reading); r.lS = cefrRLScore('listening', r.listening); });
     const avg = arr => { const v = arr.filter(x => x !== null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
-    const rAvg = avg(rows.map(r => r.reading));
-    const lAvg = avg(rows.map(r => r.listening));
-    const fx = x => x === null ? '—' : x.toFixed(1) + ' / ' + COUNT;
-    const px = x => x === null ? '' : ' <small style="color:var(--gray);">(' + Math.round(x / COUNT * 100) + '%)</small>';
+    const rAvg = avg(rows.map(r => r.rS));
+    const lAvg = avg(rows.map(r => r.lS));
+    const fx = x => x === null ? '—' : String(Math.round(x * 10) / 10);
     const stat = (label, value) => '<div style="border:1px solid var(--line);border-radius:12px;padding:10px 12px;">' +
       '<div style="font-size:.78rem;color:var(--gray);">' + label + '</div>' +
       '<div style="font-size:1.1rem;font-weight:800;">' + value + '</div></div>';
-    const cell = v => v === null
+    const cell = (raw, s) => raw === null
       ? '<span class="ind-badge ind-badge--none">Topshirmagan</span>'
-      : '<span class="ind-badge ind-badge--done">' + v + ' / ' + COUNT + '</span> <small style="color:var(--gray);">' + Math.round(v / COUNT * 100) + '%</small>';
+      : '<span class="ind-badge ind-badge--done">' + s + '</span> <small style="color:var(--gray);">(' + raw + ' / ' + COUNT + ' to\'g\'ri)</small>';
 
     body.innerHTML =
       '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">' +
         stat('Topshirgan mocklar', rows.length) +
-        stat("O'rtacha Reading", fx(rAvg) + px(rAvg)) +
-        stat("O'rtacha Listening", fx(lAvg) + px(lAvg)) +
+        stat("O'rtacha Reading (ball)", fx(rAvg)) +
+        stat("O'rtacha Listening (ball)", fx(lAvg)) +
       '</div>' +
-      '<p style="font-size:.78rem;color:var(--gray);margin:0 0 10px;">O\'rtacha faqat topshirilgan bo\'limlar bo\'yicha hisoblanadi.</p>' +
+      '<p style="font-size:.78rem;color:var(--gray);margin:0 0 10px;">Ball test sinovi jadvali bo\'yicha (0–75). O\'rtacha faqat topshirilgan bo\'limlar bo\'yicha hisoblanadi.</p>' +
       '<div class="table-wrap"><table class="data-table"><thead><tr><th>Mock nomi</th><th>Reading</th><th>Listening</th></tr></thead><tbody>' +
-      rows.map(r => '<tr><td><strong>' + esc(r.title) + '</strong></td><td>' + cell(r.reading) + '</td><td>' + cell(r.listening) + '</td></tr>').join('') +
+      rows.map(r => '<tr><td><strong>' + esc(r.title) + '</strong></td><td>' + cell(r.reading, r.rS) + '</td><td>' + cell(r.listening, r.lS) + '</td></tr>').join('') +
       '</tbody></table></div>';
   }
 
