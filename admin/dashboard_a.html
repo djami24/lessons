@@ -1204,6 +1204,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
             <select id="apMonth" class="st-select" title="Oyni tanlang"></select>
             <input type="search" id="apSearch" class="ap-search" placeholder="Talaba qidirish…">
             <button class="btn btn-ghost btn-sm" id="apRefresh" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
+            <button class="btn btn-ghost btn-sm" id="apImgBtn" title="Jadvalni rasm (PNG) qilib yuklash">Rasm qilib yuklash</button>
           </div>
         </div>
       </div>
@@ -8701,6 +8702,7 @@ function apInit(){
   document.getElementById('apGroup').addEventListener('change', apRender);
   document.getElementById('apSearch').addEventListener('input', apRender);
   document.getElementById('apRefresh').addEventListener('click', () => apLoad(true));
+  document.getElementById('apImgBtn').addEventListener('click', apDrawRowsImage);
   document.getElementById('apBody').addEventListener('click', e => {
     const th = e.target.closest('th[data-sort]');
     if (th) { const k = th.dataset.sort; if (_apSort === k) _apDir = -_apDir; else { _apSort = k; _apDir = k === 'name' ? 1 : -1; } apRender(); return; }
@@ -8744,6 +8746,99 @@ async function apLoad(force){
   }
 }
 
+let _apLastRows = [], _apLastRank = {};
+// Pointlar jadvalini (hozir ko'rinib turgan qatorlar) PNG rasm qilib yuklaydi
+function apDrawRowsImage(){
+  const rows = _apLastRows;
+  if (!_apData || !rows || !rows.length) { showToast('Yuklash uchun ma\'lumot yo\'q', true); return; }
+  const sel = document.getElementById('apGroup');
+  const gname = sel.value ? sel.options[sel.selectedIndex].text : 'Barcha guruhlar';
+  const W = 1000, PAD = 28, HEAD = 100, COLH = 42, ROW = 54, FOOT = 46;
+  const H = HEAD + COLH + rows.length * ROW + FOOT;
+  const DPR = 2;
+  const cv = document.createElement('canvas');
+  cv.width = W * DPR; cv.height = H * DPR;
+  const c = cv.getContext('2d');
+  c.scale(DPR, DPR);
+  const F = (w, s) => w + ' ' + s + 'px Inter, "Segoe UI", Arial, sans-serif';
+  const ell = (text, maxW) => {
+    let t = String(text == null ? '' : text);
+    if (c.measureText(t).width <= maxW) return t;
+    while (t.length && c.measureText(t + '…').width > maxW) t = t.slice(0, -1);
+    return t + '…';
+  };
+  // Ustunlar: [kalit, sarlavha, x, kenglik, tekislash]
+  const COLS = [
+    ['rk',  '#',          PAD,        44,  'left'],
+    ['nm',  'Talaba',     PAD + 44,   300, 'left'],
+    ['att', 'Davomat',    PAD + 344,  110, 'right'],
+    ['hw',  'Uy vazifa',  PAD + 454,  120, 'right'],
+    ['lis', 'Listening',  PAD + 574,  130, 'right'],
+    ['bon', 'Qo\'shimcha', PAD + 704, 120, 'right'],
+    ['tot', 'Jami',       PAD + 824,  120, 'right']
+  ];
+  const colX = (col) => col[4] === 'right' ? col[2] + col[3] - 14 : col[2] + 14;
+  const put = (text, col, y) => { c.textAlign = col[4]; c.fillText(text, colX(col), y); };
+
+  // Fon
+  c.fillStyle = '#ffffff'; c.fillRect(0, 0, W, H);
+  // Sarlavha
+  c.textBaseline = 'alphabetic'; c.textAlign = 'left';
+  c.fillStyle = '#1a2238'; c.font = F(800, 28);
+  c.fillText('Pointlar — ' + rpLabel(_apData.ym), PAD, 50);
+  const avg = Math.round(rows.reduce((t, r) => t + r.P.total, 0) / rows.length);
+  c.fillStyle = '#6b7280'; c.font = F(400, 15);
+  c.fillText(gname + ' · ' + rows.length + ' ta talaba · o\'rtacha ' + avg + ' point', PAD, 76);
+
+  // Ustun sarlavhalari
+  const headY = HEAD + COLH - 16;
+  c.fillStyle = '#6b7280'; c.font = F(700, 12);
+  COLS.forEach(col => put(col[1].toUpperCase(), col, headY));
+  c.fillStyle = '#e5e7eb'; c.fillRect(PAD, HEAD + COLH - 2, W - PAD * 2, 1);
+
+  // Qatorlar
+  rows.forEach((r, i) => {
+    const y0 = HEAD + COLH + i * ROW;
+    const rk = _apLastRank[r.sid];
+    // Rank
+    c.font = F(700, 15);
+    c.fillStyle = rk === 1 ? '#d97706' : rk === 2 ? '#64748b' : rk === 3 ? '#b45309' : '#6b7280';
+    c.textAlign = 'left'; c.fillText(String(rk), COLS[0][2] + 14, y0 + 32);
+    // Talaba + guruh
+    c.fillStyle = '#1a2238'; c.font = F(700, 15);
+    c.textAlign = 'left';
+    c.fillText(ell(r.name, 280), COLS[1][2] + 14, y0 + 23);
+    c.fillStyle = '#9ca3af'; c.font = F(400, 12);
+    c.fillText(ell(r.group, 280), COLS[1][2] + 14, y0 + 41);
+    // Qiymatlar
+    c.font = F(400, 15);
+    c.fillStyle = '#1a2238';
+    put(r.P.attMax ? r.P.att + ' / ' + r.P.attMax : '—', COLS[2], y0 + 32);
+    put(r.P.hwMax ? r.P.hw + ' / ' + r.P.hwMax : '—', COLS[3], y0 + 32);
+    put(r.P.lisItems.length ? r.P.lis + ' / ' + r.P.lisMax : '—', COLS[4], y0 + 32);
+    c.fillStyle = r.P.bonus > 0 ? '#059669' : r.P.bonus < 0 ? '#dc2626' : '#6b7280';
+    put(apSigned(r.P.bonus), COLS[5], y0 + 32);
+    c.fillStyle = '#2F6FED'; c.font = F(800, 18);
+    put(String(r.P.total), COLS[6], y0 + 33);
+    // Ajratuvchi chiziq
+    c.fillStyle = '#eef0f4'; c.fillRect(PAD, y0 + ROW - 1, W - PAD * 2, 1);
+  });
+
+  // Pastki yozuv
+  c.fillStyle = '#9ca3af'; c.font = F(400, 12); c.textAlign = 'left';
+  c.fillText('Djami Lessons · Pointlar', PAD, H - 18);
+
+  cv.toBlob(blob => {
+    if (!blob) { showToast('Rasm yaratib bo\'lmadi', true); return; }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'pointlar-' + _apData.ym + (sel.value ? '-' + gname.replace(/\s+/g, '_') : '') + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    showToast('Rasm yuklandi');
+  }, 'image/png');
+}
+
 function apRender(){
   const body = document.getElementById('apBody');
   if (!_apData) return;
@@ -8755,10 +8850,11 @@ function apRender(){
   const rank = {}; byTotal.forEach(r => { rank[r.sid] = 1 + byTotal.filter(o => o.P.total > r.P.total).length; });
   rows.sort((a, b) => { const x = val(a), y = val(b); return (x < y ? -1 : x > y ? 1 : a.name.localeCompare(b.name)) * _apDir; });
   const avg = rows.length ? Math.round(rows.reduce((t, r) => t + r.P.total, 0) / rows.length) : 0;
+  _apLastRows = rows; _apLastRank = rank;
   const th = (k, label, l) => '<th class="' + (l ? 'l ' : '') + (_apSort === k ? 'on' : '') + '" data-sort="' + k + '" data-arrow="' + (_apDir < 0 ? '\u25BC' : '\u25B2') + '">' + label + '</th>';
   const cls = n => n > 0 ? 'ap-pos' : n < 0 ? 'ap-neg' : 'ap-mut';
-  let h = '<p class="ap-sum">' + rpLabel(_apData.ym) + ' · ' + rows.length + ' ta talaba · o\'rtacha ' + avg + ' point' + (_apData.tests ? '' : ' · <span class="ap-neg">test natijalari yuklanmadi</span>') + (_apData.lis ? '' : ' · <span class="ap-neg">listening natijalari yuklanmadi</span>') + '</p>';
-  h += '<div class="ap-card"><table class="ap-table"><thead><tr><th class="l">#</th>' + th('name', 'Talaba', true) + th('att', 'Davomat') + th('hw', 'Uy vazifa') + th('lis', 'Listening') + th('test', 'Test') + th('bonus', 'Qo\'shimcha') + th('total', 'Jami') + '</tr></thead><tbody>';
+  let h = '<p class="ap-sum">' + rpLabel(_apData.ym) + ' · ' + rows.length + ' ta talaba · o\'rtacha ' + avg + ' point' + (_apData.lis ? '' : ' · <span class="ap-neg">listening natijalari yuklanmadi</span>') + '</p>';
+  h += '<div class="ap-card"><table class="ap-table"><thead><tr><th class="l">#</th>' + th('name', 'Talaba', true) + th('att', 'Davomat') + th('hw', 'Uy vazifa') + th('lis', 'Listening') + th('bonus', 'Qo\'shimcha') + th('total', 'Jami') + '</tr></thead><tbody>';
   rows.forEach(r => {
     const rk = rank[r.sid];
     h += '<tr data-sid="' + escHtml(r.sid) + '"><td class="l ap-rk r' + Math.min(rk, 4) + '">' + rk + '</td>' +
@@ -8766,11 +8862,10 @@ function apRender(){
       '<td>' + (r.P.attMax ? r.P.att + ' <small class="ap-mut">/ ' + r.P.attMax + '</small>' : '<span class="ap-mut">—</span>') + '</td>' +
       '<td>' + (r.P.hwMax ? r.P.hw + ' <small class="ap-mut">/ ' + r.P.hwMax + '</small>' : '<span class="ap-mut">—</span>') + '</td>' +
       '<td>' + (r.P.lisItems.length ? r.P.lis + ' <small class="ap-mut">/ ' + r.P.lisMax + '</small>' : '<span class="ap-mut">—</span>') + '</td>' +
-      '<td>' + (r.P.testInfo ? r.P.test : '<span class="ap-mut">—</span>') + '</td>' +
       '<td class="' + cls(r.P.bonus) + '">' + apSigned(r.P.bonus) + '</td>' +
       '<td class="ap-tot">' + r.P.total + '</td></tr>';
   });
-  if (!rows.length) h += '<tr><td colspan="8" class="l ap-mut" style="padding:18px;cursor:default;">Hech narsa topilmadi.</td></tr>';
+  if (!rows.length) h += '<tr><td colspan="7" class="l ap-mut" style="padding:18px;cursor:default;">Hech narsa topilmadi.</td></tr>';
   h += '</tbody></table></div>';
   body.innerHTML = h;
 }
