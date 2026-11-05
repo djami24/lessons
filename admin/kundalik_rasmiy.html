@@ -360,6 +360,8 @@ function getComment(n) {
   const set = (id, v) => { if (v !== null && v !== undefined && v !== '') document.getElementById(id).value = v; };
   set('ismFamiliya', d.name);
   set('daraja', d.daraja);
+  set('keldi', d.keldi);
+  set('qoldirdi', d.qoldirdi);
   set('sana', d.sana);
   if (d.natija !== null && d.natija !== undefined) { set('natija', d.natija); updateGrade(); }
 })();
