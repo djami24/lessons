@@ -1933,6 +1933,9 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <label style="display:flex; align-items:center; gap:.4em; font-weight:600; font-size:.9rem; cursor:pointer;">
             <input type="radio" name="gbAddMode" id="gbAddModeOne" value="one"> Bitta ismga qo‘shish
           </label>
+          <label style="display:flex; align-items:center; gap:.4em; font-weight:600; font-size:.9rem; cursor:pointer;">
+            <input type="radio" name="gbAddMode" id="gbAddModeOquv" value="oquv"> O‘quv guruhidan qo‘shish
+          </label>
         </div>
 
         <div id="gbAddModeAllPanel">
@@ -1952,6 +1955,14 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
             <button class="btn btn-amber btn-sm" id="gbOneAddBtn">Qo‘shish</button>
           </div>
           <p style="font-size:.78rem; color:var(--gray); margin:6px 0 0;">ID maydoniga «O‘quv jarayoni» bo‘limida shu talabaga berilgan xuddi o‘sha ID’ni kiriting — shunda talaba bosh sahifasida faqat bitta ID bilan test natijasi ham avtomatik chiqadi. Keyinroq pastdagi jadvaldan ham qo‘shish/tahrirlash mumkin.</p>
+        </div>
+
+        <div id="gbAddModeOquvPanel" style="display:none;">
+          <div style="display:flex; gap:.6em; flex-wrap:wrap;">
+            <select id="gbOquvGroupSel" style="flex:1; min-width:220px;"><option value="">Yuklanmoqda…</option></select>
+            <button class="btn btn-amber btn-sm" id="gbOquvAddBtn">Guruhni qo‘shish</button>
+          </div>
+          <p style="font-size:.78rem; color:var(--gray); margin:6px 0 0;">Tanlangan o‘quv guruhidagi barcha talabalar o‘quv jarayonidagi ID’si bilan qo‘shiladi. Talaba allaqachon bor bo‘lsa, takror qo‘shilmaydi; ismi mos kelgan talabaga ID biriktiriladi.</p>
         </div>
 
         <p id="gbBulkHint" style="margin:10px 0 0; font-size:.85rem; color:var(--gray);"></p>
@@ -10982,13 +10993,16 @@ function renderGbUnitChips(){
 const gbAddModeAll = document.getElementById('gbAddModeAll');
 const gbAddModeOne = document.getElementById('gbAddModeOne');
 function updateGbAddMode(){
-  const isAll = gbAddModeAll.checked;
-  document.getElementById('gbAddModeAllPanel').style.display = isAll ? 'block' : 'none';
-  document.getElementById('gbAddModeOnePanel').style.display = isAll ? 'none' : 'block';
+  const mode = document.querySelector('input[name="gbAddMode"]:checked').value;
+  document.getElementById('gbAddModeAllPanel').style.display = mode === 'all' ? 'block' : 'none';
+  document.getElementById('gbAddModeOnePanel').style.display = mode === 'one' ? 'block' : 'none';
+  document.getElementById('gbAddModeOquvPanel').style.display = mode === 'oquv' ? 'block' : 'none';
   document.getElementById('gbBulkHint').textContent = '';
+  if(mode === 'oquv') loadGbOquvGroups();
 }
 gbAddModeAll.addEventListener('change', updateGbAddMode);
 gbAddModeOne.addEventListener('change', updateGbAddMode);
+document.getElementById('gbAddModeOquv').addEventListener('change', updateGbAddMode);
 
 document.getElementById('gbOneAddBtn').addEventListener('click', async () => {
   const nameEl = document.getElementById('gbOneNameInput');
@@ -11043,6 +11057,56 @@ document.getElementById('gbBulkAddBtn').addEventListener('click', async () => {
   hint.textContent = ok ? `${names.length} ta talaba "${group}" guruhiga qo'shildi.` : "Saqlashda xatolik yuz berdi, qayta urinib ko'ring.";
   btn.disabled = false;
   setTimeout(() => { hint.textContent = ''; }, 4000);
+});
+
+// ---- O'quv guruhidan qo'shish: guruhdagi talabalar o'quv ID'si bilan qo'shiladi ----
+async function loadGbOquvGroups(){
+  const sel = document.getElementById('gbOquvGroupSel');
+  if(!sel) return;
+  try{
+    const snap = await db.collection('oquv_groups').orderBy('name').get();
+    sel.innerHTML = '<option value="">— guruhni tanlang —</option>' +
+      snap.docs.map(d => '<option value="' + escapeHtml(d.id) + '">' + escapeHtml(d.data().name || d.id) + '</option>').join('');
+  } catch(e){
+    sel.innerHTML = '<option value="">Guruhlarni yuklab bo‘lmadi</option>';
+  }
+}
+
+document.getElementById('gbOquvAddBtn').addEventListener('click', async () => {
+  const sel = document.getElementById('gbOquvGroupSel');
+  const hint = document.getElementById('gbBulkHint');
+  const btn = document.getElementById('gbOquvAddBtn');
+  if(!sel.value){ hint.textContent = 'Iltimos, o‘quv guruhini tanlang.'; return; }
+  const gname = sel.options[sel.selectedIndex].textContent.trim();
+  const nk = v => String(v || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  btn.disabled = true;
+  hint.textContent = "Yuklanmoqda\u2026";
+  try{
+    const snap = await db.collection('oquv_groups').doc(sel.value).collection('students').get();
+    let added = 0, linked = 0, skipped = 0;
+    snap.docs.forEach((d, i) => {
+      const pid = d.id;
+      const name = String(d.data().name || '').trim();
+      if(!name){ skipped++; return; }
+      // Bu ID allaqachon jadvalda bo'lsa — o'tkazib yuboriladi
+      if(gbData.students.some(s => s.progressId && normalizeGbId(s.progressId) === normalizeGbId(pid))){ skipped++; return; }
+      // Ism mos kelsa va ID yo'q bo'lsa — shu talabaga ID biriktiriladi
+      const byName = gbData.students.find(s => !s.progressId && s.group === gname && nk(s.name) === nk(name));
+      if(byName){ byName.progressId = pid; linked++; return; }
+      gbData.students.push({ id: 's' + Date.now() + '_' + i + Math.floor(Math.random()*1000), name, group: gname, progressId: pid, scores: {} });
+      added++;
+    });
+    renderGbAdminGradeTable();
+    const ok = await saveGradebook();
+    hint.textContent = ok
+      ? `"${gname}": ${added} ta yangi qo‘shildi, ${linked} ta mavjud talabaga ID biriktirildi, ${skipped} ta o‘tkazib yuborildi.`
+      : "Saqlashda xatolik yuz berdi, qayta urinib ko'ring.";
+  } catch(e){
+    hint.textContent = 'Xatolik: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    setTimeout(() => { hint.textContent = ''; }, 6000);
+  }
 });
 
 // ---- Grade table ----
