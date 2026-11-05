@@ -274,3 +274,7 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .lhw-bulk-st{ margin:8px 0 0; font-size:.8rem; line-height:1.45; color:var(--lhw-muted,#6b7599); }
 .lhw-bulk-st.ok{ color:#16a34a; font-weight:700; }
 .lhw-bulk-st.warn{ color:#d97706; font-weight:700; }
+.lhw-ans-row{ display:flex; gap:8px; align-items:flex-end; }
+.lhw-ans-row .lhw-field{ flex:1 1 auto; min-width:0; }
+.lhw-ans-row .lhw-btn.sm{ flex:0 0 auto; }
+.lhw-blank-tools{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:4px; }
