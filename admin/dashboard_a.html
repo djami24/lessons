@@ -10628,7 +10628,9 @@ async function ojKundalikOpen(){
     ]);
     const gb = gbSnap.exists ? gbSnap.data() : {};
     const students = Array.isArray(gb.students) ? gb.students : [];
-    const match = students.find(s => s.progressId && normalizeGbId(s.progressId) === normalizeGbId(code));
+    let match = students.find(s => s.progressId && normalizeGbId(s.progressId) === normalizeGbId(code));
+    // ID mos kelmasa — progressId'siz talabani ism bo'yicha topadi (talaba sahifasidagi bilan bir xil)
+    if(!match && typeof GB !== 'undefined') match = students.find(s => !s.progressId && GB.nameKey(s.name) === GB.nameKey(name));
 
     // Oxirgi test: gradebook'dagi guruh birliklari bo'yicha (talaba sahifasidagi bilan bir xil hisob)
     let latest = null;
