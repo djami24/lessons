@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Talabaning o'zlashtirish kundaligi</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{
+  --ink:#1a1a1a; --muted:#5d5d5d; --line:#3a3a3a; --hair:#cfcfcf;
+  --red:#7a1c1c; --navy:#1b2e42; --tint:#f6eeee; --paper:#ffffff; --bg:#ebebe8;
+}
+*{ margin:0; padding:0; box-sizing:border-box; }
+body{
+  font-family:'Times New Roman', Times, serif;
+  background:var(--bg); color:var(--ink);
+  min-height:100vh; padding:24px 12px 48px;
+  display:flex; flex-direction:column; align-items:center;
+}
+
+/* ===== SAHIFA (A4 ko'rinishi) ===== */
+.sheet{
+  width:100%; max-width:800px; background:var(--paper);
+  box-shadow:0 2px 18px rgba(0,0,0,.14);
+  padding:34px 42px 30px;
+}
+
+/* ===== SARLAVHA ===== */
+.head{ display:flex; border:1.5px solid var(--line); }
+.head-title{
+  flex:1; background:var(--red); color:#fff;
+  padding:13px 18px; font-size:16px; font-weight:700;
+  letter-spacing:.4px; text-transform:uppercase;
+  display:flex; align-items:center;
+}
+.head-logo{
+  min-width:130px; background:var(--navy); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-family:Arial, sans-serif; font-weight:900; font-size:22px;
+  letter-spacing:-.5px; padding:10px 20px;
+}
+.meta{ display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:7px; }
+
+/* ===== BO'LIMLAR ===== */
+.sec{ margin-top:22px; }
+.sec-h{
+  display:flex; align-items:baseline; gap:8px;
+  border-bottom:1.5px solid var(--line); padding-bottom:4px; margin-bottom:10px;
+}
+.sec-n{ font-weight:700; color:var(--red); }
+.sec-t{ font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:.3px; }
+
+/* ===== KATAKLI JADVAL (maydonlar) ===== */
+.row{ display:grid; border:1px solid var(--line); }
+.row + .row{ border-top:none; }
+.r2{ grid-template-columns:1fr 1fr; }
+.r3{ grid-template-columns:1fr 1fr 1fr; }
+.cell{ padding:6px 10px 7px; }
+.row > .cell + .cell{ border-left:1px solid var(--line); }
+.cell label{ display:block; font-size:12px; font-weight:700; color:var(--muted); margin-bottom:3px; }
+.cell input{
+  width:100%; border:none; outline:none; background:transparent;
+  font:inherit; font-size:15px; color:var(--ink); padding:2px 0;
+}
+.cell input::placeholder{ color:#b3b3b3; font-style:italic; }
+
+/* ===== BAHOLASH + NATIJA ===== */
+.grade-wrap{ display:grid; grid-template-columns:1fr 210px; gap:18px; align-items:start; }
+table.grade{ width:100%; border-collapse:collapse; font-size:14px; }
+table.grade th, table.grade td{ border:1px solid var(--line); padding:6px 10px; text-align:left; }
+table.grade th{ background:#ececec; font-size:12.5px; text-transform:uppercase; letter-spacing:.3px; }
+table.grade tr.current td{ background:var(--tint); font-weight:700; color:var(--red); }
+.grade-live{ margin-top:7px; font-size:13px; font-weight:700; color:var(--red); min-height:18px; }
+
+.score{ border:1.5px solid var(--line); display:flex; flex-direction:column; }
+.score-top{ flex:1; display:flex; align-items:center; justify-content:center; gap:4px; padding:14px 10px; }
+.score-top input{
+  width:88px; text-align:right; border:none; outline:none; background:transparent;
+  font:inherit; font-size:34px; font-weight:700; color:var(--ink); padding:0;
+}
+.score-top input::placeholder{ color:#c4c4c4; }
+.score-of{ font-size:18px; color:var(--muted); }
+.score-foot{
+  border-top:1.5px solid var(--line); display:flex; justify-content:space-between;
+  align-items:center; padding:7px 10px; font-size:12px; font-weight:700; letter-spacing:.3px;
+}
+.badge{ background:var(--red); color:#fff; min-width:30px; text-align:center; padding:2px 8px; font-size:15px; }
+
+/* ===== IZOH ===== */
+.izoh textarea{
+  width:100%; min-height:130px; resize:vertical; outline:none;
+  border:1px solid var(--line); padding:9px 11px;
+  font:inherit; font-size:15px; line-height:1.55; color:var(--ink);
+}
+
+/* ===== IMZOLAR ===== */
+.sig-note{ font-size:12.5px; font-style:italic; color:var(--muted); margin-bottom:8px; }
+.sig-grid{ display:grid; grid-template-columns:1fr 1fr; gap:26px 30px; }
+.sig-label{ display:block; font-size:13px; font-weight:700; margin-bottom:4px; }
+.sig-field input{
+  width:100%; border:none; outline:none; background:transparent;
+  font:inherit; font-size:15px; padding:2px 0; color:var(--ink);
+  border-bottom:1px solid var(--line);
+}
+.sig-field input::placeholder{ color:#b3b3b3; font-style:italic; }
+.sig-line{ border-bottom:1px solid var(--line); height:34px; }
+
+/* ===== DIQQAT ===== */
+.notice{
+  margin-top:24px; border-left:4px solid var(--red); background:var(--tint);
+  padding:12px 16px; font-size:13.5px; line-height:1.6;
+}
+.notice-t{ display:block; font-size:14px; font-weight:700; color:var(--red); margin-bottom:4px; }
+.notice strong{ font-weight:700; }
+
+/* ===== PASTKI QISM ===== */
+.foot{
+  margin-top:20px; border-top:1.5px solid var(--line); padding-top:9px;
+  display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; font-size:13.5px;
+}
+.foot-r{ text-align:right; }
+.foot-c{ font-size:12px; color:var(--muted); margin-top:6px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:6px; }
+
+/* ===== TUGMALAR ===== */
+.actions{ display:flex; gap:10px; margin-top:22px; }
+.btn{
+  height:42px; padding:0 18px; border:none; cursor:pointer; font:inherit;
+  font-size:13px; font-weight:700; letter-spacing:.6px; text-transform:uppercase;
+  transition:background .15s, color .15s;
+}
+.btn-pdf{ flex:1; background:var(--red); color:#fff; }
+.btn-pdf:hover{ background:#611616; }
+.btn-print{ flex:1; background:var(--navy); color:#fff; }
+.btn-print:hover{ background:#12202e; }
+.btn-clear{ background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+.btn-clear:hover{ border-color:var(--red); color:var(--red); }
+
+.alert{
+  display:none; margin-top:12px; padding:9px 12px; font-size:13px; font-weight:700;
+  border-left:3px solid;
+}
+.alert.err{ background:#fbecec; color:var(--red); border-color:var(--red); }
+.alert.ok{ background:#eaf5ee; color:#1a7a45; border-color:#1a7a45; }
+
+/* ===== MOSLASHUVCHANLIK ===== */
+@media (max-width:640px){
+  .sheet{ padding:20px 16px; }
+  .r3{ grid-template-columns:1fr; }
+  .r2{ grid-template-columns:1fr; }
+  .row > .cell + .cell{ border-left:none; border-top:1px solid var(--line); }
+  .grade-wrap{ grid-template-columns:1fr; }
+  .sig-grid{ grid-template-columns:1fr; }
+  .actions{ flex-direction:column; }
+  .head-title{ font-size:14px; padding:10px 12px; }
+  .head-logo{ min-width:90px; font-size:18px; }
+}
+
+/* ===== CHOP ETISH ===== */
+@page{ size:A4; margin:12mm; }
+@media print{
+  body{ background:#fff; padding:0; display:block; }
+  .sheet{ box-shadow:none; max-width:none; padding:0; }
+  .actions, .alert{ display:none !important; }
+  * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+
+  /* Bitta A4 ga sig'ishi uchun ixchamlash */
+  .head-title{ padding:9px 14px; font-size:14px; }
+  .head-logo{ padding:7px 16px; font-size:19px; }
+  .meta{ margin-top:5px; }
+  .sec{ margin-top:12px; }
+  .sec-h{ margin-bottom:6px; padding-bottom:3px; }
+  .cell{ padding:4px 9px 5px; }
+  .cell label{ margin-bottom:1px; }
+  table.grade th, table.grade td{ padding:3px 9px; font-size:13px; }
+  .grade-live{ margin-top:4px; }
+  .score-top input{ font-size:28px; }
+  .score-top{ padding:8px 10px; }
+  .izoh textarea{ min-height:0; height:auto; resize:none; border:1px solid var(--line); font-size:13px; line-height:1.4; padding:6px 9px; }
+  .sig-note{ margin-bottom:4px; }
+  .sig-grid{ gap:12px 30px; }
+  .sig-line{ height:24px; }
+  .notice{ margin-top:12px; padding:8px 14px; font-size:12.5px; line-height:1.5; }
+  .foot{ margin-top:10px; padding-top:6px; font-size:12.5px; }
+  .foot-c{ margin-top:3px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+
+  <header class="head">
+    <div class="head-title">Talabaning o'zlashtirish kundaligi</div>
+    <div class="head-logo">&#8801;EDU</div>
+  </header>
+
+  <div class="meta">
+    <span>Ota-ona va o'qituvchi uchun hujjat</span>
+    <span>O'qituvchi: Ashurov Abdurahmon</span>
+  </div>
+
+  <!-- 1. TALABA MA'LUMOTLARI -->
+  <section class="sec">
+    <div class="sec-h"><span class="sec-n">1.</span><span class="sec-t">Talaba ma'lumotlari</span></div>
+    <div class="row r2">
+      <div class="cell">
+        <label for="ismFamiliya">Ism familiya</label>
+        <input id="ismFamiliya" type="text" placeholder="Ism va familiyani kiriting">
+      </div>
+      <div class="cell">
+        <label for="daraja">Daraja</label>
+        <input id="daraja" type="text" placeholder="Guruh / daraja">
+      </div>
+    </div>
+    <div class="row r3">
+      <div class="cell">
+        <label for="keldi">Darslarga keldi</label>
+        <input id="keldi" type="number" min="0" placeholder="Davomat">
+      </div>
+      <div class="cell">
+        <label for="qoldirdi">Dars qoldirdi</label>
+        <input id="qoldirdi" type="number" min="0" placeholder="0">
+      </div>
+      <div class="cell">
+        <label for="sana">Sana</label>
+        <input id="sana" type="date">
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. BAHOLASH VA NATIJA -->
+  <section class="sec">
+    <div class="sec-h"><span class="sec-n">2.</span><span class="sec-t">Baholash va imtihon natijasi</span></div>
+    <div class="grade-wrap">
+      <div>
+        <table class="grade" id="gradeTable">
+          <thead>
+            <tr><th style="width:22%">Baho</th><th style="width:30%">Foiz</th><th>Tavsif</th></tr>
+          </thead>
+          <tbody>
+            <tr data-g="A+"><td>A+</td><td>100%</td><td>Mukammal</td></tr>
+            <tr data-g="A"><td>A</td><td>90-99%</td><td>A'lo</td></tr>
+            <tr data-g="B"><td>B</td><td>80-89%</td><td>Yaxshi</td></tr>
+            <tr data-g="C"><td>C</td><td>70-79%</td><td>Qoniqarli</td></tr>
+            <tr data-g="D"><td>D</td><td>66-69%</td><td>O'rtacha</td></tr>
+            <tr data-g="F"><td>F</td><td>0-65%</td><td>Imtihondan o'tmadi</td></tr>
+          </tbody>
+        </table>
+        <div class="grade-live" id="gradeLive"></div>
+      </div>
+
+      <div class="score">
+        <div class="score-top">
+          <input id="natija" type="number" min="0" max="100" placeholder="—" oninput="updateGrade()">
+          <span class="score-of">/ 100%</span>
+        </div>
+        <div class="score-foot">
+          <span>IMTIHON NATIJASI</span>
+          <span class="badge" id="gradeBadge">—</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. O'QITUVCHI IZOHI -->
+  <section class="sec izoh">
+    <div class="sec-h"><span class="sec-n">3.</span><span class="sec-t">O'qituvchi izohi</span></div>
+    <textarea id="izoh" placeholder="Izoh va tavsiyalar..."></textarea>
+  </section>
+
+  <!-- 4. IMZOLAR -->
+  <section class="sec">
+    <div class="sec-h"><span class="sec-n">4.</span><span class="sec-t">Imzolar</span></div>
+    <p class="sig-note">Ota-ona to'ldirib, imzolab qaytarishi shart.</p>
+    <div class="sig-grid">
+      <div class="sig-field">
+        <span class="sig-label">Ota-ona ism familiyasi</span>
+        <input id="otaOna" type="text" placeholder="">
+      </div>
+      <div>
+        <span class="sig-label">Ota-ona imzosi</span>
+        <div class="sig-line"></div>
+      </div>
+      <div>
+        <span class="sig-label">O'qituvchi imzosi</span>
+        <div class="sig-line"></div>
+      </div>
+      <div>
+        <span class="sig-label">O'quvchi imzosi</span>
+        <div class="sig-line"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIQQAT -->
+  <div class="notice">
+    <span class="notice-t">Diqqat!</span>
+    Iltimos, ushbu <strong>Talabaning o'zlashtirish kundaligini</strong> ehtiyotkorlik bilan saqlang, gijimlamang va yirtmang.
+    Bu kundalik ota-ona tomonidan imzolanib, qaytarilishi lozim. Qo'shimcha ma'lumot olish uchun
+    o'qituvchi bilan bog'lanib, farzandingizning o'qish jarayoni haqida batafsil ma'lumot olishingiz mumkin.
+    <strong>Talaba to'ldirib kelishi mumkin emas, faqat ota-ona to'ldirishi lozim!</strong>
+  </div>
+
+  <!-- PASTKI QISM -->
+  <footer class="foot">
+    <div>O'qituvchi: <strong>Ashurov Abdurahmon</strong></div>
+    <div class="foot-r">Tel: 90 550 67 07</div>
+  </footer>
+  <div class="foot-c">
+    <span>Email: djaami2022@gmail.com</span>
+    <span>Telegram: @djamiteacher</span>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-pdf" type="button" onclick="generatePDF()">&#8659; PDF yuklab olish</button>
+    <button class="btn btn-print" type="button" onclick="printPage()">Chop etish</button>
+    <button class="btn btn-clear" type="button" onclick="clearForm()">Tozalash</button>
+  </div>
+  <div class="alert err" id="errMsg"></div>
+  <div class="alert ok" id="okMsg">PDF muvaffaqiyatli yaratildi!</div>
+
+</div>
+
+<script>
+document.getElementById('sana').valueAsDate = new Date();
+
+function getGrade(n) {
+  if (n === 100) return { letter: 'A+', label: "A+ : 100% — Mukammal" };
+  if (n >= 90)   return { letter: 'A',  label: "A : 90-99% — A'lo" };
+  if (n >= 80)   return { letter: 'B',  label: "B : 80-89% — Yaxshi" };
+  if (n >= 70)   return { letter: 'C',  label: "C : 70-79% — Qoniqarli" };
+  if (n >= 66)   return { letter: 'D',  label: "D : 66-69% — O'rtacha" };
+  return { letter: 'F', label: "F : 0-65% — Imtihondan o'tmadi" };
+}
+
+function getComment(n) {
+  if (n === 100) {
+    return "Hurmatli o'quvchim! Sizni a'lo natija bilan chin dildan tabriklayman! Ushbu muvaffaqiyat sizning mehnatingiz, qat'iyatingiz va bilimga bo'lgan intilishingizning munosib natijasidir. Erishgan yutug'ingiz bilan faxrlansangiz arziydi. Kelgusida ham o'qish va hayot yo'lingizda ulkan muvaffaqiyatlarga erishishingizni, bilim cho'qqilarini zabt etishingizni tilayman. Sizga doimo omad, ilhom va yangi zafarlar yor bo'lsin!";
+  }
+  if (n >= 90 && n <= 99) {
+    return "Natijangiz bilan tabriklayman! Harakatni davom ettiring, albatta yanada yaxshi natijalarga erishasiz.";
+  }
+  if (n >= 70 && n <= 89) {
+    return "Natijangiz bilan tabriklayman! Bu yaxshi boshlanish. Yana biroz ko'proq harakat qilsangiz, keyingi safar bundan ham yuqori natijaga erishishingizga ishonaman. Omad tilayman!";
+  }
+  if (n >= 0 && n <= 69) {
+    return "Hurmatli ota-onalar! Farzandingiz imtihondan yetarli ball to'play olmadi. Buning asosiy sababi darslarga mas'uliyat bilan yondashmaganligi va muntazam tayyorgarlik ko'rmaganligidir. Iltimos, farzandingizning ta'limiga jiddiy e'tibor qarating va uyda ham nazoratni kuchaytiring. Birgalikdagi harakat bilan keyingi imtihonda yaxshi natijaga erishishimiz mumkin.";
+  }
+  return "";
+}
+
+// Admin paneldan kelgan talaba ma'lumotlarini avtomatik to'ldiradi
+(function fillFromAdmin() {
+  let d = null;
+  try {
+    const raw = sessionStorage.getItem('kundalikData');
+    if (raw) { d = JSON.parse(raw); sessionStorage.removeItem('kundalikData'); }
+  } catch (e) { d = null; }
+  if (!d) return;
+  const set = (id, v) => { if (v !== null && v !== undefined && v !== '') document.getElementById(id).value = v; };
+  set('ismFamiliya', d.name);
+  set('daraja', d.daraja);
+  set('sana', d.sana);
+  if (d.natija !== null && d.natija !== undefined) { set('natija', d.natija); updateGrade(); }
+})();
+
+// Chop etishda izoh to'liq ko'rinishi uchun matn balandligiga moslanadi
+window.addEventListener('beforeprint', () => {
+  const ta = document.getElementById('izoh');
+  ta.style.height = 'auto';
+  ta.style.height = ta.scrollHeight + 'px';
+});
+window.addEventListener('afterprint', () => {
+  document.getElementById('izoh').style.height = '';
+});
+
+function showAlert(id, msg) {
+  const el = document.getElementById(id);
+  if (msg) el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideAlerts() {
+  document.getElementById('errMsg').style.display = 'none';
+  document.getElementById('okMsg').style.display = 'none';
+}
+
+// Natijaga qarab baho, tavsif, jadvaldagi qator va izoh yangilanadi
+function updateGrade() {
+  const v = parseInt(document.getElementById('natija').value);
+  const ok = !isNaN(v) && v >= 0 && v <= 100;
+  const g = ok ? getGrade(v) : null;
+  document.getElementById('gradeLive').textContent = g ? '→ ' + g.label : '';
+  document.getElementById('gradeBadge').textContent = g ? g.letter : '—';
+  document.querySelectorAll('#gradeTable tbody tr').forEach(tr => {
+    tr.classList.toggle('current', !!g && tr.dataset.g === g.letter);
+  });
+  if (ok) document.getElementById('izoh').value = getComment(v);
+}
+
+function clearForm() {
+  ['ismFamiliya','daraja','keldi','qoldirdi','izoh','otaOna','natija'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('sana').valueAsDate = new Date();
+  document.getElementById('gradeLive').textContent = '';
+  document.getElementById('gradeBadge').textContent = '—';
+  document.querySelectorAll('#gradeTable tbody tr').forEach(tr => tr.classList.remove('current'));
+  hideAlerts();
+}
+
+function printPage() {
+  window.print();
+}
+
+const MONTHS = ["yanvar","fevral","mart","aprel","may","iyun",
+                "iyul","avgust","sentyabr","oktyabr","noyabr","dekabr"];
+
+function generatePDF() {
+  hideAlerts();
+  const ism    = document.getElementById('ismFamiliya').value.trim();
+  const daraja = document.getElementById('daraja').value.trim();
+  const keldi  = document.getElementById('keldi').value.trim();
+  const qold   = document.getElementById('qoldirdi').value.trim();
+  const sana   = document.getElementById('sana').value;
+  const natija = document.getElementById('natija').value.trim();
+  const izoh   = document.getElementById('izoh').value.trim();
+  const ota    = document.getElementById('otaOna').value.trim();
+
+  if (!ism || !natija || !sana) {
+    showAlert('errMsg', '⚠  Ism familiya, imtihon natijasi va sana majburiy.');
+    return;
+  }
+  const natijaN = parseInt(natija, 10);
+  if (isNaN(natijaN) || natijaN < 0 || natijaN > 100) {
+    showAlert('errMsg', "⚠  Natija 0 dan 100 gacha bo'lishi kerak.");
+    return;
+  }
+
+  // Sana: tanlangan kun (vaqt zonasi siljishisiz)
+  const [sy, sm, sd] = sana.split('-').map(Number);
+  const dateStr = `${sd} ${MONTHS[sm - 1]} ${sy}`;
+  const grade = getGrade(natijaN);
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+  const L = 15, R = 195, W = 180;
+  const INK = [26, 26, 26], MUTED = [93, 93, 93], LINE = [58, 58, 58];
+  const RED = [122, 28, 28], NAVY = [27, 46, 66], TINT = [246, 238, 238];
+
+  // Maydon (katak): kichik sarlavha + qiymat
+  function field(lbl, val, x, y, w, h) {
+    doc.setDrawColor(...LINE); doc.setLineWidth(0.3);
+    doc.rect(x, y, w, h);
+    doc.setFont('times', 'bold'); doc.setFontSize(9); doc.setTextColor(...MUTED);
+    doc.text(lbl, x + 2.5, y + 4.5);
+    if (val) {
+      doc.setFont('times', 'normal'); doc.setFontSize(12); doc.setTextColor(...INK);
+      doc.text(String(val), x + 2.5, y + h - 3, { maxWidth: w - 5 });
+    }
+  }
+
+  // Bo'lim sarlavhasi: raqam + nom + pastki chiziq
+  function section(num, title, y) {
+    doc.setFont('times', 'bold'); doc.setFontSize(11); doc.setTextColor(...RED);
+    doc.text(num + '.', L, y);
+    doc.setTextColor(...INK);
+    doc.text(title.toUpperCase(), L + 6, y);
+    doc.setDrawColor(...LINE); doc.setLineWidth(0.5);
+    doc.line(L, y + 2, R, y + 2);
+  }
+
+  // ── Sarlavha ───────────────────────────────────────────────
+  doc.setFillColor(...RED);  doc.rect(L, 14, 140, 13, 'F');
+  doc.setFillColor(...NAVY); doc.rect(R - 40, 14, 40, 13, 'F');
+  doc.setFont('times', 'bold'); doc.setFontSize(12); doc.setTextColor(255, 255, 255);
+  doc.text("TALABANING O'ZLASHTIRISH KUNDALIGI", L + 4, 22.3);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(15);
+  doc.text('EDU', R - 20, 22.3, { align: 'center' });
+
+  doc.setFont('times', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED);
+  doc.text("Ota-ona va o'qituvchi uchun hujjat", L, 32);
+  doc.text("O'qituvchi: Ashurov Abdurahmon", R, 32, { align: 'right' });
+
+  // ── 1. Talaba ma'lumotlari ─────────────────────────────────
+  section('1', "Talaba ma'lumotlari", 38);
+  field('Ism familiya', ism, L, 42, 110, 14);
+  field('Daraja', daraja, L + 110, 42, 70, 14);
+  field('Darslarga keldi', keldi, L, 56, 60, 14);
+  field('Dars qoldirdi', qold, L + 60, 56, 60, 14);
+  field('Sana', dateStr, L + 120, 56, 60, 14);
+
+  // ── 2. Baholash va natija ──────────────────────────────────
+  section('2', 'Baholash va imtihon natijasi', 84);
+
+  const rows = [
+    ['A+', '100%',  'Mukammal'],
+    ['A',  '90-99%', "A'lo"],
+    ['B',  '80-89%', 'Yaxshi'],
+    ['C',  '70-79%', 'Qoniqarli'],
+    ['D',  '66-69%', "O'rtacha"],
+    ['F',  '0-65%',  "Imtihondan o'tmadi"]
+  ];
+  const tx = L, ty = 90, cw = [22, 28, 60], rh = 7;
+  // sarlavha qatori
+  doc.setFillColor(236, 236, 236);
+  doc.rect(tx, ty, cw[0] + cw[1] + cw[2], rh, 'F');
+  doc.setDrawColor(...LINE); doc.setLineWidth(0.3);
+  doc.rect(tx, ty, cw[0] + cw[1] + cw[2], rh);
+  doc.setFont('times', 'bold'); doc.setFontSize(9); doc.setTextColor(...INK);
+  doc.text('BAHO', tx + 3, ty + 4.8);
+  doc.text('FOIZ', tx + cw[0] + 3, ty + 4.8);
+  doc.text('TAVSIF', tx + cw[0] + cw[1] + 3, ty + 4.8);
+
+  rows.forEach((r, i) => {
+    const y = ty + rh * (i + 1);
+    const current = r[0] === grade.letter;
+    if (current) { doc.setFillColor(...TINT); doc.rect(tx, y, cw[0] + cw[1] + cw[2], rh, 'F'); }
+    doc.setDrawColor(...LINE); doc.rect(tx, y, cw[0] + cw[1] + cw[2], rh);
+    doc.setFont('times', current ? 'bold' : 'normal'); doc.setFontSize(10.5);
+    doc.setTextColor(...(current ? RED : INK));
+    doc.text(r[0], tx + 3, y + 4.8);
+    doc.text(r[1], tx + cw[0] + 3, y + 4.8);
+    doc.text(r[2], tx + cw[0] + cw[1] + 3, y + 4.8);
+  });
+
+  // Natija katagi
+  const bx = 135, by = 90, bw = 60, bh = 49;
+  doc.setDrawColor(...LINE); doc.setLineWidth(0.5);
+  doc.rect(bx, by, bw, bh);
+  doc.setFont('times', 'bold'); doc.setFontSize(9); doc.setTextColor(...MUTED);
+  doc.text('IMTIHON NATIJASI', bx + bw / 2, by + 6.5, { align: 'center' });
+  doc.setFont('times', 'bold'); doc.setFontSize(30); doc.setTextColor(...INK);
+  doc.text(String(natijaN), bx + 27, by + 33, { align: 'right' });
+  doc.setFont('times', 'normal'); doc.setFontSize(14);
+  doc.text('/ 100%', bx + 30, by + 33);
+  doc.setLineWidth(0.5); doc.setDrawColor(...LINE);
+  doc.line(bx, by + 39, bx + bw, by + 39);
+  doc.setFont('times', 'bold'); doc.setFontSize(9); doc.setTextColor(...MUTED);
+  doc.text('BAHO', bx + 4, by + 45.5);
+  doc.setFillColor(...RED); doc.rect(bx + bw - 17, by + 40.5, 13, 7.5, 'F');
+  doc.setFont('times', 'bold'); doc.setFontSize(12); doc.setTextColor(255, 255, 255);
+  doc.text(grade.letter, bx + bw - 10.5, by + 46, { align: 'center' });
+
+  // ── 3. O'qituvchi izohi ────────────────────────────────────
+  section('3', "O'qituvchi izohi", 146);
+  const izohY = 150, izohH = 34;
+  doc.setDrawColor(...LINE); doc.setLineWidth(0.3);
+  doc.rect(L, izohY, W, izohH);
+  if (izoh) {
+    doc.setFont('times', 'normal'); doc.setFontSize(10.5); doc.setTextColor(...INK);
+    const lines = doc.splitTextToSize(izoh, W - 8).slice(0, 6);
+    lines.forEach((line, i) => doc.text(line, L + 4, izohY + 6 + i * 5.2));
+  }
+
+  // ── 4. Imzolar ─────────────────────────────────────────────
+  section('4', 'Imzolar', 192);
+  doc.setFont('times', 'italic'); doc.setFontSize(8.5); doc.setTextColor(...MUTED);
+  doc.text("Ota-ona to'ldirib, imzolab qaytarishi shart.", L, 198);
+
+  doc.setFont('times', 'bold'); doc.setFontSize(10); doc.setTextColor(...INK);
+  doc.text('Ota-ona ism familiyasi', L, 205);
+  doc.text('Ota-ona imzosi', L + 95, 205);
+  doc.setFont('times', 'normal'); doc.setFontSize(12);
+  if (ota) doc.text(ota, L, 213, { maxWidth: 85 });
+  doc.setDrawColor(...LINE); doc.setLineWidth(0.3);
+  doc.line(L, 215, L + 85, 215);
+  doc.line(L + 95, 215, R, 215);
+
+  doc.setFont('times', 'bold'); doc.setFontSize(10); doc.setTextColor(...INK);
+  doc.text("O'qituvchi imzosi", L, 226);
+  doc.text("O'quvchi imzosi", L + 95, 226);
+  doc.line(L, 236, L + 85, 236);
+  doc.line(L + 95, 236, R, 236);
+
+  // ── Diqqat ─────────────────────────────────────────────────
+  const dy = 244, dh = 30;
+  doc.setFillColor(...TINT); doc.rect(L, dy, W, dh, 'F');
+  doc.setFillColor(...RED);  doc.rect(L, dy, 1.2, dh, 'F');
+  doc.setFont('times', 'bold'); doc.setFontSize(10.5); doc.setTextColor(...RED);
+  doc.text('Diqqat!', L + 5, dy + 6);
+  doc.setFont('times', 'normal'); doc.setFontSize(9); doc.setTextColor(...INK);
+  const dtxt = "Iltimos, ushbu Talabaning o'zlashtirish kundaligini ehtiyotkorlik bilan saqlang, gijimlamang va yirtmang. Bu kundalik ota-ona tomonidan imzolanib, qaytarilishi lozim. Qo'shimcha ma'lumot olish uchun o'qituvchi bilan bog'lanib, farzandingizning o'qish jarayoni haqida batafsil ma'lumot olishingiz mumkin.";
+  const dl = doc.splitTextToSize(dtxt, W - 12);
+  dl.forEach((line, i) => doc.text(line, L + 5, dy + 11 + i * 4.6));
+  doc.setFont('times', 'bold');
+  doc.text("Talaba to'ldirib kelishi mumkin emas, faqat ota-ona to'ldirishi lozim!", L + 5, dy + 11 + dl.length * 4.6 + 1);
+
+  // ── Pastki qism ────────────────────────────────────────────
+  doc.setDrawColor(...LINE); doc.setLineWidth(0.4);
+  doc.line(L, 280, R, 280);
+  doc.setFont('times', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED);
+  doc.text("O'qituvchi: ", L, 285);
+  const ow = doc.getTextWidth("O'qituvchi: ");
+  doc.setFont('times', 'bold'); doc.setFontSize(10); doc.setTextColor(...INK);
+  doc.text('Ashurov Abdurahmon', L + ow, 285);
+  doc.setFont('times', 'normal'); doc.setFontSize(9); doc.setTextColor(...MUTED);
+  doc.text('Tel: 90 550 67 07', R, 285, { align: 'right' });
+  doc.text('Email: djaami2022@gmail.com', L, 290);
+  doc.text('Telegram: @djamiteacher', R, 290, { align: 'right' });
+
+  const fname = (ism.replace(/\s+/g, '_') || 'talaba') + '_kundalik.pdf';
+  doc.save(fname);
+
+  const ok = document.getElementById('okMsg');
+  ok.style.display = 'block';
+  setTimeout(() => { ok.style.display = 'none'; }, 5000);
+}
+</script>
+</body>
+</html>
