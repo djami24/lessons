@@ -4017,7 +4017,7 @@ async function getMyListening(ym, archived){
       const date = mystDate(new Date(ms));
       if(date < rng.from || date > rng.to) return;
       const pts = typeof x.finalScore === 'number' ? x.finalScore : (Number(x.score) || 0);
-      out.push({ title: titles[x.exerciseId] || 'Listening', points: pts, max: 5, date });
+      out.push({ title: titles[x.exerciseId] || 'Listening', points: pts, max: (Number(x.total) || (x.answers || []).length || 5), date });
     });
   } catch(e){ console.warn('Listening pointlari yuklanmadi:', e); }
   return out.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
