@@ -2215,7 +2215,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <code id="ojProgressIdVal" style="background:var(--surface,#f4f4f4); padding:4px 9px; border-radius:6px; font-weight:700;"></code>
           <button type="button" class="btn btn-ghost btn-sm" id="ojCopyIdBtn">Nusxalash</button>
         </div>
-        <span style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;"><select class="st-select rp-month-select" title="Hisobot oyi"></select><button type="button" class="btn btn-ghost btn-sm" id="ojStudentPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button></span>
+        <span style="margin-left:auto;display:inline-flex;align-items:center;gap:8px;"><button type="button" class="btn btn-ghost btn-sm" id="ojKundalikBtn">Kundalik chop etish</button><select class="st-select rp-month-select" title="Hisobot oyi"></select><button type="button" class="btn btn-ghost btn-sm" id="ojStudentPdfBtn"><svg class="ic" aria-hidden="true"><use href="#i-file-text"></use></svg> Oylik hisobot (PDF)</button></span>
       </div>
 
       <!-- Oy tanlagich -->
@@ -10613,6 +10613,46 @@ function copyTextToClipboard(text, onCopied){
     document.body.removeChild(tmp);
   }
 }
+
+// O'quv jarayoni sahifasidan kundalik: talabaning oxirgi reading mock natijasi (foizda) bilan
+async function ojKundalikOpen(){
+  const id = _ojActiveStudentId, name = _ojActiveStudentName || '';
+  if(!id) return;
+  const btn = document.getElementById('ojKundalikBtn');
+  btn.disabled = true;
+  try{
+    const [stDoc, attSnap] = await Promise.all([
+      db.collection('students').doc(id).get(),
+      db.collection('reading_mock_attempts').orderBy('submittedAt', 'desc').get()
+    ]);
+    const st = stDoc.exists ? stDoc.data() : {};
+    const norm = s => String(s || '').trim().toLowerCase();
+    const all = attSnap.docs.map(d => d.data())
+      .filter(a => typeof a.correctCount === 'number' && a.totalQuestions > 0);
+    // Avval ID bo'yicha, topilmasa — ism bo'yicha qidiriladi
+    const last = all.find(a => a.studentId === id) || all.find(a => norm(a.studentName) === norm(name));
+    const payload = {
+      name: st.name || name,
+      daraja: st.level || st.daraja || '',
+      natija: null,
+      sana: ''
+    };
+    if(last){
+      payload.natija = Math.round(last.correctCount / last.totalQuestions * 100);
+      const ts = last.submittedAt && last.submittedAt.toDate ? last.submittedAt.toDate() : new Date();
+      const p2 = n => String(n).padStart(2, '0');
+      payload.sana = ts.getFullYear() + '-' + p2(ts.getMonth() + 1) + '-' + p2(ts.getDate());
+    }
+    sessionStorage.setItem('kundalikData', JSON.stringify(payload));
+    window.open('kundalik_rasmiy.html', '_blank');
+    if(!last) showToast('Bu talaba hali test topshirmagan — natija bo‘sh qoldi');
+  } catch(e){
+    showToast('Xatolik: ' + e.message, true);
+  } finally {
+    btn.disabled = false;
+  }
+}
+document.getElementById('ojKundalikBtn').addEventListener('click', ojKundalikOpen);
 
 document.getElementById('ojCopyIdBtn').addEventListener('click', () => {
   const btn = document.getElementById('ojCopyIdBtn');
