@@ -23,11 +23,11 @@
 
   var COL_EX = 'listening_exercises';
   var COL_SUB = 'listening_submissions';
-  var BLANKS = 5;
+  var BLANKS = 5;        // eski mashqlar uchun standart
+  var MAX_BLANKS = 40;   // bitta mashqda ko‘pi bilan shuncha bo‘shliq
   var MAX_ANSWER_LEN = 200;
-  // Taxmin qoidasi: bo‘shliqlarning FLAG_WRONG tasi yoki undan ko‘pi noto‘g‘ri bo‘lsa —
+  // Taxmin qoidasi: barcha bo‘shliqlar noto‘g‘ri bo‘lsa —
   // mashq uchun 0 ball beriladi, PENALTY ta jazo qayd etiladi (balldan ayrilmaydi), natija domlaga taqdim etiladi.
-  var FLAG_WRONG = 5;
   var PENALTY = 100;
   // Marafonning umumiy soni: har bir kiritilgan mashq — bitta marafon (qolganini shundan hisoblaydi)
   var MARATHON_TOTAL = 12;
@@ -49,21 +49,37 @@
       .trim();
   }
 
+  // Mashqdagi bo‘shliqlar soni (javoblar ro‘yxati uzunligi)
+  function countOf(ex) {
+    var n = ex && Array.isArray(ex.answers) ? ex.answers.length : 0;
+    return n >= 1 ? Math.min(n, MAX_BLANKS) : BLANKS;
+  }
+
+  // Topshirilgan javobdagi bo‘shliqlar soni
+  function subCount(sub) {
+    var n = Number(sub && sub.total);
+    if (n >= 1) return n;
+    var m = sub && Array.isArray(sub.answers) ? sub.answers.length : 0;
+    return m >= 1 ? m : BLANKS;
+  }
+
   function acceptedVariants(key) {
     return String(key == null ? '' : key).split('|').map(norm).filter(Boolean);
   }
 
   function grade(keyAnswers, studentAnswers) {
+    var n = (keyAnswers && keyAnswers.length) ? keyAnswers.length : BLANKS;
     var marks = [], correct = 0;
-    for (var i = 0; i < BLANKS; i++) {
+    for (var i = 0; i < n; i++) {
       var ok = acceptedVariants((keyAnswers || [])[i]).indexOf(norm((studentAnswers || [])[i])) !== -1;
       marks.push(ok);
       if (ok) correct++;
     }
-    var flagged = (BLANKS - correct) >= FLAG_WRONG;
+    // Barcha bo‘shliqlar noto‘g‘ri bo‘lsa — taxmin (0 ball, jazo)
+    var flagged = n > 0 && correct === 0;
     var score = flagged ? 0 : correct;
     var penalty = flagged ? PENALTY : 0;
-    return { score: score, marks: marks, flagged: flagged, penalty: penalty, finalScore: score };
+    return { score: score, marks: marks, total: n, flagged: flagged, penalty: penalty, finalScore: score };
   }
 
   // Reytingdagi yakuniy ball (jazo balldan ayrilmaydi, alohida qayd etiladi)
@@ -155,7 +171,7 @@
       var fin = finalOf(r);
       var score = r.penalty
         ? '<span class="lhw-score">' + fin + ' ball</span><small class="lhw-pen">' + r.penalty + ' ta jazo</small>'
-        : '<span class="lhw-score">' + (r.score || 0) + '/' + BLANKS + '</span>';
+        : '<span class="lhw-score">' + (r.score || 0) + '/' + subCount(r) + '</span>';
       var flag = (adminView && r.flagged) ? ' <span class="lhw-flag">⚠ Domlaga</span>' : '';
       return '<li class="lhw-row' + (me ? ' me' : '') + (adminView ? ' lhw-click' : '') + '" data-sid="' + esc(r._id || '') + '">' +
         '<span class="lhw-rank">' + x.rank + '</span>' +
@@ -297,9 +313,9 @@
         '<div class="lhw-modal-emoji">🎉</div>' +
         '<h2>Tabriklayman, ' + esc(first) + '!</h2>' +
         '<p>Siz <b>Listening marafon</b>ga qo‘shildingiz!</p>' +
-        '<p>Jami <b>12 ta marafon</b> bo‘ladi. Har bir mashqda 5 ta bo‘shliq bor — har bir to‘g‘ri javob <b>1 ball</b>.</p>' +
+        '<p>Jami <b>12 ta marafon</b> bo‘ladi. Har bir mashqda bir nechta bo‘shliq bor — har bir to‘g‘ri javob <b>1 ball</b>.</p>' +
         '<div class="lhw-modal-prize">🏆 Marafon oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div>' +
-        '<p class="lhw-modal-warn">⚠️ Eslatma: 5 ta bo‘shliqning hammasi noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi — 0 ball, <b>100 ta jazo</b> qayd etiladi va natija domlaga taqdim etiladi.</p>' +
+        '<p class="lhw-modal-warn">⚠️ Eslatma: barcha bo‘shliqlar noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi — 0 ball, <b>100 ta jazo</b> qayd etiladi va natija domlaga taqdim etiladi.</p>' +
         '<button type="button" class="lhw-modal-btn">Boshlaymiz!</button>' +
       '</div>';
     document.body.appendChild(bg);
@@ -342,7 +358,7 @@
       var badge = sub
         ? (sub.penalty
             ? '<span class="lhw-badge bad" style="background:rgba(229,72,77,.12);color:#E5484D;">Taxmin: ' + sub.penalty + ' ta jazo</span>'
-            : '<span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;">' + (sub.score || 0) + '/' + BLANKS + ' ball</span>')
+            : '<span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;">' + (sub.score || 0) + '/' + subCount(sub) + ' ball</span>')
         : (expired
             ? '<span class="lhw-badge todo" style="background:rgba(120,120,130,.18);color:#6B7280;">Yopilgan</span>'
             : '<span class="lhw-badge todo" style="background:rgba(229,72,77,.12);color:#E5484D;">Topshirilmagan</span>');
@@ -414,7 +430,8 @@
     var area = document.getElementById('lhwFormArea');
     if (!area) return;
     var inputs = '';
-    for (var i = 0; i < BLANKS; i++) {
+    var n = countOf(ex);
+    for (var i = 0; i < n; i++) {
       inputs += '<label class="lhw-blank"><span class="lhw-blank-no">' + (i + 1) + '</span>' +
         '<input type="text" autocomplete="off" spellcheck="false" data-i="' + i + '" placeholder="Bo‘sh joy ' + (i + 1) + '"></label>';
     }
@@ -438,8 +455,9 @@
     document.querySelectorAll('#lhwFormArea input[data-i]').forEach(function (inp) {
       answers[+inp.getAttribute('data-i')] = inp.value.trim();
     });
-    for (var i = 0; i < BLANKS; i++) {
-      if (!answers[i]) { showErr(err, 'Barcha 5 ta bo‘sh joyni to‘ldiring.'); return; }
+    var n = countOf(ex);
+    for (var i = 0; i < n; i++) {
+      if (!answers[i]) { showErr(err, 'Barcha ' + n + ' ta bo‘sh joyni to‘ldiring.'); return; }
       if (answers[i].length > MAX_ANSWER_LEN) { showErr(err, 'Javob juda uzun.'); return; }
     }
     if (err) err.hidden = true;
@@ -456,7 +474,7 @@
         groupId: S.groupId || '',
         answers: answers,
         score: g.score,
-        total: BLANKS,
+        total: countOf(ex),
         marks: g.marks,
         penalty: g.penalty,
         finalScore: g.finalScore,
@@ -482,7 +500,8 @@
     var marks = sub.marks || [];
     var answers = sub.answers || [];
     var rows = '';
-    for (var i = 0; i < BLANKS; i++) {
+    var n = subCount(sub);
+    for (var i = 0; i < n; i++) {
       var ok = !!marks[i];
       // To‘g‘ri javoblar talabaga ko‘rsatilmaydi — faqat o‘z javobi va belgisi
       rows += '<li class="lhw-res ' + (ok ? 'ok' : 'bad') + '">' +
@@ -494,8 +513,8 @@
     var score = sub.score || 0;
     area.innerHTML =
       '<div class="lhw-result">' +
-        '<div class="lhw-score-big">' + score + '<span>/' + BLANKS + '</span></div>' +
-        '<p class="lhw-muted">Siz ' + BLANKS + ' ta bo‘shliqdan ' + score + 'tasini to‘g‘ri topdingiz. Natija topshirilgan — o‘zgartirib bo‘lmaydi.</p>' +
+        '<div class="lhw-score-big">' + score + '<span>/' + n + '</span></div>' +
+        '<p class="lhw-muted">Siz ' + n + ' ta bo‘shliqdan ' + score + 'tasini to‘g‘ri topdingiz. Natija topshirilgan — o‘zgartirib bo‘lmaydi.</p>' +
         (sub.penalty ? '<div class="lhw-warn">⚠️ Taxmin aniqlandi: 0 ball, ' + sub.penalty + ' ta jazo qayd etildi. Natija domlaga taqdim etildi.</div>' : '') +
         '<ol class="lhw-res-list">' + rows + '</ol>' +
         '<p class="lhw-hint lhw-ask-teacher">📩 To‘g‘ri javoblarni o‘qituvchingizdan oling.</p>' +
@@ -519,16 +538,12 @@
     A.editingId = null;
     A.lbId = null;
 
-    var blanks = '';
-    for (var i = 1; i <= BLANKS; i++) {
-      blanks += '<label class="lhw-field"><span>' + i + '-bo‘sh joy javobi *</span>' +
-        '<input type="text" data-ans="' + (i - 1) + '" maxlength="' + MAX_ANSWER_LEN + '" autocomplete="off" placeholder="Masalan: apple  (yoki: apple | apples)"></label>';
-    }
+    var blanks = answerRowsHTML(['', '', '', '', '']);
 
     root.innerHTML =
       '<div class="lhw-head"><div>' +
         '<h1>Listening uy vazifalari</h1>' +
-        '<p>Har bir mashq uchun 5 ta to‘g‘ri javob kiriting. Talaba bo‘sh joylarni to‘ldiradi; har bir to‘g‘ri javob — 1 ball. Bir nechta to‘g‘ri variant uchun "|" belgisidan foydalaning.</p>' +
+        '<p>Har bir mashq uchun kerakli sonda (1–40) to‘g‘ri javob kiriting. Talaba bo‘sh joylarni to‘ldiradi; har bir to‘g‘ri javob — 1 ball. Bir nechta to‘g‘ri variant uchun "|" belgisidan foydalaning.</p>' +
       '</div></div>' +
       '<div id="lhwOverall" class="lhw-overall"></div>' +
       '<div class="lhw-admin-grid">' +
@@ -541,11 +556,13 @@
           '<p class="lhw-hint">Muddat saqlangan paytdan boshlab hisoblanadi. Tahrirlashda soatni o‘zgartirsangiz, muddat qaytadan hozirdan boshlanadi. Vaqt tugagach talabalar javob kirita olmaydi.</p>' +
           '<label class="lhw-field"><span>Audio / material havolasi (ixtiyoriy)</span><input type="text" id="lhwMedia" placeholder="https://..."></label>' +
           '<div class="lhw-bulk">' +
-            '<label class="lhw-field"><span>⚡ Tezkor kiritish — 5 ta javobni bittada qo‘ying</span>' +
+            '<label class="lhw-field"><span>⚡ Tezkor kiritish — javoblarni bittada qo‘ying</span>' +
               '<textarea id="lhwBulk" rows="5" spellcheck="false" placeholder="Har qatorda bitta javob (Enter bilan ajrating):&#10;apple&#10;banana | bananas&#10;cat&#10;dog&#10;egg"></textarea></label>' +
             '<p class="lhw-bulk-st" id="lhwBulkSt">Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying — pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.</p>' +
           '</div>' +
-          '<div class="lhw-answers">' + blanks + '</div>' +
+          '<div class="lhw-answers" id="lhwAnswers">' + blanks + '</div>' +
+          '<div class="lhw-blank-tools"><button type="button" class="lhw-btn sm" id="lhwAddBlank">+ Bo‘sh joy qo‘shish</button>' +
+          '<span class="lhw-muted" id="lhwBlankCount"></span></div>' +
           '<p class="lhw-err" id="lhwFormErr" hidden></p>' +
           '<div class="lhw-actions">' +
             '<button type="submit" class="lhw-btn primary" id="lhwSave">Saqlash</button>' +
@@ -584,42 +601,100 @@
       .map(function (l) { return l.replace(/^\s*\d{1,2}\s*[.)\-:]\s+/, '').trim(); })
       .filter(function (l) { return l.length; });
   }
+
+  // Javob maydonlari soni o‘zgaruvchan (1 dan MAX_BLANKS gacha)
+  function readAnswerValues() {
+    return Array.prototype.map.call(document.querySelectorAll('#lhwAnswers input[data-ans]'), function (inp) {
+      return inp.value;
+    });
+  }
+
+  function answerRowsHTML(vals) {
+    return vals.map(function (v, i) {
+      return '<div class="lhw-ans-row">' +
+        '<label class="lhw-field"><span>' + (i + 1) + '-bo‘sh joy javobi *</span>' +
+        '<input type="text" data-ans="' + i + '" maxlength="' + MAX_ANSWER_LEN + '" autocomplete="off" value="' + esc(v) + '" placeholder="Masalan: apple  (yoki: apple | apples)"></label>' +
+        '<button type="button" class="lhw-btn sm danger" data-rm="' + i + '" title="Bu bo‘sh joyni o‘chirish" aria-label="O‘chirish">✕</button>' +
+        '</div>';
+    }).join('');
+  }
+
+  function updateBlankCount() {
+    var n = readAnswerValues().length;
+    var el = document.getElementById('lhwBlankCount');
+    if (el) el.textContent = 'Bo‘sh joylar: ' + n + ' / ' + MAX_BLANKS;
+    var add = document.getElementById('lhwAddBlank');
+    if (add) add.disabled = n >= MAX_BLANKS;
+  }
+
+  function setAnswerRows(vals) {
+    var box = document.getElementById('lhwAnswers');
+    if (!box) return;
+    box.innerHTML = answerRowsHTML((vals && vals.length) ? vals.slice(0, MAX_BLANKS) : ['']);
+    updateBlankCount();
+  }
+
   function initBulkAnswers() {
     var ta = document.getElementById('lhwBulk');
     var st = document.getElementById('lhwBulkSt');
-    var inputs = document.querySelectorAll('#lhwAdminForm input[data-ans]');
-    if (!ta || !inputs.length) return;
+    var box = document.getElementById('lhwAnswers');
+    if (!ta || !box) return;
     var defaultMsg = st ? st.textContent : '';
     function setStatus(msg, kind) { if (st) { st.textContent = msg; st.className = 'lhw-bulk-st' + (kind ? ' ' + kind : ''); } }
-    function fill(lines, start) {
-      var n = 0;
-      for (var i = 0; i < lines.length && start + i < BLANKS; i++) {
-        inputs[start + i].value = lines[i].slice(0, MAX_ANSWER_LEN);
-        n++;
-      }
-      return n;
-    }
+    function clip(v) { return String(v).slice(0, MAX_ANSWER_LEN); }
+
     ta.addEventListener('input', function () {
-      var lines = parseBulkLines(ta.value);
-      if (!lines.length) { setStatus(defaultMsg); return; }
-      // oyna bo‘sh qolsa ham, kiritilgan qatorlar sonicha maydonlar to‘ladi; qolganlari tegilmaydi
-      for (var i = 0; i < BLANKS; i++) inputs[i].value = lines[i] ? lines[i].slice(0, MAX_ANSWER_LEN) : '';
-      if (lines.length === BLANKS) setStatus('✓ ' + BLANKS + ' ta javob joylashtirildi — pastda tekshirib, “Saqlash” ni bosing.', 'ok');
-      else if (lines.length < BLANKS) setStatus(lines.length + ' / ' + BLANKS + ' ta javob topildi. Yana ' + (BLANKS - lines.length) + ' ta qator kerak.', 'warn');
-      else setStatus(lines.length + ' ta qator kiritildi, faqat dastlabki ' + BLANKS + ' tasi olindi.', 'warn');
+      var all = parseBulkLines(ta.value);
+      if (!all.length) { setStatus(defaultMsg); return; }
+      var lines = all.slice(0, MAX_BLANKS).map(clip);
+      setAnswerRows(lines);
+      if (all.length > MAX_BLANKS) setStatus(all.length + ' ta qator kiritildi, faqat dastlabki ' + MAX_BLANKS + ' tasi olindi.', 'warn');
+      else setStatus('✓ ' + lines.length + ' ta javob joylashtirildi — pastda tekshirib, “Saqlash” ni bosing.', 'ok');
     });
-    // Istalgan bo‘sh joy maydoniga ko‘p qatorli matn joylansa — shu maydondan boshlab hammasiga taqsimlanadi
-    inputs.forEach(function (inp, idx) {
-      inp.addEventListener('paste', function (e) {
-        var txt = (e.clipboardData || window.clipboardData).getData('text');
-        if (!/\r?\n/.test(txt.trim())) return;
-        var lines = parseBulkLines(txt);
-        if (lines.length < 2) return;
-        e.preventDefault();
-        var n = fill(lines, idx);
-        setStatus('✓ ' + n + ' ta javob joylashtirildi' + (lines.length > n ? ' (ortiqcha qatorlar olinmadi)' : '') + '.', 'ok');
+
+    // Bo‘sh joy maydoniga ko‘p qatorli matn joylansa — shu maydondan boshlab ketma-ket to‘ldiriladi
+    box.addEventListener('paste', function (e) {
+      var inp = e.target.closest ? e.target.closest('input[data-ans]') : null;
+      if (!inp) return;
+      var txt = (e.clipboardData || window.clipboardData).getData('text');
+      if (!/\r?\n/.test(txt.trim())) return;
+      var lines = parseBulkLines(txt);
+      if (lines.length < 2) return;
+      e.preventDefault();
+      var start = +inp.getAttribute('data-ans');
+      var vals = readAnswerValues();
+      var n = 0;
+      lines.forEach(function (l, k) {
+        var idx = start + k;
+        if (idx >= MAX_BLANKS) return;
+        while (vals.length <= idx) vals.push('');
+        vals[idx] = clip(l);
+        n++;
       });
+      setAnswerRows(vals);
+      setStatus('✓ ' + n + ' ta javob joylashtirildi' + (start + lines.length > MAX_BLANKS ? ' (ortiqcha qatorlar olinmadi)' : '') + '.', 'ok');
     });
+
+    // O‘chirish (✕) tugmasi
+    box.addEventListener('click', function (e) {
+      var rm = e.target.closest ? e.target.closest('button[data-rm]') : null;
+      if (!rm) return;
+      var vals = readAnswerValues();
+      vals.splice(+rm.getAttribute('data-rm'), 1);
+      setAnswerRows(vals);
+    });
+
+    // + Bo‘sh joy qo‘shish
+    var add = document.getElementById('lhwAddBlank');
+    if (add) add.addEventListener('click', function () {
+      var vals = readAnswerValues();
+      if (vals.length >= MAX_BLANKS) return;
+      vals.push('');
+      setAnswerRows(vals);
+      var inps = box.querySelectorAll('input[data-ans]');
+      if (inps.length) inps[inps.length - 1].focus();
+    });
+    updateBlankCount();
   }
 
   // Guruhlar ro‘yxatini oquv_groups dan to‘ldiradi
@@ -720,7 +795,8 @@
           '<div class="lhw-admin-title"><span class="lhw-num">' + (i + 1) + '</span>' +
             '<span style="min-width:0;overflow-wrap:anywhere;">' + esc(ex.title) + '</span></div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;">' +
-            '<span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>' + dlTxt + '</div>' +
+            '<span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>' +
+            '<span class="lhw-badge todo">' + countOf(ex) + ' ta bo‘shliq</span>' + dlTxt + '</div>' +
           '<div class="lhw-muted lhw-preview">' + esc(preview) + '</div>' +
         '</div>' +
         '<div class="lhw-admin-btns">' +
@@ -821,7 +897,8 @@
     var answers = sub.answers || [];
     var marks = (sub.marks && sub.marks.length) ? sub.marks : grade(ex.answers, answers).marks;
     var items = '';
-    for (var i = 0; i < BLANKS; i++) {
+    var n = subCount(sub);
+    for (var i = 0; i < n; i++) {
       var ok = !!marks[i];
       var correct = String((ex.answers || [])[i] || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean).join(' / ') || '—';
       items += '<li class="lhw-res ' + (ok ? 'ok' : 'bad') + '">' +
@@ -833,7 +910,7 @@
     }
     var summary = (sub.penalty
       ? 'Taxmin: 0 ball, ' + sub.penalty + ' ta jazo'
-      : 'Ball: ' + (sub.score || 0) + '/' + BLANKS) + ' · Topshirgan: ' + fmtDT(tsMs(sub.submittedAt));
+      : 'Ball: ' + (sub.score || 0) + '/' + n) + ' · Topshirgan: ' + fmtDT(tsMs(sub.submittedAt));
     box.innerHTML = '<div class="lhw-admin-detail">' +
       '<div class="lhw-lb-head"><h3>' + esc(sub.studentName || 'Talaba') + ' — javoblari</h3>' +
       '<span class="lhw-muted">' + esc(summary) + '</span></div>' +
@@ -862,9 +939,7 @@
     document.getElementById('lhwHours').value = (typeof ex.durationHours === 'number') ? ex.durationHours : '';
     var gsel = document.getElementById('lhwGroup');
     if (gsel) gsel.value = ex.groupId || '';
-    document.querySelectorAll('#lhwAdminForm input[data-ans]').forEach(function (inp) {
-      inp.value = (ex.answers || [])[+inp.getAttribute('data-ans')] || '';
-    });
+    setAnswerRows((ex.answers || []).map(function (a) { return a == null ? '' : String(a); }));
     setFormMode(true);
     document.getElementById('lhwAdminForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -873,6 +948,7 @@
     A.editingId = null;
     var form = document.getElementById('lhwAdminForm');
     if (form) form.reset();
+    setAnswerRows(['', '', '', '', '']);
     var bst = document.getElementById('lhwBulkSt');
     if (bst) { bst.className = 'lhw-bulk-st'; bst.textContent = 'Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying — pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.'; }
     var err = document.getElementById('lhwFormErr');
@@ -889,14 +965,12 @@
     var gsel = document.getElementById('lhwGroup');
     var groupId = gsel ? gsel.value : '';
     var groupName = groupId && gsel.selectedIndex >= 0 ? gsel.options[gsel.selectedIndex].textContent : '';
-    var answers = [];
-    document.querySelectorAll('#lhwAdminForm input[data-ans]').forEach(function (inp) {
-      answers[+inp.getAttribute('data-ans')] = inp.value.trim();
-    });
+    var answers = readAnswerValues().map(function (v) { return v.trim(); });
 
     if (!title) { showErr(err, 'Mashq nomini kiriting.'); return; }
     if (mediaRaw && !safeUrl(mediaRaw)) { showErr(err, 'Havola http:// yoki https:// bilan boshlanishi kerak.'); return; }
-    for (var i = 0; i < BLANKS; i++) {
+    if (!answers.length || answers.length > MAX_BLANKS) { showErr(err, 'Bo‘sh joylar soni 1 dan ' + MAX_BLANKS + ' gacha bo‘lishi kerak.'); return; }
+    for (var i = 0; i < answers.length; i++) {
       if (!answers[i]) { showErr(err, (i + 1) + '-bo‘sh joy uchun javob kiritilmagan.'); return; }
     }
     var hoursRaw = document.getElementById('lhwHours').value.trim().replace(',', '.');
@@ -960,7 +1034,7 @@
         batch.set(db.collection('oquv_progress').doc(it.code).collection('bonus').doc('ls_' + ex.id + '_' + it.uid), {
           date: d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()),
           points: pts, reason: 'Listening: ' + (ex.title || 'mashq'), source: 'listening',
-          exId: ex.id, uid: it.uid, max: BLANKS,
+          exId: ex.id, uid: it.uid, max: subCount(it.x),
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         saved++;
