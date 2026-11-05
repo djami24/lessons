@@ -8695,7 +8695,7 @@ function apLisLive(ctx, sid, r, done){
     const t = it.x.submittedAt, ms = t && typeof t.toMillis === 'function' ? t.toMillis() : typeof t === 'number' ? t : Date.now();
     const date = stDate(new Date(ms));
     if (date < r.from || date > r.to) return;
-    out.push({ title: ctx.titles[it.exId] || 'Listening', points: typeof it.x.finalScore === 'number' ? it.x.finalScore : (Number(it.x.score) || 0), max: 5, date, archived: false });
+    out.push({ title: ctx.titles[it.exId] || 'Listening', points: typeof it.x.finalScore === 'number' ? it.x.finalScore : (Number(it.x.score) || 0), max: (Number(it.x.total) || (it.x.answers || []).length || 5), date, archived: false });
   }));
   return out;
 }
