@@ -280,8 +280,8 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .lhw-blank-tools{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:4px; }
 .lhw-ico{ width:1.15em; height:1.15em; vertical-align:-0.2em; display:inline-block; }
 .lhw-modal-emoji .lhw-ico{ width:52px; height:52px; vertical-align:middle; }
-.lhw-link{ background:none; border:0; padding:0; font:inherit; color:var(--lhw-accent, #3B6FE0); font-weight:600; cursor:pointer; text-align:left; text-decoration:underline; text-underline-offset:3px; }
-.lhw-link:hover{ opacity:.8; }
+.lhw-link{ background:none; border:0; padding:0; font:inherit; color:var(--lhw-ink); font-weight:700; cursor:pointer; text-align:left; border-bottom:1px dashed var(--lhw-muted); }
+.lhw-link:hover{ color:#3B6FE0; border-bottom-style:solid; }
 .lhw-ex-list{ list-style:none; margin:12px 0 0; padding:0; display:flex; flex-direction:column; gap:12px; }
 .lhw-res-ex{ border:1px solid var(--lhw-line); border-radius:14px; padding:12px; }
 .lhw-res-ex.none{ opacity:.65; }
