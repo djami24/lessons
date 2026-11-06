@@ -172,7 +172,7 @@
       var score = r.penalty
         ? '<span class="lhw-score">' + fin + ' ball</span><small class="lhw-pen">' + r.penalty + ' ta jazo</small>'
         : '<span class="lhw-score">' + (r.score || 0) + '/' + subCount(r) + '</span>';
-      var flag = (adminView && r.flagged) ? ' <span class="lhw-flag"><img class="lhw-ico" src="../icons/warn.svg" alt="" aria-hidden="true"> Domlaga</span>' : '';
+      var flag = (adminView && r.flagged) ? ' <span class="lhw-flag"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> Domlaga</span>' : '';
       return '<li class="lhw-row' + (me ? ' me' : '') + (adminView ? ' lhw-click' : '') + '" data-sid="' + esc(r._id || '') + '">' +
         '<span class="lhw-rank">' + x.rank + '</span>' +
         '<span class="lhw-name">' + esc(r.studentName || 'Talaba') + (me ? ' <em>(siz)</em>' : '') + flag + '</span>' +
@@ -224,7 +224,7 @@
         '<h1>Exercises</h1>' +
         '<p>Mashqni oching, bo‘sh joylarni to‘ldiring va topshiring.</p>' +
       '</div></div>' +
-      '<div class="lhw-banner"><span class="lhw-banner-ico"><img class="lhw-ico" src="../icons/trophy.svg" alt="" aria-hidden="true"></span><div><b>Abduraxmonova Mufazzalxon</b> listening marafon g‘olibi bo‘ldilar!<br>Marafon o‘z nihoyasiga yetdi. Qolgan vazifalarga mukofot berilmaydi. Har bir qilinmagan listening uchun <b>100 ta jazo</b>.</div></div>' +
+      '<div class="lhw-banner"><span class="lhw-banner-ico"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="#F5B700"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" fill="none" stroke="#D99A00" stroke-width="1.6"/><rect x="10.5" y="14" width="3" height="4" fill="#D99A00"/><rect x="7" y="18" width="10" height="2.5" rx="1" fill="#B77E00"/></svg></span><div><b>Abduraxmonova Mufazzalxon</b> listening marafon g‘olibi bo‘ldilar!<br>Marafon o‘z nihoyasiga yetdi. Qolgan vazifalarga mukofot berilmaydi. Har bir qilinmagan listening uchun <b>100 ta jazo</b>.</div></div>' +
       '<div id="lhwStudentBody"><div class="lhw-muted"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div></div>';
     if (!S.uid) return;
 
@@ -264,7 +264,7 @@
     var now = Date.now(), listExpired = false;
     root.querySelectorAll('[data-dl]').forEach(function (el) {
       var left = +el.getAttribute('data-dl') - now;
-      el.innerHTML = left > 0 ? '<img class="lhw-ico" src="../icons/hourglass.svg" alt="" aria-hidden="true"> Qoldi: ' + fmtLeft(left) : '<img class="lhw-ico" src="../icons/stop.svg" alt="" aria-hidden="true"> Vaqt tugadi';
+      el.innerHTML = left > 0 ? '<svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="2.5" rx="1" fill="#6B7280"/><rect x="5" y="19.5" width="14" height="2.5" rx="1" fill="#6B7280"/><path d="M7 4.5h10l-5 7z" fill="#F59E0B"/><path d="M7 19.5h10l-5-7z" fill="#FBBF24"/></svg> Qoldi: ' + fmtLeft(left) : '<svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E5484D"/><rect x="6.5" y="10.5" width="11" height="3" rx="1.5" fill="#fff"/></svg> Vaqt tugadi';
       el.style.color = timerColor(left);
       if (left <= 0 && el.closest('.lhw-card')) listExpired = true;
     });
@@ -280,8 +280,8 @@
     var area = document.getElementById('lhwFormArea');
     if (!area) return;
     area.innerHTML = isClosed(ex)
-      ? '<div class="lhw-warn"><img class="lhw-ico" src="../icons/lock.svg" alt="" aria-hidden="true"> Bu mashq yopilgan — hozircha javob kiritib bo‘lmaydi.</div>'
-      : '<div class="lhw-warn"><img class="lhw-ico" src="../icons/stop.svg" alt="" aria-hidden="true"> Bu mashq uchun vaqt tugagan — javob kiritib bo‘lmaydi.</div>';
+      ? '<div class="lhw-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#6B7280" stroke-width="2"/><rect x="5" y="10" width="14" height="11" rx="2" fill="#6B7280"/><circle cx="12" cy="15.5" r="1.5" fill="#fff"/></svg> Bu mashq yopilgan — hozircha javob kiritib bo‘lmaydi.</div>'
+      : '<div class="lhw-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E5484D"/><rect x="6.5" y="10.5" width="11" height="3" rx="1.5" fill="#fff"/></svg> Bu mashq uchun vaqt tugagan — javob kiritib bo‘lmaydi.</div>';
   }
 
   // Umumiy reytingdagi o‘rin: mendan yuqori umumiy ballga ega talabalar soni + 1
@@ -310,12 +310,12 @@
     bg.className = 'lhw-modal-bg';
     bg.innerHTML =
       '<div class="lhw-modal" role="dialog" aria-modal="true">' +
-        '<div class="lhw-modal-emoji"><img class="lhw-ico" src="../icons/party.svg" alt="" aria-hidden="true"></div>' +
+        '<div class="lhw-modal-emoji"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17l-6.1 3.6 1.4-6.8L2.2 9.1l6.9-.8z" fill="#F5B700" stroke="#D99A00" stroke-width="1"/></svg></div>' +
         '<h2>Tabriklayman, ' + esc(first) + '!</h2>' +
         '<p>Siz <b>Listening marafon</b>ga qo‘shildingiz!</p>' +
         '<p>Jami <b>12 ta marafon</b> bo‘ladi. Har bir mashqda bir nechta bo‘shliq bor — har bir to‘g‘ri javob <b>1 ball</b>.</p>' +
-        '<div class="lhw-modal-prize"><img class="lhw-ico" src="../icons/trophy.svg" alt="" aria-hidden="true"> Marafon oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div>' +
-        '<p class="lhw-modal-warn"><img class="lhw-ico" src="../icons/warn.svg" alt="" aria-hidden="true"> Eslatma: barcha bo‘shliqlar noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi — 0 ball, <b>100 ta jazo</b> qayd etiladi va natija domlaga taqdim etiladi.</p>' +
+        '<div class="lhw-modal-prize"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="#F5B700"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" fill="none" stroke="#D99A00" stroke-width="1.6"/><rect x="10.5" y="14" width="3" height="4" fill="#D99A00"/><rect x="7" y="18" width="10" height="2.5" rx="1" fill="#B77E00"/></svg> Marafon oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div>' +
+        '<p class="lhw-modal-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> Eslatma: barcha bo‘shliqlar noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi — 0 ball, <b>100 ta jazo</b> qayd etiladi va natija domlaga taqdim etiladi.</p>' +
         '<button type="button" class="lhw-modal-btn">Boshlaymiz!</button>' +
       '</div>';
     document.body.appendChild(bg);
@@ -339,21 +339,21 @@
     var summary = '<div class="lhw-total">' +
       '<div><span class="lhw-total-label">Sizning umumiy ballingiz</span><span class="lhw-total-num">' + total + '</span></div>' +
       '<div class="lhw-total-meta">Topshirildi: ' + done + ' / ' + visibleList.length + '</div>' +
-      '<div class="lhw-total-meta"><img class="lhw-ico" src="../icons/target.svg" alt="" aria-hidden="true"> Qolgan marafon: ' + Math.max(0, MARATHON_TOTAL - S.exercises.length) + ' ta</div>' +
+      '<div class="lhw-total-meta"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E5484D"/><circle cx="12" cy="12" r="6.5" fill="#fff"/><circle cx="12" cy="12" r="3.5" fill="#E5484D"/></svg> Qolgan marafon: ' + Math.max(0, MARATHON_TOTAL - S.exercises.length) + ' ta</div>' +
       (function () {
         var o = overallRank();
-        return o ? '<div class="lhw-total-meta"><img class="lhw-ico" src="../icons/medal.svg" alt="" aria-hidden="true"> Umumiy o‘rin: ' + o.rank + '-o‘rin / ' + o.of + '</div>' : '';
+        return o ? '<div class="lhw-total-meta"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 2h3l1 6H7zM13 2h3l-1 6h-3z" fill="#3B82F6"/><circle cx="12" cy="15" r="6" fill="#F5B700" stroke="#D99A00" stroke-width="1.2"/></svg> Umumiy o‘rin: ' + o.rank + '-o‘rin / ' + o.of + '</div>' : '';
       })() + '</div>';
     body.innerHTML = '<div class="lhw-list">' + visibleList.map(function (ex, i) {
       var sub = S.subs[ex.id];
       var dl = isClosed(ex) ? null : deadlineOf(ex), expired = isLocked(ex);
       var timer = '';
       if (isClosed(ex) && !sub) {
-        timer = '<small class="lhw-timer" style="display:block;font-weight:700;color:#6B7280;"><img class="lhw-ico" src="../icons/lock.svg" alt="" aria-hidden="true"> Yopiq</small>';
+        timer = '<small class="lhw-timer" style="display:block;font-weight:700;color:#6B7280;"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#6B7280" stroke-width="2"/><rect x="5" y="10" width="14" height="11" rx="2" fill="#6B7280"/><circle cx="12" cy="15.5" r="1.5" fill="#fff"/></svg> Yopiq</small>';
       } else if (dl !== null && !sub) {
         timer = expired
-          ? '<small class="lhw-timer" style="display:block;font-weight:700;color:#E5484D;"><img class="lhw-ico" src="../icons/stop.svg" alt="" aria-hidden="true"> Vaqt tugadi</small>'
-          : '<small class="lhw-timer" data-dl="' + dl + '" style="display:block;font-weight:700;color:' + timerColor(dl - Date.now()) + ';"><img class="lhw-ico" src="../icons/hourglass.svg" alt="" aria-hidden="true"> Qoldi: ' + fmtLeft(dl - Date.now()) + '</small>';
+          ? '<small class="lhw-timer" style="display:block;font-weight:700;color:#E5484D;"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E5484D"/><rect x="6.5" y="10.5" width="11" height="3" rx="1.5" fill="#fff"/></svg> Vaqt tugadi</small>'
+          : '<small class="lhw-timer" data-dl="' + dl + '" style="display:block;font-weight:700;color:' + timerColor(dl - Date.now()) + ';"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="2.5" rx="1" fill="#6B7280"/><rect x="5" y="19.5" width="14" height="2.5" rx="1" fill="#6B7280"/><path d="M7 4.5h10l-5 7z" fill="#F59E0B"/><path d="M7 19.5h10l-5-7z" fill="#FBBF24"/></svg> Qoldi: ' + fmtLeft(dl - Date.now()) + '</small>';
       }
       var badge = sub
         ? (sub.penalty
@@ -383,7 +383,7 @@
       '<button type="button" class="lhw-back" id="lhwBack">Ro‘yxatga qaytish</button>' +
       '<div class="lhw-detail">' +
         '<h2>' + esc(ex.title) + '</h2>' +
-        (media ? '<a class="lhw-media" href="' + esc(media) + '" target="_blank" rel="noopener noreferrer"><img class="lhw-ico" src="../icons/headphones.svg" alt="" aria-hidden="true"> Audio / materialni ochish</a>' : '') +
+        (media ? '<a class="lhw-media" href="' + esc(media) + '" target="_blank" rel="noopener noreferrer"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3" fill="none" stroke="#374151" stroke-width="2"/><rect x="3" y="14" width="5" height="7" rx="2" fill="#3B82F6"/><rect x="16" y="14" width="5" height="7" rx="2" fill="#3B82F6"/></svg> Audio / materialni ochish</a>' : '') +
         (!isClosed(ex) && deadlineOf(ex) !== null && !S.subs[id]
           ? '<p class="lhw-deadline" data-dl="' + deadlineOf(ex) + '" style="font-weight:700;margin:8px 0;"></p>'
           : '') +
@@ -391,7 +391,7 @@
       '</div>' +
       '<div class="lhw-lb-wrap">' +
         '<h3 class="lhw-sub-title">Reyting</h3>' +
-        '<button type="button" class="lhw-btn primary lhw-lb-btn" id="lhwLbBtn"><img class="lhw-ico" src="../icons/chart.svg" alt="" aria-hidden="true"> Jonli reytingni ko‘rish</button>' +
+        '<button type="button" class="lhw-btn primary lhw-lb-btn" id="lhwLbBtn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="12" width="4" height="9" fill="#3B82F6"/><rect x="10" y="7" width="4" height="14" fill="#1FAE7A"/><rect x="17" y="3" width="4" height="18" fill="#F59E0B"/></svg> Jonli reytingni ko‘rish</button>' +
         '<div id="lhwLeaderboard" class="lhw-lb" hidden></div>' +
       '</div>';
 
@@ -515,9 +515,9 @@
       '<div class="lhw-result">' +
         '<div class="lhw-score-big">' + score + '<span>/' + n + '</span></div>' +
         '<p class="lhw-muted">Siz ' + n + ' ta bo‘shliqdan ' + score + 'tasini to‘g‘ri topdingiz. Natija topshirilgan — o‘zgartirib bo‘lmaydi.</p>' +
-        (sub.penalty ? '<div class="lhw-warn"><img class="lhw-ico" src="../icons/warn.svg" alt="" aria-hidden="true"> Taxmin aniqlandi: 0 ball, ' + sub.penalty + ' ta jazo qayd etildi. Natija domlaga taqdim etildi.</div>' : '') +
+        (sub.penalty ? '<div class="lhw-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> Taxmin aniqlandi: 0 ball, ' + sub.penalty + ' ta jazo qayd etildi. Natija domlaga taqdim etildi.</div>' : '') +
         '<ol class="lhw-res-list">' + rows + '</ol>' +
-        '<p class="lhw-hint lhw-ask-teacher"><img class="lhw-ico" src="../icons/mail.svg" alt="" aria-hidden="true"> To‘g‘ri javoblarni o‘qituvchingizdan oling.</p>' +
+        '<p class="lhw-hint lhw-ask-teacher"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" fill="#3B82F6"/><path d="M3 6l9 7 9-7" fill="none" stroke="#fff" stroke-width="1.8"/></svg> To‘g‘ri javoblarni o‘qituvchingizdan oling.</p>' +
       '</div>';
   }
 
@@ -556,7 +556,7 @@
           '<p class="lhw-hint">Muddat saqlangan paytdan boshlab hisoblanadi. Tahrirlashda soatni o‘zgartirsangiz, muddat qaytadan hozirdan boshlanadi. Vaqt tugagach talabalar javob kirita olmaydi.</p>' +
           '<label class="lhw-field"><span>Audio / material havolasi (ixtiyoriy)</span><input type="text" id="lhwMedia" placeholder="https://..."></label>' +
           '<div class="lhw-bulk">' +
-            '<label class="lhw-field"><span><img class="lhw-ico" src="../icons/bolt.svg" alt="" aria-hidden="true"> Tezkor kiritish — javoblarni bittada qo‘ying</span>' +
+            '<label class="lhw-field"><span><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#F5B700"/></svg> Tezkor kiritish — javoblarni bittada qo‘ying</span>' +
               '<textarea id="lhwBulk" rows="5" spellcheck="false" placeholder="Har qatorda bitta javob (Enter bilan ajrating):&#10;apple&#10;banana | bananas&#10;cat&#10;dog&#10;egg"></textarea></label>' +
             '<p class="lhw-bulk-st" id="lhwBulkSt">Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying — pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.</p>' +
           '</div>' +
@@ -742,7 +742,7 @@
         '<td class="lhw-t-total">' + r.total + '</td>' +
         '<td>' + r.done + ' / ' + A.exercises.length + '</td>' +
         '<td>' + fmtDT(r.last) + '</td>' +
-        '<td>' + (r.flagged ? '<span class="lhw-flag"><img class="lhw-ico" src="../icons/warn.svg" alt="" aria-hidden="true"> ' + r.flagged + '</span>' : '—') + '</td>' +
+        '<td>' + (r.flagged ? '<span class="lhw-flag"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> ' + r.flagged + '</span>' : '—') + '</td>' +
         '</tr>';
     }).join('');
     box.innerHTML =
@@ -836,11 +836,11 @@
       var preview = (ex.answers || []).map(function (a) { return String(a).split('|')[0].trim(); }).join(' · ');
       var dlTxt = '';
       if (isClosed(ex)) {
-        dlTxt = ' <span class="lhw-badge todo" style="background:rgba(120,120,130,.18);color:#6B7280;"><img class="lhw-ico" src="../icons/lock.svg" alt="" aria-hidden="true"> Yopiq</span>';
+        dlTxt = ' <span class="lhw-badge todo" style="background:rgba(120,120,130,.18);color:#6B7280;"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#6B7280" stroke-width="2"/><rect x="5" y="10" width="14" height="11" rx="2" fill="#6B7280"/><circle cx="12" cy="15.5" r="1.5" fill="#fff"/></svg> Yopiq</span>';
       } else if (deadlineOf(ex) !== null) {
         dlTxt = isExpired(ex)
-          ? ' <span class="lhw-badge todo" style="background:rgba(229,72,77,.12);color:#E5484D;"><img class="lhw-ico" src="../icons/stop.svg" alt="" aria-hidden="true"> Muddat tugagan: ' + fmtDT(ex.deadlineAt) + '</span>'
-          : ' <span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;"><img class="lhw-ico" src="../icons/hourglass.svg" alt="" aria-hidden="true"> Muddat: ' + fmtDT(ex.deadlineAt) + '</span>';
+          ? ' <span class="lhw-badge todo" style="background:rgba(229,72,77,.12);color:#E5484D;"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E5484D"/><rect x="6.5" y="10.5" width="11" height="3" rx="1.5" fill="#fff"/></svg> Muddat tugagan: ' + fmtDT(ex.deadlineAt) + '</span>'
+          : ' <span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="2.5" rx="1" fill="#6B7280"/><rect x="5" y="19.5" width="14" height="2.5" rx="1" fill="#6B7280"/><path d="M7 4.5h10l-5 7z" fill="#F59E0B"/><path d="M7 19.5h10l-5-7z" fill="#FBBF24"/></svg> Muddat: ' + fmtDT(ex.deadlineAt) + '</span>';
       }
       return '<div class="lhw-admin-row" data-id="' + esc(ex.id) + '">' +
         '<div class="lhw-admin-info" style="flex:1 1 220px;min-width:0;">' +
@@ -854,8 +854,8 @@
         '<div class="lhw-admin-btns">' +
           '<button type="button" class="lhw-btn sm" data-act="lb">Natijalar</button>' +
           (isClosed(ex)
-            ? '<button type="button" class="lhw-btn sm" data-act="open"><img class="lhw-ico" src="../icons/unlock.svg" alt="" aria-hidden="true"> Ochish</button>'
-            : '<button type="button" class="lhw-btn sm" data-act="close"><img class="lhw-ico" src="../icons/lock.svg" alt="" aria-hidden="true"> Yopish</button>') +
+            ? '<button type="button" class="lhw-btn sm" data-act="open"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10V7a4 4 0 0 1 7.5-2" fill="none" stroke="#6B7280" stroke-width="2"/><rect x="5" y="10" width="14" height="11" rx="2" fill="#6B7280"/><circle cx="12" cy="15.5" r="1.5" fill="#fff"/></svg> Ochish</button>'
+            : '<button type="button" class="lhw-btn sm" data-act="close"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#6B7280" stroke-width="2"/><rect x="5" y="10" width="14" height="11" rx="2" fill="#6B7280"/><circle cx="12" cy="15.5" r="1.5" fill="#fff"/></svg> Yopish</button>') +
           '<button type="button" class="lhw-btn sm" data-act="edit">Tahrirlash</button>' +
           '<button type="button" class="lhw-btn sm danger" data-act="del">O‘chirish</button>' +
         '</div>' +
