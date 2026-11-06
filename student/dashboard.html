@@ -1136,7 +1136,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 @keyframes dlPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.9);opacity:.75}}
 @keyframes dlDot{0%,80%,100%{opacity:.2}40%{opacity:1}}
 </style>
-<link rel="stylesheet" href="../listening-hw.css?v=20261103">
+<link rel="stylesheet" href="../listening-hw.css?v=20261106">
 <link rel="stylesheet" href="../glass-theme.css">
 <link rel="stylesheet" href="../skeleton.css">
 </head>
@@ -2157,7 +2157,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 <script src="../gb-utils.js?v=3"></script>
 <script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
-<script src="../listening-hw.js?v=20261104"></script>
+<script src="../listening-hw.js?v=20261106"></script>
 <script>
 /* ============================================================
    Djami Lessons — Student dashboard logic (Firestore-backed)
@@ -3737,7 +3737,7 @@ async function renderProgressBox(){
       // '' when unset) rather than booleans — normalize both just in case.
       const attended = (d.attended === true || d.attended === 'yes') ? 'yes' : (d.attended === false || d.attended === 'no') ? 'no' : (d.attended === 'late' ? 'late' : '');
       if(attended === 'yes'){ attendedEl.textContent = ' Keldi'; attendedEl.style.color = '#1e7e34'; }
-      else if(attended === 'late'){ attendedEl.textContent = '⏰ Kech qoldi'; attendedEl.style.color = '#a15c00'; }
+      else if(attended === 'late'){ attendedEl.innerHTML = '<img class="lhw-ico" src="../icons/alarm.svg" alt="" aria-hidden="true"> Kech qoldi'; attendedEl.style.color = '#a15c00'; }
       else if(attended === 'no'){ attendedEl.textContent = ' Kelmadi'; attendedEl.style.color = '#c0392b'; }
       else { attendedEl.textContent = '—'; attendedEl.style.color = ''; }
 
@@ -4588,7 +4588,7 @@ function renderMyEssays(){
   empty.style.display = 'none';
   list.innerHTML = state.mySubmissions.map(s => `
     <div class="lesson-row">
-      <div class="lesson-index">${s.status === 'graded' ? '' : '⏳'}</div>
+      <div class="lesson-index">${s.status === 'graded' ? '' : '<img class="lhw-ico" src="../icons/hourglass.svg" alt="" aria-hidden="true">'}</div>
       <div class="lesson-main">
         <div class="lesson-row-top">
           <span class="lesson-title">${escapeHtml((s.trackName || '') + ' — ' + (s.questionTitle || 'Nomsiz savol'))}</span>
@@ -6803,7 +6803,7 @@ function openCefrSpeaking() {
             <span class="lesson-title">${escapeHtml(t.title || 'Nomsiz mavzu')}</span>
           </div>
           <div class="lesson-meta">
-            ${t.timerSeconds ? `<span class="tag">⏱ ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
+            ${t.timerSeconds ? `<span class="tag"><img class="lhw-ico" src="../icons/stopwatch.svg" alt="" aria-hidden="true"> ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
           </div>
         </div>
       </div>`).join('')}</div>`;
