@@ -749,7 +749,7 @@
       '<div class="lhw-overall-card">' +
         '<div class="lhw-lb-head"><h3>Umumiy reyting</h3>' +
           '<div class="lhw-lb-tools"><span class="lhw-muted">Mashqlar: ' + A.exercises.length + ' ta · Ishtirokchilar: ' + list.length + ' ta</span>' +
-          '<button type="button" class="lhw-btn sm" id="lhwOverallRefresh"><img class="lhw-ico" src="../icons/refresh.svg" alt="" aria-hidden="true"> Yangilash</button></div></div>' +
+          '<button type="button" class="lhw-btn sm" id="lhwOverallRefresh"><svg class="lhw-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg> Yangilash</button></div></div>' +
         (list.length
           ? '<div class="lhw-overall-wrap"><table class="lhw-table"><thead><tr>' +
               '<th>O‘rin</th><th>Talaba</th><th>Guruh</th><th>Jami ball</th><th>Topshirgan</th><th>Oxirgi topshirgan vaqti</th><th>Taxmin</th>' +
