@@ -3737,7 +3737,7 @@ async function renderProgressBox(){
       // '' when unset) rather than booleans — normalize both just in case.
       const attended = (d.attended === true || d.attended === 'yes') ? 'yes' : (d.attended === false || d.attended === 'no') ? 'no' : (d.attended === 'late' ? 'late' : '');
       if(attended === 'yes'){ attendedEl.textContent = ' Keldi'; attendedEl.style.color = '#1e7e34'; }
-      else if(attended === 'late'){ attendedEl.innerHTML = '<img class="lhw-ico" src="../icons/alarm.svg" alt="" aria-hidden="true"> Kech qoldi'; attendedEl.style.color = '#a15c00'; }
+      else if(attended === 'late'){ attendedEl.innerHTML = '<svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8.5" fill="#F59E0B"/><path d="M12 8.5V13l3 2" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M4 4l3 2M20 4l-3 2" stroke="#B45309" stroke-width="2"/></svg> Kech qoldi'; attendedEl.style.color = '#a15c00'; }
       else if(attended === 'no'){ attendedEl.textContent = ' Kelmadi'; attendedEl.style.color = '#c0392b'; }
       else { attendedEl.textContent = '—'; attendedEl.style.color = ''; }
 
@@ -4588,7 +4588,7 @@ function renderMyEssays(){
   empty.style.display = 'none';
   list.innerHTML = state.mySubmissions.map(s => `
     <div class="lesson-row">
-      <div class="lesson-index">${s.status === 'graded' ? '' : '<img class="lhw-ico" src="../icons/hourglass.svg" alt="" aria-hidden="true">'}</div>
+      <div class="lesson-index">${s.status === 'graded' ? '' : '<svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="2.5" rx="1" fill="#6B7280"/><rect x="5" y="19.5" width="14" height="2.5" rx="1" fill="#6B7280"/><path d="M7 4.5h10l-5 7z" fill="#F59E0B"/><path d="M7 19.5h10l-5-7z" fill="#FBBF24"/></svg>'}</div>
       <div class="lesson-main">
         <div class="lesson-row-top">
           <span class="lesson-title">${escapeHtml((s.trackName || '') + ' — ' + (s.questionTitle || 'Nomsiz savol'))}</span>
@@ -6803,7 +6803,7 @@ function openCefrSpeaking() {
             <span class="lesson-title">${escapeHtml(t.title || 'Nomsiz mavzu')}</span>
           </div>
           <div class="lesson-meta">
-            ${t.timerSeconds ? `<span class="tag"><img class="lhw-ico" src="../icons/stopwatch.svg" alt="" aria-hidden="true"> ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
+            ${t.timerSeconds ? `<span class="tag"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="13" r="8.5" fill="#3B82F6"/><rect x="10" y="2" width="4" height="3" fill="#374151"/><path d="M12 9v4" stroke="#fff" stroke-width="2"/></svg> ${Math.round(t.timerSeconds / 60 * 10) / 10} daqiqa</span>` : ''}
           </div>
         </div>
       </div>`).join('')}</div>`;
