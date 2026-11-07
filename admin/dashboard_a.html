@@ -3611,7 +3611,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
 <!-- ===== MODAL: Student details ===== -->
 <div class="modal-overlay" id="modalStudentDetail" hidden>
-  <div class="modal-box">
+  <div class="modal-box" style="max-width:680px;">
     <h3 id="studentDetailName">O‘quvchi</h3>
     <p class="modal-sub" id="studentDetailEmail"></p>
     <div class="chat-status-line" id="studentDetailPresenceLine" style="margin:-0.6em 0 1em;">
@@ -3626,36 +3626,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
       <button type="button" class="btn btn-ghost btn-sm" id="saveStudentPhoneBtn">Saqlash</button>
     </div>
 
-    <div style="display:flex; flex-direction:column; gap:1em; margin-bottom:1.6em;">
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.8em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
-        <div>
-          <strong>General English</strong>
-          <p id="studentDetailStatusGE" style="margin:.2em 0 0;"></p>
-        </div>
-        <button type="button" class="btn btn-sm" id="togglePaymentBtnGE">Tasdiqlash</button>
-      </div>
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.8em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
-        <div>
-          <strong>IELTS</strong>
-          <p id="studentDetailStatusIelts" style="margin:.2em 0 0;"></p>
-        </div>
-        <button type="button" class="btn btn-sm" id="togglePaymentBtnIelts">Tasdiqlash</button>
-      </div>
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.8em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
-        <div>
-          <strong>CEFR</strong>
-          <p id="studentDetailStatusCefr" style="margin:.2em 0 0;"></p>
-        </div>
-        <button type="button" class="btn btn-sm" id="togglePaymentBtnCefr">Tasdiqlash</button>
-      </div>
-      <div style="display:flex; align-items:center; justify-content:space-between; gap:1em; padding:.8em 1em; border:1.5px solid var(--line); border-radius:var(--radius-s);">
-        <div>
-          <strong>Writing (Insho)</strong>
-          <p id="studentDetailStatusWriting" style="margin:.2em 0 0;"></p>
-        </div>
-        <button type="button" class="btn btn-sm" id="togglePaymentBtnWriting">Tasdiqlash</button>
-      </div>
-    </div>
+    <div id="studentProfileBody" style="margin-bottom:1.4em;"></div>
 
     <div class="modal-actions" style="justify-content:space-between; margin-bottom:.8em;">
       <button type="button" class="btn btn-amber btn-sm" id="openStudentProgressBtn"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> O‘quv jarayoni</button>
@@ -5613,7 +5584,7 @@ document.getElementById('studentsList').addEventListener('click', (e) => {
   document.getElementById('studentDetailName').textContent = student.name;
   document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
   document.getElementById('studentDetailPhoneInput').value = student.phone || '';
-  refreshStudentDetailModal(student);
+  spLoad(student);
   openModal('modalStudentDetail');
 
   // Online / last-seen for this student, right in their profile card —
@@ -5635,24 +5606,119 @@ document.getElementById('studentSearchInput').addEventListener('input', () => {
   renderStudents();
 });
 
-function refreshStudentDetailModal(student){
-  const statusText = {
-    none: 'To‘lov haqida hali xabar bermagan.',
-    pending: 'To‘lov qilganini bildirgan — Telegram’dagi skrinshotni tekshirib, tasdiqlang.',
-    approved: 'To‘lov tasdiqlangan — kurs ochiq.'
-  };
-  COURSE_PAYMENT_ROWS.forEach(row => {
-    const status = row.getStatus(student);
-    document.getElementById(row.statusElId).innerHTML = `${STATUS_LABELS[status] || STATUS_LABELS.none} — ${statusText[status] || statusText.none}`;
-    const btn = document.getElementById(row.btnId);
-    if(status === 'approved'){
-      btn.textContent = 'Bekor qilish';
-      btn.className = 'btn btn-danger btn-sm';
-    } else {
-      btn.textContent = 'Tasdiqlash';
-      btn.className = 'btn btn-amber btn-sm';
+function spPct(v){ return v === null || v === undefined ? '—' : v + '%'; }
+function spStat(label, value, color){
+  return '<div style="border:1.5px solid var(--line);border-top:4px solid ' + (color || '#e0a040') + ';border-radius:var(--radius-s);padding:.6em .4em;text-align:center;">' +
+    '<div style="font-size:.72rem;color:var(--gray);font-weight:700;">' + label + '</div>' +
+    '<div style="font-size:1.2rem;font-weight:800;">' + value + '</div></div>';
+}
+function spInfo(label, value){
+  return '<div style="display:flex;gap:.8em;padding:.45em 0;border-bottom:1px solid var(--line);font-size:.92rem;">' +
+    '<span style="min-width:150px;color:var(--gray);">' + label + '</span><span style="flex:1;word-break:break-word;">' + value + '</span></div>';
+}
+function spHeading(text){
+  return '<h4 style="margin:1.1em 0 .5em;font-size:.95rem;">' + text + '</h4>';
+}
+
+// Talaba profili: ism, telefon, saytga qo'shilgan sana, guruh, test natijalari va ballar.
+// Ma'lumotlar: students/{uid} + gradebook (test) + oquv_progress/{ID} (guruh, davomat, uy vazifa, jazo, bonus).
+async function spLoad(student){
+  const body = document.getElementById('studentProfileBody');
+  if(!body) return;
+  const token = student.id + '|' + Date.now();
+  body.dataset.token = token;
+  body.innerHTML = '<p style="color:var(--gray);font-size:.9rem;">Ma’lumotlar yuklanmoqda…</p>';
+  try{
+    const gbSnap = await db.collection('gradebook').doc(GRADEBOOK_DOC).get();
+    const gb = gbSnap.exists ? gbSnap.data() : {};
+    const gbStudents = Array.isArray(gb.students) ? gb.students : [];
+
+    // O'quv ID: avval talabaning o'z kabinetidagi ID, bo'lmasa test jadvalidagi ism bo'yicha
+    let code = student.oquvProgressCode ? String(student.oquvProgressCode) : '';
+    let gbMatch = code ? (gbStudents.find(s => s.progressId && normalizeGbId(s.progressId) === normalizeGbId(code)) || null) : null;
+    if(!code && typeof GB !== 'undefined'){
+      const byName = gbStudents.find(s => s.progressId && GB.nameKey(s.name) === GB.nameKey(student.name));
+      if(byName){ gbMatch = byName; code = String(byName.progressId); }
     }
-  });
+
+    let prog = null, entries = [], bonuses = [];
+    if(code){
+      const ref = db.collection('oquv_progress').doc(code);
+      const [pSnap, eSnap, bSnap] = await Promise.all([ref.get(), ref.collection('entries').get(), ref.collection('bonus').get()]);
+      prog = pSnap.exists ? pSnap.data() : null;
+      entries = eSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      bonuses = bSnap.docs.map(d => d.data());
+    }
+    if(body.dataset.token !== token) return;   // boshqa talaba ochilgan bo'lsa
+
+    const groupId = (prog && prog.groupId) || (gbMatch && gbMatch.group) || '';
+    let groupName = '';
+    if(groupId){
+      const gd = await db.collection('oquv_groups').doc(groupId).get();
+      groupName = gd.exists ? (gd.data().name || '') : '';
+    }
+    if(!groupName && prog && prog.group) groupName = prog.group;
+
+    // Davomat, uy vazifa, jazo — ekrandagi "O'quv jarayoni" bilan bir xil qoidalar
+    const g = { id: groupId, name: groupName }, s = { id: code || student.id, name: student.name, phone: student.phone };
+    const norm = entries.map(e => stNorm(e, g, s)).filter(Boolean);
+    const a = stAgg(norm);
+    const testInfo = gbMatch ? stTestInfo(gbMatch, gb.unitsByGroup) : null;
+    const avgTest = testInfo ? testInfo.avg : null;
+    const base = stScoreT(a, avgTest);
+    const bonusSum = bonuses.reduce((t, b) => t + (Number(b.points) || 0), 0);
+    const total = base === null ? null : base + bonusSum;
+    const came = a.yes + a.late;
+
+    const phones = [];
+    [student.phone, prog && prog.phone].forEach(p => { p = String(p || '').trim(); if(p && phones.indexOf(p) === -1) phones.push(p); });
+
+    // Test natijalari (guruh birliklari tartibida)
+    let testsHtml = '<p style="color:var(--gray);font-size:.88rem;margin:0;">Test natijasi yo‘q.</p>';
+    if(gbMatch){
+      const units = (gb.unitsByGroup && gb.unitsByGroup[gbMatch.group]) || [];
+      const sc = gbMatch.scores || {};
+      const keys = units.concat(Object.keys(sc).filter(k => units.indexOf(k) === -1))
+        .filter(k => sc[k] !== undefined && sc[k] !== null && sc[k] !== '');
+      if(keys.length){
+        testsHtml = keys.map(k => spInfo(escapeHtml(k), '<b>' + escapeHtml(String(sc[k])) + '</b>')).join('');
+      }
+    }
+
+    const html = [
+      spHeading('Ma’lumotlar'),
+      spInfo('Ism familiya', escapeHtml(student.name || '—')),
+      spInfo('Login (email)', escapeHtml(student.email || '—')),
+      spInfo('Telefon', phones.length ? phones.map(escapeHtml).join(', ') : '<span style="color:var(--gray);">kiritilmagan — yuqoridan kiriting</span>'),
+      spInfo('Saytga qo‘shilgan', escapeHtml(formatStudentCreatedAt(student.createdAt))),
+      spInfo('O‘quv guruhi', groupName ? escapeHtml(groupName) : (code ? '—' : '<span style="color:var(--gray);">O‘quv jarayoniga bog‘lanmagan</span>')),
+      spInfo('O‘quv ID', code ? escapeHtml(code) : '—'),
+
+      spHeading('Ballar'),
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;">' +
+        spStat('Umumiy ball', spPts(base), '#2e6f6e') +
+        spStat('Qo‘shimcha ball', (bonusSum > 0 ? '+' : '') + bonusSum, '#1FAE7A') +
+        spStat('Jami ball', spPts(total), '#2F6FED') +
+        spStat('Davomat', spPct(a.att), '#1FAE7A') +
+        spStat('Uy vazifa', spPct(a.hw), '#2F6FED') +
+        spStat('Test o‘rtachasi', avgTest === null ? '—' : avgTest, '#7b5ea7') +
+      '</div>',
+      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:8px;">' +
+        spStat('Darslar', a.marked, '#888') +
+        spStat('Keldi', came, '#1FAE7A') +
+        spStat('Kech qoldi', a.late, '#e0a040') +
+        spStat('Kelmadi', a.no, '#c0392b') +
+        spStat('Uy vazifa to‘liq', a.hwFull, '#2F6FED') +
+        spStat('Jazo', a.punCnt, '#7b5ea7') +
+      '</div>',
+
+      spHeading('Test natijalari' + (testInfo ? ' (oxirgisi: <b>' + testInfo.latest + '</b>)' : '')),
+      testsHtml
+    ].join('');
+    body.innerHTML = html;
+  } catch(err){
+    if(body.dataset.token === token) body.innerHTML = '<p style="color:#c0392b;font-size:.9rem;">Profil ma’lumotlarini yuklab bo‘lmadi: ' + escapeHtml(err.message || '') + '</p>';
+  }
 }
 
 document.getElementById('saveStudentPhoneBtn').addEventListener('click', async () => {
@@ -5667,33 +5733,13 @@ document.getElementById('saveStudentPhoneBtn').addEventListener('click', async (
     student.phone = phone;
     renderStudents();
     showToast('Telefon raqam saqlandi.');
+    spLoad(student);
   } catch(err){
     showToast('Telefon raqamni saqlab bo‘lmadi.', true);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Saqlash';
   }
-});
-
-COURSE_PAYMENT_ROWS.forEach(row => {
-  document.getElementById(row.btnId).addEventListener('click', async () => {
-    const student = state.students.find(s => s.id === state.detailStudentId);
-    if(!student) return;
-    const current = row.getStatus(student);
-    const newStatus = current === 'approved' ? 'none' : 'approved';
-    if(newStatus === 'none' && !confirm(`“${student.name}” uchun ${row.label} kursi ruxsatini bekor qilmoqchimisiz?`)) return;
-
-    await db.collection('students').doc(student.id).update({ [row.firestoreField]: newStatus });
-    if(row.key === 'ge'){
-      student.paymentStatus = newStatus;
-    } else {
-      student.coursePayments = student.coursePayments || {};
-      student.coursePayments[row.key] = newStatus;
-    }
-    refreshStudentDetailModal(student);
-    renderStudents();
-    showToast(newStatus === 'approved' ? `“${student.name}” uchun ${row.label} kursi ochildi.` : 'Tasdiq bekor qilindi.');
-  });
 });
 
 document.getElementById('deleteStudentBtn').addEventListener('click', async () => {
