@@ -1115,6 +1115,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="st-grid st-grid-wide" style="margin-top:16px;">
           <div class="home-section-card"><h3 class="st-h">Dinamika <small>(oldingi davr bilan solishtirganda)</small></h3><div id="homeStTrend"></div></div>
           <div class="home-section-card"><h3 class="st-h">Taqsimot</h3><div id="homeStDonuts"></div></div>
+          <div class="home-section-card" style="grid-column:1/-1;"><h3 class="st-h">Tahminiy oylik <small>(to‘lov va davomat asosida)</small></h3><div id="homeStSalary"></div></div>
         </div>
         <p id="homeStLoading" style="color:var(--gray); text-align:center; padding:8px; margin:0;"></p>
         </div>
@@ -7692,6 +7693,48 @@ async function homeRenderStatsOverview(force){
   document.getElementById('homeStDonuts').innerHTML =
     stDonut('Davomat', [{ l:'Keldi', v:A.yes, c:ST_C.green }, { l:'Kech qoldi', v:A.late, c:ST_C.orange }, { l:'Kelmadi', v:A.no, c:ST_C.red }, { l:'Belgilanmagan', v:A.unm, c:ST_C.gray }]) +
     stDonut('Uy vazifa', [{ l:'To\'liq', v:A.hwFull, c:ST_C.green }, { l:'Qisman', v:A.hwPart, c:ST_C.orange }, { l:'Qilmagan', v:A.hwNo, c:ST_C.red }, { l:'Belgilanmagan', v:A.hwUnm, c:ST_C.gray }]);
+  renderSalaryEstimate(groups, cur);
+}
+
+// ----- Tahminiy oylik (o'qituvchi) -----
+// Har talaba oyiga 400 000 so'm, 12 ta dars hisobida. 2 tadan ko'p dars qoldirsa — qoldirgan darslari chegiriladi.
+// O'qituvchi ulushi: tushgan summaning 38%.
+const SAL = { FEE: 400000, LESSONS: 12, FREE_MISSES: 2, SHARE: 0.38 };
+function salFmt(n){ return Math.round(n).toLocaleString('en-US').replace(/,/g, ' '); }
+function renderSalaryEstimate(groups, rows){
+  const el = document.getElementById('homeStSalary');
+  if(!el) return;
+  const price = SAL.FEE / SAL.LESSONS;
+  const by = {};
+  rows.forEach(r => {
+    if(!by[r.sid]) by[r.sid] = { att: 0, miss: 0 };
+    if(r.a === 'yes' || r.a === 'late') by[r.sid].att++;
+    else if(r.a === 'no') by[r.sid].miss++;
+  });
+  let students = 0, full = 0, reduced = 0, feeSum = 0, attSum = 0;
+  const seen = new Set();
+  groups.forEach(g => (g.students || []).forEach(st => {
+    if(seen.has(st.id)) return;
+    seen.add(st.id);
+    students++;
+    const v = by[st.id] || { att: 0, miss: 0 };
+    let fee = SAL.FEE;
+    if(v.miss > SAL.FREE_MISSES){
+      fee = SAL.FEE * Math.max(0, SAL.LESSONS - v.miss) / SAL.LESSONS;
+      reduced++;
+    } else full++;
+    feeSum += fee;
+    attSum += Math.min(v.att, SAL.LESSONS) * price;
+  }));
+  if(!students){ el.innerHTML = '<p class="st-note">Tanlangan guruhlarda talaba yo‘q.</p>'; return; }
+  const pct = Math.round(SAL.SHARE * 100);
+  el.innerHTML =
+    '<p class="st-note" style="margin:0 0 10px;">' + students + ' ta talaba · ' + full + ' tasi to‘liq to‘laydi · ' + reduced + ' tasiga chegirma (' + (SAL.FREE_MISSES + 1) + '+ dars qoldirgan). Bir dars narxi: ' + salFmt(price) + ' so‘m.</p>' +
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th></th><th>To‘lov asosida</th><th>Kelgan darslar asosida</th></tr></thead><tbody>' +
+      '<tr><td>Tushgan summa</td><td>' + salFmt(feeSum) + ' so‘m</td><td>' + salFmt(attSum) + ' so‘m</td></tr>' +
+      '<tr><td><b>Oylik (' + pct + '%)</b></td><td><b>' + salFmt(feeSum * SAL.SHARE) + ' so‘m</b></td><td><b>' + salFmt(attSum * SAL.SHARE) + ' so‘m</b></td></tr>' +
+    '</tbody></table></div>' +
+    '<p class="st-note" style="margin:8px 0 0;">To‘lov asosida: har talaba 400 000, 2 tadan ko‘p qoldirgan bo‘lsa qoldirgan darslari chegirilgan. Kelgan darslar asosida: kelgan darslar × bir dars narxi.</p>';
 }
 
 // "Barchasi" links jump straight into O'quv jarayoni's group list.
