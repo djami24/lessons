@@ -5607,6 +5607,7 @@ document.getElementById('studentSearchInput').addEventListener('input', () => {
 });
 
 function spPct(v){ return v === null || v === undefined ? '—' : v + '%'; }
+function spPts(v){ return v === null || v === undefined ? '—' : v; }
 function spStat(label, value, color){
   return '<div style="border:1.5px solid var(--line);border-top:4px solid ' + (color || '#e0a040') + ';border-radius:var(--radius-s);padding:.6em .4em;text-align:center;">' +
     '<div style="font-size:.72rem;color:var(--gray);font-weight:700;">' + label + '</div>' +
