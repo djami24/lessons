@@ -5696,22 +5696,18 @@ async function spLoad(student){
       spInfo('O‘quv ID', code ? escapeHtml(code) : '—'),
 
       spHeading('Ballar'),
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;">' +
-        spStat('Umumiy ball', spPts(base), '#2e6f6e') +
-        spStat('Qo‘shimcha ball', (bonusSum > 0 ? '+' : '') + bonusSum, '#1FAE7A') +
-        spStat('Jami ball', spPts(total), '#2F6FED') +
-        spStat('Davomat', spPct(a.att), '#1FAE7A') +
-        spStat('Uy vazifa', spPct(a.hw), '#2F6FED') +
-        spStat('Test o‘rtachasi', avgTest === null ? '—' : avgTest, '#7b5ea7') +
-      '</div>',
-      '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-top:8px;">' +
-        spStat('Darslar', a.marked, '#888') +
-        spStat('Keldi', came, '#1FAE7A') +
-        spStat('Kech qoldi', a.late, '#e0a040') +
-        spStat('Kelmadi', a.no, '#c0392b') +
-        spStat('Uy vazifa to‘liq', a.hwFull, '#2F6FED') +
-        spStat('Jazo', a.punCnt, '#7b5ea7') +
-      '</div>',
+      spInfo('Umumiy ball', '<b>' + spPts(base) + '</b>'),
+      spInfo('Qo‘shimcha ball', '<b>' + ((bonusSum > 0 ? '+' : '') + bonusSum) + '</b>'),
+      spInfo('Jami ball', '<b>' + spPts(total) + '</b>'),
+      spInfo('Davomat', spPct(a.att)),
+      spInfo('Uy vazifa', spPct(a.hw)),
+      spInfo('Test o‘rtachasi', avgTest === null ? '—' : String(avgTest)),
+      spInfo('Darslar soni', String(a.marked)),
+      spInfo('Keldi', String(came)),
+      spInfo('Kech qoldi', String(a.late)),
+      spInfo('Kelmadi', String(a.no)),
+      spInfo('Uy vazifa to‘liq bajargan', String(a.hwFull)),
+      spInfo('Jazo', String(a.punCnt)),
 
       spHeading('Test natijalari' + (testInfo ? ' (oxirgisi: <b>' + testInfo.latest + '</b>)' : '')),
       testsHtml
