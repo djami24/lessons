@@ -3628,9 +3628,6 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
     <div id="studentProfileBody" style="margin-bottom:1.4em;"></div>
 
-    <div class="modal-actions" style="justify-content:space-between; margin-bottom:.8em;">
-      <button type="button" class="btn btn-amber btn-sm" id="openStudentProgressBtn"><svg class="ic" aria-hidden="true"><use href="#i-trending-up"></use></svg> O‘quv jarayoni</button>
-    </div>
 
     <div class="modal-actions" style="justify-content:space-between;">
       <button type="button" class="btn btn-danger btn-sm" id="deleteStudentBtn">O‘quvchini o‘chirish</button>
@@ -5623,6 +5620,51 @@ function spHeading(text){
 
 // Talaba profili: ism, telefon, saytga qo'shilgan sana, guruh, test natijalari va ballar.
 // Ma'lumotlar: students/{uid} + gradebook (test) + oquv_progress/{ID} (guruh, davomat, uy vazifa, jazo, bonus).
+let _spState = null;
+
+// Test natijalari tanlangan davr bo'yicha: test vaqti (scoreTimestamps) shu oyga tegishli bo'lsa
+function spTestsFor(gbMatch, gb, ym){
+  const out = { rows: [], avg: null, latest: null };
+  if(!gbMatch) return out;
+  const units = (gb.unitsByGroup && gb.unitsByGroup[gbMatch.group]) || [];
+  const sc = gbMatch.scores || {}, stamps = gbMatch.scoreTimestamps || {};
+  const keys = units.concat(Object.keys(sc).filter(k => units.indexOf(k) === -1))
+    .filter(k => sc[k] !== undefined && sc[k] !== null && sc[k] !== '' && isFinite(Number(sc[k])));
+  const inPeriod = k => {
+    if(ym === 'all') return true;
+    const ts = stamps[k];
+    if(typeof ts !== 'number') return false;
+    const d = new Date(ts);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') === ym;
+  };
+  const list = keys.filter(inPeriod);
+  out.rows = list.map(k => ({ k: k, v: Math.round(Math.max(0, Math.min(100, Number(sc[k])))) }));
+  if(out.rows.length){
+    out.avg = Math.round(out.rows.reduce((x, r) => x + r.v, 0) / out.rows.length);
+    let bestTs = -Infinity;
+    list.forEach(k => {
+      const ts = typeof stamps[k] === 'number' ? stamps[k] : -1;
+      if(ts >= bestTs){ bestTs = ts; out.latest = Math.round(Math.max(0, Math.min(100, Number(sc[k])))); }
+    });
+  }
+  return out;
+}
+
+function spMonthsOf(norm, bonuses, gbMatch){
+  const set = {};
+  norm.forEach(x => { const m = String(x.date || '').slice(0, 7); if(/^\d{4}-\d{2}$/.test(m)) set[m] = true; });
+  bonuses.forEach(b => { const m = String(b.date || '').slice(0, 7); if(/^\d{4}-\d{2}$/.test(m)) set[m] = true; });
+  if(gbMatch && gbMatch.scoreTimestamps){
+    Object.keys(gbMatch.scoreTimestamps).forEach(k => {
+      const ts = gbMatch.scoreTimestamps[k];
+      if(typeof ts === 'number'){ const d = new Date(ts); set[d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0')] = true; }
+    });
+  }
+  return Object.keys(set).sort().reverse();
+}
+
+// Talaba profili: ism, telefon, sana, guruh (doimiy) + tanlangan davr bo'yicha ballar va testlar.
+// Ma'lumotlar: students/{uid} + gradebook (test) + oquv_progress/{ID} (guruh, davomat, uy vazifa, jazo, bonus).
 async function spLoad(student){
   const body = document.getElementById('studentProfileBody');
   if(!body) return;
@@ -5660,62 +5702,80 @@ async function spLoad(student){
     }
     if(!groupName && prog && prog.group) groupName = prog.group;
 
-    // Davomat, uy vazifa, jazo — ekrandagi "O'quv jarayoni" bilan bir xil qoidalar
     const g = { id: groupId, name: groupName }, s = { id: code || student.id, name: student.name, phone: student.phone };
     const norm = entries.map(e => stNorm(e, g, s)).filter(Boolean);
-    const a = stAgg(norm);
-    const testInfo = gbMatch ? stTestInfo(gbMatch, gb.unitsByGroup) : null;
-    const avgTest = testInfo ? testInfo.avg : null;
-    const base = stScoreT(a, avgTest);
-    const bonusSum = bonuses.reduce((t, b) => t + (Number(b.points) || 0), 0);
-    const total = base === null ? null : base + bonusSum;
-    const came = a.yes + a.late;
-
     const phones = [];
     [student.phone, prog && prog.phone].forEach(p => { p = String(p || '').trim(); if(p && phones.indexOf(p) === -1) phones.push(p); });
 
-    // Test natijalari (guruh birliklari tartibida)
-    let testsHtml = '<p style="color:var(--gray);font-size:.88rem;margin:0;">Test natijasi yo‘q.</p>';
-    if(gbMatch){
-      const units = (gb.unitsByGroup && gb.unitsByGroup[gbMatch.group]) || [];
-      const sc = gbMatch.scores || {};
-      const keys = units.concat(Object.keys(sc).filter(k => units.indexOf(k) === -1))
-        .filter(k => sc[k] !== undefined && sc[k] !== null && sc[k] !== '');
-      if(keys.length){
-        testsHtml = keys.map(k => spInfo(escapeHtml(k), '<b>' + escapeHtml(String(sc[k])) + '</b>')).join('');
-      }
-    }
-
-    const html = [
-      spHeading('Ma’lumotlar'),
-      spInfo('Ism familiya', escapeHtml(student.name || '—')),
-      spInfo('Login (email)', escapeHtml(student.email || '—')),
-      spInfo('Telefon', phones.length ? phones.map(escapeHtml).join(', ') : '<span style="color:var(--gray);">kiritilmagan — yuqoridan kiriting</span>'),
-      spInfo('Saytga qo‘shilgan', escapeHtml(formatStudentCreatedAt(student.createdAt))),
-      spInfo('O‘quv guruhi', groupName ? escapeHtml(groupName) : (code ? '—' : '<span style="color:var(--gray);">O‘quv jarayoniga bog‘lanmagan</span>')),
-      spInfo('O‘quv ID', code ? escapeHtml(code) : '—'),
-
-      spHeading('Ballar'),
-      spInfo('Umumiy ball', '<b>' + spPts(base) + '</b>'),
-      spInfo('Qo‘shimcha ball', '<b>' + ((bonusSum > 0 ? '+' : '') + bonusSum) + '</b>'),
-      spInfo('Jami ball', '<b>' + spPts(total) + '</b>'),
-      spInfo('Davomat', spPct(a.att)),
-      spInfo('Uy vazifa', spPct(a.hw)),
-      spInfo('Test o‘rtachasi', avgTest === null ? '—' : String(avgTest)),
-      spInfo('Darslar soni', String(a.marked)),
-      spInfo('Keldi', String(came)),
-      spInfo('Kech qoldi', String(a.late)),
-      spInfo('Kelmadi', String(a.no)),
-      spInfo('Uy vazifa to‘liq bajargan', String(a.hwFull)),
-      spInfo('Jazo', String(a.punCnt)),
-
-      spHeading('Test natijalari' + (testInfo ? ' (oxirgisi: <b>' + testInfo.latest + '</b>)' : '')),
-      testsHtml
-    ].join('');
-    body.innerHTML = html;
+    const months = spMonthsOf(norm, bonuses, gbMatch);
+    const now = rpYm(new Date());
+    _spState = {
+      student: student, code: code, groupName: groupName, norm: norm, bonuses: bonuses,
+      gb: gb, gbMatch: gbMatch, phones: phones, months: months,
+      ym: months.indexOf(now) !== -1 ? now : 'all'
+    };
+    spRender();
   } catch(err){
     if(body.dataset.token === token) body.innerHTML = '<p style="color:#c0392b;font-size:.9rem;">Profil ma’lumotlarini yuklab bo‘lmadi: ' + escapeHtml(err.message || '') + '</p>';
   }
+}
+
+function spRender(){
+  const body = document.getElementById('studentProfileBody');
+  const S = _spState;
+  if(!body || !S) return;
+  const ym = S.ym;
+  const inYm = d => ym === 'all' || String(d || '').slice(0, 7) === ym;
+
+  const normM = S.norm.filter(x => inYm(x.date));
+  const a = stAgg(normM);
+  const tests = spTestsFor(S.gbMatch, S.gb, ym);
+  const base = stScoreT(a, tests.avg);
+  const bonusSum = S.bonuses.filter(b => inYm(b.date)).reduce((t, b) => t + (Number(b.points) || 0), 0);
+  const total = base === null ? null : base + bonusSum;
+  const came = a.yes + a.late;
+
+  const opts = '<option value="all"' + (ym === 'all' ? ' selected' : '') + '>Barcha darslar</option>' +
+    S.months.map(m => '<option value="' + m + '"' + (m === ym ? ' selected' : '') + '>' + escapeHtml(rpLabel(m)) + '</option>').join('');
+
+  const testsHtml = tests.rows.length
+    ? tests.rows.map(r => spInfo(escapeHtml(r.k), '<b>' + r.v + '</b>')).join('')
+    : '<p style="color:var(--gray);font-size:.88rem;margin:0;">Bu davrda test natijasi yo‘q.</p>';
+
+  body.innerHTML = [
+    spHeading('Ma’lumotlar'),
+    spInfo('Ism familiya', escapeHtml(S.student.name || '—')),
+    spInfo('Login (email)', escapeHtml(S.student.email || '—')),
+    spInfo('Telefon', S.phones.length ? S.phones.map(escapeHtml).join(', ') : '<span style="color:var(--gray);">kiritilmagan — yuqoridan kiriting</span>'),
+    spInfo('Saytga qo‘shilgan', escapeHtml(formatStudentCreatedAt(S.student.createdAt))),
+    spInfo('O‘quv guruhi', S.groupName ? escapeHtml(S.groupName) : (S.code ? '—' : '<span style="color:var(--gray);">O‘quv jarayoniga bog‘lanmagan</span>')),
+    spInfo('O‘quv ID', S.code ? escapeHtml(S.code) : '—'),
+
+    '<div style="display:flex;align-items:center;gap:.6em;margin:1.1em 0 .2em;flex-wrap:wrap;">' +
+      '<span style="font-size:.9rem;color:var(--gray);font-weight:700;">Davr:</span>' +
+      '<select id="spMonthSel" style="padding:.4em .6em;border-radius:var(--radius-s);border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--font-body);">' + opts + '</select>' +
+    '</div>',
+
+    spHeading('Ballar'),
+    spInfo('Umumiy ball', '<b>' + spPts(base) + '</b>'),
+    spInfo('Qo‘shimcha ball', '<b>' + ((bonusSum > 0 ? '+' : '') + bonusSum) + '</b>'),
+    spInfo('Jami ball', '<b>' + spPts(total) + '</b>'),
+    spInfo('Davomat', spPct(a.att)),
+    spInfo('Uy vazifa', spPct(a.hw)),
+    spInfo('Test o‘rtachasi', tests.avg === null ? '—' : String(tests.avg)),
+    spInfo('Darslar soni', String(a.marked)),
+    spInfo('Keldi', String(came)),
+    spInfo('Kech qoldi', String(a.late)),
+    spInfo('Kelmadi', String(a.no)),
+    spInfo('Uy vazifa to‘liq bajargan', String(a.hwFull)),
+    spInfo('Jazo', String(a.punCnt)),
+
+    spHeading('Test natijalari' + (tests.latest !== null ? ' (oxirgisi: <b>' + tests.latest + '</b>)' : '')),
+    testsHtml
+  ].join('');
+
+  const sel = document.getElementById('spMonthSel');
+  if(sel) sel.addEventListener('change', e => { S.ym = e.target.value; spRender(); });
 }
 
 document.getElementById('saveStudentPhoneBtn').addEventListener('click', async () => {
@@ -5760,12 +5820,6 @@ document.getElementById('deleteStudentBtn').addEventListener('click', async () =
 state.progressStudentId = null;
 state.progressEntries = []; // [{id, date, attended, homeworkDone, grade, note}]
 
-document.getElementById('openStudentProgressBtn').addEventListener('click', async () => {
-  const student = state.students.find(s => s.id === state.detailStudentId);
-  if(!student) return;
-  closeModal('modalStudentDetail');
-  await openStudentProgress(student);
-});
 
 // Talaba kundaligi: oxirgi reading mock natijasi (foizda) bilan kundalik sahifasini ochadi
 document.getElementById('kundalikPrintBtn').addEventListener('click', async () => {
