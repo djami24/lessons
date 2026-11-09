@@ -2516,6 +2516,14 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         .crl-ok{color:#059669;font-weight:800;} .crl-bad{color:#dc2626;font-weight:800;}
         .crl-hint{font-size:.78rem;color:var(--gray);margin:0;}
         @media (max-width:640px){.crl-ans-grid{grid-template-columns:repeat(2,1fr);}}
+        /* Mock ro'yxati — kartalar o'rniga qatorlar (ma'lumot o'zgarmaydi) */
+        #crlGrid.ind-grid{grid-template-columns:1fr;gap:8px;}
+        #crlGrid .crl-card{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 16px;border-radius:12px;}
+        #crlGrid .crl-card h3{flex:1 1 200px;min-width:0;}
+        #crlGrid .crl-meta{flex:0 0 auto;align-items:center;}
+        #crlGrid .crl-card .ind-sub{flex:1 1 180px;min-width:0;overflow-wrap:anywhere;}
+        #crlGrid .crl-actions{margin-top:0;flex:0 0 auto;}
+        @media (max-width:640px){#crlGrid .crl-card{padding:12px;} #crlGrid .crl-actions{width:100%;}}
       </style>
       <!-- CEFR RL -->
       <div id="indCefrPane" hidden>
