@@ -5630,6 +5630,48 @@ function spHeading(text){
 
 // Talaba profili: ism, telefon, saytga qo'shilgan sana, guruh, test natijalari va ballar.
 // Ma'lumotlar: students/{uid} + gradebook (test) + oquv_progress/{ID} (guruh, davomat, uy vazifa, jazo, bonus).
+// Talaba profilini PDF yoki rasm (PNG) qilib yuklab olish
+function spDownloadBlob(blob, name){
+  if(!blob){ showToast('Faylni yaratib bo‘lmadi', true); return; }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+async function spExportProfile(kind){
+  const S = _spState;
+  const src = document.getElementById('studentProfileBody');
+  if(!S || !src) return;
+  if(typeof html2canvas !== 'function' || !window.jspdf){ showToast('Kutubxonalar yuklanmadi — sahifani yangilang', true); return; }
+  const per = S.ym === 'all' ? 'Barcha darslar' : rpLabel(S.ym);
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:700px;padding:28px;background:#ffffff;color:#1c1c22;font-family:Arial,sans-serif;';
+  wrap.innerHTML = '<h2 style="margin:0 0 4px;font-size:22px;">' + escapeHtml(S.student.name || '') + '</h2>' +
+    '<div style="font-size:13px;color:#666;margin-bottom:14px;">Davr: ' + escapeHtml(per) + ' · Sana: ' + new Date().toLocaleDateString('uz-UZ') + '</div>' + src.innerHTML;
+  wrap.querySelectorAll('button, select').forEach(el => el.remove());
+  document.body.appendChild(wrap);
+  const base = 'talaba-' + String(S.student.name || 'profil').replace(/[^\wЀ-ӿ]+/g, '_') + '-' + (S.ym === 'all' ? 'barcha' : S.ym);
+  try{
+    const canvas = await html2canvas(wrap, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+    if(kind === 'png'){
+      canvas.toBlob(b => spDownloadBlob(b, base + '.png'), 'image/png');
+    } else {
+      const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
+      ojAddTallCanvasToPdf(pdf, canvas, false);
+      pdf.save(base + '.pdf');
+    }
+  } catch(err){
+    showToast('Yuklab bo‘lmadi: ' + (err.message || err), true);
+  } finally {
+    wrap.remove();
+  }
+}
+document.getElementById('studentProfileBody').addEventListener('click', e => {
+  const b = e.target.closest('[data-sp-export]');
+  if(b) spExportProfile(b.dataset.spExport);
+});
+
 let _spState = null;
 
 // Test natijalari tanlangan davr bo'yicha: test vaqti (scoreTimestamps) shu oyga tegishli bo'lsa
@@ -5753,6 +5795,10 @@ function spRender(){
     : '<p style="color:var(--gray);font-size:.88rem;margin:0;">Bu davrda test natijasi yo‘q.</p>';
 
   body.innerHTML = [
+    '<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin:0 0 6px;">' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-sp-export="pdf">PDF yuklash</button>' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-sp-export="png">Rasm yuklash</button>' +
+    '</div>',
     spHeading('Ma’lumotlar'),
     spInfo('Ism familiya', escapeHtml(S.student.name || '—')),
     spInfo('Login (email)', escapeHtml(S.student.email || '—')),
@@ -15635,6 +15681,63 @@ const CefrRL = (function(){
     $('crlStuBody').innerHTML = '<p class="ind-empty">Talabani tanlang — uning topshirgan barcha mocklari va statistikasi shu yerda chiqadi.</p>';
     openModal('modalCefrStuRes');
   }
+// Talaba natijalari grafigi (SVG) — Reading va Listening ballari mocklar bo'yicha (0–75)
+function crlChartBlock(rows){
+  const items = rows.slice().reverse().map(r => ({ label: r.title, r: r.rS, l: r.lS }));
+  if(!items.some(it => it.r !== null || it.l !== null)) return '';
+  const W = 680, H = 300, padL = 44, padR = 16, padT = 16, padB = 84;
+  const n = items.length, innerW = W - padL - padR, innerH = H - padT - padB;
+  const x = i => padL + (n === 1 ? innerW / 2 : i * innerW / (n - 1));
+  const y = v => padT + innerH - (Math.max(0, Math.min(75, v)) / 75) * innerH;
+  let g = '';
+  [0, 25, 50, 75].forEach(v => {
+    g += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="#e5e7eb"/>' +
+      '<text x="' + (padL - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-size="11" fill="#6b7280">' + v + '</text>';
+  });
+  items.forEach((it, i) => {
+    g += '<text x="' + x(i) + '" y="' + (H - padB + 14) + '" text-anchor="end" font-size="10" fill="#374151" transform="rotate(-35 ' + x(i) + ' ' + (H - padB + 14) + ')">' + escapeHtml(it.label) + '</text>';
+  });
+  const series = [['r', '#2563eb'], ['l', '#7c3aed']];
+  series.forEach(([key, color]) => {
+    const pts = [];
+    items.forEach((it, i) => { if(it[key] !== null && it[key] !== undefined) pts.push({ x: x(i), y: y(it[key]), v: it[key] }); });
+    if(pts.length > 1) g += '<polyline points="' + pts.map(p => p.x + ',' + p.y).join(' ') + '" fill="none" stroke="' + color + '" stroke-width="2.5"/>';
+    pts.forEach(p => {
+      g += '<circle cx="' + p.x + '" cy="' + p.y + '" r="4" fill="' + color + '"/>' +
+        '<text x="' + p.x + '" y="' + (p.y - 8) + '" text-anchor="middle" font-size="11" font-weight="700" fill="' + color + '">' + Math.round(p.v) + '</text>';
+    });
+  });
+  const svg = '<svg data-chart="1" xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;max-width:' + W + 'px;height:auto;display:block;">' +
+    '<rect width="' + W + '" height="' + H + '" fill="#ffffff"/>' + g + '</svg>';
+  return '<div style="border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px;">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px;">' +
+      '<h4 style="margin:0;font-size:.95rem;">Natijalar grafigi</h4>' +
+      '<div style="display:flex;gap:12px;font-size:.8rem;">' +
+        '<span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#2563eb;vertical-align:middle;"></span> Reading</span>' +
+        '<span><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#7c3aed;vertical-align:middle;"></span> Listening</span>' +
+      '</div></div>' +
+    '<div style="overflow-x:auto;">' + svg + '</div>' +
+    '<div style="text-align:right;margin-top:8px;"><button type="button" class="btn btn-ghost btn-sm" data-chart-png="1">Rasm yuklash (PNG)</button></div>' +
+  '</div>';
+}
+function crlChartPng(){
+  const svg = document.querySelector('#crlStuBody svg[data-chart]');
+  if(!svg) return;
+  const xml = new XMLSerializer().serializeToString(svg);
+  const img = new Image();
+  img.onload = () => {
+    const c = document.createElement('canvas');
+    c.width = 680 * 2; c.height = 300 * 2;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, c.width, c.height);
+    ctx.drawImage(img, 0, 0, c.width, c.height);
+    c.toBlob(b => spDownloadBlob(b, 'cefr-rl-grafik.png'), 'image/png');
+  };
+  img.onerror = () => showToast('Grafikni rasmga aylantirib bo‘lmadi', true);
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+}
+$('crlStuBody').addEventListener('click', e => { if(e.target.closest('[data-chart-png]')) crlChartPng(); });
+
   async function renderStudentResults(uid){
     const body = $('crlStuBody');
     const sel = $('crlStuSel');
@@ -15686,6 +15789,7 @@ const CefrRL = (function(){
         stat("O'rtacha Listening (ball)", fx(lAvg)) +
       '</div>' +
       '<p style="font-size:.78rem;color:var(--gray);margin:0 0 10px;">Ball test sinovi jadvali bo\'yicha (0–75). O\'rtacha faqat topshirilgan bo\'limlar bo\'yicha hisoblanadi.</p>' +
+      crlChartBlock(rows) +
       '<div class="table-wrap"><table class="data-table"><thead><tr><th>Mock nomi</th><th>Reading</th><th>Listening</th></tr></thead><tbody>' +
       rows.map(r => '<tr><td><strong>' + esc(r.title) + '</strong></td><td>' + (r.hasR ? cell(r.reading, r.rS) : '<span style="color:var(--gray);">—</span>') + '</td><td>' + (r.hasL ? cell(r.listening, r.lS) : '<span style="color:var(--gray);">—</span>') + '</td></tr>').join('') +
       '</tbody></table></div>';
