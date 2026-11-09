@@ -15579,7 +15579,7 @@ const CefrRL = (function(){
   }
 
   // ---------- Natijalar ----------
-  async function openResults(id){
+  async function openResults(id, focus){
     resTest = tests.find(x => x.id === id);
     if(!resTest) return;
     resOpen = null;
@@ -15594,11 +15594,13 @@ const CefrRL = (function(){
       ]);
       resKeys = { reading: (r.exists && r.data().answers) || [], listening: (l.exists && l.data().answers) || [] };
       resAtts = a.docs.map(d => Object.assign({ id: d.id }, d.data()));
+      if(focus){ const fa = attOf(resAtts, focus.uid, focus.sec); resOpen = fa ? fa.id : null; }
     } catch(e){
       $('crlResBody').innerHTML = '<p class="ind-empty">Xatolik: ' + esc(e.message) + '</p>';
       return;
     }
     renderResults();
+    if(resOpen){ const vb = document.querySelector('#crlResBody [data-res-view="' + resOpen + '"]'); if(vb) vb.scrollIntoView({ block: 'center' }); }
   }
 
   function renderResults(){
@@ -15777,7 +15779,16 @@ async function crlExportResults(kind){
     wrap.remove();
   }
 }
-$('crlStuBody').addEventListener('click', e => { const b = e.target.closest('[data-res-export]'); if(b) crlExportResults(b.dataset.resExport); });
+$('crlStuBody').addEventListener('click', e => {
+  const b = e.target.closest('[data-res-export]');
+  if(b){ crlExportResults(b.dataset.resExport); return; }
+  const tr = e.target.closest('[data-stu-open]');
+  if(tr){
+    const uid = $('crlStuSel').value;
+    closeModal('modalCefrStuRes');
+    openResults(tr.dataset.stuOpen, { uid: uid, sec: tr.dataset.stuSec });
+  }
+});
 
   async function renderStudentResults(uid){
     const body = $('crlStuBody');
@@ -15805,7 +15816,8 @@ $('crlStuBody').addEventListener('click', e => { const b = e.target.closest('[da
         order: t.createdAt && t.createdAt.toMillis ? t.createdAt.toMillis() : 0,
         reading: rd ? scoreOf(rd.answers, k.reading) : null,
         listening: ls ? scoreOf(ls.answers, k.listening) : null,
-        hasR: hasSec(t, 'reading'), hasL: hasSec(t, 'listening')
+        hasR: hasSec(t, 'reading'), hasL: hasSec(t, 'listening'),
+        id: t.id, sec: rd ? 'reading' : 'listening'
       });
     });
     rows.sort((a, b) => b.order - a.order);
@@ -15837,7 +15849,7 @@ $('crlStuBody').addEventListener('click', e => { const b = e.target.closest('[da
       '<p style="font-size:.78rem;color:var(--gray);margin:0 0 10px;">Ball test sinovi jadvali bo\'yicha (0–75). O\'rtacha faqat topshirilgan bo\'limlar bo\'yicha hisoblanadi.</p>' +
       crlChartBlock(rows) +
       '<div class="table-wrap"><table class="data-table"><thead><tr><th>Mock nomi</th><th>Reading</th><th>Listening</th></tr></thead><tbody>' +
-      rows.map(r => '<tr><td><strong>' + esc(r.title) + '</strong></td><td>' + (r.hasR ? cell(r.reading, r.rS) : '<span style="color:var(--gray);">—</span>') + '</td><td>' + (r.hasL ? cell(r.listening, r.lS) : '<span style="color:var(--gray);">—</span>') + '</td></tr>').join('') +
+      rows.map(r => '<tr data-stu-open="' + esc(r.id) + '" data-stu-sec="' + r.sec + '" style="cursor:pointer;" title="Mock natijasini ochish"><td><strong>' + esc(r.title) + '</strong></td><td>' + (r.hasR ? cell(r.reading, r.rS) : '<span style="color:var(--gray);">—</span>') + '</td><td>' + (r.hasL ? cell(r.listening, r.lS) : '<span style="color:var(--gray);">—</span>') + '</td></tr>').join('') +
       '</tbody></table></div>';
   }
 
