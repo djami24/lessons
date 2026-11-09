@@ -15285,6 +15285,8 @@ const CefrRL = (function(){
   const col = () => db.collection('cefrRL');
   const attCol = () => db.collection('cefrRLAttempts');
   const TS = () => firebase.firestore.FieldValue.serverTimestamp();
+  // Mock bo'limlari (sections). Eski mocklarda maydon yo'q — ikkala bo'lim ham bor deb hisoblanadi.
+  const hasSec = (tt, sec) => !tt || !Array.isArray(tt.sections) || tt.sections.indexOf(sec) >= 0;
 
   let tests = [], attempts = [], inds = [], indsLoaded = false;
   let editing = null, curSec = 'reading';
@@ -15376,8 +15378,8 @@ const CefrRL = (function(){
       return '<div class="crl-card" data-id="' + esc(t.id) + '">' +
         '<h3>' + esc(t.title || 'Nomsiz') + '</h3>' +
         '<div class="crl-meta"><span>Biriktirilgan: <b>' + asg.length + '</b></span>' +
-          seg('reading', 'Reading', 'crl-tag--reading') +
-          seg('listening', 'Listening', 'crl-tag--listening') + '</div>' +
+          (hasSec(t, 'reading') ? seg('reading', 'Reading', 'crl-tag--reading') : '') +
+          (hasSec(t, 'listening') ? seg('listening', 'Listening', 'crl-tag--listening') : '') + '</div>' +
         '<div class="ind-sub" title="' + esc(names) + '">' + (names ? esc(names) : 'Hech kimga biriktirilmagan') + '</div>' +
         '<div class="crl-actions">' +
           '<button type="button" class="btn btn-primary btn-sm" data-crl="res">Natijalar</button>' +
@@ -15482,9 +15484,13 @@ const CefrRL = (function(){
     if(!title){ err.textContent = 'Mock nomini yozing.'; err.hidden = false; return; }
     const keys = {};
     SECS.forEach(sec => { keys[sec] = ansInputs(sec).map(i => i.value.replace(/[\\\s]+$/, '').trim()); });
+    const filledCnt = {};
+    SECS.forEach(sec => { filledCnt[sec] = keys[sec].filter(Boolean).length; });
+    const sections = SECS.filter(sec => filledCnt[sec] > 0);   // bo'sh bo'lim (masalan faqat Reading) — xato emas, shunchaki yo'q
+    if(!sections.length){ err.textContent = 'Kamida bitta bo‘limni (Reading yoki Listening) to‘ldiring.'; err.hidden = false; return; }
     const parts = [];
-    SECS.forEach(sec => { const f = keys[sec].filter(Boolean).length; if(f < COUNT) parts.push(SEC_LABEL[sec] + ': ' + f + '/' + COUNT); });
-    if(parts.length && !confirm('Hammasi toʻldirilmagan (' + parts.join(', ') + '). Boʻsh kataklar har doim xato hisoblanadi. Baribir saqlaysizmi?')) return;
+    sections.forEach(sec => { if(filledCnt[sec] < COUNT) parts.push(SEC_LABEL[sec] + ': ' + filledCnt[sec] + '/' + COUNT); });
+    if(parts.length && !confirm('Ba’zi kataklar bo‘sh (' + parts.join(', ') + '). Bo‘sh kataklar xato hisoblanadi. Baribir saqlaysizmi?')) return;
     const assigned = Array.from(sel);
     const names = {};
     assigned.forEach(u => { const s = inds.find(x => x.id === u); names[u] = s ? (s.name || s.email || '') : ((editing && editing.assignedNames && editing.assignedNames[u]) || ''); });
@@ -15492,11 +15498,15 @@ const CefrRL = (function(){
     btn.disabled = true;
     try{
       const ref = editing ? col().doc(editing.id) : col().doc();
-      const data = { title: title, count: COUNT, assignedTo: assigned, assignedNames: names, updatedAt: TS() };
+      const data = { title: title, count: COUNT, sections: sections, assignedTo: assigned, assignedNames: names, updatedAt: TS() };
       const batch = db.batch();
       if(editing){ data.type = firebase.firestore.FieldValue.delete(); batch.update(ref, data); }
       else { data.createdAt = TS(); batch.set(ref, data); }
-      SECS.forEach(sec => batch.set(ref.collection('private').doc(sec), { answers: keys[sec], updatedAt: TS() }));
+      SECS.forEach(sec => {
+        const pr = ref.collection('private').doc(sec);
+        if(sections.indexOf(sec) >= 0) batch.set(pr, { answers: keys[sec], updatedAt: TS() });
+        else if(editing) batch.delete(pr);   // tahrirlashda bo'lim olib tashlangan bo'lsa
+      });
       await batch.commit();
       closeModal('modalCefrRL');
       showToast(editing ? 'Mock yangilandi' : 'Mock saqlandi');
@@ -15551,6 +15561,7 @@ const CefrRL = (function(){
     resAtts.forEach(a => { if(uids.indexOf(a.studentId) < 0) uids.push(a.studentId); });
     if(!uids.length){ $('crlResBody').innerHTML = '<p class="ind-empty">Bu mock hech kimga biriktirilmagan.</p>'; return; }
     function cell(uid, sec){
+      if(!hasSec(t, sec)) return '<span style="color:var(--gray);">—</span>';
       const a = attOf(resAtts, uid, sec);
       if(!a) return '<span class="ind-badge ind-badge--none">Topshirmagan</span>';
       const sc = scoreOf(a.answers, resKeys[sec]);
@@ -15649,7 +15660,8 @@ const CefrRL = (function(){
         title: t.title || 'Nomsiz',
         order: t.createdAt && t.createdAt.toMillis ? t.createdAt.toMillis() : 0,
         reading: rd ? scoreOf(rd.answers, k.reading) : null,
-        listening: ls ? scoreOf(ls.answers, k.listening) : null
+        listening: ls ? scoreOf(ls.answers, k.listening) : null,
+        hasR: hasSec(t, 'reading'), hasL: hasSec(t, 'listening')
       });
     });
     rows.sort((a, b) => b.order - a.order);
@@ -15675,7 +15687,7 @@ const CefrRL = (function(){
       '</div>' +
       '<p style="font-size:.78rem;color:var(--gray);margin:0 0 10px;">Ball test sinovi jadvali bo\'yicha (0–75). O\'rtacha faqat topshirilgan bo\'limlar bo\'yicha hisoblanadi.</p>' +
       '<div class="table-wrap"><table class="data-table"><thead><tr><th>Mock nomi</th><th>Reading</th><th>Listening</th></tr></thead><tbody>' +
-      rows.map(r => '<tr><td><strong>' + esc(r.title) + '</strong></td><td>' + cell(r.reading, r.rS) + '</td><td>' + cell(r.listening, r.lS) + '</td></tr>').join('') +
+      rows.map(r => '<tr><td><strong>' + esc(r.title) + '</strong></td><td>' + (r.hasR ? cell(r.reading, r.rS) : '<span style="color:var(--gray);">—</span>') + '</td><td>' + (r.hasL ? cell(r.listening, r.lS) : '<span style="color:var(--gray);">—</span>') + '</td></tr>').join('') +
       '</tbody></table></div>';
   }
 
