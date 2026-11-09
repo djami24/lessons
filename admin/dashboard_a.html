@@ -2524,6 +2524,8 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         #crlGrid .crl-card .ind-sub{flex:1 1 180px;min-width:0;overflow-wrap:anywhere;}
         #crlGrid .crl-actions{margin-top:0;flex:0 0 auto;}
         @media (max-width:640px){#crlGrid .crl-card{padding:12px;} #crlGrid .crl-actions{width:100%;}}
+        #crlGrid .crl-tag--ok{color:#059669;background:rgba(5,150,105,.14);}
+        #crlGrid .crl-tag--bad{color:#dc2626;background:rgba(220,38,38,.14);}
       </style>
       <!-- CEFR RL -->
       <div id="indCefrPane" hidden>
@@ -15365,11 +15367,17 @@ const CefrRL = (function(){
       const asg = t.assignedTo || [];
       const cnt = sec => attempts.filter(a => a.testId === t.id && a.section === sec && asg.indexOf(a.studentId) >= 0).length;
       const names = asg.map(u => nameOf(u, t)).slice(0, 3).join(', ') + (asg.length > 3 ? ' +' + (asg.length - 3) : '');
+      const seg = (sec, label, cls) => {
+        const c = cnt(sec), done = asg.length > 0 && c >= asg.length;
+        const tagCls = !asg.length ? cls : (done ? 'crl-tag--ok' : 'crl-tag--bad');
+        const numCls = !asg.length ? '' : (done ? 'crl-ok' : 'crl-bad');
+        return '<span><span class="crl-tag ' + tagCls + '">' + label + '</span> <b class="' + numCls + '">' + c + '/' + asg.length + '</b></span>';
+      };
       return '<div class="crl-card" data-id="' + esc(t.id) + '">' +
         '<h3>' + esc(t.title || 'Nomsiz') + '</h3>' +
         '<div class="crl-meta"><span>Biriktirilgan: <b>' + asg.length + '</b></span>' +
-          '<span><span class="crl-tag crl-tag--reading">Reading</span> <b>' + cnt('reading') + '/' + asg.length + '</b></span>' +
-          '<span><span class="crl-tag crl-tag--listening">Listening</span> <b>' + cnt('listening') + '/' + asg.length + '</b></span></div>' +
+          seg('reading', 'Reading', 'crl-tag--reading') +
+          seg('listening', 'Listening', 'crl-tag--listening') + '</div>' +
         '<div class="ind-sub" title="' + esc(names) + '">' + (names ? esc(names) : 'Hech kimga biriktirilmagan') + '</div>' +
         '<div class="crl-actions">' +
           '<button type="button" class="btn btn-primary btn-sm" data-crl="res">Natijalar</button>' +
