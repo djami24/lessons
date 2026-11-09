@@ -1115,7 +1115,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="st-grid st-grid-wide" style="margin-top:16px;">
           <div class="home-section-card"><h3 class="st-h">Dinamika <small>(oldingi davr bilan solishtirganda)</small></h3><div id="homeStTrend"></div></div>
           <div class="home-section-card"><h3 class="st-h">Taqsimot</h3><div id="homeStDonuts"></div></div>
-          <div class="home-section-card" style="grid-column:1/-1;"><h3 class="st-h">Tahminiy oylik <small>(to‘lov va davomat asosida)</small></h3><div id="homeStSalary"></div></div>
+          <div class="home-section-card" style="grid-column:1/-1;"><h3 class="st-h">Tahminiy oylik <small>(to‘lov va davomat asosida)</small></h3><div style="display:flex;align-items:center;gap:8px;margin:0 0 10px;flex-wrap:wrap;"><span style="font-size:.85rem;color:var(--gray);font-weight:700;">Oy:</span><select id="homeStSalMonth" class="st-select" title="Oyni tanlang"></select></div><div id="homeStSalary"></div></div>
         </div>
         <p id="homeStLoading" style="color:var(--gray); text-align:center; padding:8px; margin:0;"></p>
         </div>
@@ -7790,7 +7790,8 @@ async function homeRenderStatsOverview(force){
   document.getElementById('homeStDonuts').innerHTML =
     stDonut('Davomat', [{ l:'Keldi', v:A.yes, c:ST_C.green }, { l:'Kech qoldi', v:A.late, c:ST_C.orange }, { l:'Kelmadi', v:A.no, c:ST_C.red }, { l:'Belgilanmagan', v:A.unm, c:ST_C.gray }]) +
     stDonut('Uy vazifa', [{ l:'To\'liq', v:A.hwFull, c:ST_C.green }, { l:'Qisman', v:A.hwPart, c:ST_C.orange }, { l:'Qilmagan', v:A.hwNo, c:ST_C.red }, { l:'Belgilanmagan', v:A.hwUnm, c:ST_C.gray }]);
-  renderSalaryEstimate(groups, cur);
+  _salCtx = { groups: groups, rows: data.rows, today: today };
+  renderSalaryEstimate();
 }
 
 // ----- Tahminiy oylik (o'qituvchi) -----
@@ -7798,9 +7799,28 @@ async function homeRenderStatsOverview(force){
 // O'qituvchi ulushi: tushgan summaning 38%.
 const SAL = { FEE: 400000, LESSONS: 12, FREE_MISSES: 2, SHARE: 0.38 };
 function salFmt(n){ return Math.round(n).toLocaleString('en-US').replace(/,/g, ' '); }
-function renderSalaryEstimate(groups, rows){
+let _salCtx = null, _salYm = '';
+function salInitMonths(sel, today){
+  if(sel.dataset.ready) return;
+  sel.dataset.ready = '1';
+  const opts = [], FIRST = '2026-09';   // ma'lumot kiritish boshlangan oy
+  for (let i = 0; i < 60; i++) { const ym = rpYm(new Date(today.getFullYear(), today.getMonth() - i, 1)); if (ym < FIRST) break; opts.push('<option value="' + ym + '">' + rpLabel(ym) + '</option>'); }
+  sel.innerHTML = opts.join('');
+  sel.addEventListener('change', () => { _salYm = sel.value; renderSalaryEstimate(); });
+}
+// Oy tanlanganda shu oyning darslari bo'yicha qayta hisoblanadi (stWin ymOverride orqali — boshqa kartalarga bog'liq emas)
+function renderSalaryEstimate(){
   const el = document.getElementById('homeStSalary');
-  if(!el) return;
+  const ctx = _salCtx;
+  if(!el || !ctx) return;
+  const sel = document.getElementById('homeStSalMonth');
+  if(sel) salInitMonths(sel, ctx.today);
+  if(!_salYm) _salYm = rpYm(ctx.today);
+  if(sel) sel.value = _salYm;
+  const ym = _salYm, groups = ctx.groups;
+  const wins = {};
+  groups.forEach(g => { wins[g.id] = stWin(g, 'M', ctx.today, ctx.rows, ym); });
+  const rows = ctx.rows.filter(r => { const w = wins[r.gid]; return w && r.date >= w.from && r.date <= w.to; });
   const price = SAL.FEE / SAL.LESSONS;
   const by = {};
   rows.forEach(r => {
@@ -7826,7 +7846,7 @@ function renderSalaryEstimate(groups, rows){
   if(!students){ el.innerHTML = '<p class="st-note">Tanlangan guruhlarda talaba yo‘q.</p>'; return; }
   const pct = Math.round(SAL.SHARE * 100);
   el.innerHTML =
-    '<p class="st-note" style="margin:0 0 10px;">' + students + ' ta talaba · ' + full + ' tasi to‘liq to‘laydi · ' + reduced + ' tasiga chegirma (' + (SAL.FREE_MISSES + 1) + '+ dars qoldirgan). Bir dars narxi: ' + salFmt(price) + ' so‘m.</p>' +
+    '<p class="st-note" style="margin:0 0 10px;">' + rpLabel(ym) + ' · ' + students + ' ta talaba · ' + full + ' tasi to‘liq to‘laydi · ' + reduced + ' tasiga chegirma (' + (SAL.FREE_MISSES + 1) + '+ dars qoldirgan). Bir dars narxi: ' + salFmt(price) + ' so‘m.</p>' +
     '<div class="table-wrap"><table class="data-table"><thead><tr><th></th><th>To‘lov asosida</th><th>Kelgan darslar asosida</th></tr></thead><tbody>' +
       '<tr><td>Tushgan summa</td><td>' + salFmt(feeSum) + ' so‘m</td><td>' + salFmt(attSum) + ' so‘m</td></tr>' +
       '<tr><td><b>Oylik (' + pct + '%)</b></td><td><b>' + salFmt(feeSum * SAL.SHARE) + ' so‘m</b></td><td><b>' + salFmt(attSum * SAL.SHARE) + ' so‘m</b></td></tr>' +
