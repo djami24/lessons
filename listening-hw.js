@@ -1,21 +1,21 @@
 /* ============================================================
-   Listening uy vazifalari — talaba va admin uchun umumiy modul
+   Listening uy vazifalari: talaba va admin uchun umumiy modul
    ------------------------------------------------------------
    Firestore:
      listening_exercises/{exId}
        { title, mediaUrl, answers:[5 ta matn], createdAt, updatedAt,
-         durationHours, deadlineAt }   // deadlineAt — topshirish tugaydigan vaqt (ms); null — cheksiz
-       answers[i] — i-bo‘sh joy uchun to‘g‘ri javob.
+         durationHours, deadlineAt }   // deadlineAt: topshirish tugaydigan vaqt (ms); null: cheksiz
+       answers[i]: i-bo‘sh joy uchun to‘g‘ri javob.
        Bir nechta to‘g‘ri variant bo‘lsa "|" bilan ajrating: "color | colour"
      listening_submissions/{exId_uid}
        { exerciseId, studentId, studentName, answers:[5], score, total, marks, submittedAt }
        Talaba har mashqni faqat bir marta topshiradi (hujjat ID = exId_uid).
      Point: har mashqdan nechta to'g'ri topilsa (0–5) shuncha point. Mashq o'chirilganda natija
-     oquv_progress/{ID}/bonus/ls_{exId}_{uid} (source:'listening') ga ko'chiriladi — point yo'qolmaydi.
+     oquv_progress/{ID}/bonus/ls_{exId}_{uid} (source:'listening') ga ko'chiriladi: point yo'qolmaydi.
 
    Ishlatish:
-     ListeningHW.openStudent({ uid, name })  — talaba paneli (#lhwStudentRoot)
-     ListeningHW.openAdmin()                 — admin paneli  (#lhwAdminRoot)
+     ListeningHW.openStudent({ uid, name }) : talaba paneli (#lhwStudentRoot)
+     ListeningHW.openAdmin()                : admin paneli  (#lhwAdminRoot)
    Talab qilinadi: firebase-config.js (global `db`, `firebase`).
    ============================================================ */
 (function (global) {
@@ -26,10 +26,10 @@
   var BLANKS = 5;        // eski mashqlar uchun standart
   var MAX_BLANKS = 40;   // bitta mashqda ko‘pi bilan shuncha bo‘shliq
   var MAX_ANSWER_LEN = 200;
-  // Taxmin qoidasi: barcha bo‘shliqlar noto‘g‘ri bo‘lsa —
+  // Taxmin qoidasi: barcha bo‘shliqlar noto‘g‘ri bo‘lsa -
   // mashq uchun 0 ball beriladi, PENALTY ta jazo qayd etiladi (balldan ayrilmaydi), natija domlaga taqdim etiladi.
   var PENALTY = 100;
-  // Marafonning umumiy soni: har bir kiritilgan mashq — bitta marafon (qolganini shundan hisoblaydi)
+  // Marafonning umumiy soni: har bir kiritilgan mashq: bitta marafon (qolganini shundan hisoblaydi)
   var MARATHON_TOTAL = 12;
 
   /* ---------- yordamchilar ---------- */
@@ -75,7 +75,7 @@
       marks.push(ok);
       if (ok) correct++;
     }
-    // Barcha bo‘shliqlar noto‘g‘ri bo‘lsa — taxmin (0 ball, jazo)
+    // Barcha bo‘shliqlar noto‘g‘ri bo‘lsa: taxmin (0 ball, jazo)
     var flagged = n > 0 && correct === 0;
     var score = flagged ? 0 : correct;
     var penalty = flagged ? PENALTY : 0;
@@ -151,7 +151,7 @@
 
   /* ---------- reyting ---------- */
 
-  // Ball bo‘yicha o‘rin: teng ball — bir xil o‘rin; tengda kim oldin topshirgan bo‘lsa, yuqorida
+  // Ball bo‘yicha o‘rin: teng ball: bir xil o‘rin; tengda kim oldin topshirgan bo‘lsa, yuqorida
   function rankRows(rows) {
     var sorted = rows.slice().sort(function (a, b) {
       return finalOf(b) - finalOf(a) || tsMs(a.submittedAt) - tsMs(b.submittedAt);
@@ -257,7 +257,7 @@
     maybeShowWelcome();
   }
 
-  // Har soniyada: qolgan vaqtni yangilaydi; muddat tugasa — forma yopiladi
+  // Har soniyada: qolgan vaqtni yangilaydi; muddat tugasa: forma yopiladi
   function tick() {
     var root = document.getElementById('lhwStudentRoot');
     if (!root || !document.body.contains(root)) return;
@@ -280,8 +280,8 @@
     var area = document.getElementById('lhwFormArea');
     if (!area) return;
     area.innerHTML = isClosed(ex)
-      ? '<div class="lhw-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#6B7280" stroke-width="2"/><rect x="5" y="10" width="14" height="11" rx="2" fill="#6B7280"/><circle cx="12" cy="15.5" r="1.5" fill="#fff"/></svg> Bu mashq yopilgan — hozircha javob kiritib bo‘lmaydi.</div>'
-      : '<div class="lhw-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E5484D"/><rect x="6.5" y="10.5" width="11" height="3" rx="1.5" fill="#fff"/></svg> Bu mashq uchun vaqt tugagan — javob kiritib bo‘lmaydi.</div>';
+      ? '<div class="lhw-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="#6B7280" stroke-width="2"/><rect x="5" y="10" width="14" height="11" rx="2" fill="#6B7280"/><circle cx="12" cy="15.5" r="1.5" fill="#fff"/></svg> Bu mashq yopilgan: hozircha javob kiritib bo‘lmaydi.</div>'
+      : '<div class="lhw-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E5484D"/><rect x="6.5" y="10.5" width="11" height="3" rx="1.5" fill="#fff"/></svg> Bu mashq uchun vaqt tugagan: javob kiritib bo‘lmaydi.</div>';
   }
 
   // Umumiy reytingdagi o‘rin: mendan yuqori umumiy ballga ega talabalar soni + 1
@@ -313,9 +313,9 @@
         '<div class="lhw-modal-emoji"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17l-6.1 3.6 1.4-6.8L2.2 9.1l6.9-.8z" fill="#F5B700" stroke="#D99A00" stroke-width="1"/></svg></div>' +
         '<h2>Tabriklayman, ' + esc(first) + '!</h2>' +
         '<p>Siz <b>Listening marafon</b>ga qo‘shildingiz!</p>' +
-        '<p>Jami <b>12 ta marafon</b> bo‘ladi. Har bir mashqda bir nechta bo‘shliq bor — har bir to‘g‘ri javob <b>1 ball</b>.</p>' +
+        '<p>Jami <b>12 ta marafon</b> bo‘ladi. Har bir mashqda bir nechta bo‘shliq bor: har bir to‘g‘ri javob <b>1 ball</b>.</p>' +
         '<div class="lhw-modal-prize"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="#F5B700"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" fill="none" stroke="#D99A00" stroke-width="1.6"/><rect x="10.5" y="14" width="3" height="4" fill="#D99A00"/><rect x="7" y="18" width="10" height="2.5" rx="1" fill="#B77E00"/></svg> Marafon oxirida eng yuqori ball to‘plagan talabaga <b>sovg‘a</b> beriladi!</div>' +
-        '<p class="lhw-modal-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> Eslatma: barcha bo‘shliqlar noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi — 0 ball, <b>100 ta jazo</b> qayd etiladi va natija domlaga taqdim etiladi.</p>' +
+        '<p class="lhw-modal-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> Eslatma: barcha bo‘shliqlar noto‘g‘ri bo‘lsa, bu taxmin deb hisoblanadi: 0 ball, <b>100 ta jazo</b> qayd etiladi va natija domlaga taqdim etiladi.</p>' +
         '<button type="button" class="lhw-modal-btn">Boshlaymiz!</button>' +
       '</div>';
     document.body.appendChild(bg);
@@ -489,7 +489,7 @@
       btn.disabled = false;
       var denied = e && (e.code === 'permission-denied' || /permission/i.test(e.message || ''));
       showErr(err, denied && isLocked(ex)
-        ? (isClosed(ex) ? 'Mashq yopilgan — javob qabul qilinmaydi.' : 'Vaqt tugagan — javob qabul qilinmaydi.')
+        ? (isClosed(ex) ? 'Mashq yopilgan: javob qabul qilinmaydi.' : 'Vaqt tugagan: javob qabul qilinmaydi.')
         : 'Xatolik: ' + (e && e.message ? e.message : 'topshirib bo‘lmadi'));
     });
   }
@@ -503,10 +503,10 @@
     var n = subCount(sub);
     for (var i = 0; i < n; i++) {
       var ok = !!marks[i];
-      // To‘g‘ri javoblar talabaga ko‘rsatilmaydi — faqat o‘z javobi va belgisi
+      // To‘g‘ri javoblar talabaga ko‘rsatilmaydi: faqat o‘z javobi va belgisi
       rows += '<li class="lhw-res ' + (ok ? 'ok' : 'bad') + '">' +
         '<span class="lhw-blank-no">' + (i + 1) + '</span>' +
-        '<span class="lhw-res-yours">' + esc(answers[i] || '—') + '</span>' +
+        '<span class="lhw-res-yours">' + esc(answers[i] || '-') + '</span>' +
         '<span class="lhw-res-mark">' + (ok ? '✓' : '✗') + '</span>' +
         '</li>';
     }
@@ -514,7 +514,7 @@
     area.innerHTML =
       '<div class="lhw-result">' +
         '<div class="lhw-score-big">' + score + '<span>/' + n + '</span></div>' +
-        '<p class="lhw-muted">Siz ' + n + ' ta bo‘shliqdan ' + score + 'tasini to‘g‘ri topdingiz. Natija topshirilgan — o‘zgartirib bo‘lmaydi.</p>' +
+        '<p class="lhw-muted">Siz ' + n + ' ta bo‘shliqdan ' + score + 'tasini to‘g‘ri topdingiz. Natija topshirilgan: o‘zgartirib bo‘lmaydi.</p>' +
         (sub.penalty ? '<div class="lhw-warn"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> Taxmin aniqlandi: 0 ball, ' + sub.penalty + ' ta jazo qayd etildi. Natija domlaga taqdim etildi.</div>' : '') +
         '<ol class="lhw-res-list">' + rows + '</ol>' +
         '<p class="lhw-hint lhw-ask-teacher"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" fill="#3B82F6"/><path d="M3 6l9 7 9-7" fill="none" stroke="#fff" stroke-width="1.8"/></svg> To‘g‘ri javoblarni o‘qituvchingizdan oling.</p>' +
@@ -543,7 +543,7 @@
     root.innerHTML =
       '<div class="lhw-head"><div>' +
         '<h1>Listening uy vazifalari</h1>' +
-        '<p>Har bir mashq uchun kerakli sonda (1–40) to‘g‘ri javob kiriting. Talaba bo‘sh joylarni to‘ldiradi; har bir to‘g‘ri javob — 1 ball. Bir nechta to‘g‘ri variant uchun "|" belgisidan foydalaning.</p>' +
+        '<p>Har bir mashq uchun kerakli sonda (1–40) to‘g‘ri javob kiriting. Talaba bo‘sh joylarni to‘ldiradi; har bir to‘g‘ri javob: 1 ball. Bir nechta to‘g‘ri variant uchun "|" belgisidan foydalaning.</p>' +
       '</div></div>' +
       '<div id="lhwOverall" class="lhw-overall"></div>' +
       '<div class="lhw-admin-grid">' +
@@ -552,13 +552,13 @@
           '<label class="lhw-field"><span>Mashq nomi *</span><input type="text" id="lhwTitle" maxlength="120" placeholder="Masalan: 1-mashq"></label>' +
           '<label class="lhw-field"><span>Guruh</span><select id="lhwGroup"><option value="">Barcha guruhlar</option></select></label>' +
           '<label class="lhw-field"><span>Topshirish muddati, soat (ixtiyoriy)</span>' +
-            '<input type="number" id="lhwHours" min="0.1" max="1000" step="any" placeholder="Masalan: 24 yoki 30 (bo‘sh — cheklanmagan)"></label>' +
+            '<input type="number" id="lhwHours" min="0.1" max="1000" step="any" placeholder="Masalan: 24 yoki 30 (bo‘sh: cheklanmagan)"></label>' +
           '<p class="lhw-hint">Muddat saqlangan paytdan boshlab hisoblanadi. Tahrirlashda soatni o‘zgartirsangiz, muddat qaytadan hozirdan boshlanadi. Vaqt tugagach talabalar javob kirita olmaydi.</p>' +
           '<label class="lhw-field"><span>Audio / material havolasi (ixtiyoriy)</span><input type="text" id="lhwMedia" placeholder="https://..."></label>' +
           '<div class="lhw-bulk">' +
-            '<label class="lhw-field"><span><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#F5B700"/></svg> Tezkor kiritish — javoblarni bittada qo‘ying</span>' +
+            '<label class="lhw-field"><span><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#F5B700"/></svg> Tezkor kiritish: javoblarni bittada qo‘ying</span>' +
               '<textarea id="lhwBulk" rows="5" spellcheck="false" placeholder="Har qatorda bitta javob (Enter bilan ajrating):&#10;apple&#10;banana | bananas&#10;cat&#10;dog&#10;egg"></textarea></label>' +
-            '<p class="lhw-bulk-st" id="lhwBulkSt">Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying — pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.</p>' +
+            '<p class="lhw-bulk-st" id="lhwBulkSt">Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying: pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.</p>' +
           '</div>' +
           '<div class="lhw-answers" id="lhwAnswers">' + blanks + '</div>' +
           '<div class="lhw-blank-tools"><button type="button" class="lhw-btn sm" id="lhwAddBlank">+ Bo‘sh joy qo‘shish</button>' +
@@ -595,7 +595,7 @@
     }));
   }
 
-  // Tezkor kiritish: bitta oynaga har qatorga bitta javob — bo‘sh joylar avtomatik to‘ladi
+  // Tezkor kiritish: bitta oynaga har qatorga bitta javob: bo‘sh joylar avtomatik to‘ladi
   function parseBulkLines(text) {
     return String(text || '').split(/\r?\n/)
       .map(function (l) { return l.replace(/^\s*\d{1,2}\s*[.)\-:]\s+/, '').trim(); })
@@ -649,10 +649,10 @@
       var lines = all.slice(0, MAX_BLANKS).map(clip);
       setAnswerRows(lines);
       if (all.length > MAX_BLANKS) setStatus(all.length + ' ta qator kiritildi, faqat dastlabki ' + MAX_BLANKS + ' tasi olindi.', 'warn');
-      else setStatus('✓ ' + lines.length + ' ta javob joylashtirildi — pastda tekshirib, “Saqlash” ni bosing.', 'ok');
+      else setStatus('✓ ' + lines.length + ' ta javob joylashtirildi: pastda tekshirib, “Saqlash” ni bosing.', 'ok');
     });
 
-    // Bo‘sh joy maydoniga ko‘p qatorli matn joylansa — shu maydondan boshlab ketma-ket to‘ldiriladi
+    // Bo‘sh joy maydoniga ko‘p qatorli matn joylansa: shu maydondan boshlab ketma-ket to‘ldiriladi
     box.addEventListener('paste', function (e) {
       var inp = e.target.closest ? e.target.closest('input[data-ans]') : null;
       if (!inp) return;
@@ -734,7 +734,7 @@
     var rank = 0, prev = null;
     var rowsHtml = list.map(function (r, idx) {
       if (r.total !== prev) { rank = idx + 1; prev = r.total; }
-      var grp = r.groupId ? (A.groupNames[r.groupId] || '—') : 'Guruhsiz';
+      var grp = r.groupId ? (A.groupNames[r.groupId] || '-') : 'Guruhsiz';
       return '<tr>' +
         '<td class="lhw-t-rank">' + rank + '</td>' +
         '<td><button type="button" class="lhw-link" data-uid="' + esc(r.id) + '" data-name="' + esc(r.name) + '">' + esc(r.name) + '</button></td>' +
@@ -742,14 +742,14 @@
         '<td class="lhw-t-total">' + r.total + '</td>' +
         '<td>' + r.done + ' / ' + A.exercises.length + '</td>' +
         '<td>' + fmtDT(r.last) + '</td>' +
-        '<td>' + (r.flagged ? '<span class="lhw-flag"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> ' + r.flagged + '</span>' : '—') + '</td>' +
+        '<td>' + (r.flagged ? '<span class="lhw-flag"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> ' + r.flagged + '</span>' : '-') + '</td>' +
         '</tr>';
     }).join('');
     box.innerHTML =
       '<div class="lhw-overall-card">' +
         '<div class="lhw-lb-head"><h3>Umumiy reyting</h3>' +
           '<div class="lhw-lb-tools"><span class="lhw-muted">Mashqlar: ' + A.exercises.length + ' ta · Ishtirokchilar: ' + list.length + ' ta</span>' +
-          '<button type="button" class="lhw-btn sm" id="lhwOverallRefresh"><svg class="lhw-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg> Yangilash</button></div></div>' +
+          '<button type="button" class="lhw-btn sm lhw-noexp" id="lhwOverallPng">Rasm yuklash</button><button type="button" class="lhw-btn sm lhw-noexp" id="lhwOverallRefresh"><svg class="lhw-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg> Yangilash</button></div></div>' +
         (list.length
           ? '<div class="lhw-overall-wrap"><table class="lhw-table"><thead><tr>' +
               '<th>O‘rin</th><th>Talaba</th><th>Guruh</th><th>Jami ball</th><th>Topshirgan</th><th>Oxirgi topshirgan vaqti</th><th>Taxmin</th>' +
@@ -759,6 +759,24 @@
       '</div>';
     var btn = document.getElementById('lhwOverallRefresh');
     if (btn) btn.addEventListener('click', refreshOverall);
+    var pngBtn = document.getElementById('lhwOverallPng');
+    if (pngBtn) pngBtn.addEventListener('click', function () {
+      var card = box.querySelector('.lhw-overall-card');
+      if (!card || typeof html2canvas !== 'function') { alert('Rasm kutubxonasi yuklanmadi'); return; }
+      html2canvas(card, {
+        scale: 2, backgroundColor: '#ffffff',
+        ignoreElements: function (el) { return !!(el.classList && el.classList.contains('lhw-noexp')); },
+        onclone: function (doc, el) { el.style.background = '#ffffff'; el.style.color = '#1c1c22'; }
+      }).then(function (canvas) {
+        canvas.toBlob(function (blob) {
+          if (!blob) { alert('Rasmni yaratib bo‘lmadi'); return; }
+          var url = URL.createObjectURL(blob), a = document.createElement('a');
+          a.href = url; a.download = 'umumiy-reyting.png';
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+        }, 'image/png');
+      }).catch(function (e) { alert('Rasmga olib bo‘lmadi: ' + (e && e.message)); });
+    });
     box.querySelectorAll('[data-uid]').forEach(function (b) {
       b.addEventListener('click', function () {
         var uid = b.getAttribute('data-uid');
@@ -791,10 +809,10 @@
       for (var i = 0; i < n; i++) {
         var ok = !!marks[i];
         if (ok) correct++;
-        var key = String((ex.answers || [])[i] || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean).join(' / ') || '—';
+        var key = String((ex.answers || [])[i] || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean).join(' / ') || '-';
         items += '<li class="lhw-res ' + (ok ? 'ok' : 'bad') + '">' +
           '<span class="lhw-blank-no">' + (i + 1) + '</span>' +
-          '<span class="lhw-res-yours">' + esc(answers[i] || '—') + '</span>' +
+          '<span class="lhw-res-yours">' + esc(answers[i] || '-') + '</span>' +
           (ok ? '<span class="lhw-res-mark">✓</span>'
               : '<span class="lhw-res-mark">✗ <small>to‘g‘ri: ' + esc(key) + '</small></span>') +
           '</li>';
@@ -807,7 +825,7 @@
         '<ol class="lhw-res-list">' + items + '</ol></li>';
     }).join('');
     box.innerHTML = '<div class="lhw-admin-detail">' +
-      '<div class="lhw-lb-head"><h3>' + esc(name || 'Talaba') + ' — mashqlar natijalari</h3>' +
+      '<div class="lhw-lb-head"><h3>' + esc(name || 'Talaba') + ': mashqlar natijalari</h3>' +
       '<span class="lhw-muted">Jami: ' + pointsAll + ' ball · ' + correctAll + ' / ' + totalAll + ' to‘g‘ri</span></div>' +
       '<ol class="lhw-ex-list">' + cards + '</ol></div>';
   }
@@ -888,9 +906,9 @@
       .catch(function (er) { alert('Yopishda xatolik: ' + (er && er.message)); });
   }
 
-  // Ochish: yangi muddat (soat) so‘raladi; bo‘sh qoldirilsa — cheklanmagan
+  // Ochish: yangi muddat (soat) so‘raladi; bo‘sh qoldirilsa: cheklanmagan
   function openExerciseAdmin(ex) {
-    var v = prompt('“' + ex.title + '” ochiladi.\nNecha soat ochiq bo‘lsin? (masalan 24 yoki 30; bo‘sh qoldirsangiz — cheklanmagan)', '24');
+    var v = prompt('“' + ex.title + '” ochiladi.\nNecha soat ochiq bo‘lsin? (masalan 24 yoki 30; bo‘sh qoldirsangiz: cheklanmagan)', '24');
     if (v === null) return;
     v = String(v).trim().replace(',', '.');
     var hours = v === '' ? null : Number(v);
@@ -912,12 +930,12 @@
     if (!panel) return;
     panel.hidden = false;
     panel.innerHTML =
-      '<div class="lhw-lb-head"><h3>Jonli natijalar — ' + esc(ex.title) + '</h3>' +
+      '<div class="lhw-lb-head"><h3>Jonli natijalar: ' + esc(ex.title) + '</h3>' +
         '<button type="button" class="lhw-btn sm" id="lhwLbClose">Yopish</button></div>' +
       '<div id="lhwAdminLbBody"><div class="lhw-muted"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div></div>' +
       '<div id="lhwAdminDetail"></div>';
     document.getElementById('lhwLbClose').addEventListener('click', closeAdminLb);
-    // Talabaning qatoriga bosilsa — uning javoblari pastda ochiladi (qayta bossa yopiladi)
+    // Talabaning qatoriga bosilsa: uning javoblari pastda ochiladi (qayta bossa yopiladi)
     panel.onclick = function (e) {
       var row = e.target.closest('.lhw-click');
       if (!row) return;
@@ -931,7 +949,7 @@
       if (!body) return;
       var flagged = (rows || []).filter(function (r) { return r.flagged; });
       body.innerHTML = leaderboardHTML(rows, null, true) +
-        (rows ? '<p class="lhw-muted">Topshirganlar: ' + rows.length + ' ta — qatorga bosing, javoblarini ko‘ring</p>' : '') +
+        (rows ? '<p class="lhw-muted">Topshirganlar: ' + rows.length + ' ta: qatorga bosing, javoblarini ko‘ring</p>' : '') +
         (flagged.length ? '<div class="lhw-warn">Domlaga taqdim etilgan taxminchilar (' + PENALTY + ' ta jazo): ' +
           flagged.map(function (r) { return esc(r.studentName || 'Talaba'); }).join(', ') + '</div>' : '');
       if (A.detailSid) showAdminDetail(A.detailSid);
@@ -952,10 +970,10 @@
     var n = subCount(sub);
     for (var i = 0; i < n; i++) {
       var ok = !!marks[i];
-      var correct = String((ex.answers || [])[i] || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean).join(' / ') || '—';
+      var correct = String((ex.answers || [])[i] || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean).join(' / ') || '-';
       items += '<li class="lhw-res ' + (ok ? 'ok' : 'bad') + '">' +
         '<span class="lhw-blank-no">' + (i + 1) + '</span>' +
-        '<span class="lhw-res-yours">' + esc(answers[i] || '—') + '</span>' +
+        '<span class="lhw-res-yours">' + esc(answers[i] || '-') + '</span>' +
         (ok ? '<span class="lhw-res-mark">✓</span>'
             : '<span class="lhw-res-mark">✗ <small>to‘g‘ri: ' + esc(correct) + '</small></span>') +
         '</li>';
@@ -964,7 +982,7 @@
       ? 'Taxmin: 0 ball, ' + sub.penalty + ' ta jazo'
       : 'Ball: ' + (sub.score || 0) + '/' + n) + ' · Topshirgan: ' + fmtDT(tsMs(sub.submittedAt));
     box.innerHTML = '<div class="lhw-admin-detail">' +
-      '<div class="lhw-lb-head"><h3>' + esc(sub.studentName || 'Talaba') + ' — javoblari</h3>' +
+      '<div class="lhw-lb-head"><h3>' + esc(sub.studentName || 'Talaba') + ': javoblari</h3>' +
       '<span class="lhw-muted">' + esc(summary) + '</span></div>' +
       '<ol class="lhw-res-list">' + items + '</ol></div>';
   }
@@ -1003,7 +1021,7 @@
     if (form) form.reset();
     setAnswerRows(['', '', '', '', '']);
     var bst = document.getElementById('lhwBulkSt');
-    if (bst) { bst.className = 'lhw-bulk-st'; bst.textContent = 'Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying — pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.'; }
+    if (bst) { bst.className = 'lhw-bulk-st'; bst.textContent = 'Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying: pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.'; }
     var err = document.getElementById('lhwFormErr');
     if (err) err.hidden = true;
     setFormMode(false);
@@ -1041,10 +1059,10 @@
       answers: answers,
       updatedAt: Date.now()
     };
-    // Muddat: yangi mashqda yoki soat o‘zgarganda — hozirdan boshlab hisoblanadi; o‘zgarmasa avvalgisi saqlanadi
+    // Muddat: yangi mashqda yoki soat o‘zgarganda: hozirdan boshlab hisoblanadi; o‘zgarmasa avvalgisi saqlanadi
     var prevEx = A.editingId ? findAdminEx(A.editingId) : null;
     if (prevEx && isClosed(prevEx)) {
-      // yopiq mashqda muddat qo‘yilmaydi — avval "Ochish" tugmasini bosing
+      // yopiq mashqda muddat qo‘yilmaydi: avval "Ochish" tugmasini bosing
     } else if (hours === null) {
       payload.durationHours = null;
       payload.deadlineAt = null;
@@ -1067,7 +1085,7 @@
 
   // Mashq o'chirilganda talabalarning POINTI yo'qolmasligi uchun: o'chirishdan oldin har bir talabaning shu mashqdan
   // olgan balli (nechta to'g'ri topgani, 0–5) oquv_progress/{ID}/bonus ichiga source:'listening' bilan ko'chiriladi.
-  // Hujjat ID = ls_{mashqId}_{uid} — qayta bosilsa ikki marta qo'shilmaydi; point sanasi — topshirilgan sana.
+  // Hujjat ID = ls_{mashqId}_{uid}: qayta bosilsa ikki marta qo'shilmaydi; point sanasi: topshirilgan sana.
   function archiveSubmissions(ex, subDocs) {
     var by = {};
     subDocs.forEach(function (d) { var x = d.data(); if (x && x.studentId) by[x.studentId] = x; });
@@ -1081,7 +1099,7 @@
       var p2 = function (n) { return (n < 10 ? '0' : '') + n; };
       list.forEach(function (it) {
         var pts = finalOf(it.x);
-        if (!pts) return;   // 0 point — saqlash shart emas
+        if (!pts) return;   // 0 point: saqlash shart emas
         if (!it.code) { skipped.push(it.x.studentName || it.uid); return; }
         var d = new Date(tsMs(it.x.submittedAt));
         batch.set(db.collection('oquv_progress').doc(it.code).collection('bonus').doc('ls_' + ex.id + '_' + it.uid), {
@@ -1108,7 +1126,7 @@
     }).then(function (r) {
       if (r.skipped.length && !confirm('Diqqat: quyidagi talabalarning pointi saqlanmaydi (ularga «O‘quv jarayoni» ID biriktirilmagan):\n\n' +
         r.skipped.join(', ') + '\n\nBaribir o‘chiraymi?')) return null;
-      // Firestore batch — bir martada 500 tagacha yozuv (bitta mashq uchun yetarli)
+      // Firestore batch: bir martada 500 tagacha yozuv (bitta mashq uchun yetarli)
       var batch = db.batch();
       subsDocs.forEach(function (d) { batch.delete(d.ref); });
       batch.delete(db.collection(COL_EX).doc(ex.id));
