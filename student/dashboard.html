@@ -1174,6 +1174,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
     <ul class="admin-nav">
       <li><a href="#" id="navListeningHw" class="lhw-menu-btn" style="background:#4DA3FF;border-color:#4DA3FF;color:#fff;font-weight:800;"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg> Listening Marafon</a></li>
       <li><a href="#" id="navHome"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 12 15 12 15 21"/></svg> Bosh Sahifa</a></li>
+      <li style="display:none"><a href="#" id="navMarket">Market</a></li>
       <li><a href="#" id="navProfile"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg> Profil</a></li>
       <li><a href="#" id="navChat" style="position:relative;"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> O‘qituvchiga xabar yozish <span id="chatBadge" class="notif-badge" hidden style="position:static;margin-left:auto;">0</span></a></li>
       <li><a href="#" id="navTeacher"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><circle cx="12" cy="20" r="0"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> O‘qituvchi haqida</a></li>
@@ -1830,6 +1831,25 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <div id="lhwStudentRoot" class="lhw-root"></div>
     </section>
 
+    <section id="view-market" hidden>
+    <div class="mkt" id="mktBox"></div>
+    <style>
+      .mkt{margin:14px 0 18px;background:var(--surface,#fff);border:1px solid var(--line,#e5e7eb);border-radius:16px;padding:16px;}
+      .mkt h2{margin:0 0 4px;font-size:1.05rem;} .mkt h3{margin:16px 0 8px;font-size:.95rem;}
+      .mkt-muted{color:var(--gray,#6b7280);font-size:.82rem;margin:0;}
+      .mkt-bal{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;padding:12px 14px;border-radius:12px;background:#eef4ff;}
+      .mkt-bal b{display:block;font-size:1.6rem;color:#1d4ed8;}
+      .mkt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+      .mkt-card{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;}
+      .mkt-card img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:#f3f4f6;}
+      .mkt-card b{font-size:.88rem;} .mkt-price{font-weight:800;color:#1d4ed8;font-size:.9rem;}
+      .mkt-btn{margin-top:auto;border:0;border-radius:10px;padding:8px;font-weight:700;cursor:pointer;background:#2563eb;color:#fff;font-size:.82rem;}
+      .mkt-btn[disabled]{background:#e5e7eb;color:#6b7280;cursor:not-allowed;}
+      .mkt-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line,#e5e7eb);font-size:.88rem;}
+      .mkt-rm{border:1px solid #dc2626;color:#dc2626;background:transparent;border-radius:9px;padding:5px 9px;font-size:.78rem;cursor:pointer;}
+    </style>
+    </section>
+
     <section id="view-profile" hidden>
       <div class="admin-header">
         <div>
@@ -1871,22 +1891,6 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         </form>
       </div>
 
-    <div class="mkt" id="mktBox"></div>
-    <style>
-      .mkt{margin:14px 0 18px;background:var(--surface,#fff);border:1px solid var(--line,#e5e7eb);border-radius:16px;padding:16px;}
-      .mkt h2{margin:0 0 4px;font-size:1.05rem;} .mkt h3{margin:16px 0 8px;font-size:.95rem;}
-      .mkt-muted{color:var(--gray,#6b7280);font-size:.82rem;margin:0;}
-      .mkt-bal{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;padding:12px 14px;border-radius:12px;background:#eef4ff;}
-      .mkt-bal b{display:block;font-size:1.6rem;color:#1d4ed8;}
-      .mkt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
-      .mkt-card{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;}
-      .mkt-card img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:#f3f4f6;}
-      .mkt-card b{font-size:.88rem;} .mkt-price{font-weight:800;color:#1d4ed8;font-size:.9rem;}
-      .mkt-btn{margin-top:auto;border:0;border-radius:10px;padding:8px;font-weight:700;cursor:pointer;background:#2563eb;color:#fff;font-size:.82rem;}
-      .mkt-btn[disabled]{background:#e5e7eb;color:#6b7280;cursor:not-allowed;}
-      .mkt-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line,#e5e7eb);font-size:.88rem;}
-      .mkt-rm{border:1px solid #dc2626;color:#dc2626;background:transparent;border-radius:9px;padding:5px 9px;font-size:.78rem;cursor:pointer;}
-    </style>
     <div class="profile-user-row" id="profileUserRow">
       <div style="display:flex; align-items:center; gap:.7em;">
         <span class="sidebar-avatar" id="sidebarAvatar" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--blue-50,#eaf1ff);color:var(--blue-600,#2f5fd8);font-size:15px;font-weight:700;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
@@ -2144,6 +2148,10 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
     <button type="button" class="sbn-item sbn-center active" id="sbnHome" data-target="home">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>
       <span>Bosh sahifa</span>
+    </button>
+    <button type="button" class="sbn-item" id="sbnMarket" data-target="market">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M2 3h3l2.6 11.2a1 1 0 0 0 1 .8h9.7a1 1 0 0 0 1-.8L21 7H6"/></svg>
+      <span>Market</span>
     </button>
     <button type="button" class="sbn-item" id="sbnPoints" aria-haspopup="dialog">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></svg>
@@ -2529,7 +2537,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-rl', 'ind-archive'];
+const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-rl', 'ind-archive', 'market'];
 
 // Bir vaqtning o'zida faqat bitta sidebar bandi ko'k (active) bo'lishi uchun:
 // avval BARCHA bandlardan 'active' klassini olib tashlaydi, so'ng kerakli
@@ -2648,13 +2656,14 @@ document.addEventListener('click', e => {
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
-  if(view === 'profile' && typeof mktLoad === 'function') mktLoad();
+  if(view === 'market' && typeof mktLoad === 'function') mktLoad();
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
 // Logotip orqali sahifa yangilangandan (reload) so'ng, foydalanuvchi qaysi
 const STUDENT_VIEW_NAV_MAP = {
   'profile': 'navProfile',
+  'market': 'navMarket',
   'listening-hw': 'navListeningHw',
   'placement-test': 'navPlacementTest',
   'my-essays': 'navMyEssays',
@@ -4638,6 +4647,11 @@ document.getElementById('navListeningHw').addEventListener('click', async (e) =>
 document.getElementById('navProfile').addEventListener('click', (e) => {
   e.preventDefault();
   renderProfile();
+});
+document.getElementById('navMarket').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchView('market');
+  setActiveNav('navMarket');
 });
 
 // ---------- O'qituvchi haqida ----------
@@ -7389,6 +7403,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
 
   const items = {
     home: document.getElementById('sbnHome'),
+    market: document.getElementById('sbnMarket'),
     profile: document.getElementById('sbnProfile'),
     menu: document.getElementById('sbnMenu')
   };
@@ -7399,6 +7414,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   // Tugmalar mavjud yon menyu havolalarini bosadi — shunda hamma logika (yuklash, holat) o'zgarishsiz qoladi
   items.home.addEventListener('click', () => { document.getElementById('navHome').click(); });
   items.profile.addEventListener('click', () => { document.getElementById('navProfile').click(); });
+  items.market.addEventListener('click', () => { document.getElementById('navMarket').click(); });
   // "Point": 1 oylik POINT oynasini ochadi (tafsilot + shartlar va qoidalar)
   const sbnPts = document.getElementById('sbnPoints');
   if(sbnPts) sbnPts.addEventListener('click', () => { if(typeof openPtsCard === 'function') openPtsCard(); });
@@ -7575,6 +7591,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     Object.keys(sheetLinks).forEach(k => sheetLinks[k].classList.toggle('active', k === activeId));
     if(activeId === 'navHome') setBottomActive('home');
     else if(activeId === 'navProfile') setBottomActive('profile');
+    else if(activeId === 'navMarket') setBottomActive('market');
     else if(sheetLinks[activeId]) setBottomActive('menu'); // Insholar, CEFR... "Menyu" ostida belgilanadi
     else setBottomActive(null);
   };
