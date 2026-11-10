@@ -2579,11 +2579,12 @@ async function mktLoad(){
   box.innerHTML = '<p class="mkt-muted">Market yuklanmoqda…</p>';
   try{
     const uid = currentUid, code = state.student && state.student.oquvProgressCode ? String(state.student.oquvProgressCode) : '';
-    const [entSnap, , itemsSnap, ordSnap] = await Promise.all([
+    const [entSnap, , itemsSnap, ordSnap, grSnap] = await Promise.all([
       code ? db.collection('oquv_progress').doc(code).collection('entries').get() : Promise.resolve({ docs: [] }),
       code ? mystLoadBonus(code, true) : Promise.resolve(null),
       db.collection('market_items').get(),
-      db.collection('market_orders').where('studentId', '==', uid).get()
+      db.collection('market_orders').where('studentId', '==', uid).get(),
+      db.collection('market_grants').where('studentId', '==', uid).get()
     ]);
     const rowsByYm = {};
     entSnap.docs.forEach(d => { const x = mystNorm(d.data()); if(x){ const ym = x.date.slice(0, 7); (rowsByYm[ym] = rowsByYm[ym] || []).push(x); } });
@@ -2597,8 +2598,9 @@ async function mktLoad(){
       const lis = await getMyListening(ym, bonusM.filter(b => b.source === 'listening'));
       earned += ptsCalc(rowsByYm[ym] || [], bonusM.filter(b => b.source !== 'listening'), null, lis).total;
     }
+    const grantSum = grSnap.docs.reduce((s, d) => s + (Number(d.data().points) || 0), 0);
     _mkt = {
-      earned: earned,
+      earned: earned + grantSum,
       items: itemsSnap.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(i => i.active !== false)
         .sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''))),
       orders: ordSnap.docs.map(d => Object.assign({ id: d.id }, d.data())).sort((a, b) => mktTs(b) - mktTs(a))
