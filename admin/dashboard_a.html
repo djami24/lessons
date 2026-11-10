@@ -2922,29 +2922,75 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
     <!-- ===== GURUH ANKETA ===== -->
     <section id="view-market" hidden>
+      <style>
+        #view-market .mka-top{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+        @media (max-width:900px){#view-market .mka-top{grid-template-columns:1fr;}}
+        #view-market .mka-box{padding:18px;margin-bottom:16px;}
+        #view-market .mka-box h3{margin:0 0 12px;font-size:1rem;}
+        #view-market .mka-form{display:grid;grid-template-columns:1fr 1fr 130px auto;gap:12px;align-items:end;}
+        #view-market .mka-form.g{grid-template-columns:1.2fr .7fr 1.5fr auto;}
+        #view-market .mka-f{display:flex;flex-direction:column;gap:5px;font-size:.8rem;font-weight:700;color:var(--gray,#6b7280);}
+        #view-market .mka-f input,#view-market .mka-f select{width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid var(--line,#e5e7eb);border-radius:12px;background:#fff;font:inherit;font-size:.92rem;color:inherit;}
+        #view-market .mka-btn{padding:10px 18px;white-space:nowrap;}
+        #view-market .mka-prev{margin-top:12px;display:flex;align-items:center;gap:12px;font-size:.8rem;color:var(--gray,#6b7280);}
+        #view-market .mka-pic{border-radius:12px;background:#f3f4f6;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--gray,#6b7280);font-size:.78rem;text-align:center;}
+        #view-market .mka-prev .mka-pic{width:90px;height:120px;flex:none;}
+        #view-market .mka-pic img{width:100%;height:100%;object-fit:cover;display:block;}
+        #view-market .mka-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px;}
+        #view-market .mka-item{border:1px solid var(--line,#e5e7eb);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:6px;background:#fff;}
+        #view-market .mka-item.off{opacity:.55;}
+        #view-market .mka-item .mka-pic{height:140px;}
+        #view-market .mka-title{font-weight:800;font-size:.9rem;line-height:1.3;}
+        #view-market .mka-price{color:#1d4ed8;font-weight:800;font-size:.86rem;}
+        #view-market .mka-acts{display:flex;gap:6px;margin-top:auto;flex-wrap:wrap;}
+        #view-market .mka-acts button{font-size:.76rem;padding:6px 10px;border-radius:999px;}
+        #view-market .mka-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--line,#e5e7eb);font-size:.86rem;}
+        #view-market .mka-plus{color:#059669;font-weight:800;}
+        #view-market .mka-note{color:var(--gray,#6b7280);font-size:.84rem;margin:0 0 10px;}
+        #view-market .mka-x{border:1px solid #fca5a5;color:#dc2626;background:#fff;border-radius:999px;padding:4px 10px;font-size:.76rem;cursor:pointer;}
+        #view-market .mka-hd{display:grid;grid-template-columns:2fr 2fr 1fr 1fr 1.4fr;gap:8px;font-weight:800;color:var(--gray,#6b7280);font-size:.74rem;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid var(--line,#e5e7eb);}
+        #view-market .mka-cells{display:grid;grid-template-columns:2fr 2fr 1fr 1fr 1.4fr;gap:8px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line,#e5e7eb);font-size:.86rem;}
+        #view-market .mka-cells select{padding:6px 10px;border-radius:10px;border:1.5px solid var(--line,#e5e7eb);font:inherit;background:#fff;}
+        @media (max-width:700px){#view-market .mka-form,#view-market .mka-form.g{grid-template-columns:1fr;} #view-market .mka-hd,#view-market .mka-cells{grid-template-columns:1fr 1fr;}}
+      </style>
       <div class="oj-header">
         <div>
           <h1>Market</h1>
           <p>Talabalar pointlariga sotib olinadigan kitoblar va buyurtmalar. Kim nimani sotib olganini shu yerda ko'rasiz.</p>
         </div>
       </div>
-      <div class="home-section-card" style="padding:16px;margin-bottom:16px;">
-        <h3 style="margin:0 0 10px;">Yangi kitob</h3>
-        <div style="display:grid;grid-template-columns:2fr 2fr 1fr auto;gap:10px;align-items:end;">
-          <label>Kitob nomi<input type="text" id="mktTitle" maxlength="120"></label>
-          <label>Rasm havolasi (ixtiyoriy)<input type="url" id="mktImg" placeholder="https://..."></label>
-          <label>Narxi (point)<input type="number" id="mktPrice" min="1" step="1"></label>
-          <button class="btn btn-primary" id="mktAddBtn" type="button">Qo'shish</button>
+      <div class="mka-top">
+        <div class="home-section-card mka-box">
+          <h3>Yangi kitob</h3>
+          <div class="mka-form">
+            <label class="mka-f">Kitob nomi<input type="text" id="mktTitle" maxlength="120"></label>
+            <label class="mka-f">Rasm havolasi<input type="url" id="mktImg" placeholder="https://..."></label>
+            <label class="mka-f">Narxi (point)<input type="number" id="mktPrice" min="1" step="1"></label>
+            <button class="btn btn-primary mka-btn" id="mktAddBtn" type="button">Qo'shish</button>
+          </div>
+          <div class="mka-prev"><div class="mka-pic" id="mktPrev">Rasm yo'q</div><span>Rasm shu yerda ko'rinadi.</span></div>
+          <p id="mktFormErr" class="form-error" role="alert" hidden></p>
         </div>
-        <p id="mktFormErr" class="form-error" role="alert" hidden></p>
+        <div class="home-section-card mka-box">
+          <h3>Talabaga point berish</h3>
+          <div class="mka-form g">
+            <label class="mka-f">Talaba<select id="mktGrantStu"></select></label>
+            <label class="mka-f">Point<input type="number" id="mktGrantPts" step="1"></label>
+            <label class="mka-f">Sabab (ixtiyoriy)<input type="text" id="mktGrantReason" maxlength="120"></label>
+            <button class="btn btn-primary mka-btn" id="mktGrantBtn" type="button">Berish</button>
+          </div>
+          <p id="mktGrantErr" class="form-error" role="alert" hidden></p>
+          <p class="mka-note" style="margin-top:12px;">Oxirgi berilganlar. Bu pointlar marketga qo'shiladi, reytingga ta'sir qilmaydi.</p>
+          <div id="mktGrants"></div>
+        </div>
       </div>
-      <div class="home-section-card" style="padding:16px;margin-bottom:16px;">
-        <h3 style="margin:0 0 10px;">Katalog</h3>
+      <div class="home-section-card mka-box">
+        <h3>Katalog</h3>
         <div id="mktItems"></div>
       </div>
-      <div class="home-section-card" style="padding:16px;">
-        <h3 style="margin:0 0 4px;">Buyurtmalar</h3>
-        <p id="mktSummary" style="color:var(--gray);font-size:.85rem;margin:0 0 10px;"></p>
+      <div class="home-section-card mka-box">
+        <h3>Buyurtmalar</h3>
+        <p id="mktSummary" class="mka-note"></p>
         <div id="mktOrders"></div>
       </div>
     </section>
@@ -15950,69 +15996,6 @@ $('crlStuBody').addEventListener('click', e => {
   return { open: open };
 })();
 
-// ===== MARKET (admin): kitoblar katalogi va buyurtmalar =====
-let _mktAItems = [], _mktAOrders = [];
-const MKT_AST = { cart: 'Savatda', bought: 'Sotib olindi', delivered: 'Berildi', cancelled: 'Bekor qilindi' };
-function mktATs(x){ const t = x && x.createdAt; return t && t.toMillis ? t.toMillis() : 0; }
-function mktADate(x){ const t = x && x.createdAt; return t && t.toDate ? t.toDate().toLocaleDateString('uz-UZ') : ''; }
-async function mktAdminLoad(){
-  const [i, o] = await Promise.all([db.collection('market_items').get(), db.collection('market_orders').get()]);
-  _mktAItems = i.docs.map(d => Object.assign({ id: d.id }, d.data()))
-    .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
-  _mktAOrders = o.docs.map(d => Object.assign({ id: d.id }, d.data())).sort((a, b) => mktATs(b) - mktATs(a));
-  mktAdminRender();
-}
-function mktAdminRender(){
-  const itemsEl = document.getElementById('mktItems'), ordersEl = document.getElementById('mktOrders'), sumEl = document.getElementById('mktSummary');
-  if(!itemsEl || !ordersEl) return;
-  itemsEl.innerHTML = _mktAItems.length
-    ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Kitob</th><th>Narxi</th><th>Holat</th><th></th></tr></thead><tbody>' +
-      _mktAItems.map(x => '<tr><td>' + escapeHtml(x.title || '') + '</td><td>' + (Number(x.price) || 0) + ' point</td>' +
-        '<td><button class="btn btn-ghost btn-sm" data-mkt-toggle="' + escapeHtml(x.id) + '" data-active="' + (x.active !== false) + '">' + (x.active !== false ? 'Faol' : 'Yashirilgan') + '</button></td>' +
-        '<td><button class="btn btn-ghost btn-sm" data-mkt-del="' + escapeHtml(x.id) + '" style="color:#dc2626;">O‘chirish</button></td></tr>').join('') +
-      '</tbody></table></div>'
-    : '<p class="ind-empty">Hali kitob qo‘shilmagan.</p>';
-  const toBuy = _mktAOrders.filter(o => o.status === 'cart' || o.status === 'bought');
-  sumEl.textContent = 'Jami buyurtma: ' + _mktAOrders.length + ' ta · Sotib olish kerak (savatda yoki sotib olingan): ' +
-    toBuy.length + ' ta, ' + toBuy.reduce((s, o) => s + (Number(o.price) || 0), 0) + ' point';
-  ordersEl.innerHTML = _mktAOrders.length
-    ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Talaba</th><th>Kitob</th><th>Point</th><th>Sana</th><th>Holat</th></tr></thead><tbody>' +
-      _mktAOrders.map(o => '<tr><td>' + escapeHtml(o.studentName || o.studentId || '') + '</td><td>' + escapeHtml(o.title || '') + '</td>' +
-        '<td>' + (Number(o.price) || 0) + '</td><td>' + escapeHtml(mktADate(o)) + '</td><td>' +
-        '<select data-mkt-status="' + escapeHtml(o.id) + '">' + Object.keys(MKT_AST).map(k => '<option value="' + k + '"' + (o.status === k ? ' selected' : '') + '>' + MKT_AST[k] + '</option>').join('') + '</select></td></tr>').join('') +
-      '</tbody></table></div>'
-    : '<p class="ind-empty">Hali buyurtma yo‘q.</p>';
-}
-(function mktAdminInit(){
-  const view = document.getElementById('view-market');
-  if(!view) return;
-  document.getElementById('navMarket').addEventListener('click', e => { e.preventDefault(); switchView('market'); mktAdminLoad(); });
-  document.getElementById('mktAddBtn').addEventListener('click', async () => {
-    const err = document.getElementById('mktFormErr');
-    const title = document.getElementById('mktTitle').value.trim();
-    const img = document.getElementById('mktImg').value.trim();
-    const price = Math.round(Number(document.getElementById('mktPrice').value));
-    err.hidden = true;
-    if(!title){ err.textContent = 'Kitob nomini yozing.'; err.hidden = false; return; }
-    if(!(price > 0)){ err.textContent = 'Narxni point bilan to‘g‘ri kiriting.'; err.hidden = false; return; }
-    try{
-      await db.collection('market_items').add({ title: title, imageUrl: img, price: price, active: true, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-      document.getElementById('mktTitle').value = ''; document.getElementById('mktImg').value = ''; document.getElementById('mktPrice').value = '';
-      mktAdminLoad();
-    } catch(e){ err.textContent = 'Saqlanmadi: ' + e.message; err.hidden = false; }
-  });
-  view.addEventListener('click', async e => {
-    const t = e.target.closest('[data-mkt-toggle]');
-    if(t){ await db.collection('market_items').doc(t.dataset.mktToggle).update({ active: t.dataset.active !== 'true' }); mktAdminLoad(); return; }
-    const d = e.target.closest('[data-mkt-del]');
-    if(d && confirm('Kitobni katalogdan o‘chirasizmi? Eski buyurtmalar saqlanib qoladi.')){ await db.collection('market_items').doc(d.dataset.mktDel).delete(); mktAdminLoad(); }
-  });
-  view.addEventListener('change', async e => {
-    const s = e.target.closest('[data-mkt-status]');
-    if(s){ await db.collection('market_orders').doc(s.dataset.mktStatus).update({ status: s.value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); mktAdminLoad(); }
-  });
-})();
-
 // ===== GURUH ANKETA =====
 document.getElementById('navAnketa').addEventListener('click', function(e) {
   e.preventDefault();
@@ -16494,6 +16477,142 @@ document.getElementById('callerDeleteAllDoneBtn').addEventListener('click', func
     h.addEventListener('click', toggle);
     h.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } });
   });
+})();
+</script>
+<script>
+// ===== MARKET (admin) — alohida skript, xatosi boshqa bo'limlarga ta'sir qilmaydi =====
+(function(){
+try{
+  let _mktAItems = [], _mktAOrders = [], _mktAGrants = [], _mktAStudents = [];
+  const MKT_AST = { cart: 'Savatda', bought: 'Sotib olindi', delivered: 'Berildi', cancelled: 'Bekor qilindi' };
+  function tsOf(x){ const t = x && x.createdAt; return t && t.toMillis ? t.toMillis() : 0; }
+  function dateOf(x){ const t = x && x.createdAt; return t && t.toDate ? t.toDate().toLocaleDateString('uz-UZ') : ''; }
+  function pic(url){
+    return '<div class="mka-pic">' + (url ? '<img src="' + escapeHtml(url) + '" alt="" loading="lazy" onerror="this.parentNode.textContent=\'Rasm yuklanmadi\'">' : 'Rasm yo‘q') + '</div>';
+  }
+  function byDate(arr){ return arr.sort((a, b) => tsOf(b) - tsOf(a)); }
+
+  async function load(){
+    const [i, o, g] = await Promise.all([
+      db.collection('market_items').get(),
+      db.collection('market_orders').get(),
+      db.collection('market_grants').get()
+    ]);
+    _mktAItems = i.docs.map(d => Object.assign({ id: d.id }, d.data()))
+      .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+    _mktAOrders = byDate(o.docs.map(d => Object.assign({ id: d.id }, d.data())));
+    _mktAGrants = byDate(g.docs.map(d => Object.assign({ id: d.id }, d.data()))).slice(0, 30);
+    try{
+      const s = await db.collection('students').get();
+      _mktAStudents = s.docs.map(d => ({ id: d.id, name: d.data().name || d.data().email || d.id }))
+        .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+    } catch(e){ _mktAStudents = []; }
+    render();
+  }
+
+  function render(){
+    const itemsEl = document.getElementById('mktItems'), ordersEl = document.getElementById('mktOrders');
+    const grantsEl = document.getElementById('mktGrants'), sumEl = document.getElementById('mktSummary');
+    const stuSel = document.getElementById('mktGrantStu');
+    if(!itemsEl || !ordersEl) return;
+    if(stuSel){
+      const keep = stuSel.value;
+      stuSel.innerHTML = '<option value="">Talabani tanlang</option>' +
+        _mktAStudents.map(x => '<option value="' + escapeHtml(x.id) + '">' + escapeHtml(x.name) + '</option>').join('');
+      stuSel.value = keep;
+    }
+    itemsEl.innerHTML = _mktAItems.length
+      ? '<div class="mka-grid">' + _mktAItems.map(x => {
+          const on = x.active !== false;
+          return '<div class="mka-item' + (on ? '' : ' off') + '">' + pic(x.imageUrl) +
+            '<div class="mka-title">' + escapeHtml(x.title || '') + '</div>' +
+            '<div class="mka-price">' + (Number(x.price) || 0) + ' point</div>' +
+            '<div class="mka-acts">' +
+              '<button class="btn btn-ghost btn-sm" data-mkt-toggle="' + escapeHtml(x.id) + '" data-active="' + on + '">' + (on ? 'Faol' : 'Yashirilgan') + '</button>' +
+              '<button class="btn btn-ghost btn-sm" data-mkt-del="' + escapeHtml(x.id) + '" style="color:#dc2626;">O‘chirish</button>' +
+            '</div></div>';
+        }).join('') + '</div>'
+      : '<p class="ind-empty">Hali kitob qo‘shilmagan.</p>';
+    if(grantsEl){
+      grantsEl.innerHTML = _mktAGrants.length
+        ? _mktAGrants.map(x => '<div class="mka-row"><span><b>' + escapeHtml(x.studentName || x.studentId || '') + '</b> ' +
+            '<span class="mka-plus">+' + (Number(x.points) || 0) + '</span> ' + escapeHtml(x.reason || '') +
+            ' <span style="color:var(--gray,#6b7280);">' + escapeHtml(dateOf(x)) + '</span></span>' +
+            '<button class="mka-x" data-mkt-gdel="' + escapeHtml(x.id) + '">O‘chirish</button></div>').join('')
+        : '<p class="mka-note" style="margin:0;">Hali point berilmagan.</p>';
+    }
+    const toBuy = _mktAOrders.filter(o => o.status === 'cart' || o.status === 'bought');
+    if(sumEl) sumEl.textContent = 'Jami buyurtma: ' + _mktAOrders.length + ' ta · Sotib olish kerak (savatda yoki sotib olingan): ' +
+      toBuy.length + ' ta, ' + toBuy.reduce((s, o) => s + (Number(o.price) || 0), 0) + ' point';
+    ordersEl.innerHTML = _mktAOrders.length
+      ? '<div class="mka-hd"><span>Talaba</span><span>Kitob</span><span>Point</span><span>Sana</span><span>Holat</span></div>' +
+        _mktAOrders.map(o => '<div class="mka-cells"><span>' + escapeHtml(o.studentName || o.studentId || '') + '</span>' +
+          '<span>' + escapeHtml(o.title || '') + '</span><span>' + (Number(o.price) || 0) + '</span>' +
+          '<span>' + escapeHtml(dateOf(o)) + '</span>' +
+          '<span><select data-mkt-status="' + escapeHtml(o.id) + '">' +
+            Object.keys(MKT_AST).map(k => '<option value="' + k + '"' + (o.status === k ? ' selected' : '') + '>' + MKT_AST[k] + '</option>').join('') +
+          '</select></span></div>').join('')
+      : '<p class="ind-empty">Hali buyurtma yo‘q.</p>';
+  }
+
+  const view = document.getElementById('view-market');
+  if(!view) return;
+  const nav = document.getElementById('navMarket');
+  if(nav) nav.addEventListener('click', e => { e.preventDefault(); switchView('market'); load().catch(err => console.error(err)); });
+
+  const img = document.getElementById('mktImg');
+  if(img) img.addEventListener('input', e => {
+    const v = e.target.value.trim();
+    document.getElementById('mktPrev').innerHTML = v ? '<img src="' + escapeHtml(v) + '" alt="" onerror="this.parentNode.textContent=\'Rasm yuklanmadi\'">' : 'Rasm yo‘q';
+  });
+
+  document.getElementById('mktAddBtn').addEventListener('click', async () => {
+    const err = document.getElementById('mktFormErr');
+    const title = document.getElementById('mktTitle').value.trim();
+    const imageUrl = document.getElementById('mktImg').value.trim();
+    const price = Math.round(Number(document.getElementById('mktPrice').value));
+    err.hidden = true;
+    if(!title){ err.textContent = 'Kitob nomini yozing.'; err.hidden = false; return; }
+    if(!(price > 0)){ err.textContent = 'Narxni point bilan to‘g‘ri kiriting.'; err.hidden = false; return; }
+    try{
+      await db.collection('market_items').add({ title: title, imageUrl: imageUrl, price: price, active: true, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      document.getElementById('mktTitle').value = ''; document.getElementById('mktImg').value = ''; document.getElementById('mktPrice').value = '';
+      document.getElementById('mktPrev').textContent = 'Rasm yo‘q';
+      load();
+    } catch(e){ err.textContent = 'Saqlanmadi: ' + e.message; err.hidden = false; }
+  });
+
+  document.getElementById('mktGrantBtn').addEventListener('click', async () => {
+    const err = document.getElementById('mktGrantErr');
+    const sel = document.getElementById('mktGrantStu');
+    const pts = Math.round(Number(document.getElementById('mktGrantPts').value));
+    const reason = document.getElementById('mktGrantReason').value.trim();
+    err.hidden = true;
+    if(!sel.value){ err.textContent = 'Talabani tanlang.'; err.hidden = false; return; }
+    if(!pts){ err.textContent = 'Pointni to‘g‘ri kiriting (0 emas).'; err.hidden = false; return; }
+    const stu = _mktAStudents.find(x => x.id === sel.value);
+    try{
+      await db.collection('market_grants').add({ studentId: sel.value, studentName: stu ? stu.name : '', points: pts, reason: reason, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      document.getElementById('mktGrantPts').value = ''; document.getElementById('mktGrantReason').value = '';
+      load();
+    } catch(e){ err.textContent = 'Saqlanmadi: ' + e.message; err.hidden = false; }
+  });
+
+  view.addEventListener('click', async e => {
+    const t = e.target.closest('[data-mkt-toggle]');
+    if(t){ await db.collection('market_items').doc(t.dataset.mktToggle).update({ active: t.dataset.active !== 'true' }); load(); return; }
+    const d = e.target.closest('[data-mkt-del]');
+    if(d && confirm('Kitobni katalogdan o‘chirasizmi? Eski buyurtmalar saqlanib qoladi.')){ await db.collection('market_items').doc(d.dataset.mktDel).delete(); load(); return; }
+    const gd = e.target.closest('[data-mkt-gdel]');
+    if(gd && confirm('Bu point berishni o‘chirasizmi? Talabaning market balansi kamayadi.')){ await db.collection('market_grants').doc(gd.dataset.mktGdel).delete(); load(); }
+  });
+  view.addEventListener('change', async e => {
+    const s = e.target.closest('[data-mkt-status]');
+    if(s){ await db.collection('market_orders').doc(s.dataset.mktStatus).update({ status: s.value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); load(); }
+  });
+}catch(e){
+  console.error('Market moduli yuklanmadi:', e);
+}
 })();
 </script>
 </body>
