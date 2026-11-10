@@ -1840,6 +1840,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       #view-definition .def-unit span{font-size:.76rem;color:var(--gray,#6b7280);}
       #view-definition .def-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;margin-bottom:8px;border-radius:14px;background:rgba(255,255,255,.42);border:1px solid rgba(255,255,255,.6);cursor:pointer;font-size:.92rem;}
       #view-definition .def-en{font-weight:800;}
+      #view-definition .def-num{display:inline-block;min-width:26px;color:var(--gray,#6b7280);font-weight:700;font-size:.8rem;}
       #view-definition .def-uz{color:#1d4ed8;font-weight:700;text-align:right;}
       #view-definition .def-hint{font-size:.74rem;color:var(--gray,#6b7280);}
       #view-definition .def-tools{margin:10px 0 12px;}
@@ -7766,7 +7767,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
 (function(){
 try{
   const DEF_LEVELS = ['Beginner','Elementary','Pre-Intermediate','Intermediate'];
-  let _def = { sets: [], unit: null };
+  let _def = { sets: [], unit: null, size: 10, page: 0 };
   const dEsc = s => escapeHtml(String(s == null ? '' : s));
   function defSort(a, b){
     const la = DEF_LEVELS.indexOf(a.level), lb = DEF_LEVELS.indexOf(b.level);
@@ -7803,12 +7804,25 @@ try{
     if(!box) return;
     if(_def.unit){
       const s = _def.unit, words = s.words || [];
+      const size = _def.size || 10;
+      const pages = Math.max(1, Math.ceil(words.length / size));
+      _def.page = Math.min(_def.page || 0, pages - 1);
+      const start = _def.page * size;
+      const slice = words.slice(start, start + size);
+      const sizeBtn = n => '<button type="button" class="mkt-btn" data-def-size="' + n + '" style="width:auto;padding:6px 14px;' + (size === n ? '' : 'opacity:.55;') + '">' + n + ' talik</button>';
+      const pager = '<div class="def-tools" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">' +
+        '<button type="button" class="mkt-btn" data-def-prev' + (_def.page === 0 ? ' disabled' : '') + ' style="width:auto;padding:6px 14px;">‹ Oldingi</button>' +
+        '<span class="mkt-muted">' + (start + 1) + '–' + Math.min(start + size, words.length) + ' / ' + words.length + '</span>' +
+        '<button type="button" class="mkt-btn" data-def-next' + (_def.page >= pages - 1 ? ' disabled' : '') + ' style="width:auto;padding:6px 14px;">Keyingi ›</button></div>';
       box.innerHTML = '<button type="button" class="mkt-btn" data-def-back style="width:auto;padding:6px 14px;">← Unitlar</button>' +
         '<h2 style="margin:12px 0 4px;">Unit ' + dEsc(s.unit) + ' · ' + dEsc(s.level) + '</h2>' +
         '<p class="mkt-muted">' + words.length + ' ta so‘z</p>' +
-        '<div class="def-tools"><button type="button" class="mkt-btn" data-def-toggle-all style="width:auto;padding:6px 14px;">Hammasini ko‘rsatish</button></div>' +
-        words.map(w => '<div class="def-row" data-def-row><span class="def-en">' + dEsc(w.en) + '</span>' +
-          '<span class="def-uz" hidden>' + dEsc(w.uz) + '</span><span class="def-hint">ko‘rish</span></div>').join('');
+        '<div class="def-tools" style="display:flex;gap:6px;flex-wrap:wrap;">' + sizeBtn(10) + sizeBtn(15) +
+        '<button type="button" class="mkt-btn" data-def-toggle-all style="width:auto;padding:6px 14px;">Hammasini ko‘rsatish</button></div>' +
+        pager +
+        slice.map((w, i) => '<div class="def-row" data-def-row><span class="def-en"><span class="def-num">' + (start + i + 1) + '.</span> ' + dEsc(w.en) + '</span>' +
+          '<span class="def-uz" hidden>' + dEsc(w.uz) + '</span><span class="def-hint">ko‘rish</span></div>').join('') +
+        pager;
       return;
     }
     if(!_def.sets.length){ box.innerHTML = headHtml + '<p class="mkt-muted">Hali lug‘at qo‘shilmagan.</p>'; return; }
@@ -7824,8 +7838,12 @@ try{
   const box = document.getElementById('defBox');
   if(box) box.addEventListener('click', e => {
     const o = e.target.closest('[data-def-open]');
-    if(o){ const s = _def.sets.find(x => x.id === o.dataset.defOpen); if(s){ _def.unit = s; defRender(); window.scrollTo(0, 0); } return; }
+    if(o){ const s = _def.sets.find(x => x.id === o.dataset.defOpen); if(s){ _def.unit = s; _def.page = 0; defRender(); window.scrollTo(0, 0); } return; }
     if(e.target.closest('[data-def-back]')){ _def.unit = null; defRender(); return; }
+    const sz = e.target.closest('[data-def-size]');
+    if(sz){ _def.size = Number(sz.dataset.defSize) || 10; _def.page = 0; defRender(); return; }
+    if(e.target.closest('[data-def-prev]')){ _def.page = Math.max(0, _def.page - 1); defRender(); window.scrollTo(0, 0); return; }
+    if(e.target.closest('[data-def-next]')){ _def.page = _def.page + 1; defRender(); window.scrollTo(0, 0); return; }
     if(e.target.closest('[data-def-toggle-all]')){
       const rows = box.querySelectorAll('.def-row');
       const showAll = [].some.call(rows, r => r.querySelector('.def-uz').hidden);
