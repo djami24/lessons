@@ -311,3 +311,5 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .dd-extra{color:#6B7280;text-decoration:line-through;}
 .lhw-missing{margin:6px 0 0;padding-left:18px;columns:2;}
 .lhw-notsub{margin-top:14px;}
+.lhw-check{flex-direction:row;align-items:center;gap:8px;font-weight:600;}
+.lhw-check input{width:auto;}
