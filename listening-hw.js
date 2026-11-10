@@ -146,10 +146,16 @@
     flush();
     var c = { eq: 0, spell: 0, wrong: 0, missing: 0, extra: 0 };
     ops.forEach(function (o) { c[o.t]++; });
+    // Talaba matnidagi har bir so‘z belgisi (o=to‘g‘ri, s=imlo, w=noto‘g‘ri, x=ortiqcha) va tushib qolgan joylar
+    var codes = '', missAt = [];
+    ops.forEach(function (o) {
+      if (o.t === 'missing') { missAt.push(codes.length); return; }
+      codes += o.t === 'eq' ? 'o' : o.t === 'spell' ? 's' : o.t === 'wrong' ? 'w' : 'x';
+    });
     var credit = c.eq + 0.5 * c.spell - 0.5 * c.extra;
     var acc = n ? Math.max(0, Math.min(1, credit / n)) : 0;
     return {
-      ops: ops, refN: n, eq: c.eq, spell: c.spell, wrong: c.wrong, missing: c.missing, extra: c.extra,
+      ops: ops, codes: codes, missAt: missAt, refN: n, eq: c.eq, spell: c.spell, wrong: c.wrong, missing: c.missing, extra: c.extra,
       pct: Math.round(acc * 100), score: acc >= 1 ? DICT_POINTS : Math.floor(acc * DICT_POINTS)
     };
   }
@@ -644,6 +650,34 @@
     });
   }
 
+  // Talaba o‘z matnini xatolari bilan ko‘radi: noto‘g‘ri so‘z qizil, imlo sariq, ortiqcha kulrang, tushib qolgan joy "…"
+  function annotateText(raw, ann) {
+    var chunks = String(raw || '').match(/\S+/g) || [];
+    var codes = String(ann.c || ''), miss = ann.m || [], ti = 0, html = '';
+    var missHere = function () { return miss.indexOf(ti) !== -1; };
+    var marker = '<span class="dd-miss" title="Tushib qolgan so‘z">…</span> ';
+    chunks.forEach(function (ch) {
+      var n = dictTokens(ch).length;
+      if (n === 0) { html += esc(ch) + ' '; return; }
+      if (missHere()) html += marker;
+      var cs = codes.substr(ti, n);
+      ti += n;
+      var cls = cs.indexOf('w') !== -1 ? 'dd-wrong' : cs.indexOf('x') !== -1 ? 'dd-extra' : cs.indexOf('s') !== -1 ? 'dd-spell' : '';
+      html += cls ? '<span class="' + cls + '">' + esc(ch) + '</span> ' : esc(ch) + ' ';
+    });
+    if (missHere()) html += marker;
+    return html;
+  }
+
+  function paintDictText(ex, sub) {
+    var el = document.getElementById('lhwDictMine');
+    if (!el) return;
+    var t = S.dictText[ex.id];
+    if (t == null) { el.textContent = 'Yuklanmoqda…'; return; }
+    if (sub && sub.graded !== false && sub.ann) el.innerHTML = annotateText(t, sub.ann);
+    else el.textContent = t || '—';
+  }
+
   function renderDictResult(ex, sub) {
     var area = document.getElementById('lhwFormArea');
     if (!area) return;
@@ -654,8 +688,7 @@
       db.collection(COL_TXT).doc(mineId).get().then(function (s) {
         var t = s.exists ? String((s.data() || {}).text || '') : '';
         S.dictText[ex.id] = t;
-        var el = document.getElementById('lhwDictMine');
-        if (el) el.textContent = t || '—';
+        paintDictText(ex, S.subs[ex.id] || sub);
       }).catch(function () {
         var el = document.getElementById('lhwDictMine');
         if (el) el.textContent = 'Yuklab bo‘lmadi';
@@ -679,8 +712,10 @@
         '<li class="bad">Tushib qolgan: <b>' + (d.missing || 0) + '</b></li>' +
         '<li class="extra">Ortiqcha: <b>' + (d.extra || 0) + '</b></li>' +
       '</ul>' + textHtml +
+      (sub.ann ? '<p class="lhw-hint">Belgilar: <span class="dd-wrong">noto‘g‘ri so‘z</span> · <span class="dd-spell">imlo xatosi</span> · <span class="dd-extra">ortiqcha</span> · <span class="dd-miss">…</span> tushib qolgan so‘z</p>' : '') +
       '<p class="lhw-hint lhw-ask-teacher">To‘g‘ri matnni o‘qituvchingizdan oling.</p>' +
     '</div>';
+    paintDictText(ex, sub);
     bindDictEdit(ex, sub);
   }
 
@@ -736,7 +771,7 @@
     var batch = db.batch();
     batch.update(db.collection(COL_TXT).doc(id), { text: text, editedAt: now });
     // Tahrirdan keyin ball nolga tushadi: admin qayta tekshirgunchi reytingda hisobga olinmaydi
-    batch.update(db.collection(COL_SUB).doc(id), { graded: false, score: 0, finalScore: 0, editedAt: now });
+    batch.update(db.collection(COL_SUB).doc(id), { graded: false, score: 0, finalScore: 0, editedAt: now, ann: firebase.firestore.FieldValue.delete() });
     batch.commit().then(function () {
       S.dictText[ex.id] = text;
       var sub = Object.assign({}, S.subs[ex.id], { graded: false, score: 0, finalScore: 0 });
@@ -1336,6 +1371,7 @@
         batch.update(d.ref, {
           graded: true, score: r.score, total: DICT_POINTS, finalScore: r.score,
           marks: [], penalty: 0, flagged: false,
+          ann: { c: r.codes, m: r.missAt },
           diff: { refN: r.refN, eq: r.eq, spell: r.spell, wrong: r.wrong, missing: r.missing, extra: r.extra, pct: r.pct },
           gradedAt: Date.now()
         });
