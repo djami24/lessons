@@ -48,7 +48,6 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
 .hm-live{display:inline-flex;align-items:center;gap:.55em;padding:.45em 1em .45em .75em;border-radius:999px;background:rgba(255,255,255,.75);border:1px solid var(--line);font-size:.9rem;color:var(--ink);margin-bottom:1.2em;box-shadow:0 6px 18px -10px rgba(31,38,135,.35);}
 .hm-live b{font-weight:800;color:#1d4ed8;font-variant-numeric:tabular-nums;}
 .hm-live[hidden]{display:none;}
-.hm-live svg{color:#1d4ed8;flex:none;}
 .hm-sec{width:100%;margin-top:5em;}
 .hm-h2{font-family:var(--font-display);font-weight:900;font-size:clamp(1.5rem,3vw,2rem);color:var(--ink);margin:0 0 1.1em;}
 .hm-tools,.hm-access{display:grid;grid-template-columns:1fr 1fr;gap:1.2em;}
@@ -302,7 +301,7 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
 
   <section class="hm-hero">
     <div class="hm-hero-copy">
-      <div class="hm-live" id="hmLive" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><span>Saytga tashriflar: <b id="hmLiveN">0</b></span></div>
+      <div class="hm-live" id="hmLive" hidden><span>Saytga tashriflar: <b id="hmLiveN">0</b></span></div>
       <h1 class="hm-title" data-site-hero-title>Ingliz tilini o‘rganishning zamonaviy platformasi</h1>
       <p class="hm-lead" data-site-hero-lead>General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
       <div class="hm-cta">
