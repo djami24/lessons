@@ -911,6 +911,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <span class="nav-label">Market</span>
       </a></li>
+<li data-sec="natijalar"><a href="#" id="navVocab"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg><span class="nav-label">Definition</span></a></li>
 <li data-sec="aloqa"><a href="#" id="navAnketa">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         <span class="nav-label">Guruh Anketa</span>
@@ -2921,6 +2922,52 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
 
     <!-- ===== GURUH ANKETA ===== -->
+    <section id="view-vocab" hidden>
+      <style>
+        #view-vocab .voc-box{padding:18px;margin-bottom:16px;}
+        #view-vocab .voc-form{display:grid;grid-template-columns:1.4fr 1fr .7fr;gap:12px;}
+        #view-vocab .voc-f{display:flex;flex-direction:column;gap:5px;font-size:.8rem;font-weight:700;color:var(--gray,#6b7280);}
+        #view-vocab .voc-f input,#view-vocab .voc-f select,#view-vocab .voc-f textarea{width:100%;box-sizing:border-box;padding:10px 12px;border:1.5px solid var(--line,#e5e7eb);border-radius:12px;background:#fff;font:inherit;font-size:.92rem;color:inherit;}
+        #view-vocab .voc-f textarea{font-family:inherit;resize:vertical;min-height:200px;}
+        #view-vocab .voc-wide{grid-column:1 / -1;}
+        #view-vocab .voc-acts{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+        #view-vocab .voc-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#e5e7eb);font-size:.88rem;}
+        #view-vocab .voc-note{color:var(--gray,#6b7280);font-size:.84rem;margin:0 0 10px;}
+        @media (max-width:700px){#view-vocab .voc-form{grid-template-columns:1fr;}}
+      </style>
+      <div class="oj-header">
+        <div>
+          <h1>Definition (lug‘at)</h1>
+          <p>Guruh, daraja va unitni tanlab, so‘zlarni kiriting. Talaba shu guruhning Definition bo‘limida unitni ochib yodlaydi.</p>
+        </div>
+      </div>
+      <div class="home-section-card voc-box">
+        <div class="voc-form">
+          <label class="voc-f">Guruh<select id="vocGroup"></select></label>
+          <label class="voc-f">Daraja<select id="vocLevel">
+            <option value="Beginner">Beginner</option>
+            <option value="Elementary">Elementary</option>
+            <option value="Pre-Intermediate">Pre-Intermediate</option>
+            <option value="Intermediate">Intermediate</option>
+          </select></label>
+          <label class="voc-f">Unit<input type="text" id="vocUnit" placeholder="Masalan: 1" maxlength="20"></label>
+          <label class="voc-f voc-wide">So‘zlar (har qatorga bittadan: english - tarjima)
+            <textarea id="vocWords" placeholder="apple - olma&#10;book - kitob&#10;teacher - o‘qituvchi"></textarea>
+          </label>
+        </div>
+        <div class="voc-acts">
+          <button class="btn btn-primary" id="vocSave" type="button">Saqlash</button>
+          <button class="btn btn-ghost" id="vocDelete" type="button" hidden style="color:#dc2626;">Unitni o‘chirish</button>
+        </div>
+        <p id="vocErr" class="form-error" role="alert" hidden></p>
+        <p id="vocInfo" class="voc-note" style="margin:10px 0 0;"></p>
+      </div>
+      <div class="home-section-card voc-box">
+        <h3 style="margin:0 0 6px;font-size:1rem;">Mavjud unitlar</h3>
+        <div id="vocList"></div>
+      </div>
+    </section>
+
     <section id="view-market" hidden>
       <style>
         #view-market .mka-top{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
@@ -5078,6 +5125,7 @@ const ADMIN_VIEW_NAV_MAP = {
   'stats': 'navStats',
   'points': 'navPoints',
   'market': 'navMarket',
+  'vocab': 'navVocab',
   'gradebook': 'navGradebook',
   'teachers': 'navTeachers',
   'broadcast': 'navBroadcast',
@@ -5142,6 +5190,8 @@ function switchView(view){
   document.getElementById('view-listening-hw').hidden = view !== 'listening-hw';
   document.getElementById('view-market').hidden = view !== 'market';
   document.getElementById('navMarket').classList.toggle('active', view === 'market');
+  document.getElementById('view-vocab').hidden = view !== 'vocab';
+  document.getElementById('navVocab').classList.toggle('active', view === 'vocab');
   document.getElementById('navListeningHw').classList.toggle('active', view === 'listening-hw');
   document.getElementById('view-student-progress').hidden = view !== 'student-progress';
   document.getElementById('view-oquv-groups').hidden = view !== 'oquv-groups';
@@ -16621,6 +16671,121 @@ try{
   });
 }catch(e){
   console.error('Market moduli yuklanmadi:', e);
+}
+})();
+</script>
+<script>
+// ===== DEFINITION (admin): guruh/daraja/unit bo'yicha so'zlar =====
+(function(){
+try{
+  const LV = ['Beginner','Elementary','Pre-Intermediate','Intermediate'];
+  let groups = [], sets = [];
+  const $ = id => document.getElementById(id);
+  const esc = s => escapeHtml(String(s == null ? '' : s));
+  const docIdOf = (gid, lv, unit) => gid + '__' + lv + '__' + String(unit).trim().replace(/[\/\s]+/g, '-');
+
+  function parseWords(txt){
+    let skipped = 0;
+    const words = txt.split(/\r?\n/).map(l => l.trim()).filter(Boolean).map(l => {
+      let p = l.split(/\s+[-–—:=]\s+/);
+      if(p.length < 2) p = l.split(/[:=]/);
+      const en = (p[0] || '').trim(), uz = p.slice(1).join(' - ').trim();
+      if(!en || !uz || p.length < 2){ skipped++; return null; }
+      return { en: en, uz: uz };
+    }).filter(Boolean);
+    return { words: words, skipped: skipped };
+  }
+
+  function renderSelects(){
+    const gSel = $('vocGroup'), keep = gSel.value;
+    gSel.innerHTML = '<option value="">Guruhni tanlang</option>' +
+      groups.map(g => '<option value="' + esc(g.id) + '">' + esc(g.name) + '</option>').join('');
+    gSel.value = keep;
+  }
+
+  function renderList(){
+    const el = $('vocList');
+    if(!el) return;
+    if(!sets.length){ el.innerHTML = '<p class="voc-note">Hali unit qo‘shilmagan.</p>'; return; }
+    el.innerHTML = sets.slice().sort((a, b) =>
+      String(a.groupName).localeCompare(String(b.groupName)) || LV.indexOf(a.level) - LV.indexOf(b.level) ||
+      (parseFloat(a.unit) || 0) - (parseFloat(b.unit) || 0)
+    ).map(s => '<div class="voc-row"><span><b>' + esc(s.groupName) + '</b> · ' + esc(s.level) +
+      ' · Unit ' + esc(s.unit) + ' · ' + ((s.words || []).length) + ' ta so‘z</span>' +
+      '<button class="btn btn-ghost btn-sm" type="button" data-voc-edit="' + esc(s.id) + '">Tahrirlash</button></div>').join('');
+  }
+
+  function syncFromSelection(){
+    const gid = $('vocGroup').value, lv = $('vocLevel').value, unit = $('vocUnit').value.trim();
+    const existing = (gid && unit) ? sets.find(s => s.id === docIdOf(gid, lv, unit)) : null;
+    $('vocDelete').hidden = !existing;
+    if(existing){
+      $('vocWords').value = (existing.words || []).map(w => w.en + ' - ' + w.uz).join('\n');
+      $('vocInfo').textContent = 'Mavjud: ' + (existing.words || []).length + ' ta so‘z. Tahrirlab qayta saqlang.';
+    } else {
+      $('vocInfo').textContent = '';
+    }
+  }
+
+  async function load(){
+    const [g, s] = await Promise.all([
+      db.collection('oquv_groups').orderBy('name').get(),
+      db.collection('vocab_sets').get()
+    ]);
+    groups = g.docs.map(d => ({ id: d.id, name: d.data().name || d.id }));
+    sets = s.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    renderSelects();
+    renderList();
+    syncFromSelection();
+  }
+
+  const view = document.getElementById('view-vocab');
+  if(!view) return;
+  const nav = document.getElementById('navVocab');
+  if(nav) nav.addEventListener('click', e => { e.preventDefault(); switchView('vocab'); load().catch(err => console.error(err)); });
+
+  ['vocGroup','vocLevel'].forEach(id => $(id).addEventListener('change', syncFromSelection));
+  $('vocUnit').addEventListener('input', syncFromSelection);
+
+  $('vocSave').addEventListener('click', async () => {
+    const err = $('vocErr'); err.hidden = true; $('vocInfo').textContent = '';
+    const gid = $('vocGroup').value, lv = $('vocLevel').value, unit = $('vocUnit').value.trim();
+    if(!gid){ err.textContent = 'Guruhni tanlang.'; err.hidden = false; return; }
+    if(!unit){ err.textContent = 'Unit raqamini kiriting.'; err.hidden = false; return; }
+    const parsed = parseWords($('vocWords').value);
+    if(!parsed.words.length){ err.textContent = 'Kamida 1 ta so‘z kiriting (english - tarjima).'; err.hidden = false; return; }
+    const g = groups.find(x => x.id === gid);
+    try{
+      await db.collection('vocab_sets').doc(docIdOf(gid, lv, unit)).set({
+        groupId: gid, groupName: g ? g.name : '', level: lv, unit: unit,
+        words: parsed.words, updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      await load();
+      $('vocInfo').textContent = 'Saqlandi: ' + parsed.words.length + ' ta so‘z.' + (parsed.skipped ? ' Noto‘g‘ri qatorlar o‘tkazib yuborildi: ' + parsed.skipped + '.' : '');
+    } catch(e){ err.textContent = 'Saqlanmadi: ' + e.message; err.hidden = false; }
+  });
+
+  $('vocDelete').addEventListener('click', async () => {
+    const gid = $('vocGroup').value, lv = $('vocLevel').value, unit = $('vocUnit').value.trim();
+    if(!gid || !unit) return;
+    if(!confirm('Bu unitni o‘chirasizmi? Talabalar uchun ham yo‘qoladi.')) return;
+    try{
+      await db.collection('vocab_sets').doc(docIdOf(gid, lv, unit)).delete();
+      $('vocWords').value = ''; $('vocUnit').value = '';
+      await load();
+      $('vocInfo').textContent = 'O‘chirildi.';
+    } catch(e){ $('vocErr').textContent = 'O‘chirilmadi: ' + e.message; $('vocErr').hidden = false; }
+  });
+
+  $('vocList').addEventListener('click', e => {
+    const b = e.target.closest('[data-voc-edit]'); if(!b) return;
+    const s = sets.find(x => x.id === b.dataset.vocEdit); if(!s) return;
+    $('vocGroup').value = s.groupId; $('vocLevel').value = s.level; $('vocUnit').value = s.unit;
+    syncFromSelection();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}catch(e){
+  console.error('Definition (admin) moduli yuklanmadi:', e);
 }
 })();
 </script>
