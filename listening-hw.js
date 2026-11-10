@@ -458,7 +458,7 @@
     var media = safeUrl(ex.mediaUrl);
     body.innerHTML =
       '<button type="button" class="lhw-back" id="lhwBack">Ro‘yxatga qaytish</button>' +
-      '<div class="lhw-detail' + (isDict(ex) ? ' lhw-protect' : '') + '">' +
+      '<div class="lhw-detail' + (isDict(ex) && !ex.allowCopy ? ' lhw-protect' : '') + '">' +
         '<h2>' + esc(ex.title) + '</h2>' +
         (media && isDict(ex) ? dictAudioHTML(media) : '') +
         (media && !isDict(ex) ? '<a class="lhw-media" href="' + esc(media) + '" target="_blank" rel="noopener noreferrer"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3" fill="none" stroke="#374151" stroke-width="2"/><rect x="3" y="14" width="5" height="7" rx="2" fill="#3B82F6"/><rect x="16" y="14" width="5" height="7" rx="2" fill="#3B82F6"/></svg> Audio / materialni ochish</a>' : '') +
@@ -594,9 +594,11 @@
         '<button type="submit" class="lhw-btn primary" id="lhwSubmitBtn">Topshirish</button>' +
       '</form>';
     var ta = document.getElementById('lhwDictText');
-    ['copy', 'cut', 'paste', 'contextmenu', 'dragstart', 'drop'].forEach(function (evt) {
-      ta.addEventListener(evt, function (e) { e.preventDefault(); });
-    });
+    if (!ex.allowCopy) {
+      ['copy', 'cut', 'paste', 'contextmenu', 'dragstart', 'drop'].forEach(function (evt) {
+        ta.addEventListener(evt, function (e) { e.preventDefault(); });
+      });
+    }
     document.getElementById('lhwDictForm').addEventListener('submit', function (e) {
       e.preventDefault();
       submitDictation(ex);
@@ -663,6 +665,7 @@
       area.innerHTML = '<div class="lhw-result">' +
         '<div class="lhw-warn lhw-pending">Javobingiz qabul qilindi. Natija o‘qituvchi tekshirgach chiqadi.</div>' +
         textHtml + '</div>';
+      bindDictEdit(ex, sub);
       return;
     }
     var d = sub.diff || {};
@@ -678,6 +681,72 @@
       '</ul>' + textHtml +
       '<p class="lhw-hint lhw-ask-teacher">To‘g‘ri matnni o‘qituvchingizdan oling.</p>' +
     '</div>';
+    bindDictEdit(ex, sub);
+  }
+
+  // Admin ruxsat bergan bo‘lsa: talaba o‘z matnini muddat tugaguncha tahrirlaydi
+  function bindDictEdit(ex, sub) {
+    var area = document.getElementById('lhwFormArea');
+    var box = area && area.querySelector('.lhw-result');
+    if (!box || !ex.allowEdit || isLocked(ex)) return;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'lhw-btn sm';
+    b.id = 'lhwDictEditBtn';
+    b.textContent = 'Matnni tahrirlash';
+    b.addEventListener('click', function () { renderDictEdit(ex); });
+    box.appendChild(b);
+  }
+
+  function renderDictEdit(ex) {
+    var area = document.getElementById('lhwFormArea');
+    if (!area) return;
+    if (!ex.allowEdit || isLocked(ex)) { renderExpired(ex); return; }
+    area.innerHTML =
+      '<form id="lhwDictEditForm" class="lhw-form-student">' +
+        '<p class="lhw-hint">Matnni tahrirlang. Saqlagandan keyin javob qayta tekshiriladi.</p>' +
+        '<textarea id="lhwDictEditText" class="lhw-dict-ta" maxlength="' + DICT_MAX + '" rows="10" spellcheck="false">' + esc(S.dictText[ex.id] || '') + '</textarea>' +
+        '<p class="lhw-err" id="lhwDictEditErr" hidden></p>' +
+        '<div class="lhw-actions">' +
+          '<button type="submit" class="lhw-btn primary" id="lhwDictEditSave">Saqlash</button>' +
+          '<button type="button" class="lhw-btn" id="lhwDictEditCancel">Bekor qilish</button>' +
+        '</div>' +
+      '</form>';
+    document.getElementById('lhwDictEditCancel').addEventListener('click', function () {
+      if (S.subs[ex.id]) renderDictResult(ex, S.subs[ex.id]);
+    });
+    document.getElementById('lhwDictEditForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      saveDictEdit(ex);
+    });
+  }
+
+  function saveDictEdit(ex) {
+    var err = document.getElementById('lhwDictEditErr');
+    var btn = document.getElementById('lhwDictEditSave');
+    if (!ex.allowEdit || isLocked(ex)) { renderExpired(ex); return; }
+    var ta = document.getElementById('lhwDictEditText');
+    var text = ta ? ta.value.trim() : '';
+    if (!dictTokens(text).length) { showErr(err, 'Matn bo‘sh bo‘lmasin.'); return; }
+    if (text.length > DICT_MAX) { showErr(err, 'Matn juda uzun (' + DICT_MAX + ' belgigacha).'); return; }
+    if (err) err.hidden = true;
+    btn.disabled = true;
+    var id = ex.id + '_' + S.uid;
+    var now = firebase.firestore.FieldValue.serverTimestamp();
+    var batch = db.batch();
+    batch.update(db.collection(COL_TXT).doc(id), { text: text, editedAt: now });
+    // Tahrirdan keyin ball nolga tushadi: admin qayta tekshirgunchi reytingda hisobga olinmaydi
+    batch.update(db.collection(COL_SUB).doc(id), { graded: false, score: 0, finalScore: 0, editedAt: now });
+    batch.commit().then(function () {
+      S.dictText[ex.id] = text;
+      var sub = Object.assign({}, S.subs[ex.id], { graded: false, score: 0, finalScore: 0 });
+      S.subs[ex.id] = sub;
+      renderDictResult(ex, sub);
+    }).catch(function (e) {
+      btn.disabled = false;
+      var denied = e && (e.code === 'permission-denied' || /permission/i.test(e.message || ''));
+      showErr(err, denied ? 'Tahrirlash yopilgan: o‘zgartirib bo‘lmaydi.' : 'Xatolik: ' + (e && e.message ? e.message : 'saqlanmadi'));
+    });
   }
 
   // Nusxalash, kesish, joylashtirish, o‘ng tugma va tanlashni cheklaydi (faqat shu brauzer ichida)
@@ -757,6 +826,8 @@
           '<label class="lhw-field"><span>Mashq nomi *</span><input type="text" id="lhwTitle" maxlength="120" placeholder="Masalan: 1-mashq"></label>' +
           '<label class="lhw-field"><span>Guruh</span><select id="lhwGroup"><option value="">Barcha guruhlar</option></select></label>' +
           '<label class="lhw-field"><span>Mashq turi</span><select id="lhwKind"><option value="blanks">Bo‘shliqli (javoblar avtomatik tekshiriladi)</option><option value="dictation">Eshitib yozish (dikta)</option></select></label>' +
+          '<label class="lhw-field lhw-dict-field lhw-check" style="display:none;"><input type="checkbox" id="lhwAllowCopy"> <span>Talaba matnni nusxalay olsin</span></label>' +
+          '<label class="lhw-field lhw-dict-field lhw-check" style="display:none;"><input type="checkbox" id="lhwAllowEdit"> <span>Talaba o‘z matnini tahrirlay olsin (muddatgacha)</span></label>' +
           '<label class="lhw-field lhw-dict-field" style="display:none;"><span>Asl matn: audioda aytilgan so‘zlar (tekshirish uchun, talabaga ko‘rinmaydi)</span><textarea id="lhwTranscript" rows="8" spellcheck="false" placeholder="Audioda aytilgan matnni to‘liq yozing"></textarea></label>' +
           '<label class="lhw-field"><span>Topshirish muddati, soat (ixtiyoriy)</span>' +
             '<input type="number" id="lhwHours" min="0.1" max="1000" step="any" placeholder="Masalan: 24 yoki 30 (bo‘sh: cheklanmagan)"></label>' +
@@ -1226,9 +1297,8 @@
     var sel = document.getElementById('lhwKind');
     var dict = !!sel && sel.value === 'dictation';
     var wrap = document.getElementById('lhwBlanksWrap');
-    var tr = document.querySelector('.lhw-dict-field');
     if (wrap) wrap.style.display = dict ? 'none' : '';
-    if (tr) tr.style.display = dict ? '' : 'none';
+    document.querySelectorAll('.lhw-dict-field').forEach(function (el) { el.style.display = dict ? '' : 'none'; });
   }
 
   function getKeyText(exId) {
@@ -1358,6 +1428,8 @@
     if (gsel) gsel.value = ex.groupId || '';
     setAnswerRows((ex.answers || []).map(function (a) { return a == null ? '' : String(a); }));
     document.getElementById('lhwKind').value = isDict(ex) ? 'dictation' : 'blanks';
+    document.getElementById('lhwAllowCopy').checked = !!ex.allowCopy;
+    document.getElementById('lhwAllowEdit').checked = !!ex.allowEdit;
     applyKindUI();
     if (isDict(ex)) getKeyText(ex.id).then(function (t) { document.getElementById('lhwTranscript').value = t || ''; }).catch(function () {});
     setFormMode(true);
@@ -1389,6 +1461,8 @@
     var answers = readAnswerValues().map(function (v) { return v.trim(); });
     var kind = (document.getElementById('lhwKind') || {}).value === 'dictation' ? 'dictation' : 'blanks';
     var transcript = kind === 'dictation' ? document.getElementById('lhwTranscript').value.trim() : '';
+    var allowCopy = kind === 'dictation' && document.getElementById('lhwAllowCopy').checked;
+    var allowEdit = kind === 'dictation' && document.getElementById('lhwAllowEdit').checked;
 
     if (!title) { showErr(err, 'Mashq nomini kiriting.'); return; }
     if (mediaRaw && !safeUrl(mediaRaw)) { showErr(err, 'Havola http:// yoki https:// bilan boshlanishi kerak.'); return; }
@@ -1412,6 +1486,8 @@
       groupName: groupName,
       answers: kind === 'dictation' ? [] : answers,
       kind: kind,
+      allowCopy: allowCopy,
+      allowEdit: allowEdit,
       updatedAt: Date.now()
     };
     // Muddat: yangi mashqda yoki soat o‘zgarganda: hozirdan boshlab hisoblanadi; o‘zgarmasa avvalgisi saqlanadi
