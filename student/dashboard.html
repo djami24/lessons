@@ -2621,9 +2621,10 @@ function mktRender(){
     '<span>' + (Number(o.price) || 0) + ' point · <b>' + (MKT_ST[o.status] || escapeHtml(o.status || '')) + '</b></span></div>').join('')
     : '<p class="mkt-muted">Hali buyurtma yo‘q.</p>';
   box.innerHTML =
-    '<div><h2>Market</h2><p class="mkt-muted">Pointlaringizni kitobga almashtiring. Reytingingiz bundan o‘zgarmaydi.</p></div>' +
+    '<div><h2>Market</h2><p class="mkt-muted">Pointlaringizni kitobga almashtiring. Reytingingiz bundan o‘zgarmaydi.</p>' +
+    '<p class="mkt-muted">Bu balans barcha oylardan yig‘ilgan pointlar hisobida. Shu oydagi point (reyting uchun) bundan alohida ko‘rsatiladi.</p></div>' +
     '<div class="mkt-bal"><div><span class="mkt-muted">Mavjud points</span><b>' + bal + '</b></div>' +
-      '<div class="mkt-muted">Jami yig‘ilgan: ' + _mkt.earned + ' · Sarflangan: ' + spent + '</div></div>' +
+      '<div class="mkt-muted">Barcha oylardan yig‘ilgan: ' + _mkt.earned + ' · Sarflangan: ' + spent + '</div></div>' +
     '<h3>Katalog</h3><div class="mkt-grid">' + cards + '</div>' +
     '<h3>Savat (' + cart.length + ')</h3>' + cartHtml +
     '<h3>Buyurtmalarim</h3>' + histHtml;
@@ -4188,7 +4189,7 @@ async function loadHwPointsBadge(){
     state._ballCtx = Object.assign({ ym }, P);
 
     document.getElementById('hwPointsNum').textContent = P.total;
-    document.getElementById('hwPointsSub').textContent = 'Shu oy · ' + (P.lessons ? P.lessons + ' ta dars hisobida' : 'hali dars belgilanmagan');
+    document.getElementById('hwPointsSub').textContent = 'Shu oy (reyting uchun) · ' + (P.lessons ? P.lessons + ' ta dars hisobida' : 'hali dars belgilanmagan');
     const dl = document.getElementById('hwPointsDelta');
     if(dl){
       if(P.bonus){ dl.hidden = false; dl.classList.toggle('down', P.bonus < 0); dl.textContent = mystSigned(P.bonus) + ' qo\'shimcha'; }
