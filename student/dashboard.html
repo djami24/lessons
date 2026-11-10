@@ -1186,6 +1186,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <li><a href="#" id="navCefrRL" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg> CEFR RL</a></li>
       <li><a href="#" id="navIndArchive" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg> Arxiv</a></li>
       <li><a href="#" id="navWordGame"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M7 12h.01"/><path d="M17 12h.01"/></svg> So’z o’yini</a></li>
+      <li><a href="#" id="navDefinition"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg> Definition</a></li>
       <li><a href="../index.html" target="_blank"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> Saytni ko’rish</a></li>
     </ul>
   </aside>
@@ -1829,6 +1830,23 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
     <!-- ===== LISTENING UY VAZIFASI ===== -->
     <section id="view-listening-hw" hidden>
       <div id="lhwStudentRoot" class="lhw-root"></div>
+    </section>
+
+    <section id="view-definition" hidden>
+    <style>
+      #view-definition .def-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:6px;}
+      #view-definition .def-unit{border:1px solid rgba(255,255,255,.6);border-radius:16px;padding:14px 10px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.42);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font:inherit;color:inherit;}
+      #view-definition .def-unit b{font-size:.95rem;}
+      #view-definition .def-unit span{font-size:.76rem;color:var(--gray,#6b7280);}
+      #view-definition .def-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;margin-bottom:8px;border-radius:14px;background:rgba(255,255,255,.42);border:1px solid rgba(255,255,255,.6);cursor:pointer;font-size:.92rem;}
+      #view-definition .def-en{font-weight:800;}
+      #view-definition .def-uz{color:#1d4ed8;font-weight:700;text-align:right;}
+      #view-definition .def-hint{font-size:.74rem;color:var(--gray,#6b7280);}
+      #view-definition .def-tools{margin:10px 0 12px;}
+      body.dark #view-definition .def-uz{color:#7da2ff;}
+      body.dark #view-definition .def-unit,body.dark #view-definition .def-row{background:rgba(23,29,44,.45);border-color:rgba(255,255,255,.12);}
+    </style>
+    <div class="mkt" id="defBox"></div>
     </section>
 
     <section id="view-market" hidden>
@@ -2564,7 +2582,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-rl', 'ind-archive', 'market'];
+const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-rl', 'ind-archive', 'market', 'definition'];
 
 // Bir vaqtning o'zida faqat bitta sidebar bandi ko'k (active) bo'lishi uchun:
 // avval BARCHA bandlardan 'active' klassini olib tashlaydi, so'ng kerakli
@@ -2707,6 +2725,7 @@ function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   if(view === 'market' && typeof mktLoad === 'function') mktLoad();
+  if(view === 'definition' && typeof defLoad === 'function') defLoad();
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
@@ -2714,6 +2733,7 @@ function switchView(view){
 const STUDENT_VIEW_NAV_MAP = {
   'profile': 'navProfile',
   'market': 'navMarket',
+  'definition': 'navDefinition',
   'listening-hw': 'navListeningHw',
   'placement-test': 'navPlacementTest',
   'my-essays': 'navMyEssays',
@@ -7472,7 +7492,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   // ---- "Menyu": yon menyudagi qolgan bo'limlar pastdan chiqadigan ro'yxatda ----
   const wrap = document.getElementById('sbnSheetWrap');
   const list = document.getElementById('sbnSheetList');
-  const SHEET_IDS = ['navChat','navTeacher','navResultsCard','navPlacementTest','navCefrRL','navIndArchive','navWordGame'];
+  const SHEET_IDS = ['navChat','navTeacher','navResultsCard','navPlacementTest','navCefrRL','navIndArchive','navWordGame','navDefinition'];
   const sheetLinks = {}; // navId -> ro'yxatdagi element
   function closeSheet(){ wrap.hidden = true; items.menu.setAttribute('aria-expanded','false'); }
   function openSheet(){ wrap.hidden = false; items.menu.setAttribute('aria-expanded','true'); }
@@ -7741,5 +7761,87 @@ document.getElementById('themeToggle').addEventListener('click',function(){
 })();
 </script>
 <script src="../uz-translit.js?v=1"></script>
+<script>
+// ===== DEFINITION (lug'at): talaba guruhi uchun unitlar va so'zlar =====
+(function(){
+try{
+  const DEF_LEVELS = ['Beginner','Elementary','Pre-Intermediate','Intermediate'];
+  let _def = { sets: [], unit: null };
+  const dEsc = s => escapeHtml(String(s == null ? '' : s));
+  function defSort(a, b){
+    const la = DEF_LEVELS.indexOf(a.level), lb = DEF_LEVELS.indexOf(b.level);
+    if(la !== lb) return la - lb;
+    return (parseFloat(a.unit) || 0) - (parseFloat(b.unit) || 0) || String(a.unit).localeCompare(String(b.unit));
+  }
+  const headHtml = '<div class="mkt-head"><h2>Definition</h2></div><p class="mkt-muted">Unitni tanlang va so‘zlarni yodlang. Tarjimani ko‘rish uchun so‘z ustiga bosing.</p>';
+
+  window.defLoad = async function(){
+    const box = document.getElementById('defBox');
+    if(!box || !currentUid) return;
+    box.innerHTML = '<p class="mkt-muted">Yuklanmoqda…</p>';
+    try{
+      const code = state.student && state.student.oquvProgressCode ? String(state.student.oquvProgressCode) : '';
+      let gid = '', gname = '';
+      if(code){
+        const p = await db.collection('oquv_progress').doc(code).get();
+        if(p.exists){ gid = p.data().groupId || ''; gname = p.data().group || ''; }
+      }
+      if(!gid && !gname){ box.innerHTML = headHtml + '<p class="mkt-muted">Guruhingiz topilmadi.</p>'; return; }
+      const snap = gid
+        ? await db.collection('vocab_sets').where('groupId', '==', gid).get()
+        : await db.collection('vocab_sets').where('groupName', '==', gname).get();
+      _def.sets = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).sort(defSort);
+      _def.unit = null;
+      defRender();
+    } catch(e){
+      box.innerHTML = headHtml + '<p class="mkt-muted">Yuklanmadi: ' + dEsc(e.message || '') + '</p>';
+    }
+  };
+
+  function defRender(){
+    const box = document.getElementById('defBox');
+    if(!box) return;
+    if(_def.unit){
+      const s = _def.unit, words = s.words || [];
+      box.innerHTML = '<button type="button" class="mkt-btn" data-def-back style="width:auto;padding:6px 14px;">← Unitlar</button>' +
+        '<h2 style="margin:12px 0 4px;">Unit ' + dEsc(s.unit) + ' · ' + dEsc(s.level) + '</h2>' +
+        '<p class="mkt-muted">' + words.length + ' ta so‘z</p>' +
+        '<div class="def-tools"><button type="button" class="mkt-btn" data-def-toggle-all style="width:auto;padding:6px 14px;">Hammasini ko‘rsatish</button></div>' +
+        words.map(w => '<div class="def-row" data-def-row><span class="def-en">' + dEsc(w.en) + '</span>' +
+          '<span class="def-uz" hidden>' + dEsc(w.uz) + '</span><span class="def-hint">ko‘rish</span></div>').join('');
+      return;
+    }
+    if(!_def.sets.length){ box.innerHTML = headHtml + '<p class="mkt-muted">Hali lug‘at qo‘shilmagan.</p>'; return; }
+    const levels = [];
+    _def.sets.forEach(s => { if(levels.indexOf(s.level) === -1) levels.push(s.level); });
+    box.innerHTML = headHtml + levels.map(lv =>
+      '<h3>' + dEsc(lv || 'Daraja') + '</h3><div class="def-grid">' +
+      _def.sets.filter(s => s.level === lv).map(s =>
+        '<button type="button" class="def-unit" data-def-open="' + dEsc(s.id) + '"><b>Unit ' + dEsc(s.unit) + '</b><span>' + ((s.words || []).length) + ' ta so‘z</span></button>'
+      ).join('') + '</div>').join('');
+  }
+
+  const box = document.getElementById('defBox');
+  if(box) box.addEventListener('click', e => {
+    const o = e.target.closest('[data-def-open]');
+    if(o){ const s = _def.sets.find(x => x.id === o.dataset.defOpen); if(s){ _def.unit = s; defRender(); window.scrollTo(0, 0); } return; }
+    if(e.target.closest('[data-def-back]')){ _def.unit = null; defRender(); return; }
+    if(e.target.closest('[data-def-toggle-all]')){
+      const rows = box.querySelectorAll('.def-row');
+      const showAll = [].some.call(rows, r => r.querySelector('.def-uz').hidden);
+      rows.forEach(r => { r.querySelector('.def-uz').hidden = !showAll; r.querySelector('.def-hint').hidden = showAll; });
+      return;
+    }
+    const r = e.target.closest('[data-def-row]');
+    if(r){ const uz = r.querySelector('.def-uz'), h = r.querySelector('.def-hint'); uz.hidden = !uz.hidden; h.hidden = !uz.hidden; }
+  });
+
+  const nav = document.getElementById('navDefinition');
+  if(nav) nav.addEventListener('click', e => { e.preventDefault(); switchView('definition'); setActiveNav('navDefinition'); });
+}catch(e){
+  console.error('Definition moduli yuklanmadi:', e);
+}
+})();
+</script>
 </body>
 </html>
