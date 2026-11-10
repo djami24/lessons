@@ -1861,6 +1861,19 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       body.dark .mkt-info{background:rgba(23,29,44,.45);border-color:rgba(255,255,255,.12);}
       .mkt-lbl{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--gray,#6b7280);}
       .mkt-bal b.mkt-gold{display:block;font-size:1.6rem;font-weight:900;background:linear-gradient(135deg,#f7e08a 0%,#d4a017 45%,#8a6a12 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;}
+      .mkt-soon{position:relative;overflow:hidden;text-align:center;padding:26px 16px 22px;}
+      .mkt-soon::before{content:'';position:absolute;left:50%;top:-30%;width:220px;height:220px;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(212,160,23,.30),transparent);pointer-events:none;}
+      .mkt-soon-ic{position:relative;width:64px;height:64px;margin:0 auto 14px;border-radius:20px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f7e08a 0%,#d4a017 55%,#8a6a12 100%);box-shadow:0 12px 30px -10px rgba(212,160,23,.75),inset 0 1px 0 rgba(255,255,255,.5);}
+      .mkt-soon h2{position:relative;font-size:1.2rem;margin:0 0 8px;}
+      .mkt-soon-sub{position:relative;font-size:.86rem;color:var(--gray,#6b7280);line-height:1.55;max-width:320px;margin:0 auto;}
+      .mkt-steps{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0 4px;}
+      .mkt-step{padding:12px 8px;border-radius:16px;background:rgba(255,255,255,.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.6);font-size:.78rem;font-weight:700;line-height:1.35;}
+      .mkt-step b{display:block;font-size:.95rem;color:#b7860f;margin-bottom:4px;}
+      .mkt-step span{display:block;font-weight:400;color:var(--gray,#6b7280);font-size:.72rem;margin-top:3px;}
+      body.dark .mkt-step{background:rgba(23,29,44,.45);border-color:rgba(255,255,255,.12);}
+      body.dark .mkt-step b{color:#f7e08a;}
+      .mkt-soon-tag{position:relative;display:inline-block;margin-top:16px;padding:6px 14px;border-radius:999px;font-size:.76rem;font-weight:800;color:#8a6a12;background:linear-gradient(135deg,rgba(247,224,138,.75),rgba(212,160,23,.35));border:1px solid rgba(212,160,23,.5);}
+      body.dark .mkt-soon-tag{color:#f7e08a;}
     </style>
     </section>
 
@@ -2573,9 +2586,26 @@ const MKT_ST = { cart: 'Savatda', bought: 'Sotib olindi', delivered: 'Berildi', 
 function mktTs(x){ const t = x && x.createdAt; return t && t.toMillis ? t.toMillis() : 0; }
 function mktSpent(){ return _mkt.orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + (Number(o.price) || 0), 0); }
 function mktBalance(){ return _mkt.earned - mktSpent(); }
+function mktSoonHtml(){
+  return '<div class="mkt mkt-soon">' +
+    '<div class="mkt-soon-ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="#fff" stroke="#fff" stroke-width="1" stroke-linejoin="round"><path d="M12 2.8l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 17.1 6.4 20l1.1-6.2-4.6-4.4 6.3-.9z"/></svg></div>' +
+    '<h2>Market tez kunda ochiladi</h2>' +
+    '<p class="mkt-soon-sub">Pointlaringizni yig‘ing va ko‘paytiring. Market ochilgach, ularni kitoblarga almashtirasiz.</p>' +
+    '<div class="mkt-steps">' +
+      '<div class="mkt-step"><b>1</b>Yig‘ing<span>darslar va uy vazifa uchun</span></div>' +
+      '<div class="mkt-step"><b>2</b>Ko‘paytiring<span>reytingda yuqori turing</span></div>' +
+      '<div class="mkt-step"><b>3</b>Almashtiring<span>kitoblarga</span></div>' +
+    '</div>' +
+    '<span class="mkt-soon-tag">Tez kunda</span>' +
+  '</div>';
+}
 async function mktLoad(){
   const box = document.getElementById('mktBox');
   if(!box || !currentUid) return;
+  box.innerHTML = '<p class="mkt-muted">Yuklanmoqda…</p>';
+  let open = false;
+  try{ const cfg = await db.collection('market_settings').doc('config').get(); open = !!(cfg.exists && cfg.data().open); } catch(e){ open = false; }
+  if(!open){ box.innerHTML = mktSoonHtml(); return; }
   box.innerHTML = '<p class="mkt-muted">Market yuklanmoqda…</p>';
   try{
     const uid = currentUid, code = state.student && state.student.oquvProgressCode ? String(state.student.oquvProgressCode) : '';
