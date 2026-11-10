@@ -118,6 +118,12 @@
   // eq: to‘g‘ri; spell: imlo xatosi (yarim ball); wrong: boshqa so‘z; missing: tushib qolgan; extra: ortiqcha (yarim ball ayriladi)
   function dictDiff(refText, stuText) {
     var R = dictTokens(refText), S2 = dictTokens(stuText);
+    // To‘g‘ri so‘zlarning asl ko‘rinishi (apostrofsiz emas): tuzatishda shu ko‘rinadi
+    var RR = [];
+    (String(refText == null ? '' : refText).match(/\S+/g) || []).forEach(function (ch) {
+      var n = dictTokens(ch).length, clean = ch.replace(/^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu, '');
+      for (var q = 0; q < n; q++) RR.push(clean);
+    });
     var n = R.length, m = S2.length, i, j, k;
     var dp = [];
     for (i = 0; i <= n; i++) dp.push(new Array(m + 1).fill(0));
@@ -131,9 +137,9 @@
       var p = Math.min(run.del.length, run.ins.length);
       for (k = 0; k < p; k++) {
         var r = R[run.del[k]], s = S2[run.ins[k]];
-        ops.push(isSpellingSlip(r, s) ? { t: 'spell', r: r, s: s } : { t: 'wrong', r: r, s: s });
+        ops.push(isSpellingSlip(r, s) ? { t: 'spell', r: r, s: s, rr: RR[run.del[k]] } : { t: 'wrong', r: r, s: s, rr: RR[run.del[k]] });
       }
-      for (k = p; k < run.del.length; k++) ops.push({ t: 'missing', r: R[run.del[k]] });
+      for (k = p; k < run.del.length; k++) ops.push({ t: 'missing', r: R[run.del[k]], rr: RR[run.del[k]] });
       for (k = p; k < run.ins.length; k++) ops.push({ t: 'extra', s: S2[run.ins[k]] });
       run = { del: [], ins: [] };
     }
@@ -147,15 +153,16 @@
     var c = { eq: 0, spell: 0, wrong: 0, missing: 0, extra: 0 };
     ops.forEach(function (o) { c[o.t]++; });
     // Talaba matnidagi har bir so‘z belgisi (o=to‘g‘ri, s=imlo, w=noto‘g‘ri, x=ortiqcha) va tushib qolgan joylar
-    var codes = '', missAt = [];
+    var codes = '', missAt = [], fixes = {}, missW = [];
     ops.forEach(function (o) {
-      if (o.t === 'missing') { missAt.push(codes.length); return; }
+      if (o.t === 'missing') { missAt.push(codes.length); missW.push({ at: codes.length, w: o.rr || o.r }); return; }
+      if (o.t === 'wrong' || o.t === 'spell') fixes[codes.length] = o.rr || o.r;
       codes += o.t === 'eq' ? 'o' : o.t === 'spell' ? 's' : o.t === 'wrong' ? 'w' : 'x';
     });
     var credit = c.eq + 0.5 * c.spell - 0.5 * c.extra;
     var acc = n ? Math.max(0, Math.min(1, credit / n)) : 0;
     return {
-      ops: ops, codes: codes, missAt: missAt, refN: n, eq: c.eq, spell: c.spell, wrong: c.wrong, missing: c.missing, extra: c.extra,
+      ops: ops, codes: codes, missAt: missAt, fixes: fixes, missW: missW, refN: n, eq: c.eq, spell: c.spell, wrong: c.wrong, missing: c.missing, extra: c.extra,
       pct: Math.round(acc * 100), score: acc >= 1 ? DICT_POINTS : Math.floor(acc * DICT_POINTS)
     };
   }
@@ -593,6 +600,9 @@
     });
   }
 
+  // Talaba matnidagi belgilar va to‘g‘ri javoblar (faqat shu talabaning o‘z matni uchun)
+  function annOf(g) { return { c: g.codes, m: g.missAt, f: g.fixes || {}, mw: g.missW || [] }; }
+
   function dictSummary(g) {
     return { refN: g.refN, eq: g.eq, spell: g.spell, wrong: g.wrong, missing: g.missing, extra: g.extra, pct: g.pct };
   }
@@ -606,7 +616,7 @@
       score: g ? g.score : 0, finalScore: g ? g.score : 0,
       submittedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    if (g) { data.ann = { c: g.codes, m: g.missAt }; data.diff = dictSummary(g); }
+    if (g) { data.ann = annOf(g); data.diff = dictSummary(g); }
     return data;
   }
 
@@ -673,19 +683,26 @@
   // Talaba o‘z matnini xatolari bilan ko‘radi: noto‘g‘ri so‘z qizil, imlo sariq, ortiqcha kulrang, tushib qolgan joy "…"
   function annotateText(raw, ann) {
     var chunks = String(raw || '').match(/\S+/g) || [];
-    var codes = String(ann.c || ''), miss = ann.m || [], ti = 0, html = '';
-    var missHere = function () { return miss.indexOf(ti) !== -1; };
-    var marker = '<span class="dd-miss" title="Tushib qolgan so‘z">…</span> ';
+    var codes = String(ann.c || ''), miss = ann.m || [], fix = ann.f || {}, mw = ann.mw || [], ti = 0, html = '';
+    // Tushib qolgan so‘z(lar): to‘g‘ri so‘z yashil ko‘rinadi; eski yozuvlarda faqat belgi
+    var missHtml = function (pos) {
+      var items = mw.filter(function (x) { return x.at === pos; });
+      if (items.length) return items.map(function (x) { return '<span class="dd-fix">' + esc(x.w) + '</span> '; }).join('');
+      return miss.indexOf(pos) !== -1 ? '<span class="dd-miss" title="Tushib qolgan so‘z">…</span> ' : '';
+    };
     chunks.forEach(function (ch) {
       var n = dictTokens(ch).length;
       if (n === 0) { html += esc(ch) + ' '; return; }
-      if (missHere()) html += marker;
+      html += missHtml(ti);
       var cs = codes.substr(ti, n);
-      ti += n;
       var cls = cs.indexOf('w') !== -1 ? 'dd-wrong' : cs.indexOf('x') !== -1 ? 'dd-extra' : cs.indexOf('s') !== -1 ? 'dd-spell' : '';
-      html += cls ? '<span class="' + cls + '">' + esc(ch) + '</span> ' : esc(ch) + ' ';
+      var fixTxt = '';
+      for (var k = 0; k < n && !fixTxt; k++) if (fix[ti + k] !== undefined) fixTxt = fix[ti + k];
+      html += (cls ? '<span class="' + cls + '">' + esc(ch) + '</span>' : esc(ch)) +
+        (fixTxt ? ' <span class="dd-fix">' + esc(fixTxt) + '</span>' : '') + ' ';
+      ti += n;
     });
-    if (missHere()) html += marker;
+    html += missHtml(ti);
     return html;
   }
 
@@ -732,7 +749,7 @@
         '<li class="bad">Tushib qolgan: <b>' + (d.missing || 0) + '</b></li>' +
         '<li class="extra">Ortiqcha: <b>' + (d.extra || 0) + '</b></li>' +
       '</ul>' + textHtml +
-      (sub.ann ? '<p class="lhw-hint">Belgilar: <span class="dd-wrong">noto‘g‘ri so‘z</span> · <span class="dd-spell">imlo xatosi</span> · <span class="dd-extra">ortiqcha</span> · <span class="dd-miss">…</span> tushib qolgan so‘z</p>' : '') +
+      (sub.ann ? '<p class="lhw-hint">Belgilar: <span class="dd-wrong">noto‘g‘ri so‘z</span> · <span class="dd-spell">imlo xatosi</span> · <span class="dd-extra">ortiqcha</span> · <span class="dd-fix">yashil</span> to‘g‘ri javob</p>' : '') +
       '<p class="lhw-hint lhw-ask-teacher">To‘g‘ri matnni o‘qituvchingizdan oling.</p>' +
     '</div>';
     paintDictText(ex, sub);
@@ -792,7 +809,7 @@
     getDictKey(ex.id).then(function (key) {
       var g = key ? dictDiff(key, text) : null;
       var upd = { editedAt: now };
-      if (g) { upd.graded = true; upd.score = g.score; upd.finalScore = g.score; upd.ann = { c: g.codes, m: g.missAt }; upd.diff = dictSummary(g); }
+      if (g) { upd.graded = true; upd.score = g.score; upd.finalScore = g.score; upd.ann = annOf(g); upd.diff = dictSummary(g); }
       else { upd.graded = false; upd.score = 0; upd.finalScore = 0; upd.ann = firebase.firestore.FieldValue.delete(); upd.diff = firebase.firestore.FieldValue.delete(); }
       var b = db.batch();
       b.update(db.collection(COL_TXT).doc(id), { text: text, editedAt: now });
@@ -801,7 +818,7 @@
     }).then(function (g) {
       S.dictText[ex.id] = text;
       var sub = Object.assign({}, S.subs[ex.id], { graded: !!g, score: g ? g.score : 0, finalScore: g ? g.score : 0 });
-      if (g) { sub.ann = { c: g.codes, m: g.missAt }; sub.diff = dictSummary(g); }
+      if (g) { sub.ann = annOf(g); sub.diff = dictSummary(g); }
       else { delete sub.ann; delete sub.diff; }
       S.subs[ex.id] = sub;
       renderDictResult(ex, sub);
@@ -1399,7 +1416,7 @@
         batch.update(d.ref, {
           graded: true, score: r.score, total: DICT_POINTS, finalScore: r.score,
           marks: [], penalty: 0, flagged: false,
-          ann: { c: r.codes, m: r.missAt },
+          ann: annOf(r),
           diff: { refN: r.refN, eq: r.eq, spell: r.spell, wrong: r.wrong, missing: r.missing, extra: r.extra, pct: r.pct },
           gradedAt: Date.now()
         });
