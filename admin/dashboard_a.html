@@ -907,6 +907,10 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <span class="nav-label">Caller</span>
         <span id="navCallerBadge" class="notif-badge" hidden>0</span>
       </a></li>
+<li data-sec="natijalar"><a href="#" id="navMarket">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="nav-label">Market</span>
+      </a></li>
 <li data-sec="aloqa"><a href="#" id="navAnketa">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
         <span class="nav-label">Guruh Anketa</span>
@@ -2917,6 +2921,33 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
 
     <!-- ===== GURUH ANKETA ===== -->
+    <section id="view-market" hidden>
+      <div class="oj-header">
+        <div>
+          <h1>Market</h1>
+          <p>Talabalar pointlariga sotib olinadigan kitoblar va buyurtmalar. Kim nimani sotib olganini shu yerda ko'rasiz.</p>
+        </div>
+      </div>
+      <div class="home-section-card" style="padding:16px;margin-bottom:16px;">
+        <h3 style="margin:0 0 10px;">Yangi kitob</h3>
+        <div style="display:grid;grid-template-columns:2fr 2fr 1fr auto;gap:10px;align-items:end;">
+          <label>Kitob nomi<input type="text" id="mktTitle" maxlength="120"></label>
+          <label>Rasm havolasi (ixtiyoriy)<input type="url" id="mktImg" placeholder="https://..."></label>
+          <label>Narxi (point)<input type="number" id="mktPrice" min="1" step="1"></label>
+          <button class="btn btn-primary" id="mktAddBtn" type="button">Qo'shish</button>
+        </div>
+        <p id="mktFormErr" class="form-error" role="alert" hidden></p>
+      </div>
+      <div class="home-section-card" style="padding:16px;margin-bottom:16px;">
+        <h3 style="margin:0 0 10px;">Katalog</h3>
+        <div id="mktItems"></div>
+      </div>
+      <div class="home-section-card" style="padding:16px;">
+        <h3 style="margin:0 0 4px;">Buyurtmalar</h3>
+        <p id="mktSummary" style="color:var(--gray);font-size:.85rem;margin:0 0 10px;"></p>
+        <div id="mktOrders"></div>
+      </div>
+    </section>
     <section id="view-anketa" hidden>
       <div class="oj-header">
         <div>
@@ -4994,6 +5025,7 @@ const ADMIN_VIEW_NAV_MAP = {
   'oquv-progress': 'navOquvJarayoni',
   'stats': 'navStats',
   'points': 'navPoints',
+  'market': 'navMarket',
   'gradebook': 'navGradebook',
   'teachers': 'navTeachers',
   'broadcast': 'navBroadcast',
@@ -5056,6 +5088,8 @@ function switchView(view){
   document.getElementById('view-site-settings').hidden = view !== 'site-settings';
   document.getElementById('view-kundalik').hidden = view !== 'kundalik';
   document.getElementById('view-listening-hw').hidden = view !== 'listening-hw';
+  document.getElementById('view-market').hidden = view !== 'market';
+  document.getElementById('navMarket').classList.toggle('active', view === 'market');
   document.getElementById('navListeningHw').classList.toggle('active', view === 'listening-hw');
   document.getElementById('view-student-progress').hidden = view !== 'student-progress';
   document.getElementById('view-oquv-groups').hidden = view !== 'oquv-groups';
@@ -15914,6 +15948,69 @@ $('crlStuBody').addEventListener('click', e => {
   });
 
   return { open: open };
+})();
+
+// ===== MARKET (admin): kitoblar katalogi va buyurtmalar =====
+let _mktAItems = [], _mktAOrders = [];
+const MKT_AST = { cart: 'Savatda', bought: 'Sotib olindi', delivered: 'Berildi', cancelled: 'Bekor qilindi' };
+function mktATs(x){ const t = x && x.createdAt; return t && t.toMillis ? t.toMillis() : 0; }
+function mktADate(x){ const t = x && x.createdAt; return t && t.toDate ? t.toDate().toLocaleDateString('uz-UZ') : ''; }
+async function mktAdminLoad(){
+  const [i, o] = await Promise.all([db.collection('market_items').get(), db.collection('market_orders').get()]);
+  _mktAItems = i.docs.map(d => Object.assign({ id: d.id }, d.data()))
+    .sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+  _mktAOrders = o.docs.map(d => Object.assign({ id: d.id }, d.data())).sort((a, b) => mktATs(b) - mktATs(a));
+  mktAdminRender();
+}
+function mktAdminRender(){
+  const itemsEl = document.getElementById('mktItems'), ordersEl = document.getElementById('mktOrders'), sumEl = document.getElementById('mktSummary');
+  if(!itemsEl || !ordersEl) return;
+  itemsEl.innerHTML = _mktAItems.length
+    ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Kitob</th><th>Narxi</th><th>Holat</th><th></th></tr></thead><tbody>' +
+      _mktAItems.map(x => '<tr><td>' + escapeHtml(x.title || '') + '</td><td>' + (Number(x.price) || 0) + ' point</td>' +
+        '<td><button class="btn btn-ghost btn-sm" data-mkt-toggle="' + escapeHtml(x.id) + '" data-active="' + (x.active !== false) + '">' + (x.active !== false ? 'Faol' : 'Yashirilgan') + '</button></td>' +
+        '<td><button class="btn btn-ghost btn-sm" data-mkt-del="' + escapeHtml(x.id) + '" style="color:#dc2626;">O‘chirish</button></td></tr>').join('') +
+      '</tbody></table></div>'
+    : '<p class="ind-empty">Hali kitob qo‘shilmagan.</p>';
+  const toBuy = _mktAOrders.filter(o => o.status === 'cart' || o.status === 'bought');
+  sumEl.textContent = 'Jami buyurtma: ' + _mktAOrders.length + ' ta · Sotib olish kerak (savatda yoki sotib olingan): ' +
+    toBuy.length + ' ta, ' + toBuy.reduce((s, o) => s + (Number(o.price) || 0), 0) + ' point';
+  ordersEl.innerHTML = _mktAOrders.length
+    ? '<div class="table-wrap"><table class="data-table"><thead><tr><th>Talaba</th><th>Kitob</th><th>Point</th><th>Sana</th><th>Holat</th></tr></thead><tbody>' +
+      _mktAOrders.map(o => '<tr><td>' + escapeHtml(o.studentName || o.studentId || '') + '</td><td>' + escapeHtml(o.title || '') + '</td>' +
+        '<td>' + (Number(o.price) || 0) + '</td><td>' + escapeHtml(mktADate(o)) + '</td><td>' +
+        '<select data-mkt-status="' + escapeHtml(o.id) + '">' + Object.keys(MKT_AST).map(k => '<option value="' + k + '"' + (o.status === k ? ' selected' : '') + '>' + MKT_AST[k] + '</option>').join('') + '</select></td></tr>').join('') +
+      '</tbody></table></div>'
+    : '<p class="ind-empty">Hali buyurtma yo‘q.</p>';
+}
+(function mktAdminInit(){
+  const view = document.getElementById('view-market');
+  if(!view) return;
+  document.getElementById('navMarket').addEventListener('click', e => { e.preventDefault(); switchView('market'); mktAdminLoad(); });
+  document.getElementById('mktAddBtn').addEventListener('click', async () => {
+    const err = document.getElementById('mktFormErr');
+    const title = document.getElementById('mktTitle').value.trim();
+    const img = document.getElementById('mktImg').value.trim();
+    const price = Math.round(Number(document.getElementById('mktPrice').value));
+    err.hidden = true;
+    if(!title){ err.textContent = 'Kitob nomini yozing.'; err.hidden = false; return; }
+    if(!(price > 0)){ err.textContent = 'Narxni point bilan to‘g‘ri kiriting.'; err.hidden = false; return; }
+    try{
+      await db.collection('market_items').add({ title: title, imageUrl: img, price: price, active: true, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      document.getElementById('mktTitle').value = ''; document.getElementById('mktImg').value = ''; document.getElementById('mktPrice').value = '';
+      mktAdminLoad();
+    } catch(e){ err.textContent = 'Saqlanmadi: ' + e.message; err.hidden = false; }
+  });
+  view.addEventListener('click', async e => {
+    const t = e.target.closest('[data-mkt-toggle]');
+    if(t){ await db.collection('market_items').doc(t.dataset.mktToggle).update({ active: t.dataset.active !== 'true' }); mktAdminLoad(); return; }
+    const d = e.target.closest('[data-mkt-del]');
+    if(d && confirm('Kitobni katalogdan o‘chirasizmi? Eski buyurtmalar saqlanib qoladi.')){ await db.collection('market_items').doc(d.dataset.mktDel).delete(); mktAdminLoad(); }
+  });
+  view.addEventListener('change', async e => {
+    const s = e.target.closest('[data-mkt-status]');
+    if(s){ await db.collection('market_orders').doc(s.dataset.mktStatus).update({ status: s.value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }); mktAdminLoad(); }
+  });
 })();
 
 // ===== GURUH ANKETA =====
