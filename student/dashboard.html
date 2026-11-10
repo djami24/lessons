@@ -1834,10 +1834,20 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 
     <section id="view-definition" hidden>
     <style>
-      #view-definition .def-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:6px;}
-      #view-definition .def-unit{border:1px solid rgba(255,255,255,.6);border-radius:16px;padding:14px 10px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:4px;background:rgba(255,255,255,.42);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);font:inherit;color:inherit;}
-      #view-definition .def-unit b{font-size:.95rem;}
-      #view-definition .def-unit span{font-size:.76rem;color:var(--gray,#6b7280);}
+      #view-definition .def-head{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+      #view-definition .def-ic{width:44px;height:44px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#5b8cff 0%,#2f5fd8 100%);box-shadow:0 10px 22px -10px rgba(47,95,216,.8),inset 0 1px 0 rgba(255,255,255,.4);}
+      #view-definition .def-lv{display:flex;align-items:center;gap:8px;margin:18px 0 10px;font-size:.78rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gray,#6b7280);}
+      #view-definition .def-lv i{font-style:normal;font-size:.7rem;padding:2px 8px;border-radius:999px;background:rgba(47,95,216,.12);color:#1d4ed8;letter-spacing:0;text-transform:none;}
+      #view-definition .def-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+      #view-definition .def-unit{border:1px solid rgba(255,255,255,.65);border-radius:18px;padding:12px;cursor:pointer;text-align:left;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.5);backdrop-filter:blur(14px) saturate(150%);-webkit-backdrop-filter:blur(14px) saturate(150%);box-shadow:0 8px 22px -14px rgba(31,38,135,.35);font:inherit;color:inherit;transition:transform .15s ease;}
+      #view-definition .def-unit:active{transform:scale(.98);}
+      #view-definition .def-badge{width:40px;height:40px;border-radius:13px;flex:none;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1rem;color:#fff;background:linear-gradient(135deg,#f7e08a 0%,#d4a017 60%,#b7860f 100%);box-shadow:0 8px 16px -8px rgba(212,160,23,.8),inset 0 1px 0 rgba(255,255,255,.45);}
+      #view-definition .def-txt{display:flex;flex-direction:column;min-width:0;flex:1;}
+      #view-definition .def-txt b{font-size:.92rem;}
+      #view-definition .def-txt small{font-size:.74rem;color:var(--gray,#6b7280);margin-top:2px;}
+      #view-definition .def-chev{color:var(--gray,#6b7280);flex:none;}
+      body.dark #view-definition .def-unit{background:rgba(23,29,44,.45);border-color:rgba(255,255,255,.12);}
+      body.dark #view-definition .def-lv i{background:rgba(125,162,255,.16);color:#7da2ff;}
       #view-definition .def-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;margin-bottom:8px;border-radius:14px;background:rgba(255,255,255,.42);border:1px solid rgba(255,255,255,.6);cursor:pointer;font-size:.92rem;}
       #view-definition .def-en{font-weight:800;}
       #view-definition .def-num{display:inline-block;min-width:26px;color:var(--gray,#6b7280);font-weight:700;font-size:.8rem;}
@@ -7774,7 +7784,8 @@ try{
     if(la !== lb) return la - lb;
     return (parseFloat(a.unit) || 0) - (parseFloat(b.unit) || 0) || String(a.unit).localeCompare(String(b.unit));
   }
-  const headHtml = '<div class="mkt-head"><h2>Definition</h2></div><p class="mkt-muted">Unitni tanlang va so‘zlarni yodlang. Tarjimani ko‘rish uchun so‘z ustiga bosing.</p>';
+  const headHtml = '<div class="def-head"><div class="def-ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg></div><div><h2 style="margin:0;">Definition</h2><p class="mkt-muted" style="margin:2px 0 0;">Unitni tanlang va so‘zlarni yodlang.</p></div></div>';
+  const chevSvg = '<svg class="def-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
 
   window.defLoad = async function(){
     const box = document.getElementById('defBox');
@@ -7828,11 +7839,17 @@ try{
     if(!_def.sets.length){ box.innerHTML = headHtml + '<p class="mkt-muted">Hali lug‘at qo‘shilmagan.</p>'; return; }
     const levels = [];
     _def.sets.forEach(s => { if(levels.indexOf(s.level) === -1) levels.push(s.level); });
-    box.innerHTML = headHtml + levels.map(lv =>
-      '<h3>' + dEsc(lv || 'Daraja') + '</h3><div class="def-grid">' +
-      _def.sets.filter(s => s.level === lv).map(s =>
-        '<button type="button" class="def-unit" data-def-open="' + dEsc(s.id) + '"><b>Unit ' + dEsc(s.unit) + '</b><span>' + ((s.words || []).length) + ' ta so‘z</span></button>'
-      ).join('') + '</div>').join('');
+    box.innerHTML = headHtml + levels.map(lv => {
+      const list = _def.sets.filter(s => s.level === lv);
+      return '<div class="def-lv">' + dEsc(lv || 'Daraja') + ' <i>' + list.length + ' ta unit</i></div><div class="def-grid">' +
+        list.map(s =>
+          '<button type="button" class="def-unit" data-def-open="' + dEsc(s.id) + '">' +
+            '<span class="def-badge">' + dEsc(s.unit) + '</span>' +
+            '<span class="def-txt"><b>Unit ' + dEsc(s.unit) + '</b><small>' + ((s.words || []).length) + ' ta so‘z</small></span>' +
+            chevSvg +
+          '</button>'
+        ).join('') + '</div>';
+    }).join('');
   }
 
   const box = document.getElementById('defBox');
