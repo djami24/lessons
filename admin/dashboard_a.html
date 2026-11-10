@@ -2959,6 +2959,12 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <p>Talabalar pointlariga sotib olinadigan kitoblar va buyurtmalar. Kim nimani sotib olganini shu yerda ko'rasiz.</p>
         </div>
       </div>
+      <div class="home-section-card mka-box mka-status">
+        <div class="mka-row" style="border:0;padding:0;">
+          <div><h3 style="margin:0 0 4px;">Market holati</h3><span id="mktStatusTxt" class="mka-note" style="margin:0;"></span></div>
+          <button class="btn btn-primary mka-btn" id="mktToggleOpen" type="button" data-open="false">Marketni ochish</button>
+        </div>
+      </div>
       <div class="mka-top">
         <div class="home-section-card mka-box">
           <h3>Yangi kitob</h3>
@@ -2974,7 +2980,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="home-section-card mka-box">
           <h3>Talabaga point berish</h3>
           <div class="mka-form g">
-            <label class="mka-f">Talaba<select id="mktGrantStu"></select></label>
+            <label class="mka-f">Talaba ID si<input type="text" id="mktGrantStu" placeholder="Talaba ID sini kiriting" autocomplete="off"></label>
             <label class="mka-f">Point<input type="number" id="mktGrantPts" step="1"></label>
             <label class="mka-f">Sabab (ixtiyoriy)<input type="text" id="mktGrantReason" maxlength="120"></label>
             <button class="btn btn-primary mka-btn" id="mktGrantBtn" type="button">Berish</button>
@@ -16484,6 +16490,7 @@ document.getElementById('callerDeleteAllDoneBtn').addEventListener('click', func
 (function(){
 try{
   let _mktAItems = [], _mktAOrders = [], _mktAGrants = [], _mktAStudents = [];
+  let _mktAOpen = false;
   const MKT_AST = { cart: 'Savatda', bought: 'Sotib olindi', delivered: 'Berildi', cancelled: 'Bekor qilindi' };
   function tsOf(x){ const t = x && x.createdAt; return t && t.toMillis ? t.toMillis() : 0; }
   function dateOf(x){ const t = x && x.createdAt; return t && t.toDate ? t.toDate().toLocaleDateString('uz-UZ') : ''; }
@@ -16507,20 +16514,17 @@ try{
       _mktAStudents = s.docs.map(d => ({ id: d.id, name: d.data().name || d.data().email || d.id }))
         .sort((a, b) => String(a.name).localeCompare(String(b.name)));
     } catch(e){ _mktAStudents = []; }
+    try{ const cfg = await db.collection('market_settings').doc('config').get(); _mktAOpen = !!(cfg.exists && cfg.data().open); } catch(e){ _mktAOpen = false; }
     render();
   }
 
   function render(){
     const itemsEl = document.getElementById('mktItems'), ordersEl = document.getElementById('mktOrders');
     const grantsEl = document.getElementById('mktGrants'), sumEl = document.getElementById('mktSummary');
-    const stuSel = document.getElementById('mktGrantStu');
     if(!itemsEl || !ordersEl) return;
-    if(stuSel){
-      const keep = stuSel.value;
-      stuSel.innerHTML = '<option value="">Talabani tanlang</option>' +
-        _mktAStudents.map(x => '<option value="' + escapeHtml(x.id) + '">' + escapeHtml(x.name) + '</option>').join('');
-      stuSel.value = keep;
-    }
+    const tg = document.getElementById('mktToggleOpen'), tst = document.getElementById('mktStatusTxt');
+    if(tg){ tg.textContent = _mktAOpen ? 'Marketni yopish' : 'Marketni ochish'; tg.dataset.open = String(_mktAOpen); }
+    if(tst){ tst.textContent = _mktAOpen ? 'Ochiq: talabalar marketdan xarid qila oladi.' : 'Yopiq: talabalar "Tez kunda" sahifasini ko‘radi.'; }
     itemsEl.innerHTML = _mktAItems.length
       ? '<div class="mka-grid">' + _mktAItems.map(x => {
           const on = x.active !== false;
@@ -16584,21 +16588,26 @@ try{
 
   document.getElementById('mktGrantBtn').addEventListener('click', async () => {
     const err = document.getElementById('mktGrantErr');
-    const sel = document.getElementById('mktGrantStu');
+    const sid = document.getElementById('mktGrantStu').value.trim();
     const pts = Math.round(Number(document.getElementById('mktGrantPts').value));
     const reason = document.getElementById('mktGrantReason').value.trim();
     err.hidden = true;
-    if(!sel.value){ err.textContent = 'Talabani tanlang.'; err.hidden = false; return; }
+    if(!sid){ err.textContent = 'Talaba ID sini kiriting.'; err.hidden = false; return; }
+    const stu = _mktAStudents.find(x => x.id === sid);
+    if(!stu){ err.textContent = 'Bu ID bilan talaba topilmadi.'; err.hidden = false; return; }
     if(!pts){ err.textContent = 'Pointni to‘g‘ri kiriting (0 emas).'; err.hidden = false; return; }
-    const stu = _mktAStudents.find(x => x.id === sel.value);
     try{
-      await db.collection('market_grants').add({ studentId: sel.value, studentName: stu ? stu.name : '', points: pts, reason: reason, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      await db.collection('market_grants').add({ studentId: sid, studentName: stu.name, points: pts, reason: reason, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
       document.getElementById('mktGrantPts').value = ''; document.getElementById('mktGrantReason').value = '';
       load();
     } catch(e){ err.textContent = 'Saqlanmadi: ' + e.message; err.hidden = false; }
   });
 
   view.addEventListener('click', async e => {
+    if(e.target.closest('#mktToggleOpen')){
+      await db.collection('market_settings').doc('config').set({ open: !_mktAOpen, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      load(); return;
+    }
     const t = e.target.closest('[data-mkt-toggle]');
     if(t){ await db.collection('market_items').doc(t.dataset.mktToggle).update({ active: t.dataset.active !== 'true' }); load(); return; }
     const d = e.target.closest('[data-mkt-del]');
