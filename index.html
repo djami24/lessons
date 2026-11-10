@@ -45,6 +45,11 @@ body.home-body{--font-body:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Seg
 .hm-stat:first-child{border-left:0;padding-left:0;}
 .hm-stat strong{display:block;font-family:var(--font-display);font-size:1.9rem;font-weight:900;line-height:1.1;color:var(--ink);}
 .hm-stat span{display:block;margin-top:.45em;color:var(--gray);font-size:.93rem;line-height:1.45;}
+.hm-live{display:inline-flex;align-items:center;gap:.55em;padding:.45em 1em .45em .75em;border-radius:999px;background:rgba(255,255,255,.75);border:1px solid var(--line);font-size:.9rem;color:var(--ink);margin-bottom:1.2em;box-shadow:0 6px 18px -10px rgba(31,38,135,.35);}
+.hm-live b{font-weight:800;color:#1d4ed8;font-variant-numeric:tabular-nums;}
+.hm-live[hidden]{display:none;}
+.hm-live-dot{width:9px;height:9px;border-radius:50%;background:#22c55e;animation:hmLivePulse 1.8s infinite;}
+@keyframes hmLivePulse{0%{box-shadow:0 0 0 0 rgba(34,197,94,.6);}70%{box-shadow:0 0 0 9px rgba(34,197,94,0);}100%{box-shadow:0 0 0 0 rgba(34,197,94,0);}}
 .hm-sec{width:100%;margin-top:5em;}
 .hm-h2{font-family:var(--font-display);font-weight:900;font-size:clamp(1.5rem,3vw,2rem);color:var(--ink);margin:0 0 1.1em;}
 .hm-tools,.hm-access{display:grid;grid-template-columns:1fr 1fr;gap:1.2em;}
@@ -298,6 +303,7 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
 
   <section class="hm-hero">
     <div class="hm-hero-copy">
+      <div class="hm-live" id="hmLive" hidden><span class="hm-live-dot" aria-hidden="true"></span><span>Hozir saytda: <b id="hmLiveN">0</b> kishi</span></div>
       <h1 class="hm-title" data-site-hero-title>Ingliz tilini o‘rganishning zamonaviy platformasi</h1>
       <p class="hm-lead" data-site-hero-lead>General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
       <div class="hm-cta">
@@ -1082,6 +1088,43 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
     el.style.setProperty("--rv-d",(Math.min(n,4)*0.09).toFixed(2)+"s");
     io.observe(el);
   });
+})();
+</script>
+<script>
+// ===== Jonli: saytda hozir faol bo'lgan tashriflar soni =====
+(function(){
+  var HB_MS = 60000, WINDOW_MS = 150000, POLL_MS = 20000;
+  var wrap = document.getElementById('hmLive'), out = document.getElementById('hmLiveN');
+  if(!wrap || !out || typeof db === 'undefined' || !db || !window.firebase) return;
+  var sid;
+  try{
+    sid = sessionStorage.getItem('siteVisitorId');
+    if(!sid){
+      sid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+      sessionStorage.setItem('siteVisitorId', sid);
+    }
+  } catch(e){ sid = Date.now().toString(36) + Math.random().toString(36).slice(2); }
+  var col = db.collection('site_presence');
+  var ref = col.doc(sid);
+  function beat(){
+    if(document.visibilityState !== 'visible') return;
+    ref.set({ lastSeen: firebase.firestore.FieldValue.serverTimestamp() }).catch(function(){});
+  }
+  function leave(){ ref.delete().catch(function(){}); }
+  function count(){
+    var cutoff = firebase.firestore.Timestamp.fromMillis(Date.now() - WINDOW_MS);
+    var q = col.where('lastSeen', '>', cutoff);
+    var p = q.count ? q.count().get().then(function(s){ return s.data().count; })
+                    : q.get().then(function(s){ return s.size; });
+    p.then(function(n){ out.textContent = n; wrap.hidden = false; }).catch(function(){});
+  }
+  beat(); count();
+  setInterval(beat, HB_MS);
+  setInterval(count, POLL_MS);
+  document.addEventListener('visibilitychange', function(){
+    if(document.visibilityState === 'visible'){ beat(); count(); } else { leave(); }
+  });
+  window.addEventListener('pagehide', leave);
 })();
 </script>
 </body>
