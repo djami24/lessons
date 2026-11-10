@@ -587,6 +587,29 @@
       : '<a class="lhw-media" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Audioni ochish</a>';
   }
 
+  function getDictKey(exId) {
+    return db.collection(COL_KEY).doc(exId).get().then(function (s) {
+      return s.exists ? String((s.data() || {}).transcript || '') : null;
+    });
+  }
+
+  function dictSummary(g) {
+    return { refN: g.refN, eq: g.eq, spell: g.spell, wrong: g.wrong, missing: g.missing, extra: g.extra, pct: g.pct };
+  }
+
+  // Asl matn bor bo‘lsa: javob darhol baholanadi; yo‘q bo‘lsa: admin tekshirguncha "Tekshirilmoqda"
+  function dictSubData(ex, key, text) {
+    var g = key ? dictDiff(key, text) : null;
+    var data = {
+      exerciseId: ex.id, studentId: S.uid, studentName: S.name, groupId: S.groupId || '',
+      kind: 'dictation', graded: !!g, answers: [], marks: [], total: DICT_POINTS, penalty: 0, flagged: false,
+      score: g ? g.score : 0, finalScore: g ? g.score : 0,
+      submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+    if (g) { data.ann = { c: g.codes, m: g.missAt }; data.diff = dictSummary(g); }
+    return data;
+  }
+
   function renderDictBody(ex, sub) {
     var area = document.getElementById('lhwFormArea');
     if (!area) return;
@@ -627,16 +650,13 @@
     var txtRef = db.collection(COL_TXT).doc(id);
     subRef.get().then(function (snap) {
       if (snap.exists) return snap.data();
-      var data = {
-        exerciseId: ex.id, studentId: S.uid, studentName: S.name, groupId: S.groupId || '',
-        kind: 'dictation', graded: false, answers: [], marks: [], score: 0, total: DICT_POINTS,
-        penalty: 0, finalScore: 0, flagged: false,
-        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
-      };
-      var batch = db.batch();
-      batch.set(txtRef, { exerciseId: ex.id, studentId: S.uid, text: text, submittedAt: data.submittedAt });
-      batch.set(subRef, data);
-      return batch.commit().then(function () { return data; });
+      return getDictKey(ex.id).then(function (key) {
+        var data = dictSubData(ex, key, text);
+        var batch = db.batch();
+        batch.set(txtRef, { exerciseId: ex.id, studentId: S.uid, text: text, submittedAt: data.submittedAt });
+        batch.set(subRef, data);
+        return batch.commit().then(function () { return data; });
+      });
     }).then(function (data) {
       S.subs[ex.id] = data;
       S.dictText[ex.id] = text;
@@ -769,12 +789,20 @@
     var id = ex.id + '_' + S.uid;
     var now = firebase.firestore.FieldValue.serverTimestamp();
     var batch = db.batch();
-    batch.update(db.collection(COL_TXT).doc(id), { text: text, editedAt: now });
-    // Tahrirdan keyin ball nolga tushadi: admin qayta tekshirgunchi reytingda hisobga olinmaydi
-    batch.update(db.collection(COL_SUB).doc(id), { graded: false, score: 0, finalScore: 0, editedAt: now, ann: firebase.firestore.FieldValue.delete() });
-    batch.commit().then(function () {
+    getDictKey(ex.id).then(function (key) {
+      var g = key ? dictDiff(key, text) : null;
+      var upd = { editedAt: now };
+      if (g) { upd.graded = true; upd.score = g.score; upd.finalScore = g.score; upd.ann = { c: g.codes, m: g.missAt }; upd.diff = dictSummary(g); }
+      else { upd.graded = false; upd.score = 0; upd.finalScore = 0; upd.ann = firebase.firestore.FieldValue.delete(); upd.diff = firebase.firestore.FieldValue.delete(); }
+      var b = db.batch();
+      b.update(db.collection(COL_TXT).doc(id), { text: text, editedAt: now });
+      b.update(db.collection(COL_SUB).doc(id), upd);
+      return b.commit().then(function () { return g; });
+    }).then(function (g) {
       S.dictText[ex.id] = text;
-      var sub = Object.assign({}, S.subs[ex.id], { graded: false, score: 0, finalScore: 0 });
+      var sub = Object.assign({}, S.subs[ex.id], { graded: !!g, score: g ? g.score : 0, finalScore: g ? g.score : 0 });
+      if (g) { sub.ann = { c: g.codes, m: g.missAt }; sub.diff = dictSummary(g); }
+      else { delete sub.ann; delete sub.diff; }
       S.subs[ex.id] = sub;
       renderDictResult(ex, sub);
     }).catch(function (e) {
