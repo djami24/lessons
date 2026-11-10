@@ -286,3 +286,28 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .lhw-res-ex{ border:1px solid var(--lhw-line); border-radius:14px; padding:12px; }
 .lhw-res-ex.none{ opacity:.65; }
 .lhw-res-ex-h{ display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:4px; }
+
+/* ===== Eshitib yozish (dikta) ===== */
+.lhw-dict-btn{display:inline-block;margin-left:8px;padding:3px 10px;border-radius:999px;font-size:.72rem;font-weight:800;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,#f59e0b,#d97706);vertical-align:middle;}
+.lhw-audio{width:100%;margin:10px 0;}
+.lhw-protect{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+.lhw-protect textarea{-webkit-user-select:text;user-select:text;}
+.lhw-dict-ta{width:100%;box-sizing:border-box;min-height:200px;padding:12px;border:1.5px solid #e5e7eb;border-radius:14px;font:inherit;resize:vertical;background:#fff;color:inherit;}
+.lhw-dict-stats{list-style:none;padding:0;margin:10px 0;display:flex;flex-wrap:wrap;gap:8px;}
+.lhw-dict-stats li{padding:6px 10px;border-radius:10px;font-size:.84rem;background:#f3f4f6;}
+.lhw-dict-stats li.ok{background:rgba(31,174,122,.14);color:#1FAE7A;}
+.lhw-dict-stats li.spell{background:rgba(232,137,12,.14);color:#B45309;}
+.lhw-dict-stats li.bad{background:rgba(229,72,77,.12);color:#E5484D;}
+.lhw-dict-stats li.extra{background:rgba(120,120,130,.16);color:#6B7280;}
+.lhw-dict-mine{margin-top:12px;}
+.lhw-dict-text{white-space:pre-wrap;margin-top:6px;padding:10px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;}
+.lhw-pend{background:rgba(232,137,12,.14);color:#B45309;}
+.lhw-dict-diff{line-height:2.1;padding:12px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;margin-top:8px;}
+.dd-eq{color:#1f2937;}
+.dd-spell{color:#B45309;background:rgba(232,137,12,.16);border-radius:4px;padding:0 3px;}
+.dd-wrong{color:#E5484D;text-decoration:line-through;padding:0 2px;}
+.dd-fix{color:#1FAE7A;font-weight:700;padding:0 3px;}
+.dd-miss{color:#fff;background:#E5484D;border-radius:4px;padding:0 4px;}
+.dd-extra{color:#6B7280;text-decoration:line-through;}
+.lhw-missing{margin:6px 0 0;padding-left:18px;columns:2;}
+.lhw-notsub{margin-top:14px;}
