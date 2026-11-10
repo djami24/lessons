@@ -36,6 +36,8 @@
   var COL_TXT = 'listening_texts';
   var DICT_MAX = 3000;
   var DICT_POINTS = 5;
+  var DICT_MIN_PCT = 75;   // matnning kamida shu foizi to‘g‘ri bo‘lishi kerak
+  var DICT_PENALTY = 100;  // chala bajarilganda jazo (ball hisobga olinmaydi)
 
   /* ---------- yordamchilar ---------- */
 
@@ -163,7 +165,8 @@
     var acc = n ? Math.max(0, Math.min(1, credit / n)) : 0;
     return {
       ops: ops, codes: codes, missAt: missAt, fixes: fixes, missW: missW, refN: n, eq: c.eq, spell: c.spell, wrong: c.wrong, missing: c.missing, extra: c.extra,
-      pct: Math.round(acc * 100), score: acc >= 1 ? DICT_POINTS : Math.floor(acc * DICT_POINTS)
+      pct: Math.round(acc * 100), ok: Math.round(acc * 100) >= DICT_MIN_PCT,
+      score: Math.round(acc * 100) < DICT_MIN_PCT ? 0 : (acc >= 1 ? DICT_POINTS : Math.floor(acc * DICT_POINTS))
     };
   }
 
@@ -446,7 +449,7 @@
       }
       var badge = sub
         ? (sub.penalty
-            ? '<span class="lhw-badge bad" style="background:rgba(229,72,77,.12);color:#E5484D;">Taxmin: ' + sub.penalty + ' ta jazo</span>'
+            ? '<span class="lhw-badge bad" style="background:rgba(229,72,77,.12);color:#E5484D;">' + (sub.kind === 'dictation' ? 'Chala bajarilgan' : 'Taxmin') + ': ' + sub.penalty + ' ta jazo</span>'
             : '<span class="lhw-badge done" style="background:rgba(31,174,122,.14);color:#1FAE7A;">' + (sub.score || 0) + '/' + subCount(sub) + ' ball</span>')
         : (expired
             ? '<span class="lhw-badge todo" style="background:rgba(120,120,130,.18);color:#6B7280;">Yopilgan</span>'
@@ -604,7 +607,16 @@
   function annOf(g) { return { c: g.codes, m: g.missAt, f: g.fixes || {}, mw: g.missW || [] }; }
 
   function dictSummary(g) {
-    return { refN: g.refN, eq: g.eq, spell: g.spell, wrong: g.wrong, missing: g.missing, extra: g.extra, pct: g.pct };
+    return { refN: g.refN, eq: g.eq, spell: g.spell, wrong: g.wrong, missing: g.missing, extra: g.extra, pct: g.pct, ok: !!g.ok };
+  }
+
+  // Baholangan javobning barcha maydonlari (ball, jazo, belgilar)
+  function dictFields(g) {
+    return {
+      graded: true, score: g.score, finalScore: g.score,
+      penalty: g.ok ? 0 : DICT_PENALTY, flagged: !g.ok,
+      ann: annOf(g), diff: dictSummary(g)
+    };
   }
 
   // Asl matn bor bo‘lsa: javob darhol baholanadi; yo‘q bo‘lsa: admin tekshirguncha "Tekshirilmoqda"
@@ -616,7 +628,7 @@
       score: g ? g.score : 0, finalScore: g ? g.score : 0,
       submittedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
-    if (g) { data.ann = annOf(g); data.diff = dictSummary(g); }
+    if (g) Object.assign(data, dictFields(g));
     return data;
   }
 
@@ -741,6 +753,7 @@
     var d = sub.diff || {};
     area.innerHTML = '<div class="lhw-result">' +
       '<div class="lhw-score-big">' + (sub.score || 0) + '<span>/' + DICT_POINTS + '</span></div>' +
+      (sub.penalty ? '<div class="lhw-warn">Chala bajarilgan: matnning kamida ' + DICT_MIN_PCT + '% ini to‘g‘ri yozish kerak edi. Ball hisobga olinmadi, ' + sub.penalty + ' ta jazo qayd etildi.</div>' : '') +
       '<p class="lhw-muted">Aniqlik: <b>' + (d.pct || 0) + '%</b>. Natija topshirilgan: o‘zgartirib bo‘lmaydi.</p>' +
       '<ul class="lhw-dict-stats">' +
         '<li class="ok">To‘g‘ri: <b>' + (d.eq || 0) + '</b></li>' +
@@ -809,8 +822,8 @@
     getDictKey(ex.id).then(function (key) {
       var g = key ? dictDiff(key, text) : null;
       var upd = { editedAt: now };
-      if (g) { upd.graded = true; upd.score = g.score; upd.finalScore = g.score; upd.ann = annOf(g); upd.diff = dictSummary(g); }
-      else { upd.graded = false; upd.score = 0; upd.finalScore = 0; upd.ann = firebase.firestore.FieldValue.delete(); upd.diff = firebase.firestore.FieldValue.delete(); }
+      if (g) Object.assign(upd, dictFields(g));
+      else { upd.graded = false; upd.score = 0; upd.finalScore = 0; upd.penalty = 0; upd.flagged = false; upd.ann = firebase.firestore.FieldValue.delete(); upd.diff = firebase.firestore.FieldValue.delete(); }
       var b = db.batch();
       b.update(db.collection(COL_TXT).doc(id), { text: text, editedAt: now });
       b.update(db.collection(COL_SUB).doc(id), upd);
@@ -818,7 +831,7 @@
     }).then(function (g) {
       S.dictText[ex.id] = text;
       var sub = Object.assign({}, S.subs[ex.id], { graded: !!g, score: g ? g.score : 0, finalScore: g ? g.score : 0 });
-      if (g) { sub.ann = annOf(g); sub.diff = dictSummary(g); }
+      if (g) Object.assign(sub, dictFields(g));
       else { delete sub.ann; delete sub.diff; }
       S.subs[ex.id] = sub;
       renderDictResult(ex, sub);
@@ -909,6 +922,7 @@
           '<label class="lhw-field lhw-dict-field lhw-check" style="display:none;"><input type="checkbox" id="lhwAllowCopy"> <span>Talaba matnni nusxalay olsin</span></label>' +
           '<label class="lhw-field lhw-dict-field lhw-check" style="display:none;"><input type="checkbox" id="lhwAllowEdit"> <span>Talaba o‘z matnini tahrirlay olsin (muddatgacha)</span></label>' +
           '<label class="lhw-field lhw-dict-field" style="display:none;"><span>Asl matn: audioda aytilgan so‘zlar (tekshirish uchun, talabaga ko‘rinmaydi)</span><textarea id="lhwTranscript" rows="8" spellcheck="false" placeholder="Audioda aytilgan matnni to‘liq yozing"></textarea></label>' +
+          '<p class="lhw-hint lhw-dict-field" id="lhwTrCount" style="display:none;"></p>' +
           '<label class="lhw-field"><span>Topshirish muddati, soat (ixtiyoriy)</span>' +
             '<input type="number" id="lhwHours" min="0.1" max="1000" step="any" placeholder="Masalan: 24 yoki 30 (bo‘sh: cheklanmagan)"></label>' +
           '<p class="lhw-hint">Muddat saqlangan paytdan boshlab hisoblanadi. Tahrirlashda soatni o‘zgartirsangiz, muddat qaytadan hozirdan boshlanadi. Vaqt tugagach talabalar javob kirita olmaydi.</p>' +
@@ -935,6 +949,7 @@
 
     document.getElementById('lhwAdminForm').addEventListener('submit', saveExercise);
     document.getElementById('lhwKind').addEventListener('change', applyKindUI);
+    document.getElementById('lhwTranscript').addEventListener('input', updateTrCount);
     initBulkAnswers();
     loadGroupOptions();
     document.getElementById('lhwCancel').addEventListener('click', resetAdminForm);
@@ -1373,6 +1388,14 @@
   }
 
   /* ---------- Eshitib yozish: admin ---------- */
+  function updateTrCount() {
+    var el = document.getElementById('lhwTrCount');
+    var ta = document.getElementById('lhwTranscript');
+    if (!el || !ta) return;
+    var n = dictTokens(ta.value).length;
+    el.textContent = 'Asl matnda ' + n + ' ta so‘z. Talaba kamida ' + Math.ceil(n * DICT_MIN_PCT / 100) + ' tasini (' + DICT_MIN_PCT + '%) to‘g‘ri yozishi kerak; aks holda chala bajarilgan hisoblanadi.';
+  }
+
   function applyKindUI() {
     var sel = document.getElementById('lhwKind');
     var dict = !!sel && sel.value === 'dictation';
@@ -1413,13 +1436,7 @@
       todo.forEach(function (d) {
         if (count % 400 === 0) { batch = db.batch(); batches.push(batch); }
         var r = dictDiff(transcript, texts[d.id]);
-        batch.update(d.ref, {
-          graded: true, score: r.score, total: DICT_POINTS, finalScore: r.score,
-          marks: [], penalty: 0, flagged: false,
-          ann: annOf(r),
-          diff: { refN: r.refN, eq: r.eq, spell: r.spell, wrong: r.wrong, missing: r.missing, extra: r.extra, pct: r.pct },
-          gradedAt: Date.now()
-        });
+        batch.update(d.ref, Object.assign(dictFields(r), { total: DICT_POINTS, marks: [], gradedAt: Date.now() }));
         count++;
       });
       return batches.reduce(function (p, b) { return p.then(function () { return b.commit(); }); }, Promise.resolve())
@@ -1485,7 +1502,7 @@
       }
       var r = dictDiff(key, txt);
       box.innerHTML = head +
-        '<span class="lhw-muted">Ball: ' + r.score + '/' + DICT_POINTS + ' · aniqlik ' + r.pct + '% · to‘g‘ri ' + r.eq +
+        '<span class="lhw-muted">Asl matn: ' + r.refN + ' ta so‘z' + (r.ok ? '' : ' · CHALA BAJARILGAN (' + DICT_MIN_PCT + '% dan kam): ball hisobga olinmaydi, ' + DICT_PENALTY + ' ta jazo') + ' · Ball: ' + r.score + '/' + DICT_POINTS + ' · aniqlik ' + r.pct + '% · to‘g‘ri ' + r.eq +
         ', imlo ' + r.spell + ', noto‘g‘ri ' + r.wrong + ', tushgan ' + r.missing + ', ortiqcha ' + r.extra + '</span></div>' +
         '<div class="lhw-dict-diff">' + r.ops.map(dictOpHTML).join(' ') + '</div>' +
         '<p class="lhw-muted">Rang: yashil = to‘g‘ri, sariq = imlo xatosi, qizil = noto‘g‘ri so‘z (o‘ngda to‘g‘risi), qizil fon = tushib qolgan, kulrang = ortiqcha.</p></div>';
@@ -1512,7 +1529,7 @@
     document.getElementById('lhwAllowCopy').checked = !!ex.allowCopy;
     document.getElementById('lhwAllowEdit').checked = !!ex.allowEdit;
     applyKindUI();
-    if (isDict(ex)) getKeyText(ex.id).then(function (t) { document.getElementById('lhwTranscript').value = t || ''; }).catch(function () {});
+    if (isDict(ex)) getKeyText(ex.id).then(function (t) { document.getElementById('lhwTranscript').value = t || ''; updateTrCount(); }).catch(function () {});
     setFormMode(true);
     document.getElementById('lhwAdminForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
