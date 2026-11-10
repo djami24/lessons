@@ -31,6 +31,11 @@
   var PENALTY = 100;
   // Marafonning umumiy soni: har bir kiritilgan mashq: bitta marafon (qolganini shundan hisoblaydi)
   var MARATHON_TOTAL = 12;
+  // Eshitib yozish (dikta): talaba matni listening_texts da, asl matn listening_keys da (faqat admin o'qiydi)
+  var COL_KEY = 'listening_keys';
+  var COL_TXT = 'listening_texts';
+  var DICT_MAX = 3000;
+  var DICT_POINTS = 5;
 
   /* ---------- yordamchilar ---------- */
 
@@ -80,6 +85,73 @@
     var score = flagged ? 0 : correct;
     var penalty = flagged ? PENALTY : 0;
     return { score: score, marks: marks, total: n, flagged: flagged, penalty: penalty, finalScore: score };
+  }
+
+  /* ---------- Eshitib yozish (dikta) ---------- */
+  function isDict(ex) { return !!ex && ex.kind === 'dictation'; }
+
+  // So‘zlarga bo‘lish: kichik harf, apostrof va tinish belgilarisiz (don't = dont)
+  function dictTokens(s) {
+    return String(s == null ? '' : s).toLowerCase()
+      .replace(/[’‘`ʼ']/g, '')
+      .replace(/[^\p{L}\p{N}\s]+/gu, ' ')
+      .split(/\s+/).filter(Boolean);
+  }
+
+  function editDist(a, b) {
+    var m = a.length, n = b.length, prev = [], cur, i, j;
+    for (j = 0; j <= n; j++) prev[j] = j;
+    for (i = 1; i <= m; i++) {
+      cur = [i];
+      for (j = 1; j <= n; j++) {
+        cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      }
+      prev = cur;
+    }
+    return prev[n];
+  }
+
+  // Bitta harf xato (4+ harfli so‘zda): imlo xatosi deb hisoblanadi
+  function isSpellingSlip(r, s) { return r.length >= 4 && editDist(r, s) === 1; }
+
+  // Talaba matnini asl matn bilan so‘zma-so‘z solishtiradi.
+  // eq: to‘g‘ri; spell: imlo xatosi (yarim ball); wrong: boshqa so‘z; missing: tushib qolgan; extra: ortiqcha (yarim ball ayriladi)
+  function dictDiff(refText, stuText) {
+    var R = dictTokens(refText), S2 = dictTokens(stuText);
+    var n = R.length, m = S2.length, i, j, k;
+    var dp = [];
+    for (i = 0; i <= n; i++) dp.push(new Array(m + 1).fill(0));
+    for (i = n - 1; i >= 0; i--) {
+      for (j = m - 1; j >= 0; j--) {
+        dp[i][j] = R[i] === S2[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+      }
+    }
+    var ops = [], run = { del: [], ins: [] };
+    function flush() {
+      var p = Math.min(run.del.length, run.ins.length);
+      for (k = 0; k < p; k++) {
+        var r = R[run.del[k]], s = S2[run.ins[k]];
+        ops.push(isSpellingSlip(r, s) ? { t: 'spell', r: r, s: s } : { t: 'wrong', r: r, s: s });
+      }
+      for (k = p; k < run.del.length; k++) ops.push({ t: 'missing', r: R[run.del[k]] });
+      for (k = p; k < run.ins.length; k++) ops.push({ t: 'extra', s: S2[run.ins[k]] });
+      run = { del: [], ins: [] };
+    }
+    i = 0; j = 0;
+    while (i < n || j < m) {
+      if (i < n && j < m && R[i] === S2[j]) { flush(); ops.push({ t: 'eq', r: R[i], s: S2[j] }); i++; j++; }
+      else if (i < n && (j >= m || dp[i + 1][j] >= dp[i][j + 1])) { run.del.push(i); i++; }
+      else { run.ins.push(j); j++; }
+    }
+    flush();
+    var c = { eq: 0, spell: 0, wrong: 0, missing: 0, extra: 0 };
+    ops.forEach(function (o) { c[o.t]++; });
+    var credit = c.eq + 0.5 * c.spell - 0.5 * c.extra;
+    var acc = n ? Math.max(0, Math.min(1, credit / n)) : 0;
+    return {
+      ops: ops, refN: n, eq: c.eq, spell: c.spell, wrong: c.wrong, missing: c.missing, extra: c.extra,
+      pct: Math.round(acc * 100), score: acc >= 1 ? DICT_POINTS : Math.floor(acc * DICT_POINTS)
+    };
   }
 
   // Reytingdagi yakuniy ball (jazo balldan ayrilmaydi, alohida qayd etiladi)
@@ -169,7 +241,7 @@
     return '<ol class="lhw-board">' + rankRows(rows).map(function (x) {
       var r = x.row, me = !!myUid && r.studentId === myUid;
       var fin = finalOf(r);
-      var score = r.penalty
+      var score = r.graded === false ? '<span class="lhw-score lhw-pend">Tekshirilmoqda</span>' : r.penalty
         ? '<span class="lhw-score">' + fin + ' ball</span><small class="lhw-pen">' + r.penalty + ' ta jazo</small>'
         : '<span class="lhw-score">' + (r.score || 0) + '/' + subCount(r) + '</span>';
       var flag = (adminView && r.flagged) ? ' <span class="lhw-flag"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> Domlaga</span>' : '';
@@ -196,7 +268,7 @@
   /* ============================================================
      TALABA
      ============================================================ */
-  var S = { uid: null, name: 'Talaba', groupId: '', exercises: [], subs: {}, allTotals: {}, unsubs: [], lbUnsub: null, activeId: null, timerId: null };
+  var S = { uid: null, name: 'Talaba', groupId: '', exercises: [], subs: {}, allTotals: {}, unsubs: [], lbUnsub: null, activeId: null, timerId: null, dictText: {} };
 
   function stopStudentLb() {
     if (S.lbUnsub) { try { S.lbUnsub(); } catch (e) { /* ignore */ } S.lbUnsub = null; }
@@ -239,6 +311,10 @@
     S.unsubs.push(db.collection(COL_SUB).where('studentId', '==', S.uid).onSnapshot(function (snap) {
       S.subs = {};
       snap.docs.forEach(function (d) { var x = d.data(); S.subs[x.exerciseId] = x; });
+      if (S.activeId) {
+        var openEx = S.exercises.find(function (e) { return e.id === S.activeId; });
+        if (openEx && isDict(openEx) && S.subs[openEx.id] && document.getElementById('lhwFormArea')) renderDictResult(openEx, S.subs[openEx.id]);
+      }
       renderStudentList();
     }));
 
@@ -270,7 +346,7 @@
     });
     if (S.activeId) {
       var ex = S.exercises.find(function (e) { return e.id === S.activeId; });
-      if (ex && isLocked(ex) && !S.subs[ex.id] && document.getElementById('lhwSubmitForm')) renderExpired(ex);
+      if (ex && isLocked(ex) && !S.subs[ex.id] && (document.getElementById('lhwSubmitForm') || document.getElementById('lhwDictForm'))) renderExpired(ex);
     } else if (listExpired) {
       renderStudentList();
     }
@@ -362,9 +438,10 @@
         : (expired
             ? '<span class="lhw-badge todo" style="background:rgba(120,120,130,.18);color:#6B7280;">Yopilgan</span>'
             : '<span class="lhw-badge todo" style="background:rgba(229,72,77,.12);color:#E5484D;">Topshirilmagan</span>');
+      if (sub && sub.graded === false) badge = '<span class="lhw-badge done" style="background:rgba(232,137,12,.14);color:#B45309;">Tekshirilmoqda</span>';
       return '<button type="button" class="lhw-card" data-id="' + esc(ex.id) + '">' +
         '<span class="lhw-num">' + (i + 1) + '</span>' +
-        '<span class="lhw-card-title">' + esc(ex.title) + timer + '</span>' + badge +
+        '<span class="lhw-card-title">' + esc(ex.title) + timer + (isDict(ex) ? ' <span class="lhw-dict-btn">ESHITIB YOZISH</span>' : '') + '</span>' + badge +
         '</button>';
     }).join('') + '</div>';
     body.querySelectorAll('.lhw-card').forEach(function (b) {
@@ -381,9 +458,10 @@
     var media = safeUrl(ex.mediaUrl);
     body.innerHTML =
       '<button type="button" class="lhw-back" id="lhwBack">Ro‘yxatga qaytish</button>' +
-      '<div class="lhw-detail">' +
+      '<div class="lhw-detail' + (isDict(ex) ? ' lhw-protect' : '') + '">' +
         '<h2>' + esc(ex.title) + '</h2>' +
-        (media ? '<a class="lhw-media" href="' + esc(media) + '" target="_blank" rel="noopener noreferrer"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3" fill="none" stroke="#374151" stroke-width="2"/><rect x="3" y="14" width="5" height="7" rx="2" fill="#3B82F6"/><rect x="16" y="14" width="5" height="7" rx="2" fill="#3B82F6"/></svg> Audio / materialni ochish</a>' : '') +
+        (media && isDict(ex) ? dictAudioHTML(media) : '') +
+        (media && !isDict(ex) ? '<a class="lhw-media" href="' + esc(media) + '" target="_blank" rel="noopener noreferrer"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 15v-3a8 8 0 0 1 16 0v3" fill="none" stroke="#374151" stroke-width="2"/><rect x="3" y="14" width="5" height="7" rx="2" fill="#3B82F6"/><rect x="16" y="14" width="5" height="7" rx="2" fill="#3B82F6"/></svg> Audio / materialni ochish</a>' : '') +
         (!isClosed(ex) && deadlineOf(ex) !== null && !S.subs[id]
           ? '<p class="lhw-deadline" data-dl="' + deadlineOf(ex) + '" style="font-weight:700;margin:8px 0;"></p>'
           : '') +
@@ -405,7 +483,8 @@
     });
 
     var sub = S.subs[id];
-    if (sub) renderResult(ex, sub);
+    if (isDict(ex)) renderDictBody(ex, sub);
+    else if (sub) renderResult(ex, sub);
     else if (isLocked(ex)) renderExpired(ex);
     else renderForm(ex);
     tick();
@@ -494,6 +573,132 @@
     });
   }
 
+  /* ---------- Eshitib yozish: talaba ---------- */
+  function dictAudioHTML(url) {
+    var direct = /\.(mp3|wav|ogg|m4a|aac|webm)(\?|#|$)/i.test(url);
+    return direct
+      ? '<audio class="lhw-audio" controls preload="metadata" controlslist="nodownload noplaybackrate" src="' + esc(url) + '"></audio>'
+      : '<a class="lhw-media" href="' + esc(url) + '" target="_blank" rel="noopener noreferrer">Audioni ochish</a>';
+  }
+
+  function renderDictBody(ex, sub) {
+    var area = document.getElementById('lhwFormArea');
+    if (!area) return;
+    if (sub) { renderDictResult(ex, sub); return; }
+    if (isLocked(ex)) { renderExpired(ex); return; }
+    area.innerHTML =
+      '<form id="lhwDictForm" class="lhw-form-student">' +
+        '<p class="lhw-hint">Audioni eshiting va eshitganingizni o‘zingiz yozing. Matnni nusxalab bo‘lmaydi. Topshirgach o‘zgartirib bo‘lmaydi.</p>' +
+        '<textarea id="lhwDictText" class="lhw-dict-ta" maxlength="' + DICT_MAX + '" rows="10" spellcheck="false" autocomplete="off" placeholder="Eshitganingizni shu yerga yozing..."></textarea>' +
+        '<p class="lhw-err" id="lhwSubErr" hidden></p>' +
+        '<button type="submit" class="lhw-btn primary" id="lhwSubmitBtn">Topshirish</button>' +
+      '</form>';
+    var ta = document.getElementById('lhwDictText');
+    ['copy', 'cut', 'paste', 'contextmenu', 'dragstart', 'drop'].forEach(function (evt) {
+      ta.addEventListener(evt, function (e) { e.preventDefault(); });
+    });
+    document.getElementById('lhwDictForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      submitDictation(ex);
+    });
+    protectView();
+  }
+
+  function submitDictation(ex) {
+    var err = document.getElementById('lhwSubErr');
+    var btn = document.getElementById('lhwSubmitBtn');
+    if (isLocked(ex)) { renderExpired(ex); return; }
+    var ta = document.getElementById('lhwDictText');
+    var text = ta ? ta.value.trim() : '';
+    if (!dictTokens(text).length) { showErr(err, 'Eshitganingizni yozing: matn bo‘sh.'); return; }
+    if (text.length > DICT_MAX) { showErr(err, 'Matn juda uzun (' + DICT_MAX + ' belgigacha).'); return; }
+    if (err) err.hidden = true;
+    btn.disabled = true;
+    var id = ex.id + '_' + S.uid;
+    var subRef = db.collection(COL_SUB).doc(id);
+    var txtRef = db.collection(COL_TXT).doc(id);
+    subRef.get().then(function (snap) {
+      if (snap.exists) return snap.data();
+      var data = {
+        exerciseId: ex.id, studentId: S.uid, studentName: S.name, groupId: S.groupId || '',
+        kind: 'dictation', graded: false, answers: [], marks: [], score: 0, total: DICT_POINTS,
+        penalty: 0, finalScore: 0, flagged: false,
+        submittedAt: firebase.firestore.FieldValue.serverTimestamp()
+      };
+      var batch = db.batch();
+      batch.set(txtRef, { exerciseId: ex.id, studentId: S.uid, text: text, submittedAt: data.submittedAt });
+      batch.set(subRef, data);
+      return batch.commit().then(function () { return data; });
+    }).then(function (data) {
+      S.subs[ex.id] = data;
+      S.dictText[ex.id] = text;
+      if (S.activeId === ex.id) renderDictResult(ex, data);
+    }).catch(function (e) {
+      btn.disabled = false;
+      var denied = e && (e.code === 'permission-denied' || /permission/i.test(e.message || ''));
+      showErr(err, denied && isLocked(ex)
+        ? 'Mashq yopilgan yoki vaqt tugagan: javob qabul qilinmaydi.'
+        : 'Xatolik: ' + (e && e.message ? e.message : 'topshirib bo‘lmadi'));
+    });
+  }
+
+  function renderDictResult(ex, sub) {
+    var area = document.getElementById('lhwFormArea');
+    if (!area) return;
+    var mineId = ex.id + '_' + S.uid;
+    var textHtml = '<div class="lhw-dict-mine"><b>Sizning matningiz:</b><div id="lhwDictMine" class="lhw-dict-text">' +
+      esc(S.dictText[ex.id] || 'Yuklanmoqda…') + '</div></div>';
+    if (S.dictText[ex.id] == null) {
+      db.collection(COL_TXT).doc(mineId).get().then(function (s) {
+        var t = s.exists ? String((s.data() || {}).text || '') : '';
+        S.dictText[ex.id] = t;
+        var el = document.getElementById('lhwDictMine');
+        if (el) el.textContent = t || '—';
+      }).catch(function () {
+        var el = document.getElementById('lhwDictMine');
+        if (el) el.textContent = 'Yuklab bo‘lmadi';
+      });
+    }
+    if (sub.graded === false) {
+      area.innerHTML = '<div class="lhw-result">' +
+        '<div class="lhw-warn lhw-pending">Javobingiz qabul qilindi. Natija o‘qituvchi tekshirgach chiqadi.</div>' +
+        textHtml + '</div>';
+      return;
+    }
+    var d = sub.diff || {};
+    area.innerHTML = '<div class="lhw-result">' +
+      '<div class="lhw-score-big">' + (sub.score || 0) + '<span>/' + DICT_POINTS + '</span></div>' +
+      '<p class="lhw-muted">Aniqlik: <b>' + (d.pct || 0) + '%</b>. Natija topshirilgan: o‘zgartirib bo‘lmaydi.</p>' +
+      '<ul class="lhw-dict-stats">' +
+        '<li class="ok">To‘g‘ri: <b>' + (d.eq || 0) + '</b></li>' +
+        '<li class="spell">Imlo xatosi: <b>' + (d.spell || 0) + '</b></li>' +
+        '<li class="bad">Noto‘g‘ri so‘z: <b>' + (d.wrong || 0) + '</b></li>' +
+        '<li class="bad">Tushib qolgan: <b>' + (d.missing || 0) + '</b></li>' +
+        '<li class="extra">Ortiqcha: <b>' + (d.extra || 0) + '</b></li>' +
+      '</ul>' + textHtml +
+      '<p class="lhw-hint lhw-ask-teacher">To‘g‘ri matnni o‘qituvchingizdan oling.</p>' +
+    '</div>';
+  }
+
+  // Nusxalash, kesish, joylashtirish, o‘ng tugma va tanlashni cheklaydi (faqat shu brauzer ichida)
+  var _protectOn = false;
+  function protectView() {
+    if (_protectOn) return;
+    _protectOn = true;
+    var active = function () { return !!document.querySelector('.lhw-protect'); };
+    ['copy', 'cut', 'paste', 'contextmenu', 'dragstart'].forEach(function (evt) {
+      document.addEventListener(evt, function (e) { if (active()) e.preventDefault(); }, true);
+    });
+    document.addEventListener('selectstart', function (e) {
+      if (active() && !(e.target && e.target.closest && e.target.closest('textarea'))) e.preventDefault();
+    }, true);
+    document.addEventListener('keydown', function (e) {
+      if (!active()) return;
+      var k = String(e.key || '').toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && ['c', 'x', 'a', 's', 'p', 'u'].indexOf(k) !== -1) e.preventDefault();
+    }, true);
+  }
+
   function renderResult(ex, sub) {
     var area = document.getElementById('lhwFormArea');
     if (!area) return;
@@ -524,7 +729,7 @@
   /* ============================================================
      ADMIN
      ============================================================ */
-  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [], allSubs: [], groupNames: {} };
+  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [], allSubs: [], groupNames: {}, keys: {}, groupRoster: null };
 
   function stopAdminLb() {
     if (A.lbUnsub) { try { A.lbUnsub(); } catch (e) { /* ignore */ } A.lbUnsub = null; }
@@ -551,10 +756,13 @@
           '<h3 id="lhwFormTitle">Yangi mashq qo‘shish</h3>' +
           '<label class="lhw-field"><span>Mashq nomi *</span><input type="text" id="lhwTitle" maxlength="120" placeholder="Masalan: 1-mashq"></label>' +
           '<label class="lhw-field"><span>Guruh</span><select id="lhwGroup"><option value="">Barcha guruhlar</option></select></label>' +
+          '<label class="lhw-field"><span>Mashq turi</span><select id="lhwKind"><option value="blanks">Bo‘shliqli (javoblar avtomatik tekshiriladi)</option><option value="dictation">Eshitib yozish (dikta)</option></select></label>' +
+          '<label class="lhw-field lhw-dict-field" style="display:none;"><span>Asl matn: audioda aytilgan so‘zlar (tekshirish uchun, talabaga ko‘rinmaydi)</span><textarea id="lhwTranscript" rows="8" spellcheck="false" placeholder="Audioda aytilgan matnni to‘liq yozing"></textarea></label>' +
           '<label class="lhw-field"><span>Topshirish muddati, soat (ixtiyoriy)</span>' +
             '<input type="number" id="lhwHours" min="0.1" max="1000" step="any" placeholder="Masalan: 24 yoki 30 (bo‘sh: cheklanmagan)"></label>' +
           '<p class="lhw-hint">Muddat saqlangan paytdan boshlab hisoblanadi. Tahrirlashda soatni o‘zgartirsangiz, muddat qaytadan hozirdan boshlanadi. Vaqt tugagach talabalar javob kirita olmaydi.</p>' +
           '<label class="lhw-field"><span>Audio / material havolasi (ixtiyoriy)</span><input type="text" id="lhwMedia" placeholder="https://..."></label>' +
+          '<div id="lhwBlanksWrap">' +
           '<div class="lhw-bulk">' +
             '<label class="lhw-field"><span><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="#F5B700"/></svg> Tezkor kiritish: javoblarni bittada qo‘ying</span>' +
               '<textarea id="lhwBulk" rows="5" spellcheck="false" placeholder="Har qatorda bitta javob (Enter bilan ajrating):&#10;apple&#10;banana | bananas&#10;cat&#10;dog&#10;egg"></textarea></label>' +
@@ -563,6 +771,7 @@
           '<div class="lhw-answers" id="lhwAnswers">' + blanks + '</div>' +
           '<div class="lhw-blank-tools"><button type="button" class="lhw-btn sm" id="lhwAddBlank">+ Bo‘sh joy qo‘shish</button>' +
           '<span class="lhw-muted" id="lhwBlankCount"></span></div>' +
+          '</div>' +
           '<p class="lhw-err" id="lhwFormErr" hidden></p>' +
           '<div class="lhw-actions">' +
             '<button type="submit" class="lhw-btn primary" id="lhwSave">Saqlash</button>' +
@@ -574,6 +783,7 @@
       '<div id="lhwAdminLb" class="lhw-lb-panel" hidden></div>';
 
     document.getElementById('lhwAdminForm').addEventListener('submit', saveExercise);
+    document.getElementById('lhwKind').addEventListener('change', applyKindUI);
     initBulkAnswers();
     loadGroupOptions();
     document.getElementById('lhwCancel').addEventListener('click', resetAdminForm);
@@ -866,10 +1076,11 @@
             '<span style="min-width:0;overflow-wrap:anywhere;">' + esc(ex.title) + '</span></div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;">' +
             '<span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>' +
-            '<span class="lhw-badge todo">' + countOf(ex) + ' ta bo‘shliq</span>' + dlTxt + '</div>' +
+            (isDict(ex) ? '<span class="lhw-badge todo">Eshitib yozish</span>' : '<span class="lhw-badge todo">' + countOf(ex) + ' ta bo‘shliq</span>') + dlTxt + '</div>' +
           '<div class="lhw-muted lhw-preview">' + esc(preview) + '</div>' +
         '</div>' +
         '<div class="lhw-admin-btns">' +
+          (isDict(ex) ? '<button type="button" class="lhw-btn sm" data-act="regrade">Tekshirish</button>' : '') +
           '<button type="button" class="lhw-btn sm" data-act="lb">Natijalar</button>' +
           (isClosed(ex)
             ? '<button type="button" class="lhw-btn sm" data-act="open"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 10V7a4 4 0 0 1 7.5-2" fill="none" stroke="#6B7280" stroke-width="2"/><rect x="5" y="10" width="14" height="11" rx="2" fill="#6B7280"/><circle cx="12" cy="15.5" r="1.5" fill="#fff"/></svg> Ochish</button>'
@@ -896,6 +1107,7 @@
     else if (act === 'edit') fillAdminForm(ex);
     else if (act === 'close') closeExercise(ex);
     else if (act === 'open') openExerciseAdmin(ex);
+    else if (act === 'regrade') regradeEx(ex);
     else if (act === 'del') deleteExercise(ex);
   }
 
@@ -933,6 +1145,7 @@
       '<div class="lhw-lb-head"><h3>Jonli natijalar: ' + esc(ex.title) + '</h3>' +
         '<button type="button" class="lhw-btn sm" id="lhwLbClose">Yopish</button></div>' +
       '<div id="lhwAdminLbBody"><div class="lhw-muted"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div></div>' +
+      '<div id="lhwNotSub" class="lhw-notsub"></div>' +
       '<div id="lhwAdminDetail"></div>';
     document.getElementById('lhwLbClose').addEventListener('click', closeAdminLb);
     // Talabaning qatoriga bosilsa: uning javoblari pastda ochiladi (qayta bossa yopiladi)
@@ -952,8 +1165,18 @@
         (rows ? '<p class="lhw-muted">Topshirganlar: ' + rows.length + ' ta: qatorga bosing, javoblarini ko‘ring</p>' : '') +
         (flagged.length ? '<div class="lhw-warn">Domlaga taqdim etilgan taxminchilar (' + PENALTY + ' ta jazo): ' +
           flagged.map(function (r) { return esc(r.studentName || 'Talaba'); }).join(', ') + '</div>' : '');
+      renderNotSub(A.lastRows);
+      if (isDict(ex) && A.keys[ex.id] && (rows || []).some(function (r) { return r.graded === false; })) {
+        gradePending(ex.id, A.keys[ex.id], false).catch(function () {});
+      }
       if (A.detailSid) showAdminDetail(A.detailSid);
     });
+    getKeyText(ex.id).catch(function () {});
+    A.groupRoster = null;
+    if (ex.groupId) {
+      loadRoster(ex.groupId).then(function (r) { A.groupRoster = r; renderNotSub(A.lastRows); }).catch(function () { renderNotSub(A.lastRows); });
+    }
+    renderNotSub(A.lastRows);
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -964,6 +1187,7 @@
     var sub = sid ? (A.lastRows || []).find(function (r) { return r._id === sid; }) : null;
     var ex = A.lbId ? findAdminEx(A.lbId) : null;
     if (!sub || !ex) { box.innerHTML = ''; return; }
+    if (isDict(ex)) { showDictDetail(sid, sub, ex); return; }
     var answers = sub.answers || [];
     var marks = (sub.marks && sub.marks.length) ? sub.marks : grade(ex.answers, answers).marks;
     var items = '';
@@ -997,6 +1221,128 @@
     if (panel) { panel.hidden = true; panel.innerHTML = ''; panel.onclick = null; }
   }
 
+  /* ---------- Eshitib yozish: admin ---------- */
+  function applyKindUI() {
+    var sel = document.getElementById('lhwKind');
+    var dict = !!sel && sel.value === 'dictation';
+    var wrap = document.getElementById('lhwBlanksWrap');
+    var tr = document.querySelector('.lhw-dict-field');
+    if (wrap) wrap.style.display = dict ? 'none' : '';
+    if (tr) tr.style.display = dict ? '' : 'none';
+  }
+
+  function getKeyText(exId) {
+    if (A.keys[exId] !== undefined) return Promise.resolve(A.keys[exId]);
+    return db.collection(COL_KEY).doc(exId).get().then(function (s) {
+      A.keys[exId] = s.exists ? String((s.data() || {}).transcript || '') : '';
+      return A.keys[exId];
+    });
+  }
+
+  // Asl matnni saqlaydi va shu mashqning barcha topshiriqlarini qayta tekshiradi
+  function saveTranscript(exId, transcript) {
+    return db.collection(COL_KEY).doc(exId).set({ transcript: transcript, updatedAt: Date.now() }).then(function () {
+      A.keys[exId] = transcript;
+      return gradePending(exId, transcript, true);
+    });
+  }
+
+  // Tekshirilmagan (yoki hammasi, all=true) eshitib yozish javoblarini baholaydi; natijani yozadi
+  function gradePending(exId, transcript, all) {
+    return Promise.all([
+      db.collection(COL_SUB).where('exerciseId', '==', exId).get(),
+      db.collection(COL_TXT).where('exerciseId', '==', exId).get()
+    ]).then(function (res) {
+      var texts = {};
+      res[1].docs.forEach(function (d) { texts[d.id] = String((d.data() || {}).text || ''); });
+      var todo = res[0].docs.filter(function (d) {
+        var x = d.data() || {};
+        return x.kind === 'dictation' && (all || x.graded === false) && texts[d.id] != null;
+      });
+      var batches = [], batch = null, count = 0;
+      todo.forEach(function (d) {
+        if (count % 400 === 0) { batch = db.batch(); batches.push(batch); }
+        var r = dictDiff(transcript, texts[d.id]);
+        batch.update(d.ref, {
+          graded: true, score: r.score, total: DICT_POINTS, finalScore: r.score,
+          marks: [], penalty: 0, flagged: false,
+          diff: { refN: r.refN, eq: r.eq, spell: r.spell, wrong: r.wrong, missing: r.missing, extra: r.extra, pct: r.pct },
+          gradedAt: Date.now()
+        });
+        count++;
+      });
+      return batches.reduce(function (p, b) { return p.then(function () { return b.commit(); }); }, Promise.resolve())
+        .then(function () { return count; });
+    });
+  }
+
+  function regradeEx(ex) {
+    getKeyText(ex.id).then(function (t) {
+      if (!t) { alert('Avval asl matnni kiriting: "Tahrirlash" tugmasi orqali.'); return null; }
+      return gradePending(ex.id, t, true).then(function (n) { alert(n + ' ta javob tekshirildi.'); });
+    }).catch(function (er) { alert('Tekshirishda xatolik: ' + (er && er.message)); });
+  }
+
+  // Guruh ro‘yxati: har bir talabaning akkaunt ID si (topshirganini solishtirish uchun)
+  function loadRoster(gid) {
+    return db.collection('oquv_groups').doc(gid).collection('students').get().then(function (snap) {
+      var list = snap.docs.map(function (d) { return { code: d.id, name: (d.data() || {}).name || d.id, uid: null }; });
+      return Promise.all(list.map(function (s) {
+        return db.collection('students').where('oquvProgressCode', '==', s.code).limit(1).get().then(function (q) {
+          if (!q.empty) s.uid = q.docs[0].id;
+          return s;
+        }).catch(function () { return s; });
+      }));
+    });
+  }
+
+  function renderNotSub(rows) {
+    var box = document.getElementById('lhwNotSub');
+    if (!box || !A.lbId) return;
+    var ex = findAdminEx(A.lbId);
+    if (!ex || !ex.groupId) { box.innerHTML = '<p class="lhw-muted">Topshirmaganlarni ko‘rish uchun mashqni guruhga biriktiring.</p>'; return; }
+    if (!A.groupRoster) { box.innerHTML = '<p class="lhw-muted">Guruh ro‘yxati yuklanmoqda…</p>'; return; }
+    var done = {};
+    (rows || []).forEach(function (r) { done[r.studentId] = true; });
+    var missing = A.groupRoster.filter(function (s) { return !s.uid || !done[s.uid]; });
+    box.innerHTML = '<h4 class="lhw-sub-title">Topshirmaganlar: ' + missing.length + ' ta</h4>' +
+      (missing.length
+        ? '<ul class="lhw-missing">' + missing.map(function (s) { return '<li>' + esc(s.name) + '</li>'; }).join('') + '</ul>'
+        : '<p class="lhw-muted">Guruhdagi hamma talaba topshirgan.</p>');
+  }
+
+  function dictOpHTML(o) {
+    if (o.t === 'eq') return '<span class="dd-eq">' + esc(o.s) + '</span>';
+    if (o.t === 'spell') return '<span class="dd-spell" title="To‘g‘ri: ' + esc(o.r) + '">' + esc(o.s) + '</span>';
+    if (o.t === 'wrong') return '<span class="dd-wrong">' + esc(o.s) + '</span><span class="dd-fix">' + esc(o.r) + '</span>';
+    if (o.t === 'missing') return '<span class="dd-miss">' + esc(o.r) + '</span>';
+    return '<span class="dd-extra">' + esc(o.s) + '</span>';
+  }
+
+  function showDictDetail(sid, sub, ex) {
+    var box = document.getElementById('lhwAdminDetail');
+    if (!box) return;
+    box.innerHTML = '<div class="lhw-admin-detail"><div class="lhw-lb-head"><h3>' + esc(sub.studentName || 'Talaba') + ': matni</h3></div><p class="lhw-muted">Yuklanmoqda…</p></div>';
+    Promise.all([db.collection(COL_TXT).doc(sub._id).get(), getKeyText(ex.id)]).then(function (res) {
+      if (A.detailSid !== sid) return;
+      var txt = res[0].exists ? String((res[0].data() || {}).text || '') : '';
+      var key = res[1] || '';
+      var head = '<div class="lhw-admin-detail"><div class="lhw-lb-head"><h3>' + esc(sub.studentName || 'Talaba') + ': matni</h3>';
+      if (!key) {
+        box.innerHTML = head + '</div><p class="lhw-muted">Asl matn hali kiritilmagan: "Tahrirlash" orqali kiriting.</p><div class="lhw-dict-diff">' + esc(txt) + '</div></div>';
+        return;
+      }
+      var r = dictDiff(key, txt);
+      box.innerHTML = head +
+        '<span class="lhw-muted">Ball: ' + r.score + '/' + DICT_POINTS + ' · aniqlik ' + r.pct + '% · to‘g‘ri ' + r.eq +
+        ', imlo ' + r.spell + ', noto‘g‘ri ' + r.wrong + ', tushgan ' + r.missing + ', ortiqcha ' + r.extra + '</span></div>' +
+        '<div class="lhw-dict-diff">' + r.ops.map(dictOpHTML).join(' ') + '</div>' +
+        '<p class="lhw-muted">Rang: yashil = to‘g‘ri, sariq = imlo xatosi, qizil = noto‘g‘ri so‘z (o‘ngda to‘g‘risi), qizil fon = tushib qolgan, kulrang = ortiqcha.</p></div>';
+    }).catch(function (e) {
+      box.innerHTML = '<div class="lhw-warn">Yuklab bo‘lmadi: ' + esc(e && e.message) + '</div>';
+    });
+  }
+
   function setFormMode(editing) {
     document.getElementById('lhwFormTitle').textContent = editing ? 'Mashqni tahrirlash' : 'Yangi mashq qo‘shish';
     document.getElementById('lhwCancel').hidden = !editing;
@@ -1011,6 +1357,9 @@
     var gsel = document.getElementById('lhwGroup');
     if (gsel) gsel.value = ex.groupId || '';
     setAnswerRows((ex.answers || []).map(function (a) { return a == null ? '' : String(a); }));
+    document.getElementById('lhwKind').value = isDict(ex) ? 'dictation' : 'blanks';
+    applyKindUI();
+    if (isDict(ex)) getKeyText(ex.id).then(function (t) { document.getElementById('lhwTranscript').value = t || ''; }).catch(function () {});
     setFormMode(true);
     document.getElementById('lhwAdminForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
@@ -1019,6 +1368,7 @@
     A.editingId = null;
     var form = document.getElementById('lhwAdminForm');
     if (form) form.reset();
+    applyKindUI();
     setAnswerRows(['', '', '', '', '']);
     var bst = document.getElementById('lhwBulkSt');
     if (bst) { bst.className = 'lhw-bulk-st'; bst.textContent = 'Javoblarni shu yerga ustun qilib yozing yoki joylab qo‘ying: pastdagi bo‘sh joylar o‘zi to‘ladi. “1. apple” ko‘rinishidagi raqamlar avtomatik olib tashlanadi.'; }
@@ -1037,11 +1387,15 @@
     var groupId = gsel ? gsel.value : '';
     var groupName = groupId && gsel.selectedIndex >= 0 ? gsel.options[gsel.selectedIndex].textContent : '';
     var answers = readAnswerValues().map(function (v) { return v.trim(); });
+    var kind = (document.getElementById('lhwKind') || {}).value === 'dictation' ? 'dictation' : 'blanks';
+    var transcript = kind === 'dictation' ? document.getElementById('lhwTranscript').value.trim() : '';
 
     if (!title) { showErr(err, 'Mashq nomini kiriting.'); return; }
     if (mediaRaw && !safeUrl(mediaRaw)) { showErr(err, 'Havola http:// yoki https:// bilan boshlanishi kerak.'); return; }
-    if (!answers.length || answers.length > MAX_BLANKS) { showErr(err, 'Bo‘sh joylar soni 1 dan ' + MAX_BLANKS + ' gacha bo‘lishi kerak.'); return; }
-    for (var i = 0; i < answers.length; i++) {
+    if (kind === 'dictation') {
+      if (dictTokens(transcript).length < 3) { showErr(err, 'Asl matnni kiriting (kamida 3 so‘z).'); return; }
+    } else if (!answers.length || answers.length > MAX_BLANKS) { showErr(err, 'Bo‘sh joylar soni 1 dan ' + MAX_BLANKS + ' gacha bo‘lishi kerak.'); return; }
+    for (var i = 0; kind === 'blanks' && i < answers.length; i++) {
       if (!answers[i]) { showErr(err, (i + 1) + '-bo‘sh joy uchun javob kiritilmagan.'); return; }
     }
     var hoursRaw = document.getElementById('lhwHours').value.trim().replace(',', '.');
@@ -1056,7 +1410,8 @@
       mediaUrl: safeUrl(mediaRaw),
       groupId: groupId,
       groupName: groupName,
-      answers: answers,
+      answers: kind === 'dictation' ? [] : answers,
+      kind: kind,
       updatedAt: Date.now()
     };
     // Muddat: yangi mashqda yoki soat o‘zgarganda: hozirdan boshlab hisoblanadi; o‘zgarmasa avvalgisi saqlanadi
@@ -1072,9 +1427,12 @@
     }
     btn.disabled = true;
     var p = A.editingId
-      ? db.collection(COL_EX).doc(A.editingId).update(payload)
-      : db.collection(COL_EX).add(Object.assign({ createdAt: Date.now() }, payload));
-    p.then(function () {
+      ? db.collection(COL_EX).doc(A.editingId).update(payload).then(function () { return A.editingId; })
+      : db.collection(COL_EX).add(Object.assign({ createdAt: Date.now() }, payload)).then(function (ref) { return ref.id; });
+    p.then(function (exId) {
+      if (kind !== 'dictation') return null;
+      return saveTranscript(exId, transcript);
+    }).then(function () {
       resetAdminForm();
     }).catch(function (er) {
       showErr(err, 'Saqlashda xatolik: ' + (er && er.message));
@@ -1129,6 +1487,10 @@
       // Firestore batch: bir martada 500 tagacha yozuv (bitta mashq uchun yetarli)
       var batch = db.batch();
       subsDocs.forEach(function (d) { batch.delete(d.ref); });
+      if (isDict(ex)) {
+        subsDocs.forEach(function (d) { batch.delete(db.collection(COL_TXT).doc(d.id)); });
+        batch.delete(db.collection(COL_KEY).doc(ex.id));
+      }
       batch.delete(db.collection(COL_EX).doc(ex.id));
       return batch.commit().then(function () {
         if (A.lbId === ex.id) closeAdminLb();
