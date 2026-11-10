@@ -1853,6 +1853,14 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       body.dark .mkt-btn{background:rgba(72,120,230,.7);}
       body.dark .mkt-btn[disabled]{background:rgba(100,116,139,.35);color:rgba(226,232,240,.5);}
       body.dark .mkt-rm{color:#fca5a5;background:rgba(23,29,44,.5);}
+      .mkt-head{display:flex;align-items:center;gap:8px;}
+      .mkt-info-btn{width:26px;height:26px;border-radius:999px;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#1d4ed8;background:rgba(255,255,255,.5);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.7);}
+      body.dark .mkt-info-btn{color:#7da2ff;background:rgba(23,29,44,.5);border-color:rgba(255,255,255,.15);}
+      .mkt-info{margin:8px 0 2px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.45);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.6);font-size:.8rem;color:var(--gray,#6b7280);line-height:1.5;}
+      .mkt-info p{margin:0 0 6px;} .mkt-info p:last-child{margin:0;}
+      body.dark .mkt-info{background:rgba(23,29,44,.45);border-color:rgba(255,255,255,.12);}
+      .mkt-lbl{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--gray,#6b7280);}
+      .mkt-bal b.mkt-gold{display:block;font-size:1.6rem;font-weight:900;background:linear-gradient(135deg,#f7e08a 0%,#d4a017 45%,#8a6a12 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;}
     </style>
     </section>
 
@@ -2627,10 +2635,11 @@ function mktRender(){
     '<span>' + (Number(o.price) || 0) + ' point · <b>' + (MKT_ST[o.status] || escapeHtml(o.status || '')) + '</b></span></div>').join('')
     : '<p class="mkt-muted">Hali buyurtma yo‘q.</p>';
   box.innerHTML =
-    '<div><h2>Market</h2><p class="mkt-muted">Pointlaringizni kitobga almashtiring. Reytingingiz bundan o‘zgarmaydi.</p>' +
-    '<p class="mkt-muted">Bu balans barcha oylardan yig‘ilgan pointlar hisobida. Shu oydagi point (reyting uchun) bundan alohida ko‘rsatiladi.</p></div>' +
-    '<div class="mkt-bal"><div><span class="mkt-muted">Mavjud points</span><b>' + bal + '</b></div>' +
-      '<div class="mkt-muted">Barcha oylardan yig‘ilgan: ' + _mkt.earned + ' · Sarflangan: ' + spent + '</div></div>' +
+    '<div class="mkt-head"><h2>Market</h2>' +
+    '<button type="button" class="mkt-info-btn" data-mkt-info aria-label="Ma’lumot" aria-expanded="false"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg></button></div>' +
+    '<div class="mkt-info" id="mktInfo" hidden><p>Pointlaringizni kitobga almashtiring. Reytingingiz bundan o‘zgarmaydi.</p><p>Bu balans barcha oylardan yig‘ilgan pointlar hisobida. Shu oydagi point (reyting uchun) bundan alohida ko‘rsatiladi.</p></div>' +
+    '<div class="mkt-bal"><div><span class="mkt-lbl"><svg width="16" height="16" viewBox="0 0 24 24" fill="#D4A017" stroke="#9a7412" stroke-width="1" stroke-linejoin="round"><path d="M12 2.8l2.8 5.7 6.3.9-4.6 4.4 1.1 6.2L12 17.1 6.4 20l1.1-6.2-4.6-4.4 6.3-.9z"/></svg>Mavjud points</span><b class="mkt-gold">' + bal + '</b></div>' +
+      '<div class="mkt-muted">' + _mkt.earned + ' yig‘ilgan · ' + spent + ' sarflangan</div></div>' +
     '<h3>Katalog</h3><div class="mkt-grid">' + cards + '</div>' +
     '<h3>Savat (' + cart.length + ')</h3>' + cartHtml +
     '<h3>Buyurtmalarim</h3>' + histHtml;
@@ -2656,6 +2665,8 @@ async function mktRemove(orderId){
   catch(e){ alert('Olib tashlab bo‘lmadi: ' + (e.message || e)); }
 }
 document.addEventListener('click', e => {
+  const inf = e.target.closest('#mktBox [data-mkt-info]');
+  if(inf){ const p = document.getElementById('mktInfo'); if(p){ p.hidden = !p.hidden; inf.setAttribute('aria-expanded', String(!p.hidden)); } return; }
   const a = e.target.closest('#mktBox [data-mkt-add]'); if(a){ mktAdd(a.dataset.mktAdd); return; }
   const r = e.target.closest('#mktBox [data-mkt-rm]'); if(r) mktRemove(r.dataset.mktRm);
 });
