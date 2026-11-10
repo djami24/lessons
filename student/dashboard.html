@@ -1871,6 +1871,22 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         </form>
       </div>
 
+    <div class="mkt" id="mktBox"></div>
+    <style>
+      .mkt{margin:14px 0 18px;background:var(--surface,#fff);border:1px solid var(--line,#e5e7eb);border-radius:16px;padding:16px;}
+      .mkt h2{margin:0 0 4px;font-size:1.05rem;} .mkt h3{margin:16px 0 8px;font-size:.95rem;}
+      .mkt-muted{color:var(--gray,#6b7280);font-size:.82rem;margin:0;}
+      .mkt-bal{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;padding:12px 14px;border-radius:12px;background:#eef4ff;}
+      .mkt-bal b{display:block;font-size:1.6rem;color:#1d4ed8;}
+      .mkt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+      .mkt-card{border:1px solid var(--line,#e5e7eb);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px;}
+      .mkt-card img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;background:#f3f4f6;}
+      .mkt-card b{font-size:.88rem;} .mkt-price{font-weight:800;color:#1d4ed8;font-size:.9rem;}
+      .mkt-btn{margin-top:auto;border:0;border-radius:10px;padding:8px;font-weight:700;cursor:pointer;background:#2563eb;color:#fff;font-size:.82rem;}
+      .mkt-btn[disabled]{background:#e5e7eb;color:#6b7280;cursor:not-allowed;}
+      .mkt-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line,#e5e7eb);font-size:.88rem;}
+      .mkt-rm{border:1px solid #dc2626;color:#dc2626;background:transparent;border-radius:9px;padding:5px 9px;font-size:.78rem;cursor:pointer;}
+    </style>
     <div class="profile-user-row" id="profileUserRow">
       <div style="display:flex; align-items:center; gap:.7em;">
         <span class="sidebar-avatar" id="sidebarAvatar" style="display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--blue-50,#eaf1ff);color:var(--blue-600,#2f5fd8);font-size:15px;font-weight:700;flex-shrink:0;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
@@ -2527,9 +2543,112 @@ function setActiveNav(activeId){
     if(el) el.classList.add('active');
   }
 }
+// ===== MARKET: talaba pointlarini kitobga almashtirish =====
+// Sarflanadigan balans = jami yig'ilgan points (barcha oylar) - sarflangan (bekor qilinmagan buyurtmalar).
+// Reytingdagi (oylik) point o'zgarmaydi.
+let _mkt = null;
+const MKT_ST = { cart: 'Savatda', bought: 'Sotib olindi', delivered: 'Berildi', cancelled: 'Bekor qilindi' };
+function mktTs(x){ const t = x && x.createdAt; return t && t.toMillis ? t.toMillis() : 0; }
+function mktSpent(){ return _mkt.orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + (Number(o.price) || 0), 0); }
+function mktBalance(){ return _mkt.earned - mktSpent(); }
+async function mktLoad(){
+  const box = document.getElementById('mktBox');
+  if(!box || !currentUid) return;
+  box.innerHTML = '<p class="mkt-muted">Market yuklanmoqda…</p>';
+  try{
+    const uid = currentUid, code = state.student && state.student.oquvProgressCode ? String(state.student.oquvProgressCode) : '';
+    const [entSnap, , itemsSnap, ordSnap] = await Promise.all([
+      code ? db.collection('oquv_progress').doc(code).collection('entries').get() : Promise.resolve({ docs: [] }),
+      code ? mystLoadBonus(code, true) : Promise.resolve(null),
+      db.collection('market_items').get(),
+      db.collection('market_orders').where('studentId', '==', uid).get()
+    ]);
+    const rowsByYm = {};
+    entSnap.docs.forEach(d => { const x = mystNorm(d.data()); if(x){ const ym = x.date.slice(0, 7); (rowsByYm[ym] = rowsByYm[ym] || []).push(x); } });
+    const bonus = code ? (_mystBonus || []) : [];
+    const months = {};
+    Object.keys(rowsByYm).forEach(m => { months[m] = true; });
+    bonus.forEach(b => { if(b.date) months[b.date.slice(0, 7)] = true; });
+    let earned = 0;
+    for(const ym of Object.keys(months)){
+      const bonusM = bonus.filter(b => b.date.slice(0, 7) === ym);
+      const lis = await getMyListening(ym, bonusM.filter(b => b.source === 'listening'));
+      earned += ptsCalc(rowsByYm[ym] || [], bonusM.filter(b => b.source !== 'listening'), null, lis).total;
+    }
+    _mkt = {
+      earned: earned,
+      items: itemsSnap.docs.map(d => Object.assign({ id: d.id }, d.data())).filter(i => i.active !== false)
+        .sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''))),
+      orders: ordSnap.docs.map(d => Object.assign({ id: d.id }, d.data())).sort((a, b) => mktTs(b) - mktTs(a))
+    };
+    mktRender();
+  } catch(e){
+    box.innerHTML = '<p class="mkt-muted">Market yuklanmadi: ' + escapeHtml(e.message || '') + '</p>';
+  }
+}
+function mktRender(){
+  const box = document.getElementById('mktBox');
+  if(!box || !_mkt) return;
+  const bal = mktBalance(), spent = mktSpent();
+  const cart = _mkt.orders.filter(o => o.status === 'cart');
+  const cartIds = new Set(cart.map(o => o.itemId));
+  const hist = _mkt.orders.filter(o => o.status !== 'cart');
+  const dateOf = o => o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleDateString('uz-UZ') : '';
+  const cards = _mkt.items.length ? _mkt.items.map(it => {
+    const inCart = cartIds.has(it.id), can = !inCart && bal >= (Number(it.price) || 0);
+    const btn = inCart ? '<button class="mkt-btn" disabled>Savatda</button>'
+      : bal < (Number(it.price) || 0) ? '<button class="mkt-btn" disabled>Points yetarli emas</button>'
+      : '<button class="mkt-btn" data-mkt-add="' + escapeHtml(it.id) + '">Savatga qo‘shish</button>';
+    return '<div class="mkt-card">' +
+      (it.imageUrl ? '<img src="' + escapeHtml(it.imageUrl) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' : '<img alt="" style="visibility:hidden">') +
+      '<b>' + escapeHtml(it.title || '') + '</b>' +
+      '<div class="mkt-price">' + (Number(it.price) || 0) + ' point</div>' + btn + '</div>';
+  }).join('') : '<p class="mkt-muted">Hozircha mahsulot yo‘q.</p>';
+  const cartHtml = cart.length ? cart.map(o =>
+    '<div class="mkt-row"><span>' + escapeHtml(o.title || '') + '</span><span>' + (Number(o.price) || 0) + ' point ' +
+    '<button class="mkt-rm" data-mkt-rm="' + escapeHtml(o.id) + '">Olib tashlash</button></span></div>').join('')
+    : '<p class="mkt-muted">Savat bo‘sh.</p>';
+  const histHtml = hist.length ? hist.map(o =>
+    '<div class="mkt-row"><span>' + escapeHtml(o.title || '') + ' <span class="mkt-muted">' + escapeHtml(dateOf(o)) + '</span></span>' +
+    '<span>' + (Number(o.price) || 0) + ' point · <b>' + (MKT_ST[o.status] || escapeHtml(o.status || '')) + '</b></span></div>').join('')
+    : '<p class="mkt-muted">Hali buyurtma yo‘q.</p>';
+  box.innerHTML =
+    '<div><h2>Market</h2><p class="mkt-muted">Pointlaringizni kitobga almashtiring. Reytingingiz bundan o‘zgarmaydi.</p></div>' +
+    '<div class="mkt-bal"><div><span class="mkt-muted">Mavjud points</span><b>' + bal + '</b></div>' +
+      '<div class="mkt-muted">Jami yig‘ilgan: ' + _mkt.earned + ' · Sarflangan: ' + spent + '</div></div>' +
+    '<h3>Katalog</h3><div class="mkt-grid">' + cards + '</div>' +
+    '<h3>Savat (' + cart.length + ')</h3>' + cartHtml +
+    '<h3>Buyurtmalarim</h3>' + histHtml;
+}
+async function mktAdd(itemId){
+  if(!_mkt) return;
+  const item = _mkt.items.find(i => i.id === itemId);
+  if(!item || _mkt.orders.some(o => o.itemId === itemId && o.status === 'cart')) return;
+  const price = Math.round(Number(item.price) || 0);
+  if(price <= 0 || mktBalance() < price){ alert('Points yetarli emas.'); return; }
+  try{
+    await db.collection('market_orders').add({
+      studentId: currentUid, studentName: state.student.name || state.student.email || '',
+      itemId: item.id, title: item.title || '', imageUrl: item.imageUrl || '', price: price,
+      status: 'cart', createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    await mktLoad();
+  } catch(e){ alert('Savatga qo‘shib bo‘lmadi: ' + (e.message || e)); }
+}
+async function mktRemove(orderId){
+  if(!confirm('Savatdan olib tashlansinmi? Pointlar qaytariladi.')) return;
+  try{ await db.collection('market_orders').doc(orderId).delete(); await mktLoad(); }
+  catch(e){ alert('Olib tashlab bo‘lmadi: ' + (e.message || e)); }
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('#mktBox [data-mkt-add]'); if(a){ mktAdd(a.dataset.mktAdd); return; }
+  const r = e.target.closest('#mktBox [data-mkt-rm]'); if(r) mktRemove(r.dataset.mktRm);
+});
+
 function switchView(view){
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
+  if(view === 'profile' && typeof mktLoad === 'function') mktLoad();
   window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
 }
 
