@@ -2548,6 +2548,13 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
         <div class="ind-tools">
           <input type="search" id="crlSearch" placeholder="Mock nomi yoki talaba ismi" aria-label="Qidirish">
+          <select id="crlSort" aria-label="Saralash" style="padding:8px 12px;border-radius:10px;border:1px solid var(--gray-200,#e5e7eb);background:var(--white,#fff);color:inherit;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;">
+            <option value="std">Standart tartib</option>
+            <option value="done">Bajarilgan testlar</option>
+            <option value="todo">Bajarilmagan testlar</option>
+            <option value="best">Eng yaxshi natija</option>
+            <option value="worst">Eng yomon natija</option>
+          </select>
           <span id="crlCount" style="color:var(--gray);font-size:.85rem;"></span>
         </div>
         <div id="crlGrid" class="ind-grid"></div>
@@ -15637,12 +15644,44 @@ const CefrRL = (function(){
       const [t, a] = await Promise.all([ col().orderBy('createdAt', 'desc').get(), attCol().get() ]);
       tests = t.docs.map(d => Object.assign({ id: d.id }, d.data()));
       attempts = a.docs.map(d => Object.assign({ id: d.id }, d.data()));
+      await loadAllKeys().catch(() => {});
       await loadInds().catch(() => {});
     } catch(err){
       $('crlGrid').innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Yuklashda xatolik: ' + esc(err.message) + '<br>Firestore qoidalariga <b>cefrRL</b> va <b>cefrRLAttempts</b> qo&#39;shilganini tekshiring (FIRESTORE_RULES.txt).</p>';
       return;
     }
     render();
+  }
+
+  // Saralash uchun: har bir mockning javob kalitlari (private) va o'rtacha natija
+  let testKeys = {};
+  async function loadAllKeys(){
+    testKeys = {};
+    await Promise.all(tests.map(test => Promise.all(SECS.map(sec =>
+      col().doc(test.id).collection('private').doc(sec).get().catch(() => null)
+    )).then(ks => {
+      testKeys[test.id] = {};
+      SECS.forEach((sec, i) => { const k = ks[i]; testKeys[test.id][sec] = (k && k.exists && k.data().answers) || []; });
+    })));
+  }
+  function avgPct(test){
+    const list = attempts.filter(x => x.testId === test.id && SECS.indexOf(x.section) >= 0 && hasSec(test, x.section));
+    if(!list.length) return null;
+    const keysOf = testKeys[test.id] || {};
+    const sum = list.reduce((s, x) => s + scoreOf(x.answers, keysOf[x.section]) / COUNT * 100, 0);
+    return sum / list.length;
+  }
+  function completion(test){
+    const asg = test.assignedTo || [];
+    const secs = SECS.filter(sec => hasSec(test, sec));
+    if(!asg.length || !secs.length) return 0;
+    let c = 0;
+    secs.forEach(sec => { c += attempts.filter(x => x.testId === test.id && x.section === sec && asg.indexOf(x.studentId) >= 0).length; });
+    return c / (asg.length * secs.length);
+  }
+  function avgTag(test){
+    const p = avgPct(test);
+    return p === null ? '' : '<span>O‘rtacha: <b>' + Math.round(p) + '%</b></span>';
   }
 
   function render(){
@@ -15660,6 +15699,18 @@ const CefrRL = (function(){
       box.innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Hech narsa topilmadi.</p>';
       return;
     }
+    const mode = $('crlSort') ? $('crlSort').value : 'std';
+    if(mode === 'done') items.sort((x, y) => completion(y) - completion(x));
+    else if(mode === 'todo') items.sort((x, y) => completion(x) - completion(y));
+    else if(mode === 'best' || mode === 'worst'){
+      items.sort((x, y) => {
+        const p = avgPct(x), q2 = avgPct(y);
+        if(p === null && q2 === null) return 0;
+        if(p === null) return 1;
+        if(q2 === null) return -1;
+        return mode === 'best' ? q2 - p : p - q2;
+      });
+    }
     box.innerHTML = items.map(t => {
       const asg = t.assignedTo || [];
       const cnt = sec => attempts.filter(a => a.testId === t.id && a.section === sec && asg.indexOf(a.studentId) >= 0).length;
@@ -15672,7 +15723,7 @@ const CefrRL = (function(){
       };
       return '<div class="crl-card" data-id="' + esc(t.id) + '">' +
         '<h3>' + esc(t.title || 'Nomsiz') + '</h3>' +
-        '<div class="crl-meta"><span>Biriktirilgan: <b>' + asg.length + '</b></span>' +
+        '<div class="crl-meta"><span>Biriktirilgan: <b>' + asg.length + '</b></span>' + avgTag(t) +
           (hasSec(t, 'reading') ? seg('reading', 'Reading', 'crl-tag--reading') : '') +
           (hasSec(t, 'listening') ? seg('listening', 'Listening', 'crl-tag--listening') : '') + '</div>' +
         '<div class="ind-sub" title="' + esc(names) + '">' + (names ? esc(names) : 'Hech kimga biriktirilmagan') + '</div>' +
@@ -16107,6 +16158,7 @@ $('crlStuBody').addEventListener('click', e => {
   $('crlStuBtn').addEventListener('click', openStudentResults);
   $('crlStuSel').addEventListener('change', e => renderStudentResults(e.target.value));
   $('crlSearch').addEventListener('input', render);
+  $('crlSort').addEventListener('change', render);
   $('crlGrid').addEventListener('click', e => {
     const b = e.target.closest('[data-crl]');
     if(!b) return;
