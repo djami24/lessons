@@ -1672,6 +1672,19 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
     <!-- ===== CEFR RL (Reading / Listening — 35 ta javob) ===== -->
     <section id="view-cefr-rl" hidden>
       <style>
+        #view-cefr-rl .crl-head h1{font-size:20px !important;line-height:1.2;margin:0;}
+        #view-cefr-rl .crl-title-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+        .crl-info-wrap{position:relative;display:inline-flex;align-items:center;}
+        .crl-info-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--gray-200);background:var(--white);color:var(--blue-600);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:var(--shadow);}
+        .crl-info-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:60;width:min(300px,80vw);background:var(--white);border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;font-size:13.5px;line-height:1.5;color:var(--gray-700);font-weight:500;}
+        #view-cefr-rl .crl-back{display:inline-flex;align-items:center;padding:7px 16px;border-radius:99px;border:1px solid var(--gray-200);background:var(--white);color:var(--gray-700) !important;font-weight:700;font-size:13.5px;text-decoration:none;box-shadow:var(--shadow);margin-bottom:12px;}
+        #view-cefr-rl .crl-back:hover{border-color:var(--blue-600);color:var(--blue-600) !important;}
+        .crls-toolbar{display:flex;justify-content:flex-end;margin-bottom:10px;}
+        .crls-sort{padding:8px 12px;border-radius:10px;border:1.5px solid var(--gray-200);background:var(--white);color:var(--gray-900);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;}
+        .crls-avg{font-size:12px;color:var(--gray-500);}
+        body.dark .crl-info-btn,body.dark .crls-sort,body.dark #view-cefr-rl .crl-back{background:#1b2235 !important;border-color:#2a3248 !important;color:#c3cbe0 !important;}
+        body.dark .crl-info-btn{color:#4f8cff !important;}
+        body.dark .crl-info-pop{background:#171d2c;border-color:#2a3248;color:#c3cbe0;}
         .crls-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;cursor:pointer;transition:border-color .15s,transform .15s;margin-bottom:12px;}
         .crls-card:hover{border-color:var(--blue-600);transform:translateY(-1px);}
         .crls-card .t{flex:1;min-width:160px;}
@@ -1788,14 +1801,17 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         html body.admin-theme .ind-cefr-btn svg{ color:#fff !important; }
         @media (max-width:520px){.crls-grid{grid-template-columns:repeat(2,1fr);}}
       </style>
-      <a href="#" id="backToHomeFromCrl" class="back-link">Bosh sahifaga</a>
-      <div class="admin-header">
-        <div>
+      <a href="#" id="backToHomeFromCrl" class="back-link crl-back">Bosh sahifaga</a>
+      <div class="admin-header crl-head">
+        <div class="crl-title-row">
           <h1>CEFR RL</h1>
-          <p>Sizga biriktirilgan Reading va Listening testlari. Javoblaringizni kiriting va natijangizni bilib oling.</p>
+          <span class="crl-info-wrap">
+            <button type="button" class="crl-info-btn" id="crlInfoBtn" aria-expanded="false" aria-controls="crlInfoPop" aria-label="Ma’lumot"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.3" fill="currentColor"/></svg></button>
+            <div class="crl-info-pop" id="crlInfoPop" role="note" hidden>Sizga biriktirilgan Reading va Listening testlari. Javoblaringizni kiriting va natijangizni bilib oling.</div>
+          </span>
         </div>
       </div>
-      <div id="crlsListPane"><div id="crlsList"></div></div>
+      <div id="crlsListPane"><div class="crls-toolbar"><select id="crlsSort" class="crls-sort" aria-label="Saralash"><option value="std">Standart tartib</option><option value="done">Bajarilgan testlar</option><option value="todo">Bajarilmagan testlar</option><option value="best">Eng yaxshi natija</option><option value="worst">Eng yomon natija</option></select></div><div id="crlsList"></div></div>
       <div id="crlsTestPane" hidden></div>
     </section>
 
@@ -6689,21 +6705,66 @@ async function loadCefrRLTests(){
   document.getElementById('navCefrRL').style.display = crls.tests.length ? '' : 'none';
 }
 
+async function crlsEnsureScores(){
+  // Saralash uchun har bir topshirilgan bo'lim natijasini hisoblaymiz (javob kalitlari private'dan)
+  crls.scores = crls.scores || {};
+  const jobs = [];
+  crls.tests.forEach(t => CRLS_SECS.forEach(sec => {
+    if(!crlsAtt(t.id, sec)) return;
+    if(crls.scores[t.id] && crls.scores[t.id][sec] !== undefined) return;
+    jobs.push(db.collection('cefrRL').doc(t.id).collection('private').doc(sec).get().then(k => {
+      const keys = (k.exists && k.data().answers) || [];
+      const a = crlsAtt(t.id, sec) || { answers: [] };
+      (crls.scores[t.id] = crls.scores[t.id] || {})[sec] = crlsScore(a.answers, keys);
+    }).catch(() => {}));
+  }));
+  await Promise.all(jobs);
+  return jobs.length;
+}
+function crlsPct(t){
+  const sc = crls.scores && crls.scores[t.id];
+  if(!sc) return null;
+  const secs = CRLS_SECS.filter(s => crlsAtt(t.id, s) && sc[s] !== undefined);
+  if(!secs.length) return null;
+  return secs.reduce((s, sec) => s + sc[sec] / CRLS_COUNT * 100, 0) / secs.length;
+}
+function crlsDoneCount(t){ return CRLS_SECS.filter(s => crlsAtt(t.id, s)).length; }
+
 function renderCefrRLList(){
   const box = document.getElementById('crlsList');
   if(!crls.tests.length){
     box.innerHTML = '<div class="empty-state"><h3>Hozircha mock yo‘q</h3><p>Ustoz sizga mock biriktirganda shu yerda ko‘rinadi.</p></div>';
     return;
   }
-  box.innerHTML = crls.tests.map(t => {
+  const sortEl = document.getElementById('crlsSort');
+  const mode = sortEl ? sortEl.value : 'std';
+  const list = crls.tests.slice();
+  if(mode === 'done') list.sort((x, y) => crlsDoneCount(y) - crlsDoneCount(x));
+  else if(mode === 'todo') list.sort((x, y) => crlsDoneCount(x) - crlsDoneCount(y));
+  else if(mode === 'best' || mode === 'worst'){
+    list.sort((x, y) => {
+      const p = crlsPct(x), q = crlsPct(y);
+      if(p === null && q === null) return 0;
+      if(p === null) return 1;
+      if(q === null) return -1;
+      return mode === 'best' ? q - p : p - q;
+    });
+  }
+  box.innerHTML = list.map(t => {
     const st = CRLS_SECS.map(sec => {
       const a = crlsAtt(t.id, sec);
       return '<span class="crls-st ' + (a ? 'done' : 'todo') + '">' + CRLS_LABEL[sec] + (a ? ' ✓' : '') + '</span>';
     }).join(' ');
+    const pct = crlsPct(t);
+    const avg = pct === null ? '' : ' · <span class="crls-avg">O‘rtacha: <b>' + Math.round(pct) + '%</b></span>';
     return '<div class="crls-card" data-id="' + crlsEsc(t.id) + '">' +
-      '<div class="t"><strong>' + crlsEsc(t.title || 'Mock') + '</strong><span>Reading 35 ta · Listening 35 ta</span></div>' + st +
+      '<div class="t"><strong>' + crlsEsc(t.title || 'Mock') + '</strong><span>Reading 35 ta · Listening 35 ta' + avg + '</span></div>' + st +
     '</div>';
   }).join('');
+  // Natijalar hali yuklanmagan bo'lsa, yuklab, ro'yxatni qayta chizamiz
+  crlsEnsureScores().then(n => {
+    if(n && !crls.cur && !document.getElementById('crlsListPane').hidden) renderCefrRLList();
+  });
 }
 
 function showCefrRLList(){
@@ -6842,6 +6903,13 @@ document.getElementById('navCefrRL').addEventListener('click', (e) => {
   showCefrRLList();
 });
 document.getElementById('backToHomeFromCrl').addEventListener('click', (e) => { e.preventDefault(); renderHomeView(); });
+(function(){
+  const btn = document.getElementById('crlInfoBtn'), pop = document.getElementById('crlInfoPop');
+  if(!btn || !pop) return;
+  btn.addEventListener('click', (e) => { e.stopPropagation(); const open = pop.hidden; pop.hidden = !open; btn.setAttribute('aria-expanded', String(open)); });
+  document.addEventListener('click', (e) => { if(!pop.hidden && !e.target.closest('.crl-info-wrap')){ pop.hidden = true; btn.setAttribute('aria-expanded', 'false'); } });
+  document.getElementById('crlsSort').addEventListener('change', renderCefrRLList);
+})();
 document.getElementById('crlsList').addEventListener('click', (e) => {
   const c = e.target.closest('.crls-card');
   if(c) openCefrRLTest(c.dataset.id);
