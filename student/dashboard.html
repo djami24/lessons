@@ -1678,6 +1678,27 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         .crl-info-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--gray-200);background:var(--white);color:var(--blue-600);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:var(--shadow);}
         .crl-info-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:60;width:min(300px,80vw);background:var(--white);border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;font-size:13.5px;line-height:1.5;color:var(--gray-700);font-weight:500;}
         .crls-toolbar{display:flex;justify-content:flex-end;margin-bottom:10px;}
+        #view-cefr-rl .crl-head{display:flex;justify-content:flex-end;text-align:right;}
+        #view-cefr-rl .crl-title-row{justify-content:flex-end;}
+        .crl-info-pop{left:auto !important;right:0;}
+        /* Glassy tugmalar (shisha effekti) */
+        html body .crl-glass,#view-cefr-rl .crl-glass{
+          display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:99px;cursor:pointer;
+          font:inherit;font-size:13.5px;font-weight:700;text-decoration:none;color:#1e2a4a !important;
+          background:linear-gradient(180deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.22) 100%);
+          border:1px solid rgba(255,255,255,.85);
+          -webkit-backdrop-filter:blur(14px) saturate(180%);backdrop-filter:blur(14px) saturate(180%);
+          box-shadow:0 10px 24px -12px rgba(30,42,74,.45),inset 0 1px 0 rgba(255,255,255,.9);
+          transition:transform .15s,box-shadow .15s;margin:0 0 12px;
+        }
+        html body .crl-glass:hover{transform:translateY(-1px);box-shadow:0 14px 28px -12px rgba(30,42,74,.5),inset 0 1px 0 rgba(255,255,255,.9);}
+        html body .crl-glass:active{transform:scale(.97);}
+        body.dark .crl-glass,body.dark #view-cefr-rl .crl-glass,html body.admin-theme.dark .crl-glass{
+          color:#e8ecf5 !important;
+          background:linear-gradient(180deg,rgba(255,255,255,.14) 0%,rgba(255,255,255,.04) 100%) !important;
+          border:1px solid rgba(255,255,255,.16) !important;
+          box-shadow:0 10px 24px -12px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.12) !important;
+        }
         .crls-sort{padding:8px 12px;border-radius:10px;border:1.5px solid var(--gray-200);background:var(--white);color:var(--gray-900);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;}
         .crls-avg{font-size:12px;color:var(--gray-500);}
         body.dark .crl-info-btn,body.dark .crls-sort{background:#1b2235 !important;border-color:#2a3248 !important;color:#c3cbe0 !important;}
@@ -1799,7 +1820,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         html body.admin-theme .ind-cefr-btn svg{ color:#fff !important; }
         @media (max-width:520px){.crls-grid{grid-template-columns:repeat(2,1fr);}}
       </style>
-      <a href="#" id="backToHomeFromCrl" class="back-link">Bosh sahifaga</a>
+      <a href="#" id="backToHomeFromCrl" class="back-link crl-glass">Bosh sahifaga</a>
       <div class="admin-header crl-head">
         <div class="crl-title-row">
           <h1>CEFR RL</h1>
@@ -6789,7 +6810,7 @@ function crlsHead(t){
     const a = crlsAtt(t.id, sec);
     return '<button type="button" class="crls-tab' + (crls.sec === sec ? ' active' : '') + '" data-sec="' + sec + '">' + CRLS_LABEL[sec] + (a ? ' ✓' : '') + '</button>';
   }).join('');
-  return '<button type="button" class="back-link" id="crlsBack" style="background:none;border:0;cursor:pointer;">Mocklar ro‘yxatiga</button>' +
+  return '<button type="button" class="back-link crl-glass" id="crlsBack">Mocklar ro‘yxatiga</button>' +
     '<h2 style="margin:0 0 12px;font-size:19px;color:var(--gray-900);">' + crlsEsc(t.title || 'Mock') + '</h2>' +
     '<div class="crls-tabs">' + tabs + '</div>';
 }
