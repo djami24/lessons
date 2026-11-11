@@ -3892,7 +3892,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <script src="../firebase-config.js"></script>
 <script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
-<script src="../listening-hw.js?v=20261110i"></script>
+<script src="../listening-hw.js?v=20261111a"></script>
 <script src="../gb-utils.js?v=3"></script>
 <script>
 /* ===== SVG ikonlar (emoji o'rniga) ===== */
@@ -5274,7 +5274,8 @@ document.getElementById('navPlacementTest').addEventListener('click', async (e) 
 document.getElementById('navListeningHw').addEventListener('click', (e) => {
   e.preventDefault();
   switchView('listening-hw');
-  ListeningHW.openAdmin();
+  if (window.ListeningHW) { try { ListeningHW.openAdmin(); } catch (err) { showToast('Listening xatolik: ' + err.message, true); } }
+  else { document.getElementById('lhwAdminRoot').innerHTML = '<div class="lhw-empty">Listening moduli yuklanmadi (listening-hw.js topilmadi yoki xato). Faylni yuklang va sahifani yangilang.</div>'; }
 });
 document.getElementById('navKundalik').addEventListener('click', (e) => {
   e.preventDefault();
