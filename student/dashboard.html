@@ -1678,18 +1678,21 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         .crl-info-btn{width:30px;height:30px;border-radius:50%;border:1px solid var(--gray-200);background:var(--white);color:var(--blue-600);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;padding:0;box-shadow:var(--shadow);}
         .crl-info-pop{position:absolute;top:calc(100% + 8px);left:0;z-index:60;width:min(300px,80vw);background:var(--white);border:1px solid var(--gray-200);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;font-size:13.5px;line-height:1.5;color:var(--gray-700);font-weight:500;}
         .crls-toolbar{display:flex;justify-content:flex-end;margin-bottom:10px;}
-        #view-cefr-rl .crl-head{display:flex;justify-content:flex-end;text-align:right;}
+        #view-cefr-rl .crl-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+        #view-cefr-rl .crl-topbar .crl-glass{margin:0;}
+        #view-cefr-rl .crl-head{display:flex;justify-content:flex-end;text-align:right;margin:0;padding:0;border:0;}
+        #view-cefr-rl .crl-head .crl-title-row{justify-content:flex-end;}
         #view-cefr-rl .crl-title-row{justify-content:flex-end;}
         .crl-info-pop{left:auto !important;right:0;}
         /* Glassy tugmalar (shisha effekti) */
         html body .crl-glass,#view-cefr-rl .crl-glass{
-          display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:99px;cursor:pointer;
+          display:inline-flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;gap:6px;padding:9px 20px;border-radius:99px;cursor:pointer;
           font:inherit;font-size:13.5px;font-weight:700;text-decoration:none;color:#1e2a4a !important;
           background:linear-gradient(180deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.22) 100%);
           border:1px solid rgba(255,255,255,.85);
           -webkit-backdrop-filter:blur(14px) saturate(180%);backdrop-filter:blur(14px) saturate(180%);
           box-shadow:0 10px 24px -12px rgba(30,42,74,.45),inset 0 1px 0 rgba(255,255,255,.9);
-          transition:transform .15s,box-shadow .15s;margin:0 0 12px;
+          transition:transform .15s,box-shadow .15s;margin:0;
         }
         html body .crl-glass:hover{transform:translateY(-1px);box-shadow:0 14px 28px -12px rgba(30,42,74,.5),inset 0 1px 0 rgba(255,255,255,.9);}
         html body .crl-glass:active{transform:scale(.97);}
@@ -1820,6 +1823,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         html body.admin-theme .ind-cefr-btn svg{ color:#fff !important; }
         @media (max-width:520px){.crls-grid{grid-template-columns:repeat(2,1fr);}}
       </style>
+      <div class="crl-topbar">
       <a href="#" id="backToHomeFromCrl" class="back-link crl-glass">Bosh sahifaga</a>
       <div class="admin-header crl-head">
         <div class="crl-title-row">
@@ -1829,6 +1833,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
             <div class="crl-info-pop" id="crlInfoPop" role="note" hidden>Sizga biriktirilgan Reading va Listening testlari. Javoblaringizni kiriting va natijangizni bilib oling.</div>
           </span>
         </div>
+      </div>
       </div>
       <div id="crlsListPane"><div class="crls-toolbar"><select id="crlsSort" class="crls-sort" aria-label="Saralash"><option value="std">Standart tartib</option><option value="done">Bajarilgan testlar</option><option value="todo">Bajarilmagan testlar</option><option value="best">Eng yaxshi natija</option><option value="worst">Eng yomon natija</option></select></div><div id="crlsList"></div></div>
       <div id="crlsTestPane" hidden></div>
