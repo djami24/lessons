@@ -1894,6 +1894,33 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       #view-definition .def-uz{color:#1d4ed8;font-weight:700;text-align:right;}
       #view-definition .def-hint{font-size:.74rem;color:var(--gray,#6b7280);}
       #view-definition .def-tools{margin:10px 0 12px;}
+      #view-definition .du-back{display:inline-flex;align-items:center;gap:4px;padding:6px 14px;border-radius:99px;border:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font:inherit;font-size:.82rem;font-weight:700;color:#1e2a4a;cursor:pointer;box-shadow:0 6px 16px -10px rgba(30,42,74,.4);}
+      #view-definition .du-entry{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;margin:14px 0 6px;border-radius:18px;border:1px solid rgba(255,255,255,.6);background:linear-gradient(135deg,#5b8cff 0%,#2f5fd8 100%);color:#fff;font:inherit;text-align:left;cursor:pointer;box-shadow:0 14px 26px -14px rgba(47,95,216,.8);}
+      #view-definition .du-entry:active{transform:scale(.99);}
+      #view-definition .du-entry .ic{width:40px;height:40px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.2);}
+      #view-definition .du-entry b{display:block;font-size:1rem;}
+      #view-definition .du-entry small{display:block;font-size:.76rem;opacity:.85;margin-top:1px;}
+      #view-definition .du-entry .go{margin-left:auto;flex:none;opacity:.9;}
+      #view-definition .du-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin:12px 0 4px;}
+      #view-definition .du-seg{display:inline-flex;padding:3px;border-radius:99px;background:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.7);}
+      #view-definition .du-seg button{border:0;background:transparent;padding:5px 14px;border-radius:99px;font:inherit;font-size:.82rem;font-weight:700;color:#475069;cursor:pointer;}
+      #view-definition .du-seg button.on{background:#fff;color:#2f5fd8;box-shadow:0 2px 8px rgba(30,42,74,.15);}
+      #view-definition .du-link{border:0;background:none;font:inherit;font-size:.84rem;font-weight:700;color:#2f5fd8;cursor:pointer;padding:6px 2px;}
+      #view-definition .du-pager{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0;}
+      #view-definition .du-pg{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.55);font-size:1.2rem;line-height:1;font-weight:800;color:#2f5fd8;cursor:pointer;}
+      #view-definition .du-pg:disabled{opacity:.35;cursor:default;}
+      #view-definition .dg-list{display:grid;gap:10px;margin-top:14px;}
+      #view-definition .dg-item{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,.75);background:rgba(255,255,255,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);text-align:left;cursor:pointer;font:inherit;box-shadow:0 10px 24px -16px rgba(30,42,74,.45);}
+      #view-definition .dg-item:active{transform:scale(.99);}
+      #view-definition .dg-ico{width:46px;height:46px;border-radius:14px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;background:linear-gradient(135deg,#5b8cff 0%,#2f5fd8 100%);}
+      #view-definition .dg-item b{display:block;font-size:1rem;color:#1a2238;}
+      #view-definition .dg-item small{display:block;color:#6b7280;font-size:.8rem;margin-top:2px;}
+      #view-definition .dg-item .go{margin-left:auto;flex:none;color:#6b7280;}
+      body.dark #view-definition .du-back,body.dark #view-definition .du-seg,body.dark #view-definition .du-pg,body.dark #view-definition .dg-item{background:rgba(23,29,44,.5);border-color:rgba(255,255,255,.12);color:#e8ecf6;}
+      body.dark #view-definition .du-seg button{color:#aeb8d0;}
+      body.dark #view-definition .du-seg button.on{background:#2a3350;color:#9db8ff;}
+      body.dark #view-definition .du-link,body.dark #view-definition .du-pg{color:#7da2ff;}
+      body.dark #view-definition .dg-item b{color:#e8ecf6;}
       #view-definition .dg-games{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px;}
       #view-definition .dg-game-btn{border:0;border-radius:14px;padding:10px 16px;font:inherit;font-weight:800;font-size:.9rem;cursor:pointer;color:#fff;background:linear-gradient(135deg,#5b8cff 0%,#2f5fd8 100%);box-shadow:0 10px 22px -12px rgba(47,95,216,.7);}
       #view-definition .dg-game-btn:active{transform:scale(.97);}
@@ -7896,7 +7923,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
 (function(){
 try{
   const DEF_LEVELS = ['Beginner','Elementary','Pre-Intermediate','Intermediate'];
-  let _def = { sets: [], unit: null, size: 10, page: 0, game: null, gameMenu: false };
+  let _def = { sets: [], unit: null, size: 10, page: 0, game: null, games: false };
   const dEsc = s => escapeHtml(String(s == null ? '' : s));
   function defSort(a, b){
     const la = DEF_LEVELS.indexOf(a.level), lb = DEF_LEVELS.indexOf(b.level);
@@ -7922,7 +7949,7 @@ try{
         ? await db.collection('vocab_sets').where('groupId', '==', gid).get()
         : await db.collection('vocab_sets').where('groupName', '==', gname).get();
       _def.sets = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).sort(defSort);
-      _def.unit = null; _def.game = null; _def.gameMenu = false; dgStop();
+      _def.unit = null; _def.game = null; _def.games = false; dgStop();
       defRender();
     } catch(e){
       box.innerHTML = headHtml + '<p class="mkt-muted">Yuklanmadi: ' + dEsc(e.message || '') + '</p>';
@@ -7945,13 +7972,13 @@ try{
     return p.length >= 4 && Object.keys(uz).length >= 4;
   }
   function dgFmt(sec){ const m = Math.floor(sec / 60), s = sec % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
+  const DG_ICO_QUIZ = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.8" fill="currentColor"/></svg>';
+  const DG_ICO_MEM = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>';
+  const DG_ICO_PAD = '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12h4M8 10v4"/><circle cx="15.5" cy="11" r="1"/><circle cx="18" cy="13.5" r="1"/><path d="M7 7h10a4 4 0 0 1 4 4.2l-.6 4.2a2.5 2.5 0 0 1-4.4 1.3L14.5 15h-5L8 16.7a2.5 2.5 0 0 1-4.4-1.3L3 11.2A4 4 0 0 1 7 7z"/></svg>';
   function dgButtonsHtml(words){
     if(!dgCanPlay(words)) return '<p class="mkt-muted dg-note">O‘yinlar uchun unitda kamida 4 ta turli tarjimali so‘z bo‘lishi kerak.</p>';
-    const menu = _def.gameMenu
-      ? '<div class="dg-games"><button type="button" class="dg-game-btn" data-def-game="quiz">Tarjima tanlash</button>' +
-        '<button type="button" class="dg-game-btn" data-def-game="memory">Juftlarni topish</button></div>'
-      : '';
-    return '<div class="dg-games"><button type="button" class="dg-game-btn" data-dg-menu>O‘yinlar' + (_def.gameMenu ? ' ▴' : ' ▾') + '</button></div>' + menu;
+    return '<button type="button" class="du-entry" data-dg-menu><span class="ic">' + DG_ICO_PAD + '</span>' +
+      '<span><b>O‘yinlar</b><small>So‘zlarni o‘yin orqali mashq qiling</small></span>' + chevSvg.replace('class="def-chev"', 'class="go"') + '</button>';
   }
   function dgQuizOptions(q, all){
     const correct = String(q.uz).trim();
@@ -8027,7 +8054,7 @@ try{
       return '<div class="dg-result"><div class="dg-score">' + g.score + ' / ' + g.list.length + '</div>' +
         '<p class="mkt-muted">To‘g‘ri javoblar · ' + pct + '%</p>' +
         '<div class="dg-btns"><button type="button" class="mkt-btn" data-def-game="quiz" style="width:auto;padding:6px 14px;">Qayta o‘ynash</button>' +
-        '<button type="button" class="mkt-btn" data-dg-back style="width:auto;padding:6px 14px;">Unitga qaytish</button></div></div>';
+        '<button type="button" class="mkt-btn" data-dg-back style="width:auto;padding:6px 14px;">O‘yinlarga qaytish</button></div></div>';
     }
     const q = g.list[g.i];
     return '<div class="dg-prog"><span>' + (g.i + 1) + ' / ' + g.list.length + '</span><span>' + g.score + ' ball</span></div>' +
@@ -8039,7 +8066,7 @@ try{
       return '<div class="dg-result"><div class="dg-score">Tayyor!</div>' +
         '<p class="mkt-muted">Harakatlar: ' + g.moves + ' · Vaqt: ' + dgFmt(g.elapsed) + '</p>' +
         '<div class="dg-btns"><button type="button" class="mkt-btn" data-def-game="memory" style="width:auto;padding:6px 14px;">Qayta o‘ynash</button>' +
-        '<button type="button" class="mkt-btn" data-dg-back style="width:auto;padding:6px 14px;">Unitga qaytish</button></div></div>';
+        '<button type="button" class="mkt-btn" data-dg-back style="width:auto;padding:6px 14px;">O‘yinlarga qaytish</button></div></div>';
     }
     return '<div class="dg-prog"><span>Juftlar: ' + g.matched + ' / ' + g.total + ' · Harakat: ' + g.moves + '</span><span>Vaqt: <b id="dgTime">' + dgFmt(g.elapsed || 0) + '</b></span></div>' +
       '<div class="dg-board">' + g.cards.map((c, i) => {
@@ -8053,10 +8080,23 @@ try{
     if(!box) return;
     if(_def.unit && _def.game){
       const g = _def.game, u = _def.unit;
-      box.innerHTML = '<button type="button" class="mkt-btn" data-dg-back style="width:auto;padding:6px 14px;">← Unit ' + dEsc(u.unit) + '</button>' +
+      box.innerHTML = '<button type="button" class="du-back" data-dg-back>← O‘yinlar</button>' +
         '<h2 style="margin:12px 0 4px;">' + (g.type === 'quiz' ? 'Tarjima tanlash' : 'Juftlarni topish') + '</h2>' +
         '<p class="mkt-muted">Unit ' + dEsc(u.unit) + ' · ' + dEsc(u.level) + '</p>' +
         (g.type === 'quiz' ? dgRenderQuiz(g) : dgRenderMemory(g));
+      return;
+    }
+    if(_def.unit && _def.games){
+      const u = _def.unit, n = dgPairs(u.words || []).length;
+      const item = (type, ico, name, desc) => '<button type="button" class="dg-item" data-def-game="' + type + '"><span class="dg-ico">' + ico + '</span>' +
+        '<span><b>' + name + '</b><small>' + desc + '</small></span>' + chevSvg.replace('class="def-chev"', 'class="go"') + '</button>';
+      box.innerHTML = '<button type="button" class="du-back" data-dg-exit>← Unit ' + dEsc(u.unit) + '</button>' +
+        '<h2 style="margin:12px 0 2px;">O‘yinlar</h2>' +
+        '<p class="mkt-muted" style="margin:0;">Unit ' + dEsc(u.unit) + ' · ' + dEsc(u.level) + ' · ' + n + ' ta so‘z</p>' +
+        '<div class="dg-list">' +
+          item('quiz', DG_ICO_QUIZ, 'Tarjima tanlash', 'Ingliz so‘zining tarjimasini 4 ta variantdan toping') +
+          item('memory', DG_ICO_MEM, 'Juftlarni topish', 'So‘z va uning tarjimasini juftlab oching') +
+        '</div>';
       return;
     }
     if(_def.unit){
@@ -8066,16 +8106,16 @@ try{
       _def.page = Math.min(_def.page || 0, pages - 1);
       const start = _def.page * size;
       const slice = words.slice(start, start + size);
-      const sizeBtn = n => '<button type="button" class="mkt-btn" data-def-size="' + n + '" style="width:auto;padding:6px 14px;' + (size === n ? '' : 'opacity:.55;') + '">' + n + ' talik</button>';
-      const pager = '<div class="def-tools" style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">' +
-        '<button type="button" class="mkt-btn" data-def-prev' + (_def.page === 0 ? ' disabled' : '') + ' style="width:auto;padding:6px 14px;">‹ Oldingi</button>' +
+      const seg = '<div class="du-seg" role="group" aria-label="Sahifada nechta so‘z"><button type="button" data-def-size="10" class="' + (size === 10 ? 'on' : '') + '">10 ta</button>' +
+        '<button type="button" data-def-size="15" class="' + (size === 15 ? 'on' : '') + '">15 ta</button></div>';
+      const pager = '<div class="du-pager"><button type="button" class="du-pg" data-def-prev aria-label="Oldingi"' + (_def.page === 0 ? ' disabled' : '') + '>‹</button>' +
         '<span class="mkt-muted">' + (start + 1) + '–' + Math.min(start + size, words.length) + ' / ' + words.length + '</span>' +
-        '<button type="button" class="mkt-btn" data-def-next' + (_def.page >= pages - 1 ? ' disabled' : '') + ' style="width:auto;padding:6px 14px;">Keyingi ›</button></div>';
-      box.innerHTML = '<button type="button" class="mkt-btn" data-def-back style="width:auto;padding:6px 14px;">← Unitlar</button>' +
-        '<h2 style="margin:12px 0 4px;">Unit ' + dEsc(s.unit) + ' · ' + dEsc(s.level) + '</h2>' +
-        '<p class="mkt-muted">' + words.length + ' ta so‘z</p>' + dgButtonsHtml(words) +
-        '<div class="def-tools" style="display:flex;gap:6px;flex-wrap:wrap;">' + sizeBtn(10) + sizeBtn(15) +
-        '<button type="button" class="mkt-btn" data-def-toggle-all style="width:auto;padding:6px 14px;">Hammasini ko‘rsatish</button></div>' +
+        '<button type="button" class="du-pg" data-def-next aria-label="Keyingi"' + (_def.page >= pages - 1 ? ' disabled' : '') + '>›</button></div>';
+      box.innerHTML = '<button type="button" class="du-back" data-def-back>← Unitlar</button>' +
+        '<h2 style="margin:12px 0 2px;">Unit ' + dEsc(s.unit) + ' · ' + dEsc(s.level) + '</h2>' +
+        '<p class="mkt-muted" style="margin:0;">' + words.length + ' ta so‘z</p>' +
+        dgButtonsHtml(words) +
+        '<div class="du-bar">' + seg + '<button type="button" class="du-link" data-def-toggle-all>Hammasini ko‘rsatish</button></div>' +
         pager +
         slice.map((w, i) => '<div class="def-row" data-def-row><span class="def-en"><span class="def-num">' + (start + i + 1) + '.</span> ' + dEsc(w.en) + '</span>' +
           '<span class="def-uz" hidden>' + dEsc(w.uz) + '</span><span class="def-hint">ko‘rish</span></div>').join('') +
@@ -8101,10 +8141,11 @@ try{
   const box = document.getElementById('defBox');
   if(box) box.addEventListener('click', e => {
     const o = e.target.closest('[data-def-open]');
-    if(o){ const s = _def.sets.find(x => x.id === o.dataset.defOpen); if(s){ _def.unit = s; _def.page = 0; _def.game = null; _def.gameMenu = false; dgStop(); defRender(); window.scrollTo(0, 0); } return; }
-    if(e.target.closest('[data-def-back]')){ _def.unit = null; _def.game = null; _def.gameMenu = false; dgStop(); defRender(); return; }
+    if(o){ const s = _def.sets.find(x => x.id === o.dataset.defOpen); if(s){ _def.unit = s; _def.page = 0; _def.game = null; _def.games = false; dgStop(); defRender(); window.scrollTo(0, 0); } return; }
+    if(e.target.closest('[data-def-back]')){ _def.unit = null; _def.game = null; _def.games = false; dgStop(); defRender(); return; }
     if(e.target.closest('[data-dg-back]')){ _def.game = null; dgStop(); defRender(); window.scrollTo(0, 0); return; }
-    if(e.target.closest('[data-dg-menu]')){ _def.gameMenu = !_def.gameMenu; defRender(); return; }
+    if(e.target.closest('[data-dg-menu]')){ _def.games = true; defRender(); window.scrollTo(0, 0); return; }
+    if(e.target.closest('[data-dg-exit]')){ _def.games = false; _def.game = null; dgStop(); defRender(); window.scrollTo(0, 0); return; }
     const gm = e.target.closest('[data-def-game]'); if(gm){ dgStart(gm.dataset.defGame); return; }
     const gc = e.target.closest('[data-dg-card]'); if(gc){ dgCardClick(Number(gc.dataset.dgCard)); return; }
     const go = e.target.closest('[data-dg-opt]'); if(go){ dgQuizAnswer(go); return; }
