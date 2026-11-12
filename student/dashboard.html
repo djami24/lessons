@@ -7896,7 +7896,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
 (function(){
 try{
   const DEF_LEVELS = ['Beginner','Elementary','Pre-Intermediate','Intermediate'];
-  let _def = { sets: [], unit: null, size: 10, page: 0, game: null };
+  let _def = { sets: [], unit: null, size: 10, page: 0, game: null, gameMenu: false };
   const dEsc = s => escapeHtml(String(s == null ? '' : s));
   function defSort(a, b){
     const la = DEF_LEVELS.indexOf(a.level), lb = DEF_LEVELS.indexOf(b.level);
@@ -7922,7 +7922,7 @@ try{
         ? await db.collection('vocab_sets').where('groupId', '==', gid).get()
         : await db.collection('vocab_sets').where('groupName', '==', gname).get();
       _def.sets = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).sort(defSort);
-      _def.unit = null; _def.game = null; dgStop();
+      _def.unit = null; _def.game = null; _def.gameMenu = false; dgStop();
       defRender();
     } catch(e){
       box.innerHTML = headHtml + '<p class="mkt-muted">Yuklanmadi: ' + dEsc(e.message || '') + '</p>';
@@ -7947,8 +7947,11 @@ try{
   function dgFmt(sec){ const m = Math.floor(sec / 60), s = sec % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
   function dgButtonsHtml(words){
     if(!dgCanPlay(words)) return '<p class="mkt-muted dg-note">O‘yinlar uchun unitda kamida 4 ta turli tarjimali so‘z bo‘lishi kerak.</p>';
-    return '<div class="dg-games"><button type="button" class="dg-game-btn" data-def-game="quiz">Tarjima tanlash</button>' +
-      '<button type="button" class="dg-game-btn" data-def-game="memory">Juftlarni topish</button></div>';
+    const menu = _def.gameMenu
+      ? '<div class="dg-games"><button type="button" class="dg-game-btn" data-def-game="quiz">Tarjima tanlash</button>' +
+        '<button type="button" class="dg-game-btn" data-def-game="memory">Juftlarni topish</button></div>'
+      : '';
+    return '<div class="dg-games"><button type="button" class="dg-game-btn" data-dg-menu>O‘yinlar' + (_def.gameMenu ? ' ▴' : ' ▾') + '</button></div>' + menu;
   }
   function dgQuizOptions(q, all){
     const correct = String(q.uz).trim();
@@ -8098,9 +8101,10 @@ try{
   const box = document.getElementById('defBox');
   if(box) box.addEventListener('click', e => {
     const o = e.target.closest('[data-def-open]');
-    if(o){ const s = _def.sets.find(x => x.id === o.dataset.defOpen); if(s){ _def.unit = s; _def.page = 0; _def.game = null; dgStop(); defRender(); window.scrollTo(0, 0); } return; }
-    if(e.target.closest('[data-def-back]')){ _def.unit = null; _def.game = null; dgStop(); defRender(); return; }
+    if(o){ const s = _def.sets.find(x => x.id === o.dataset.defOpen); if(s){ _def.unit = s; _def.page = 0; _def.game = null; _def.gameMenu = false; dgStop(); defRender(); window.scrollTo(0, 0); } return; }
+    if(e.target.closest('[data-def-back]')){ _def.unit = null; _def.game = null; _def.gameMenu = false; dgStop(); defRender(); return; }
     if(e.target.closest('[data-dg-back]')){ _def.game = null; dgStop(); defRender(); window.scrollTo(0, 0); return; }
+    if(e.target.closest('[data-dg-menu]')){ _def.gameMenu = !_def.gameMenu; defRender(); return; }
     const gm = e.target.closest('[data-def-game]'); if(gm){ dgStart(gm.dataset.defGame); return; }
     const gc = e.target.closest('[data-dg-card]'); if(gc){ dgCardClick(Number(gc.dataset.dgCard)); return; }
     const go = e.target.closest('[data-dg-opt]'); if(go){ dgQuizAnswer(go); return; }
