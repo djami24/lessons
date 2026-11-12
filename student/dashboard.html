@@ -1924,8 +1924,8 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       #view-definition .du-tabs{display:flex;width:100%;}
       #view-definition .du-tabs button{flex:1;}
       #view-definition .dl-main{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;}
-      #view-definition .dl-row .def-uz{text-align:left;font-size:.92rem;}
-      #view-definition .dl-btn{flex:none;border:1px solid rgba(47,95,216,.35);background:rgba(47,95,216,.1);color:#2f5fd8;border-radius:99px;padding:7px 14px;font:inherit;font-size:.8rem;font-weight:800;cursor:pointer;}
+      #view-definition .dl-row .def-uz{text-align:left;font-size:1.12rem;font-weight:800;}
+      #view-definition .dl-btn{flex:none;border:1px solid rgba(47,95,216,.35);background:rgba(47,95,216,.1);color:#2f5fd8;border-radius:99px;padding:4px 10px;font:inherit;font-size:.72rem;font-weight:700;cursor:pointer;}
       #view-definition .dl-btn:active{transform:scale(.96);}
       #view-definition .dl-btn.on{border-color:rgba(100,116,139,.4);background:rgba(100,116,139,.12);color:#64748b;}
       #view-definition .dg-item:disabled{opacity:.5;cursor:default;}
@@ -8149,10 +8149,10 @@ try{
     }
     if(_def.unit){
       const s = _def.unit, words = s.words || [];
-      const size = _def.size || 10;
       const tab = _def.tab === 'done' ? 'done' : 'todo';
       const nDone = words.filter(w => dlIs(s.id, w)).length;
       const entries = words.map((w, idx) => ({ w: w, idx: idx })).filter(x => (tab === 'done') === dlIs(s.id, x.w));
+      const size = _def.size === 0 ? Math.max(entries.length, 1) : (_def.size || 10);
       const pages = Math.max(1, Math.ceil(entries.length / size));
       _def.page = Math.min(_def.page || 0, pages - 1);
       const start = _def.page * size;
@@ -8160,8 +8160,10 @@ try{
       const tabs = '<div class="du-seg du-tabs" role="tablist">' +
         '<button type="button" data-def-tab="todo" class="' + (tab === 'todo' ? 'on' : '') + '">Yodlanmagan · ' + (words.length - nDone) + '</button>' +
         '<button type="button" data-def-tab="done" class="' + (tab === 'done' ? 'on' : '') + '">Yodlangan · ' + nDone + '</button></div>';
-      const seg = '<div class="du-seg" role="group" aria-label="Sahifada nechta so‘z"><button type="button" data-def-size="10" class="' + (size === 10 ? 'on' : '') + '">10 ta</button>' +
-        '<button type="button" data-def-size="15" class="' + (size === 15 ? 'on' : '') + '">15 ta</button></div>';
+      const seg = '<div class="du-seg" role="group" aria-label="Sahifada nechta so‘z"><button type="button" data-def-size="10" class="' + (_def.size === 10 ? 'on' : '') + '">10 ta</button>' +
+        '<button type="button" data-def-size="15" class="' + (_def.size === 15 ? 'on' : '') + '">15 ta</button>' +
+        '<button type="button" data-def-size="20" class="' + (_def.size === 20 ? 'on' : '') + '">20 ta</button>' +
+        '<button type="button" data-def-size="0" class="' + (_def.size === 0 ? 'on' : '') + '">Barchasi</button></div>';
       const pager = entries.length <= size ? '' : '<div class="du-pager"><button type="button" class="du-pg" data-def-prev aria-label="Oldingi"' + (_def.page === 0 ? ' disabled' : '') + '>‹</button>' +
         '<span class="mkt-muted">' + (start + 1) + '–' + Math.min(start + size, entries.length) + ' / ' + entries.length + '</span>' +
         '<button type="button" class="du-pg" data-def-next aria-label="Keyingi"' + (_def.page >= pages - 1 ? ' disabled' : '') + '>›</button></div>';
@@ -8212,7 +8214,7 @@ try{
     const gc = e.target.closest('[data-dg-card]'); if(gc){ dgCardClick(Number(gc.dataset.dgCard)); return; }
     const go = e.target.closest('[data-dg-opt]'); if(go){ dgQuizAnswer(go); return; }
     const sz = e.target.closest('[data-def-size]');
-    if(sz){ _def.size = Number(sz.dataset.defSize) || 10; _def.page = 0; defRender(); return; }
+    if(sz){ const v = Number(sz.dataset.defSize); _def.size = isNaN(v) ? 10 : v; _def.page = 0; defRender(); return; }
     if(e.target.closest('[data-def-prev]')){ _def.page = Math.max(0, _def.page - 1); defRender(); window.scrollTo(0, 0); return; }
     if(e.target.closest('[data-def-next]')){ _def.page = _def.page + 1; defRender(); window.scrollTo(0, 0); return; }
     const tb = e.target.closest('[data-def-tab]');
