@@ -1894,6 +1894,27 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       #view-definition .def-uz{color:#1d4ed8;font-weight:700;text-align:right;}
       #view-definition .def-hint{font-size:.74rem;color:var(--gray,#6b7280);}
       #view-definition .def-tools{margin:10px 0 12px;}
+      #view-definition .dg-games{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px;}
+      #view-definition .dg-game-btn{border:0;border-radius:14px;padding:10px 16px;font:inherit;font-weight:800;font-size:.9rem;cursor:pointer;color:#fff;background:linear-gradient(135deg,#5b8cff 0%,#2f5fd8 100%);box-shadow:0 10px 22px -12px rgba(47,95,216,.7);}
+      #view-definition .dg-game-btn:active{transform:scale(.97);}
+      #view-definition .dg-note{font-size:.82rem;margin:8px 0;}
+      #view-definition .dg-prog{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px;font-size:.85rem;font-weight:700;margin:12px 0;color:var(--gray,#6b7280);}
+      #view-definition .dg-q{font-size:1.5rem;font-weight:900;text-align:center;padding:18px 10px;border-radius:18px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.7);word-break:break-word;}
+      #view-definition .dg-hint{text-align:center;font-size:.8rem;color:var(--gray,#6b7280);margin:8px 0 0;}
+      #view-definition .dg-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;}
+      #view-definition .dg-opt{border:1px solid rgba(255,255,255,.7);border-radius:14px;padding:14px 10px;font:inherit;font-weight:700;cursor:pointer;background:rgba(255,255,255,.55);color:#1a2238;word-break:break-word;}
+      #view-definition .dg-opt.ok{background:rgba(34,197,94,.22);border-color:#22c55e;}
+      #view-definition .dg-opt.bad{background:rgba(239,68,68,.2);border-color:#ef4444;}
+      #view-definition .dg-opt:disabled{cursor:default;}
+      #view-definition .dg-board{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px;}
+      #view-definition .dg-card{aspect-ratio:1/1.1;border-radius:14px;border:1px solid rgba(255,255,255,.7);background:linear-gradient(135deg,#5b8cff 0%,#2f5fd8 100%);color:#fff;font:inherit;font-weight:800;font-size:.78rem;padding:4px;cursor:pointer;word-break:break-word;line-height:1.2;}
+      #view-definition .dg-card.open{background:rgba(255,255,255,.75);color:#1a2238;}
+      #view-definition .dg-card.done{background:rgba(34,197,94,.25);color:#14532d;border-color:#22c55e;}
+      #view-definition .dg-result{text-align:center;padding:24px 10px;}
+      #view-definition .dg-score{font-size:2.2rem;font-weight:900;}
+      #view-definition .dg-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
+      body.dark #view-definition .dg-q,body.dark #view-definition .dg-opt{background:rgba(23,29,44,.5);border-color:rgba(255,255,255,.12);color:#e8ecf6;}
+      body.dark #view-definition .dg-card.open{background:#232b40;color:#e8ecf6;}
       body.dark #view-definition .def-uz{color:#7da2ff;}
       body.dark #view-definition .def-unit,body.dark #view-definition .def-row{background:rgba(23,29,44,.45);border-color:rgba(255,255,255,.12);}
     </style>
@@ -7875,7 +7896,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
 (function(){
 try{
   const DEF_LEVELS = ['Beginner','Elementary','Pre-Intermediate','Intermediate'];
-  let _def = { sets: [], unit: null, size: 10, page: 0 };
+  let _def = { sets: [], unit: null, size: 10, page: 0, game: null };
   const dEsc = s => escapeHtml(String(s == null ? '' : s));
   function defSort(a, b){
     const la = DEF_LEVELS.indexOf(a.level), lb = DEF_LEVELS.indexOf(b.level);
@@ -7901,16 +7922,140 @@ try{
         ? await db.collection('vocab_sets').where('groupId', '==', gid).get()
         : await db.collection('vocab_sets').where('groupName', '==', gname).get();
       _def.sets = snap.docs.map(d => Object.assign({ id: d.id }, d.data())).sort(defSort);
-      _def.unit = null;
+      _def.unit = null; _def.game = null; dgStop();
       defRender();
     } catch(e){
       box.innerHTML = headHtml + '<p class="mkt-muted">Yuklanmadi: ' + dEsc(e.message || '') + '</p>';
     }
   };
 
+  // ---------- Unit ichidagi o'yinlar: Tarjima tanlash va Juftlarni topish ----------
+  let _dgTimer = null;
+  function dgStop(){ if(_dgTimer){ clearInterval(_dgTimer); _dgTimer = null; } }
+  function dgShuffle(a){
+    a = a.slice();
+    for(let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; }
+    return a;
+  }
+  function dgNorm(s){ return String(s == null ? '' : s).trim().toLowerCase(); }
+  function dgPairs(words){ return (words || []).filter(w => w && dgNorm(w.en) && dgNorm(w.uz)); }
+  function dgCanPlay(words){
+    const p = dgPairs(words);
+    const uz = {}; p.forEach(w => { uz[dgNorm(w.uz)] = true; });
+    return p.length >= 4 && Object.keys(uz).length >= 4;
+  }
+  function dgFmt(sec){ const m = Math.floor(sec / 60), s = sec % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
+  function dgButtonsHtml(words){
+    if(!dgCanPlay(words)) return '<p class="mkt-muted dg-note">O‘yinlar uchun unitda kamida 4 ta turli tarjimali so‘z bo‘lishi kerak.</p>';
+    return '<div class="dg-games"><button type="button" class="dg-game-btn" data-def-game="quiz">Tarjima tanlash</button>' +
+      '<button type="button" class="dg-game-btn" data-def-game="memory">Juftlarni topish</button></div>';
+  }
+  function dgQuizOptions(q, all){
+    const correct = String(q.uz).trim();
+    const seen = {}; seen[dgNorm(correct)] = true;
+    const others = [];
+    dgShuffle(all).forEach(w => {
+      const u = String(w.uz).trim();
+      if(!seen[dgNorm(u)] && others.length < 3){ seen[dgNorm(u)] = true; others.push(u); }
+    });
+    return dgShuffle([correct].concat(others));
+  }
+  function dgStart(type){
+    const s = _def.unit; if(!s) return;
+    const pairs = dgPairs(s.words || []);
+    dgStop();
+    if(type === 'quiz'){
+      const list = dgShuffle(pairs);
+      _def.game = { type: 'quiz', list: list, all: pairs, i: 0, score: 0, locked: false, done: false, opts: dgQuizOptions(list[0], pairs) };
+    } else {
+      const pick = dgShuffle(pairs).slice(0, Math.min(6, pairs.length));
+      const cards = [];
+      pick.forEach((w, k) => { cards.push({ id: k, text: w.en, open: false, done: false }); cards.push({ id: k, text: w.uz, open: false, done: false }); });
+      const g = { type: 'memory', cards: dgShuffle(cards), first: null, lock: false, moves: 0, matched: 0, total: pick.length, t0: Date.now(), elapsed: 0, done: false };
+      _def.game = g;
+      _dgTimer = setInterval(() => {
+        if(_def.game !== g || g.done){ dgStop(); return; }
+        g.elapsed = Math.floor((Date.now() - g.t0) / 1000);
+        const el = document.getElementById('dgTime'); if(el) el.textContent = dgFmt(g.elapsed);
+      }, 500);
+    }
+    defRender(); window.scrollTo(0, 0);
+  }
+  function dgQuizAnswer(btn){
+    const g = _def.game; if(!g || g.type !== 'quiz' || g.locked || g.done) return;
+    g.locked = true;
+    const q = g.list[g.i], right = dgNorm(btn.dataset.dgOpt) === dgNorm(q.uz);
+    if(right) g.score++;
+    const box = document.getElementById('defBox');
+    box.querySelectorAll('[data-dg-opt]').forEach(b => {
+      b.disabled = true;
+      if(dgNorm(b.dataset.dgOpt) === dgNorm(q.uz)) b.classList.add('ok');
+      else if(b === btn) b.classList.add('bad');
+    });
+    setTimeout(() => {
+      if(_def.game !== g) return;
+      g.i++; g.locked = false;
+      if(g.i >= g.list.length) g.done = true; else g.opts = dgQuizOptions(g.list[g.i], g.all);
+      defRender();
+    }, right ? 700 : 1100);
+  }
+  function dgCardClick(idx){
+    const g = _def.game; if(!g || g.type !== 'memory' || g.lock || g.done) return;
+    const c = g.cards[idx]; if(!c || c.open || c.done) return;
+    c.open = true;
+    if(g.first === null){ g.first = idx; defRender(); return; }
+    g.moves++;
+    const f = g.cards[g.first];
+    if(f.id === c.id){
+      f.open = false; c.open = false; f.done = true; c.done = true; g.first = null; g.matched++;
+      if(g.matched === g.total){ g.done = true; g.elapsed = Math.floor((Date.now() - g.t0) / 1000); dgStop(); }
+      defRender(); return;
+    }
+    g.lock = true; defRender();
+    setTimeout(() => {
+      if(_def.game !== g) return;
+      f.open = false; c.open = false; g.first = null; g.lock = false;
+      defRender();
+    }, 800);
+  }
+  function dgRenderQuiz(g){
+    if(g.done){
+      const pct = Math.round(g.score / g.list.length * 100);
+      return '<div class="dg-result"><div class="dg-score">' + g.score + ' / ' + g.list.length + '</div>' +
+        '<p class="mkt-muted">To‘g‘ri javoblar · ' + pct + '%</p>' +
+        '<div class="dg-btns"><button type="button" class="mkt-btn" data-def-game="quiz" style="width:auto;padding:6px 14px;">Qayta o‘ynash</button>' +
+        '<button type="button" class="mkt-btn" data-dg-back style="width:auto;padding:6px 14px;">Unitga qaytish</button></div></div>';
+    }
+    const q = g.list[g.i];
+    return '<div class="dg-prog"><span>' + (g.i + 1) + ' / ' + g.list.length + '</span><span>' + g.score + ' ball</span></div>' +
+      '<div class="dg-q">' + dEsc(q.en) + '</div><p class="dg-hint">Tarjimasini tanlang</p>' +
+      '<div class="dg-opts">' + g.opts.map(o => '<button type="button" class="dg-opt" data-dg-opt="' + dEsc(o) + '">' + dEsc(o) + '</button>').join('') + '</div>';
+  }
+  function dgRenderMemory(g){
+    if(g.done){
+      return '<div class="dg-result"><div class="dg-score">Tayyor!</div>' +
+        '<p class="mkt-muted">Harakatlar: ' + g.moves + ' · Vaqt: ' + dgFmt(g.elapsed) + '</p>' +
+        '<div class="dg-btns"><button type="button" class="mkt-btn" data-def-game="memory" style="width:auto;padding:6px 14px;">Qayta o‘ynash</button>' +
+        '<button type="button" class="mkt-btn" data-dg-back style="width:auto;padding:6px 14px;">Unitga qaytish</button></div></div>';
+    }
+    return '<div class="dg-prog"><span>Juftlar: ' + g.matched + ' / ' + g.total + ' · Harakat: ' + g.moves + '</span><span>Vaqt: <b id="dgTime">' + dgFmt(g.elapsed || 0) + '</b></span></div>' +
+      '<div class="dg-board">' + g.cards.map((c, i) => {
+        const show = c.open || c.done;
+        return '<button type="button" class="dg-card' + (c.open ? ' open' : '') + (c.done ? ' done' : '') + '" data-dg-card="' + i + '">' + (show ? dEsc(c.text) : '?') + '</button>';
+      }).join('') + '</div>';
+  }
+
   function defRender(){
     const box = document.getElementById('defBox');
     if(!box) return;
+    if(_def.unit && _def.game){
+      const g = _def.game, u = _def.unit;
+      box.innerHTML = '<button type="button" class="mkt-btn" data-dg-back style="width:auto;padding:6px 14px;">← Unit ' + dEsc(u.unit) + '</button>' +
+        '<h2 style="margin:12px 0 4px;">' + (g.type === 'quiz' ? 'Tarjima tanlash' : 'Juftlarni topish') + '</h2>' +
+        '<p class="mkt-muted">Unit ' + dEsc(u.unit) + ' · ' + dEsc(u.level) + '</p>' +
+        (g.type === 'quiz' ? dgRenderQuiz(g) : dgRenderMemory(g));
+      return;
+    }
     if(_def.unit){
       const s = _def.unit, words = s.words || [];
       const size = _def.size || 10;
@@ -7925,7 +8070,7 @@ try{
         '<button type="button" class="mkt-btn" data-def-next' + (_def.page >= pages - 1 ? ' disabled' : '') + ' style="width:auto;padding:6px 14px;">Keyingi ›</button></div>';
       box.innerHTML = '<button type="button" class="mkt-btn" data-def-back style="width:auto;padding:6px 14px;">← Unitlar</button>' +
         '<h2 style="margin:12px 0 4px;">Unit ' + dEsc(s.unit) + ' · ' + dEsc(s.level) + '</h2>' +
-        '<p class="mkt-muted">' + words.length + ' ta so‘z</p>' +
+        '<p class="mkt-muted">' + words.length + ' ta so‘z</p>' + dgButtonsHtml(words) +
         '<div class="def-tools" style="display:flex;gap:6px;flex-wrap:wrap;">' + sizeBtn(10) + sizeBtn(15) +
         '<button type="button" class="mkt-btn" data-def-toggle-all style="width:auto;padding:6px 14px;">Hammasini ko‘rsatish</button></div>' +
         pager +
@@ -7953,8 +8098,12 @@ try{
   const box = document.getElementById('defBox');
   if(box) box.addEventListener('click', e => {
     const o = e.target.closest('[data-def-open]');
-    if(o){ const s = _def.sets.find(x => x.id === o.dataset.defOpen); if(s){ _def.unit = s; _def.page = 0; defRender(); window.scrollTo(0, 0); } return; }
-    if(e.target.closest('[data-def-back]')){ _def.unit = null; defRender(); return; }
+    if(o){ const s = _def.sets.find(x => x.id === o.dataset.defOpen); if(s){ _def.unit = s; _def.page = 0; _def.game = null; dgStop(); defRender(); window.scrollTo(0, 0); } return; }
+    if(e.target.closest('[data-def-back]')){ _def.unit = null; _def.game = null; dgStop(); defRender(); return; }
+    if(e.target.closest('[data-dg-back]')){ _def.game = null; dgStop(); defRender(); window.scrollTo(0, 0); return; }
+    const gm = e.target.closest('[data-def-game]'); if(gm){ dgStart(gm.dataset.defGame); return; }
+    const gc = e.target.closest('[data-dg-card]'); if(gc){ dgCardClick(Number(gc.dataset.dgCard)); return; }
+    const go = e.target.closest('[data-dg-opt]'); if(go){ dgQuizAnswer(go); return; }
     const sz = e.target.closest('[data-def-size]');
     if(sz){ _def.size = Number(sz.dataset.defSize) || 10; _def.page = 0; defRender(); return; }
     if(e.target.closest('[data-def-prev]')){ _def.page = Math.max(0, _def.page - 1); defRender(); window.scrollTo(0, 0); return; }
