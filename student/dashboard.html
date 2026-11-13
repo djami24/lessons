@@ -1888,6 +1888,27 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       #view-definition .def-chev{color:var(--gray,#6b7280);flex:none;}
       body.dark #view-definition .def-unit{background:rgba(23,29,44,.45);border-color:rgba(255,255,255,.12);}
       body.dark #view-definition .def-lv i{background:rgba(125,162,255,.16);color:#7da2ff;}
+      /* --- Unitlar ro'yxati: daraja ranglari, progress, o'qilishi oson kartalar --- */
+      #view-definition .lv-a{--c1:#8be3b0;--c2:#1fae7a;}
+      #view-definition .lv-b{--c1:#f7e08a;--c2:#d4a017;}
+      #view-definition .lv-c{--c1:#ffbe8a;--c2:#f2780c;}
+      #view-definition .lv-d{--c1:#c4a7ff;--c2:#7c4dff;}
+      #view-definition .lv-x{--c1:#8fb4ff;--c2:#2f5fd8;}
+      #view-definition .def-lv{margin:22px 0 10px;font-size:.82rem;color:var(--ink,#1a2238);}
+      #view-definition .def-lv .dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--c2);box-shadow:0 0 0 4px color-mix(in srgb,var(--c2) 22%,transparent);}
+      #view-definition .def-lv i{margin-left:auto;}
+      #view-definition .def-grid{grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;}
+      #view-definition .def-unit{padding:12px 14px;gap:14px;}
+      #view-definition .def-badge{width:50px;height:50px;border-radius:15px;font-size:1.25rem;overflow:hidden;background:linear-gradient(135deg,var(--c1) 0%,var(--c2) 100%);box-shadow:0 10px 18px -10px var(--c2),inset 0 1px 0 rgba(255,255,255,.5);}
+      #view-definition .def-badge.sm{font-size:.8rem;}
+      #view-definition .def-txt b{font-size:1.02rem;color:var(--ink,#1a2238);}
+      #view-definition .def-txt small{font-size:.78rem;margin-top:1px;}
+      #view-definition .def-prog{display:block;height:6px;border-radius:99px;background:rgba(100,116,139,.18);margin-top:8px;overflow:hidden;}
+      #view-definition .def-prog i{display:block;height:100%;border-radius:99px;background:var(--c2);transition:width .3s ease;}
+      #view-definition .def-unit.all-done .def-prog i{background:#22c55e;}
+      #view-definition .def-unit.all-done small{color:#16a34a;font-weight:700;}
+      body.dark #view-definition .def-lv,body.dark #view-definition .def-txt b{color:#e8ecf6;}
+      body.dark #view-definition .def-prog{background:rgba(255,255,255,.12);}
       #view-definition .def-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;margin-bottom:8px;border-radius:14px;background:rgba(255,255,255,.42);border:1px solid rgba(255,255,255,.6);cursor:pointer;font-size:.92rem;}
       #view-definition .def-en{font-weight:800;}
       #view-definition .def-num{display:inline-block;min-width:26px;color:var(--gray,#6b7280);font-weight:700;font-size:.8rem;}
@@ -7932,6 +7953,20 @@ try{
   const DEF_LEVELS = ['Beginner','Elementary','Pre-Intermediate','Intermediate'];
   let _def = { sets: [], unit: null, size: 10, page: 0, game: null, games: false, learned: {}, tab: 'todo', reveal: false, src: 'all' };
   const dEsc = s => escapeHtml(String(s == null ? '' : s));
+  // Unit nomi: "Unit 5", "Uni t 5", "5" ... -> faqat raqam ("5"); raqam topilmasa matnning o'zi
+  function defUnitNo(s){
+    const raw = String(s && s.unit != null ? s.unit : '').trim();
+    const m = raw.match(/\d+(?:\.\d+)?/);
+    return m ? m[0] : raw;
+  }
+  function defLvClass(lv){
+    const k = String(lv || '').toLowerCase();
+    if(k === 'beginner') return 'lv-a';
+    if(k === 'elementary') return 'lv-b';
+    if(k.indexOf('pre') === 0) return 'lv-c';
+    if(k === 'intermediate') return 'lv-d';
+    return 'lv-x';
+  }
   function defSort(a, b){
     const la = DEF_LEVELS.indexOf(a.level), lb = DEF_LEVELS.indexOf(b.level);
     if(la !== lb) return la - lb;
@@ -8119,7 +8154,7 @@ try{
       const g = _def.game, u = _def.unit;
       box.innerHTML = '<button type="button" class="du-back" data-dg-back>← O‘yinlar</button>' +
         '<h2 style="margin:12px 0 4px;">' + (g.type === 'quiz' ? 'Tarjima tanlash' : 'Juftlarni topish') + '</h2>' +
-        '<p class="mkt-muted">Unit ' + dEsc(u.unit) + ' · ' + dEsc(u.level) + ' · ' + (_def.src === 'learned' ? 'Yodlangan so‘zlar' : 'Barcha so‘zlar') + '</p>' +
+        '<p class="mkt-muted">Unit ' + dEsc(defUnitNo(u)) + ' · ' + dEsc(u.level) + ' · ' + (_def.src === 'learned' ? 'Yodlangan so‘zlar' : 'Barcha so‘zlar') + '</p>' +
         (g.type === 'quiz' ? dgRenderQuiz(g) : dgRenderMemory(g));
       return;
     }
@@ -8132,9 +8167,9 @@ try{
         '<button type="button" data-dg-src="learned" class="' + (_def.src === 'learned' ? 'on' : '') + '">Yodlangan · ' + learnedW.length + '</button></div>';
       const item = (type, ico, name, desc) => '<button type="button" class="dg-item" data-def-game="' + type + '"' + (can ? '' : ' disabled') + '><span class="dg-ico">' + ico + '</span>' +
         '<span><b>' + name + '</b><small>' + desc + '</small></span>' + chevSvg.replace('class="def-chev"', 'class="go"') + '</button>';
-      box.innerHTML = '<button type="button" class="du-back" data-dg-exit>← Unit ' + dEsc(u.unit) + '</button>' +
+      box.innerHTML = '<button type="button" class="du-back" data-dg-exit>← Unit ' + dEsc(defUnitNo(u)) + '</button>' +
         '<h2 style="margin:12px 0 2px;">O‘yinlar</h2>' +
-        '<p class="mkt-muted" style="margin:0;">Unit ' + dEsc(u.unit) + ' · ' + dEsc(u.level) + '</p>' +
+        '<p class="mkt-muted" style="margin:0;">Unit ' + dEsc(defUnitNo(u)) + ' · ' + dEsc(u.level) + '</p>' +
         '<p class="mkt-muted" style="margin:14px 0 6px;font-weight:700;">Qaysi so‘zlar bilan o‘ynaysiz?</p>' + src +
         (can ? '' : '<p class="mkt-muted dg-note">Yodlangan so‘zlar bilan o‘ynash uchun kamida 4 ta turli tarjimali so‘z yodlangan bo‘lishi kerak. Hozir: ' + learnedW.length + ' ta.</p>') +
         '<div class="dg-list">' +
@@ -8174,7 +8209,7 @@ try{
         ? 'Hali yodlangan so‘z yo‘q. So‘zni yodlagach «Yodladim» tugmasini bosing.'
         : 'Barcha so‘zlar yodlangan. Barakalla!') + '</div>';
       box.innerHTML = '<button type="button" class="du-back" data-def-back>← Unitlar</button>' +
-        '<h2 style="margin:12px 0 2px;">Unit ' + dEsc(s.unit) + ' · ' + dEsc(s.level) + '</h2>' +
+        '<h2 style="margin:12px 0 2px;">Unit ' + dEsc(defUnitNo(s)) + ' · ' + dEsc(s.level) + '</h2>' +
         '<p class="mkt-muted" style="margin:0;">' + words.length + ' ta so‘z · ' + nDone + ' tasi yodlangan</p>' +
         dgButtonsHtml(words) +
         '<div class="du-bar">' + tabs + '</div>' +
@@ -8187,14 +8222,21 @@ try{
     _def.sets.forEach(s => { if(levels.indexOf(s.level) === -1) levels.push(s.level); });
     box.innerHTML = headHtml + levels.map(lv => {
       const list = _def.sets.filter(s => s.level === lv);
-      return '<div class="def-lv">' + dEsc(lv || 'Daraja') + ' <i>' + list.length + ' ta unit</i></div><div class="def-grid">' +
-        list.map(s =>
-          '<button type="button" class="def-unit" data-def-open="' + dEsc(s.id) + '">' +
-            '<span class="def-badge">' + dEsc(s.unit) + '</span>' +
-            '<span class="def-txt"><b>Unit ' + dEsc(s.unit) + '</b><small>' + ((s.words || []).length) + ' ta so‘z</small></span>' +
+      const cls = defLvClass(lv);
+      return '<div class="def-lv ' + cls + '"><span class="dot"></span>' + dEsc(lv || 'Daraja') + ' <i>' + list.length + ' ta unit</i></div><div class="def-grid">' +
+        list.map(s => {
+          const words = s.words || [], total = words.length;
+          const done = words.filter(w => dlIs(s.id, w)).length;
+          const pct = total ? Math.round(done / total * 100) : 0;
+          const no = defUnitNo(s);
+          const sub = total + ' ta so‘z' + (total && done === total ? ' · hammasi yodlangan' : (done ? ' · ' + done + ' tasi yodlangan' : ''));
+          return '<button type="button" class="def-unit ' + cls + (total && done === total ? ' all-done' : '') + '" data-def-open="' + dEsc(s.id) + '">' +
+            '<span class="def-badge' + (no.length > 3 ? ' sm' : '') + '">' + dEsc(no) + '</span>' +
+            '<span class="def-txt"><b>Unit ' + dEsc(no) + '</b><small>' + sub + '</small>' +
+              '<span class="def-prog"><i style="width:' + pct + '%"></i></span></span>' +
             chevSvg +
-          '</button>'
-        ).join('') + '</div>';
+          '</button>';
+        }).join('') + '</div>';
     }).join('');
   }
 
