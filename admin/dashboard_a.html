@@ -2528,7 +2528,16 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         #crlGrid .crl-meta{flex:0 0 auto;align-items:center;}
         #crlGrid .crl-card .ind-sub{flex:1 1 180px;min-width:0;overflow-wrap:anywhere;}
         #crlGrid .crl-actions{margin-top:0;flex:0 0 auto;}
-        @media (max-width:640px){#crlGrid .crl-card{padding:12px;} #crlGrid .crl-actions{width:100%;}}
+        /* Katta ekranda ustunlar qat'iy: nom | ma'lumot | talaba | tugmalar (tugmalar doim bir xil joyda, bir qatorda) */
+        @media (min-width:901px){
+          #crlGrid .crl-card{display:grid;grid-template-columns:minmax(0,1.2fr) 400px minmax(0,1fr) auto;align-items:center;gap:6px 18px;}
+          #crlGrid .crl-card h3{flex:none;}
+          #crlGrid .crl-meta{flex-wrap:nowrap;white-space:nowrap;justify-content:flex-start;}
+          #crlGrid .crl-card .ind-sub{flex:none;}
+          #crlGrid .crl-actions{flex-wrap:nowrap;justify-self:end;}
+        }
+        @media (max-width:900px){#crlGrid .crl-actions{width:100%;}}
+        @media (max-width:640px){#crlGrid .crl-card{padding:12px;}}
         #crlGrid .crl-tag--ok{color:#059669;background:rgba(5,150,105,.14);}
         #crlGrid .crl-tag--bad{color:#dc2626;background:rgba(220,38,38,.14);}
       </style>
