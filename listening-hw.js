@@ -1497,17 +1497,31 @@
       if (A.detailSid !== sid) return;
       var txt = res[0].exists ? String((res[0].data() || {}).text || '') : '';
       var key = res[1] || '';
-      var head = '<div class="lhw-admin-detail"><div class="lhw-lb-head"><h3>' + esc(sub.studentName || 'Talaba') + ': matni</h3>';
+      var head = '<div class="lhw-admin-detail"><div class="lhw-dd-top"><h3>' + esc(sub.studentName || 'Talaba') + '</h3><span class="lhw-dd-sub">yozgan matni</span></div>';
       if (!key) {
-        box.innerHTML = head + '</div><p class="lhw-muted">Asl matn hali kiritilmagan: "Tahrirlash" orqali kiriting.</p><div class="lhw-dict-diff">' + esc(txt) + '</div></div>';
+        box.innerHTML = head + '<p class="lhw-muted">Asl matn hali kiritilmagan: "Tahrirlash" orqali kiriting.</p><div class="lhw-dict-diff">' + esc(txt) + '</div></div>';
         return;
       }
       var r = dictDiff(key, txt);
+      var stuN = dictTokens(txt).length;
+      var card = function (label, val, unit, cls) {
+        return '<div class="lhw-dd-card' + (cls ? ' ' + cls : '') + '"><small>' + label + '</small><b>' + val + (unit ? '<span>' + unit + '</span>' : '') + '</b></div>';
+      };
+      var chip = function (cls, label, n) { return '<span class="lg ' + cls + '"><i></i>' + label + ' <b>' + n + '</b></span>'; };
       box.innerHTML = head +
-        '<span class="lhw-muted">Asl matn: ' + r.refN + ' ta so‘z' + (r.ok ? '' : ' · CHALA BAJARILGAN (' + DICT_MIN_PCT + '% dan kam): ball hisobga olinmaydi, ' + DICT_PENALTY + ' ta jazo') + ' · Ball: ' + r.score + '/' + DICT_POINTS + ' · aniqlik ' + r.pct + '% · to‘g‘ri ' + r.eq +
-        ', imlo ' + r.spell + ', noto‘g‘ri ' + r.wrong + ', tushgan ' + r.missing + ', ortiqcha ' + r.extra + '</span></div>' +
+        (r.ok ? '' : '<div class="lhw-warn">CHALA BAJARILGAN (' + DICT_MIN_PCT + '% dan kam): ball hisobga olinmaydi, ' + DICT_PENALTY + ' ta jazo.</div>') +
+        '<div class="lhw-dd-cards">' +
+          card('Asl matn', r.refN, 'ta so‘z') +
+          card('Talaba yozgan', stuN, 'ta so‘z') +
+          card('Ball', r.score + '/' + DICT_POINTS, '', r.ok ? '' : 'bad') +
+          card('Aniqlik', r.pct + '%', '', r.ok ? '' : 'bad') +
+        '</div>' +
+        '<div class="lhw-dd-legend">' +
+          chip('ok', 'To‘g‘ri', r.eq) + chip('spell', 'Imlo xatosi', r.spell) + chip('wrong', 'Noto‘g‘ri', r.wrong) +
+          chip('miss', 'Tushib qolgan', r.missing) + chip('extra', 'Ortiqcha', r.extra) +
+        '</div>' +
         '<div class="lhw-dict-diff">' + r.ops.map(dictOpHTML).join(' ') + '</div>' +
-        '<p class="lhw-muted">Rang: yashil = to‘g‘ri, sariq = imlo xatosi, qizil = noto‘g‘ri so‘z (o‘ngda to‘g‘risi), qizil fon = tushib qolgan, kulrang = ortiqcha.</p></div>';
+        '<p class="lhw-muted lhw-dd-hint">Qizil so‘z: talaba yozgani, yonidagi yashil so‘z: to‘g‘risi. Sariq: imlo xatosi. Qizil fon: tushib qolgan so‘z. Kulrang chizilgan: ortiqcha so‘z.</p></div>';
     }).catch(function (e) {
       box.innerHTML = '<div class="lhw-warn">Yuklab bo‘lmadi: ' + esc(e && e.message) + '</div>';
     });
