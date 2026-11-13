@@ -2550,8 +2550,10 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <input type="search" id="crlSearch" placeholder="Mock nomi yoki talaba ismi" aria-label="Qidirish">
           <select id="crlSort" aria-label="Saralash" style="padding:8px 12px;border-radius:10px;border:1px solid var(--gray-200,#e5e7eb);background:var(--white,#fff);color:inherit;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;">
             <option value="std">Standart tartib</option>
-            <option value="done">Bajarilgan testlar</option>
-            <option value="todo">Bajarilmagan testlar</option>
+            <option value="reading">Faqat Reading</option>
+            <option value="listening">Faqat Listening</option>
+            <option value="done">Faqat yechilgan</option>
+            <option value="todo">Faqat yechilmagan</option>
             <option value="best">Eng yaxshi natija</option>
             <option value="worst">Eng yomon natija</option>
           </select>
@@ -15686,9 +15688,16 @@ const CefrRL = (function(){
 
   function render(){
     const q = $('crlSearch').value.trim().toLowerCase();
-    const items = tests.filter(t =>
-      !q || (String(t.title || '') + ' ' + Object.keys(t.assignedNames || {}).map(k => t.assignedNames[k]).join(' ')).toLowerCase().indexOf(q) >= 0
-    );
+    const mode = $('crlSort') ? $('crlSort').value : 'std';
+    const items = tests.filter(t => {
+      if(q && (String(t.title || '') + ' ' + Object.keys(t.assignedNames || {}).map(k => t.assignedNames[k]).join(' ')).toLowerCase().indexOf(q) < 0) return false;
+      // Tanlangan saralash/filtr bo'yicha faqat mos mocklar chiqadi
+      if(mode === 'reading') return hasSec(t, 'reading');
+      if(mode === 'listening') return hasSec(t, 'listening');
+      if(mode === 'done') return completion(t) >= 1;
+      if(mode === 'todo') return completion(t) < 1;
+      return true;
+    });
     $('crlCount').textContent = tests.length ? (items.length + ' / ' + tests.length + ' ta') : '';
     const box = $('crlGrid');
     if(!tests.length){
@@ -15699,10 +15708,7 @@ const CefrRL = (function(){
       box.innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Hech narsa topilmadi.</p>';
       return;
     }
-    const mode = $('crlSort') ? $('crlSort').value : 'std';
-    if(mode === 'done') items.sort((x, y) => completion(y) - completion(x));
-    else if(mode === 'todo') items.sort((x, y) => completion(x) - completion(y));
-    else if(mode === 'best' || mode === 'worst'){
+    if(mode === 'best' || mode === 'worst'){
       items.sort((x, y) => {
         const p = avgPct(x), q2 = avgPct(y);
         if(p === null && q2 === null) return 0;
