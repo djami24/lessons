@@ -292,7 +292,7 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .lhw-audio{width:100%;margin:10px 0;}
 .lhw-protect{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
 .lhw-protect textarea{-webkit-user-select:text;user-select:text;}
-.lhw-dict-ta{width:100%;box-sizing:border-box;min-height:200px;padding:12px;border:1.5px solid #e5e7eb;border-radius:14px;font:inherit;resize:vertical;background:#fff;color:inherit;}
+.lhw-dict-ta{width:100%;box-sizing:border-box;min-height:200px;padding:12px;border:1.5px solid #e5e7eb;border-radius:14px;font:inherit;resize:vertical;background:#fff;color:#1f2937;}
 .lhw-dict-stats{list-style:none;padding:0;margin:10px 0;display:flex;flex-wrap:wrap;gap:8px;}
 .lhw-dict-stats li{padding:6px 10px;border-radius:10px;font-size:.84rem;background:#f3f4f6;}
 .lhw-dict-stats li.ok{background:rgba(31,174,122,.14);color:#1FAE7A;}
@@ -300,9 +300,9 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .lhw-dict-stats li.bad{background:rgba(229,72,77,.12);color:#E5484D;}
 .lhw-dict-stats li.extra{background:rgba(120,120,130,.16);color:#6B7280;}
 .lhw-dict-mine{margin-top:12px;}
-.lhw-dict-text{white-space:pre-wrap;margin-top:6px;padding:10px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;}
+.lhw-dict-text{white-space:pre-wrap;margin-top:6px;padding:10px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;color:#1f2937;}
 .lhw-pend{background:rgba(232,137,12,.14);color:#B45309;}
-.lhw-dict-diff{line-height:2.1;padding:12px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;margin-top:8px;}
+.lhw-dict-diff{line-height:2.1;padding:12px;border-radius:12px;background:#fff;border:1px solid #e5e7eb;margin-top:8px;color:#1f2937;}
 .dd-eq{color:#1f2937;}
 .dd-spell{color:#B45309;background:rgba(232,137,12,.16);border-radius:4px;padding:0 3px;}
 .dd-wrong{color:#E5484D;text-decoration:line-through;padding:0 2px;}
@@ -313,3 +313,51 @@ body.dark .lhw-modal-prize{ background:linear-gradient(135deg,#3A2E12,#2B2410); 
 .lhw-notsub{margin-top:14px;}
 .lhw-check{flex-direction:row;align-items:center;gap:8px;font-weight:600;}
 .lhw-check input{width:auto;}
+
+/* Qorong‘i rejim: matn maydonlari va natijalar o‘qiladigan bo‘lsin */
+body.dark .lhw-dict-ta,
+body.admin-theme.dark .lhw-dict-ta{background:#111827;color:#E8ECF6;border-color:rgba(255,255,255,.14);}
+body.dark .lhw-dict-ta::placeholder{color:#7b8496;}
+body.dark .lhw-dict-text,
+body.dark .lhw-dict-diff{background:#111827;color:#E8ECF6;border-color:rgba(255,255,255,.14);}
+body.dark .dd-eq{color:#E8ECF6;}
+body.dark .dd-spell{color:#FCD34D;background:rgba(245,158,11,.18);}
+body.dark .dd-wrong{color:#FCA5A5;}
+body.dark .dd-fix{color:#6EE7B7;}
+body.dark .dd-extra{color:#9CA3AF;}
+body.dark .lhw-dict-stats li{background:rgba(255,255,255,.08);color:#E8ECF6;}
+body.dark .lhw-dict-stats li.ok{background:rgba(31,174,122,.22);color:#6EE7B7;}
+body.dark .lhw-dict-stats li.spell{background:rgba(245,158,11,.2);color:#FCD34D;}
+body.dark .lhw-dict-stats li.bad{background:rgba(229,72,77,.2);color:#FCA5A5;}
+body.dark .lhw-dict-stats li.extra{background:rgba(156,163,175,.2);color:#D1D5DB;}
+body.dark .lhw-pend{background:rgba(245,158,11,.2);color:#FCD34D;}
+
+/* Admin: talabaning yozgan matni (dictation) tafsiloti */
+.lhw-dd-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.lhw-dd-top h3{margin:0;font-size:1.15rem;}
+.lhw-dd-sub{color:#6b7280;font-size:.9rem;}
+.lhw-dd-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0;}
+.lhw-dd-card{border:1px solid #e5e7eb;border-radius:14px;padding:10px 12px;background:#fff;min-width:0;}
+.lhw-dd-card small{display:block;color:#6b7280;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;}
+.lhw-dd-card b{display:block;font-size:1.4rem;margin-top:2px;color:#1f2937;}
+.lhw-dd-card b span{font-size:.78rem;font-weight:700;color:#6b7280;margin-left:4px;}
+.lhw-dd-card.bad b{color:#dc2626;}
+.lhw-dd-legend{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px;}
+.lhw-dd-legend .lg{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:99px;font-size:.82rem;font-weight:700;}
+.lhw-dd-legend .lg i{width:9px;height:9px;border-radius:50%;background:currentColor;flex:none;}
+.lhw-dd-legend .lg b{font-weight:900;}
+.lhw-dd-legend .ok{background:rgba(31,174,122,.14);color:#14804f;}
+.lhw-dd-legend .spell{background:rgba(245,158,11,.18);color:#a16207;}
+.lhw-dd-legend .wrong{background:rgba(229,72,77,.14);color:#c0262b;}
+.lhw-dd-legend .miss{background:#e5484d;color:#fff;}
+.lhw-dd-legend .extra{background:rgba(156,163,175,.24);color:#4b5563;}
+.lhw-admin-detail .lhw-dict-diff{overflow-wrap:anywhere;word-break:break-word;font-size:15px;line-height:2.1;}
+.lhw-dd-hint{margin-top:10px;line-height:1.5;}
+body.dark .lhw-dd-card{background:#111827;border-color:rgba(255,255,255,.14);}
+body.dark .lhw-dd-card b{color:#E8ECF6;}
+body.dark .lhw-dd-card small,body.dark .lhw-dd-card b span,body.dark .lhw-dd-sub{color:#9aa4ba;}
+body.dark .lhw-dd-card.bad b{color:#FCA5A5;}
+body.dark .lhw-dd-legend .ok{color:#6EE7B7;}
+body.dark .lhw-dd-legend .spell{color:#FCD34D;}
+body.dark .lhw-dd-legend .wrong{color:#FCA5A5;}
+body.dark .lhw-dd-legend .extra{color:#D1D5DB;}
