@@ -2951,6 +2951,18 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         #view-vocab .voc-acts{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
         #view-vocab .voc-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#e5e7eb);font-size:.88rem;}
         #view-vocab .voc-note{color:var(--gray,#6b7280);font-size:.84rem;margin:0 0 10px;}
+        #view-vocab .voc-toggle{cursor:pointer;border-radius:10px;transition:background .15s;}
+        #view-vocab .voc-toggle:hover{background:rgba(99,102,241,.07);}
+        #view-vocab .voc-toggle:focus-visible{outline:2px solid #6366f1;outline-offset:2px;}
+        #view-vocab .voc-chev{display:inline-block;width:16px;color:var(--gray,#6b7280);transition:transform .15s;}
+        #view-vocab .voc-item.open .voc-chev{transform:rotate(90deg);}
+        #view-vocab .voc-words{list-style:none;margin:0 0 12px;padding:6px 14px;border:1px solid var(--line,#e5e7eb);border-radius:12px;counter-reset:vw;}
+        #view-vocab .voc-words li{counter-increment:vw;display:grid;grid-template-columns:34px minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line,#e5e7eb);font-size:.9rem;}
+        #view-vocab .voc-words li:last-child{border-bottom:0;}
+        #view-vocab .voc-words li::before{content:counter(vw);color:var(--gray,#6b7280);font-weight:700;font-size:.82rem;}
+        #view-vocab .voc-words .en{font-weight:700;overflow-wrap:anywhere;}
+        #view-vocab .voc-words .uz{overflow-wrap:anywhere;}
+        @media (max-width:700px){#view-vocab .voc-words li{grid-template-columns:30px 1fr;}#view-vocab .voc-words .uz{grid-column:2;}}
         @media (max-width:700px){#view-vocab .voc-form{grid-template-columns:1fr;}}
       </style>
       <div class="oj-header">
@@ -16857,6 +16869,7 @@ try{
 try{
   const LV = ['Beginner','Elementary','Pre-Intermediate','Intermediate'];
   let groups = [], sets = [];
+  const openSets = new Set();   // ochilgan unitlar (so'zlari ko'rinib turgan)
   const $ = id => document.getElementById(id);
   const esc = s => escapeHtml(String(s == null ? '' : s));
   const docIdOf = (gid, lv, unit) => gid + '__' + lv + '__' + String(unit).trim().replace(/[\/\s]+/g, '-');
@@ -16887,9 +16900,18 @@ try{
     el.innerHTML = sets.slice().sort((a, b) =>
       String(a.groupName).localeCompare(String(b.groupName)) || LV.indexOf(a.level) - LV.indexOf(b.level) ||
       (parseFloat(a.unit) || 0) - (parseFloat(b.unit) || 0)
-    ).map(s => '<div class="voc-row"><span><b>' + esc(s.groupName) + '</b> · ' + esc(s.level) +
-      ' · Unit ' + esc(s.unit) + ' · ' + ((s.words || []).length) + ' ta so‘z</span>' +
-      '<button class="btn btn-ghost btn-sm" type="button" data-voc-edit="' + esc(s.id) + '">Tahrirlash</button></div>').join('');
+    ).map(s => {
+      const open = openSets.has(s.id), words = s.words || [];
+      return '<div class="voc-item' + (open ? ' open' : '') + '">' +
+        '<div class="voc-row voc-toggle" role="button" tabindex="0" aria-expanded="' + open + '" data-voc-toggle="' + esc(s.id) + '">' +
+          '<span><span class="voc-chev">▸</span><b>' + esc(s.groupName) + '</b> · ' + esc(s.level) +
+          ' · Unit ' + esc(s.unit) + ' · ' + words.length + ' ta so‘z</span>' +
+          '<button class="btn btn-ghost btn-sm" type="button" data-voc-edit="' + esc(s.id) + '">Tahrirlash</button></div>' +
+        (open ? '<ol class="voc-words">' + (words.length
+          ? words.map(w => '<li><span class="en">' + esc(w.en) + '</span><span class="uz">' + esc(w.uz) + '</span></li>').join('')
+          : '<li style="display:block;">So‘z yo‘q.</li>') + '</ol>' : '') +
+      '</div>';
+    }).join('');
   }
 
   function syncFromSelection(){
@@ -16954,8 +16976,23 @@ try{
     } catch(e){ $('vocErr').textContent = 'O‘chirilmadi: ' + e.message; $('vocErr').hidden = false; }
   });
 
+  function toggleSet(id){
+    if(openSets.has(id)) openSets.delete(id); else openSets.add(id);
+    renderList();
+  }
+  $('vocList').addEventListener('keydown', e => {
+    if(e.key !== 'Enter' && e.key !== ' ') return;
+    if(e.target.closest('[data-voc-edit]')) return;
+    const t = e.target.closest('[data-voc-toggle]'); if(!t) return;
+    e.preventDefault(); toggleSet(t.dataset.vocToggle);
+  });
   $('vocList').addEventListener('click', e => {
-    const b = e.target.closest('[data-voc-edit]'); if(!b) return;
+    const b = e.target.closest('[data-voc-edit]');
+    if(!b){
+      const t = e.target.closest('[data-voc-toggle]');
+      if(t) toggleSet(t.dataset.vocToggle);
+      return;
+    }
     const s = sets.find(x => x.id === b.dataset.vocEdit); if(!s) return;
     $('vocGroup').value = s.groupId; $('vocLevel').value = s.level; $('vocUnit').value = s.unit;
     syncFromSelection();
