@@ -361,3 +361,22 @@ body.dark .lhw-dd-legend .ok{color:#6EE7B7;}
 body.dark .lhw-dd-legend .spell{color:#FCD34D;}
 body.dark .lhw-dd-legend .wrong{color:#FCA5A5;}
 body.dark .lhw-dd-legend .extra{color:#D1D5DB;}
+
+/* Umumiy reyting: guruhlar bo‘yicha bo‘limlar */
+.lhw-gchips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 2px;}
+.lhw-gchip{border:1px solid var(--lhw-line);background:var(--lhw-card);color:inherit;border-radius:99px;padding:6px 14px;font:inherit;font-size:.85rem;font-weight:700;cursor:pointer;}
+.lhw-gchip b{margin-left:4px;color:var(--lhw-muted);font-weight:800;}
+.lhw-gchip.on{background:#2F6FED;border-color:#2F6FED;color:#fff;}
+.lhw-gchip.on b{color:rgba(255,255,255,.85);}
+.lhw-grp{margin-top:16px;border:1px solid var(--lhw-line);border-radius:16px;padding:12px 14px;background:rgba(255,255,255,.4);}
+.lhw-grp-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.lhw-grp-head h4{margin:0;font-size:1.05rem;}
+.lhw-grp-n{color:var(--lhw-muted);font-size:.82rem;font-weight:700;margin-right:auto;}
+body.dark .lhw-grp{background:rgba(255,255,255,.03);}
+.lhw-grp .lhw-table{table-layout:fixed;min-width:640px;}
+.lhw-grp .lhw-table th:nth-child(1){width:64px;}
+.lhw-grp .lhw-table th:nth-child(3){width:96px;}
+.lhw-grp .lhw-table th:nth-child(4){width:110px;}
+.lhw-grp .lhw-table th:nth-child(5){width:190px;}
+.lhw-grp .lhw-table th:nth-child(6){width:84px;}
+.lhw-grp .lhw-table td:nth-child(2){overflow:hidden;text-overflow:ellipsis;}
