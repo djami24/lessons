@@ -380,3 +380,33 @@ body.dark .lhw-grp{background:rgba(255,255,255,.03);}
 .lhw-grp .lhw-table th:nth-child(5){width:190px;}
 .lhw-grp .lhw-table th:nth-child(6){width:84px;}
 .lhw-grp .lhw-table td:nth-child(2){overflow:hidden;text-overflow:ellipsis;}
+
+
+/* ===== Guruh papkalari (admin) ===== */
+.lhw-gtools{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px; }
+.lhw-gsearch{
+  flex:1 1 240px; max-width:360px; padding:10px 14px; border:1.5px solid var(--lhw-line); border-radius:12px;
+  background:var(--lhw-card); color:var(--lhw-ink); font:inherit; font-size:.92rem;
+}
+.lhw-gsearch:focus{ outline:none; border-color:var(--lhw-blue); }
+.lhw-gcards{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+.lhw-gcard{
+  appearance:none; text-align:left; display:flex; flex-direction:column; gap:8px; cursor:pointer;
+  background:var(--lhw-card); border:1px solid var(--lhw-line); border-radius:16px; padding:16px;
+  font:inherit; color:var(--lhw-ink); transition:border-color .15s, transform .15s;
+}
+.lhw-gcard:hover{ border-color:var(--lhw-blue); transform:translateY(-1px); }
+.lhw-gcard.none{ border-style:dashed; }
+.lhw-gcard-name{ font-weight:800; font-size:1.02rem; overflow-wrap:anywhere; }
+.lhw-gcard-meta{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:.85rem; color:var(--lhw-muted); }
+.lhw-gcard-meta b{ color:var(--lhw-blue); font-weight:800; }
+.lhw-gcard-last{ font-size:.78rem; color:var(--lhw-muted); }
+.lhw-gbar{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.lhw-gbar h2{ margin:0; }
+.lhw-tabs{ display:flex; gap:6px; border-bottom:2px solid var(--lhw-line); margin-bottom:16px; }
+.lhw-tab{
+  appearance:none; background:none; border:0; border-bottom:3px solid transparent; margin-bottom:-2px;
+  padding:10px 16px; font:inherit; font-weight:700; color:var(--lhw-muted); cursor:pointer;
+}
+.lhw-tab b{ margin-left:4px; padding:1px 8px; border-radius:999px; background:var(--lhw-soft); font-size:.8rem; }
+.lhw-tab.on{ color:var(--lhw-blue); border-bottom-color:var(--lhw-blue); }
