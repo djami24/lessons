@@ -1531,15 +1531,29 @@
       var title = ex.title || ('Mashq ' + (idx + 1));
       var sub = mine[ex.id];
       if (!sub) return '<li class="lhw-res-ex none"><div class="lhw-res-ex-h"><b>' + esc(title) + '</b><span class="lhw-muted">Topshirilmagan</span></div></li>';
-      if (sub.graded === false || !sub.diff) return '<li class="lhw-res-ex"><div class="lhw-res-ex-h"><b>' + esc(title) + '</b><span class="lhw-muted">Tekshirilmoqda</span></div></li>';
+      if (sub.graded === false || !sub.diff) return '<li class="lhw-res-ex"><div class="lhw-res-ex-h"><b>' + esc(title) + '</b><span class="lhw-muted">Tekshirilmoqda</span></div>' + '<div class="lhw-dict-diff" data-dtxt="' + esc(ex.id) + '">Matn yuklanmoqda…</div>' + '</li>';
       var d = sub.diff;
       return '<li class="lhw-res-ex"><div class="lhw-res-ex-h"><b>' + esc(title) + '</b>' +
         '<span class="lhw-muted"><b class="lhw-pct ' + (d.pct >= DICT_MIN_PCT ? 'ok' : 'bad') + '">' + d.pct + '%</b> · ' + finalOf(sub) + ' ball · ' + fmtDT(tsMs(sub.submittedAt)) + '</span></div>' +
         '<div class="lhw-muted">To‘g‘ri so‘z: ' + (d.eq || 0) + ' · Imlo xatosi: ' + (d.spell || 0) + ' · Noto‘g‘ri: ' + (d.wrong || 0) +
-        ' · Tushib qolgan: ' + (d.missing || 0) + ' · Ortiqcha: ' + (d.extra || 0) + ' · Asl matnda: ' + (d.refN || 0) + ' so‘z</div></li>';
+        ' · Tushib qolgan: ' + (d.missing || 0) + ' · Ortiqcha: ' + (d.extra || 0) + ' · Asl matnda: ' + (d.refN || 0) + ' so‘z</div>' + '<div class="lhw-dict-diff" data-dtxt="' + esc(ex.id) + '">Matn yuklanmoqda…</div>' + '</li>';
     }).join('');
     box.innerHTML = '<div class="lhw-admin-detail"><div class="lhw-lb-head"><h3>' + esc(name || 'Talaba') + ': eshitib yozish natijalari</h3></div>' +
-      '<ol class="lhw-ex-list">' + items + '</ol></div>';
+      '<ol class="lhw-ex-list">' + items + '</ol>' +
+      '<p class="lhw-muted lhw-dd-hint">Qizil so‘z: talaba yozgani, yonidagi yashil so‘z: to‘g‘risi. Sariq: imlo xatosi. Qizil fon: tushib qolgan so‘z. Kulrang chizilgan: ortiqcha so‘z.</p></div>';
+    // Talaba yozgan matnlarni yuklab, xatolarini belgilaymiz
+    box.querySelectorAll('[data-dtxt]').forEach(function (el) {
+      var exId = el.getAttribute('data-dtxt');
+      Promise.all([db.collection(COL_TXT).doc(exId + '_' + uid).get(), getKeyText(exId)]).then(function (res) {
+        if (A.dictUid !== uid) return;
+        if (!res[0].exists) { el.innerHTML = '<span class="lhw-muted">Matn topilmadi.</span>'; return; }
+        var txt = String((res[0].data() || {}).text || '');
+        if (!txt.trim()) { el.innerHTML = '<span class="lhw-muted">Matn bo‘sh.</span>'; return; }
+        el.innerHTML = res[1] ? dictDiff(res[1], txt).ops.map(dictOpHTML).join(' ') : esc(txt);
+      }).catch(function (e) {
+        el.innerHTML = '<span class="lhw-muted">Yuklab bo‘lmadi: ' + esc(e && e.message) + '</span>';
+      });
+    });
   }
 
   // Talaba ustiga bosilganda: har bir mashq bo‘yicha qaysi bo‘shliqni to‘g‘ri/noto‘g‘ri yechgani
