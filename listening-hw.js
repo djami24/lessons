@@ -892,7 +892,7 @@
   /* ============================================================
      ADMIN
      ============================================================ */
-  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [], allSubs: [], groupNames: {}, keys: {}, groupRoster: null };
+  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [], allSubs: [], groupNames: {}, keys: {}, groupRoster: null, overallGroup: '' };
 
   function stopAdminLb() {
     if (A.lbUnsub) { try { A.lbUnsub(); } catch (e) { /* ignore */ } A.lbUnsub = null; }
@@ -1089,7 +1089,28 @@
         sel.appendChild(o);
       });
       sel.value = keep;
+      if (A.allSubs && A.allSubs.length) renderOverall();
     }).catch(function () { /* guruhlar yuklanmasa ham "Barcha guruhlar" ishlaydi */ });
+  }
+
+  function slugName(s) { return String(s || 'guruh').trim().replace(/[^\w\-]+/g, '_'); }
+
+  // Berilgan blokni rasm (PNG) qilib yuklaydi
+  function overallExportPng(el, filename) {
+    if (!el || typeof html2canvas !== 'function') { alert('Rasm kutubxonasi yuklanmadi'); return; }
+    html2canvas(el, {
+      scale: 2, backgroundColor: '#ffffff',
+      ignoreElements: function (n) { return !!(n.classList && n.classList.contains('lhw-noexp')); },
+      onclone: function (doc, node) { node.style.background = '#ffffff'; node.style.color = '#1c1c22'; }
+    }).then(function (canvas) {
+      canvas.toBlob(function (blob) {
+        if (!blob) { alert('Rasmni yaratib bo‘lmadi'); return; }
+        var url = URL.createObjectURL(blob), a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+      }, 'image/png');
+    }).catch(function (e) { alert('Rasmga olib bo‘lmadi: ' + (e && e.message)); });
   }
 
   // Admin: barcha talabalarning umumiy reytingi (jonli)
@@ -1107,53 +1128,80 @@
       by[k].done += 1;
       if (x.flagged) by[k].flagged += 1;
     });
-    var list = Object.keys(by).map(function (k) { return by[k]; })
-      .sort(function (a, b) { return b.total - a.total || b.done - a.done; });
-    var rank = 0, prev = null;
-    var rowsHtml = list.map(function (r, idx) {
-      if (r.total !== prev) { rank = idx + 1; prev = r.total; }
-      var grp = r.groupId ? (A.groupNames[r.groupId] || '-') : 'Guruhsiz';
+    var all = Object.keys(by).map(function (k) { return by[k]; });
+    // Talabalarni guruhlar bo‘yicha ajratamiz
+    var groups = {};
+    all.forEach(function (r) {
+      var key = r.groupId || '__none';
+      if (!groups[key]) groups[key] = { key: key, name: r.groupId ? (A.groupNames[r.groupId] || '-') : 'Guruhsiz', rows: [] };
+      groups[key].rows.push(r);
+    });
+    var glist = Object.keys(groups).map(function (k) { return groups[k]; }).sort(function (a, b) {
+      if ((a.key === '__none') !== (b.key === '__none')) return a.key === '__none' ? 1 : -1;
+      return String(a.name).localeCompare(String(b.name));
+    });
+    if (A.overallGroup && !groups[A.overallGroup]) A.overallGroup = '';
+    var shown = A.overallGroup ? glist.filter(function (g) { return g.key === A.overallGroup; }) : glist;
+
+    function rowHtml(r, rank) {
       return '<tr>' +
         '<td class="lhw-t-rank">' + rank + '</td>' +
         '<td><button type="button" class="lhw-link" data-uid="' + esc(r.id) + '" data-name="' + esc(r.name) + '">' + esc(r.name) + '</button></td>' +
-        '<td class="lhw-muted">' + esc(grp) + '</td>' +
         '<td class="lhw-t-total">' + r.total + '</td>' +
         '<td>' + r.done + ' / ' + A.exercises.length + '</td>' +
         '<td>' + fmtDT(r.last) + '</td>' +
         '<td>' + (r.flagged ? '<span class="lhw-flag"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> ' + r.flagged + '</span>' : '-') + '</td>' +
         '</tr>';
-    }).join('');
+    }
+    function groupHtml(g) {
+      g.rows.sort(function (a, b) { return b.total - a.total || b.done - a.done; });
+      var rank = 0, prev = null;
+      var rows = g.rows.map(function (r, idx) {
+        if (r.total !== prev) { rank = idx + 1; prev = r.total; }
+        return rowHtml(r, rank);
+      }).join('');
+      return '<div class="lhw-grp" data-gk="' + esc(g.key) + '">' +
+        '<div class="lhw-grp-head"><h4>' + esc(g.name) + '</h4><span class="lhw-grp-n">' + g.rows.length + ' ta talaba</span>' +
+          '<button type="button" class="lhw-btn sm lhw-noexp lhw-grp-png" data-gk="' + esc(g.key) + '">Rasm</button></div>' +
+        '<div class="lhw-overall-wrap"><table class="lhw-table"><thead><tr>' +
+          '<th>O‘rin</th><th>Talaba</th><th>Jami ball</th><th>Topshirgan</th><th>Oxirgi topshirgan vaqti</th><th>Taxmin</th>' +
+        '</tr></thead><tbody>' + rows + '</tbody></table></div></div>';
+    }
+    var chip = function (key, label, n) {
+      return '<button type="button" class="lhw-gchip' + ((A.overallGroup || '') === key ? ' on' : '') + '" data-ovg="' + esc(key) + '">' + esc(label) + ' <b>' + n + '</b></button>';
+    };
+    var chips = glist.length > 1
+      ? '<div class="lhw-gchips lhw-noexp">' + chip('', 'Hammasi', all.length) + glist.map(function (g) { return chip(g.key, g.name, g.rows.length); }).join('') + '</div>'
+      : '';
     box.innerHTML =
       '<div class="lhw-overall-card">' +
         '<div class="lhw-lb-head"><h3>Umumiy reyting</h3>' +
-          '<div class="lhw-lb-tools"><span class="lhw-muted">Mashqlar: ' + A.exercises.length + ' ta · Ishtirokchilar: ' + list.length + ' ta</span>' +
+          '<div class="lhw-lb-tools"><span class="lhw-muted">Mashqlar: ' + A.exercises.length + ' ta · Guruhlar: ' + glist.length + ' ta · Ishtirokchilar: ' + all.length + ' ta</span>' +
           '<button type="button" class="lhw-btn sm lhw-noexp" id="lhwOverallPng">Rasm yuklash</button><button type="button" class="lhw-btn sm lhw-noexp" id="lhwOverallRefresh"><svg class="lhw-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg> Yangilash</button></div></div>' +
-        (list.length
-          ? '<div class="lhw-overall-wrap"><table class="lhw-table"><thead><tr>' +
-              '<th>O‘rin</th><th>Talaba</th><th>Guruh</th><th>Jami ball</th><th>Topshirgan</th><th>Oxirgi topshirgan vaqti</th><th>Taxmin</th>' +
-            '</tr></thead><tbody>' + rowsHtml + '</tbody></table></div>'
-          : '<p class="lhw-muted">Hali hech kim topshirmagan.</p>') +
+        chips +
+        (all.length ? shown.map(groupHtml).join('') : '<p class="lhw-muted">Hali hech kim topshirmagan.</p>') +
         '<div id="lhwOverallDetail"></div>' +
       '</div>';
     var btn = document.getElementById('lhwOverallRefresh');
     if (btn) btn.addEventListener('click', refreshOverall);
     var pngBtn = document.getElementById('lhwOverallPng');
     if (pngBtn) pngBtn.addEventListener('click', function () {
-      var card = box.querySelector('.lhw-overall-card');
-      if (!card || typeof html2canvas !== 'function') { alert('Rasm kutubxonasi yuklanmadi'); return; }
-      html2canvas(card, {
-        scale: 2, backgroundColor: '#ffffff',
-        ignoreElements: function (el) { return !!(el.classList && el.classList.contains('lhw-noexp')); },
-        onclone: function (doc, el) { el.style.background = '#ffffff'; el.style.color = '#1c1c22'; }
-      }).then(function (canvas) {
-        canvas.toBlob(function (blob) {
-          if (!blob) { alert('Rasmni yaratib bo‘lmadi'); return; }
-          var url = URL.createObjectURL(blob), a = document.createElement('a');
-          a.href = url; a.download = 'umumiy-reyting.png';
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
-        }, 'image/png');
-      }).catch(function (e) { alert('Rasmga olib bo‘lmadi: ' + (e && e.message)); });
+      var gname = A.overallGroup && groups[A.overallGroup] ? '-' + slugName(groups[A.overallGroup].name) : '';
+      overallExportPng(box.querySelector('.lhw-overall-card'), 'umumiy-reyting' + gname + '.png');
+    });
+    box.querySelectorAll('[data-ovg]').forEach(function (c) {
+      c.addEventListener('click', function () {
+        A.overallGroup = c.getAttribute('data-ovg') || '';
+        renderOverall();
+      });
+    });
+    box.querySelectorAll('.lhw-grp-png').forEach(function (c) {
+      c.addEventListener('click', function () {
+        var key = c.getAttribute('data-gk');
+        var el = null;
+        box.querySelectorAll('.lhw-grp').forEach(function (x) { if (x.getAttribute('data-gk') === key) el = x; });
+        overallExportPng(el, 'reyting-' + slugName(groups[key] ? groups[key].name : 'guruh') + '.png');
+      });
     });
     box.querySelectorAll('[data-uid]').forEach(function (b) {
       b.addEventListener('click', function () {
