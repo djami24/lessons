@@ -427,3 +427,28 @@ body.dark .lhw-grp{background:rgba(255,255,255,.03);}
 .lhw-pct{ font-weight:800; }
 .lhw-pct.ok{ color:var(--lhw-green); }
 .lhw-pct.bad{ color:var(--lhw-red); }
+
+/* ===== Eshitib yozish: tekshirish katakchalari (tekis, chiroyli qator) ===== */
+.lhw-field.lhw-check{
+  display:flex; flex-direction:row; align-items:center; gap:12px;
+  padding:12px 14px; margin:0 0 8px; cursor:pointer;
+  background:var(--lhw-soft); border:1.5px solid var(--lhw-line); border-radius:14px;
+  transition:border-color .15s, background .15s;
+}
+.lhw-field.lhw-check:hover{ border-color:var(--lhw-blue); }
+.lhw-field.lhw-check:has(input:checked){ background:var(--lhw-me); border-color:var(--lhw-blue); }
+.lhw-field.lhw-check input[type="checkbox"]{
+  appearance:none; -webkit-appearance:none; flex:none; margin:0; padding:0;
+  width:22px; height:22px; border-radius:7px; border:2px solid var(--lhw-line); background:var(--lhw-card);
+  display:grid; place-content:center; cursor:pointer; transition:background .15s, border-color .15s;
+}
+.lhw-field.lhw-check input[type="checkbox"]::after{
+  content:""; width:6px; height:11px; margin-top:-2px; border:solid #fff; border-width:0 2.5px 2.5px 0;
+  transform:rotate(45deg) scale(0); transition:transform .12s;
+}
+.lhw-field.lhw-check input[type="checkbox"]:checked{ background:var(--lhw-blue); border-color:var(--lhw-blue); }
+.lhw-field.lhw-check input[type="checkbox"]:checked::after{ transform:rotate(45deg) scale(1); }
+.lhw-field.lhw-check input[type="checkbox"]:focus-visible{ outline:2px solid var(--lhw-blue); outline-offset:2px; }
+.lhw-field.lhw-check > span{
+  flex:1 1 auto; min-width:0; font-size:.92rem; font-weight:700; color:var(--lhw-ink); line-height:1.35; text-align:left;
+}
