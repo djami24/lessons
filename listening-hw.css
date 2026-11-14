@@ -410,3 +410,14 @@ body.dark .lhw-grp{background:rgba(255,255,255,.03);}
 }
 .lhw-tab b{ margin-left:4px; padding:1px 8px; border-radius:999px; background:var(--lhw-soft); font-size:.8rem; }
 .lhw-tab.on{ color:var(--lhw-blue); border-bottom-color:var(--lhw-blue); }
+
+.lhw-gcard{ position:relative; }
+.lhw-gcard-name{ padding-right:34px; }
+.lhw-gcard.hid{ opacity:.6; }
+.lhw-gx{
+  position:absolute; top:10px; right:10px; appearance:none; border:1px solid var(--lhw-line); background:var(--lhw-card);
+  color:var(--lhw-muted); width:26px; height:26px; border-radius:8px; font:inherit; font-size:.8rem; line-height:1; cursor:pointer;
+}
+.lhw-gx:hover{ color:var(--lhw-red); border-color:var(--lhw-red); background:rgba(229,72,77,.08); }
+.lhw-gx.restore{ width:auto; padding:0 10px; font-weight:700; color:var(--lhw-blue); }
+.lhw-gx.restore:hover{ color:var(--lhw-blue-deep); border-color:var(--lhw-blue); background:rgba(47,111,237,.08); }
