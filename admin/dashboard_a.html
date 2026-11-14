@@ -2951,6 +2951,11 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         #view-vocab .voc-acts{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
         #view-vocab .voc-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line,#e5e7eb);font-size:.88rem;}
         #view-vocab .voc-note{color:var(--gray,#6b7280);font-size:.84rem;margin:0 0 10px;}
+        body.dark #view-vocab .voc-f input,body.dark #view-vocab .voc-f select,body.dark #view-vocab .voc-f textarea{background:var(--surface,#1b2235);color:var(--ink,#e8ecf5);border-color:var(--line,#2a3248);}
+        body.dark #view-vocab .voc-f input::placeholder,body.dark #view-vocab .voc-f textarea::placeholder{color:#7d88a0;font-weight:500;}
+        body.dark #view-vocab .voc-f select option{background:#1b2235;color:#e8ecf5;}
+        body.dark #view-vocab .voc-f input:focus,body.dark #view-vocab .voc-f select:focus,body.dark #view-vocab .voc-f textarea:focus{outline:none;border-color:#6d8dff;}
+        body.dark #view-vocab .voc-toggle:hover{background:rgba(157,180,255,.08);}
         #view-vocab .voc-toggle{cursor:pointer;border-radius:10px;transition:background .15s;}
         #view-vocab .voc-toggle:hover{background:rgba(99,102,241,.07);}
         #view-vocab .voc-toggle:focus-visible{outline:2px solid #6366f1;outline-offset:2px;}
