@@ -760,7 +760,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 @keyframes dlPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.9);opacity:.75}}
 @keyframes dlDot{0%,80%,100%{opacity:.2}40%{opacity:1}}
 </style>
-<link rel="stylesheet" href="../listening-hw.css?v=20261113a">
+<link rel="stylesheet" href="../listening-hw.css?v=20261114a">
 <link rel="stylesheet" href="../glass-admin.css">
 <link rel="stylesheet" href="../skeleton.css">
 <style>html.av-restoring #view-home{display:none !important}html.av-restoring .admin-main::before{content:"";display:block;height:240px;margin:8px 0;border-radius:16px;background-color:var(--sk-base,#e6e9f0);background-image:linear-gradient(90deg,transparent,var(--sk-shine,#f5f6fa),transparent);background-size:300px 100%;background-repeat:no-repeat;animation:skShimmer 1.3s ease-in-out infinite}</style>
@@ -2528,16 +2528,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         #crlGrid .crl-meta{flex:0 0 auto;align-items:center;}
         #crlGrid .crl-card .ind-sub{flex:1 1 180px;min-width:0;overflow-wrap:anywhere;}
         #crlGrid .crl-actions{margin-top:0;flex:0 0 auto;}
-        /* Katta ekranda ustunlar qat'iy: nom | ma'lumot | talaba | tugmalar (tugmalar doim bir xil joyda, bir qatorda) */
-        @media (min-width:901px){
-          #crlGrid .crl-card{display:grid;grid-template-columns:minmax(0,1.2fr) 400px minmax(0,1fr) auto;align-items:center;gap:6px 18px;}
-          #crlGrid .crl-card h3{flex:none;}
-          #crlGrid .crl-meta{flex-wrap:nowrap;white-space:nowrap;justify-content:flex-start;}
-          #crlGrid .crl-card .ind-sub{flex:none;}
-          #crlGrid .crl-actions{flex-wrap:nowrap;justify-self:end;}
-        }
-        @media (max-width:900px){#crlGrid .crl-actions{width:100%;}}
-        @media (max-width:640px){#crlGrid .crl-card{padding:12px;}}
+        @media (max-width:640px){#crlGrid .crl-card{padding:12px;} #crlGrid .crl-actions{width:100%;}}
         #crlGrid .crl-tag--ok{color:#059669;background:rgba(5,150,105,.14);}
         #crlGrid .crl-tag--bad{color:#dc2626;background:rgba(220,38,38,.14);}
       </style>
@@ -2559,10 +2550,8 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <input type="search" id="crlSearch" placeholder="Mock nomi yoki talaba ismi" aria-label="Qidirish">
           <select id="crlSort" aria-label="Saralash" style="padding:8px 12px;border-radius:10px;border:1px solid var(--gray-200,#e5e7eb);background:var(--white,#fff);color:inherit;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;">
             <option value="std">Standart tartib</option>
-            <option value="reading">Faqat Reading</option>
-            <option value="listening">Faqat Listening</option>
-            <option value="done">Faqat yechilgan</option>
-            <option value="todo">Faqat yechilmagan</option>
+            <option value="done">Bajarilgan testlar</option>
+            <option value="todo">Bajarilmagan testlar</option>
             <option value="best">Eng yaxshi natija</option>
             <option value="worst">Eng yomon natija</option>
           </select>
@@ -3910,7 +3899,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <script src="../firebase-config.js"></script>
 <script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
-<script src="../listening-hw.js?v=20261113a"></script>
+<script src="../listening-hw.js?v=20261114a"></script>
 <script src="../gb-utils.js?v=3"></script>
 <script>
 /* ===== SVG ikonlar (emoji o'rniga) ===== */
@@ -15697,16 +15686,9 @@ const CefrRL = (function(){
 
   function render(){
     const q = $('crlSearch').value.trim().toLowerCase();
-    const mode = $('crlSort') ? $('crlSort').value : 'std';
-    const items = tests.filter(t => {
-      if(q && (String(t.title || '') + ' ' + Object.keys(t.assignedNames || {}).map(k => t.assignedNames[k]).join(' ')).toLowerCase().indexOf(q) < 0) return false;
-      // Tanlangan saralash/filtr bo'yicha faqat mos mocklar chiqadi
-      if(mode === 'reading') return hasSec(t, 'reading');
-      if(mode === 'listening') return hasSec(t, 'listening');
-      if(mode === 'done') return completion(t) >= 1;
-      if(mode === 'todo') return completion(t) < 1;
-      return true;
-    });
+    const items = tests.filter(t =>
+      !q || (String(t.title || '') + ' ' + Object.keys(t.assignedNames || {}).map(k => t.assignedNames[k]).join(' ')).toLowerCase().indexOf(q) >= 0
+    );
     $('crlCount').textContent = tests.length ? (items.length + ' / ' + tests.length + ' ta') : '';
     const box = $('crlGrid');
     if(!tests.length){
@@ -15717,7 +15699,10 @@ const CefrRL = (function(){
       box.innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Hech narsa topilmadi.</p>';
       return;
     }
-    if(mode === 'best' || mode === 'worst'){
+    const mode = $('crlSort') ? $('crlSort').value : 'std';
+    if(mode === 'done') items.sort((x, y) => completion(y) - completion(x));
+    else if(mode === 'todo') items.sort((x, y) => completion(x) - completion(y));
+    else if(mode === 'best' || mode === 'worst'){
       items.sort((x, y) => {
         const p = avgPct(x), q2 = avgPct(y);
         if(p === null && q2 === null) return 0;
