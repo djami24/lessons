@@ -1158,24 +1158,63 @@
     });
   }
 
+  // Ro‘yxatdan yashirilgan guruhlar (faqat shu brauzerda saqlanadi; guruhning o‘zi va mashqlari o‘chmaydi)
+  function getHidden() {
+    try { var a = JSON.parse(localStorage.getItem('lhw_hidden_groups') || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  }
+  function setHidden(a) {
+    try { localStorage.setItem('lhw_hidden_groups', JSON.stringify(a)); } catch (e) { /* ignore */ }
+  }
+
   function renderGroupsView() {
     var host = document.getElementById('lhwGroupsView');
     if (!host) return;
     if (!document.getElementById('lhwGroupCards')) {
       host.innerHTML =
         '<div class="lhw-gtools"><input type="search" id="lhwGroupSearch" class="lhw-gsearch" placeholder="Guruh qidirish…" autocomplete="off">' +
-        '<span class="lhw-muted" id="lhwGroupCount"></span></div>' +
+        '<span class="lhw-muted" id="lhwGroupCount"></span>' +
+        '<button type="button" class="lhw-btn sm" id="lhwHiddenToggle" hidden></button></div>' +
         '<div id="lhwGroupCards" class="lhw-gcards"></div>';
       var inp = document.getElementById('lhwGroupSearch');
       inp.value = A.groupQuery || '';
       inp.addEventListener('input', function () { A.groupQuery = inp.value; renderGroupsView(); });
       document.getElementById('lhwGroupCards').addEventListener('click', function (e) {
+        var h = e.target.closest('[data-hide]');
+        if (h) {
+          e.stopPropagation();
+          var k = h.getAttribute('data-hide'), hid = getHidden();
+          if (hid.indexOf(k) === -1) {
+            if (!confirm('“' + groupLabel(k) + '” guruhini Listening ro‘yxatidan olib tashlaysizmi?\n\nGuruhning o‘zi, mashqlari va natijalari o‘chmaydi: faqat shu ro‘yxatda ko‘rinmaydi. Keyin “Yashirilganlar” orqali qaytarish mumkin.')) return;
+            hid.push(k);
+          }
+          setHidden(hid);
+          renderGroupsView();
+          return;
+        }
+        var u = e.target.closest('[data-unhide]');
+        if (u) {
+          e.stopPropagation();
+          var k2 = u.getAttribute('data-unhide');
+          setHidden(getHidden().filter(function (x) { return x !== k2; }));
+          renderGroupsView();
+          return;
+        }
         var c = e.target.closest('[data-gk]');
         if (c) openGroup(c.getAttribute('data-gk'));
       });
+      document.getElementById('lhwHiddenToggle').addEventListener('click', function () {
+        A.showHidden = !A.showHidden;
+        renderGroupsView();
+      });
     }
     var q = String(A.groupQuery || '').trim().toLowerCase();
-    var all = groupStats();
+    var hidden = getHidden();
+    var every = groupStats();
+    var hiddenN = every.filter(function (g) { return hidden.indexOf(g.key) !== -1; }).length;
+    if (!hiddenN) A.showHidden = false;
+    var all = every.filter(function (g) { return A.showHidden || hidden.indexOf(g.key) === -1; });
+    var tg = document.getElementById('lhwHiddenToggle');
+    if (tg) { tg.hidden = !hiddenN; tg.textContent = A.showHidden ? 'Yashirilganlarni berkitish' : 'Yashirilganlar (' + hiddenN + ')'; }
     var list = q ? all.filter(function (g) { return String(g.name).toLowerCase().indexOf(q) !== -1; }) : all;
     var cnt = document.getElementById('lhwGroupCount');
     if (cnt) cnt.textContent = 'Guruhlar: ' + list.length + ' ta';
@@ -1183,7 +1222,11 @@
     if (!all.length) { box.innerHTML = '<div class="lhw-empty">Guruhlar yuklanmoqda yoki hali guruh yo‘q.</div>'; return; }
     if (!list.length) { box.innerHTML = '<div class="lhw-empty">Bunday guruh topilmadi.</div>'; return; }
     box.innerHTML = list.map(function (g) {
-      return '<button type="button" class="lhw-gcard' + (g.key === NONE ? ' none' : '') + '" data-gk="' + esc(g.key) + '">' +
+      var isHid = hidden.indexOf(g.key) !== -1;
+      return '<div class="lhw-gcard' + (g.key === NONE ? ' none' : '') + (isHid ? ' hid' : '') + '" role="button" tabindex="0" data-gk="' + esc(g.key) + '">' +
+        (isHid
+          ? '<button type="button" class="lhw-gx restore" data-unhide="' + esc(g.key) + '">Qaytarish</button>'
+          : '<button type="button" class="lhw-gx" data-hide="' + esc(g.key) + '" title="Ro‘yxatdan olib tashlash" aria-label="Ro‘yxatdan olib tashlash">✕</button>') +
         '<span class="lhw-gcard-name">' + esc(g.name) + '</span>' +
         '<span class="lhw-gcard-meta">' +
           '<span><b>' + g.ex + '</b> mashq</span>' +
@@ -1191,7 +1234,7 @@
           '<span><b>' + Object.keys(g.studs).length + '</b> talaba topshirgan</span>' +
         '</span>' +
         '<span class="lhw-gcard-last">' + (g.last ? 'Oxirgi topshirish: ' + fmtDT(g.last) : 'Hali topshirilmagan') + '</span>' +
-      '</button>';
+      '</div>';
     }).join('');
   }
 
