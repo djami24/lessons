@@ -892,7 +892,8 @@
   /* ============================================================
      ADMIN
      ============================================================ */
-  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [], allSubs: [], groupNames: {}, keys: {}, groupRoster: null, overallGroup: '' };
+  var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [], allSubs: [], groupNames: {}, keys: {}, groupRoster: null, overallGroup: '', curGroup: null, groupQuery: '' };
+  var NONE = '__none';   // "Guruhsiz" papka (guruhga biriktirilmagan mashqlar)
 
   function stopAdminLb() {
     if (A.lbUnsub) { try { A.lbUnsub(); } catch (e) { /* ignore */ } A.lbUnsub = null; }
@@ -906,15 +907,25 @@
     stopAdminLb();
     A.editingId = null;
     A.lbId = null;
+    A.curGroup = null;
+    A.overallGroup = '';
+    A.overallUid = null;
 
     var blanks = answerRowsHTML(['', '', '', '', '']);
 
     root.innerHTML =
       '<div class="lhw-head"><div>' +
         '<h1>Listening uy vazifalari</h1>' +
-        '<p>Har bir mashq uchun kerakli sonda (1–40) to‘g‘ri javob kiriting. Talaba bo‘sh joylarni to‘ldiradi; har bir to‘g‘ri javob: 1 ball. Bir nechta to‘g‘ri variant uchun "|" belgisidan foydalaning.</p>' +
+        '<p>Avval guruhni tanlang: mashqlar, mashq qo‘shish va talaba natijalari har bir guruhda alohida. Har bir mashq uchun kerakli sonda (1–40) to‘g‘ri javob kiriting. Talaba bo‘sh joylarni to‘ldiradi; har bir to‘g‘ri javob: 1 ball. Bir nechta to‘g‘ri variant uchun "|" belgisidan foydalaning.</p>' +
       '</div></div>' +
-      '<div id="lhwOverall" class="lhw-overall"></div>' +
+      '<div id="lhwGroupsView"></div>' +
+      '<div id="lhwGroupView" hidden>' +
+      '<div class="lhw-gbar"><button type="button" class="lhw-btn sm" id="lhwGroupBack">← Guruhlar</button><h2 id="lhwGroupTitle"></h2></div>' +
+      '<div class="lhw-tabs" role="tablist">' +
+        '<button type="button" class="lhw-tab on" data-tab="ex">Mashqlar <b id="lhwTabExN"></b></button>' +
+        '<button type="button" class="lhw-tab" data-tab="res">Talaba natijalari <b id="lhwTabResN"></b></button>' +
+      '</div>' +
+      '<div id="lhwPaneEx">' +
       '<div class="lhw-admin-grid">' +
         '<form id="lhwAdminForm" class="lhw-form">' +
           '<h3 id="lhwFormTitle">Yangi mashq qo‘shish</h3>' +
@@ -946,8 +957,10 @@
           '</div>' +
         '</form>' +
         '<div class="lhw-admin-list"><div id="lhwAdminList"></div></div>' +
-      '</div>' +
-      '<div id="lhwAdminLb" class="lhw-lb-panel" hidden></div>';
+      '</div></div>' +
+      '<div id="lhwPaneRes" hidden><div id="lhwOverall" class="lhw-overall"></div></div>' +
+      '<div id="lhwAdminLb" class="lhw-lb-panel" hidden></div>' +
+      '</div>';
 
     document.getElementById('lhwAdminForm').addEventListener('submit', saveExercise);
     document.getElementById('lhwKind').addEventListener('change', applyKindUI);
@@ -956,15 +969,22 @@
     loadGroupOptions();
     document.getElementById('lhwCancel').addEventListener('click', resetAdminForm);
     document.getElementById('lhwAdminList').addEventListener('click', onAdminListClick);
+    document.getElementById('lhwGroupBack').addEventListener('click', showGroups);
+    Array.prototype.forEach.call(root.querySelectorAll('.lhw-tab'), function (t) {
+      t.addEventListener('click', function () { closeAdminLb(); setTab(t.getAttribute('data-tab')); });
+    });
+    renderGroupsView();
 
     A.unsubs.push(db.collection(COL_SUB).onSnapshot(function (snap) {
       A.allSubs = snap.docs.map(function (d) { return d.data(); });
       renderOverall();
+      renderGroupsView();
     }));
 
     A.unsubs.push(db.collection(COL_EX).onSnapshot(function (snap) {
       A.exercises = sortByCreated(snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }));
       renderOverall();
+      renderGroupsView();
       if (A.lbId && !A.exercises.some(function (e) { return e.id === A.lbId; })) closeAdminLb();
       renderAdminList();
     }, function (e) {
@@ -1075,6 +1095,162 @@
     updateBlankCount();
   }
 
+
+  /* ---------- Guruh papkalari (admin) ---------- */
+
+  function groupLabel(key) {
+    if (key === NONE) return 'Guruhsiz (barcha guruhlar)';
+    if (A.groupNames[key]) return A.groupNames[key];
+    var ex = A.exercises.find(function (e) { return e.groupId === key && e.groupName; });
+    return ex ? ex.groupName : String(key);
+  }
+
+  // Tanlangan guruhdagi mashqlar (guruh tanlanmagan bo‘lsa: hammasi)
+  function exInScope() {
+    var g = A.curGroup;
+    if (g === null || g === undefined) return A.exercises;
+    return A.exercises.filter(function (e) { return g === NONE ? !e.groupId : e.groupId === g; });
+  }
+
+  // Tanlangan guruh mashqlariga topshirilgan javoblar
+  function subsInScope() {
+    var ids = {};
+    exInScope().forEach(function (e) { ids[e.id] = 1; });
+    return A.allSubs.filter(function (x) { return ids[x.exerciseId]; });
+  }
+
+  function updateTabCounts() {
+    var a = document.getElementById('lhwTabExN'), b = document.getElementById('lhwTabResN');
+    if (!a || !b) return;
+    var studs = {};
+    subsInScope().forEach(function (x) { studs[x.studentId] = 1; });
+    a.textContent = exInScope().length;
+    b.textContent = Object.keys(studs).length;
+  }
+
+  function groupStats() {
+    var map = {};
+    function get(k, name) {
+      if (!map[k]) map[k] = { key: k, name: name, ex: 0, open: 0, subs: 0, studs: {}, last: 0 };
+      return map[k];
+    }
+    Object.keys(A.groupNames).forEach(function (id) { get(id, A.groupNames[id]); });
+    var exGroup = {};
+    A.exercises.forEach(function (e) {
+      var k = e.groupId || NONE;
+      var g = get(k, groupLabel(k));
+      g.ex++;
+      if (!isLocked(e)) g.open++;
+      exGroup[e.id] = k;
+    });
+    A.allSubs.forEach(function (x) {
+      var k = exGroup[x.exerciseId];
+      if (!k || !map[k]) return;
+      map[k].subs++;
+      map[k].studs[x.studentId] = 1;
+      map[k].last = Math.max(map[k].last, tsMs(x.submittedAt));
+    });
+    return Object.keys(map).map(function (k) { return map[k]; }).filter(function (g) {
+      return g.key !== NONE || g.ex > 0;
+    }).sort(function (a, b) {
+      if ((a.key === NONE) !== (b.key === NONE)) return a.key === NONE ? 1 : -1;
+      return String(a.name).localeCompare(String(b.name));
+    });
+  }
+
+  function renderGroupsView() {
+    var host = document.getElementById('lhwGroupsView');
+    if (!host) return;
+    if (!document.getElementById('lhwGroupCards')) {
+      host.innerHTML =
+        '<div class="lhw-gtools"><input type="search" id="lhwGroupSearch" class="lhw-gsearch" placeholder="Guruh qidirish…" autocomplete="off">' +
+        '<span class="lhw-muted" id="lhwGroupCount"></span></div>' +
+        '<div id="lhwGroupCards" class="lhw-gcards"></div>';
+      var inp = document.getElementById('lhwGroupSearch');
+      inp.value = A.groupQuery || '';
+      inp.addEventListener('input', function () { A.groupQuery = inp.value; renderGroupsView(); });
+      document.getElementById('lhwGroupCards').addEventListener('click', function (e) {
+        var c = e.target.closest('[data-gk]');
+        if (c) openGroup(c.getAttribute('data-gk'));
+      });
+    }
+    var q = String(A.groupQuery || '').trim().toLowerCase();
+    var all = groupStats();
+    var list = q ? all.filter(function (g) { return String(g.name).toLowerCase().indexOf(q) !== -1; }) : all;
+    var cnt = document.getElementById('lhwGroupCount');
+    if (cnt) cnt.textContent = 'Guruhlar: ' + list.length + ' ta';
+    var box = document.getElementById('lhwGroupCards');
+    if (!all.length) { box.innerHTML = '<div class="lhw-empty">Guruhlar yuklanmoqda yoki hali guruh yo‘q.</div>'; return; }
+    if (!list.length) { box.innerHTML = '<div class="lhw-empty">Bunday guruh topilmadi.</div>'; return; }
+    box.innerHTML = list.map(function (g) {
+      return '<button type="button" class="lhw-gcard' + (g.key === NONE ? ' none' : '') + '" data-gk="' + esc(g.key) + '">' +
+        '<span class="lhw-gcard-name">' + esc(g.name) + '</span>' +
+        '<span class="lhw-gcard-meta">' +
+          '<span><b>' + g.ex + '</b> mashq</span>' +
+          '<span><b>' + g.open + '</b> ochiq</span>' +
+          '<span><b>' + Object.keys(g.studs).length + '</b> talaba topshirgan</span>' +
+        '</span>' +
+        '<span class="lhw-gcard-last">' + (g.last ? 'Oxirgi topshirish: ' + fmtDT(g.last) : 'Hali topshirilmagan') + '</span>' +
+      '</button>';
+    }).join('');
+  }
+
+  function setTab(t) {
+    var ex = document.getElementById('lhwPaneEx'), res = document.getElementById('lhwPaneRes');
+    if (ex) ex.hidden = t !== 'ex';
+    if (res) res.hidden = t !== 'res';
+    Array.prototype.forEach.call(document.querySelectorAll('#lhwAdminRoot .lhw-tab'), function (b) {
+      b.classList.toggle('on', b.getAttribute('data-tab') === t);
+    });
+  }
+
+  // Forma ichidagi \"Guruh\" tanlovi: papka ichida avtomatik shu guruh, alohida tanlash shart emas
+  function applyGroupUI() {
+    var gsel = document.getElementById('lhwGroup');
+    if (!gsel) return;
+    var field = gsel.closest ? gsel.closest('.lhw-field') : null;
+    var g = A.curGroup;
+    if (g && g !== NONE) {
+      if (!Array.prototype.some.call(gsel.options, function (o) { return o.value === g; })) {
+        var o = document.createElement('option');
+        o.value = g; o.textContent = groupLabel(g);
+        gsel.appendChild(o);
+      }
+      gsel.value = g;
+      if (field) field.style.display = 'none';
+    } else {
+      gsel.value = '';
+      if (field) field.style.display = '';
+    }
+  }
+
+  function openGroup(key) {
+    closeAdminLb();
+    resetAdminForm();
+    A.curGroup = key;
+    A.overallGroup = '';
+    A.overallUid = null;
+    document.getElementById('lhwGroupsView').hidden = true;
+    document.getElementById('lhwGroupView').hidden = false;
+    document.getElementById('lhwGroupTitle').textContent = groupLabel(key);
+    applyGroupUI();
+    setTab('ex');
+    renderAdminList();
+    renderOverall();
+    var r = document.getElementById('lhwAdminRoot');
+    if (r && r.scrollIntoView) r.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function showGroups() {
+    closeAdminLb();
+    resetAdminForm();
+    A.curGroup = null;
+    A.overallUid = null;
+    document.getElementById('lhwGroupView').hidden = true;
+    document.getElementById('lhwGroupsView').hidden = false;
+    renderGroupsView();
+  }
+
   // Guruhlar ro‘yxatini oquv_groups dan to‘ldiradi
   function loadGroupOptions() {
     db.collection('oquv_groups').orderBy('name').get().then(function (snap) {
@@ -1089,6 +1265,9 @@
         sel.appendChild(o);
       });
       sel.value = keep;
+      applyGroupUI();
+      renderGroupsView();
+      if (A.curGroup) { var t = document.getElementById('lhwGroupTitle'); if (t) t.textContent = groupLabel(A.curGroup); }
       if (A.allSubs && A.allSubs.length) renderOverall();
     }).catch(function () { /* guruhlar yuklanmasa ham "Barcha guruhlar" ishlaydi */ });
   }
@@ -1117,8 +1296,10 @@
   function renderOverall() {
     var box = document.getElementById('lhwOverall');
     if (!box) return;
+    updateTabCounts();
+    var scopeEx = exInScope();
     var by = {};
-    A.allSubs.forEach(function (x) {
+    subsInScope().forEach(function (x) {
       var k = x.studentId;
       if (!by[k]) by[k] = { id: k, name: 'Talaba', groupId: '', total: 0, done: 0, flagged: 0, last: 0 };
       by[k].last = Math.max(by[k].last, tsMs(x.submittedAt));
@@ -1148,7 +1329,7 @@
         '<td class="lhw-t-rank">' + rank + '</td>' +
         '<td><button type="button" class="lhw-link" data-uid="' + esc(r.id) + '" data-name="' + esc(r.name) + '">' + esc(r.name) + '</button></td>' +
         '<td class="lhw-t-total">' + r.total + '</td>' +
-        '<td>' + r.done + ' / ' + A.exercises.length + '</td>' +
+        '<td>' + r.done + ' / ' + scopeEx.length + '</td>' +
         '<td>' + fmtDT(r.last) + '</td>' +
         '<td>' + (r.flagged ? '<span class="lhw-flag"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#fff"/><circle cx="12" cy="17.5" r="1.2" fill="#fff"/></svg> ' + r.flagged + '</span>' : '-') + '</td>' +
         '</tr>';
@@ -1176,10 +1357,10 @@
     box.innerHTML =
       '<div class="lhw-overall-card">' +
         '<div class="lhw-lb-head"><h3>Umumiy reyting</h3>' +
-          '<div class="lhw-lb-tools"><span class="lhw-muted">Mashqlar: ' + A.exercises.length + ' ta · Guruhlar: ' + glist.length + ' ta · Ishtirokchilar: ' + all.length + ' ta</span>' +
+          '<div class="lhw-lb-tools"><span class="lhw-muted">Mashqlar: ' + scopeEx.length + ' ta · Guruhlar: ' + glist.length + ' ta · Ishtirokchilar: ' + all.length + ' ta</span>' +
           '<button type="button" class="lhw-btn sm lhw-noexp" id="lhwOverallPng">Rasm yuklash</button><button type="button" class="lhw-btn sm lhw-noexp" id="lhwOverallRefresh"><svg class="lhw-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg> Yangilash</button></div></div>' +
         chips +
-        (all.length ? shown.map(groupHtml).join('') : '<p class="lhw-muted">Hali hech kim topshirmagan.</p>') +
+        (all.length ? shown.map(groupHtml).join('') : '<p class="lhw-muted">Bu guruhda hali hech kim topshirmagan.</p>') +
         '<div id="lhwOverallDetail"></div>' +
       '</div>';
     var btn = document.getElementById('lhwOverallRefresh');
@@ -1222,7 +1403,7 @@
     var mine = {};
     A.allSubs.forEach(function (x) { if (x.studentId === uid) mine[x.exerciseId] = x; });
     var correctAll = 0, totalAll = 0, pointsAll = 0;
-    var cards = A.exercises.map(function (ex, idx) {
+    var cards = exInScope().map(function (ex, idx) {
       var title = ex.title || ('Mashq ' + (idx + 1));
       var sub = mine[ex.id];
       if (!sub) {
@@ -1272,11 +1453,13 @@
   function renderAdminList() {
     var list = document.getElementById('lhwAdminList');
     if (!list) return;
-    if (!A.exercises.length) {
-      list.innerHTML = '<div class="lhw-empty">Hali mashq yo‘q. Chap tomondagi forma orqali qo‘shing.</div>';
+    updateTabCounts();
+    var scope = exInScope();
+    if (!scope.length) {
+      list.innerHTML = '<div class="lhw-empty">Bu guruhda hali mashq yo‘q. Chap tomondagi forma orqali birinchi mashqni qo‘shing.</div>';
       return;
     }
-    list.innerHTML = A.exercises.map(function (ex, i) {
+    list.innerHTML = scope.map(function (ex, i) {
       var preview = (ex.answers || []).map(function (a) { return String(a).split('|')[0].trim(); }).join(' · ');
       var dlTxt = '';
       if (isClosed(ex)) {
@@ -1291,7 +1474,7 @@
           '<div class="lhw-admin-title"><span class="lhw-num">' + (i + 1) + '</span>' +
             '<span style="min-width:0;overflow-wrap:anywhere;">' + esc(ex.title) + '</span></div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;">' +
-            '<span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>' +
+            (A.curGroup && A.curGroup !== NONE ? '' : '<span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>') +
             (isDict(ex) ? '<span class="lhw-badge todo">Eshitib yozish</span>' : '<span class="lhw-badge todo">' + countOf(ex) + ' ta bo‘shliq</span>') + dlTxt + '</div>' +
           '<div class="lhw-muted lhw-preview">' + esc(preview) + '</div>' +
         '</div>' +
@@ -1609,6 +1792,7 @@
     var err = document.getElementById('lhwFormErr');
     if (err) err.hidden = true;
     setFormMode(false);
+    applyGroupUI();
   }
 
   function saveExercise(e) {
