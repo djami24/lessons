@@ -421,3 +421,9 @@ body.dark .lhw-grp{background:rgba(255,255,255,.03);}
 .lhw-gx:hover{ color:var(--lhw-red); border-color:var(--lhw-red); background:rgba(229,72,77,.08); }
 .lhw-gx.restore{ width:auto; padding:0 10px; font-weight:700; color:var(--lhw-blue); }
 .lhw-gx.restore:hover{ color:var(--lhw-blue-deep); border-color:var(--lhw-blue); background:rgba(47,111,237,.08); }
+
+.lhw-root [hidden]{ display:none !important; }
+.lhw-dict-rating{ margin-top:16px; }
+.lhw-pct{ font-weight:800; }
+.lhw-pct.ok{ color:var(--lhw-green); }
+.lhw-pct.bad{ color:var(--lhw-red); }
