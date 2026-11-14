@@ -1273,6 +1273,7 @@
     A.curGroup = key;
     A.overallGroup = '';
     A.overallUid = null;
+    A.dictUid = null;
     document.getElementById('lhwGroupsView').hidden = true;
     document.getElementById('lhwGroupView').hidden = false;
     document.getElementById('lhwGroupTitle').textContent = groupLabel(key);
@@ -1340,9 +1341,12 @@
     var box = document.getElementById('lhwOverall');
     if (!box) return;
     updateTabCounts();
-    var scopeEx = exInScope();
+    var scopeAll = exInScope();
+    var scopeEx = scopeAll.filter(function (e) { return !isDict(e); });   // bo‘shliqli mashqlar
+    var dictEx = scopeAll.filter(isDict);                                  // eshitib yozish: alohida reyting
+    var scopeSubs = subsInScope();
     var by = {};
-    subsInScope().forEach(function (x) {
+    scopeSubs.filter(function (x) { return x.kind !== 'dictation'; }).forEach(function (x) {
       var k = x.studentId;
       if (!by[k]) by[k] = { id: k, name: 'Talaba', groupId: '', total: 0, done: 0, flagged: 0, last: 0 };
       by[k].last = Math.max(by[k].last, tsMs(x.submittedAt));
@@ -1398,14 +1402,15 @@
       ? '<div class="lhw-gchips lhw-noexp">' + chip('', 'Hammasi', all.length) + glist.map(function (g) { return chip(g.key, g.name, g.rows.length); }).join('') + '</div>'
       : '';
     box.innerHTML =
-      '<div class="lhw-overall-card">' +
-        '<div class="lhw-lb-head"><h3>Umumiy reyting</h3>' +
+      '<div class="lhw-overall-card"' + (!scopeEx.length && dictEx.length ? ' hidden' : '') + '>' +
+        '<div class="lhw-lb-head"><h3>' + (dictEx.length ? 'Reyting: bo‘shliqli mashqlar' : 'Umumiy reyting') + '</h3>' +
           '<div class="lhw-lb-tools"><span class="lhw-muted">Mashqlar: ' + scopeEx.length + ' ta · Guruhlar: ' + glist.length + ' ta · Ishtirokchilar: ' + all.length + ' ta</span>' +
           '<button type="button" class="lhw-btn sm lhw-noexp" id="lhwOverallPng">Rasm yuklash</button><button type="button" class="lhw-btn sm lhw-noexp" id="lhwOverallRefresh"><svg class="lhw-ico" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg> Yangilash</button></div></div>' +
         chips +
         (all.length ? shown.map(groupHtml).join('') : '<p class="lhw-muted">Bu guruhda hali hech kim topshirmagan.</p>') +
         '<div id="lhwOverallDetail"></div>' +
-      '</div>';
+      '</div>' + dictRatingHTML(dictEx, scopeSubs);
+    bindDictRating(box);
     var btn = document.getElementById('lhwOverallRefresh');
     if (btn) btn.addEventListener('click', refreshOverall);
     var pngBtn = document.getElementById('lhwOverallPng');
@@ -1436,6 +1441,107 @@
     if (A.overallUid) showOverallDetail(A.overallUid, A.overallName);
   }
 
+
+  /* ---------- Eshitib yozish reytingi: aniqlik foizi bo‘yicha ---------- */
+
+  function dictRows(dictEx, subs) {
+    var ids = {};
+    dictEx.forEach(function (e) { ids[e.id] = 1; });
+    var by = {};
+    subs.forEach(function (x) {
+      if (x.kind !== 'dictation' || !ids[x.exerciseId]) return;
+      var k = x.studentId;
+      if (!by[k]) by[k] = { id: k, name: 'Talaba', done: 0, graded: 0, sum: 0, flagged: 0, last: 0 };
+      var r = by[k];
+      r.name = x.studentName || r.name;
+      r.done++;
+      r.last = Math.max(r.last, tsMs(x.submittedAt));
+      if (x.graded !== false && x.diff && typeof x.diff.pct === 'number') { r.graded++; r.sum += x.diff.pct; }
+      if (x.graded !== false && x.flagged) r.flagged++;
+    });
+    var rows = Object.keys(by).map(function (k) {
+      var r = by[k];
+      r.pct = r.graded ? Math.round(r.sum / r.graded) : null;
+      return r;
+    });
+    rows.sort(function (a, b) {
+      var ap = a.pct === null ? -1 : a.pct, bp = b.pct === null ? -1 : b.pct;
+      return bp - ap || b.done - a.done || String(a.name).localeCompare(String(b.name));
+    });
+    return rows;
+  }
+
+  function dictRatingHTML(dictEx, subs) {
+    if (!dictEx.length) return '';
+    var rows = dictRows(dictEx, subs);
+    var rank = 0, prev = null;
+    var body = rows.map(function (r, idx) {
+      if (r.pct !== prev) { rank = idx + 1; prev = r.pct; }
+      var pct = r.pct === null
+        ? '<span class="lhw-muted">Tekshirilmoqda</span>'
+        : '<b class="lhw-pct ' + (r.pct >= DICT_MIN_PCT ? 'ok' : 'bad') + '">' + r.pct + '%</b>';
+      return '<tr>' +
+        '<td class="lhw-t-rank">' + rank + '</td>' +
+        '<td><button type="button" class="lhw-link" data-duid="' + esc(r.id) + '" data-name="' + esc(r.name) + '">' + esc(r.name) + '</button></td>' +
+        '<td class="lhw-t-total">' + pct + '</td>' +
+        '<td>' + r.done + ' / ' + dictEx.length + '</td>' +
+        '<td>' + fmtDT(r.last) + '</td>' +
+        '<td>' + (r.flagged ? '<span class="lhw-flag">' + r.flagged + '</span>' : '-') + '</td>' +
+        '</tr>';
+    }).join('');
+    return '<div class="lhw-overall-card lhw-dict-rating" id="lhwDictRating">' +
+      '<div class="lhw-lb-head"><h3>Eshitib yozish reytingi</h3>' +
+        '<div class="lhw-lb-tools"><span class="lhw-muted">Aniqlik foizi bo‘yicha · Mashqlar: ' + dictEx.length + ' ta · Ishtirokchilar: ' + rows.length + ' ta</span>' +
+        '<button type="button" class="lhw-btn sm lhw-noexp" id="lhwDictPng">Rasm yuklash</button></div></div>' +
+      (rows.length
+        ? '<div class="lhw-overall-wrap"><table class="lhw-table"><thead><tr>' +
+            '<th>O‘rin</th><th>Talaba</th><th>Aniqlik foizi</th><th>Topshirgan</th><th>Oxirgi topshirgan vaqti</th><th>Taxmin</th>' +
+          '</tr></thead><tbody>' + body + '</tbody></table></div>' +
+          '<p class="lhw-hint">Aniqlik: talaba matnining asl matnga mosligi (bir nechta mashq bo‘lsa, o‘rtachasi). ' + DICT_MIN_PCT + '% dan past bo‘lsa ball berilmaydi.</p>'
+        : '<p class="lhw-muted">Bu guruhda eshitib yozishni hali hech kim topshirmagan.</p>') +
+      '<div id="lhwDictDetail"></div>' +
+    '</div>';
+  }
+
+  function bindDictRating(box) {
+    var png = document.getElementById('lhwDictPng');
+    if (png) png.addEventListener('click', function () {
+      var g = A.curGroup && A.curGroup !== NONE ? '-' + slugName(groupLabel(A.curGroup)) : '';
+      overallExportPng(document.getElementById('lhwDictRating'), 'eshitib-yozish-reyting' + g + '.png');
+    });
+    box.querySelectorAll('[data-duid]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var uid = b.getAttribute('data-duid');
+        showDictOverallDetail(A.dictUid === uid ? null : uid, b.getAttribute('data-name'));
+      });
+    });
+    if (A.dictUid) showDictOverallDetail(A.dictUid, A.dictName);
+  }
+
+  // Talaba ustiga bosilganda: har bir eshitib yozish mashqi bo‘yicha aniqlik va xatolar
+  function showDictOverallDetail(uid, name) {
+    A.dictUid = uid || null;
+    A.dictName = name || '';
+    var box = document.getElementById('lhwDictDetail');
+    if (!box) return;
+    if (!uid) { box.innerHTML = ''; return; }
+    var mine = {};
+    subsInScope().forEach(function (x) { if (x.studentId === uid && x.kind === 'dictation') mine[x.exerciseId] = x; });
+    var items = exInScope().filter(isDict).map(function (ex, idx) {
+      var title = ex.title || ('Mashq ' + (idx + 1));
+      var sub = mine[ex.id];
+      if (!sub) return '<li class="lhw-res-ex none"><div class="lhw-res-ex-h"><b>' + esc(title) + '</b><span class="lhw-muted">Topshirilmagan</span></div></li>';
+      if (sub.graded === false || !sub.diff) return '<li class="lhw-res-ex"><div class="lhw-res-ex-h"><b>' + esc(title) + '</b><span class="lhw-muted">Tekshirilmoqda</span></div></li>';
+      var d = sub.diff;
+      return '<li class="lhw-res-ex"><div class="lhw-res-ex-h"><b>' + esc(title) + '</b>' +
+        '<span class="lhw-muted"><b class="lhw-pct ' + (d.pct >= DICT_MIN_PCT ? 'ok' : 'bad') + '">' + d.pct + '%</b> · ' + finalOf(sub) + ' ball · ' + fmtDT(tsMs(sub.submittedAt)) + '</span></div>' +
+        '<div class="lhw-muted">To‘g‘ri so‘z: ' + (d.eq || 0) + ' · Imlo xatosi: ' + (d.spell || 0) + ' · Noto‘g‘ri: ' + (d.wrong || 0) +
+        ' · Tushib qolgan: ' + (d.missing || 0) + ' · Ortiqcha: ' + (d.extra || 0) + ' · Asl matnda: ' + (d.refN || 0) + ' so‘z</div></li>';
+    }).join('');
+    box.innerHTML = '<div class="lhw-admin-detail"><div class="lhw-lb-head"><h3>' + esc(name || 'Talaba') + ': eshitib yozish natijalari</h3></div>' +
+      '<ol class="lhw-ex-list">' + items + '</ol></div>';
+  }
+
   // Talaba ustiga bosilganda: har bir mashq bo‘yicha qaysi bo‘shliqni to‘g‘ri/noto‘g‘ri yechgani
   function showOverallDetail(uid, name) {
     A.overallUid = uid || null;
@@ -1446,7 +1552,7 @@
     var mine = {};
     A.allSubs.forEach(function (x) { if (x.studentId === uid) mine[x.exerciseId] = x; });
     var correctAll = 0, totalAll = 0, pointsAll = 0;
-    var cards = exInScope().map(function (ex, idx) {
+    var cards = exInScope().filter(function (e) { return !isDict(e); }).map(function (ex, idx) {
       var title = ex.title || ('Mashq ' + (idx + 1));
       var sub = mine[ex.id];
       if (!sub) {
