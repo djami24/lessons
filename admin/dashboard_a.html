@@ -2523,12 +2523,21 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         @media (max-width:640px){.crl-ans-grid{grid-template-columns:repeat(2,1fr);}}
         /* Mock ro'yxati: kartalar o'rniga qatorlar (ma'lumot o'zgarmaydi) */
         #crlGrid.ind-grid{grid-template-columns:1fr;gap:8px;}
-        #crlGrid .crl-card{flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 18px;padding:10px 16px;border-radius:12px;}
-        #crlGrid .crl-card h3{flex:1 1 200px;min-width:0;}
-        #crlGrid .crl-meta{flex:0 0 auto;align-items:center;}
-        #crlGrid .crl-card .ind-sub{flex:1 1 180px;min-width:0;overflow-wrap:anywhere;}
-        #crlGrid .crl-actions{margin-top:0;flex:0 0 auto;}
-        @media (max-width:640px){#crlGrid .crl-card{padding:12px;} #crlGrid .crl-actions{width:100%;}}
+        /* Qatorlar: har bir ustun hamma qatorda bir xil joyda turadi */
+        #crlGrid .crl-card{display:grid;grid-template-columns:minmax(150px,1.1fr) 470px minmax(90px,.8fr) auto;align-items:center;gap:6px 16px;padding:10px 16px;border-radius:12px;}
+        #crlGrid .crl-card h3{min-width:0;}
+        #crlGrid .crl-meta{display:grid;grid-template-columns:104px 108px 108px 124px;gap:0 8px;align-items:center;flex-wrap:nowrap;}
+        #crlGrid .crl-meta > span{white-space:nowrap;}
+        #crlGrid .crl-card .ind-sub{min-width:0;overflow-wrap:anywhere;}
+        #crlGrid .crl-actions{margin-top:0;flex-wrap:nowrap;justify-self:end;}
+        #crlGrid .crl-actions .btn{min-width:98px;justify-content:center;text-align:center;}
+        @media (max-width:1180px){
+          #crlGrid .crl-card{grid-template-columns:1fr;gap:8px;}
+          #crlGrid .crl-meta{grid-template-columns:repeat(auto-fill,minmax(104px,max-content));gap:6px 14px;}
+          #crlGrid .crl-actions{justify-self:stretch;}
+          #crlGrid .crl-actions .btn{flex:1;min-width:0;}
+        }
+        @media (max-width:640px){#crlGrid .crl-card{padding:12px;}}
         #crlGrid .crl-tag--ok{color:#059669;background:rgba(5,150,105,.14);}
         #crlGrid .crl-tag--bad{color:#dc2626;background:rgba(220,38,38,.14);}
       </style>
@@ -15723,9 +15732,9 @@ const CefrRL = (function(){
       };
       return '<div class="crl-card" data-id="' + esc(t.id) + '">' +
         '<h3>' + esc(t.title || 'Nomsiz') + '</h3>' +
-        '<div class="crl-meta"><span>Biriktirilgan: <b>' + asg.length + '</b></span>' + avgTag(t) +
-          (hasSec(t, 'reading') ? seg('reading', 'Reading', 'crl-tag--reading') : '') +
-          (hasSec(t, 'listening') ? seg('listening', 'Listening', 'crl-tag--listening') : '') + '</div>' +
+        '<div class="crl-meta"><span>Biriktirilgan: <b>' + asg.length + '</b></span>' + (avgTag(t) || '<span></span>') +
+          (hasSec(t, 'reading') ? seg('reading', 'Reading', 'crl-tag--reading') : '<span></span>') +
+          (hasSec(t, 'listening') ? seg('listening', 'Listening', 'crl-tag--listening') : '<span></span>') + '</div>' +
         '<div class="ind-sub" title="' + esc(names) + '">' + (names ? esc(names) : 'Hech kimga biriktirilmagan') + '</div>' +
         '<div class="crl-actions">' +
           '<button type="button" class="btn btn-primary btn-sm" data-crl="res">Natijalar</button>' +
