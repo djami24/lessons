@@ -1616,13 +1616,19 @@ void main() {
     return document.body.classList.contains('dark') || document.body.classList.contains('dark-mode') ||
       document.documentElement.classList.contains('dark') || document.documentElement.getAttribute('data-theme') === 'dark';
   }
+  function small() { return window.innerWidth < 700; }
   function look() {
-    return dark()
-      ? { lightMode: false, color: '#9db4ff', gridColor: '#ffffff', gridOpacity: 0.07, fillOpacity: 0.08 }
-      : { lightMode: true,  color: '#2f4fd8', gridColor: '#1f2a52', gridOpacity: 0.07, fillOpacity: 0.07 };
+    // Yumshoq, past kontrastli: matn o'qilishiga xalaqit bermasligi uchun
+    var o = dark()
+      ? { lightMode: false, color: '#9db4ff', gridColor: '#c9d6ff', gridOpacity: 0.05, fillOpacity: 0.05 }
+      : { lightMode: true,  color: '#7f93ee', gridColor: '#8da0e8', gridOpacity: 0.07, fillOpacity: 0.05 };
+    o.cellSize = small() ? 34 : 44;
+    o.radius = small() ? 70 : 100;
+    return o;
   }
-  var grid = CursorGrid(host, Object.assign({ cellSize: 56, radius: 150, highlight: 'area', gridStyle: 'lines',
-    holdTime: 400, fadeDuration: 800, spotlight: 0.6, clickPulse: true, edgeFade: 0.15 }, look()));
+  var grid = CursorGrid(host, Object.assign({ highlight: 'area', gridStyle: 'lines', lineWidth: 1,
+    maxOpacity: 0.4, spotlight: 0.2, holdTime: 250, fadeDuration: 700, clickPulse: true, edgeFade: 0.15 }, look()));
+  window.addEventListener('resize', function () { grid.update(look()); });
   // Sayt qorong'u/yorug' rejimga o'tganda ranglarni almashtiradi
   var mo = new MutationObserver(function () { grid.update(look()); });
   mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
