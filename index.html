@@ -1104,7 +1104,7 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
 })();
 </script>
 <!-- ===== CursorGrid fon effekti: shu blokni to'liq nusxalab, landing sahifaning </body> tegidan OLDIN qo'ying ===== -->
-<style>/* CursorGrid: suzuvchi sharchalar panjara ostida qolsin */.home-body::before,.home-body::after{z-index:-2 !important}</style>
+<style>/* Oppoq fon: rangli gradient va suzuvchi sharchalar o'chirildi; shisha (glass) kartalar va panjara qoladi */.home-body{background:#ffffff !important}.home-body::before,.home-body::after{display:none !important}</style>
 <div id="djamiBgGrid" aria-hidden="true" style="position:fixed;inset:0;z-index:-1;pointer-events:none;"></div>
 <script>
 /* CursorGrid (React Bits, oddiy JS varianti) */
@@ -1621,7 +1621,7 @@ void main() {
     // Yumshoq, past kontrastli: matn o'qilishiga xalaqit bermasligi uchun
     var o = dark()
       ? { lightMode: false, color: '#9db4ff', gridColor: '#c9d6ff', gridOpacity: 0.05, fillOpacity: 0.05 }
-      : { lightMode: true,  color: '#7f93ee', gridColor: '#8da0e8', gridOpacity: 0.07, fillOpacity: 0.05 };
+      : { lightMode: true,  color: '#7f93ee', gridColor: '#8da0e8', gridOpacity: 0.09, fillOpacity: 0.05 };
     o.cellSize = small() ? 34 : 44;
     o.radius = small() ? 70 : 100;
     return o;
