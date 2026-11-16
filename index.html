@@ -272,6 +272,20 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
 html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,.home-blog-section,.site-footer).is-in:not(.rv-done){opacity:1;transform:none;}
 </style>
 <script>(function(){var d=document.documentElement;if("IntersectionObserver" in window&&!matchMedia("(prefers-reduced-motion: reduce)").matches){d.classList.add("rv-on");}})();</script>
+<style id="ttCss">
+/* Sarlavha yoziladigan effekt (TextType, oddiy JS varianti) */
+[data-site-hero-title]:not(.tt-ready){opacity:0;animation:ttShow 0s 2.5s forwards}
+@keyframes ttShow{to{opacity:1}}
+.tt-root{display:inline}
+.tt-w{display:inline-block;white-space:nowrap}
+.tt-c{position:relative;visibility:hidden}
+.tt-c.on{visibility:visible}
+.tt-cursor{display:inline-block;position:relative;width:0;height:1em;vertical-align:baseline;transition:opacity .4s ease;pointer-events:none}
+.tt-cursor::after{content:"";position:absolute;left:.06em;top:.12em;width:max(2px,.07em);height:.95em;border-radius:1px;background:currentColor;animation:ttBlink 1.05s ease-in-out infinite}
+.tt-cursor.tt-hide{opacity:0}
+@keyframes ttBlink{0%,55%{opacity:1}80%,100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.tt-cursor::after{animation:none}}
+</style>
 </head>
 <body class="home-body">
 <div class="site-marquee" data-site-marquee style="display:none">
@@ -1103,6 +1117,125 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
   });
 })();
 </script>
+<!-- ===== TextType: sarlavha effekti ===== -->
+<script>
+/* TextType (React Bits) — oddiy JS varianti: sarlavha yozilib chiqadi */
+(function () {
+  var el = document.querySelector('[data-site-hero-title]');
+  if (!el) return;
+  var O = { typingSpeed: 62, jitter: 32, initialDelay: 350, mistakes: 0.25, effect: 'blur', cursorHideAfter: 2200 };
+  var NEIGH = { a:'qwsz', b:'vghn', c:'xdfv', d:'serfcx', e:'wsdr', f:'drtgvc', g:'ftyhbv', h:'gyujnb', i:'ujko', j:'huikmn', k:'jiolm', l:'kop', m:'njk', n:'bhjm', o:'iklp', p:'ol', q:'wa', r:'edft', s:'awedxz', t:'rfgy', u:'yhji', v:'cfgb', w:'qase', x:'zsdc', y:'tghu', z:'asx' };
+  var EFFECTS = {
+    fade: { k: [{ opacity: 0 }, { opacity: 1 }], o: { duration: 360, easing: 'cubic-bezier(0.25, 1, 0.5, 1)' } },
+    blur: { k: [{ opacity: 0, filter: 'blur(0.3em)' }, { opacity: 1, filter: 'blur(0em)' }], o: { duration: 520, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' } },
+    rise: { k: [{ opacity: 0, top: '0.6em' }, { opacity: 1, top: '0em' }], o: { duration: 480, easing: 'cubic-bezier(0.34, 1.4, 0.64, 1)' } }
+  };
+  var reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var cursor = document.createElement('span'); cursor.className = 'tt-cursor'; cursor.setAttribute('aria-hidden', 'true');
+  var timers = [], chars = [], progress = 0, token = 0, mistakesLeft = 2, lastMistake = -1, current = '', started = false;
+
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function speed() { return O.typingSpeed + (Math.random() - 0.5) * 2 * O.jitter; }
+
+  function build(text) {
+    el.setAttribute('aria-label', text);
+    el.textContent = '';
+    var root = document.createElement('span');
+    root.className = 'tt-root';
+    root.setAttribute('aria-hidden', 'true');
+    chars = [];
+    text.split(/(\s+)/).forEach(function (part) {
+      if (!part) return;
+      if (/^\s+$/.test(part)) { root.appendChild(document.createTextNode(' ')); return; }
+      var w = document.createElement('span');
+      w.className = 'tt-w';
+      Array.from(part).forEach(function (ch) {
+        var c = document.createElement('span');
+        c.className = 'tt-c';
+        c.textContent = ch;
+        w.appendChild(c);
+        chars.push(c);
+      });
+      root.appendChild(w);
+    });
+    el.appendChild(root);
+    el.classList.add('tt-ready');
+  }
+
+  function place() {
+    var next = chars[progress];
+    if (next) next.parentNode.insertBefore(cursor, next);
+    else if (chars.length) chars[chars.length - 1].parentNode.appendChild(cursor);
+  }
+
+  function show(c) {
+    c.classList.add('on');
+    var f = EFFECTS[O.effect];
+    if (f && !reduce && c.animate) c.animate(f.k, f.o);
+  }
+
+  function step(tk) {
+    if (tk !== token) return;
+    if (progress >= chars.length) {
+      later(function () { cursor.classList.add('tt-hide'); }, O.cursorHideAfter);
+      return;
+    }
+    var c = chars[progress], ch = c.textContent, key = NEIGH[ch.toLowerCase()];
+    if (key && mistakesLeft > 0 && progress > 2 && progress !== lastMistake && Math.random() < O.mistakes * 0.12) {
+      // bir marta noto'g'ri harf bosib, o'chirib, to'g'rilaydi
+      mistakesLeft--; lastMistake = progress;
+      var wrong = key.charAt(Math.floor(Math.random() * key.length));
+      if (ch !== ch.toLowerCase()) wrong = wrong.toUpperCase();
+      c.textContent = wrong; show(c); progress++; place();
+      later(function () {
+        progress--; c.classList.remove('on'); place();
+        later(function () { c.textContent = ch; step(tk); }, 130);
+      }, 320 + Math.random() * 280);
+      return;
+    }
+    show(c); progress++; place();
+    later(function () { step(tk); }, speed());
+  }
+
+  function begin(text, keep) {
+    clearTimers(); token++;
+    var tk = token;
+    if (!keep) { progress = 0; mistakesLeft = 2; lastMistake = -1; }
+    current = text;
+    build(text);
+    for (var i = 0; i < progress; i++) chars[i].classList.add('on');
+    cursor.classList.remove('tt-hide');
+    place();
+    if (reduce) { chars.forEach(function (c) { c.classList.add('on'); }); progress = chars.length; place(); cursor.classList.add('tt-hide'); return; }
+    later(function () { step(tk); }, keep ? 0 : O.initialDelay);
+  }
+
+  function ours() { var f = el.firstElementChild; return f && f.classList.contains('tt-root') && el.childNodes.length === 1; }
+
+  // Sayt sozlamalaridan sarlavha keyin almashtirilsa (textContent bilan), yangi matnni qayta yozadi
+  new MutationObserver(function () {
+    if (!started || ours()) return;
+    var t = el.textContent.replace(/\s+/g, ' ').trim();
+    if (!t) return;
+    begin(t, t === current);
+  }).observe(el, { childList: true });
+
+  function go() {
+    if (started) return;
+    started = true;
+    var t = el.textContent.replace(/\s+/g, ' ').trim();
+    if (t) begin(t, false); else el.classList.add('tt-ready');
+  }
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (es) {
+      if (es.some(function (e) { return e.isIntersecting; })) { io.disconnect(); go(); }
+    }, { threshold: 0.1 });
+    io.observe(el);
+  } else go();
+})();
+</script>
+<!-- ===== /TextType ===== -->
 <!-- ===== CursorGrid fon effekti: shu blokni to'liq nusxalab, landing sahifaning </body> tegidan OLDIN qo'ying ===== -->
 <style>/* Oppoq fon: rangli gradient va suzuvchi sharchalar o'chirildi; shisha (glass) kartalar va panjara qoladi */.home-body{background:#ffffff !important}.home-body::before,.home-body::after{display:none !important}</style>
 <div id="djamiBgGrid" aria-hidden="true" style="position:fixed;inset:0;z-index:-1;pointer-events:none;"></div>
