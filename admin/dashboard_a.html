@@ -3240,7 +3240,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <!-- ===== MODAL: Add O'quv Jarayoni Group ===== -->
 <!-- ===== MODAL: Ustoz guruhlari va natijalari ===== -->
 <div class="modal-overlay" id="modalSalAtt" hidden>
-  <div class="modal-box" style="max-width:1020px;width:96vw;max-height:90vh;overflow:auto;">
+  <div class="modal-box" style="max-width:900px;width:96vw;max-height:90vh;overflow:auto;">
     <h2 class="modal-title" id="salAttTitle">Kelgan darslar asosida</h2>
     <p class="st-note" id="salAttInfo" style="margin:0 0 12px;"></p>
     <div id="salAttBody"></div>
@@ -8083,7 +8083,7 @@ function renderSalaryEstimate(){
     } else full++;
     feeSum += fee;
     attSum += Math.min(v.att, SAL.LESSONS) * price;
-    detail.push({ name: st.name || st.email || 'Noma\'lum', group: g.name || '', att: v.att, miss: v.miss, amt: Math.min(v.att, SAL.LESSONS) * price, missAmt: v.miss * price, fee: fee, reduced: v.miss > SAL.FREE_MISSES });
+    detail.push({ name: st.name || st.email || 'Noma\'lum', group: g.name || '', att: v.att, miss: v.miss, amt: Math.min(v.att, SAL.LESSONS) * price, fee: Math.max(0, SAL.LESSONS - v.miss) * price, reduced: v.miss > 0 });
   }));
   _salDetail = { ym: ym, price: price, rows: detail, total: attSum, feeTotal: feeSum };
   if(!students){ el.innerHTML = '<p class="st-note">Tanlangan guruhlarda talaba yo‘q.</p>'; return; }
@@ -8107,20 +8107,20 @@ function salAttRows(){
   return d.rows.slice().sort((a, b) => String(a.group).localeCompare(String(b.group)) || String(a.name).localeCompare(String(b.name)));
 }
 function salAttNote(d){
-  return 'Yozilgan summa = kelgan darslar × bir dars narxi (' + salFmt(d.price) + ' so‘m, ko‘pi bilan ' + SAL.LESSONS + ' ta dars). Haqiqiy summa: har talaba ' + salFmt(SAL.FEE) + ' so‘m; ' + (SAL.FREE_MISSES + 1) + ' va undan ko‘p dars qoldirgan bo‘lsa, qoldirgan darslari summasi chegirib tashlanadi.';
+  return 'Yozilgan summa = kelgan darslar × bir dars narxi (' + salFmt(d.price) + ' so‘m, ko‘pi bilan ' + SAL.LESSONS + ' ta dars). Haqiqiy summa = (' + SAL.LESSONS + ' − qoldirgan darslar) × bir dars narxi: qoldirgan darslar chiqarib tashlanadi.';
 }
 function openSalAttDetail(){
   const d = _salDetail;
   if(!d) return;
   const esc = typeof escapeHtml === 'function' ? escapeHtml : (x => String(x));
   const rows = salAttRows();
-  const missTotal = rows.reduce((t, r) => t + r.missAmt, 0);
+  const realTotal = rows.reduce((t, r) => t + r.fee, 0);
   document.getElementById('salAttTitle').textContent = 'Kelgan darslar asosida · ' + rpLabel(d.ym);
   document.getElementById('salAttInfo').textContent = rows.length + ' ta talaba · ' + salAttNote(d);
   document.getElementById('salAttBody').innerHTML =
-    '<div class="table-wrap"><table class="data-table"><thead><tr><th>№</th><th>Talaba</th><th>Guruh</th><th>Kelgan</th><th>Qoldirgan</th><th>Yozilgan summa</th><th>Qoldirgan darslar summasi</th><th>Haqiqiy summa</th></tr></thead><tbody>' +
-    rows.map((r, i) => '<tr><td>' + (i + 1) + '</td><td>' + esc(r.name) + '</td><td>' + esc(r.group) + '</td><td>' + r.att + ' ta</td><td>' + r.miss + ' ta</td><td><b>' + salFmt(r.amt) + ' so‘m</b></td><td>' + (r.miss ? salFmt(r.missAmt) + ' so‘m' : '–') + '</td><td><b' + (r.reduced ? ' style="color:#F0923D;" title="Chegirma qo‘llangan"' : '') + '>' + salFmt(r.fee) + ' so‘m</b></td></tr>').join('') +
-    '</tbody><tfoot><tr><td colspan="5"><b>Jami</b></td><td><b>' + salFmt(d.total) + ' so‘m</b></td><td><b>' + salFmt(missTotal) + ' so‘m</b></td><td><b>' + salFmt(d.feeTotal) + ' so‘m</b></td></tr></tfoot></table></div>';
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>№</th><th>Talaba</th><th>Guruh</th><th>Kelgan</th><th>Qoldirgan</th><th>Yozilgan summa</th><th>Haqiqiy summa</th></tr></thead><tbody>' +
+    rows.map((r, i) => '<tr><td>' + (i + 1) + '</td><td>' + esc(r.name) + '</td><td>' + esc(r.group) + '</td><td>' + r.att + ' ta</td><td>' + r.miss + ' ta</td><td><b>' + salFmt(r.amt) + ' so‘m</b></td><td><b' + (r.reduced ? ' style="color:#F0923D;" title="Chegirma qo‘llangan"' : '') + '>' + salFmt(r.fee) + ' so‘m</b></td></tr>').join('') +
+    '</tbody><tfoot><tr><td colspan="5"><b>Jami</b></td><td><b>' + salFmt(d.total) + ' so‘m</b></td><td><b>' + salFmt(realTotal) + ' so‘m</b></td></tr></tfoot></table></div>';
   openModal('modalSalAtt');
 }
 
@@ -8131,7 +8131,7 @@ async function salAttExportPdf(){
   if(typeof html2canvas !== 'function' || !window.jspdf){ showToast('Kutubxonalar yuklanmadi: sahifani yangilang', true); return; }
   const esc = typeof escapeHtml === 'function' ? escapeHtml : (x => String(x));
   const rows = salAttRows();
-  const missTotal = rows.reduce((t, r) => t + r.missAmt, 0);
+  const realTotal = rows.reduce((t, r) => t + r.fee, 0);
   const PER = 24;
   const pages = [];
   for(let i = 0; i < rows.length; i += PER) pages.push(rows.slice(i, i + PER));
@@ -8148,10 +8148,10 @@ async function salAttExportPdf(){
       '<h2 style="margin:0 0 4px;font-size:20px;">Kelgan darslar asosida · ' + esc(rpLabel(d.ym)) + '</h2>' +
       '<div style="font-size:11px;color:#666;margin-bottom:12px;line-height:1.5;">' + rows.length + ' ta talaba · Sana: ' + today + ' · Sahifa ' + (pi + 1) + '/' + pages.length + '<br>' + esc(salAttNote(d)) + '</div>' +
       '<table style="width:100%;border-collapse:collapse;"><thead><tr>' +
-        ['№', 'Talaba', 'Guruh', 'Kelgan', 'Qoldirgan', 'Yozilgan summa', 'Qoldirgan darslar summasi', 'Haqiqiy summa'].map(h => '<th style="' + th + '">' + h + '</th>').join('') +
+        ['№', 'Talaba', 'Guruh', 'Kelgan', 'Qoldirgan', 'Yozilgan summa', 'Haqiqiy summa'].map(h => '<th style="' + th + '">' + h + '</th>').join('') +
       '</tr></thead><tbody>' +
-      chunk.map((r, i) => '<tr><td style="' + td + '">' + (offset + i + 1) + '</td><td style="' + td + '">' + esc(r.name) + '</td><td style="' + td + '">' + esc(r.group) + '</td><td style="' + td + '">' + r.att + ' ta</td><td style="' + td + '">' + r.miss + ' ta</td><td style="' + td + 'font-weight:bold;">' + salFmt(r.amt) + ' so‘m</td><td style="' + td + '">' + (r.miss ? salFmt(r.missAmt) + ' so‘m' : '–') + '</td><td style="' + td + 'font-weight:bold;' + (r.reduced ? 'color:#d97706;' : '') + '">' + salFmt(r.fee) + ' so‘m</td></tr>').join('') +
-      (last ? '<tr><td colspan="5" style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">Jami</td><td style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">' + salFmt(d.total) + ' so‘m</td><td style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">' + salFmt(missTotal) + ' so‘m</td><td style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">' + salFmt(d.feeTotal) + ' so‘m</td></tr>' : '') +
+      chunk.map((r, i) => '<tr><td style="' + td + '">' + (offset + i + 1) + '</td><td style="' + td + '">' + esc(r.name) + '</td><td style="' + td + '">' + esc(r.group) + '</td><td style="' + td + '">' + r.att + ' ta</td><td style="' + td + '">' + r.miss + ' ta</td><td style="' + td + 'font-weight:bold;">' + salFmt(r.amt) + ' so‘m</td><td style="' + td + 'font-weight:bold;' + (r.reduced ? 'color:#d97706;' : '') + '">' + salFmt(r.fee) + ' so‘m</td></tr>').join('') +
+      (last ? '<tr><td colspan="5" style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">Jami</td><td style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">' + salFmt(d.total) + ' so‘m</td><td style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">' + salFmt(realTotal) + ' so‘m</td></tr>' : '') +
       '</tbody></table>';
     document.body.appendChild(wrap);
     try{
