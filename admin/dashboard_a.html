@@ -17175,5 +17175,14 @@ try{
 }
 })();
 </script>
+<style id="adminBgCss">
+/* Admin panel orqa foni: kunduzgi rejimda oq, tungi rejimda qora (bosh sahifadagidek) */
+body.admin-theme:not(.dark){ background:#ffffff !important; }
+body.admin-theme:not(.dark) .admin-main{ background:transparent !important; }
+html:has(body.admin-theme.dark){ background:#000000 !important; }
+body.admin-theme.dark{ background:#000000 !important; --adm-bg:#000000; }
+body.admin-theme.dark .admin-main{ background:#000000 !important; }
+body.admin-theme.dark .loading-screen{ background:#000000 !important; }
+</style>
 </body>
 </html>
