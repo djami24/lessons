@@ -655,7 +655,25 @@
       e.preventDefault();
       submitDictation(ex);
     });
+    growDictTa(ta);
     protectView();
+  }
+
+  // Matn maydonini kattalashtirish: yozgan sari o‘sadi + belgilar hisoblagichi
+  function growDictTa(ta) {
+    if (!ta || ta.dataset.grow) return;
+    ta.dataset.grow = '1';
+    var cnt = document.createElement('div');
+    cnt.className = 'lhw-dict-count';
+    ta.parentNode.insertBefore(cnt, ta.nextSibling);
+    function fit() {
+      ta.style.height = 'auto';
+      ta.style.height = Math.max(ta.scrollHeight + 4, ta.clientHeight) + 'px';
+      var n = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
+      cnt.textContent = n + ' so‘z · ' + ta.value.length + ' / ' + DICT_MAX + ' belgi';
+    }
+    ta.addEventListener('input', fit);
+    fit();
   }
 
   function submitDictation(ex) {
@@ -798,6 +816,7 @@
           '<button type="button" class="lhw-btn" id="lhwDictEditCancel">Bekor qilish</button>' +
         '</div>' +
       '</form>';
+    growDictTa(document.getElementById('lhwDictEditText'));
     document.getElementById('lhwDictEditCancel').addEventListener('click', function () {
       if (S.subs[ex.id]) renderDictResult(ex, S.subs[ex.id]);
     });
