@@ -317,7 +317,7 @@
         '<h1>Exercises</h1>' +
         '<p>Mashqni oching, bo‘sh joylarni to‘ldiring va topshiring.</p>' +
       '</div></div>' +
-      '<div class="lhw-banner"><span class="lhw-banner-ico"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4h10v5a5 5 0 0 1-10 0z" fill="#F5B700"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4" fill="none" stroke="#D99A00" stroke-width="1.6"/><rect x="10.5" y="14" width="3" height="4" fill="#D99A00"/><rect x="7" y="18" width="10" height="2.5" rx="1" fill="#B77E00"/></svg></span><div><b>Abduraxmonova Mufazzalxon</b> listening marafon g‘olibi bo‘ldilar!<br>Marafon o‘z nihoyasiga yetdi. Qolgan vazifalarga mukofot berilmaydi. Har bir qilinmagan listening uchun <b>100 ta jazo</b>.</div></div>' +
+      '<div class="lhw-banner"><span class="lhw-banner-ico"><svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2z" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#DC2626"/><circle cx="12" cy="17.5" r="1.2" fill="#DC2626"/></svg></span><div><b>Cheating qilmang, o‘qituvchini emas o‘zingizni aldagan bo‘lasiz!</b></div></div>' +
       '<div id="lhwStudentBody"><div class="lhw-muted"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div></div>';
     if (!S.uid) return;
 
