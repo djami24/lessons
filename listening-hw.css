@@ -458,3 +458,6 @@ body.dark .lhw-grp{background:rgba(255,255,255,.03);}
 .lhw-dict-count{margin-top:6px;font-size:.8rem;font-weight:700;color:var(--lhw-muted);text-align:right;}
 @media (max-width:780px){ .lhw-dict-ta{height:260px;min-height:260px;} }
 @media (min-width:781px){ .lhw-dict-ta{height:420px;min-height:420px;resize:vertical;} }
+
+.lhw-detail{overflow-anchor:none;}
+.lhw-dict-ta{scroll-margin:80px 0;}
