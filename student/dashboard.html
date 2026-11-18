@@ -869,6 +869,22 @@ body.dark .teacher-photo{ color:#8fb0ff; }
   #progressView .pv-name{ margin:0 !important; font-size:12.5px !important; font-weight:700; color:var(--blue-600); line-height:1.25; overflow-wrap:anywhere; }
   #progressView > div:nth-child(2){ padding:14px 16px 6px !important; }
   #progressView > div:nth-child(3){ padding:0 16px 14px !important; }
+
+  /* O'quv jarayoni: shisha (glass) effekti — boshqa kartochkalar bilan bir xil */
+  #progressView, #progressIdForm{
+    background:linear-gradient(145deg,rgba(255,255,255,.78) 0%,rgba(255,255,255,.46) 100%) !important;
+    -webkit-backdrop-filter:blur(16px) saturate(170%); backdrop-filter:blur(16px) saturate(170%);
+    border:1px solid rgba(255,255,255,.8) !important;
+    box-shadow:0 18px 40px -22px rgba(70,80,220,.45), inset 0 1px 0 rgba(255,255,255,.95) !important;
+  }
+  #progressView .pv-head{ border-bottom-color:rgba(120,130,170,.16) !important; }
+  #progressView > div:nth-child(2) > div[style*="grid"] > div{ background:rgba(255,255,255,.6) !important; border:1px solid rgba(255,255,255,.85); box-shadow:0 6px 16px -12px rgba(70,80,220,.35); }
+  body.dark #progressView, body.dark #progressIdForm{
+    background:linear-gradient(145deg,rgba(30,37,56,.72) 0%,rgba(23,29,44,.5) 100%) !important;
+    border:1px solid rgba(255,255,255,.1) !important;
+    box-shadow:0 18px 40px -22px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06) !important;
+  }
+  body.dark #progressView > div:nth-child(2) > div[style*="grid"] > div{ background:rgba(255,255,255,.06) !important; border-color:rgba(255,255,255,.08); box-shadow:none; }
   #progressChangeIdBtn{ text-decoration:underline; text-underline-offset:2px; }
   #latestHwBox{ padding:14px 16px 14px 18px !important; }
   #latestHwBox > div:first-child{ margin-bottom:8px !important; padding-bottom:10px; border-bottom:1px solid var(--gray-100); }
