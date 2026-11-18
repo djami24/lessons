@@ -773,13 +773,9 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <script>try{var __v=sessionStorage.getItem('adminLastView');if(__v&&__v!=='home'){document.documentElement.classList.add('av-restoring');setTimeout(function(){document.documentElement.classList.remove('av-restoring')},10000);}}catch(e){}</script>
 <script>try{if(localStorage.getItem("efAdminBgMode")==="plain")document.documentElement.classList.add("admin-bg-plain");}catch(e){}</script>
 <style>
-/* Talaba profili: xabar yozish */
-.sp-msg{margin:0 0 1.2em;padding:12px 14px;border:1.5px solid var(--line);border-radius:var(--radius-s,12px);background:var(--paper)}
-.sp-msg-l{display:block;font-size:.8rem;font-weight:800;color:var(--gray);margin:0 0 6px;text-transform:uppercase;letter-spacing:.05em}
-.sp-msg textarea{width:100%;box-sizing:border-box;resize:vertical;min-height:72px;max-height:220px;padding:.6em .8em;border-radius:var(--radius-s,10px);border:1.5px solid var(--line);background:var(--paper);color:var(--ink);font-family:var(--font-body);font-size:.92rem;line-height:1.5}
-.sp-msg textarea:focus{outline:none;border-color:var(--blue-600,#2F6FED)}
-.sp-msg-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
-.sp-msg-c{font-size:.78rem;color:var(--gray)}
+/* Talaba profili: xabar yozish tugmasi */
+.sp-msg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:0 0 1.2em;padding:.65em 1.4em;font-weight:800}
+.sp-msg-btn .ic{width:1.1em;height:1.1em}
 </style>
 </head>
 
@@ -3835,14 +3831,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
       <button type="button" class="btn btn-ghost btn-sm" id="saveStudentPhoneBtn">Saqlash</button>
     </div>
 
-    <div class="sp-msg" id="spMsgBox">
-      <label class="sp-msg-l" for="spMsgInput">Xabar yozish</label>
-      <textarea id="spMsgInput" rows="3" maxlength="2000" placeholder="Shu talabaga xabar yozing… (Chatlar bo‘limiga tushadi)"></textarea>
-      <div class="sp-msg-row">
-        <span class="sp-msg-c" id="spMsgCount">0 / 2000</span>
-        <button type="button" class="btn btn-primary btn-sm" id="spMsgSend">Yuborish</button>
-      </div>
-    </div>
+    <button type="button" class="btn btn-primary sp-msg-btn" id="spMsgOpen"><svg class="ic" aria-hidden="true"><use href="#i-message"></use></svg> Xabar yozish</button>
 
     <div id="studentProfileBody" style="margin-bottom:1.4em;"></div>
 
@@ -5894,43 +5883,17 @@ document.getElementById('studentProfileBody').addEventListener('click', e => {
   if(b) spExportProfile(b.dataset.spExport);
 });
 
-// ===== Talaba profilidan xabar yuborish (chats/{uid} ga tushadi) =====
+// ===== Talaba profilidan chatni ochish =====
 (function(){
-  const $ = id => document.getElementById(id);
-  const ta = $('spMsgInput'), btn = $('spMsgSend'), cnt = $('spMsgCount');
-  if(!ta || !btn) return;
-  ta.addEventListener('input', () => { cnt.textContent = ta.value.length + ' / 2000'; });
-  ta.addEventListener('keydown', e => { if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); btn.click(); } });
-  btn.addEventListener('click', async () => {
+  const btn = document.getElementById('spMsgOpen');
+  if(!btn) return;
+  btn.addEventListener('click', () => {
     const st = window._spCurStudent;
-    const text = ta.value.trim();
     if(!st || !st.id){ showToast('Talaba tanlanmagan', true); return; }
-    if(!text){ ta.focus(); return; }
-    btn.disabled = true; ta.disabled = true;
-    try{
-      const ref = db.collection('chats').doc(st.id);
-      await ref.collection('messages').add({
-        text: text,
-        senderRole: 'teacher',
-        senderName: 'O‘qituvchi',
-        read: false,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-      await ref.set({
-        studentId: st.id,
-        studentName: st.name || '',
-        lastMessage: text,
-        lastAt: firebase.firestore.FieldValue.serverTimestamp(),
-        lastSenderRole: 'teacher',
-        unreadByStudent: firebase.firestore.FieldValue.increment(1)
-      }, { merge: true });
-      ta.value = ''; cnt.textContent = '0 / 2000';
-      showToast('Xabar yuborildi. Chatlar bo‘limida ko‘rinadi');
-    } catch(err){
-      showToast('Xabar yuborilmadi: ' + (err && err.message || err), true);
-    } finally {
-      btn.disabled = false; ta.disabled = false;
-    }
+    closeModal('modalStudentDetail');
+    switchView('chats');
+    loadChatStudentList();
+    openAdminChat(st.id, st.name || 'Talaba');
   });
 })();
 
@@ -5982,7 +5945,6 @@ function spMonthsOf(norm, bonuses, gbMatch){
 // Ma'lumotlar: students/{uid} + gradebook (test) + oquv_progress/{ID} (guruh, davomat, uy vazifa, jazo, bonus).
 async function spLoad(student){
   window._spCurStudent = student;
-  (function(){ const t = document.getElementById('spMsgInput'); if(t){ t.value = ''; const c = document.getElementById('spMsgCount'); if(c) c.textContent = '0 / 2000'; } })();
   const body = document.getElementById('studentProfileBody');
   if(!body) return;
   const token = student.id + '|' + Date.now();
