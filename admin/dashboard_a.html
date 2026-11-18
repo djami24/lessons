@@ -445,9 +445,8 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
 .actlog-table th{text-align:left;padding:10px 14px;font-size:.75rem;font-weight:700;color:var(--adm-gray,var(--gray));border-bottom:2px solid var(--adm-line,var(--line));white-space:nowrap;}
 .actlog-table td{padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));vertical-align:middle;}
 .actlog-table tr:last-child td{border-bottom:none;}
+.actlog-row-click{cursor:pointer;}
 .actlog-table tr:hover td{background:rgba(47,111,237,.04);}
-.actlog-row-clickable{cursor:pointer;}
-.actlog-row-clickable:hover td{background:rgba(47,111,237,.09);}
 .actlog-role-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:.75rem;font-weight:700;}
 .actlog-role-student{background:rgba(47,111,237,.12);color:#2F6FED;}
 .actlog-role-parent{background:rgba(31,174,122,.12);color:#1FAE7A;}
@@ -5779,8 +5778,16 @@ function renderStudents(){
   `).join('');
 }
 
-function openStudentDetailModal(student){
+document.getElementById('studentsList').addEventListener('click', (e) => {
+  const row = e.target.closest('[data-student-detail]');
+  if(!row) return;
+  const student = state.students.find(s => s.id === row.dataset.studentDetail);
   if(!student) return;
+  openStudentDetail(student);
+});
+
+// Talaba profilini ochadi (O'quvchilar ro'yxatidan ham, Faollik jurnalidan ham)
+function openStudentDetail(student){
   state.detailStudentId = student.id;
   document.getElementById('studentDetailName').textContent = student.name;
   document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
@@ -5802,14 +5809,6 @@ function openStudentDetailModal(student){
     );
   });
 }
-
-document.getElementById('studentsList').addEventListener('click', (e) => {
-  const row = e.target.closest('[data-student-detail]');
-  if(!row) return;
-  const student = state.students.find(s => s.id === row.dataset.studentDetail);
-  if(!student) return;
-  openStudentDetailModal(student);
-});
 
 document.getElementById('studentSearchInput').addEventListener('input', () => {
   renderStudents();
@@ -13130,8 +13129,8 @@ function renderActivityLogTable(){
     const deleteCell = doc.uid
       ? `<button type="button" class="btn btn-danger btn-sm" data-actlog-delete-uid="${escHtml(doc.uid)}" data-actlog-delete-role="${escHtml(doc.role||'')}" data-actlog-delete-name="${escHtml(doc.name||doc.email||'Foydalanuvchi')}"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg> O'chirish</button>`
       : '-';
-    const rowAttr = (doc.role === 'student' && doc.uid) ? ` class="actlog-row-clickable" data-actlog-student="${escHtml(doc.uid)}" title="Talaba ma'lumotlarini ochish"` : '';
-    return `<tr${rowAttr}>
+    const clickable = doc.role === 'student' && doc.uid;
+    return `<tr${clickable ? ` class="actlog-row-click" data-actlog-student="${escHtml(doc.uid)}" title="Talaba profilini ochish"` : ''}>
       <td style="color:var(--adm-gray,var(--gray));font-size:.8rem;">${i+1}</td>
       <td>${nameCell}</td>
       <td>${roleBadge}</td>
@@ -13143,31 +13142,32 @@ function renderActivityLogTable(){
   }).join('');
 }
 
-// Faollik jurnalidagi talaba qatorini bosganda: o'quvchilar ro'yxatidagi bilan
-// bir xil profil oynasi ochiladi ("O'chirish" tugmasi bundan mustasno).
-document.getElementById('actlogTableBody').addEventListener('click', async (e) => {
-  if(e.target.closest('button')) return;
-  const tr = e.target.closest('[data-actlog-student]');
-  if(!tr) return;
-  const uid = tr.dataset.actlogStudent;
-  let student = (state.students || []).find(s => s.id === uid);
-  if(!student){
-    try { await loadStudents(); } catch(err){ console.warn('loadStudents:', err); }
-    student = (state.students || []).find(s => s.id === uid);
-  }
-  if(!student){ showToast('Bu talaba topilmadi (o\'chirilgan bo\'lishi mumkin).', true); return; }
-  openStudentDetailModal(student);
-});
-
 // Faollik jurnalidagi "O'chirish" tugmasi: kerak bo'lmagan foydalanuvchini
 // (talaba yoki ota-ona) butunlay o'chirib tashlaydi: uning students/parents
 // kolleksiyasidagi hisob yozuvi va shu uid'ga tegishli barcha faollik
 // jurnali yozuvlari o'chiriladi. (Firebase Authentication hisobining o'zini
 // butunlay o'chirish uchun Firebase Console > Authentication bo'limidan
 // foydalaning: bu yerdan faqat sayt ichidagi profil o'chiriladi.)
+// Faollik jurnalidagi talabani bossak: O'quvchilar bo'limidagi profil oynasi ochiladi
+async function actlogOpenStudent(uid){
+  let student = state.students.find(s => s.id === uid);
+  if(!student){
+    try{
+      const snap = await db.collection('students').doc(uid).get();
+      if(snap.exists) student = { id: snap.id, ...snap.data() };
+    } catch(err){ console.error('Student load error:', err); }
+  }
+  if(!student){ showToast('Bu talaba topilmadi (hisob o‘chirilgan bo‘lishi mumkin).', true); return; }
+  openStudentDetail(student);
+}
+
 document.getElementById('actlogTableBody').addEventListener('click', async (e) => {
   const btn = e.target.closest('[data-actlog-delete-uid]');
-  if(!btn) return;
+  if(!btn){
+    const row = e.target.closest('[data-actlog-student]');
+    if(row) actlogOpenStudent(row.dataset.actlogStudent);
+    return;
+  }
 
   const uid = btn.dataset.actlogDeleteUid;
   const role = btn.dataset.actlogDeleteRole;
