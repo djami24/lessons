@@ -5711,7 +5711,8 @@ function findRegisteredStudent(id, person){
 }
 function studentAvatarSrc(id, person){
   const s = findRegisteredStudent(id, person);
-  return (s && ADMIN_AVATAR_IMAGES[s.avatarImg]) || '';
+  // Talaba o'zi yuklagan rasm (avatarPhoto) tayyor avatardan ustun: talaba panelidagi tartib bilan bir xil
+  return (s && (s.avatarPhoto || ADMIN_AVATAR_IMAGES[s.avatarImg])) || '';
 }
 // fallbackHtml: rasm tanlanmagan bo'lsa ko'rsatiladigan (allaqachon escape qilingan) matn
 // person ({name, phone}): guruh talabasi uchun: ID mos kelmasa shu bo'yicha qidiriladi
@@ -8511,9 +8512,9 @@ function stRenderKpiDetail(){
   document.getElementById('kpiDetailSub').textContent = (_kdState.sub ? _kdState.sub + ' · ' : '') +
     (filtered ? list.length + ' / ' + _kdState.rows.length : list.length) + ' ta o‘quvchi';
   document.getElementById('kpiDetailList').innerHTML = list.length ? list.map(p => {
-    const key = stAvatarKeyFor(p);
+    const avSrc = studentAvatarSrc(p.sid || '', p);
     const ini = escHtml(initials(p.name));
-    const ava = key ? `<img class="avatar-img" alt="" src="${ADMIN_AVATAR_IMAGES[key]}">` : ini;
+    const ava = avSrc ? `<img class="avatar-img" alt="" src="${avSrc}">` : ini;
     const go = _kdState.kind === 'comp' && p.dates && p.dates.length;
     const chips = go ? ' · belgilanmagan: ' + p.dates.slice(0, 8).map(d => `<button type="button" class="kd-chip" data-date="${d}" title="Shu sanani belgilash">${d.slice(8, 10)}.${d.slice(5, 7)}</button>`).join('') +
       (p.dates.length > 8 ? ` va yana ${p.dates.length - 8} ta` : '') : '';
