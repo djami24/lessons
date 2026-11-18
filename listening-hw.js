@@ -297,7 +297,7 @@
   // Mashq guruhga biriktirilmagan bo‘lsa (guruhsiz) hamma ko‘radi; aks holda faqat o‘z guruhi
   function visibleToStudent(ex) {
     // Individual talaba: faqat Individuals uchun qo'shilgan mashqlar; guruh talabasi individual mashqlarni ko'rmaydi
-    if (S.groupId === IND_GROUP) return ex.groupId === IND_GROUP;
+    if (S.groupId === IND_GROUP) return ex.groupId === IND_GROUP && Array.isArray(ex.assignedTo) && ex.assignedTo.indexOf(S.uid) !== -1;
     return ex.groupId !== IND_GROUP && (!ex.groupId || ex.groupId === S.groupId);
   }
 
@@ -919,10 +919,78 @@
   var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [], allSubs: [], groupNames: {}, keys: {}, groupRoster: null, overallGroup: '', curGroup: null, groupQuery: '' };
   A.mode = 'groups';              // 'groups': oddiy guruhlar; 'individual': faqat Individuals
   A.rootId = 'lhwAdminRoot';
+  A.assignSel = {};      // Individuals: mashq biriktiriladigan talabalar {uid: true}
+  A.inds = null;         // individuals ro'yxati [{id, name}]
+  A.assignQ = '';
   var NONE = '__none';   // "Guruhsiz" papka (guruhga biriktirilmagan mashqlar)
 
   function stopAdminLb() {
     if (A.lbUnsub) { try { A.lbUnsub(); } catch (e) { /* ignore */ } A.lbUnsub = null; }
+  }
+
+  /* ---------- Individuals: mashqni tanlangan talabalarga biriktirish ---------- */
+  function loadInds() {
+    if (A.inds) return Promise.resolve(A.inds);
+    return db.collection('individuals').get().then(function (snap) {
+      A.inds = snap.docs.map(function (d) { var x = d.data() || {}; return { id: d.id, name: x.name || x.email || d.id }; })
+        .sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); });
+      return A.inds;
+    });
+  }
+
+  function renderAssign() {
+    var wrap = document.getElementById('lhwAssignWrap');
+    if (!wrap) return;
+    var list = A.inds;
+    var n = Object.keys(A.assignSel).length;
+    var q = String(A.assignQ || '').trim().toLowerCase();
+    var body;
+    if (!list) body = '<p class="lhw-muted">Talabalar yuklanmoqda…</p>';
+    else if (!list.length) body = '<p class="lhw-muted">Hali individual talaba yo‘q.</p>';
+    else {
+      var shown = q ? list.filter(function (s2) { return String(s2.name).toLowerCase().indexOf(q) !== -1; }) : list;
+      body = shown.length ? shown.map(function (s2) {
+        return '<label class="lhw-pick"><input type="checkbox" data-uid="' + esc(s2.id) + '"' + (A.assignSel[s2.id] ? ' checked' : '') + '> <span>' + esc(s2.name) + '</span></label>';
+      }).join('') : '<p class="lhw-muted">Bunday talaba topilmadi.</p>';
+    }
+    var cnt = wrap.querySelector('.lhw-pick-count');
+    var box = wrap.querySelector('.lhw-pick-list');
+    if (!box) {
+      wrap.innerHTML =
+        '<span>Talabalar * <em class="lhw-pick-count"></em></span>' +
+        '<div class="lhw-pick-tools"><input type="search" class="lhw-pick-search" placeholder="Talaba qidirish…" autocomplete="off">' +
+        '<button type="button" class="lhw-btn sm" data-pick="all">Hammasi</button>' +
+        '<button type="button" class="lhw-btn sm" data-pick="none">Tozalash</button></div>' +
+        '<div class="lhw-pick-list"></div>' +
+        '<p class="lhw-hint">Faqat belgilangan talabalar bu mashqni o‘z profilidagi Listening bo‘limida ko‘radi va bajara oladi.</p>';
+      wrap.querySelector('.lhw-pick-search').addEventListener('input', function (e) { A.assignQ = e.target.value; renderAssign(); });
+      wrap.addEventListener('change', function (e) {
+        var cb = e.target.closest ? e.target.closest('input[data-uid]') : null;
+        if (!cb) return;
+        var id = cb.getAttribute('data-uid');
+        if (cb.checked) A.assignSel[id] = true; else delete A.assignSel[id];
+        renderAssign();
+      });
+      wrap.addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('button[data-pick]') : null;
+        if (!b) return;
+        if (b.getAttribute('data-pick') === 'all') {
+          var qq = String(A.assignQ || '').trim().toLowerCase();
+          (A.inds || []).forEach(function (s2) { if (!qq || String(s2.name).toLowerCase().indexOf(qq) !== -1) A.assignSel[s2.id] = true; });
+        } else A.assignSel = {};
+        renderAssign();
+      });
+      cnt = wrap.querySelector('.lhw-pick-count');
+      box = wrap.querySelector('.lhw-pick-list');
+    }
+    cnt.textContent = '(tanlangan: ' + n + ')';
+    box.innerHTML = body;
+  }
+
+  function setAssigned(ids) {
+    A.assignSel = {};
+    (ids || []).forEach(function (id) { A.assignSel[id] = true; });
+    renderAssign();
   }
 
   // Rejimga qarab mashq / topshiriqlarni ajratadi (individual mashqlar oddiy admin panelda ko'rinmaydi va aksincha)
@@ -1013,6 +1081,17 @@
       // Individuals: sarlavha va guruhlar ro'yxati kerak emas: to'g'ridan-to'g'ri mashqlar ochiladi
       var hd = root.querySelector('.lhw-head'); if (hd) hd.style.display = 'none';
       var gb = root.querySelector('.lhw-gbar'); if (gb) gb.style.display = 'none';
+      var tl = document.getElementById('lhwTitle');
+      var tf = tl && tl.closest ? tl.closest('label') : null;
+      if (tf) {
+        tf.insertAdjacentHTML('afterend', '<div class="lhw-field lhw-assign" id="lhwAssignWrap"></div>');
+        A.assignSel = {};
+        renderAssign();
+        loadInds().then(renderAssign).catch(function () {
+          var w = document.getElementById('lhwAssignWrap');
+          if (w) w.innerHTML = '<p class="lhw-err">Talabalar ro‘yxatini yuklab bo‘lmadi.</p>';
+        });
+      }
     }
     document.getElementById('lhwAdminForm').addEventListener('submit', saveExercise);
     document.getElementById('lhwKind').addEventListener('change', applyKindUI);
@@ -1691,7 +1770,7 @@
           '<div class="lhw-admin-title"><span class="lhw-num">' + (i + 1) + '</span>' +
             '<span style="min-width:0;overflow-wrap:anywhere;">' + esc(ex.title) + '</span></div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px;">' +
-            (A.curGroup && A.curGroup !== NONE ? '' : '<span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>') +
+            (A.mode === 'individual' ? '<span class="lhw-badge todo">' + (Array.isArray(ex.assignedTo) ? ex.assignedTo.length : 0) + ' ta talaba</span>' : (A.curGroup && A.curGroup !== NONE ? '' : '<span class="lhw-badge todo">' + esc(ex.groupName || 'Barcha guruhlar') + '</span>')) +
             (isDict(ex) ? '<span class="lhw-badge todo">Eshitib yozish</span>' : '<span class="lhw-badge todo">' + countOf(ex) + ' ta bo‘shliq</span>') + dlTxt + '</div>' +
           '<div class="lhw-muted lhw-preview">' + esc(preview) + '</div>' +
         '</div>' +
@@ -1790,7 +1869,7 @@
     getKeyText(ex.id).catch(function () {});
     A.groupRoster = null;
     if (ex.groupId) {
-      loadRoster(ex.groupId).then(function (r) { A.groupRoster = r; renderNotSub(A.lastRows); }).catch(function () { renderNotSub(A.lastRows); });
+      loadRoster(ex.groupId).then(function (r) { if (ex.groupId === IND_GROUP) r = r.filter(function (s2) { return (ex.assignedTo || []).indexOf(s2.uid) !== -1; }); A.groupRoster = r; renderNotSub(A.lastRows); }).catch(function () { renderNotSub(A.lastRows); });
     }
     renderNotSub(A.lastRows);
     panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1994,6 +2073,7 @@
     document.getElementById('lhwHours').value = (typeof ex.durationHours === 'number') ? ex.durationHours : '';
     var gsel = document.getElementById('lhwGroup');
     if (gsel) gsel.value = ex.groupId || '';
+    if (A.mode === 'individual') setAssigned(ex.assignedTo || []);
     setAnswerRows((ex.answers || []).map(function (a) { return a == null ? '' : String(a); }));
     document.getElementById('lhwKind').value = isDict(ex) ? 'dictation' : 'blanks';
     document.getElementById('lhwAllowCopy').checked = !!ex.allowCopy;
@@ -2016,6 +2096,7 @@
     if (err) err.hidden = true;
     setFormMode(false);
     applyGroupUI();
+    if (A.mode === 'individual') { A.assignQ = ''; var aq = document.querySelector('#lhwAssignWrap .lhw-pick-search'); if (aq) aq.value = ''; setAssigned([]); }
   }
 
   function saveExercise(e) {
@@ -2033,6 +2114,8 @@
     var allowCopy = kind === 'dictation' && document.getElementById('lhwAllowCopy').checked;
     var allowEdit = kind === 'dictation' && document.getElementById('lhwAllowEdit').checked;
 
+    var assignedIds = Object.keys(A.assignSel || {});
+    if (A.mode === 'individual' && !assignedIds.length) { showErr(err, 'Kamida bitta talabani tanlang.'); return; }
     if (!title) { showErr(err, 'Mashq nomini kiriting.'); return; }
     if (mediaRaw && !safeUrl(mediaRaw)) { showErr(err, 'Havola http:// yoki https:// bilan boshlanishi kerak.'); return; }
     if (kind === 'dictation') {
@@ -2059,6 +2142,12 @@
       allowEdit: allowEdit,
       updatedAt: Date.now()
     };
+    if (A.mode === 'individual') {
+      payload.assignedTo = assignedIds;
+      var nm = {};
+      (A.inds || []).forEach(function (s2) { if (A.assignSel[s2.id]) nm[s2.id] = s2.name; });
+      payload.assignedNames = nm;
+    }
     // Muddat: yangi mashqda yoki soat o‘zgarganda: hozirdan boshlab hisoblanadi; o‘zgarmasa avvalgisi saqlanadi
     var prevEx = A.editingId ? findAdminEx(A.editingId) : null;
     if (prevEx && isClosed(prevEx)) {
