@@ -2390,7 +2390,17 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
             .oj-bchip.up{border-color:rgba(31,174,122,.4);color:#1FAE7A;}
             .oj-bchip.down{border-color:rgba(192,57,43,.4);color:#c0392b;}
             .oj-bchip:hover{filter:brightness(.96);}
-          </style>
+          /* Talaba profili: rasm */
+.sd-head{display:flex;align-items:center;gap:14px;margin:0 0 .8em}
+.sd-ht{min-width:0}.sd-ht h3,.sd-ht .modal-sub{margin:0 !important;overflow-wrap:anywhere}.sd-ht .modal-sub{margin-top:3px !important}
+.sd-ava{flex:none;width:64px;height:64px;border-radius:50%;padding:0;border:2px solid var(--line);background:var(--paper);color:var(--gray);font:800 1.4rem var(--font-body);cursor:zoom-in;overflow:hidden;display:flex;align-items:center;justify-content:center;transition:transform .15s,box-shadow .15s}
+.sd-ava:hover{transform:scale(1.04);box-shadow:0 8px 20px -10px rgba(30,42,74,.5)}
+.sd-ava img{width:100%;height:100%;object-fit:cover;display:block}
+.sd-ava.none{cursor:default}
+.sd-lb{position:fixed;inset:0;z-index:100000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;background:rgba(8,12,24,.82);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);cursor:zoom-out}
+.sd-lb img{max-width:min(92vw,720px);max-height:80vh;object-fit:contain;border-radius:18px;background:#fff;box-shadow:0 30px 70px -20px rgba(0,0,0,.7)}
+.sd-lb span{color:#fff;font-weight:700;font-size:.95rem;text-align:center}
+</style>
         </div>
         <div style="display:flex; gap:.8em; align-items:center; margin-top:14px; flex-wrap:wrap;">
           <button type="button" class="btn btn-primary" id="ojBonusAddBtn">+ Point qo'shish</button>
@@ -3814,8 +3824,13 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <!-- ===== MODAL: Student details ===== -->
 <div class="modal-overlay" id="modalStudentDetail" hidden>
   <div class="modal-box" style="max-width:680px;">
-    <h3 id="studentDetailName">O‘quvchi</h3>
-    <p class="modal-sub" id="studentDetailEmail"></p>
+    <div class="sd-head">
+      <button type="button" class="sd-ava" id="studentDetailAvatar" title="Rasmni ko‘rish" aria-label="Talaba rasmini ochish"></button>
+      <div class="sd-ht">
+        <h3 id="studentDetailName">O‘quvchi</h3>
+        <p class="modal-sub" id="studentDetailEmail"></p>
+      </div>
+    </div>
     <div class="chat-status-line" id="studentDetailPresenceLine" style="margin:-0.6em 0 1em;">
       <span class="chat-status-dot" id="studentDetailStatusDot"></span>
       <span class="chat-status-text" id="studentDetailStatusText">-</span>
@@ -5791,11 +5806,45 @@ document.getElementById('studentsList').addEventListener('click', (e) => {
   openStudentDetail(student);
 });
 
+
+// Talaba rasmi: profil sarlavhasida, bosilsa katta ochiladi
+function sdAvatarSrc(st){
+  return (st && (st.avatarPhoto || ADMIN_AVATAR_IMAGES[st.avatarImg])) || '';
+}
+function sdSetAvatar(st){
+  const el = document.getElementById('studentDetailAvatar');
+  if(!el) return;
+  const src = sdAvatarSrc(st);
+  el.dataset.src = src;
+  el.classList.toggle('none', !src);
+  el.title = src ? 'Rasmni ko‘rish' : 'Talaba rasm qo‘ymagan';
+  if(src){ el.innerHTML = '<img alt="" src="' + src + '">'; }
+  else { el.textContent = (String(st && st.name || '?').trim().charAt(0) || '?').toUpperCase(); }
+}
+function sdOpenPhoto(){
+  const el = document.getElementById('studentDetailAvatar');
+  const src = el && el.dataset.src;
+  if(!src){ showToast('Talaba hali rasm qo‘ymagan'); return; }
+  const lb = document.createElement('div');
+  lb.className = 'sd-lb';
+  const im = document.createElement('img'); im.alt = ''; im.src = src;
+  const cap = document.createElement('span');
+  cap.textContent = (document.getElementById('studentDetailName').textContent || '');
+  lb.appendChild(im); lb.appendChild(cap);
+  const close = () => { lb.remove(); document.removeEventListener('keydown', onKey, true); };
+  const onKey = e => { if(e.key === 'Escape'){ e.stopPropagation(); close(); } };
+  lb.addEventListener('click', close);
+  document.addEventListener('keydown', onKey, true);
+  document.body.appendChild(lb);
+}
+document.getElementById('studentDetailAvatar').addEventListener('click', sdOpenPhoto);
+
 // Talaba profilini ochadi (O'quvchilar ro'yxatidan ham, Faollik jurnalidan ham)
 function openStudentDetail(student){
   state.detailStudentId = student.id;
   document.getElementById('studentDetailName').textContent = student.name;
   document.getElementById('studentDetailEmail').textContent = `Login: ${student.email}`;
+  sdSetAvatar(student);
   document.getElementById('studentDetailPhoneInput').value = student.phone || '';
   spLoad(student);
   openModal('modalStudentDetail');
