@@ -849,6 +849,39 @@ body.dark .teacher-photo{ color:#8fb0ff; }
   .profile-card-new .pnew-label::after{ content:none; }
   .profile-card-new .pnew-val{ font-size:14px; font-weight:700; overflow-wrap:anywhere; }
   @media (max-width:420px){ .profile-card-new .pnew-rows{ gap:10px 12px; } }
+
+  /* ===== O'quv jarayoni va Vazifa kartochkalari: ixcham, rasmiy ko'rinish ===== */
+  #progressView, #latestHwBox{ position:relative; overflow:hidden; margin-top:14px !important; }
+  #progressView::before, #latestHwBox::before{ content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:linear-gradient(180deg,var(--blue-600,#2F6FED),#7C5CFC); }
+  #latestHwBox::before{ background:linear-gradient(180deg,var(--teal-500,#14b8a6),#2F6FED); }
+  #progressView #progressDate{ margin-bottom:8px !important; font-size:11px !important; font-weight:700; letter-spacing:.05em; text-transform:uppercase; }
+  #progressView > div:nth-child(2) > div[style*="grid"]{ gap:8px !important; margin-bottom:6px !important; }
+  #progressView > div:nth-child(2) > div[style*="grid"] > div{ padding:8px 12px !important; border-radius:10px !important; }
+  #progressView > div:nth-child(2) > div[style*="grid"] > div > div:first-child{ font-size:10.5px !important; font-weight:700; letter-spacing:.06em; text-transform:uppercase; margin-bottom:2px !important; }
+  #progressView > div:nth-child(2) > div[style*="grid"] > div > div:last-child{ font-size:14px !important; }
+
+  /* O'quv jarayoni sarlavhasi: rasm + sarlavha + ism (tekis oraliq) */
+  #progressView .pv-head{ display:flex !important; align-items:center; gap:12px; padding:14px 16px !important; border-bottom:1px solid var(--gray-100); }
+  #progressView .pv-ava{ width:42px; height:42px; flex:none; border-radius:50%; overflow:hidden; background:var(--blue-50); color:var(--blue-600); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px; box-shadow:0 0 0 2px var(--white,#fff), 0 0 0 3px var(--gray-200); }
+  #progressView .pv-ava img{ width:100%; height:100%; object-fit:cover; display:block; }
+  #progressView .pv-titles{ display:flex; flex-direction:column; gap:2px; min-width:0; }
+  #progressView .pv-title{ margin:0; font-size:14.5px; font-weight:800; color:var(--gray-900); line-height:1.2; }
+  #progressView .pv-name{ margin:0 !important; font-size:12.5px !important; font-weight:700; color:var(--blue-600); line-height:1.25; overflow-wrap:anywhere; }
+  #progressView > div:nth-child(2){ padding:14px 16px 6px !important; }
+  #progressView > div:nth-child(3){ padding:0 16px 14px !important; }
+  #progressChangeIdBtn{ text-decoration:underline; text-underline-offset:2px; }
+  #latestHwBox{ padding:14px 16px 14px 18px !important; }
+  #latestHwBox > div:first-child{ margin-bottom:8px !important; padding-bottom:10px; border-bottom:1px solid var(--gray-100); }
+  #latestHwBox #latestHwDate{ font-weight:700; letter-spacing:.04em; }
+  #view-home #latestHwBox .latest-hw-checklist, #latestHwBox .latest-hw-checklist{ gap:0 !important; margin:0 0 12px !important; }
+  #latestHwBox .latest-hw-checklist{ counter-reset:hwn; }
+  #latestHwBox .latest-hw-checklist > *{ display:flex !important; align-items:flex-start; gap:12px !important; padding:9px 0; font-size:14px; line-height:1.45; color:var(--gray-900) !important; border-bottom:1px dashed var(--gray-100); counter-increment:hwn; }
+  #latestHwBox .latest-hw-checklist > *:last-child{ border-bottom:0; }
+  #latestHwBox .latest-hw-checklist .hd-check-icon{ display:none !important; }
+  #latestHwBox .latest-hw-checklist > *::before{ content:counter(hwn); flex:none; width:24px; height:24px; margin-top:-1px; border-radius:8px; background:var(--blue-50,#eaf1ff); color:var(--blue-600,#2F6FED); font-size:12px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; }
+  #latestHwStatusRow, #view-home .hw-status-row{ display:none !important; }
+  #view-home .hw-status-row{ margin-top:10px !important; gap:8px !important; }
+  #view-home #latestHwBox .hw-status-btn{ border-radius:12px !important; padding:.62em .5em !important; font-size:.84rem !important; border:1.5px solid var(--gray-200) !important; background:var(--gray-25) !important; color:var(--gray-900) !important; }
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -1374,12 +1407,12 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       </div>
 
       <div id="progressView" hidden style="background:var(--white); border:1px solid var(--gray-200); border-radius:var(--radius); box-shadow:var(--shadow); margin-top:18px; overflow:hidden;">
-        <div style="display:flex; align-items:center; gap:10px; padding:16px 18px; border-bottom:1px solid var(--gray-100);">
-          <div style="width:30px;height:30px;border-radius:8px;background:var(--blue-50);display:flex;align-items:center;justify-content:center;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" stroke="var(--blue-600)" stroke-width="1.5"/></svg>
+        <div class="pv-head">
+          <span class="pv-ava" id="progressAvatar" aria-hidden="true"></span>
+          <div class="pv-titles">
+            <h3 class="pv-title">O'quv jarayoni</h3>
+            <span id="progressStudentNameVal" class="pv-name"></span>
           </div>
-          <h3 style="font-size:14.5px; font-weight:700; margin:0; color:var(--gray-900);">O'quv jarayoni</h3>
-          <span id="progressStudentNameVal" style="margin-left:auto; font-size:12.5px; font-weight:700; color:var(--blue-600);"></span>
         </div>
         <div style="padding:14px 18px;">
           <div style="font-size:11.5px; color:var(--gray-400); margin-bottom:10px;" id="progressDate"></div>
@@ -4031,6 +4064,7 @@ async function renderProgressBox(){
 
     const info = doc.data();
     document.getElementById('progressStudentNameVal').textContent = info.name || '';
+    try{ applyAvatars(); }catch(e){}
     updateHomeQuickInfo({ group: info.group || null, time: null, nextLesson: null });
 
     // The "Test natijasi" (gradebook) card looks itself up by this same
@@ -5157,6 +5191,12 @@ function applyAvatars(){
       const initial = (st.name || st.email || '').trim().charAt(0).toUpperCase();
       if(initial) side.textContent = initial; else side.innerHTML = AVATAR_SVG;
     }
+  }
+  // O'quv jarayoni kartochkasidagi rasm
+  const pva = document.getElementById('progressAvatar');
+  if(pva){
+    if(photo || img) pva.innerHTML = imgHTML;
+    else pva.textContent = (st.name || st.email || '').trim().charAt(0).toUpperCase();
   }
   // Mening profilim sahifasi
   const big = document.getElementById('profileAvatarBig');
