@@ -22,6 +22,8 @@
   'use strict';
 
   var COL_EX = 'listening_exercises';
+  // Individual talabalar uchun maxsus "guruh": shu groupId li mashqlarni faqat individuallar ko'radi
+  var IND_GROUP = '__ind';
   var COL_SUB = 'listening_submissions';
   var BLANKS = 5;        // eski mashqlar uchun standart
   var MAX_BLANKS = 40;   // bitta mashqda ko‘pi bilan shuncha bo‘shliq
@@ -294,7 +296,9 @@
 
   // Mashq guruhga biriktirilmagan bo‘lsa (guruhsiz) hamma ko‘radi; aks holda faqat o‘z guruhi
   function visibleToStudent(ex) {
-    return !ex.groupId || ex.groupId === S.groupId;
+    // Individual talaba: faqat Individuals uchun qo'shilgan mashqlar; guruh talabasi individual mashqlarni ko'rmaydi
+    if (S.groupId === IND_GROUP) return ex.groupId === IND_GROUP;
+    return ex.groupId !== IND_GROUP && (!ex.groupId || ex.groupId === S.groupId);
   }
 
   function openStudent(opts) {
@@ -340,6 +344,8 @@
       var totals = {};
       snap.docs.forEach(function (d) {
         var x = d.data();
+        // Umumiy reyting: individuallar va guruh talabalari alohida hisoblanadi
+        if ((x.groupId === IND_GROUP) !== (S.groupId === IND_GROUP)) return;
         totals[x.studentId] = (totals[x.studentId] || 0) + finalOf(x);
       });
       S.allTotals = totals;
@@ -911,14 +917,37 @@
      ADMIN
      ============================================================ */
   var A = { exercises: [], unsubs: [], lbUnsub: null, editingId: null, lbId: null, detailSid: null, lastRows: [], allSubs: [], groupNames: {}, keys: {}, groupRoster: null, overallGroup: '', curGroup: null, groupQuery: '' };
+  A.mode = 'groups';              // 'groups': oddiy guruhlar; 'individual': faqat Individuals
+  A.rootId = 'lhwAdminRoot';
   var NONE = '__none';   // "Guruhsiz" papka (guruhga biriktirilmagan mashqlar)
 
   function stopAdminLb() {
     if (A.lbUnsub) { try { A.lbUnsub(); } catch (e) { /* ignore */ } A.lbUnsub = null; }
   }
 
-  function openAdmin() {
-    var root = document.getElementById('lhwAdminRoot');
+  // Rejimga qarab mashq / topshiriqlarni ajratadi (individual mashqlar oddiy admin panelda ko'rinmaydi va aksincha)
+  function keepEx(list) {
+    return list.filter(function (e) { return A.mode === 'individual' ? e.groupId === IND_GROUP : e.groupId !== IND_GROUP; });
+  }
+  function keepSubs(list) {
+    return list.filter(function (x) { return A.mode === 'individual' ? x.groupId === IND_GROUP : x.groupId !== IND_GROUP; });
+  }
+
+  // opts: { mode: 'individual', rootId: 'lhwIndRoot' } : Individuals bo'limi uchun; opts yo'q: oddiy guruhlar paneli
+  function openAdmin(opts) {
+    var ind = !!(opts && opts.mode === 'individual');
+    A.mode = ind ? 'individual' : 'groups';
+    A.rootId = (opts && opts.rootId) || 'lhwAdminRoot';
+    // Bir vaqtda faqat bitta panel DOMda bo'ladi (id lar takrorlanmasligi uchun)
+    ['lhwAdminRoot', 'lhwIndRoot'].forEach(function (id) {
+      if (id === A.rootId) return;
+      var other = document.getElementById(id);
+      if (other) other.innerHTML = '';
+    });
+    A.exercises = [];
+    A.allSubs = [];
+    A.groupRoster = null;
+    var root = document.getElementById(A.rootId);
     if (!root) return;
     if (typeof db === 'undefined') { root.innerHTML = '<div class="lhw-empty">Ma‘lumotlar bazasi ulanmadi: sahifani yangilang.</div>'; return; }
     stopList(A.unsubs);
@@ -980,27 +1009,32 @@
       '<div id="lhwAdminLb" class="lhw-lb-panel" hidden></div>' +
       '</div>';
 
+    if (ind) {
+      // Individuals: sarlavha va guruhlar ro'yxati kerak emas: to'g'ridan-to'g'ri mashqlar ochiladi
+      var hd = root.querySelector('.lhw-head'); if (hd) hd.style.display = 'none';
+      var gb = root.querySelector('.lhw-gbar'); if (gb) gb.style.display = 'none';
+    }
     document.getElementById('lhwAdminForm').addEventListener('submit', saveExercise);
     document.getElementById('lhwKind').addEventListener('change', applyKindUI);
     document.getElementById('lhwTranscript').addEventListener('input', updateTrCount);
     initBulkAnswers();
-    loadGroupOptions();
+    if (!ind) loadGroupOptions();
     document.getElementById('lhwCancel').addEventListener('click', resetAdminForm);
     document.getElementById('lhwAdminList').addEventListener('click', onAdminListClick);
     document.getElementById('lhwGroupBack').addEventListener('click', showGroups);
     Array.prototype.forEach.call(root.querySelectorAll('.lhw-tab'), function (t) {
       t.addEventListener('click', function () { closeAdminLb(); setTab(t.getAttribute('data-tab')); });
     });
-    renderGroupsView();
+    if (ind) openGroup(IND_GROUP); else renderGroupsView();
 
     A.unsubs.push(db.collection(COL_SUB).onSnapshot(function (snap) {
-      A.allSubs = snap.docs.map(function (d) { return d.data(); });
+      A.allSubs = keepSubs(snap.docs.map(function (d) { return d.data(); }));
       renderOverall();
       renderGroupsView();
     }));
 
     A.unsubs.push(db.collection(COL_EX).onSnapshot(function (snap) {
-      A.exercises = sortByCreated(snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); }));
+      A.exercises = keepEx(sortByCreated(snap.docs.map(function (d) { return Object.assign({ id: d.id }, d.data()); })));
       renderOverall();
       renderGroupsView();
       if (A.lbId && !A.exercises.some(function (e) { return e.id === A.lbId; })) closeAdminLb();
@@ -1117,6 +1151,7 @@
   /* ---------- Guruh papkalari (admin) ---------- */
 
   function groupLabel(key) {
+    if (key === IND_GROUP) return 'Individuals';
     if (key === NONE) return 'Guruhsiz (barcha guruhlar)';
     if (A.groupNames[key]) return A.groupNames[key];
     var ex = A.exercises.find(function (e) { return e.groupId === key && e.groupName; });
@@ -1185,6 +1220,7 @@
   }
 
   function renderGroupsView() {
+    if (A.mode === 'individual') return;
     var host = document.getElementById('lhwGroupsView');
     if (!host) return;
     if (!document.getElementById('lhwGroupCards')) {
@@ -1260,7 +1296,7 @@
     var ex = document.getElementById('lhwPaneEx'), res = document.getElementById('lhwPaneRes');
     if (ex) ex.hidden = t !== 'ex';
     if (res) res.hidden = t !== 'res';
-    Array.prototype.forEach.call(document.querySelectorAll('#lhwAdminRoot .lhw-tab'), function (b) {
+    Array.prototype.forEach.call(document.querySelectorAll('#' + A.rootId + ' .lhw-tab'), function (b) {
       b.classList.toggle('on', b.getAttribute('data-tab') === t);
     });
   }
@@ -1299,8 +1335,8 @@
     setTab('ex');
     renderAdminList();
     renderOverall();
-    var r = document.getElementById('lhwAdminRoot');
-    if (r && r.scrollIntoView) r.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var r = document.getElementById(A.rootId);
+    if (r && r.scrollIntoView && A.mode !== 'individual') r.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function showGroups() {
@@ -1379,7 +1415,7 @@
     var groups = {};
     all.forEach(function (r) {
       var key = r.groupId || '__none';
-      if (!groups[key]) groups[key] = { key: key, name: r.groupId ? (A.groupNames[r.groupId] || '-') : 'Guruhsiz', rows: [] };
+      if (!groups[key]) groups[key] = { key: key, name: r.groupId ? (A.groupNames[r.groupId] || (r.groupId === IND_GROUP ? 'Individuals' : '-')) : 'Guruhsiz', rows: [] };
       groups[key].rows.push(r);
     });
     var glist = Object.keys(groups).map(function (k) { return groups[k]; }).sort(function (a, b) {
@@ -1623,7 +1659,7 @@
     var btn = document.getElementById('lhwOverallRefresh');
     if (btn) btn.disabled = true;
     db.collection(COL_SUB).get().then(function (snap) {
-      A.allSubs = snap.docs.map(function (d) { return d.data(); });
+      A.allSubs = keepSubs(snap.docs.map(function (d) { return d.data(); }));
       renderOverall();
     }).catch(function (e) {
       alert('Yangilashda xatolik: ' + (e && e.message));
@@ -1867,6 +1903,12 @@
 
   // Guruh ro‘yxati: har bir talabaning akkaunt ID si (topshirganini solishtirish uchun)
   function loadRoster(gid) {
+    // Individuals: ro'yxat individuals kolleksiyasidan (hujjat ID = talaba uid)
+    if (gid === IND_GROUP) {
+      return db.collection('individuals').get().then(function (snap) {
+        return snap.docs.map(function (d) { return { code: d.id, name: (d.data() || {}).name || d.id, uid: d.id }; });
+      });
+    }
     return db.collection('oquv_groups').doc(gid).collection('students').get().then(function (snap) {
       var list = snap.docs.map(function (d) { return { code: d.id, name: (d.data() || {}).name || d.id, uid: null }; });
       return Promise.all(list.map(function (s) {
@@ -2079,11 +2121,13 @@
     var msg = '“' + ex.title + '” mashqini o‘chirmoqchimisiz?\n\n' +
       'Talabalarning bu mashqdan olgan POINTLARI saqlanib qoladi (profilidagi pointlarida ko‘rinaveradi). ' +
       'Faqat mashqning o‘zi va javoblari o‘chadi.';
+    if (ex.groupId === IND_GROUP) msg = '“' + ex.title + '” mashqini o‘chirmoqchimisiz?\n\nMashq va talabalarning javoblari o‘chib ketadi.';
     if (!confirm(msg)) return;
     var subsDocs = [];
     db.collection(COL_SUB).where('exerciseId', '==', ex.id).get().then(function (snap) {
       subsDocs = snap.docs;
-      return archiveSubmissions(ex, subsDocs);
+      // Individuallarda point (oquv_progress) tizimi yo'q: arxivlash shart emas
+      return ex.groupId === IND_GROUP ? { saved: 0, skipped: [] } : archiveSubmissions(ex, subsDocs);
     }).then(function (r) {
       if (r.skipped.length && !confirm('Diqqat: quyidagi talabalarning pointi saqlanmaydi (ularga «O‘quv jarayoni» ID biriktirilmagan):\n\n' +
         r.skipped.join(', ') + '\n\nBaribir o‘chiraymi?')) return null;
