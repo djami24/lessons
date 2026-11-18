@@ -357,7 +357,8 @@
     var now = Date.now(), listExpired = false;
     root.querySelectorAll('[data-dl]').forEach(function (el) {
       var left = +el.getAttribute('data-dl') - now;
-      el.innerHTML = left > 0 ? '<svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="2.5" rx="1" fill="#6B7280"/><rect x="5" y="19.5" width="14" height="2.5" rx="1" fill="#6B7280"/><path d="M7 4.5h10l-5 7z" fill="#F59E0B"/><path d="M7 19.5h10l-5-7z" fill="#FBBF24"/></svg> Qoldi: ' + fmtLeft(left) : '<svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E5484D"/><rect x="6.5" y="10.5" width="11" height="3" rx="1.5" fill="#fff"/></svg> Vaqt tugadi';
+      var _h = left > 0 ? '<svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2" width="14" height="2.5" rx="1" fill="#6B7280"/><rect x="5" y="19.5" width="14" height="2.5" rx="1" fill="#6B7280"/><path d="M7 4.5h10l-5 7z" fill="#F59E0B"/><path d="M7 19.5h10l-5-7z" fill="#FBBF24"/></svg> Qoldi: ' + fmtLeft(left) : '<svg class="lhw-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#E5484D"/><rect x="6.5" y="10.5" width="11" height="3" rx="1.5" fill="#fff"/></svg> Vaqt tugadi';
+      if (el._lhwLast !== _h) { el._lhwLast = _h; el.innerHTML = _h; }
       el.style.color = timerColor(left);
       if (left <= 0 && el.closest('.lhw-card')) listExpired = true;
     });
@@ -667,8 +668,6 @@
     cnt.className = 'lhw-dict-count';
     ta.parentNode.insertBefore(cnt, ta.nextSibling);
     function fit() {
-      ta.style.height = 'auto';
-      ta.style.height = Math.max(ta.scrollHeight + 4, ta.clientHeight) + 'px';
       var n = ta.value.trim() ? ta.value.trim().split(/\s+/).length : 0;
       cnt.textContent = n + ' so‘z · ' + ta.value.length + ' / ' + DICT_MAX + ' belgi';
     }
