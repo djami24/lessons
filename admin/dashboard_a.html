@@ -5902,12 +5902,19 @@ async function spExportProfile(kind){
   const per = S.ym === 'all' ? 'Barcha darslar' : rpLabel(S.ym);
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:700px;padding:28px;background:#ffffff;color:#1c1c22;font-family:Arial,sans-serif;';
-  wrap.innerHTML = '<h2 style="margin:0 0 4px;font-size:22px;">' + escapeHtml(S.student.name || '') + '</h2>' +
-    '<div style="font-size:13px;color:#666;margin-bottom:14px;">Davr: ' + escapeHtml(per) + ' · Sana: ' + new Date().toLocaleDateString('uz-UZ') + '</div>' + src.innerHTML;
+  const _src = (typeof sdAvatarSrc === 'function') ? sdAvatarSrc(S.student) : '';
+  const _ini = escapeHtml((String(S.student.name || '?').trim().charAt(0) || '?').toUpperCase());
+  const _ava = _src
+    ? '<img alt="" src="' + _src + '" style="width:72px;height:72px;border-radius:50%;object-fit:cover;display:block;border:2px solid #e4e9f3;">'
+    : '<div style="width:72px;height:72px;border-radius:50%;background:#eaf1ff;color:#2F6FED;font-size:30px;font-weight:800;display:flex;align-items:center;justify-content:center;">' + _ini + '</div>';
+  wrap.innerHTML = '<div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">' + '<div style="flex:none;">' + _ava + '</div>' +
+    '<div><h2 style="margin:0 0 4px;font-size:22px;">' + escapeHtml(S.student.name || '') + '</h2>' +
+    '<div style="font-size:13px;color:#666;">Davr: ' + escapeHtml(per) + ' · Sana: ' + new Date().toLocaleDateString('uz-UZ') + '</div></div></div>' + src.innerHTML;
   wrap.querySelectorAll('button, select').forEach(el => el.remove());
   document.body.appendChild(wrap);
   const base = 'talaba-' + String(S.student.name || 'profil').replace(/[^\wЀ-ӿ]+/g, '_') + '-' + (S.ym === 'all' ? 'barcha' : S.ym);
   try{
+    await Promise.all(Array.from(wrap.querySelectorAll('img')).map(im => im.complete ? 0 : new Promise(r => { im.onload = im.onerror = r; })));
     const canvas = await html2canvas(wrap, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
     if(kind === 'png'){
       canvas.toBlob(b => spDownloadBlob(b, base + '.png'), 'image/png');
