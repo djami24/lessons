@@ -775,6 +775,14 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <style>
 </style>
 <style>
+.bc-seg{display:inline-flex;margin-top:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;max-width:100%;flex-wrap:wrap}
+.bc-seg-opt{position:relative;display:flex;align-items:center;gap:6px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--gray);border-left:1px solid var(--line);transition:background .15s,color .15s}
+.bc-seg-opt:first-child{border-left:none}
+.bc-seg-opt input{position:absolute;opacity:0;pointer-events:none}
+.bc-seg-opt:hover{color:inherit}
+.bc-seg-opt.is-on{background:rgba(37,99,235,.14);color:#3b82f6}
+.bc-seg-opt:focus-within{outline:2px solid #2563eb;outline-offset:-2px}
+.bc-seg-hint{margin-top:6px;font-size:12px;color:var(--gray)}
 .chat-item-avatar-wrap{position:relative;flex-shrink:0;display:flex}
 .chat-item-avatar-wrap .chat-item-avatar{margin:0}
 .chat-online-dot{position:absolute;right:1px;bottom:1px;width:13px;height:13px;border-radius:50%;background:#3b82f6;border:2px solid var(--surface,#0f1320);box-shadow:0 0 0 0 rgba(59,130,246,.7),0 0 8px 2px rgba(59,130,246,.55);animation:chatOnlinePulse 2s ease-out infinite}
@@ -2054,32 +2062,15 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <span>Rasm havolasi <span style="font-weight:400; color:var(--gray);">(ixtiyoriy)</span></span>
           <input type="text" id="broadcastImageUrl" placeholder="https://... (rasm manzili)">
         </label>
-        <label class="field" style="margin-top:1em;">
+        <div class="field" style="margin-top:1em;">
           <span>Ko&#39;rinish turi</span>
-          <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typeNotifLabel">
-              <input type="radio" name="broadcastType" value="notification" id="typeNotif" checked style="accent-color:#2563eb;">
-              <span>
-                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true"><use href="#i-bell"></use></svg> Bildirishnoma</span><br>
-                <span style="font-size:11px;color:var(--gray);">Pastda o&#39;ng tomonda kichik popup</span>
-              </span>
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typePopupLabel">
-              <input type="radio" name="broadcastType" value="popup" id="typePopup" style="accent-color:#2563eb;">
-              <span>
-                <span style="font-weight:600;font-size:13px;"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg> Katta Popup</span><br>
-                <span style="font-size:11px;color:var(--gray);">Ekran o&#39;rtasida modal oyna</span>
-              </span>
-            </label>
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid var(--line);border-radius:10px;flex:1;min-width:140px;transition:all .2s;" id="typeRatingLabel">
-              <input type="radio" name="broadcastType" value="rating" id="typeRating" style="accent-color:#2563eb;">
-              <span>
-                <span style="font-weight:600;font-size:13px;">&#9733; Baholash</span><br>
-                <span style="font-size:11px;color:var(--gray);">Saytni 5 yulduz bilan baholash oynasi</span>
-              </span>
-            </label>
+          <div class="bc-seg" role="radiogroup" aria-label="Ko&#39;rinish turi">
+            <label class="bc-seg-opt is-on" id="typeNotifLabel"><input type="radio" name="broadcastType" value="notification" id="typeNotif" checked><svg class="ic" aria-hidden="true"><use href="#i-bell"></use></svg>Bildirishnoma</label>
+            <label class="bc-seg-opt" id="typePopupLabel"><input type="radio" name="broadcastType" value="popup" id="typePopup"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg>Katta popup</label>
+            <label class="bc-seg-opt" id="typeRatingLabel"><input type="radio" name="broadcastType" value="rating" id="typeRating"><span aria-hidden="true">&#9733;</span>Baholash</label>
           </div>
-        </label>
+          <div class="bc-seg-hint" id="broadcastTypeHint">Pastda o&#39;ng tomonda kichik popup sifatida chiqadi.</div>
+        </div>
         <p id="broadcastStatus" style="margin:.6em 0 0;font-size:.9rem;color:var(--gray);"></p>
         <div style="margin-top:1em;">
           <button class="btn btn-amber" id="broadcastSendBtn">Yuborish</button>
@@ -12049,12 +12040,15 @@ async function loadBroadcastHistory(){
           <div style="display:flex;align-items:center;gap:.6em;min-width:0;">
             ${thumb}
             <strong>${escapeHtml(d.title||'')}</strong>
-            ${d.displayType === 'rating' ? '<span style="font-size:.72rem;font-weight:700;color:#b45309;background:#fef3c7;border-radius:999px;padding:.1em .6em;">&#9733; Baholash</span>' : ''}
+            ${d.displayType === 'rating' ? '<span style="font-size:.72rem;font-weight:700;color:#3b82f6;background:rgba(37,99,235,.14);border-radius:999px;padding:.1em .6em;">&#9733; Baholash</span>' : ''}
           </div>
           <span style="font-size:.8rem;color:var(--gray);">${date}</span>
           <button class="btn btn-danger btn-sm" data-del-notif="${doc.id}" style="padding:.2em .6em;">O‘chirish</button>
         </div>
-        <p style="margin:.4em 0 0;font-size:.9rem;color:var(--gray);">${escapeHtml(d.body||'')}</p>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1em;">
+          <p style="margin:.4em 0 0;font-size:.9rem;color:var(--gray);">${escapeHtml(d.body||'')}</p>
+          ${d.displayType === 'rating' ? `<div data-ratings-score="${doc.id}" style="flex-shrink:0;text-align:right;white-space:nowrap;"></div>` : ''}
+        </div>
         ${d.displayType === 'rating' ? `<div data-ratings-box="${doc.id}" style="margin-top:.6em;padding-top:.6em;border-top:1px dashed var(--line);font-size:.88rem;color:var(--gray);">Baholar yuklanmoqda…</div>` : ''}
       </div>`;
     }).join('');
@@ -12063,7 +12057,8 @@ async function loadBroadcastHistory(){
     listEl.querySelectorAll('[data-ratings-box]').forEach(async box => {
       try{
         const rs = await db.collection('notifications').doc(box.dataset.ratingsBox).collection('ratings').get();
-        if(rs.empty){ box.textContent = 'Hali hech kim baho bermagan.'; return; }
+        const scoreEl = listEl.querySelector('[data-ratings-score="' + box.dataset.ratingsBox + '"]');
+        if(rs.empty){ if(scoreEl) scoreEl.innerHTML = '<div style="font-size:.78rem;color:var(--gray);">0 ta baho</div>'; box.textContent = 'Hali hech kim baho bermagan.'; return; }
         const rows = rs.docs.map(x => x.data());
         const total = rows.length;
         const avg = rows.reduce((a,r) => a + (Number(r.stars)||0), 0) / total;
@@ -12071,7 +12066,7 @@ async function loadBroadcastHistory(){
         rows.forEach(r => { const n = Number(r.stars)||0; if(n>=1 && n<=5) dist[n]++; });
         const distHtml = [5,4,3,2,1].map(n => {
           const pct = Math.round(dist[n] / total * 100);
-          return `<div style="display:flex;align-items:center;gap:.5em;"><span style="width:2.2em;">${n} &#9733;</span><div style="flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:#f59e0b;"></div></div><span style="width:4.5em;text-align:right;">${dist[n]} (${pct}%)</span></div>`;
+          return `<div style="display:flex;align-items:center;gap:.5em;"><span style="width:2.2em;">${n} &#9733;</span><div style="flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:#f59e0b;"></div></div><span style="min-width:6.5em;text-align:right;white-space:nowrap;">${dist[n]} (${pct}%)</span></div>`;
         }).join('');
         rows.sort((a,b) => ((b.updatedAt&&b.updatedAt.seconds)||0) - ((a.updatedAt&&a.updatedAt.seconds)||0));
         const listHtml = rows.map(r => {
@@ -12079,8 +12074,8 @@ async function loadBroadcastHistory(){
           const when = r.updatedAt && r.updatedAt.toDate ? r.updatedAt.toDate().toLocaleString('uz-UZ') : '';
           return `<div style="padding:.35em 0;border-top:1px solid var(--line);"><strong style="color:var(--ink,inherit);">${escapeHtml(r.name||'—')}</strong> <span style="color:#f59e0b;letter-spacing:1px;">${'&#9733;'.repeat(n)}${'&#9734;'.repeat(5-n)}</span> <span style="font-size:.78rem;">${when}</span>${r.comment ? `<div style="margin-top:.15em;color:var(--gray);">${escapeHtml(r.comment)}</div>` : ''}</div>`;
         }).join('');
-        box.innerHTML = `<div style="display:flex;align-items:baseline;gap:.6em;margin-bottom:.5em;"><span style="font-size:1.6rem;font-weight:800;color:#b45309;">${avg.toFixed(2)}</span><span>/ 5 &middot; ${total} ta baho</span></div>
-          <div style="display:flex;flex-direction:column;gap:3px;margin-bottom:.6em;">${distHtml}</div>
+        if(scoreEl) scoreEl.innerHTML = `<div style="font-size:1.7rem;font-weight:800;line-height:1;color:#f59e0b;">${avg.toFixed(2)}<span style="font-size:.85rem;font-weight:600;color:var(--gray);"> / 5</span></div><div style="font-size:.78rem;color:var(--gray);margin-top:.25em;">${total} ta baho</div>`;
+        box.innerHTML = `<div style="display:flex;flex-direction:column;gap:3px;margin-bottom:.6em;">${distHtml}</div>
           <details><summary style="cursor:pointer;font-weight:600;">Talabalar bahosi va fikrlari</summary>${listHtml}</details>`;
       } catch(err){
         box.innerHTML = '<span style="color:red;">Baholarni yuklashda xatolik: ' + escapeHtml(err.message||String(err)) + '</span>';
@@ -12101,13 +12096,22 @@ async function loadBroadcastHistory(){
 
 // Broadcast type radio highlight
 document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('input[name="broadcastType"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      document.getElementById('typeNotifLabel').style.borderColor = document.getElementById('typeNotif').checked ? '#2563eb' : 'var(--line)';
-      document.getElementById('typePopupLabel').style.borderColor = document.getElementById('typePopup').checked ? '#2563eb' : 'var(--line)';
-      document.getElementById('typeRatingLabel').style.borderColor = document.getElementById('typeRating').checked ? '#2563eb' : 'var(--line)';
+  const hints = {
+    notification: "Pastda o'ng tomonda kichik popup sifatida chiqadi.",
+    popup: "Ekran o'rtasida modal oyna sifatida chiqadi.",
+    rating: "Talabaga saytni 5 yulduz bilan baholash oynasi chiqadi."
+  };
+  const sync = () => {
+    const v = (document.querySelector('input[name="broadcastType"]:checked') || {}).value || 'notification';
+    document.querySelectorAll('.bc-seg-opt').forEach(l => {
+      const r = l.querySelector('input');
+      l.classList.toggle('is-on', !!(r && r.checked));
     });
-  });
+    const h = document.getElementById('broadcastTypeHint');
+    if(h) h.textContent = hints[v] || '';
+  };
+  document.querySelectorAll('input[name="broadcastType"]').forEach(radio => radio.addEventListener('change', sync));
+  sync();
 });
 
 document.getElementById('broadcastSendBtn').addEventListener('click', async () => {
