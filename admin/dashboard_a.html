@@ -2089,8 +2089,12 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
       </div>
       <aside class="table-wrap bc-rating-panel" id="broadcastRatingPanel" style="padding:20px;">
-        <h3 style="margin:0 0 .8em;">&#9733; Saytni baholash</h3>
-        <p style="color:var(--gray);margin:0;">Yuklanmoqda…</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:.6em;margin-bottom:.8em;">
+          <h3 style="margin:0;">&#9733; Saytni baholash</h3>
+          <button type="button" class="btn btn-sm" id="bcRatingSendBtn" style="background:#2563eb;color:#fff;border-color:#2563eb;">&#9733; Baholash</button>
+        </div>
+        <p id="bcRatingSendStatus" style="margin:-.3em 0 .8em;font-size:.82rem;color:var(--gray);" aria-live="polite"></p>
+        <div id="bcRatingContent"><p style="color:var(--gray);margin:0;">Yuklanmoqda…</p></div>
       </aside>
       </div>
     </section>
@@ -12036,100 +12040,52 @@ document.getElementById('navBroadcast').addEventListener('click', (e) => {
 });
 
 async function renderRatingPanel(docs){
-
-  const el = document.getElementById('broadcastRatingPanel');
-
+  const el = document.getElementById('bcRatingContent');
   if(!el) return;
-
-  const head = '<h3 style="margin:0 0 .8em;">&#9733; Saytni baholash</h3>';
-
+  const head = '';
   if(!docs.length){
-
     el.innerHTML = head + '<p style="color:var(--gray);margin:0;">Hali baholash xabari yuborilmagan.</p>';
-
     return;
-
   }
-
   let selId = window._bcRatingSel;
-
   if(!docs.some(x => x.id === selId)) selId = docs[0].id;
-
   window._bcRatingSel = selId;
-
   const opts = docs.map(x => {
-
     const dd = x.data();
-
     const dt = dd.createdAt && dd.createdAt.toDate ? dd.createdAt.toDate().toLocaleDateString('uz-UZ') : '';
-
     return `<option value="${x.id}"${x.id === selId ? ' selected' : ''}>${escapeHtml((dd.title || 'Saytni baholang') + (dt ? ' · ' + dt : ''))}</option>`;
-
   }).join('');
-
   el.innerHTML = head
-
     + (docs.length > 1 ? `<select id="bcRatingSelect" style="width:100%;margin-bottom:.8em;">${opts}</select>` : '')
-
     + '<div id="bcRatingBody" style="color:var(--gray);">Baholar yuklanmoqda…</div>';
-
   const selEl = document.getElementById('bcRatingSelect');
-
   if(selEl) selEl.addEventListener('change', () => { window._bcRatingSel = selEl.value; renderRatingPanel(docs); });
-
   const body = document.getElementById('bcRatingBody');
-
   try{
-
     const rs = await db.collection('notifications').doc(selId).collection('ratings').get();
-
     if(rs.empty){ body.textContent = 'Hali hech kim baho bermagan.'; return; }
-
     const rows = rs.docs.map(x => x.data());
-
     const total = rows.length;
-
     const avg = rows.reduce((a, r) => a + (Number(r.stars) || 0), 0) / total;
-
     const dist = [0,0,0,0,0,0];
-
     rows.forEach(r => { const n = Number(r.stars) || 0; if(n >= 1 && n <= 5) dist[n]++; });
-
     const bars = [5,4,3,2,1].map(n => {
-
       const pct = Math.round(dist[n] / total * 100);
-
       return `<div class="bc-rate-row"><span style="width:2.2em;">${n} &#9733;</span><div class="bc-rate-track"><i style="width:${pct}%"></i></div><span style="min-width:6.5em;text-align:right;white-space:nowrap;">${dist[n]} (${pct}%)</span></div>`;
-
     }).join('');
-
     rows.sort((a, b) => ((b.updatedAt && b.updatedAt.seconds) || 0) - ((a.updatedAt && a.updatedAt.seconds) || 0));
-
     const list = rows.map(r => {
-
       const n = Math.max(0, Math.min(5, Number(r.stars) || 0));
-
       const when = r.updatedAt && r.updatedAt.toDate ? r.updatedAt.toDate().toLocaleString('uz-UZ') : '';
-
       return `<div class="bc-rate-item"><strong>${escapeHtml(r.name || '—')}</strong> <span style="color:#f59e0b;letter-spacing:1px;">${'&#9733;'.repeat(n)}${'&#9734;'.repeat(5 - n)}</span> <span style="font-size:.78rem;color:var(--gray);">${when}</span>${r.comment ? `<div style="margin-top:.15em;color:var(--gray);">${escapeHtml(r.comment)}</div>` : ''}</div>`;
-
     }).join('');
-
     body.innerHTML = `<div style="display:flex;align-items:baseline;gap:.5em;margin-bottom:.7em;"><span style="font-size:2.2rem;font-weight:800;line-height:1;color:#f59e0b;">${avg.toFixed(2)}</span><span style="color:var(--gray);">/ 5 &middot; ${total} ta baho</span></div>
-
       <div style="display:flex;flex-direction:column;gap:4px;">${bars}</div>
-
       <div class="bc-rate-list">${list}</div>`;
-
   } catch(err){
-
     body.innerHTML = '<span style="color:red;">Baholarni yuklashda xatolik: ' + escapeHtml(err.message || String(err)) + '</span>';
-
   }
-
 }
-
-
 
 async function loadBroadcastHistory(){
   const listEl = document.getElementById('broadcastHistoryList');
@@ -12188,6 +12144,29 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   document.querySelectorAll('input[name="broadcastType"]').forEach(radio => radio.addEventListener('change', sync));
   sync();
+});
+
+document.getElementById('bcRatingSendBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('bcRatingSendBtn');
+  const st = document.getElementById('bcRatingSendStatus');
+  if(!confirm("Barcha talabalarga saytni baholash oynasi yuboriladi. Davom etasizmi?")) return;
+  btn.disabled = true;
+  st.textContent = 'Yuborilmoqda…';
+  try{
+    const ref = await db.collection('notifications').add({
+      title: 'Saytni baholang',
+      body: 'Sayt sizga qanchalik yoqdi? Yulduzchalarni bosib baho bering.',
+      displayType: 'rating',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    window._bcRatingSel = ref.id;
+    st.textContent = 'Baholash oynasi talabalarga yuborildi.';
+    loadBroadcastHistory();
+  } catch(err){
+    st.textContent = 'Xatolik: ' + err.message;
+  } finally {
+    btn.disabled = false;
+  }
 });
 
 document.getElementById('broadcastSendBtn').addEventListener('click', async () => {
