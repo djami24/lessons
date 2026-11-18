@@ -17282,6 +17282,11 @@ try{
         const q = await db.collection('callQueue').where('studentId', '==', code).get();
         await bulkUpdate(q.docs, { studentName: name });
       });
+      await step('ota-ona chati', async () => {
+        const ref = db.collection('parentChats').doc(code);
+        const d = await ref.get();
+        if(d.exists && d.data().childName !== undefined) await ref.update({ childName: name });
+      });
     }
 
     // uid bo'yicha ism nusxasi saqlangan joylar
