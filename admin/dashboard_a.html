@@ -773,9 +773,6 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <script>try{var __v=sessionStorage.getItem('adminLastView');if(__v&&__v!=='home'){document.documentElement.classList.add('av-restoring');setTimeout(function(){document.documentElement.classList.remove('av-restoring')},10000);}}catch(e){}</script>
 <script>try{if(localStorage.getItem("efAdminBgMode")==="plain")document.documentElement.classList.add("admin-bg-plain");}catch(e){}</script>
 <style>
-/* Talaba profili: xabar yozish tugmasi */
-.sp-msg-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;margin:0 0 1.2em;padding:.65em 1.4em;font-weight:800}
-.sp-msg-btn .ic{width:1.1em;height:1.1em}
 </style>
 </head>
 
@@ -3831,8 +3828,6 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
       <button type="button" class="btn btn-ghost btn-sm" id="saveStudentPhoneBtn">Saqlash</button>
     </div>
 
-    <button type="button" class="btn btn-primary sp-msg-btn" id="spMsgOpen"><svg class="ic" aria-hidden="true"><use href="#i-message"></use></svg> Xabar yozish</button>
-
     <div id="studentProfileBody" style="margin-bottom:1.4em;"></div>
 
 
@@ -5884,18 +5879,15 @@ document.getElementById('studentProfileBody').addEventListener('click', e => {
 });
 
 // ===== Talaba profilidan chatni ochish =====
-(function(){
-  const btn = document.getElementById('spMsgOpen');
-  if(!btn) return;
-  btn.addEventListener('click', () => {
-    const st = window._spCurStudent;
-    if(!st || !st.id){ showToast('Talaba tanlanmagan', true); return; }
-    closeModal('modalStudentDetail');
-    switchView('chats');
-    loadChatStudentList();
-    openAdminChat(st.id, st.name || 'Talaba');
-  });
-})();
+document.getElementById('studentProfileBody').addEventListener('click', e => {
+  if(!e.target.closest('[data-sp-chat]')) return;
+  const st = window._spCurStudent;
+  if(!st || !st.id){ showToast('Talaba tanlanmagan', true); return; }
+  closeModal('modalStudentDetail');
+  switchView('chats');
+  loadChatStudentList();
+  openAdminChat(st.id, st.name || 'Talaba');
+});
 
 
 let _spState = null;
@@ -6023,6 +6015,7 @@ function spRender(){
 
   body.innerHTML = [
     '<div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin:0 0 6px;">' +
+      '<button type="button" class="btn btn-ghost btn-sm" data-sp-chat>Xabar yozish</button>' +
       '<button type="button" class="btn btn-ghost btn-sm" data-sp-export="pdf">PDF yuklash</button>' +
       '<button type="button" class="btn btn-ghost btn-sm" data-sp-export="png">Rasm yuklash</button>' +
     '</div>',
