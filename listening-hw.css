@@ -461,3 +461,14 @@ body.dark .lhw-grp{background:rgba(255,255,255,.03);}
 
 .lhw-detail{overflow-anchor:none;}
 .lhw-dict-ta{scroll-margin:80px 0;}
+
+/* Individuals: mashqni talabalarga biriktirish */
+.lhw-assign > span{ display:block; font-weight:700; font-size:.85rem; margin-bottom:6px; }
+.lhw-assign > span em{ font-style:normal; color:var(--lhw-muted); font-weight:600; }
+.lhw-pick-tools{ display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+.lhw-pick-search{ flex:1 1 140px; min-width:0; padding:8px 10px; border:1px solid var(--lhw-line); border-radius:10px; background:var(--lhw-soft); color:var(--lhw-ink); font:inherit; font-size:.9rem; }
+.lhw-pick-list{ max-height:220px; overflow-y:auto; border:1px solid var(--lhw-line); border-radius:12px; background:var(--lhw-soft); padding:4px; }
+.lhw-pick-list .lhw-muted{ padding:8px; }
+.lhw-pick-list label.lhw-pick{ display:flex; align-items:center; gap:8px; padding:7px 9px; border-radius:8px; cursor:pointer; font-size:.9rem; font-weight:500; }
+.lhw-pick-list label.lhw-pick:hover{ background:var(--lhw-me); }
+.lhw-pick-list input{ width:auto; margin:0; }
