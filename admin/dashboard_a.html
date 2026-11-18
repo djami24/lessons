@@ -774,6 +774,13 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <script>try{if(localStorage.getItem("efAdminBgMode")==="plain")document.documentElement.classList.add("admin-bg-plain");}catch(e){}</script>
 <style>
 </style>
+<style>
+.chat-item-avatar-wrap{position:relative;flex-shrink:0;display:flex}
+.chat-item-avatar-wrap .chat-item-avatar{margin:0}
+.chat-online-dot{position:absolute;right:1px;bottom:1px;width:13px;height:13px;border-radius:50%;background:#3b82f6;border:2px solid var(--surface,#0f1320);box-shadow:0 0 0 0 rgba(59,130,246,.7),0 0 8px 2px rgba(59,130,246,.55);animation:chatOnlinePulse 2s ease-out infinite}
+.chat-online-dot[hidden]{display:none}
+@keyframes chatOnlinePulse{0%{box-shadow:0 0 0 0 rgba(59,130,246,.6),0 0 8px 2px rgba(59,130,246,.5)}70%{box-shadow:0 0 0 7px rgba(59,130,246,0),0 0 8px 2px rgba(59,130,246,.5)}100%{box-shadow:0 0 0 0 rgba(59,130,246,0),0 0 8px 2px rgba(59,130,246,.5)}}
+</style>
 </head>
 
 <body class="admin-theme">
@@ -2140,7 +2147,6 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <div class="chat-list-header">
             <span class="chat-list-tab">Barchasi <span class="chat-list-count" id="chatListCount">0</span></span>
           </div>
-          <div class="chat-filter-chips" id="chatFilterChips"><button type="button" data-mode="all" class="is-active">Hammasi</button><button type="button" data-mode="unread">O‘qilmagan</button><button type="button" data-mode="waiting">Javob kutayotgan</button></div>
           <div id="chatStudentList" class="chat-list"></div>
         </div>
         <div class="chat-panel chat-panel-detail" id="chatDetailPanel">
@@ -12247,14 +12253,20 @@ async function deleteChat(chatId, studentName){
 
 let adminChatListUnsub = null;
 
-window.adminChatFilterMode = 'all';
-document.getElementById('chatFilterChips').addEventListener('click', (e) => {
-  const btn = e.target.closest('button[data-mode]');
-  if(!btn) return;
-  window.adminChatFilterMode = btn.dataset.mode;
-  document.querySelectorAll('#chatFilterChips button').forEach(b => b.classList.toggle('is-active', b === btn));
-  renderChatStudentList(adminChatDocs, document.getElementById('chatListSearchInput').value.trim().toLowerCase());
-});
+// Online holati: har bir chat uchun bir marta kuzatiladi, dumaloq indikator avatar pastida yonadi
+const _chatPresence = {};
+function ensureChatPresenceWatch(chatId){
+  if(_chatPresence[chatId]) return;
+  const rec = { online:false, unsub:null };
+  _chatPresence[chatId] = rec;
+  try{
+    rec.unsub = watchPresenceStatus(chatId, (status) => {
+      rec.online = !!(status && status.online);
+      document.querySelectorAll('#chatStudentList .chat-student-item[data-chat-id="' + chatId + '"] .chat-online-dot')
+        .forEach(el => { el.hidden = !rec.online; });
+    });
+  }catch(e){}
+}
 
 function loadChatStudentList(){
   const listEl = document.getElementById('chatStudentList');
@@ -12273,13 +12285,9 @@ function loadChatStudentList(){
 
 function renderChatStudentList(docs, filter){
   const listEl = document.getElementById('chatStudentList');
-  const mode = window.adminChatFilterMode || 'all';
-  const byMode = d => mode === 'unread' ? (d.unreadByTeacher || 0) > 0
-    : mode === 'waiting' ? (d.lastSenderRole === 'student' || (d.unreadByTeacher || 0) > 0)
-    : true;
   const filtered = docs.filter(doc => {
     const d = doc.data();
-    return byMode(d) && (!filter || (d.studentName || '').toLowerCase().includes(filter));
+    return !filter || (d.studentName || '').toLowerCase().includes(filter);
   });
   if(filtered.length === 0){
     listEl.innerHTML = `<p style="padding:1em;color:var(--gray);">${filter ? 'Hech narsa topilmadi.' : 'Hali chatlar yo‘q.'}</p>`;
@@ -12297,7 +12305,7 @@ function renderChatStudentList(docs, filter){
     div.className = 'chat-student-item' + (adminActiveChatId === doc.id ? ' is-active' : '');
     div.dataset.chatId = doc.id;
     div.innerHTML = `<div class="chat-item-body">
-        <div class="chat-item-avatar" style="background:${color};">${avatarInner(doc.id, escapeHtml(initial))}</div>
+        <div class="chat-item-avatar-wrap"><div class="chat-item-avatar" style="background:${color};">${avatarInner(doc.id, escapeHtml(initial))}</div><span class="chat-online-dot" title="Onlayn"${(_chatPresence[doc.id] && _chatPresence[doc.id].online) ? '' : ' hidden'}></span></div>
         <div class="chat-item-main">
           <div class="chat-item-top">
             <span class="chat-item-name">${escapeHtml(name)}</span>
@@ -12316,6 +12324,7 @@ function renderChatStudentList(docs, filter){
       deleteChat(doc.id, name);
     });
     listEl.appendChild(div);
+    ensureChatPresenceWatch(doc.id);
   });
 }
 
