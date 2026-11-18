@@ -775,6 +775,13 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <style>
 </style>
 <style>
+.bc-layout{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
+.bc-rating-panel{flex:1 1 340px;max-width:460px;min-width:0;position:sticky;top:16px}
+.bc-rate-row{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--gray)}
+.bc-rate-track{flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bc-rate-track>i{display:block;height:100%;background:#f59e0b}
+.bc-rate-list{max-height:300px;overflow:auto;margin-top:.6em;border-top:1px solid var(--line)}
+.bc-rate-item{padding:.5em 0;border-bottom:1px solid var(--line);font-size:.88rem}
 .bc-seg{display:inline-flex;margin-top:8px;border:1px solid var(--line);border-radius:10px;overflow:hidden;max-width:100%;flex-wrap:wrap}
 .bc-seg-opt{position:relative;display:flex;align-items:center;gap:6px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;color:var(--gray);border-left:1px solid var(--line);transition:background .15s,color .15s}
 .bc-seg-opt:first-child{border-left:none}
@@ -2049,7 +2056,8 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <p>Barcha talabalar profilidagi bildirishnomalar bo‘limiga xabar yuboring.</p>
         </div>
       </div>
-      <div class="table-wrap" style="padding:20px; max-width:600px;">
+      <div class="bc-layout">
+      <div class="table-wrap" style="padding:20px; flex:1 1 520px; max-width:600px; min-width:0;">
         <label class="field">
           <span>Sarlavha</span>
           <input type="text" id="broadcastTitle" placeholder="Masalan: Sinov vaqti o‘zgardi" maxlength="100">
@@ -2067,7 +2075,6 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <div class="bc-seg" role="radiogroup" aria-label="Ko&#39;rinish turi">
             <label class="bc-seg-opt is-on" id="typeNotifLabel"><input type="radio" name="broadcastType" value="notification" id="typeNotif" checked><svg class="ic" aria-hidden="true"><use href="#i-bell"></use></svg>Bildirishnoma</label>
             <label class="bc-seg-opt" id="typePopupLabel"><input type="radio" name="broadcastType" value="popup" id="typePopup"><svg class="ic" aria-hidden="true"><use href="#i-megaphone"></use></svg>Katta popup</label>
-            <label class="bc-seg-opt" id="typeRatingLabel"><input type="radio" name="broadcastType" value="rating" id="typeRating"><span aria-hidden="true">&#9733;</span>Baholash</label>
           </div>
           <div class="bc-seg-hint" id="broadcastTypeHint">Pastda o&#39;ng tomonda kichik popup sifatida chiqadi.</div>
         </div>
@@ -2080,6 +2087,11 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <h3 style="margin:0 0 .8em;">Yuborilgan xabarlar</h3>
           <div id="broadcastHistoryList" style="display:flex;flex-direction:column;gap:.6em;"></div>
         </div>
+      </div>
+      <aside class="table-wrap bc-rating-panel" id="broadcastRatingPanel" style="padding:20px;">
+        <h3 style="margin:0 0 .8em;">&#9733; Saytni baholash</h3>
+        <p style="color:var(--gray);margin:0;">Yuklanmoqda…</p>
+      </aside>
       </div>
     </section>
 
@@ -12023,12 +12035,108 @@ document.getElementById('navBroadcast').addEventListener('click', (e) => {
   loadBroadcastHistory();
 });
 
+async function renderRatingPanel(docs){
+
+  const el = document.getElementById('broadcastRatingPanel');
+
+  if(!el) return;
+
+  const head = '<h3 style="margin:0 0 .8em;">&#9733; Saytni baholash</h3>';
+
+  if(!docs.length){
+
+    el.innerHTML = head + '<p style="color:var(--gray);margin:0;">Hali baholash xabari yuborilmagan.</p>';
+
+    return;
+
+  }
+
+  let selId = window._bcRatingSel;
+
+  if(!docs.some(x => x.id === selId)) selId = docs[0].id;
+
+  window._bcRatingSel = selId;
+
+  const opts = docs.map(x => {
+
+    const dd = x.data();
+
+    const dt = dd.createdAt && dd.createdAt.toDate ? dd.createdAt.toDate().toLocaleDateString('uz-UZ') : '';
+
+    return `<option value="${x.id}"${x.id === selId ? ' selected' : ''}>${escapeHtml((dd.title || 'Saytni baholang') + (dt ? ' · ' + dt : ''))}</option>`;
+
+  }).join('');
+
+  el.innerHTML = head
+
+    + (docs.length > 1 ? `<select id="bcRatingSelect" style="width:100%;margin-bottom:.8em;">${opts}</select>` : '')
+
+    + '<div id="bcRatingBody" style="color:var(--gray);">Baholar yuklanmoqda…</div>';
+
+  const selEl = document.getElementById('bcRatingSelect');
+
+  if(selEl) selEl.addEventListener('change', () => { window._bcRatingSel = selEl.value; renderRatingPanel(docs); });
+
+  const body = document.getElementById('bcRatingBody');
+
+  try{
+
+    const rs = await db.collection('notifications').doc(selId).collection('ratings').get();
+
+    if(rs.empty){ body.textContent = 'Hali hech kim baho bermagan.'; return; }
+
+    const rows = rs.docs.map(x => x.data());
+
+    const total = rows.length;
+
+    const avg = rows.reduce((a, r) => a + (Number(r.stars) || 0), 0) / total;
+
+    const dist = [0,0,0,0,0,0];
+
+    rows.forEach(r => { const n = Number(r.stars) || 0; if(n >= 1 && n <= 5) dist[n]++; });
+
+    const bars = [5,4,3,2,1].map(n => {
+
+      const pct = Math.round(dist[n] / total * 100);
+
+      return `<div class="bc-rate-row"><span style="width:2.2em;">${n} &#9733;</span><div class="bc-rate-track"><i style="width:${pct}%"></i></div><span style="min-width:6.5em;text-align:right;white-space:nowrap;">${dist[n]} (${pct}%)</span></div>`;
+
+    }).join('');
+
+    rows.sort((a, b) => ((b.updatedAt && b.updatedAt.seconds) || 0) - ((a.updatedAt && a.updatedAt.seconds) || 0));
+
+    const list = rows.map(r => {
+
+      const n = Math.max(0, Math.min(5, Number(r.stars) || 0));
+
+      const when = r.updatedAt && r.updatedAt.toDate ? r.updatedAt.toDate().toLocaleString('uz-UZ') : '';
+
+      return `<div class="bc-rate-item"><strong>${escapeHtml(r.name || '—')}</strong> <span style="color:#f59e0b;letter-spacing:1px;">${'&#9733;'.repeat(n)}${'&#9734;'.repeat(5 - n)}</span> <span style="font-size:.78rem;color:var(--gray);">${when}</span>${r.comment ? `<div style="margin-top:.15em;color:var(--gray);">${escapeHtml(r.comment)}</div>` : ''}</div>`;
+
+    }).join('');
+
+    body.innerHTML = `<div style="display:flex;align-items:baseline;gap:.5em;margin-bottom:.7em;"><span style="font-size:2.2rem;font-weight:800;line-height:1;color:#f59e0b;">${avg.toFixed(2)}</span><span style="color:var(--gray);">/ 5 &middot; ${total} ta baho</span></div>
+
+      <div style="display:flex;flex-direction:column;gap:4px;">${bars}</div>
+
+      <div class="bc-rate-list">${list}</div>`;
+
+  } catch(err){
+
+    body.innerHTML = '<span style="color:red;">Baholarni yuklashda xatolik: ' + escapeHtml(err.message || String(err)) + '</span>';
+
+  }
+
+}
+
+
+
 async function loadBroadcastHistory(){
   const listEl = document.getElementById('broadcastHistoryList');
   listEl.innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div>';
   try{
     const snap = await db.collection('notifications').orderBy('createdAt','desc').limit(20).get();
-    if(snap.empty){ listEl.innerHTML = '<p style="color:var(--gray);">Hali xabar yuborilmagan.</p>'; return; }
+    if(snap.empty){ listEl.innerHTML = '<p style="color:var(--gray);">Hali xabar yuborilmagan.</p>'; renderRatingPanel([]); return; }
     listEl.innerHTML = snap.docs.map(doc => {
       const d = doc.data();
       const date = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleString('uz-UZ') : '';
@@ -12045,42 +12153,11 @@ async function loadBroadcastHistory(){
           <span style="font-size:.8rem;color:var(--gray);">${date}</span>
           <button class="btn btn-danger btn-sm" data-del-notif="${doc.id}" style="padding:.2em .6em;">O‘chirish</button>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1em;">
-          <p style="margin:.4em 0 0;font-size:.9rem;color:var(--gray);">${escapeHtml(d.body||'')}</p>
-          ${d.displayType === 'rating' ? `<div data-ratings-score="${doc.id}" style="flex-shrink:0;text-align:right;white-space:nowrap;"></div>` : ''}
-        </div>
-        ${d.displayType === 'rating' ? `<div data-ratings-box="${doc.id}" style="margin-top:.6em;padding-top:.6em;border-top:1px dashed var(--line);font-size:.88rem;color:var(--gray);">Baholar yuklanmoqda…</div>` : ''}
+        <p style="margin:.4em 0 0;font-size:.9rem;color:var(--gray);">${escapeHtml(d.body||'')}</p>
       </div>`;
     }).join('');
 
-    // "Baholash" turidagi xabarlar uchun: o'rtacha ball, taqsimot va talabalar fikrlari
-    listEl.querySelectorAll('[data-ratings-box]').forEach(async box => {
-      try{
-        const rs = await db.collection('notifications').doc(box.dataset.ratingsBox).collection('ratings').get();
-        const scoreEl = listEl.querySelector('[data-ratings-score="' + box.dataset.ratingsBox + '"]');
-        if(rs.empty){ if(scoreEl) scoreEl.innerHTML = '<div style="font-size:.78rem;color:var(--gray);">0 ta baho</div>'; box.textContent = 'Hali hech kim baho bermagan.'; return; }
-        const rows = rs.docs.map(x => x.data());
-        const total = rows.length;
-        const avg = rows.reduce((a,r) => a + (Number(r.stars)||0), 0) / total;
-        const dist = [0,0,0,0,0,0];
-        rows.forEach(r => { const n = Number(r.stars)||0; if(n>=1 && n<=5) dist[n]++; });
-        const distHtml = [5,4,3,2,1].map(n => {
-          const pct = Math.round(dist[n] / total * 100);
-          return `<div style="display:flex;align-items:center;gap:.5em;"><span style="width:2.2em;">${n} &#9733;</span><div style="flex:1;height:8px;background:var(--line);border-radius:99px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:#f59e0b;"></div></div><span style="min-width:6.5em;text-align:right;white-space:nowrap;">${dist[n]} (${pct}%)</span></div>`;
-        }).join('');
-        rows.sort((a,b) => ((b.updatedAt&&b.updatedAt.seconds)||0) - ((a.updatedAt&&a.updatedAt.seconds)||0));
-        const listHtml = rows.map(r => {
-          const n = Math.max(0, Math.min(5, Number(r.stars)||0));
-          const when = r.updatedAt && r.updatedAt.toDate ? r.updatedAt.toDate().toLocaleString('uz-UZ') : '';
-          return `<div style="padding:.35em 0;border-top:1px solid var(--line);"><strong style="color:var(--ink,inherit);">${escapeHtml(r.name||'—')}</strong> <span style="color:#f59e0b;letter-spacing:1px;">${'&#9733;'.repeat(n)}${'&#9734;'.repeat(5-n)}</span> <span style="font-size:.78rem;">${when}</span>${r.comment ? `<div style="margin-top:.15em;color:var(--gray);">${escapeHtml(r.comment)}</div>` : ''}</div>`;
-        }).join('');
-        if(scoreEl) scoreEl.innerHTML = `<div style="font-size:1.7rem;font-weight:800;line-height:1;color:#f59e0b;">${avg.toFixed(2)}<span style="font-size:.85rem;font-weight:600;color:var(--gray);"> / 5</span></div><div style="font-size:.78rem;color:var(--gray);margin-top:.25em;">${total} ta baho</div>`;
-        box.innerHTML = `<div style="display:flex;flex-direction:column;gap:3px;margin-bottom:.6em;">${distHtml}</div>
-          <details><summary style="cursor:pointer;font-weight:600;">Talabalar bahosi va fikrlari</summary>${listHtml}</details>`;
-      } catch(err){
-        box.innerHTML = '<span style="color:red;">Baholarni yuklashda xatolik: ' + escapeHtml(err.message||String(err)) + '</span>';
-      }
-    });
+    renderRatingPanel(snap.docs.filter(x => x.data().displayType === 'rating'));
 
     listEl.querySelectorAll('[data-del-notif]').forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -12098,8 +12175,7 @@ async function loadBroadcastHistory(){
 document.addEventListener('DOMContentLoaded', () => {
   const hints = {
     notification: "Pastda o'ng tomonda kichik popup sifatida chiqadi.",
-    popup: "Ekran o'rtasida modal oyna sifatida chiqadi.",
-    rating: "Talabaga saytni 5 yulduz bilan baholash oynasi chiqadi."
+    popup: "Ekran o'rtasida modal oyna sifatida chiqadi."
   };
   const sync = () => {
     const v = (document.querySelector('input[name="broadcastType"]:checked') || {}).value || 'notification';
