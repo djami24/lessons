@@ -2532,6 +2532,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
         <div class="ind-tabs" role="tablist">
           <button type="button" class="ind-tab active" data-main-tab="students" role="tab">Talabalar</button>
+          <button type="button" class="ind-tab" data-main-tab="lhw" role="tab">Listening uy vazifa</button>
           <button type="button" class="ind-tab" data-main-tab="cefr" role="tab">CEFR RL</button>
         </div>
         <div class="ind-tools">
@@ -2600,6 +2601,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
         <div class="ind-tabs" role="tablist">
           <button type="button" class="ind-tab" data-main-tab="students" role="tab">Talabalar</button>
+          <button type="button" class="ind-tab" data-main-tab="lhw" role="tab">Listening uy vazifa</button>
           <button type="button" class="ind-tab active" data-main-tab="cefr" role="tab">CEFR RL</button>
         </div>
         <div class="ind-tools">
@@ -2616,6 +2618,22 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <span id="crlCount" style="color:var(--gray);font-size:.85rem;"></span>
         </div>
         <div id="crlGrid" class="ind-grid"></div>
+      </div>
+
+      <!-- Listening uy vazifa (faqat individual talabalar uchun) -->
+      <div id="indLhwPane" hidden>
+        <div class="ind-top">
+          <div>
+            <h1>Listening uy vazifa</h1>
+            <p>Faqat individual talabalar uchun: mashq qo&#39;shing, muddat belgilang va natijalarni kuzating. Bu mashqlarni guruh talabalari ko&#39;rmaydi.</p>
+          </div>
+        </div>
+        <div class="ind-tabs" role="tablist">
+          <button type="button" class="ind-tab" data-main-tab="students" role="tab">Talabalar</button>
+          <button type="button" class="ind-tab active" data-main-tab="lhw" role="tab">Listening uy vazifa</button>
+          <button type="button" class="ind-tab" data-main-tab="cefr" role="tab">CEFR RL</button>
+        </div>
+        <div id="lhwIndRoot" class="lhw-root"></div>
       </div>
 
       <!-- Talaba sahifasi -->
@@ -3987,7 +4005,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 <script src="../firebase-config.js"></script>
 <script src="../chat-shared.js"></script>
 <script src="../site-settings.js"></script>
-<script src="../listening-hw.js?v=20261114a"></script>
+<script src="../listening-hw.js?v=20261118a"></script>
 <script src="../gb-utils.js?v=3"></script>
 <script>
 /* ===== SVG ikonlar (emoji o'rniga) ===== */
@@ -15362,6 +15380,7 @@ const Individuals = (function(){
     $('indListPane').hidden = false;
     $('indDetailPane').hidden = true;
     if($('indCefrPane')) $('indCefrPane').hidden = true;
+    if($('indLhwPane')) $('indLhwPane').hidden = true;
     cur = null;
     await loadList();
   }
@@ -15969,6 +15988,7 @@ const CefrRL = (function(){
   async function open(){
     $('indListPane').hidden = true;
     $('indDetailPane').hidden = true;
+    if($('indLhwPane')) $('indLhwPane').hidden = true;
     $('indCefrPane').hidden = false;
     $('crlGrid').innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div>';
     try{
@@ -16543,8 +16563,24 @@ $('crlStuBody').addEventListener('click', e => {
   document.getElementById('view-individuals').addEventListener('click', e => {
     const b = e.target.closest('[data-main-tab]');
     if(!b) return;
-    if(b.dataset.mainTab === 'cefr') open(); else Individuals.open();
+    if(b.dataset.mainTab === 'cefr') open();
+    else if(b.dataset.mainTab === 'lhw') openLhw();
+    else Individuals.open();
   });
+
+  // Listening uy vazifa: guruhlardagi Listening moduli, lekin faqat individuallar uchun
+  function openLhw(){
+    $('indListPane').hidden = true;
+    $('indDetailPane').hidden = true;
+    $('indCefrPane').hidden = true;
+    $('indLhwPane').hidden = false;
+    if(window.ListeningHW){
+      try{ ListeningHW.openAdmin({ mode: 'individual', rootId: 'lhwIndRoot' }); }
+      catch(err){ if(typeof showToast === 'function') showToast('Listening xatolik: ' + err.message, true); }
+    } else {
+      $('lhwIndRoot').innerHTML = '<div class="lhw-empty">Listening moduli yuklanmadi (listening-hw.js topilmadi yoki xato). Faylni yuklang va sahifani yangilang.</div>';
+    }
+  }
 
   return { open: open };
 })();
