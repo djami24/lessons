@@ -126,7 +126,21 @@ document.getElementById('adminLoginForm').addEventListener('submit', async (e) =
     }
     window.location.href = 'dashboard_a.html';
   } catch(err){
-    errorEl.textContent = 'Email yoki parol noto‘g‘ri.';
+    console.error('Login xatosi:', err);
+    const code = err && err.code ? err.code : '';
+    const map = {
+      'auth/invalid-credential': 'Email yoki parol noto‘g‘ri.',
+      'auth/wrong-password': 'Email yoki parol noto‘g‘ri.',
+      'auth/user-not-found': 'Bunday foydalanuvchi topilmadi.',
+      'auth/invalid-email': 'Email formati noto‘g‘ri.',
+      'auth/user-disabled': 'Bu hisob o‘chirib qo‘yilgan.',
+      'auth/too-many-requests': 'Juda ko‘p urinish. Birozdan keyin qayta urinib ko‘ring.',
+      'auth/network-request-failed': 'Internet bilan muammo. Ulanishni tekshiring.',
+      'auth/unauthorized-domain': 'Bu domen Firebase’da ruxsat etilmagan (Authorized domains).',
+      'auth/operation-not-allowed': 'Firebase’da Email/Parol kirishi yoqilmagan.',
+      'permission-denied': 'Firestore ruxsat bermadi (rules). admins/teachers o‘qishga ruxsat kerak.'
+    };
+    errorEl.textContent = (map[code] || 'Kirishda xatolik') + (code ? ' [' + code + ']' : '');
     errorEl.hidden = false;
     submitBtn.disabled = false;
     submitBtn.textContent = 'Kirish';
