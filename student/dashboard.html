@@ -5902,6 +5902,49 @@ const chatTypingCtrl = () => makeTypingController(db.collection('chats').doc(cur
 let chatTypingController = null;
 let studentChat = null;
 
+// ---------- O'qituvchi (admin) profili: rasm + ism + familiya (settings/adminProfile). Chat sarlavhasi va xabarlarida ko'rinadi ----------
+let teacherProfile = null, teacherProfilePromise = null;
+function loadTeacherProfile(){
+  if(!teacherProfilePromise){
+    teacherProfilePromise = db.collection('settings').doc('adminProfile').get()
+      .then(d => { teacherProfile = d.exists ? d.data() : {}; })
+      .catch(() => { teacherProfile = {}; });
+  }
+  return teacherProfilePromise;
+}
+function teacherDisplayName(){
+  const p = teacherProfile || {};
+  return [p.firstName, p.lastName].filter(Boolean).join(' ').trim() || 'O‘qituvchi';
+}
+function teacherPhotoSrc(){
+  const ph = teacherProfile && teacherProfile.photo;
+  return (typeof ph === 'string' && /^(data:image\/|https:\/\/)/.test(ph)) ? ph : '';
+}
+function teacherInitial(){
+  const n = (teacherProfile && [teacherProfile.firstName, teacherProfile.lastName].filter(Boolean).join(' ').trim()) || '';
+  return n ? n.charAt(0).toUpperCase() : '';
+}
+function teacherMsgAvatarHtml(){
+  const ph = teacherPhotoSrc();
+  if(ph) return '<div class="chat-msg-avatar" style="background:var(--teal);overflow:hidden;"><img alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;" src="' + teacherEsc(ph) + '"></div>';
+  return '<div class="chat-msg-avatar" style="background:var(--teal);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;">' + teacherEsc(teacherInitial()) + '</div>';
+}
+function applyTeacherProfileToChat(){
+  const ph = teacherPhotoSrc(), box = document.querySelector('.chat-detail-avatar-teacher');
+  if(box){
+    box.style.overflow = 'hidden';
+    if(ph){ box.innerHTML = '<img alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">'; box.firstChild.src = ph; }
+    else { box.textContent = teacherInitial(); box.style.color = '#fff'; box.style.fontWeight = '700'; box.style.display = 'flex'; box.style.alignItems = 'center'; box.style.justifyContent = 'center'; }
+  }
+  const nm = document.querySelector('#view-chat .chat-detail-name');
+  if(nm) nm.textContent = teacherDisplayName();
+  const tr = document.querySelector('#chatTypingRow .chat-msg-avatar');
+  if(tr){
+    tr.style.overflow = 'hidden';
+    if(ph){ tr.innerHTML = '<img alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">'; tr.firstChild.src = ph; }
+  }
+}
+
 function getStudentChat(){
   if(studentChat) return studentChat;
   const typingRow = document.getElementById('chatTypingRow');
@@ -5918,8 +5961,8 @@ function getStudentChat(){
       close: document.getElementById('chatReplyPreviewClose')
     },
     workHours: true,
-    otherName: () => 'O‘qituvchi',
-    otherAvatarHtml: () => '<div class="chat-msg-avatar" style="background:var(--teal);"></div>',
+    otherName: () => teacherDisplayName(),
+    otherAvatarHtml: () => teacherMsgAvatarHtml(),
     tickHtml: (read) => `<span class="chat-msg-ticks${read ? ' is-read' : ''}">${read ? '✓✓' : '✓'}</span>`,
     studentName: () => (state.student && state.student.name) || 'Talaba',
     afterRender: (listEl, isEmpty) => {
@@ -5932,7 +5975,10 @@ function getStudentChat(){
   return studentChat;
 }
 
-function loadChat(){
+async function loadChat(){
+  // O'qituvchi rasmi va ismi chat ochilishidan oldin yuklanadi (ko'pi bilan 2 soniya kutiladi)
+  await Promise.race([loadTeacherProfile(), new Promise(r => setTimeout(r, 2000))]);
+  applyTeacherProfileToChat();
   const messagesEl = document.getElementById('chatMessages');
   const typingRow = document.getElementById('chatTypingRow');
   if(chatTypingUnsubscribe) chatTypingUnsubscribe();
