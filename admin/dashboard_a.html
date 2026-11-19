@@ -3309,6 +3309,30 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
     <div class="modal-actions"><button class="btn btn-primary" type="button" id="salAttPdfBtn">PDF yuklab olish</button><button class="btn btn-ghost" onclick="closeModal('modalSalAtt')">Yopish</button></div>
   </div>
 </div>
+<!-- ===== MODAL: Admin profili (rasm, ism, familiya): talabalar chatida o'qituvchi sifatida ko'rinadi ===== -->
+<div class="modal-overlay" id="modalAdminProfile" hidden>
+  <div class="modal-box" style="max-width:420px;">
+    <h2 class="modal-title">Admin profili</h2>
+    <p class="st-note" style="margin:0 0 14px;">Rasm va ism talabalarning chatida “O‘qituvchi” o‘rnida ko‘rinadi.</p>
+    <div class="modal-form">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div id="apPhotoPrev" style="width:84px;height:84px;border-radius:50%;background:#3B82F6;color:#fff;font-weight:800;font-size:2rem;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">A</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button type="button" class="btn btn-ghost btn-sm" id="apPhotoBtn"><svg class="ic" aria-hidden="true"><use href="#i-camera"></use></svg> Rasm tanlash</button>
+          <button type="button" class="btn btn-ghost btn-sm" id="apPhotoRemove" hidden>Rasmni olib tashlash</button>
+          <input type="file" id="apPhotoFile" accept="image/*" hidden>
+        </div>
+      </div>
+      <label class="field"><span>Ism</span><input type="text" id="apFirst" maxlength="40" placeholder="Masalan: Djamshid"></label>
+      <label class="field"><span>Familiya</span><input type="text" id="apLast" maxlength="40" placeholder="Masalan: Karimov"></label>
+      <p class="form-error" id="apErr" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" type="button" id="apSave">Saqlash</button>
+        <button class="btn btn-ghost" type="button" onclick="closeModal('modalAdminProfile')">Bekor</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="modalGroupReport" hidden>
 <div class="modal-box" style="max-width:860px;width:96vw;max-height:92vh;overflow:auto;">
 <h2 class="modal-title">Guruh hisoboti</h2>
@@ -4173,6 +4197,101 @@ function renderBreadcrumb(elId, rootLabel, rootArray, path, onNavigateAttr){
 // Ustoz shu panelning faqat "O'quv jarayoni" bo'limini ko'radi va faqat o'z guruhlarini boshqaradi
 // (oquv_groups.teacherId == uid). Ruxsatlar Firestore qoidalarida ham tekshiriladi.
 window.IS_TEACHER = false;
+
+// ---------- Admin profili: rasm + ism + familiya (settings/adminProfile). Talabalar chatida o'qituvchi sifatida ko'rinadi ----------
+window.__adminProfile = {};
+function adminProfileFull(p){ p = p || window.__adminProfile || {}; return [p.firstName, p.lastName].filter(Boolean).join(' ').trim(); }
+function adminProfileApply(){
+  const p = window.__adminProfile || {};
+  const full = adminProfileFull(p);
+  const nameEl = document.getElementById('sidebarUsername'), av = document.getElementById('sidebarAvatar');
+  if (!nameEl || !av) return;
+  if (full) nameEl.textContent = full;
+  if (p.photo && /^data:image\//.test(p.photo)) {
+    av.style.overflow = 'hidden'; av.style.padding = '0';
+    av.innerHTML = '<img alt="" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">';
+    av.firstChild.src = p.photo;
+  } else {
+    av.textContent = ((full || nameEl.textContent || 'A').trim().charAt(0) || 'A').toUpperCase();
+  }
+}
+async function adminProfileLoad(){
+  try { const d = await db.collection('settings').doc('adminProfile').get(); window.__adminProfile = d.exists ? d.data() : {}; }
+  catch (e) { window.__adminProfile = {}; }
+  adminProfileApply();
+}
+let _apPhoto = '';
+function apPreview(){
+  const box = document.getElementById('apPhotoPrev');
+  const first = document.getElementById('apFirst').value.trim();
+  if (_apPhoto) { box.innerHTML = '<img alt="" style="width:100%;height:100%;object-fit:cover;">'; box.firstChild.src = _apPhoto; }
+  else { box.textContent = (first.charAt(0) || 'A').toUpperCase(); }
+  document.getElementById('apPhotoRemove').hidden = !_apPhoto;
+}
+// Rasmni kvadrat qilib kesib, 320x320 JPEG (data-URL, ~30-60 KB) ga siqadi: Storage kerak emas
+function apCompress(file){
+  return new Promise((resolve, reject) => {
+    if (!file || !/^image\//.test(file.type)) return reject(new Error('Faqat rasm fayli tanlang.'));
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const S = 320, c = document.createElement('canvas'); c.width = c.height = S;
+      const side = Math.min(img.naturalWidth, img.naturalHeight);
+      const sx = (img.naturalWidth - side) / 2, sy = (img.naturalHeight - side) / 2;
+      c.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, S, S);
+      let q = 0.85, out = c.toDataURL('image/jpeg', q);
+      while (out.length > 150000 && q > 0.4) { q -= 0.1; out = c.toDataURL('image/jpeg', q); }
+      resolve(out);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Rasmni o‘qib bo‘lmadi.')); };
+    img.src = url;
+  });
+}
+function openAdminProfile(){
+  if (window.IS_TEACHER) return;
+  const p = window.__adminProfile || {};
+  document.getElementById('apFirst').value = p.firstName || '';
+  document.getElementById('apLast').value = p.lastName || '';
+  document.getElementById('apErr').hidden = true;
+  _apPhoto = (p.photo && /^data:image\//.test(p.photo)) ? p.photo : '';
+  apPreview();
+  openModal('modalAdminProfile');
+}
+(function adminProfileInit(){
+  const open = () => openAdminProfile();
+  ['sidebarAvatar'].forEach(id => { const el = document.getElementById(id); if (el) { el.style.cursor = 'pointer'; el.title = 'Profilni tahrirlash'; el.addEventListener('click', open); } });
+  const info = document.querySelector('.admin-user-info');
+  if (info) { info.style.cursor = 'pointer'; info.title = 'Profilni tahrirlash'; info.addEventListener('click', open); }
+  document.getElementById('apPhotoBtn').addEventListener('click', () => document.getElementById('apPhotoFile').click());
+  document.getElementById('apPhotoFile').addEventListener('change', async (e) => {
+    const f = e.target.files && e.target.files[0]; e.target.value = '';
+    if (!f) return;
+    const err = document.getElementById('apErr'); err.hidden = true;
+    try { _apPhoto = await apCompress(f); apPreview(); }
+    catch (ex) { err.textContent = ex.message || 'Rasmni yuklab bo‘lmadi.'; err.hidden = false; }
+  });
+  document.getElementById('apPhotoRemove').addEventListener('click', () => { _apPhoto = ''; apPreview(); });
+  document.getElementById('apFirst').addEventListener('input', () => { if (!_apPhoto) apPreview(); });
+  document.getElementById('apSave').addEventListener('click', async () => {
+    const err = document.getElementById('apErr'), btn = document.getElementById('apSave');
+    err.hidden = true;
+    const firstName = document.getElementById('apFirst').value.trim(), lastName = document.getElementById('apLast').value.trim();
+    btn.disabled = true;
+    try {
+      const data = { firstName: firstName, lastName: lastName, photo: _apPhoto, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+      await db.collection('settings').doc('adminProfile').set(data);
+      window.__adminProfile = { firstName: firstName, lastName: lastName, photo: _apPhoto };
+      adminProfileApply();
+      closeModal('modalAdminProfile');
+      showToast('Profil saqlandi');
+    } catch (ex) {
+      console.error(ex);
+      err.textContent = 'Saqlab bo‘lmadi. Internetni tekshiring yoki admin hisobida ekanligingizni tasdiqlang.';
+      err.hidden = false;
+    }
+    btn.disabled = false;
+  });
+})();
 async function ojGroupsSnap(){
   if (!window.IS_TEACHER) {
     // Admin faqat o'z guruhlarini ko'radi (teacherId yo'q); ustozlar guruhlari "Ustozlar" bo'limida
@@ -4225,6 +4344,7 @@ auth.onAuthStateChanged(async (user) => {
     return;
   }
   document.getElementById('sidebarUsername').textContent = user.email;
+  adminProfileLoad();
   document.getElementById('loadingScreen').hidden = true;
   document.getElementById('appShell').hidden = false;
 
