@@ -8188,6 +8188,23 @@ async function homeRenderStatsOverview(force){
 // O'qituvchi ulushi: tushgan summaning 38%.
 const SAL = { FEE: 400000, LESSONS: 12, FREE_MISSES: 2, SHARE: 0.38 };
 function salFmt(n){ return Math.round(n).toLocaleString('en-US').replace(/,/g, ' '); }
+// To'lov davri: guruhda shu oyda boshlangan «o'quv oyi» bo'lsa uning sanalari, aks holda kalendar oy
+function salGroupPeriod(g, ym){
+  const c = grpPeriods(g).find(x => x.start.slice(0, 7) === ym), r = rpRange(ym);
+  return c ? { from: c.start, to: c.end || r.to } : { from: r.from, to: r.to };
+}
+// Talaba davr o'rtasida qo'shilgan bo'lsa: faqat qo'shilgan sanadan keyingi (qolgan) darslar hisoblanadi, ko'pi bilan SAL.LESSONS ta
+function salPayable(per, L, joined){
+  if(!joined || joined <= per.from) return { n: SAL.LESSONS, part: false };
+  if(joined > per.to) return { n: 0, part: true };
+  let rem;
+  if(L.length) rem = L.filter(d => d >= joined).length;
+  else {   // dars kunlari belgilanmagan guruh: kalendar kunlariga proporsional
+    const day = 86400000, left = (new Date(per.to + 'T00:00:00') - new Date(joined + 'T00:00:00')) / day + 1, tot = (new Date(per.to + 'T00:00:00') - new Date(per.from + 'T00:00:00')) / day + 1;
+    rem = Math.round(SAL.LESSONS * left / tot);
+  }
+  return { n: Math.min(SAL.LESSONS, rem), part: true };
+}
 let _salCtx = null, _salYm = '', _salDetail = null;
 function salInitMonths(sel, today){
   if(sel.dataset.ready) return;
@@ -8217,58 +8234,97 @@ function renderSalaryEstimate(){
     if(r.a === 'yes' || r.a === 'late') by[r.sid].att++;
     else if(r.a === 'no') by[r.sid].miss++;
   });
-  let students = 0, full = 0, reduced = 0, feeSum = 0, attSum = 0;
-  const seen = new Set(), detail = [];
-  groups.forEach(g => (g.students || []).forEach(st => {
-    if(seen.has(st.id)) return;
-    seen.add(st.id);
-    students++;
-    const v = by[st.id] || { att: 0, miss: 0 };
-    let fee = SAL.FEE;
-    if(v.miss > SAL.FREE_MISSES){
-      fee = SAL.FEE * Math.max(0, SAL.LESSONS - v.miss) / SAL.LESSONS;
-      reduced++;
-    } else full++;
-    feeSum += fee;
-    attSum += Math.min(v.att, SAL.LESSONS) * price;
-    detail.push({ name: st.name || st.email || 'Noma\'lum', group: g.name || '', att: v.att, miss: v.miss, amt: Math.min(v.att, SAL.LESSONS) * price, fee: Math.max(0, SAL.LESSONS - v.miss) * price, reduced: v.miss > 0 });
-  }));
-  _salDetail = { ym: ym, price: price, rows: detail, total: attSum, feeTotal: feeSum };
+  let students = 0, full = 0, reduced = 0, partial = 0, feeSum = 0, attSum = 0;
+  const seen = new Set(), detail = [], gsum = [];
+  groups.forEach(g => {
+    const per = salGroupPeriod(g, ym), L = rpSched(g.days, per);
+    const gs = { id: g.id, name: g.name || '', n: 0, fee: 0, att: 0 };
+    (g.students || []).forEach(st => {
+      if(seen.has(st.id)) return;
+      seen.add(st.id);
+      students++; gs.n++;
+      const v = by[st.id] || { att: 0, miss: 0 };
+      const pay = salPayable(per, L, st.joined);
+      let fee = pay.n * price;
+      if(v.miss > SAL.FREE_MISSES){
+        fee = Math.max(0, pay.n - v.miss) * price;
+        reduced++;
+      } else if(!pay.part) full++;
+      if(pay.part) partial++;
+      const amt = Math.min(v.att, SAL.LESSONS) * price;
+      feeSum += fee; attSum += amt; gs.fee += fee; gs.att += amt;
+      detail.push({ name: st.name || st.email || 'Noma\'lum', group: g.name || '', gid: g.id, att: v.att, miss: v.miss, amt: amt, fee: Math.max(0, pay.n - v.miss) * price, reduced: v.miss > 0, lessons: pay.n, part: pay.part, joined: st.joined || '' });
+    });
+    gsum.push(gs);
+  });
+  _salDetail = { ym: ym, price: price, rows: detail, groups: gsum, total: attSum, feeTotal: feeSum };
   if(!students){ el.innerHTML = '<p class="st-note">Tanlangan guruhlarda talaba yo‘q.</p>'; return; }
   const pct = Math.round(SAL.SHARE * 100);
+  const grpTbl = '<div class="table-wrap" style="margin-top:12px;"><table class="data-table"><thead><tr><th>Guruh</th><th>Talaba</th><th>To‘lov asosida</th><th>Kelgan darslar asosida ›</th></tr></thead><tbody>' +
+    gsum.filter(x => x.n).map(x => '<tr><td><b>' + x.name + '</b></td><td>' + x.n + ' ta</td><td>' + salFmt(x.fee) + ' so‘m</td><td><button type="button" class="sal-link" data-sal-att data-sal-g="' + x.id + '" title="Shu guruh talabalarini ko‘rish">' + salFmt(x.att) + ' so‘m</button></td></tr>').join('') +
+    '</tbody></table></div>';
   el.innerHTML =
-    '<p class="st-note" style="margin:0 0 10px;">' + rpLabel(ym) + ' · ' + students + ' ta talaba · ' + full + ' tasi to‘liq to‘laydi · ' + reduced + ' tasiga chegirma (' + (SAL.FREE_MISSES + 1) + '+ dars qoldirgan). Bir dars narxi: ' + salFmt(price) + ' so‘m.</p>' +
+    '<p class="st-note" style="margin:0 0 10px;">' + rpLabel(ym) + ' · ' + students + ' ta talaba · ' + full + ' tasi to‘liq to‘laydi · ' + reduced + ' tasiga chegirma (' + (SAL.FREE_MISSES + 1) + '+ dars qoldirgan)' + (partial ? ' · ' + partial + ' tasi oy o‘rtasida qo‘shilgan (faqat qolgan darslari hisoblanadi)' : '') + '. Bir dars narxi: ' + salFmt(price) + ' so‘m.</p>' +
     '<div class="table-wrap"><table class="data-table"><thead><tr><th></th><th>To‘lov asosida</th><th><button type="button" class="sal-link" data-sal-att title="Talabalar ro‘yxatini ko‘rish">Kelgan darslar asosida ›</button></th></tr></thead><tbody>' +
       '<tr><td>Tushgan summa</td><td>' + salFmt(feeSum) + ' so‘m</td><td><button type="button" class="sal-link" data-sal-att title="Talabalar ro‘yxatini ko‘rish">' + salFmt(attSum) + ' so‘m</button></td></tr>' +
       '<tr><td><b>Oylik (' + pct + '%)</b></td><td><b>' + salFmt(feeSum * SAL.SHARE) + ' so‘m</b></td><td><b>' + salFmt(attSum * SAL.SHARE) + ' so‘m</b></td></tr>' +
-    '</tbody></table></div>' +
+    '</tbody></table></div>' + grpTbl +
     '<p class="st-note" style="margin:8px 0 0;">To‘lov asosida: har talaba 400 000, 2 tadan ko‘p qoldirgan bo‘lsa qoldirgan darslari chegirilgan. Kelgan darslar asosida: kelgan darslar × bir dars narxi. Har bir talaba bo‘yicha ko‘rish uchun “Kelgan darslar asosida” ustuniga bosing.</p>';
   if(!el.dataset.salBound){
     el.dataset.salBound = '1';
-    el.addEventListener('click', e => { if(e.target.closest('[data-sal-att]')) openSalAttDetail(); });
+    el.addEventListener('click', e => { const b = e.target.closest('[data-sal-att]'); if(b) openSalAttDetail(b.dataset.salG || ''); });
   }
 }
 
 // "Kelgan darslar asosida": har bir talabaga yozilgan summa, qoldirilgan darslar va haqiqiy (to'lov qoidasi bo'yicha) summa
-function salAttRows(){
+let _salAttGroup = '';
+function salAttItems(){
   const d = _salDetail;
-  return d.rows.slice().sort((a, b) => String(a.group).localeCompare(String(b.group)) || String(a.name).localeCompare(String(b.name)));
+  if(!d) return { items: [], rows: [] };
+  let rows = d.rows.slice().sort((a, b) => String(a.group).localeCompare(String(b.group)) || String(a.gid).localeCompare(String(b.gid)) || String(a.name).localeCompare(String(b.name)));
+  if(_salAttGroup) rows = rows.filter(r => r.gid === _salAttGroup);
+  const items = []; let n = 0;
+  rows.forEach((r, i) => {
+    items.push({ type: 'row', n: ++n, r: r });
+    const next = rows[i + 1];
+    if(!_salAttGroup && (!next || next.gid !== r.gid)){
+      const grp = rows.filter(x => x.gid === r.gid);
+      items.push({ type: 'sub', name: r.group, count: grp.length, amt: grp.reduce((t, x) => t + x.amt, 0), fee: grp.reduce((t, x) => t + x.fee, 0) });
+    }
+  });
+  return { items: items, rows: rows };
 }
 function salAttNote(d){
-  return 'Yozilgan summa = kelgan darslar × bir dars narxi (' + salFmt(d.price) + ' so‘m, ko‘pi bilan ' + SAL.LESSONS + ' ta dars). Haqiqiy summa = (' + SAL.LESSONS + ' − qoldirgan darslar) × bir dars narxi: qoldirgan darslar chiqarib tashlanadi.';
+  return 'Yozilgan summa = kelgan darslar × bir dars narxi (' + salFmt(d.price) + ' so‘m, ko‘pi bilan ' + SAL.LESSONS + ' ta dars). Haqiqiy summa = (hisoblangan darslar − qoldirgan darslar) × bir dars narxi. Oy o‘rtasida qo‘shilgan talabaga faqat qo‘shilgan sanadan keyingi qolgan darslar hisoblanadi (masalan 6 ta dars qolgan bo‘lsa: 6 × ' + salFmt(d.price) + '), oy boshidan o‘qiganlarga to‘liq ' + SAL.LESSONS + ' ta dars.';
 }
-function openSalAttDetail(){
+function salAttLessonsCell(r){
+  return r.part
+    ? '<b style="color:#2F6FED;" title="Qo‘shilgan: ' + fmtDmy(r.joined) + ' · faqat qolgan darslar hisoblangan">' + r.lessons + ' ta</b>'
+    : r.lessons + ' ta';
+}
+function renderSalAtt(){
   const d = _salDetail;
   if(!d) return;
   const esc = typeof escapeHtml === 'function' ? escapeHtml : (x => String(x));
-  const rows = salAttRows();
-  const realTotal = rows.reduce((t, r) => t + r.fee, 0);
+  const R = salAttItems(), rows = R.rows;
+  const realTotal = rows.reduce((t, r) => t + r.fee, 0), attTotal = rows.reduce((t, r) => t + r.amt, 0);
   document.getElementById('salAttTitle').textContent = 'Kelgan darslar asosida · ' + rpLabel(d.ym);
   document.getElementById('salAttInfo').textContent = rows.length + ' ta talaba · ' + salAttNote(d);
+  const opts = '<option value="">Barcha guruhlar</option>' + (d.groups || []).filter(g => g.n).map(g => '<option value="' + g.id + '"' + (g.id === _salAttGroup ? ' selected' : '') + '>' + esc(g.name) + '</option>').join('');
   document.getElementById('salAttBody').innerHTML =
-    '<div class="table-wrap"><table class="data-table"><thead><tr><th>№</th><th>Talaba</th><th>Guruh</th><th>Kelgan</th><th>Qoldirgan</th><th>Yozilgan summa</th><th>Haqiqiy summa</th></tr></thead><tbody>' +
-    rows.map((r, i) => '<tr><td>' + (i + 1) + '</td><td>' + esc(r.name) + '</td><td>' + esc(r.group) + '</td><td>' + r.att + ' ta</td><td>' + r.miss + ' ta</td><td><b>' + salFmt(r.amt) + ' so‘m</b></td><td><b' + (r.reduced ? ' style="color:#F0923D;" title="Chegirma qo‘llangan"' : '') + '>' + salFmt(r.fee) + ' so‘m</b></td></tr>').join('') +
-    '</tbody><tfoot><tr><td colspan="5"><b>Jami</b></td><td><b>' + salFmt(d.total) + ' so‘m</b></td><td><b>' + salFmt(realTotal) + ' so‘m</b></td></tr></tfoot></table></div>';
+    '<div style="margin:0 0 12px;"><select id="salAttGroupSel" class="st-select" aria-label="Guruh">' + opts + '</select></div>' +
+    '<div class="table-wrap"><table class="data-table"><thead><tr><th>№</th><th>Talaba</th><th>Guruh</th><th>Kelgan</th><th>Qoldirgan</th><th>Dars</th><th>Yozilgan summa</th><th>Haqiqiy summa</th></tr></thead><tbody>' +
+    R.items.map(it => it.type === 'sub'
+      ? '<tr style="background:rgba(47,111,237,.07);"><td colspan="6"><b>' + esc(it.name) + ' · jami (' + it.count + ' ta talaba)</b></td><td><b>' + salFmt(it.amt) + ' so‘m</b></td><td><b>' + salFmt(it.fee) + ' so‘m</b></td></tr>'
+      : '<tr><td>' + it.n + '</td><td>' + esc(it.r.name) + '</td><td>' + esc(it.r.group) + '</td><td>' + it.r.att + ' ta</td><td>' + it.r.miss + ' ta</td><td>' + salAttLessonsCell(it.r) + '</td><td><b>' + salFmt(it.r.amt) + ' so‘m</b></td><td><b' + (it.r.reduced ? ' style="color:#F0923D;" title="Chegirma qo‘llangan"' : '') + '>' + salFmt(it.r.fee) + ' so‘m</b></td></tr>').join('') +
+    '</tbody><tfoot><tr><td colspan="6"><b>Jami</b></td><td><b>' + salFmt(attTotal) + ' so‘m</b></td><td><b>' + salFmt(realTotal) + ' so‘m</b></td></tr></tfoot></table></div>';
+  const sel = document.getElementById('salAttGroupSel');
+  if(sel) sel.addEventListener('change', () => { _salAttGroup = sel.value; renderSalAtt(); });
+}
+function openSalAttDetail(gid){
+  if(!_salDetail) return;
+  _salAttGroup = gid || '';
+  renderSalAtt();
   openModal('modalSalAtt');
 }
 
@@ -8278,28 +8334,31 @@ async function salAttExportPdf(){
   if(!d) return;
   if(typeof html2canvas !== 'function' || !window.jspdf){ showToast('Kutubxonalar yuklanmadi: sahifani yangilang', true); return; }
   const esc = typeof escapeHtml === 'function' ? escapeHtml : (x => String(x));
-  const rows = salAttRows();
-  const realTotal = rows.reduce((t, r) => t + r.fee, 0);
+  const R = salAttItems(), items = R.items, rows = R.rows;
+  const realTotal = rows.reduce((t, r) => t + r.fee, 0), attTotal = rows.reduce((t, r) => t + r.amt, 0);
+  const gName = _salAttGroup ? ((d.groups || []).find(g => g.id === _salAttGroup) || {}).name : '';
   const PER = 24;
   const pages = [];
-  for(let i = 0; i < rows.length; i += PER) pages.push(rows.slice(i, i + PER));
+  for(let i = 0; i < items.length; i += PER) pages.push(items.slice(i, i + PER));
   if(!pages.length) pages.push([]);
   const th = 'padding:7px 6px;border-bottom:2px solid #c9ced8;text-align:left;font-size:10px;color:#6b7280;text-transform:uppercase;';
   const td = 'padding:7px 6px;border-bottom:1px solid #e5e7eb;font-size:11px;';
   const pdf = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
   const today = new Date().toLocaleDateString('uz-UZ');
   for(let pi = 0; pi < pages.length; pi++){
-    const chunk = pages[pi], last = pi === pages.length - 1, offset = pi * PER;
+    const chunk = pages[pi], last = pi === pages.length - 1;
     const wrap = document.createElement('div');
-    wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:700px;padding:24px;background:#ffffff;color:#1c1c22;font-family:Arial,sans-serif;box-sizing:border-box;';
+    wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:720px;padding:24px;background:#ffffff;color:#1c1c22;font-family:Arial,sans-serif;box-sizing:border-box;';
+    const body = chunk.map(it => it.type === 'sub'
+      ? '<tr style="background:#eef3ff;"><td colspan="6" style="' + td + 'font-weight:bold;">' + esc(it.name) + ' · jami (' + it.count + ' ta talaba)</td><td style="' + td + 'font-weight:bold;">' + salFmt(it.amt) + ' so‘m</td><td style="' + td + 'font-weight:bold;">' + salFmt(it.fee) + ' so‘m</td></tr>'
+      : '<tr><td style="' + td + '">' + it.n + '</td><td style="' + td + '">' + esc(it.r.name) + '</td><td style="' + td + '">' + esc(it.r.group) + '</td><td style="' + td + '">' + it.r.att + ' ta</td><td style="' + td + '">' + it.r.miss + ' ta</td><td style="' + td + (it.r.part ? 'color:#2F6FED;font-weight:bold;' : '') + '">' + it.r.lessons + ' ta</td><td style="' + td + 'font-weight:bold;">' + salFmt(it.r.amt) + ' so‘m</td><td style="' + td + 'font-weight:bold;' + (it.r.reduced ? 'color:#d97706;' : '') + '">' + salFmt(it.r.fee) + ' so‘m</td></tr>').join('');
     wrap.innerHTML =
-      '<h2 style="margin:0 0 4px;font-size:20px;">Kelgan darslar asosida · ' + esc(rpLabel(d.ym)) + '</h2>' +
+      '<h2 style="margin:0 0 4px;font-size:20px;">Kelgan darslar asosida · ' + esc(rpLabel(d.ym)) + (gName ? ' · ' + esc(gName) : '') + '</h2>' +
       '<div style="font-size:11px;color:#666;margin-bottom:12px;line-height:1.5;">' + rows.length + ' ta talaba · Sana: ' + today + ' · Sahifa ' + (pi + 1) + '/' + pages.length + '<br>' + esc(salAttNote(d)) + '</div>' +
       '<table style="width:100%;border-collapse:collapse;"><thead><tr>' +
-        ['№', 'Talaba', 'Guruh', 'Kelgan', 'Qoldirgan', 'Yozilgan summa', 'Haqiqiy summa'].map(h => '<th style="' + th + '">' + h + '</th>').join('') +
-      '</tr></thead><tbody>' +
-      chunk.map((r, i) => '<tr><td style="' + td + '">' + (offset + i + 1) + '</td><td style="' + td + '">' + esc(r.name) + '</td><td style="' + td + '">' + esc(r.group) + '</td><td style="' + td + '">' + r.att + ' ta</td><td style="' + td + '">' + r.miss + ' ta</td><td style="' + td + 'font-weight:bold;">' + salFmt(r.amt) + ' so‘m</td><td style="' + td + 'font-weight:bold;' + (r.reduced ? 'color:#d97706;' : '') + '">' + salFmt(r.fee) + ' so‘m</td></tr>').join('') +
-      (last ? '<tr><td colspan="5" style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">Jami</td><td style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">' + salFmt(d.total) + ' so‘m</td><td style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">' + salFmt(realTotal) + ' so‘m</td></tr>' : '') +
+        ['№', 'Talaba', 'Guruh', 'Kelgan', 'Qoldirgan', 'Dars', 'Yozilgan summa', 'Haqiqiy summa'].map(h => '<th style="' + th + '">' + h + '</th>').join('') +
+      '</tr></thead><tbody>' + body +
+      (last ? '<tr><td colspan="6" style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">Jami</td><td style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">' + salFmt(attTotal) + ' so‘m</td><td style="' + td + 'font-weight:bold;border-top:2px solid #c9ced8;">' + salFmt(realTotal) + ' so‘m</td></tr>' : '') +
       '</tbody></table>';
     document.body.appendChild(wrap);
     try{
@@ -8312,7 +8371,7 @@ async function salAttExportPdf(){
     }
     wrap.remove();
   }
-  pdf.save('kelgan-darslar-' + d.ym + '.pdf');
+  pdf.save('kelgan-darslar-' + d.ym + (gName ? '-' + gName.replace(/\s+/g, '_') : '') + '.pdf');
 }
 document.getElementById('salAttPdfBtn').addEventListener('click', salAttExportPdf);
 
