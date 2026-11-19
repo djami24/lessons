@@ -66,6 +66,16 @@ html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-bt
 html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-btn:hover{background:#f4f5f9 !important;border-color:#d5d9e4 !important;color:#111111 !important}
 html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-btn svg{display:block;width:20px;height:20px}
 </style>
+<style id="authBlackCss">
+/* Talaba ro'yxatdan o'tish: tugmalar qora, matnlar qora */
+html body.auth-body.auth-body.auth-body.auth-body :is(.auth-title,.auth-sub,.field>span,.field label,.auth-split-left .brand,.auth-split-left .brand span,.pw-toggle,.student-type-choice label,.avatar-choice label){color:#111111 !important}
+html body.auth-body.auth-body.auth-body.auth-body :is(.field input,.field select){color:#111111 !important}
+html body.auth-body.auth-body.auth-body.auth-body input[type=radio]{accent-color:#111111}
+html body.auth-body.auth-body.auth-body.auth-body .auth-submit{background:#111111 !important;background-image:none !important;border:1px solid #111111 !important;color:#ffffff !important;box-shadow:none !important}
+html body.auth-body.auth-body.auth-body.auth-body .auth-submit:hover{background:#2b2b2b !important;border-color:#2b2b2b !important;color:#ffffff !important}
+.dob-row{display:grid;grid-template-columns:1fr 1.5fr 1.2fr;gap:8px}
+.dob-row select{width:100%;min-width:0}
+</style>
 </head>
 <body class="auth-body">
 
@@ -79,8 +89,6 @@ html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-bt
       <div class="auth-split-hero">
         <h2>Assalomu alaykum!</h2>
       </div>
-
-      <p class="auth-split-foot">Hisobingiz bormi? <a href="login.html">Kirish</a></p>
     </div>
 
     <div class="auth-split-right">
@@ -90,8 +98,20 @@ html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-bt
       <form class="auth-form" id="registerForm">
         <label class="field">
           <span>Ismingiz</span>
-          <input type="text" id="regName" required autocomplete="name">
+          <input type="text" id="regFirstName" required autocomplete="given-name">
         </label>
+        <label class="field">
+          <span>Familiyangiz</span>
+          <input type="text" id="regLastName" required autocomplete="family-name">
+        </label>
+        <div class="field" id="dobField">
+          <span>Tug‘ilgan sana</span>
+          <div class="dob-row">
+            <select id="regBirthDay" required aria-label="Kun"><option value="" selected disabled>Kun</option></select>
+            <select id="regBirthMonth" required aria-label="Oy"><option value="" selected disabled>Oy</option></select>
+            <select id="regBirthYear" required aria-label="Yil"><option value="" selected disabled>Yil</option></select>
+          </div>
+        </div>
         <label class="field">
           <span>Email</span>
           <input type="email" id="regEmail" required autocomplete="username">
@@ -123,15 +143,12 @@ html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-bt
         <div class="field" id="avatarField">
           <span>Profil rasmingiz <b style="color:#d64545;">*</b></span>
           <div class="avatar-choice" id="avatarChoice" role="radiogroup" aria-label="Profil rasmi"></div>
-          <p class="avatar-hint">“Profil rasmlari” ustiga bosib, o‘zingizga yoqqan rasmni tanlang. Keyinroq profilingizdan o‘zgartirishingiz mumkin.</p>
         </div>
 
         <p class="form-error" id="registerError" role="alert" hidden></p>
 
         <button type="submit" class="btn btn-amber auth-submit" id="registerSubmit">Ro‘yxatdan o‘tish</button>
       </form>
-
-      <p class="auth-split-foot" style="margin-top:1.4em; color:var(--gray);">Ota-ona sifatida ro‘yxatdan o‘tmoqchimisiz? <a href="../parent/register.html">Shu yerga o‘ting</a></p>
     </div>
 
   </div>
@@ -143,6 +160,20 @@ html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-bt
 <script src="../avatars.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../site-settings.js"></script>
+<script>
+// Tug'ilgan sana: kun / oy / yil ro'yxatlari
+(function(){
+  const d = document.getElementById('regBirthDay');
+  const m = document.getElementById('regBirthMonth');
+  const y = document.getElementById('regBirthYear');
+  if(!d || !m || !y) return;
+  for(let i = 1; i <= 31; i++) d.add(new Option(String(i), String(i)));
+  ['Yanvar','Fevral','Mart','Aprel','May','Iyun','Iyul','Avgust','Sentabr','Oktabr','Noyabr','Dekabr']
+    .forEach((name, idx) => m.add(new Option(name, String(idx + 1))));
+  const now = new Date().getFullYear();
+  for(let yr = now - 4; yr >= now - 80; yr--) y.add(new Option(String(yr), String(yr)));
+})();
+</script>
 <script>
 
 // Avatarlar ro'yxati ../avatars.js faylida
@@ -194,6 +225,19 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   const submitBtn = document.getElementById('registerSubmit');
   errorEl.hidden = true;
 
+  // Tug'ilgan sana: haqiqiy sana bo'lishi kerak (masalan, 31-fevral emas)
+  const bDay = parseInt(document.getElementById('regBirthDay').value, 10);
+  const bMonth = parseInt(document.getElementById('regBirthMonth').value, 10);
+  const bYear = parseInt(document.getElementById('regBirthYear').value, 10);
+  const bCheck = new Date(bYear, bMonth - 1, bDay);
+  if(!bDay || !bMonth || !bYear || bCheck.getFullYear() !== bYear || bCheck.getMonth() !== bMonth - 1 || bCheck.getDate() !== bDay){
+    errorEl.textContent = 'Iltimos, tug‘ilgan sanangizni to‘g‘ri tanlang.';
+    errorEl.hidden = false;
+    document.getElementById('dobField').scrollIntoView({ behavior:'smooth', block:'center' });
+    return;
+  }
+  const birthDate = bYear + '-' + String(bMonth).padStart(2, '0') + '-' + String(bDay).padStart(2, '0');
+
   // Profil rasmi majburiy
   const avatarInput = document.querySelector('input[name="regAvatar"]:checked');
   const avatarBox = document.getElementById('avatarChoice');
@@ -209,7 +253,9 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   submitBtn.disabled = true;
   submitBtn.textContent = 'Yaratilmoqda…';
 
-  const name = document.getElementById('regName').value.trim();
+  const firstName = document.getElementById('regFirstName').value.trim();
+  const lastName = document.getElementById('regLastName').value.trim();
+  const name = (firstName + ' ' + lastName).trim();
   const email = document.getElementById('regEmail').value.trim();
   const phone = document.getElementById('regPhone').value.trim();
   const password = document.getElementById('regPassword').value;
@@ -221,6 +267,9 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     const cred = await auth.createUserWithEmailAndPassword(email, password);
     await db.collection('students').doc(cred.user.uid).set({
       name: name,
+      firstName: firstName,
+      lastName: lastName,
+      birthDate: birthDate,
       email: email,
       phone: phone,
       studentType: studentType,
