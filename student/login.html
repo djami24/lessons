@@ -57,6 +57,22 @@ html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-bt
 html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-btn:hover{background:#f4f5f9 !important;border-color:#d5d9e4 !important;color:#111111 !important}
 html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-btn svg{display:block;width:20px;height:20px}
 </style>
+<style id="authFontCss">
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+h1, h2, .heading {
+  font-family: 'Manrope', sans-serif;
+}
+
+/* Quyidagilar yuqoridagi qoidalar style.css / glass-auth.css ustidan kuchga kirishi uchun */
+html body.auth-body.auth-body.auth-body,
+html body.auth-body.auth-body.auth-body :is(input,button,select,textarea,label,p,a,span,div){font-family:'Inter',sans-serif !important}
+html body.auth-body.auth-body.auth-body :is(h1,h2,.heading,.auth-title){font-family:'Manrope',sans-serif !important}
+</style>
 </head>
 <body class="auth-body">
 
@@ -66,10 +82,6 @@ html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-bt
     <div class="auth-split-left">
       <a href="../index.html" class="auth-home-btn" aria-label="Bosh sahifa" title="Bosh sahifa"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></a>
       <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
-
-      <div class="auth-split-hero">
-        <h2>Assalomu alaykum!</h2>
-      </div>
     </div>
 
     <div class="auth-split-right">
