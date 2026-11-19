@@ -2421,7 +2421,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
 <script src="../firebase-config.js"></script>
 <script src="../gb-utils.js?v=3"></script>
-<script src="../chat-shared.js"></script>
+<script src="../chat-shared.js?v=20261119b"></script>
 <script src="../site-settings.js"></script>
 <script src="../listening-hw.js?v=20261118b"></script>
 <script>
@@ -5901,6 +5901,29 @@ let chatTeacherIsTyping = false;
 const chatTypingCtrl = () => makeTypingController(db.collection('chats').doc(currentUid), 'studentTyping');
 let chatTypingController = null;
 let studentChat = null;
+
+// Zaxira: chat-shared.js eski (keshdagi) nusxada qolgan bo'lsa ham, chatdagi profil rasmi bosilganda katta ochiladi
+(function chatAvatarLightboxFallback(){
+  if(window.__chatAvatarLb) return;
+  window.__chatAvatarLb = true;
+  const st = document.createElement('style');
+  st.textContent = '.chat-detail-avatar img,.chat-msg-avatar img{cursor:zoom-in}';
+  document.head.appendChild(st);
+  document.addEventListener('click', e => {
+    const im = e.target && e.target.closest && e.target.closest('.chat-detail-avatar img, .chat-msg-avatar img');
+    if(!im || !im.src) return;
+    e.preventDefault(); e.stopPropagation();
+    if(typeof chatOpenLightbox === 'function'){ chatOpenLightbox(im.src); return; }
+    const box = document.createElement('div');
+    box.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out';
+    const big = document.createElement('img'); big.src = im.src; big.alt = 'Rasm'; big.style.cssText = 'max-width:100%;max-height:100%;border-radius:8px';
+    box.appendChild(big);
+    const close = () => { box.remove(); document.removeEventListener('keydown', onKey); };
+    const onKey = ev => { if(ev.key === 'Escape') close(); };
+    box.addEventListener('click', close); document.addEventListener('keydown', onKey);
+    document.body.appendChild(box);
+  }, true);
+})();
 
 // ---------- O'qituvchi (admin) profili: rasm + ism + familiya (settings/adminProfile). Chat sarlavhasi va xabarlarida ko'rinadi ----------
 let teacherProfile = null, teacherProfilePromise = null;
