@@ -8700,13 +8700,28 @@ function stRenderKpiDetail(){
     const ini = escHtml(initials(p.name));
     const ava = avSrc ? `<img class="avatar-img" alt="" src="${avSrc}">` : ini;
     const go = _kdState.kind === 'comp' && p.dates && p.dates.length;
+    const prof = _kdState.kind === 'add' || _kdState.kind === 'out';   // Yangi qo'shilgan / Chiqib ketgan: bosilsa talaba profili ochiladi
     const chips = go ? ' · belgilanmagan: ' + p.dates.slice(0, 8).map(d => `<button type="button" class="kd-chip" data-date="${d}" title="Shu sanani belgilash">${d.slice(8, 10)}.${d.slice(5, 7)}</button>`).join('') +
       (p.dates.length > 8 ? ` va yana ${p.dates.length - 8} ta` : '') : '';
-    return `<div class="kd-row${go ? ' kd-row-go' : ''}" ${go ? `data-idx="${_kdState.rows.indexOf(p)}" role="button" tabindex="0" title="Belgilashga o‘tish"` : ''}><div class="kd-ava">${ava}</div>
+    return `<div class="kd-row${go || prof ? ' kd-row-go' : ''}" ${go ? `data-idx="${_kdState.rows.indexOf(p)}" role="button" tabindex="0" title="Belgilashga o‘tish"` : prof ? `data-idx="${_kdState.rows.indexOf(p)}" data-prof="1" role="button" tabindex="0" title="Talaba profilini ochish"` : ''}><div class="kd-ava">${ava}</div>
       <div class="kd-main"><div class="kd-name">${escHtml(p.name || '-')}</div>
       <div class="kd-sub">${escHtml(p.gname || '')}${p.line ? ' · ' + escHtml(p.line) : ''}${chips}</div></div>
       <div class="kd-val" style="color:${p.color}">${escHtml(p.val)}</div></div>`;
   }).join('') : '<div class="kd-empty">' + (_kdState.rows.length ? 'Filtr bo‘yicha hech kim topilmadi.' : 'Bu ko‘rsatkich bo‘yicha o‘quvchi yo‘q.') + '</div>';
+}
+// Yangi qo'shilgan / chiqib ketgan ro'yxatidagi talabani bosganda: Faollik jurnalidagidek talaba profili (modalStudentDetail) ochiladi.
+// O'quv jarayoni ID'si (oquv_groups/.../students/{id}) ro'yxatdan o'tgan hisob (students/{uid}) bilan ID, telefon yoki ism orqali bog'lanadi.
+async function kdOpenStudent(p){
+  let st = findRegisteredStudent(p.sid, p);
+  if (!st && p.sid) {
+    try {
+      const q = await db.collection('students').where('oquvProgressCode', '==', p.sid).limit(1).get();
+      if (!q.empty) st = { id: q.docs[0].id, ...q.docs[0].data() };
+    } catch (e) { console.error('Student lookup error:', e); }
+  }
+  if (!st) { showToast('Bu talaba saytda ro‘yxatdan o‘tmagan: profili yo‘q.', true); return; }
+  closeModal('modalKpiDetail');
+  openStudentDetail(st);
 }
 // Belgilanmagan o'quvchini bosganda: shu o'quvchining davomat/uy vazifa belgilash sahifasi (sana oldindan tanlangan)
 function stGoMark(p, date){
@@ -8725,7 +8740,9 @@ function stGoMark(p, date){
     const rowEl = e.target.closest('.kd-row-go');
     if (!rowEl) return;
     const p = _kdState.rows[Number(rowEl.dataset.idx)];
-    if (!p || !p.dates || !p.dates.length) return;
+    if (!p) return;
+    if (rowEl.hasAttribute('data-prof')) { kdOpenStudent(p); return; }
+    if (!p.dates || !p.dates.length) return;
     const chip = e.target.closest('.kd-chip');
     stGoMark(p, chip ? chip.dataset.date : p.dates[0]);
   };
