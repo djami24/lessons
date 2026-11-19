@@ -5725,6 +5725,11 @@ const COURSE_PAYMENT_ROWS = [
   { key: 'writing', label: 'Writing (Insho)', statusElId: 'studentDetailStatusWriting', btnId: 'togglePaymentBtnWriting', getStatus: s => (s.coursePayments && s.coursePayments.writing) || 'none', firestoreField: 'coursePayments.writing' }
 ];
 
+function fmtDMY(d){
+  const p = n => String(n).padStart(2, '0');
+  return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear();
+}
+
 function formatStudentCreatedAt(ts){
   if(!ts) return '-';
   // Self-registered students (register.html) store createdAt as a
@@ -5734,16 +5739,16 @@ function formatStudentCreatedAt(ts){
   // "Invalid Date".
   const d = typeof ts.toDate === 'function' ? ts.toDate() : new Date(ts);
   if(isNaN(d.getTime())) return '-';
-  return d.toLocaleDateString('uz-UZ');
+  return fmtDMY(d);
 }
 
 function formatStudentBirthDate(v){
   if(!v) return '-';
   // register.html stores birthDate as 'YYYY-MM-DD' (plain string).
-  if(typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)) return v;
+  if(typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)){ const q = v.split('-'); return q[2] + '.' + q[1] + '.' + q[0]; }
   const d = typeof v.toDate === 'function' ? v.toDate() : new Date(v);
   if(isNaN(d.getTime())) return '-';
-  return d.toLocaleDateString('uz-UZ');
+  return fmtDMY(d);
 }
 
 const COURSE_CHIP_LABELS = { ge: 'GE', ielts: 'IELTS', cefr: 'CEFR', writing: 'Insho' };
