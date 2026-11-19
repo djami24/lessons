@@ -5931,6 +5931,19 @@ function spInfo(label, value){
   return '<div style="display:flex;gap:.8em;padding:.45em 0;border-bottom:1px solid var(--line);font-size:.92rem;">' +
     '<span style="min-width:150px;color:var(--gray);">' + label + '</span><span style="flex:1;word-break:break-word;">' + value + '</span></div>';
 }
+// Talaba profilida "O'quv guruhi" bosilsa: profil yopiladi va shu guruhning O'quv jarayoni sahifasi (talabalar ro'yxati) ochiladi
+document.addEventListener('click', async (e) => {
+  if (!e.target.closest('[data-sp-group]') || typeof _spState === 'undefined' || !_spState || !_spState.groupId) return;
+  const gid = _spState.groupId;
+  let name = _spState.groupName || '', days = [];
+  try {
+    const gd = await db.collection('oquv_groups').doc(gid).get();
+    if (!gd.exists) { showToast('Bu guruh topilmadi (o‘chirilgan bo‘lishi mumkin).', true); return; }
+    name = gd.data().name || name; days = gd.data().days || [];
+  } catch (err) { console.error('Group load error:', err); }
+  closeModal('modalStudentDetail');
+  loadOjStudents(gid, name, days);
+});
 function spHeading(text){
   return '<h4 style="margin:1.1em 0 .5em;font-size:.95rem;">' + text + '</h4>';
 }
@@ -6089,7 +6102,7 @@ async function spLoad(student){
     const months = spMonthsOf(norm, bonuses, gbMatch);
     const now = rpYm(new Date());
     _spState = {
-      student: student, code: code, groupName: groupName, norm: norm, bonuses: bonuses,
+      student: student, code: code, groupName: groupName, groupId: groupId, norm: norm, bonuses: bonuses,
       gb: gb, gbMatch: gbMatch, phones: phones, months: months,
       ym: months.indexOf(now) !== -1 ? now : 'all'
     };
@@ -6133,7 +6146,7 @@ function spRender(){
     spInfo('Telefon', S.phones.length ? S.phones.map(escapeHtml).join(', ') : '<span style="color:var(--gray);">kiritilmagan: yuqoridan kiriting</span>'),
     spInfo('Tug‘ilgan sana', escapeHtml(formatStudentBirthDate(S.student.birthDate))),
     spInfo('Saytga qo‘shilgan', escapeHtml(formatStudentCreatedAt(S.student.createdAt))),
-    spInfo('O‘quv guruhi', S.groupName ? escapeHtml(S.groupName) : (S.code ? '-' : '<span style="color:var(--gray);">O‘quv jarayoniga bog‘lanmagan</span>')),
+    spInfo('O‘quv guruhi', S.groupName ? (S.groupId ? '<button type="button" data-sp-group title="Guruhga o‘tish" style="background:none;border:0;padding:0;font:inherit;font-weight:700;color:var(--adm-blue,#2F6FED);cursor:pointer;text-decoration:underline;text-underline-offset:3px;">' + escapeHtml(S.groupName) + ' ›</button>' : escapeHtml(S.groupName)) : (S.code ? '-' : '<span style="color:var(--gray);">O‘quv jarayoniga bog‘lanmagan</span>')),
     spInfo('O‘quv ID', S.code ? escapeHtml(S.code) : '-'),
 
     '<div style="display:flex;align-items:center;gap:.6em;margin:1.1em 0 .2em;flex-wrap:wrap;">' +
