@@ -948,3 +948,18 @@ function createChatController(cfg){
   function init(){ document.querySelectorAll('.chat-grid').forEach(setup); }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
+
+// Chatdagi profil rasmini (sarlavhadagi va xabarlar yonidagi) bossa: rasm katta ochiladi. Talaba va admin chatida ishlaydi.
+(function chatAvatarLightbox(){
+  if(window.__chatAvatarLb) return;
+  window.__chatAvatarLb = true;
+  const st = document.createElement('style');
+  st.textContent = '.chat-detail-avatar img,.chat-msg-avatar img{cursor:zoom-in}';
+  document.head.appendChild(st);
+  document.addEventListener('click', e => {
+    const im = e.target && e.target.closest && e.target.closest('.chat-detail-avatar img, .chat-msg-avatar img');
+    if(!im || !im.src) return;
+    e.preventDefault(); e.stopPropagation();
+    chatOpenLightbox(im.src);
+  }, true);
+})();
