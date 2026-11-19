@@ -18,23 +18,36 @@
 <script defer src="https://cdn.vemetric.com/main.js" data-token="CHdcoB75KN2xKaYh"></script>
 <link rel="stylesheet" href="../glass-auth.css">
 <style id="authBgCss">
-/* Bosh sahifadagi kabi oppoq fon + CursorGrid (cursor-grid-bg.js) */
+/* Bosh sahifadagi kabi oppoq fon + CursorGrid (cursor-grid-bg.js).
+   Selektorlar glass-auth.css dagi !important qoidalardan kuchliroq qilib yozilgan. */
 html:has(body.auth-body){background:#ffffff !important;background-image:none !important}
-body.auth-body{background:transparent !important;background-image:none !important}
-body.auth-body::before,body.auth-body::after{display:none !important}
-/* Barcha to'liq ekranli qatlamlar (ko'k chap panel, o'ng gradient) shaffof bo'ladi */
-body.auth-body :is(.auth-wrap,.auth-wrap-split,.auth-split-wrap,.auth-split,.auth-split-left,.auth-split-right){
+html body.auth-body.auth-body.auth-body.auth-body{background:transparent !important;background-image:none !important}
+html body.auth-body.auth-body.auth-body.auth-body::before,html body.auth-body.auth-body.auth-body.auth-body::after{display:none !important;content:none !important}
+/* To'liq ekranli qatlamlar (ko'k chap panel, o'ng oynali panel) shaffof: panjara ko'rinadi */
+html body.auth-body.auth-body.auth-body.auth-body :is(.auth-wrap,.auth-wrap-split,.auth-split-wrap,.auth-split,.auth-split-left,.auth-split-right){
   background:transparent !important;background-image:none !important;box-shadow:none !important;
-  -webkit-backdrop-filter:none !important;backdrop-filter:none !important;border-color:transparent !important}
-body.auth-body :is(.auth-wrap,.auth-wrap-split,.auth-split-wrap,.auth-split,.auth-split-left,.auth-split-right)::before,
-body.auth-body :is(.auth-wrap,.auth-wrap-split,.auth-split-wrap,.auth-split,.auth-split-left,.auth-split-right)::after{display:none !important;content:none !important}
+  -webkit-backdrop-filter:none !important;backdrop-filter:none !important;animation:none !important}
+html body.auth-body.auth-body.auth-body.auth-body :is(.auth-wrap,.auth-wrap-split,.auth-split-wrap,.auth-split,.auth-split-left,.auth-split-right)::before,
+html body.auth-body.auth-body.auth-body.auth-body :is(.auth-wrap,.auth-wrap-split,.auth-split-wrap,.auth-split,.auth-split-left,.auth-split-right)::after,
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-hero::after{display:none !important;content:none !important;animation:none !important}
 /* Chap tomon: faqat sarlavha, matnlar to'q rangda */
-body.auth-body .auth-split-left{color:#14213d !important}
-body.auth-body .auth-split-left .auth-split-hero h2{color:#14213d !important}
-body.auth-body .auth-split-left .brand,body.auth-body .auth-split-left .brand span{color:#14213d !important}
-body.auth-body .auth-split-left .auth-home-btn{color:#14213d !important;background:rgba(255,255,255,.7) !important;border:1px solid rgba(20,33,61,.22) !important}
-body.auth-body .auth-split-left .auth-split-foot,body.auth-body .auth-split-left .auth-split-switch{color:#6b7487 !important}
-body.auth-body .auth-split-left .auth-split-foot a{color:#1d4fd1 !important}
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-left{color:#14213d !important}
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-split-hero h2{color:#14213d !important}
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .brand,html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .brand span{color:#14213d !important}
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-btn{color:#14213d !important;background:rgba(255,255,255,.7) !important;border:1px solid rgba(20,33,61,.22) !important}
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-split-foot,html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-split-switch{color:#6b7487 !important}
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-split-foot a{color:#1d4fd1 !important}
+</style>
+<style id="authHomeBtnCss">
+/* "Bosh sahifa" tugmasi: 44x44 oq kvadrat, ichida orqaga strelka */
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-btn{
+  width:44px !important;height:44px !important;min-width:0 !important;padding:0 !important;margin:0 0 18px !important;
+  display:inline-flex !important;align-items:center !important;justify-content:center !important;
+  border-radius:12px !important;background:#ffffff !important;background-image:none !important;
+  border:1px solid #e6e8ef !important;color:#111111 !important;
+  box-shadow:0 1px 2px rgba(20,33,61,.06) !important;font-size:0 !important;line-height:0 !important}
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-btn:hover{background:#f4f5f9 !important;border-color:#d5d9e4 !important;color:#111111 !important}
+html body.auth-body.auth-body.auth-body.auth-body .auth-split-left .auth-home-btn svg{display:block;width:20px;height:20px}
 </style>
 </head>
 <body class="auth-body">
@@ -43,7 +56,7 @@ body.auth-body .auth-split-left .auth-split-foot a{color:#1d4fd1 !important}
   <div class="auth-split">
 
     <div class="auth-split-left">
-      <a href="../index.html" class="auth-home-btn">Bosh sahifa</a>
+      <a href="../index.html" class="auth-home-btn" aria-label="Bosh sahifa" title="Bosh sahifa"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg></a>
       <a href="../index.html" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="../assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
 
       <div class="auth-split-hero">
