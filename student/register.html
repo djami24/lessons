@@ -34,6 +34,18 @@
 </script>
 <script defer src="https://cdn.vemetric.com/main.js" data-token="CHdcoB75KN2xKaYh"></script>
 <link rel="stylesheet" href="../glass-auth.css">
+<style id="authBgCss">
+/* Bosh sahifadagi kabi oppoq fon + CursorGrid (cursor-grid-bg.js) */
+body.auth-body{background:#ffffff !important}
+body.auth-body::before,body.auth-body::after{display:none !important}
+/* Chap tomondagi ko'k fon olib tashlandi: faqat matn (Assalomu alaykum!) qoladi */
+body.auth-body .auth-split-left{background:none !important;box-shadow:none !important;color:#14213d !important}
+body.auth-body .auth-split-left::before,body.auth-body .auth-split-left::after{display:none !important}
+body.auth-body .auth-split-left .auth-split-hero h2{color:#14213d !important}
+body.auth-body .auth-split-left .brand,body.auth-body .auth-split-left .brand span{color:#14213d !important}
+body.auth-body .auth-split-left .auth-split-foot,body.auth-body .auth-split-left .auth-split-switch{color:#6b7487 !important}
+body.auth-body .auth-split-left .auth-split-foot a{color:#1d4fd1 !important}
+</style>
 </head>
 <body class="auth-body">
 
@@ -46,7 +58,6 @@
 
       <div class="auth-split-hero">
         <h2>Assalomu alaykum!</h2>
-        <p>Bizga qo‘shiling — talaba profilingizni yarating va ingliz tilini o‘rganishni bugun boshlang.</p>
       </div>
 
       <p class="auth-split-foot">Hisobingiz bormi? <a href="login.html">Kirish</a></p>
@@ -240,5 +251,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
 </div>
 
 <script src="../uz-translit.js?v=1"></script>
+<script src="../cursor-grid-bg.js"></script>
 </body>
 </html>
