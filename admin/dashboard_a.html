@@ -16966,7 +16966,7 @@ function aJadvalChiz() {
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${aTelUyasi(t.tel1)}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));font-family:monospace;font-size:.82rem;">${aTelUyasi(t.tel2)}</td>
       <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));color:var(--adm-gray,#8892A6);font-size:.78rem;">${t.sana}</td>
-      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));"><button class="btn btn-sm" onclick="aTalabaOchir('${t.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.75rem;"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></button></td>
+      <td style="padding:10px 14px;border-bottom:1px solid var(--adm-line,var(--line));white-space:nowrap;"><div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;">${aJoylashBtn(t)}<button class="btn btn-sm" onclick="aTalabaOchir('${t.id}')" style="background:rgba(220,53,69,.1);color:#e74c3c;border:1.5px solid rgba(220,53,69,.25);border-radius:8px;font-size:.75rem;"><svg class="ic" aria-hidden="true"><use href="#i-trash"></use></svg></button></div></td>
     </tr>
   `).join('');
 }
@@ -16991,6 +16991,106 @@ function aTalabaOchir(id) {
   ADB.saqlaTalaba(ADB.talabalar().filter(t => t.id !== id));
   aStatsYangi(); aJadvalChiz();
   showToast("O'chirildi");
+}
+
+// ===== Anketa talabasini "O'quv jarayoni" guruhiga joylash =====
+// Talaba oquv_groups/{gid}/students ga createdAt = hozirgi vaqt bilan yoziladi:
+// statistikada "Yangi qo'shilgan" va qo'shilgan sana shu kundan hisoblanadi.
+function aJoylashBtn(t) {
+  const done = !!t.oquvGuruhId;
+  const label = done ? ('\u2713 ' + escapeHtml(t.oquvGuruhNom || 'Joylangan')) : 'Guruhga joylash';
+  const title = done ? ('O\u2018quv jarayonida: ' + escapeHtml(t.oquvGuruhNom || '') + ' (qayta joylash uchun bosing)') : 'O\u2018quv jarayoni guruhiga joylash';
+  const css = done
+    ? 'background:rgba(31,174,122,.12);color:#1FAE7A;border:1.5px solid rgba(31,174,122,.35);'
+    : 'background:rgba(47,111,237,.1);color:#2F6FED;border:1.5px solid rgba(47,111,237,.3);';
+  return `<button class="btn btn-sm" onclick="aGuruhgaJoylash('${t.id}')" title="${title}" style="${css}border-radius:8px;font-size:.75rem;font-weight:700;white-space:nowrap;"><svg class="ic" aria-hidden="true"><use href="#i-users"></use></svg> ${label}</button>`;
+}
+
+let _aJoyTalabaId = null;
+function aJoyModalYarat() {
+  if (document.getElementById('modalAnketaJoylash')) return;
+  const wrap = document.createElement('div');
+  wrap.className = 'modal-overlay';
+  wrap.id = 'modalAnketaJoylash';
+  wrap.hidden = true;
+  wrap.innerHTML =
+    '<div class="modal-box" style="max-width:440px;">' +
+      '<h2 class="modal-title">Guruhga joylash</h2>' +
+      '<div class="modal-form">' +
+        '<p id="aJoyName" style="margin:0 0 12px;font-weight:700;"></p>' +
+        '<label style="display:block;font-size:.82rem;font-weight:700;margin-bottom:6px;">O\u2018quv jarayoni guruhi</label>' +
+        '<select id="aJoySel" style="width:100%;border:1.5px solid var(--adm-line,var(--line));border-radius:10px;padding:10px 12px;font-family:inherit;font-size:.9rem;"></select>' +
+        '<p style="font-size:.78rem;color:var(--gray);margin:8px 0 0;">Talaba tanlangan guruhning \u201cO\u2018quv jarayoni\u201d ro\u2018yxatiga qo\u2018shiladi va bugungi kundan yangi qo\u2018shilgan hisoblanadi.</p>' +
+        '<p class="form-error" id="aJoyErr" role="alert" hidden></p>' +
+        '<div class="modal-actions">' +
+          '<button class="btn btn-primary" id="aJoyBtn" type="button">Qo\u2018shish</button>' +
+          '<button class="btn btn-ghost" type="button" onclick="closeModal(\'modalAnketaJoylash\')">Bekor</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(wrap);
+  wrap.addEventListener('click', (e) => { if (e.target === wrap) closeModal('modalAnketaJoylash'); });
+  document.getElementById('aJoyBtn').addEventListener('click', aJoylashSaqla);
+}
+
+async function aGuruhgaJoylash(id) {
+  const t = ADB.talabalar().find(x => x.id === id);
+  if (!t) return;
+  if (t.oquvGuruhId && !confirm('Bu talaba allaqachon \u201c' + (t.oquvGuruhNom || '') + '\u201d guruhiga joylangan. Yana bir guruhga qo\u2018shilsinmi?')) return;
+  aJoyModalYarat();
+  _aJoyTalabaId = id;
+  document.getElementById('aJoyName').textContent = ((t.ism || '') + ' ' + (t.familiya || '')).trim();
+  document.getElementById('aJoyErr').hidden = true;
+  const sel = document.getElementById('aJoySel');
+  sel.innerHTML = '<option value="">Yuklanmoqda\u2026</option>';
+  openModal('modalAnketaJoylash');
+  try {
+    const snap = await ojGroupsSnap();
+    const groups = snap.docs.map(d => ({ id: d.id, name: d.data().name || '' }));
+    if (!groups.length) { sel.innerHTML = '<option value="">O\u2018quv jarayonida guruh yo\u2018q</option>'; return; }
+    const want = String(t.guruhNom || '').trim().toLowerCase();
+    sel.innerHTML = groups.map(g => `<option value="${g.id}" data-name="${escapeHtml(g.name)}" ${g.name.trim().toLowerCase() === want ? 'selected' : ''}>${escapeHtml(g.name)}</option>`).join('');
+  } catch (e) {
+    console.error(e);
+    sel.innerHTML = '<option value="">Guruhlarni yuklab bo\u2018lmadi</option>';
+  }
+}
+
+async function aJoylashSaqla() {
+  const err = document.getElementById('aJoyErr');
+  const btn = document.getElementById('aJoyBtn');
+  err.hidden = true;
+  const sel = document.getElementById('aJoySel');
+  const gid = sel.value;
+  if (!gid) { err.textContent = 'Guruhni tanlang.'; err.hidden = false; return; }
+  const gname = sel.options[sel.selectedIndex].dataset.name || sel.options[sel.selectedIndex].textContent;
+  const list = ADB.talabalar();
+  const t = list.find(x => x.id === _aJoyTalabaId);
+  if (!t) { closeModal('modalAnketaJoylash'); return; }
+  const name = ((t.ism || '') + ' ' + (t.familiya || '')).replace(/\s+/g, ' ').trim();
+  const phone = aTelTozala(t.telOz || t.tel1 || '');
+  btn.disabled = true;
+  try {
+    const ts = firebase.firestore.FieldValue.serverTimestamp();
+    const sid = await ojGenUniqueCode();
+    await db.collection('oquv_groups').doc(gid).collection('students').doc(sid).set({ name, phone, createdAt: ts });
+    await db.collection('oquv_progress').doc(sid).set({ name, phone, group: gname, groupId: gid, createdAt: ts }, { merge: true });
+    // Anketa yozuviga belgi qo'yamiz (qaytadan adashib joylamaslik uchun)
+    t.oquvGuruhId = gid; t.oquvGuruhNom = gname; t.oquvId = sid; t.oquvSana = Date.now();
+    ADB.saqlaTalaba(list);
+    try {
+      const q = await db.collection('anketa_talabalar').where('id', '==', t.id).get();
+      await Promise.all(q.docs.map(d => d.ref.update({ oquvGuruhId: gid, oquvGuruhNom: gname, oquvId: sid, oquvSana: Date.now() })));
+    } catch (e) { console.warn('Anketa belgisini saqlab bo\u2018lmadi:', e); }
+    closeModal('modalAnketaJoylash');
+    aJadvalChiz();
+    showToast(name + ' \u201c' + gname + '\u201d guruhiga qo\u2018shildi');
+  } catch (e) {
+    console.error(e);
+    err.textContent = 'Saqlashda xatolik. Qayta urinib ko\u2018ring.';
+    err.hidden = false;
+  }
+  btn.disabled = false;
 }
 
 function aHammasniOchir() {
