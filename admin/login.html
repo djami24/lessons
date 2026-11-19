@@ -17,6 +17,25 @@
 </script>
 <script defer src="https://cdn.vemetric.com/main.js" data-token="CHdcoB75KN2xKaYh"></script>
 <link rel="stylesheet" href="../glass-auth.css">
+<style id="authBgCss">
+/* Bosh sahifadagi kabi oppoq fon + CursorGrid (cursor-grid-bg.js) */
+html:has(body.auth-body){background:#ffffff !important;background-image:none !important}
+body.auth-body{background:transparent !important;background-image:none !important}
+body.auth-body::before,body.auth-body::after{display:none !important}
+/* Barcha to'liq ekranli qatlamlar (ko'k chap panel, o'ng gradient) shaffof bo'ladi */
+body.auth-body :is(.auth-wrap,.auth-wrap-split,.auth-split-wrap,.auth-split,.auth-split-left,.auth-split-right){
+  background:transparent !important;background-image:none !important;box-shadow:none !important;
+  -webkit-backdrop-filter:none !important;backdrop-filter:none !important;border-color:transparent !important}
+body.auth-body :is(.auth-wrap,.auth-wrap-split,.auth-split-wrap,.auth-split,.auth-split-left,.auth-split-right)::before,
+body.auth-body :is(.auth-wrap,.auth-wrap-split,.auth-split-wrap,.auth-split,.auth-split-left,.auth-split-right)::after{display:none !important;content:none !important}
+/* Chap tomon: faqat sarlavha, matnlar to'q rangda */
+body.auth-body .auth-split-left{color:#14213d !important}
+body.auth-body .auth-split-left .auth-split-hero h2{color:#14213d !important}
+body.auth-body .auth-split-left .brand,body.auth-body .auth-split-left .brand span{color:#14213d !important}
+body.auth-body .auth-split-left .auth-home-btn{color:#14213d !important;background:rgba(255,255,255,.7) !important;border:1px solid rgba(20,33,61,.22) !important}
+body.auth-body .auth-split-left .auth-split-foot,body.auth-body .auth-split-left .auth-split-switch{color:#6b7487 !important}
+body.auth-body .auth-split-left .auth-split-foot a{color:#1d4fd1 !important}
+</style>
 </head>
 <body class="auth-body">
 
@@ -26,7 +45,6 @@
 
     <div class="auth-split-hero">
       <h2>Hey There!</h2>
-      <p>Boshqaruv panelingizga kirish uchun tizimga kiring.</p>
     </div>
 
     <p class="auth-split-switch">Faqat administratorlar uchun.</p>
@@ -117,5 +135,6 @@ document.getElementById('adminLoginForm').addEventListener('submit', async (e) =
   <span>powered by <b>Djami</b></span>
 </div>
 
+<script src="../cursor-grid-bg.js"></script>
 </body>
 </html>
