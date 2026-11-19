@@ -472,3 +472,12 @@ body.dark .lhw-grp{background:rgba(255,255,255,.03);}
 .lhw-pick-list label.lhw-pick{ display:flex; align-items:center; gap:8px; padding:7px 9px; border-radius:8px; cursor:pointer; font-size:.9rem; font-weight:500; }
 .lhw-pick-list label.lhw-pick:hover{ background:var(--lhw-me); }
 .lhw-pick-list input{ width:auto; margin:0; }
+
+/* Guruh kartalari: oq fonda "fonsiz" ko'rinmasligi uchun aniq orqa fon, chegara va yengil soya */
+.lhw-gcard{
+  background:#FFFFFF; border:1px solid #D5DDEE; border-radius:16px;
+  box-shadow:0 1px 2px rgba(16,27,61,.06), 0 8px 22px rgba(16,27,61,.07);
+}
+.lhw-gcard:hover{ border-color:var(--lhw-blue); box-shadow:0 2px 4px rgba(16,27,61,.08), 0 12px 28px rgba(47,111,237,.14); }
+body.dark .lhw-gcard,
+body.admin-theme.dark .lhw-gcard{ background:#171D2C; border-color:#2A3248; box-shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 22px rgba(0,0,0,.25); }
