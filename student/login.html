@@ -231,6 +231,39 @@ document.getElementById('forgotPasswordLink').addEventListener('click', async (e
 </div>
 
 <script src="../uz-translit.js?v=1"></script>
+<script>
+// Majburiy maydonlar bo'sh qolganda brauzerning inglizcha xabari o'rniga o'zbekcha xabar chiqadi
+(function(){
+  function uzMessage(el){
+    const v = el.validity;
+    if(v.valueMissing){
+      if(el.tagName === 'SELECT') return 'Iltimos, ro‘yxatdan birini tanlang.';
+      if(el.type === 'checkbox') return 'Iltimos, bu katakchani belgilang.';
+      if(el.type === 'radio') return 'Iltimos, variantlardan birini tanlang.';
+      if(el.type === 'email') return 'Iltimos, email manzilingizni kiriting.';
+      if(el.type === 'password') return 'Iltimos, parolni kiriting.';
+      if(el.type === 'tel') return 'Iltimos, telefon raqamingizni kiriting.';
+      return 'Iltimos, bu maydonni to‘ldiring.';
+    }
+    if(v.typeMismatch && el.type === 'email') return 'Email manzil noto‘g‘ri. Masalan: ism@gmail.com';
+    if(v.tooShort) return 'Kamida ' + el.minLength + ' ta belgi kiriting.';
+    if(v.patternMismatch) return 'Ma’lumot noto‘g‘ri formatda kiritilgan.';
+    return '';
+  }
+  document.querySelectorAll('form').forEach(function(form){
+    form.querySelectorAll('input, select, textarea').forEach(function(el){
+      el.addEventListener('invalid', function(){
+        el.setCustomValidity('');
+        const m = uzMessage(el);
+        if(m) el.setCustomValidity(m);
+      });
+      const clear = function(){ el.setCustomValidity(''); };
+      el.addEventListener('input', clear);
+      el.addEventListener('change', clear);
+    });
+  });
+})();
+</script>
 <script src="../cursor-grid-bg.js"></script>
 </body>
 </html>
