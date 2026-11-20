@@ -851,11 +851,26 @@ function createChatController(cfg){
     if(!host || host.querySelector('.chat-presence-toggle') || typeof firebase === 'undefined') return;
     const btn = document.createElement('button');
     btn.type = 'button'; btn.className = 'chat-presence-toggle btn';
-    btn.style.cssText = 'white-space:nowrap';
+    btn.style.cssText = 'white-space:nowrap;display:inline-flex;align-items:center;gap:.6em';
+    btn.setAttribute('role', 'switch');
+    // Yoqish/o'chirish tugmasi (switch): shu tugma ichida sirpanadigan doira bor
+    if(!document.getElementById('cptCss')){
+      const st = document.createElement('style');
+      st.id = 'cptCss';
+      st.textContent =
+        '.cpt-track{position:relative;width:34px;height:20px;border-radius:99px;background:#22c55e;flex:none;transition:background .2s}' +
+        '.cpt-knob{position:absolute;top:2px;left:16px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s}' +
+        '.chat-presence-toggle.is-off .cpt-track{background:#b8bfcc}' +
+        '.chat-presence-toggle.is-off .cpt-knob{left:2px}';
+      document.head.appendChild(st);
+    }
     host.insertBefore(btn, host.firstChild);
     let hidden = false;
     const draw = () => {
-      btn.textContent = hidden ? '⚪ Onlayn: yashirin' : '🟢 Onlayn: ko‘rinadi';
+      btn.innerHTML = '<span class="cpt-track"><span class="cpt-knob"></span></span><span class="cpt-label"></span>';
+      btn.querySelector('.cpt-label').textContent = hidden ? 'Onlayn: yashirin' : 'Onlayn: ko‘rinadi';
+      btn.classList.toggle('is-off', hidden);
+      btn.setAttribute('aria-checked', hidden ? 'false' : 'true');
       btn.title = hidden ? 'Talabalar sizning onlayn holatingizni ko‘rmaydi. Bosib yoqing.' : 'Talabalar sizni onlayn ko‘radi. Bosib yashiring.';
     };
     draw();
