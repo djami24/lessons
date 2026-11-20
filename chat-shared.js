@@ -851,15 +851,17 @@ function createChatController(cfg){
     if(!host || host.querySelector('.chat-presence-toggle') || typeof firebase === 'undefined') return;
     const btn = document.createElement('button');
     btn.type = 'button'; btn.className = 'chat-presence-toggle btn';
-    btn.style.cssText = 'white-space:nowrap;display:inline-flex;align-items:center;gap:.6em';
+    btn.style.cssText = 'white-space:nowrap;display:inline-flex;align-items:center;gap:.5em';
     btn.setAttribute('role', 'switch');
     // Yoqish/o'chirish tugmasi (switch): shu tugma ichida sirpanadigan doira bor
     if(!document.getElementById('cptCss')){
       const st = document.createElement('style');
       st.id = 'cptCss';
       st.textContent =
-        '.cpt-track{position:relative;width:34px;height:20px;border-radius:99px;background:#22c55e;flex:none;transition:background .2s}' +
-        '.cpt-knob{position:absolute;top:2px;left:16px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .2s}' +
+        '.chat-presence-toggle{background:#fff !important;color:#0f1b3d !important;border:1px solid #e3e6ee !important;box-shadow:0 1px 2px rgba(15,27,61,.08) !important;padding:5px 11px !important;min-height:0 !important;height:auto !important;font-size:.74rem !important;font-weight:700 !important;line-height:1.2 !important;border-radius:99px !important}' +
+        '.chat-presence-toggle:hover{background:#f6f7fa !important}' +
+        '.cpt-track{position:relative;width:26px;height:15px;border-radius:99px;background:#22c55e;flex:none;transition:background .2s}' +
+        '.cpt-knob{position:absolute;top:2px;left:13px;width:11px;height:11px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.35);transition:left .2s}' +
         '.chat-presence-toggle.is-off .cpt-track{background:#b8bfcc}' +
         '.chat-presence-toggle.is-off .cpt-knob{left:2px}';
       document.head.appendChild(st);
