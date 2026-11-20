@@ -5986,6 +5986,17 @@ function renderStudents(){
 
   if(filtered.length === 0){
     listEl.innerHTML = '';
+    const nmH = noMatch.querySelector('h3'), nmP = noMatch.querySelector('p');
+    const sf = state.studentFilter;
+    if(nmH && nmP){
+      if(sf && !query){
+        nmH.textContent = sf.type === 'online' ? 'Hozir onlayn o‘quvchi yo‘q' : 'Oxirgi 1 oyda kirmagan o‘quvchi yo‘q';
+        nmP.textContent = 'Boshqa o‘quvchilar o‘chirilmagan, ular joyida. Hammasini ko‘rish uchun yoqilgan tugmani qayta bosing.';
+      } else {
+        nmH.textContent = 'Hech narsa topilmadi';
+        nmP.textContent = 'Qidiruvga mos o‘quvchi yo‘q. Boshqa ism, email yoki telefon raqami bilan qidirib ko‘ring.';
+      }
+    }
     noMatch.style.display = 'block';
     return;
   }
