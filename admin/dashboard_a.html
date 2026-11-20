@@ -1399,7 +1399,24 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <span style="position:absolute; left:.85em; top:50%; transform:translateY(-50%); opacity:.55;"><svg class="ic" aria-hidden="true"><use href="#i-search"></use></svg></span>
         </div>
         <span id="studentSearchCount" style="color:var(--gray); font-size:.85rem; white-space:nowrap;"></span>
+        <div id="studentQuickFilters" style="display:flex; gap:.5em; flex-wrap:wrap; margin-left:auto;">
+          <button type="button" class="btn btn-ghost btn-sm sf-btn" id="sfOnlineBtn"><span class="sf-dot"></span>Hozir onlayn<span class="sf-count" id="sfOnlineCount"></span></button>
+          <button type="button" class="btn btn-ghost btn-sm sf-btn" id="sfInactiveBtn">1 oy kirmaganlar<span class="sf-count" id="sfInactiveCount"></span></button>
+          <button type="button" class="btn btn-danger btn-sm" id="sfPurgeBtn">Kirmaganlarni o‘chirish</button>
+        </div>
       </div>
+      <style id="sfCss">
+        .sf-btn{display:inline-flex; align-items:center; gap:.45em;}
+        .sf-dot{width:.6em; height:.6em; border-radius:50%; background:#16a34a; display:inline-block;}
+        .sf-count{font-weight:800; margin-left:.15em;}
+        .sf-btn.sf-active{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+        #purgeList label{display:flex; align-items:center; gap:.7em; padding:.6em .9em; border-bottom:1px solid var(--line); cursor:pointer; font-size:.9rem;}
+        #purgeList label:last-child{border-bottom:0;}
+        #purgeList .pg-main{flex:1; min-width:0;}
+        #purgeList .pg-name{font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+        #purgeList .pg-sub{color:var(--gray); font-size:.8rem;}
+        #purgeList .pg-tag{font-size:.72rem; font-weight:700; padding:.2em .6em; border-radius:99px; background:rgba(217,119,6,.14); color:#b45309; white-space:nowrap;}
+      </style>
 
       <div class="student-list" id="studentsList"></div>
       <div id="studentsEmpty" class="empty-state" style="margin-top:1.4em; display:none;">
@@ -3860,6 +3877,28 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
   </div>
 </div>
 
+<!-- ===== MODAL: 1 oy kirmagan o'quvchilarni o'chirish ===== -->
+<div class="modal-overlay" id="modalPurgeInactive" hidden>
+  <div class="modal-box" style="max-width:640px;">
+    <h3>1 oy kirmagan o‘quvchilarni o‘chirish</h3>
+    <p class="modal-sub" id="purgeSub"></p>
+    <div id="purgeList" style="max-height:320px; overflow:auto; border:1.5px solid var(--line); border-radius:var(--radius-s); margin-bottom:1em;"></div>
+    <div id="purgeConfirmWrap">
+      <label class="field">
+        <span>Tasdiqlash uchun <b>o‘chirish</b> deb yozing</span>
+        <input type="text" id="purgeConfirmInput" autocomplete="off">
+      </label>
+    </div>
+    <p id="purgeProgress" style="display:none; font-weight:700; margin:.6em 0;"></p>
+    <p class="form-error" id="purgeError" role="alert" hidden></p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" id="purgeCancel" data-close-modal="modalPurgeInactive">Bekor qilish</button>
+      <button type="button" class="btn btn-ghost" id="purgeDownload" style="display:none;">UID ro‘yxatini yuklab olish</button>
+      <button type="button" class="btn btn-danger" id="purgeRun" disabled>O‘chirish</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== MODAL: Statistika kartochkasi tafsiloti ===== -->
 <div class="modal-overlay" id="modalKpiDetail" hidden>
   <div class="modal-box">
@@ -5933,15 +5972,16 @@ function renderStudents(){
   }
   empty.style.display = 'none';
 
+  const baseList = studentFilterBase();
   const filtered = query
-    ? state.students.filter(s => {
+    ? baseList.filter(s => {
         const haystack = [s.name, s.email, s.phone].filter(Boolean).join(' ').toLowerCase();
         return haystack.includes(query);
       })
-    : state.students;
+    : baseList;
 
   if(countEl){
-    countEl.textContent = query ? `${filtered.length} / ${state.students.length} o‘quvchi topildi` : `${state.students.length} ta o‘quvchi`;
+    countEl.textContent = query ? `${filtered.length} / ${baseList.length} o‘quvchi topildi` : `${baseList.length} ta o‘quvchi`;
   }
 
   if(filtered.length === 0){
@@ -5964,7 +6004,7 @@ function renderStudents(){
           return `<span class="course-chip course-chip-${status}" title="${row.label}: ${status === 'approved' ? 'Tasdiqlangan' : status === 'pending' ? 'Kutilmoqda' : 'To‘lov yo‘q'}">${COURSE_CHIP_LABELS[row.key]}</span>`;
         }).join('')}
       </div>
-      <div class="student-row-date">${formatStudentCreatedAt(s.createdAt)}</div>
+      <div class="student-row-date">${studentRowDateText(s)}</div>
       <div class="student-row-arrow">›</div>
     </div>
   `).join('');
@@ -6038,6 +6078,268 @@ function openStudentDetail(student){
 
 document.getElementById('studentSearchInput').addEventListener('input', () => {
   renderStudents();
+});
+
+// ---------- O'quvchilar: "Hozir onlayn" / "1 oy kirmaganlar" / ommaviy o'chirish ----------
+const SF_DAYS = 30;                 // "kirmagan" deb hisoblanadigan muddat (kun)
+const SF_ONLINE_FRESH_MS = 50000;   // presence heartbeat 20s; ro'yxat 30s da yangilanadi
+state.studentFilter = null;         // { type:'online'|'inactive', ids:Set, info:{uid:{lastMs}} }
+let sfOnlineTimer = null;
+let sfPurgeBusy = false;
+let sfPurgeDeletedUids = [];
+
+function sfToMs(v){
+  if(!v) return 0;
+  if(typeof v.toMillis === 'function') return v.toMillis();
+  if(typeof v.toDate === 'function') return v.toDate().getTime();
+  const n = new Date(v).getTime();
+  return isNaN(n) ? 0 : n;
+}
+function studentFilterBase(){
+  const f = state.studentFilter;
+  return f ? state.students.filter(s => f.ids.has(s.id)) : state.students;
+}
+function studentRowDateText(s){
+  const f = state.studentFilter;
+  if(f && f.type === 'online') return '<span style="color:#16a34a; font-weight:700;">● onlayn</span>';
+  if(f && f.type === 'inactive'){
+    const ms = (f.info[s.id] || {}).lastMs;
+    return ms ? 'oxirgi: ' + fmtDMY(new Date(ms)) : 'kirish yozuvi yo‘q';
+  }
+  return formatStudentCreatedAt(s.createdAt);
+}
+function sfUpdateButtons(){
+  const f = state.studentFilter;
+  const on = document.getElementById('sfOnlineBtn');
+  const off = document.getElementById('sfInactiveBtn');
+  on.classList.toggle('sf-active', !!f && f.type === 'online');
+  off.classList.toggle('sf-active', !!f && f.type === 'inactive');
+  document.getElementById('sfOnlineCount').textContent = (f && f.type === 'online') ? ' (' + f.ids.size + ')' : '';
+  document.getElementById('sfInactiveCount').textContent = (f && f.type === 'inactive') ? ' (' + f.ids.size + ')' : '';
+}
+
+async function sfLoadOnline(){
+  const snap = await db.collection('presence').where('online', '==', true).get();
+  const known = new Set(state.students.map(s => s.id));
+  const now = Date.now();
+  const ids = new Set();
+  snap.docs.forEach(d => {
+    if(!known.has(d.id)) return;
+    if(now - sfToMs(d.data().lastSeen) < SF_ONLINE_FRESH_MS) ids.add(d.id);
+  });
+  return ids;
+}
+
+// Oxirgi SF_DAYS kun ichida: presence.lastSeen YOKI activity_log yozuvi YOKI ro'yxatdan o'tgan bo'lsa => faol
+async function sfComputeInactive(){
+  const cutoff = Date.now() - SF_DAYS * 86400000;
+  const info = {};
+  const touch = (uid, ms) => {
+    if(!uid || !ms) return;
+    const i = info[uid] || (info[uid] = { lastMs: 0 });
+    if(ms > i.lastMs) i.lastMs = ms;
+  };
+  const [pSnap, lSnap] = await Promise.all([
+    db.collection('presence').get(),
+    db.collection('activity_log').where('at', '>=', firebase.firestore.Timestamp.fromMillis(cutoff)).get()
+  ]);
+  pSnap.docs.forEach(d => touch(d.id, sfToMs(d.data().lastSeen)));
+  lSnap.docs.forEach(d => { const x = d.data(); touch(x.uid, sfToMs(x.at)); });
+  const list = state.students.filter(s => {
+    const created = sfToMs(s.createdAt);
+    if(created && created >= cutoff) return false;
+    const i = info[s.id];
+    return !(i && i.lastMs >= cutoff);
+  });
+  return { list, info };
+}
+
+async function sfSetFilter(type){
+  if(sfOnlineTimer){ clearInterval(sfOnlineTimer); sfOnlineTimer = null; }
+  if(!type || (state.studentFilter && state.studentFilter.type === type)){
+    state.studentFilter = null;
+    sfUpdateButtons();
+    renderStudents();
+    return;
+  }
+  const btn = document.getElementById(type === 'online' ? 'sfOnlineBtn' : 'sfInactiveBtn');
+  btn.disabled = true;
+  try{
+    if(type === 'online'){
+      state.studentFilter = { type, ids: await sfLoadOnline(), info: {} };
+      sfOnlineTimer = setInterval(async () => {
+        const f = state.studentFilter;
+        if(!f || f.type !== 'online' || document.hidden || document.getElementById('view-students').hidden) return;
+        try{ f.ids = await sfLoadOnline(); sfUpdateButtons(); renderStudents(); }catch(e){}
+      }, 30000);
+    } else {
+      const r = await sfComputeInactive();
+      state.studentFilter = { type, ids: new Set(r.list.map(s => s.id)), info: r.info };
+    }
+  } catch(err){
+    console.error('Filtr xatosi:', err);
+    showToast('Ro‘yxatni yuklab bo‘lmadi.', true);
+    state.studentFilter = null;
+  }
+  btn.disabled = false;
+  sfUpdateButtons();
+  renderStudents();
+}
+document.getElementById('sfOnlineBtn').addEventListener('click', () => sfSetFilter('online'));
+document.getElementById('sfInactiveBtn').addEventListener('click', () => sfSetFilter('inactive'));
+
+// ---- Ommaviy o'chirish ----
+function sfIsPaid(s){
+  return s.paymentStatus === 'approved' || Object.values(s.coursePayments || {}).indexOf('approved') !== -1;
+}
+function sfPurgeSelected(){
+  return Array.prototype.slice.call(document.querySelectorAll('#purgeList input[type=checkbox]:checked')).map(i => i.value);
+}
+function sfPurgeCheckReady(){
+  const typed = document.getElementById('purgeConfirmInput').value.toLowerCase().replace(/[^a-z]/g, '');
+  const n = sfPurgeSelected().length;
+  document.getElementById('purgeRun').disabled = sfPurgeBusy || n === 0 || typed !== 'ochirish';
+  document.getElementById('purgeRun').textContent = n ? `${n} ta o‘quvchini o‘chirish` : 'O‘chirish';
+}
+
+document.getElementById('sfPurgeBtn').addEventListener('click', async () => {
+  const btn = document.getElementById('sfPurgeBtn');
+  btn.disabled = true;
+  const oldText = btn.textContent;
+  btn.textContent = 'Tekshirilmoqda…';
+  try{
+    const r = await sfComputeInactive();
+    state.studentFilter = { type: 'inactive', ids: new Set(r.list.map(s => s.id)), info: r.info };
+    sfUpdateButtons();
+    renderStudents();
+    if(r.list.length === 0){ showToast('Oxirgi 1 oyda kirmagan o‘quvchi yo‘q.'); return; }
+    sfPurgeDeletedUids = [];
+    document.getElementById('purgeSub').innerHTML =
+      `Oxirgi ${SF_DAYS} kunda saytga kirmagan <b>${r.list.length}</b> ta o‘quvchi topildi. Belgilanganlar Firestore’dan <b>butunlay o‘chiriladi</b> (profil, chat, natijalar, buyurtmalar, faollik jurnali). Bu amalni qaytarib bo‘lmaydi. To‘lovi tasdiqlanganlar avtomatik belgilanmagan.`;
+    document.getElementById('purgeList').innerHTML = r.list.map(s => {
+      const paid = sfIsPaid(s);
+      const ms = (r.info[s.id] || {}).lastMs;
+      return `<label>
+        <input type="checkbox" value="${s.id}" ${paid ? '' : 'checked'}>
+        <span class="pg-main"><div class="pg-name">${escapeHtml(s.name)}</div>
+          <div class="pg-sub">${escapeHtml(s.email || '')} · ${ms ? 'oxirgi: ' + fmtDMY(new Date(ms)) : 'kirish yozuvi yo‘q'}</div></span>
+        ${paid ? '<span class="pg-tag">to‘lov tasdiqlangan</span>' : ''}
+      </label>`;
+    }).join('');
+    document.getElementById('purgeConfirmInput').value = '';
+    document.getElementById('purgeConfirmWrap').style.display = '';
+    document.getElementById('purgeProgress').style.display = 'none';
+    document.getElementById('purgeError').hidden = true;
+    document.getElementById('purgeDownload').style.display = 'none';
+    document.getElementById('purgeRun').style.display = '';
+    document.getElementById('purgeCancel').disabled = false;
+    document.getElementById('purgeCancel').textContent = 'Bekor qilish';
+    sfPurgeCheckReady();
+    openModal('modalPurgeInactive');
+  } catch(err){
+    console.error('Kirmaganlarni aniqlash xatosi:', err);
+    showToast('Kirmaganlarni aniqlab bo‘lmadi.', true);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+});
+document.getElementById('purgeList').addEventListener('change', sfPurgeCheckReady);
+document.getElementById('purgeConfirmInput').addEventListener('input', sfPurgeCheckReady);
+
+async function sfBatchDelete(refs){
+  for(let i = 0; i < refs.length; i += 400){
+    const b = db.batch();
+    refs.slice(i, i + 400).forEach(r => b.delete(r));
+    await b.commit();
+  }
+}
+// Bitta talabaning hamma izlarini o'chiradi. students/{uid} eng OXIRIDA: xato bo'lsa talaba ro'yxatda qoladi va qayta urinish mumkin.
+async function sfPurgeStudent(uid, notifIds){
+  const refs = [];
+  const sub = async (parent, name) => { const s = await parent.collection(name).get(); s.docs.forEach(d => refs.push(d.ref)); };
+  const byField = async (col, field) => { const s = await db.collection(col).where(field, '==', uid).get(); s.docs.forEach(d => refs.push(d.ref)); };
+  await Promise.all([
+    sub(db.collection('students').doc(uid), 'savedMocks'),
+    sub(db.collection('chats').doc(uid), 'messages'),
+    sub(db.collection('progress').doc(uid), 'entries'),
+    sub(db.collection('individuals').doc(uid), 'attendance'),
+    sub(db.collection('individuals').doc(uid), 'homework'),
+    sub(db.collection('individuals').doc(uid), 'payments'),
+    byField('listening_submissions', 'studentId'),
+    byField('listening_texts', 'studentId'),
+    byField('writingSubmissions', 'studentId'),
+    byField('reading_mock_attempts', 'studentId'),
+    byField('cefrRLAttempts', 'studentId'),
+    byField('market_orders', 'studentId'),
+    byField('market_grants', 'studentId'),
+    byField('activity_log', 'uid')
+  ]);
+  ['chats', 'presence', 'vocab_learned', 'progress', 'individuals'].forEach(c => refs.push(db.collection(c).doc(uid)));
+  notifIds.forEach(n => refs.push(db.collection('notifications').doc(n).collection('ratings').doc(uid)));
+  await sfBatchDelete(refs);
+  await db.collection('students').doc(uid).delete();
+}
+
+document.getElementById('purgeRun').addEventListener('click', async () => {
+  const ids = sfPurgeSelected();
+  if(!ids.length || sfPurgeBusy) return;
+  sfPurgeBusy = true;
+  const runBtn = document.getElementById('purgeRun');
+  const cancel = document.getElementById('purgeCancel');
+  const prog = document.getElementById('purgeProgress');
+  const errEl = document.getElementById('purgeError');
+  runBtn.disabled = true; cancel.disabled = true;
+  document.getElementById('purgeConfirmInput').disabled = true;
+  document.querySelectorAll('#purgeList input').forEach(i => i.disabled = true);
+  errEl.hidden = true;
+  prog.style.display = 'block';
+  const failed = [];
+  let done = 0;
+  try{
+    const nSnap = await db.collection('notifications').get();
+    const notifIds = nSnap.docs.map(d => d.id);
+    let idx = 0;
+    const worker = async () => {
+      while(idx < ids.length){
+        const uid = ids[idx++];
+        try{ await sfPurgeStudent(uid, notifIds); sfPurgeDeletedUids.push(uid); }
+        catch(e){ console.error('O‘chirish xatosi', uid, e); failed.push(uid); }
+        done++;
+        prog.textContent = `O‘chirilmoqda… ${done} / ${ids.length}`;
+      }
+    };
+    await Promise.all([worker(), worker(), worker()]);
+  } catch(err){
+    console.error('Ommaviy o‘chirish xatosi:', err);
+    errEl.textContent = 'Xatolik: ' + (err && err.message ? err.message : err);
+    errEl.hidden = false;
+  }
+  const gone = new Set(sfPurgeDeletedUids);
+  state.students = state.students.filter(s => !gone.has(s.id));
+  if(state.studentFilter){
+    gone.forEach(id => state.studentFilter.ids.delete(id));
+  }
+  sfUpdateButtons();
+  renderStudents();
+  prog.textContent = `✓ ${gone.size} ta o‘quvchi o‘chirildi` + (failed.length ? `, ${failed.length} tasida xatolik (qayta urinib ko‘ring)` : '.');
+  document.getElementById('purgeConfirmWrap').style.display = 'none';
+  runBtn.style.display = 'none';
+  cancel.disabled = false; cancel.textContent = 'Yopish';
+  document.getElementById('purgeConfirmInput').disabled = false;
+  if(gone.size) document.getElementById('purgeDownload').style.display = '';
+  sfPurgeBusy = false;
+  showToast(`${gone.size} ta o‘quvchi o‘chirildi.`);
+});
+
+// Firebase Authentication hisoblarini o'chirish uchun UID ro'yxati (brauzerdan Auth foydalanuvchisini o'chirib bo'lmaydi)
+document.getElementById('purgeDownload').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(sfPurgeDeletedUids, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ochirilgan-uidlar.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
 });
 
 function spPct(v){ return v === null || v === undefined ? '-' : v + '%'; }
