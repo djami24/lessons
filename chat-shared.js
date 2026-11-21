@@ -988,7 +988,7 @@ function createChatController(cfg){
   st.id = 'chatHdrCompactCss';
   st.textContent =
     '.chat-header-actions{align-items:center !important;gap:8px !important}' +
-    '.chat-header-actions .chat-search-box{position:relative !important}' +
+    '.chat-header-actions .chat-search-box{position:relative !important;display:block !important;background:transparent !important;background-image:none !important;border:0 !important;box-shadow:none !important;padding:0 !important;margin:0 !important;width:auto !important;min-width:0 !important;height:auto !important;min-height:0 !important;flex:none !important;border-radius:0 !important}' +
     '.chat-header-actions .chat-search-box-icon{position:absolute !important;left:11px !important;top:50% !important;transform:translateY(-50%) !important;display:flex !important;color:#8a93a6 !important;opacity:1 !important}' +
     '.chat-header-actions .chat-search-box-icon svg{width:14px !important;height:14px !important}' +
     '.chat-header-actions .chat-search-box input{background:#fff !important;color:#0f1b3d !important;border:1px solid #e3e6ee !important;border-radius:99px !important;box-shadow:0 1px 2px rgba(15,27,61,.08) !important;padding:6px 12px 6px 31px !important;height:auto !important;min-height:0 !important;font-size:.78rem !important;width:180px !important}' +
