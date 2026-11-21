@@ -980,3 +980,21 @@ function createChatController(cfg){
     chatOpenLightbox(im.src);
   }, true);
 })();
+
+// Admin chat sarlavhasi (Xabarlar / Ota-onalar): qidiruv va "Yangi xabar" tugmasi ixcham, oq fonda
+(function chatHeaderCompactStyle(){
+  if(document.getElementById('chatHdrCompactCss')) return;
+  const st = document.createElement('style');
+  st.id = 'chatHdrCompactCss';
+  st.textContent =
+    '.chat-header-actions{align-items:center !important;gap:8px !important}' +
+    '.chat-header-actions .chat-search-box{position:relative !important}' +
+    '.chat-header-actions .chat-search-box-icon{position:absolute !important;left:11px !important;top:50% !important;transform:translateY(-50%) !important;display:flex !important;color:#8a93a6 !important;opacity:1 !important}' +
+    '.chat-header-actions .chat-search-box-icon svg{width:14px !important;height:14px !important}' +
+    '.chat-header-actions .chat-search-box input{background:#fff !important;color:#0f1b3d !important;border:1px solid #e3e6ee !important;border-radius:99px !important;box-shadow:0 1px 2px rgba(15,27,61,.08) !important;padding:6px 12px 6px 31px !important;height:auto !important;min-height:0 !important;font-size:.78rem !important;width:180px !important}' +
+    '.chat-header-actions .chat-search-box input::placeholder{color:#8a93a6 !important}' +
+    '#openNewChatBtn{display:inline-flex !important;align-items:center !important;gap:.45em !important;background:#fff !important;background-image:none !important;color:#0f1b3d !important;border:1px solid #e3e6ee !important;box-shadow:0 1px 2px rgba(15,27,61,.08) !important;padding:6px 13px !important;min-height:0 !important;height:auto !important;font-size:.76rem !important;font-weight:700 !important;line-height:1.2 !important;border-radius:99px !important}' +
+    '#openNewChatBtn:hover{background:#f6f7fa !important}' +
+    '#openNewChatBtn svg{width:13px !important;height:13px !important;color:#6b7487 !important}';
+  document.head.appendChild(st);
+})();
