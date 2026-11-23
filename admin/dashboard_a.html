@@ -451,6 +451,28 @@ body.admin-theme .admin-sidebar .sb-head .brand{ flex:1; min-width:0; border-bot
 }
 .today-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
 @media (max-width:900px){ .today-row{grid-template-columns:1fr;} }
+.hwb-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 16px;}
+.hwb-tab{border:1.5px solid var(--adm-line,var(--line));background:var(--paper);color:var(--adm-gray,var(--gray));border-radius:999px;padding:7px 16px;font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s,color .15s;}
+.hwb-tab:hover{border-color:#2F6FED;color:#2F6FED;}
+.hwb-tab.active{background:#111a3a;border-color:#111a3a;color:#fff;}
+.hwb-tab small{font-weight:600;opacity:.75;margin-left:4px;}
+.hwb-body{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+@media (max-width:900px){ .hwb-body{grid-template-columns:1fr;} }
+.hwb-label{font-size:.72rem;font-weight:800;letter-spacing:.06em;color:var(--adm-gray,var(--gray));text-transform:uppercase;margin-bottom:8px;}
+.hwb-sum{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.hwb-sum span{cursor:pointer;font-size:.78rem;font-weight:700;padding:5px 11px;border-radius:999px;}
+.hwb-sum .g{background:rgba(31,174,122,.12);color:#1FAE7A;}
+.hwb-sum .r{background:rgba(220,53,69,.12);color:#DC3545;}
+.hwb-sum .o{background:rgba(240,146,61,.16);color:#D4780A;}
+.hwb-row{display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid var(--adm-line,var(--line));font-size:.9rem;font-weight:600;}
+.hwb-row:last-child{border-bottom:0;}
+.hwb-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;background:#cbd2e0;}
+.hwb-dot.yes{background:#1FAE7A;}.hwb-dot.no{background:#DC3545;}
+.hwb-st{margin-left:auto;font-size:.76rem;font-weight:700;padding:4px 11px;border-radius:999px;background:#eef0f6;color:#6b7280;}
+.hwb-st.yes{background:rgba(31,174,122,.12);color:#1FAE7A;}
+.hwb-st.no{background:rgba(220,53,69,.12);color:#DC3545;}
+.hwb-st.partial{background:rgba(240,146,61,.16);color:#D4780A;}
+.hwb-more{margin-top:10px;color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;font-size:.85rem;display:inline-block;}
 .today-hw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:4px;}
 .today-hw-card{background:var(--paper);border:1.5px solid var(--adm-line,var(--line));border-radius:18px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;transition:box-shadow .2s,transform .15s;}
 .today-hw-card:hover{box-shadow:0 6px 22px -10px rgba(47,111,237,.3);transform:translateY(-2px);}
@@ -1134,31 +1156,24 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
       </div>
 
-      <!-- Bugungi guruh: davomat/uy vazifasi holati + Bugungi vazifa matni: yonma-yon -->
-      <div class="today-row" style="margin-bottom:24px;">
+      <!-- Uy vazifalari: guruh tablari (variant B) -->
+      <div class="today-row" style="margin-bottom:24px;grid-template-columns:1fr;">
         <div class="home-section-card today-hw-section" style="margin-bottom:0;">
           <div class="home-section-head">
-            <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-square-pen"></use></svg> Bugungi guruh: Uy vazifalari</h3>
+            <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-square-pen"></use></svg> Uy vazifalari</h3>
             <span style="display:flex;align-items:center;gap:8px;">
               <span class="today-hw-refreshed" id="todayHwRefreshedAt"></span>
               <button class="btn btn-ghost btn-sm" id="todayHwRefreshBtn" title="Yangilash"><svg class="ic" aria-hidden="true"><use href="#i-refresh"></use></svg></button>
             </span>
           </div>
           <p id="todayHwSubline" style="margin:-6px 0 12px; color:var(--adm-gray,var(--gray)); font-size:.82rem;"></p>
-          <div class="today-hw-grid" id="todayHwGrid"></div>
+          <div class="hwb-tabs" id="todayHwTabs"></div>
+          <div class="hwb-body" id="todayHwGrid"></div>
           <div id="todayHwLoading" class="today-hw-loading"><div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div></div>
           <div id="todayHwEmpty" class="oj-empty" style="display:none; padding:24px;">
             <div class="oj-empty-icon"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg></div>
-            <p>Bugun hech qaysi guruhda dars yo'q yoki ma'lumot kiritilmagan.</p>
+            <p>Hozircha guruhlar yo'q yoki ma'lumot kiritilmagan.</p>
           </div>
-        </div>
-
-        <!-- So'nggi kiritilgan uy vazifasi matni: alohida kartochkalarda, talaba profilidagi kabi -->
-        <div class="home-section-card today-assign-section" style="margin-bottom:0;">
-          <div class="home-section-head">
-            <h3 class="home-col-title"><svg class="ic" aria-hidden="true"><use href="#i-books"></use></svg> Guruhlarning so'nggi uy vazifalari</h3>
-          </div>
-          <div class="today-assign-grid" id="todayAssignGrid"></div>
         </div>
       </div>
 
@@ -13646,9 +13661,7 @@ async function homeFetchLatestKundalikHw(groupId){
 // profilidagi "So'nggi uy vazifasi" kartochkasiga o'xshab, alohida
 // kartochkada ko'rsatadi.
 function renderTodayAssignmentCards(cardData){
-  const grid = document.getElementById('todayAssignGrid');
-  if(!grid) return;
-  grid.innerHTML = cardData.map(({ group: g, kundalikGroupId, hwItems }) => {
+  return cardData.map(({ group: g, kundalikGroupId, hwItems }) => {
     const openKundalikCall = kundalikGroupId
       ? `openKundalikGroup('${escHtml(kundalikGroupId)}','${escHtml(g.name)}')`
       : `loadKundalikGroups()`;
@@ -13692,128 +13705,143 @@ function renderTodayAssignmentCards(cardData){
   }).join('');
 }
 
-// "Guruhlarning so'nggi uy vazifalari": bugun dars bo'lmagan guruhlar ham ko'rinadi (har bir guruhning eng so'nggi vazifasi)
-async function homeRenderAllAssignments(groups){
-  const grid = document.getElementById('todayAssignGrid');
-  if(!grid) return;
-  // Faqat BUGUN dars bo'ladigan guruhlarning uy vazifasi ko'rsatiladi
-  // (Du-Chor-Ju guruhlari shu kunlari, Se-Pay-Sha guruhlari shu kunlari).
-  const todayKey = OJ_JSDAY_TO_KEY[new Date().getDay()];
-  groups = (groups || []).filter(g => (g.days || []).includes(todayKey));
-  if(!groups.length){
-    grid.innerHTML = '<p style="color:var(--gray);font-size:.9rem;margin:6px 0;">Bugun dars bo\u02bclgan guruhlar uchun uy vazifa yo\u02bcq.</p>';
-    return;
-  }
-  const data = await Promise.all(groups.map(async g => {
-    const info = await homeFetchLatestKundalikHw(g.id);
-    return { group: g, kundalikGroupId: info.kundalikGroupId, hwItems: info.items };
-  }));
-  renderTodayAssignmentCards(data);
+// Uy vazifalari kartasi (guruh tablari): tanlangan guruh uchun talabalar holati + so'nggi vazifa
+async function homeRenderAllAssignments(){ /* eski alohida karta olib tashlangan */ }
+
+async function todayHwFetchGroup(g, todayDateStr){
+  const entries = await Promise.all((g.students || []).map(s =>
+    db.collection('oquv_progress').doc(s.id).collection('entries').doc(todayDateStr).get()
+      .then(d => d.exists ? { ...d.data(), studentId: s.id, studentName: s.name } : { studentId: s.id, studentName: s.name, attended: null, homeworkDone: null })
+      .catch(() => ({ studentId: s.id, studentName: s.name, attended: null, homeworkDone: null }))
+  ));
+  const info = await homeFetchLatestKundalikHw(g.id);
+  return { group: g, entries, kundalikGroupId: info.kundalikGroupId, hwItems: info.items };
 }
+function todayHwAtt(e){ return e.attended === true || e.attended === 'yes' ? 'yes' : e.attended === 'late' ? 'late' : (e.attended === false || e.attended === 'no') ? 'no' : ''; }
+function todayHwDone(e){
+  const h = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === 'partial' ? 'partial' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : '';
+  return (h === 'no' || e.punished === true) ? 'no' : h;
+}
+
+function todayHwRenderGroup(data, isToday){
+  const g = data.group, entries = data.entries || [];
+  window._todayHwCardData = window._todayHwCardData || {};
+  window._todayHwGroupsById = window._todayHwGroupsById || {};
+  window._todayHwCardData[g.id] = { groupName: g.name, entries };
+  window._todayHwGroupsById[g.id] = { name: g.name, days: g.days || [] };
+  let came = 0, absent = 0, hwNo = 0;
+  entries.forEach(e => {
+    const a = todayHwAtt(e);
+    if(a === 'yes' || a === 'late') came++; else if(a === 'no') absent++;
+    const h = todayHwDone(e);
+    if(h === 'no' || h === 'partial') hwNo++;
+  });
+  const gid = escHtml(g.id);
+  const rows = entries.length ? entries.map(e => {
+    const a = todayHwAtt(e), h = todayHwDone(e);
+    const dot = (a === 'yes' || a === 'late') ? 'yes' : a === 'no' ? 'no' : '';
+    const st = h === 'yes' ? '<span class="hwb-st yes">Qildi</span>'
+      : h === 'partial' ? '<span class="hwb-st partial">Qisman</span>'
+      : h === 'no' ? '<span class="hwb-st no">Qilmadi</span>'
+      : '<span class="hwb-st">Belgilanmagan</span>';
+    return `<div class="hwb-row"><span class="hwb-dot ${dot}"></span>${escHtml(e.studentName || 'Noma\u2019lum talaba')}${st}</div>`;
+  }).join('') : '<p style="color:var(--gray);font-size:.88rem;">Bu guruhda talabalar yo\u02bcq.</p>';
+  const left = `
+    <div>
+      <div class="hwb-label">Talabalar holati${isToday ? '' : ' (bugun dars yo\u02bcq)'}</div>
+      <div class="hwb-sum">
+        <span class="g" onclick="showTodayAttendanceList('${gid}','yes')">${came} keldi</span>
+        <span class="r" onclick="showTodayAttendanceList('${gid}','no')">${absent} kelmadi</span>
+        <span class="o" onclick="showTodayHwList('${gid}')">${hwNo} uy vazifa qilmadi</span>
+      </div>
+      ${rows}
+      <span class="hwb-more today-hw-view-btn" data-group-id="${gid}">Ko'rish <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg></span>
+    </div>`;
+  const right = `
+    <div>
+      <div class="hwb-label">So'nggi vazifa</div>
+      <div class="today-assign-grid">${renderTodayAssignmentCards([{ group: g, kundalikGroupId: data.kundalikGroupId, hwItems: data.hwItems }])}</div>
+    </div>`;
+  document.getElementById('todayHwGrid').innerHTML = left + right;
+}
+function showTodayHwList(gid){ showTodayAttendanceList(gid, 'hw-no'); }
 
 async function loadTodayHomeworkCards(){
   const grid = document.getElementById('todayHwGrid');
+  const tabs = document.getElementById('todayHwTabs');
   const loading = document.getElementById('todayHwLoading');
   const empty = document.getElementById('todayHwEmpty');
   const subline = document.getElementById('todayHwSubline');
   const refreshedAt = document.getElementById('todayHwRefreshedAt');
 
   grid.innerHTML = '';
+  tabs.innerHTML = '';
   loading.style.display = 'block';
   empty.style.display = 'none';
 
   const todayKey = OJ_JSDAY_TO_KEY[new Date().getDay()];
   const todayDateStr = localDateStr();
-
   const groups = await homeFetchGroupsWithStudents();
-  const todayGroups = groups.filter(g => (g.days || []).includes(todayKey));
-
   loading.style.display = 'none';
 
-  if(!todayGroups.length){
+  const todayGroups = groups.filter(g => (g.days || []).includes(todayKey));
+  const otherGroups = groups.filter(g => !(g.days || []).includes(todayKey));
+  const ordered = [...todayGroups, ...otherGroups];
+
+  if(!ordered.length){
     empty.style.display = 'block';
     subline.textContent = '';
     refreshedAt.textContent = '';
-    homeRenderAllAssignments(groups);
     ballLoad();
     return;
   }
 
   const todayFmt = new Date(todayDateStr + 'T00:00:00').toLocaleDateString('uz-UZ', { day:'numeric', month:'long', weekday:'long' });
-  subline.textContent = `${todayFmt}: ${todayGroups.length} ta guruh bugun dars o'tadi`;
+  subline.textContent = todayGroups.length
+    ? `${todayFmt}: ${todayGroups.length} ta guruh bugun dars o'tadi`
+    : `${todayFmt}: bugun dars o'tadigan guruh yo'q`;
 
-  // Fetch today's progress for all students in today's groups
-  const cardData = await Promise.all(todayGroups.map(async g => {
-    const entries = await Promise.all(g.students.map(s =>
-      db.collection('oquv_progress').doc(s.id).collection('entries').doc(todayDateStr).get()
-        .then(d => d.exists ? { ...d.data(), studentId: s.id, studentName: s.name } : { studentId: s.id, studentName: s.name, attended: null, homeworkDone: null })
-        .catch(() => ({ studentId: s.id, studentName: s.name, attended: null, homeworkDone: null }))
-    ));
-    let attended = 0, absent = 0, hwNo = 0;
-    entries.forEach(e => {
-      const a = e.attended === true || e.attended === 'yes' ? 'yes' : e.attended === 'late' ? 'late' : (e.attended === false || e.attended === 'no') ? 'no' : '';
-      if(a === 'yes' || a === 'late') attended++;
-      else if(a === 'no') absent++;
-      const h = e.homeworkDone === true || e.homeworkDone === 'yes' ? 'yes' : e.homeworkDone === 'partial' ? 'partial' : (e.homeworkDone === false || e.homeworkDone === 'no') ? 'no' : '';
-      // "Uy vazifa qilmadi" = to'liq qilmagan ('no') + qisman qilgan ('partial') + jazolangan talabalar,
-      // xuddi O'quv jarayoni sahifasidagi "qilmaganlar" filtri kabi (5147-qator).
-      if(h === 'no' || h === 'partial' || e.punished === true) hwNo++;
-    });
-    const kundalikInfo = await homeFetchLatestKundalikHw(g.id);
-    return { group: g, entries, attended, absent, hwNo, total: g.students.length, kundalikGroupId: kundalikInfo.kundalikGroupId, hwItems: kundalikInfo.items };
-  }));
-
-  grid.innerHTML = '';
   window._todayHwCardData = {};
   window._todayHwGroupsById = {};
-  cardData.forEach(({ group: g, entries, attended, absent, hwNo, total }) => {
-    window._todayHwCardData[g.id] = { groupName: g.name, entries };
-    window._todayHwGroupsById[g.id] = { name: g.name, days: g.days || [] };
-    const notMarked = total - attended - absent;
-    const card = document.createElement('div');
-    card.className = 'today-hw-card';
-    card.innerHTML = `
-      <div class="today-hw-card-head">
-        <div class="today-hw-card-icon"><svg class="ic" aria-hidden="true"><use href="#i-book-open"></use></svg></div>
-        <div>
-          <div class="today-hw-card-name">${escHtml(g.name)}</div>
-          <div class="today-hw-card-time">${g.time ? '<svg class="ic" aria-hidden="true"><use href="#i-clock"></use></svg> ' + escHtml(g.time) : 'Vaqt kiritilmagan'} · ${total} talaba</div>
-        </div>
-      </div>
-      <div class="today-hw-card-stats">
-        <div class="today-hw-stat green" style="cursor:pointer;" onclick="showTodayAttendanceList('${escHtml(g.id)}','yes')" title="Kelgan talabalarni ko'rish">
-          <div class="today-hw-stat-num">${attended}</div>
-          <div class="today-hw-stat-label"><svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Keldi</div>
-        </div>
-        <div class="today-hw-stat red" style="cursor:pointer;" onclick="showTodayAttendanceList('${escHtml(g.id)}','no')" title="Kelmagan talabalarni ko'rish">
-          <div class="today-hw-stat-num">${absent}</div>
-          <div class="today-hw-stat-label"><svg class="ic" aria-hidden="true"><use href="#i-ban"></use></svg> Kelmadi</div>
-        </div>
-        <div class="today-hw-stat orange" style="cursor:pointer;" onclick="showTodayAttendanceList('${escHtml(g.id)}','hw-no')" title="Uy vazifa qilmaganlarni ko'rish">
-          <div class="today-hw-stat-num">${hwNo}</div>
-          <div class="today-hw-stat-label"><svg class="ic" aria-hidden="true"><use href="#i-books"></use></svg> Uy vazifa qilmadi</div>
-        </div>
-      </div>
-      <div class="today-hw-card-footer">
-        <span>${notMarked > 0 ? `<svg class="ic" aria-hidden="true"><use href="#i-hourglass"></use></svg> ${notMarked} ta hali belgilanmagan` : '<svg class="ic" aria-hidden="true"><use href="#i-check-circle"></use></svg> Hammasi belgilangan'}</span>
-        <span class="today-hw-view-btn" data-group-id="${escHtml(g.id)}" style="color:var(--adm-blue,#2F6FED);cursor:pointer;font-weight:700;">Ko'rish <svg class="ic" aria-hidden="true"><use href="#i-arrow-right"></use></svg></span>
-      </div>`;
-    grid.appendChild(card);
-  });
+  const cache = {};
+  const tabEls = {};
+  tabs.innerHTML = ordered.map(g => {
+    const isT = todayGroups.includes(g);
+    return `<button type="button" class="hwb-tab" data-gid="${escHtml(g.id)}">${escHtml(g.name)}${isT ? '<small>· bugun</small>' : ''}</button>`;
+  }).join('');
+  tabs.querySelectorAll('.hwb-tab').forEach(b => { tabEls[b.dataset.gid] = b; });
+
+  async function selectGroup(gid){
+    Object.values(tabEls).forEach(b => b.classList.toggle('active', b.dataset.gid === gid));
+    const g = ordered.find(x => x.id === gid);
+    if(!g) return;
+    if(!cache[gid]){
+      grid.innerHTML = '<div class="today-hw-loading">Yuklanmoqda…</div>';
+      cache[gid] = await todayHwFetchGroup(g, todayDateStr);
+    }
+    if(tabEls[gid] && !tabEls[gid].classList.contains('active')) return; // boshqa tab tanlangan
+    todayHwRenderGroup(cache[gid], todayGroups.includes(g));
+  }
+  if(!tabs.dataset.bound){
+    tabs.dataset.bound = '1';
+    tabs.addEventListener('click', (e) => {
+      const b = e.target.closest('.hwb-tab');
+      if(b && typeof tabs._select === 'function') tabs._select(b.dataset.gid);
+    });
+  }
+  tabs._select = selectGroup;
 
   if(!grid.dataset.viewBtnBound){
     grid.dataset.viewBtnBound = '1';
     grid.addEventListener('click', (e) => {
       const btn = e.target.closest('.today-hw-view-btn');
       if(!btn) return;
-      const gid = btn.getAttribute('data-group-id');
-      const info = (window._todayHwGroupsById || {})[gid];
-      if(!info) return;
-      loadOjStudents(gid, info.name, info.days);
+      const info = (window._todayHwGroupsById || {})[btn.getAttribute('data-group-id')];
+      if(info) loadOjStudents(btn.getAttribute('data-group-id'), info.name, info.days);
     });
   }
 
-  homeRenderAllAssignments(groups);
+  await selectGroup(ordered[0].id);
   ballLoad();
 
   const now = new Date();
