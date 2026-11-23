@@ -2040,6 +2040,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
           <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
             <button class="btn btn-ghost btn-sm" id="gbBackToGroupsBtn"><svg class="ic" aria-hidden="true"><use href="#i-arrow-left"></use></svg> Guruhlar</button>
             <span style="font-weight:700;" id="gbGroupTableTitle"></span>
+            <button type="button" class="btn btn-ghost btn-sm" id="gbExportImgBtn" style="margin-left:auto;">Rasm qilib yuklab olish</button>
           </div>
 
           <div style="margin-bottom:18px;">
@@ -12440,6 +12441,72 @@ function getGbGroupList(){
   return seen.map(g => ({ name: g, count: gbData.students.filter(s => s.group === g).length }));
 }
 
+// Test natijalari katakchalarini rangga bo'yash: <66 och qizil, 66-99 och yashil, 100 och ko'k (bo'sh katak o'zgarmaydi)
+(function(){
+  if(document.getElementById('gbScoreCss')) return;
+  const st = document.createElement('style');
+  st.id = 'gbScoreCss';
+  st.textContent =
+    '#gbGradesTable input.gb-s-low{background:rgba(239,68,68,.17) !important;border-color:rgba(239,68,68,.55) !important;}' +
+    '#gbGradesTable input.gb-s-ok{background:rgba(34,197,94,.18) !important;border-color:rgba(34,197,94,.6) !important;}' +
+    '#gbGradesTable input.gb-s-top{background:rgba(59,130,246,.2) !important;border-color:rgba(59,130,246,.65) !important;}';
+  document.head.appendChild(st);
+})();
+function gbPaintScore(inp){
+  inp.classList.remove('gb-s-low', 'gb-s-ok', 'gb-s-top');
+  if(inp.value === '' || isNaN(Number(inp.value))) return;
+  const v = Number(inp.value);
+  inp.classList.add(v >= 100 ? 'gb-s-top' : v >= 66 ? 'gb-s-ok' : 'gb-s-low');
+}
+// ---------- Test natijalar: jadvalni rasm (PNG) qilib yuklab olish ----------
+function gbExportHtml(groupName, students, units){
+  const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const cell = v => {
+    if(v === undefined || v === null || v === '') return '<td style="padding:6px 8px;border-top:1px solid #e9ecf3;text-align:center;"></td>';
+    const n = Number(v);
+    const st = n >= 100 ? 'background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;' : n >= 66 ? 'background:#dcf5e3;color:#166534;border:1px solid #86d4a0;' : 'background:#fde2e2;color:#991b1b;border:1px solid #f2a3a3;';
+    return '<td style="padding:6px 8px;border-top:1px solid #e9ecf3;text-align:center;"><span style="display:inline-block;min-width:54px;padding:6px 10px;border-radius:10px;font-weight:700;font-size:15px;' + st + '">' + esc(n) + '</span></td>';
+  };
+  let h = '<div style="margin-bottom:14px;"><h2 style="margin:0 0 4px;font-size:22px;color:#0f1b3d;">' + esc(groupName) + ' · Test natijalar</h2>' +
+    '<div style="font-size:13px;color:#6b7487;">Sana: ' + new Date().toLocaleDateString('uz-UZ') + ' · ' + students.length + ' ta talaba</div></div>' +
+    '<table style="border-collapse:collapse;width:100%;"><thead><tr>' +
+    '<th style="padding:8px;text-align:left;font-size:12px;color:#6b7487;">№</th><th style="padding:8px;text-align:left;font-size:12px;color:#6b7487;">ISM</th>' +
+    units.map(u => '<th style="padding:8px;text-align:center;font-size:12px;color:#6b7487;text-transform:uppercase;white-space:nowrap;">' + esc(u) + '</th>').join('') + '</tr></thead><tbody>';
+  students.forEach((s, i) => {
+    h += '<tr><td style="padding:6px 8px;border-top:1px solid #e9ecf3;color:#98a1b5;font-weight:700;font-size:13px;">' + (i + 1) + '</td>' +
+      '<td style="padding:6px 8px;border-top:1px solid #e9ecf3;font-weight:700;font-size:15px;color:#0f1b3d;white-space:nowrap;">' + esc(s.name) + '</td>' +
+      units.map(u => cell(s.scores ? s.scores[u] : undefined)).join('') + '</tr>';
+  });
+  h += '</tbody></table>' +
+    '<div style="display:flex;gap:14px;margin-top:14px;font-size:12px;color:#6b7487;">' +
+    '<span><b style="color:#991b1b;">■</b> 66 dan past</span><span><b style="color:#16a34a;">■</b> 66–99</span><span><b style="color:#2563eb;">■</b> 100</span></div>';
+  return h;
+}
+document.getElementById('gbExportImgBtn').addEventListener('click', async () => {
+  const group = gbSelectedGroup;
+  if(!group) return;
+  if(typeof html2canvas !== 'function'){ showToast('Kutubxona yuklanmadi: sahifani yangilang', true); return; }
+  const students = gbData.students.filter(s => s.group === group);
+  const units = getUnitsForGroup(group);
+  if(!students.length || !units.length){ showToast('Rasm uchun ma’lumot yo‘q.', true); return; }
+  const btn = document.getElementById('gbExportImgBtn');
+  const old = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Tayyorlanmoqda…';
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;left:-10000px;top:0;padding:28px;background:#ffffff;color:#0f1b3d;font-family:Inter,Arial,sans-serif;min-width:560px;';
+  wrap.innerHTML = gbExportHtml(group, students, units);
+  document.body.appendChild(wrap);
+  try{
+    const canvas = await html2canvas(wrap, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+    canvas.toBlob(b => spDownloadBlob(b, 'test-natijalar-' + String(group).replace(/[^\wЀ-ӿ]+/g, '_') + '.png'), 'image/png');
+  } catch(err){
+    showToast('Yuklab bo‘lmadi: ' + (err.message || err), true);
+  } finally {
+    wrap.remove();
+    btn.disabled = false; btn.textContent = old;
+  }
+});
+
 function renderGbAdminGradeTable(){
   const groups = getGbGroupList();
   if(gbSelectedGroup && !groups.find(g => g.name === gbSelectedGroup)){ gbSelectedGroup = null; }
@@ -12523,6 +12590,7 @@ function renderGbGroupTable(group){
     tbody += `<td style="white-space:nowrap;"><button type="button" class="btn btn-ghost btn-sm" data-note-student="${s.id}" title="Ustoz izohi">Izoh${noteCount ? ' (' + noteCount + ')' : ''}</button> <button type="button" class="btn btn-ghost btn-sm" data-del-student="${s.id}">O'chirish</button></td></tr>`;
   });
   table.innerHTML = '<thead>' + thead + '</thead><tbody>' + tbody + '</tbody>';
+  table.querySelectorAll('input[type="number"]').forEach(gbPaintScore);
 
   table.querySelectorAll('input[data-id-student]').forEach(inp => {
     const commit = () => {
@@ -12543,6 +12611,7 @@ function renderGbGroupTable(group){
 
   table.querySelectorAll('input[type="number"]').forEach(inp => {
     inp.addEventListener('input', () => {
+      gbPaintScore(inp);
       const student = gbData.students.find(x => x.id === inp.dataset.student);
       if(!student) return;
       if(!student.scores) student.scores = {};
