@@ -838,7 +838,8 @@ body:not(.dark) #view-profile .pc-group,
 body:not(.dark) #view-profile #profileForm label.field > span,
 body:not(.dark) #view-profile #profileForm label.field input{ color:#000 !important; }
 #view-profile .modal-actions{ display:block !important; margin-top:1.2em; }
-@media (max-width:900px){ #view-profile .profile-card{ margin-top:52px; } }
+#view-profile .profile-card{ margin-top:0 !important; }
+#view-profile #profileForm{ display:flex !important; flex-direction:column !important; gap:0 !important; row-gap:0 !important; }
 /* Tungi rejimda "Saqlash" orqasidagi ko'k soya/yorug'lik chiqmasin */
 body.dark #view-profile #profileSaveBtn,
 body.dark #view-profile #profileSaveBtn:hover,
@@ -2986,6 +2987,16 @@ document.addEventListener('click', e => {
 
 function switchView(view){
   if(window.__chatsHidden && view === 'chat') view = 'home';
+  // Profilga kirilganda kunduzgi (oq) rejim; undan chiqilganda talabaning saqlangan tanlovi qaytariladi.
+  // Talaba profilda xohlasa tungi rejimni o'zi yoqa oladi (tugma orqali).
+  try{
+    if(view === 'profile' && window.__curView !== 'profile'){
+      document.body.classList.remove('dark');
+    } else if(view !== 'profile' && window.__curView === 'profile'){
+      document.body.classList.toggle('dark', localStorage.getItem('studentTheme') === 'dark');
+    }
+  }catch(e){}
+  window.__curView = view;
   try{ sessionStorage.setItem('studentLastView', view); }catch(err){}
   VIEWS.forEach(v => { document.getElementById('view-' + v).hidden = (v !== view); });
   if(view === 'market' && typeof mktLoad === 'function') mktLoad();
