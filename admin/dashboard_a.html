@@ -9132,10 +9132,10 @@ function stWin(g, mode, today, rows, ymOverride){
 }
 function stBucketsRange(fromStr, today){
   const start = new Date(fromStr + 'T00:00:00'), days = Math.round((today - start) / 86400000) + 1;
-  const step = days <= 8 ? 1 : 7, out = [];
+  const step = days <= 45 ? 1 : 7, out = [];   // 45 kungacha har nuqta = bir kun, undan uzun davrda = bir hafta
   for (let i = 0; i < days; i += step) {
     const f = stAdd(start, i), t = stAdd(f, Math.min(step, days - i) - 1);
-    out.push({ from: stDate(f), to: stDate(t), label: step === 1 ? ST_WD[f.getDay()] : f.getDate() + '.' + stPad(f.getMonth()+1) });
+    out.push({ from: stDate(f), to: stDate(t), label: step === 1 && days <= 8 ? ST_WD[f.getDay()] : f.getDate() + '.' + stPad(f.getMonth()+1) });
   }
   return out;
 }
@@ -9424,19 +9424,18 @@ function stLine(labels, series){
     s += `<line class="dn-grid" x1="${L}" x2="${W - R}" y1="${y(g).toFixed(1)}" y2="${y(g).toFixed(1)}" stroke-dasharray="3 4"/><text class="dn-axis" x="${L - 8}" y="${(y(g) + 4).toFixed(1)}" text-anchor="end">${g}</text>`;
   });
   const lstep = Math.ceil(n / 10);
-  labels.forEach((l, i) => { if (i % lstep === 0) s += `<text class="dn-axis" x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${escHtml(l)}</text>`; });
+  labels.forEach((l, i) => { if ((n - 1 - i) % lstep === 0) s += `<text class="dn-axis" x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${escHtml(l)}</text>`; });
   series.forEach(se => {
     // null qiymatlar chiziqni uzadi: har bir uzluksiz bo'lak alohida silliq chiziq
-    let seg = [];
-    const flush = () => { if (seg.length > 1) s += `<path d="${smooth(seg)}" fill="none" stroke="${se.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`; seg = []; };
-    se.vals.forEach((v, i) => { if (v === null) flush(); else seg.push([x(i), y(v)]); });
-    flush();
+    const seg = [];
+    se.vals.forEach((v, i) => { if (v !== null) seg.push([x(i), y(v)]); });   // dars bo'lmagan kunlar o'tkazib yuboriladi
+    if (seg.length > 1) s += `<path d="${smooth(seg)}" fill="none" stroke="${se.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
     const lastI = se.vals.reduce((m, v, i) => v !== null ? i : m, -1);
     se.vals.forEach((v, i) => {
       if (v === null) return;
       const cx = x(i).toFixed(1), cy = y(v).toFixed(1);
       if (i === lastI) s += `<circle cx="${cx}" cy="${cy}" r="10" fill="${se.color}" opacity=".15"/><circle class="dn-pt" cx="${cx}" cy="${cy}" r="5.5" stroke="${se.color}" stroke-width="3"/>`;
-      else s += `<circle class="dn-pt" cx="${cx}" cy="${cy}" r="4" stroke="${se.color}" stroke-width="2.5"/>`;
+      else s += `<circle class="dn-pt" cx="${cx}" cy="${cy}" r="${n > 14 ? 2.8 : 4}" stroke="${se.color}" stroke-width="${n > 14 ? 2 : 2.5}"/>`;
     });
   });
   // har bir nuqta ustida: yo'naltiruvchi chiziq + tooltip (faqat CSS hover)
