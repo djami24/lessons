@@ -838,6 +838,19 @@ body:not(.dark) #view-profile .pc-group,
 body:not(.dark) #view-profile #profileForm label.field > span,
 body:not(.dark) #view-profile #profileForm label.field input{ color:#000 !important; }
 #view-profile .modal-actions{ display:block !important; margin-top:1.2em; }
+@media (max-width:900px){ #view-profile .profile-card{ margin-top:52px; } }
+/* Tungi rejimda "Saqlash" orqasidagi ko'k soya/yorug'lik chiqmasin */
+body.dark #view-profile #profileSaveBtn,
+body.dark #view-profile #profileSaveBtn:hover,
+body.dark #view-profile #profileSaveBtn:focus,
+body.dark #view-profile #profileSaveBtn:focus-visible,
+body.dark #view-profile #profileSaveBtn:active,
+body.dark #view-profile #profileSaveBtn[disabled]{
+  box-shadow:none !important; background-image:none !important; filter:none !important; outline:none !important;
+  -webkit-tap-highlight-color:transparent;
+}
+body.dark #view-profile #profileSaveBtn::before,
+body.dark #view-profile #profileSaveBtn::after{ display:none !important; box-shadow:none !important; }
 #view-profile #profileSaveBtn,
 body.dark #view-profile #profileSaveBtn{
   background:#000 !important; color:#fff !important; border:1.5px solid #000 !important;
@@ -2151,13 +2164,6 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
     </section>
 
     <section id="view-profile" hidden>
-      <div class="admin-header">
-        <div>
-          <h1>Mening profilim</h1>
-          <p>Ism, telefon raqam va profil belgingizni shu yerdan o‘zgartirasiz.</p>
-        </div>
-      </div>
-
       <div class="profile-card">
         <div class="profile-avatar-row">
           <div class="pc-avatar-wrap">
