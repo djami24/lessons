@@ -1194,9 +1194,9 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div id="homeStBody" style="display:none;">
         <p id="homeStSubline" style="margin:-6px 0 14px; color:var(--adm-gray,var(--gray)); font-size:.85rem;"></p>
         <div class="st-kpis" id="homeStKpis"></div>
-        <div class="st-grid st-grid-wide" style="margin-top:16px;">
+        <div class="st-grid st-grid-wide" style="margin-top:16px;grid-template-columns:1fr;">
           <div class="home-section-card"><h3 class="st-h">Dinamika <small>(oldingi davr bilan solishtirganda)</small></h3><div id="homeStTrend"></div></div>
-          <div class="home-section-card"><h3 class="st-h">Taqsimot</h3><div id="homeStDonuts"></div></div>
+          <div class="home-section-card" style="display:none"><h3 class="st-h">Taqsimot</h3><div id="homeStDonuts"></div></div>
           <div class="home-section-card" style="grid-column:1/-1;"><h3 class="st-h">Tahminiy oylik <small>(to‘lov va davomat asosida)</small></h3><div style="display:flex;align-items:center;gap:8px;margin:0 0 10px;flex-wrap:wrap;"><span style="font-size:.85rem;color:var(--gray);font-weight:700;">Oy:</span><select id="homeStSalMonth" class="st-select" title="Oyni tanlang"></select></div><div id="homeStSalary"></div></div>
         </div>
         <p id="homeStLoading" style="color:var(--gray); text-align:center; padding:8px; margin:0;"></p>
@@ -1242,9 +1242,9 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
 
       <div class="st-kpis" id="statsTopStatRow"></div>
 
-      <div class="st-grid st-grid-wide">
+      <div class="st-grid st-grid-wide" style="grid-template-columns:1fr;">
         <div class="home-section-card"><h3 class="st-h">Dinamika <small>(oldingi davr bilan solishtirganda)</small></h3><div id="stTrend"></div></div>
-        <div class="home-section-card"><h3 class="st-h">Taqsimot</h3><div id="stDonuts"></div></div>
+        <div class="home-section-card" style="display:none"><h3 class="st-h">Taqsimot</h3><div id="stDonuts"></div></div>
       </div>
 
       <div class="st-grid">
