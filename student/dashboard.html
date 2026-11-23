@@ -809,6 +809,44 @@ body.dark #view-profile #profileSaveBtn{
 #view-profile #profileSaveBtn:hover:not([disabled]){ background:#1d4ed8 !important; border-color:#1d4ed8 !important; }
 #view-profile #profileSaveBtn[disabled]{ opacity:.6 !important; }
 
+/* ===== Mening profilim: sozlamalar ro'yxati uslubi (variant C) ===== */
+#view-profile .profile-card{ background:#fff; border-radius:22px; padding:22px 14px 18px; box-shadow:0 6px 22px rgba(30,41,90,.07); max-width:560px; margin:0 auto; }
+body.dark #view-profile .profile-card{ background:#0d0d0d !important; box-shadow:none; border:1px solid #1f1f1f; }
+#view-profile .profile-avatar-row{ display:flex; flex-direction:column; align-items:center; gap:0; text-align:center; }
+#view-profile .pc-avatar-wrap{ position:relative; display:inline-block; }
+#view-profile .profile-avatar-big{ width:104px !important; height:104px !important; margin:0 !important; }
+#view-profile .pc-cam{ position:absolute; right:0; bottom:2px; width:34px; height:34px; padding:0; border-radius:50%; border:3px solid #fff; background:#000 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center/16px no-repeat; font-size:0; cursor:pointer; }
+body.dark #view-profile .pc-cam{ border-color:#0d0d0d; box-shadow:0 0 0 1px #3a3a3a; }
+#view-profile .pc-cam[disabled]{ opacity:.6; }
+#view-profile .pc-name{ font-size:1.2rem; font-weight:800; margin-top:12px; line-height:1.25; }
+#view-profile .pc-group{ font-size:.8rem; font-weight:600; margin-top:4px; }
+#view-profile #profileForm{ max-width:none !important; margin-top:1.3em !important; }
+#view-profile #profileForm label.field{ display:flex; flex-direction:column; gap:2px; position:relative; margin:0 0 -1px; padding:12px 42px 12px 16px; background:#fff; border:1px solid #e9ecf4; cursor:text; }
+#view-profile #profileForm label.field:nth-of-type(1){ border-radius:16px 16px 0 0; }
+#view-profile #profileForm label.field:nth-of-type(3){ border-radius:0 0 16px 16px; margin-bottom:0; }
+#view-profile #profileForm label.field:focus-within{ background:#f6f8fd; }
+#view-profile #profileForm label.field > span{ font-size:.72rem; font-weight:700; }
+#view-profile #profileForm label.field input{ border:0 !important; background:transparent !important; box-shadow:none !important; outline:none; padding:0 !important; font-size:.98rem; font-weight:700; width:100%; border-radius:0; }
+#view-profile #profileForm label.field::after{ content:"\203A"; position:absolute; right:18px; top:50%; transform:translateY(-50%); font-size:1.4rem; opacity:.35; }
+#view-profile #profileForm label.field:has(#profileEmail)::after{ content:"\1F512"; font-size:.85rem; opacity:.6; }
+body.dark #view-profile #profileForm label.field{ background:#0d0d0d; border-color:#1f1f1f; }
+body.dark #view-profile #profileForm label.field:focus-within{ background:#161616; }
+body:not(.dark) #view-profile .admin-header h1,
+body:not(.dark) #view-profile .admin-header p,
+body:not(.dark) #view-profile .pc-name,
+body:not(.dark) #view-profile .pc-group,
+body:not(.dark) #view-profile #profileForm label.field > span,
+body:not(.dark) #view-profile #profileForm label.field input{ color:#000 !important; }
+#view-profile .modal-actions{ display:block !important; margin-top:1.2em; }
+#view-profile #profileSaveBtn,
+body.dark #view-profile #profileSaveBtn{
+  background:#000 !important; color:#fff !important; border:1.5px solid #000 !important;
+  width:100%; padding:.95em 1em; border-radius:14px; font-size:1rem;
+  box-shadow:0 8px 18px -8px rgba(0,0,0,.55);
+}
+body.dark #view-profile #profileSaveBtn{ border-color:#3a3a3a !important; }
+#view-profile #profileSaveBtn:hover:not([disabled]){ background:#1f1f1f !important; border-color:#1f1f1f !important; }
+
 /* O'qituvchi haqida */
 #view-teacher .admin-header h1{ font-size:1.3rem !important; }
 .teacher-card{ background:#fff; border:1px solid #e8ecf5; border-radius:18px; padding:26px 24px; max-width:640px; box-shadow:0 10px 26px -18px rgba(16,27,61,.35); }
@@ -2122,12 +2160,14 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
 
       <div class="profile-card">
         <div class="profile-avatar-row">
-          <div class="profile-avatar-big" id="profileAvatarBig"></div>
-          <div>
+          <div class="pc-avatar-wrap">
+            <div class="profile-avatar-big" id="profileAvatarBig"></div>
             <input type="file" id="profilePhotoInput" accept="image/*" hidden>
-            <button type="button" class="btn btn-ghost btn-sm" id="profilePhotoBtn">Profil rasm joylash</button>
-            <p class="form-error" id="profilePhotoError" role="alert" hidden style="margin:.6em 0 0;"></p>
+            <button type="button" class="pc-cam" id="profilePhotoBtn" title="Profil rasm joylash" aria-label="Profil rasm joylash"></button>
           </div>
+          <div class="pc-name" id="profileHeadName"></div>
+          <div class="pc-group" id="profileHeadGroup" hidden></div>
+          <p class="form-error" id="profilePhotoError" role="alert" hidden style="margin:.6em 0 0;"></p>
         </div>
 
         <div class="emoji-picker-grid" id="emojiPickerGrid" hidden></div>
@@ -5352,6 +5392,14 @@ function renderProfile(){
   document.getElementById('profileName').value = state.student.name || '';
   document.getElementById('profilePhone').value = state.student.phone || '';
   document.getElementById('profileEmail').value = state.student.email || '';
+  (function(){
+    const hn = document.getElementById('profileHeadName');
+    if(hn) hn.textContent = state.student.name || '';
+    const hg = document.getElementById('profileHeadGroup');
+    const gv = document.getElementById('qiGroupVal');
+    const gtxt = gv ? gv.textContent.trim() : '';
+    if(hg){ hg.textContent = gtxt && gtxt !== '—' ? 'Guruh: ' + gtxt : ''; hg.hidden = !hg.textContent; }
+  })();
   applyAvatars();
   document.getElementById('profileError').hidden = true;
   document.getElementById('profileNotice').hidden = true;
@@ -5467,6 +5515,7 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
   try{
     await db.collection('students').doc(currentUid).update({ name, phone });
     state.student.name = name;
+    { const hn = document.getElementById('profileHeadName'); if(hn) hn.textContent = name; }
     state.student.phone = phone;
     document.getElementById('sidebarUsername').textContent = name;
     noticeEl.textContent = 'Profil yangilandi.';
