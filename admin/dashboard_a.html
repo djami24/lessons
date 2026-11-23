@@ -198,6 +198,28 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 .st-kpi svg{width:100%;height:30px;margin-top:4px;}
 .st-delta{font-size:.74rem;font-weight:700;margin-left:6px;}
 .st-good{color:#1FAE7A;} .st-bad{color:#E5484D;} .st-neutral{color:#8a93a6;}
+/* KPI kartalar: 2 ta asosiy (Davomat, Uy vazifa) + qolganlari ixcham */
+.st-kpis{grid-template-columns:repeat(6,minmax(0,1fr));gap:16px;}
+.st-kpi{border-top:1.5px solid var(--adm-line,var(--line));gap:0;}
+.st-kpi .st-delta{display:inline-block;margin-left:0;font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap;line-height:1.3;}
+.st-kpi .st-delta.st-good{background:rgba(31,174,122,.14);color:#17935f;}
+.st-kpi .st-delta.st-bad{background:rgba(229,72,77,.13);color:#d23b3b;}
+.st-kpi .st-delta.st-neutral{background:rgba(138,147,166,.16);color:var(--adm-gray,#7a819c);}
+.st-kpi-hero{grid-column:span 3;flex-direction:row;align-items:center;justify-content:space-between;gap:18px;border-radius:20px;padding:22px 24px;}
+.st-kpi-hero .st-kpi-main{min-width:0;}
+.st-kpi-head{display:flex;align-items:center;gap:10px;}
+.st-kpi .st-kpi-chip{width:32px;height:32px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--c);background:color-mix(in srgb,var(--c) 14%,var(--paper,#fff));flex-shrink:0;}
+.st-kpi .st-kpi-chip svg{width:18px;height:18px;margin:0;}
+.st-kpi-hero .st-kpi-label{font-size:.88rem;}
+.st-kpi-hero .st-kpi-num{font-size:3.2rem;line-height:1;margin:16px 0 12px;}
+.st-kpi-hero .st-kpi-sub{margin-top:8px;font-size:.78rem;}
+.st-kpi-hero .st-kpi-spark{flex:1 1 44%;min-width:140px;max-width:340px;}
+.st-kpi-hero .st-kpi-spark svg{display:block;width:100%;height:110px;margin:0;}
+.st-kpi-compact{grid-column:span 2;border-left:5px solid var(--c);padding:14px 18px;}
+.st-kpi-compact .st-kpi-num{display:flex;align-items:center;gap:12px;font-size:1.9rem;line-height:1;margin:8px 0 6px;}
+.st-kpi-compact .st-kpi-spark{display:none;}
+@media(max-width:1000px){ .st-kpi-hero{grid-column:span 6;} .st-kpi-compact{grid-column:span 3;} }
+@media(max-width:560px){ .st-kpi-compact{grid-column:span 6;} .st-kpi-hero{flex-direction:column;align-items:stretch;} .st-kpi-hero .st-kpi-spark{max-width:none;} }
 .st-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
 .st-grid-wide{grid-template-columns:1.6fr 1fr;}
 @media(max-width:900px){.st-grid,.st-grid-wide{grid-template-columns:1fr;}}
@@ -9166,13 +9188,25 @@ function stDelta(cur, prev, invert, unit){
   return `<span class="st-delta ${good ? 'st-good' : 'st-bad'}">${d > 0 ? '▲ +' : '▼ '}${d}${unit || ''}</span>`;
 }
 
+let _stSparkSeq = 0;
+function stSmooth(pts){
+  let d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+  const clamp = (v, a, b) => Math.max(Math.min(a, b), Math.min(Math.max(a, b), v));
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || pts[i + 1];
+    const c1y = clamp(p1[1] + (p2[1] - p0[1]) / 6, p1[1], p2[1]), c2y = clamp(p2[1] - (p3[1] - p1[1]) / 6, p1[1], p2[1]);
+    d += ' C' + (p1[0] + (p2[0] - p0[0]) / 6).toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + (p2[0] - (p3[0] - p1[0]) / 6).toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+  }
+  return d;
+}
 function stSpark(vals, color){
   const pts = vals.map((v,i) => v === null ? null : [vals.length < 2 ? 50 : i * 100 / (vals.length - 1), v]).filter(Boolean);
   if (pts.length < 2) return '<svg viewBox="0 0 100 30"></svg>';
-  const max = Math.max(...pts.map(p => p[1]), 1), min = Math.min(...pts.map(p => p[1]), 0);
-  const y = v => 27 - (max === min ? 0.5 : (v - min) / (max - min)) * 24;
-  const d = pts.map((p,i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + y(p[1]).toFixed(1)).join(' ');
-  return `<svg viewBox="0 0 100 30" preserveAspectRatio="none"><path d="${d}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
+  let max = Math.max(...pts.map(p => p[1])), min = Math.min(...pts.map(p => p[1]));
+  if (max - min < 12) { const m = (max + min) / 2; max = m + 6; min = m - 6; }   // deyarli tekis ma'lumot bo'rttirib ko'rsatilmasin
+  const y = v => 27 - (v - min) / (max - min) * 24;
+  const xy = pts.map(p => [p[0], y(p[1])]), d = stSmooth(xy), id = 'sp' + (++_stSparkSeq);
+  return `<svg viewBox="0 0 100 30" preserveAspectRatio="none"><defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".2"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs><path d="${d} L${xy[xy.length-1][0].toFixed(1)} 30 L${xy[0][0].toFixed(1)} 30 Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/></svg>`;
 }
 
 const ST_KPI_KIND = { 'Davomat':'att', 'Uy vazifa':'hw', 'Kelmadi':'no', 'Kech qoldi':'late', 'Jazolangan':'pun', 'Belgilash':'comp', 'Chiqib ketgan':'out', "Yangi qo'shilgan":'add' };
@@ -9379,10 +9413,17 @@ function stMemberKpis(M, per, nullSpark){
          stKpi('Yangi qo\'shilgan', M.add, stDelta(M.add, M.pAdd, false), `${per}: ${M.pAdd}`, nullSpark, '#14B8A6');
 }
 
+const ST_KPI_ICON = {
+  'Davomat': '<path d="m16 11 2 2 4-4"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>',
+  'Uy vazifa': '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>'
+};
 function stKpi(label, num, delta, sub, spark, color){
-  const kind = ST_KPI_KIND[label];
-  return `<div class="st-kpi${kind ? ' st-kpi-click' : ''}" ${kind ? `data-kpi="${kind}" role="button" tabindex="0" title="Talabalar ro‘yxatini ko‘rish"` : ''} style="--c:${color}"><div class="st-kpi-label">${label}</div>
-    <div class="st-kpi-num">${num}${delta}</div><div class="st-kpi-sub">${sub || ''}</div>${spark}</div>`;
+  const kind = ST_KPI_KIND[label], hero = !!ST_KPI_ICON[label];
+  const attrs = `class="st-kpi ${hero ? 'st-kpi-hero' : 'st-kpi-compact'}${kind ? ' st-kpi-click' : ''}" ${kind ? `data-kpi="${kind}" role="button" tabindex="0" title="Talabalar ro‘yxatini ko‘rish"` : ''} style="--c:${color}"`;
+  if (hero) return `<div ${attrs}><div class="st-kpi-main"><div class="st-kpi-head"><span class="st-kpi-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ST_KPI_ICON[label]}</svg></span><span class="st-kpi-label">${label}</span></div>
+    <div class="st-kpi-num">${num}</div><div>${delta}</div><div class="st-kpi-sub">${sub || ''}</div></div><div class="st-kpi-spark">${spark}</div></div>`;
+  return `<div ${attrs}><div class="st-kpi-label">${label}</div>
+    <div class="st-kpi-num">${num}${delta}</div><div class="st-kpi-sub">${sub || ''}</div><div class="st-kpi-spark">${spark}</div></div>`;
 }
 
 function stLine(labels, series){
