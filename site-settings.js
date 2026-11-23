@@ -360,11 +360,41 @@
     return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // ---- Chatlarni yashirish/ko'rsatish (settings/site.chatsHidden) ----
+  // Faqat ko'rinishni o'zgartiradi: Firestore'dagi yozishmalarga tegmaydi,
+  // "Ko'rsatish" tanlansa hammasi avvalgidek qaytadi.
+  function applyChatsHidden(hidden){
+    hidden = hidden === true;
+    window.__chatsHidden = hidden;
+    document.documentElement.classList.toggle('chats-hidden', hidden);
+    if(!document.getElementById('chatsHiddenStyle')){
+      const st = document.createElement('style');
+      st.id = 'chatsHiddenStyle';
+      st.textContent =
+        'html.chats-hidden #view-chat, html.chats-hidden #chatBadge, html.chats-hidden #sbnMenuBadge{display:none !important;}';
+      document.head.appendChild(st);
+    }
+    // Talaba kabineti yon menyusi: havola va uning <li> qatori (mobil "Menyu" ro'yxati shu havola holatiga ergashadi)
+    ['navChat'].forEach(id => {
+      const a = document.getElementById(id);
+      if(!a) return;
+      a.style.display = hidden ? 'none' : '';
+      const li = a.closest('li');
+      if(li) li.style.display = hidden ? 'none' : '';
+    });
+    // Chat ochiq turgan bo'lsa, bosh sahifaga o'tkazamiz
+    if(hidden){
+      const v = document.getElementById('view-chat');
+      if(v && !v.hidden && typeof window.switchView === 'function') window.switchView('home');
+    }
+  }
+
   function applySettings(data){
     if(!data) return;
     // Boshqa skriptlar (masalan talaba kabineti "O'qituvchi haqida") shu ma'lumotdan foydalanadi
     window.__siteSettings = data;
     try{ window.dispatchEvent(new CustomEvent('siteSettingsApplied', { detail: data })); }catch(e){}
+    applyChatsHidden(data.chatsHidden === true);
     const root = document.documentElement.style;
 
     // ---- Colors ----
