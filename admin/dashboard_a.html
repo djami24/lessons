@@ -289,21 +289,24 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 .stats-period-btn.active{background:var(--adm-blue,var(--teal));color:#fff;border-color:var(--adm-blue,var(--teal));}
 
 /* ---- Colorful top stat cards with sparkline decoration ---- */
-.home-stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:26px;}
-@media(max-width:900px){ .home-stat-row{grid-template-columns:repeat(2,1fr);} }
-.home-stat-card{position:relative;overflow:hidden;border-radius:20px;padding:20px 20px 34px;border:1.5px solid;display:flex;flex-direction:column;gap:10px;}
-.home-stat-icon{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;}
-.home-stat-num{font-size:1.9rem;font-weight:800;color:var(--adm-ink,var(--ink));line-height:1;}
-.home-stat-label{font-size:.82rem;font-weight:600;color:var(--adm-gray,var(--gray));}
-.home-stat-wave{position:absolute;left:0;right:0;bottom:0;width:100%;height:44px;}
-.home-stat-blue{background:linear-gradient(180deg,rgba(47,111,237,.09),rgba(47,111,237,.02));border-color:rgba(47,111,237,.18);}
-.home-stat-blue .home-stat-icon{background:rgba(47,111,237,.16);color:var(--adm-blue);}
-.home-stat-purple{background:linear-gradient(180deg,rgba(124,92,252,.09),rgba(124,92,252,.02));border-color:rgba(124,92,252,.18);}
-.home-stat-purple .home-stat-icon{background:rgba(124,92,252,.16);color:var(--adm-purple);}
-.home-stat-green{background:linear-gradient(180deg,rgba(31,174,122,.09),rgba(31,174,122,.02));border-color:rgba(31,174,122,.18);}
-.home-stat-green .home-stat-icon{background:rgba(31,174,122,.16);color:var(--adm-green);}
-.home-stat-orange{background:linear-gradient(180deg,rgba(240,146,61,.11),rgba(240,146,61,.02));border-color:rgba(240,146,61,.2);}
-.home-stat-orange .home-stat-icon{background:rgba(240,146,61,.18);color:var(--adm-orange);}
+.home-stat-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:26px;}
+@media(max-width:560px){ .home-stat-row{grid-template-columns:1fr;} }
+.home-stat-card{display:flex;align-items:center;gap:18px;padding:18px 22px;border-radius:18px;background:var(--paper);border:1.5px solid var(--adm-line,var(--line));box-shadow:0 10px 26px -20px rgba(16,27,61,.35);cursor:pointer;text-align:left;font:inherit;color:inherit;width:100%;transition:transform .15s,box-shadow .2s,border-color .2s;}
+.home-stat-card:hover{transform:translateY(-2px);border-color:var(--c);box-shadow:0 14px 28px -18px rgba(16,27,61,.45);}
+.home-stat-card:focus-visible{outline:2px solid var(--c);outline-offset:2px;}
+.home-stat-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--c);color:#fff;}
+.home-stat-icon .ic{width:26px;height:26px;}
+.home-stat-body{min-width:0;}
+.home-stat-num{font-size:2.1rem;font-weight:800;color:var(--adm-ink,var(--ink));line-height:1;}
+.home-stat-label{font-size:.86rem;font-weight:600;color:var(--adm-gray,var(--gray));margin-top:6px;}
+.home-stat-go{margin-left:auto;width:20px;height:20px;flex-shrink:0;color:var(--adm-gray,var(--gray));opacity:.6;transition:transform .15s,opacity .15s,color .15s;}
+.home-stat-card:hover .home-stat-go{transform:translateX(3px);opacity:1;color:var(--c);}
+.home-stat-blue{--c:#2F6FED;}
+.home-stat-purple{--c:#7C5CFC;}
+.home-stat-green{--c:#1FAE7A;}
+.home-stat-orange{--c:#F0923D;}
+.home-section-card.home-flash{animation:homeFlash 1.2s ease;}
+@keyframes homeFlash{0%,100%{box-shadow:0 10px 26px -20px rgba(16,27,61,.35);}30%{box-shadow:0 0 0 3px rgba(47,111,237,.35);}}
 
 /* ---- Yesterday mini stat pills (circular icon badges) ---- */
 .home-mini-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:8px;}
@@ -8560,30 +8563,38 @@ async function loadHomeStats(){
   }
 
   document.getElementById('homeTopStatRow').innerHTML = `
-    <div class="home-stat-card home-stat-blue">
+    <button type="button" class="home-stat-card home-stat-blue" data-target="homeTodayGroups">
       <div class="home-stat-icon"><svg class="ic" aria-hidden="true"><use href="#i-book"></use></svg></div>
-      <div class="home-stat-num">${todayInfo.groups.length}</div>
-      <div class="home-stat-label">Bugungi darslar</div>
-      ${homeSparklineSvg('#2F6FED')}
-    </div>
-    <div class="home-stat-card home-stat-purple">
+      <div class="home-stat-body">
+        <div class="home-stat-num">${todayInfo.groups.length}</div>
+        <div class="home-stat-label">Bugungi darslar</div>
+      </div>
+      <svg class="ic home-stat-go" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+    </button>
+    <button type="button" class="home-stat-card home-stat-purple" data-target="homeTodayGroups">
       <div class="home-stat-icon"><svg class="ic" aria-hidden="true"><use href="#i-graduation-cap"></use></svg></div>
-      <div class="home-stat-num">${todayInfo.total}</div>
-      <div class="home-stat-label">Bugun keladigan talaba</div>
-      ${homeSparklineSvg('#7C5CFC')}
-    </div>
-    <div class="home-stat-card home-stat-green">
+      <div class="home-stat-body">
+        <div class="home-stat-num">${todayInfo.total}</div>
+        <div class="home-stat-label">Bugun keladigan talaba</div>
+      </div>
+      <svg class="ic home-stat-go" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+    </button>
+    <button type="button" class="home-stat-card home-stat-green" data-target="homeTomorrowGroups">
       <div class="home-stat-icon"><svg class="ic" aria-hidden="true"><use href="#i-calendar"></use></svg></div>
-      <div class="home-stat-num">${tomorrowInfo.groups.length}</div>
-      <div class="home-stat-label">Ertangi darslar</div>
-      ${homeSparklineSvg('#1FAE7A')}
-    </div>
-    <div class="home-stat-card home-stat-orange">
+      <div class="home-stat-body">
+        <div class="home-stat-num">${tomorrowInfo.groups.length}</div>
+        <div class="home-stat-label">Ertangi darslar</div>
+      </div>
+      <svg class="ic home-stat-go" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+    </button>
+    <button type="button" class="home-stat-card home-stat-orange" data-target="homeTomorrowGroups">
       <div class="home-stat-icon"><svg class="ic" aria-hidden="true"><use href="#i-backpack"></use></svg></div>
-      <div class="home-stat-num">${tomorrowInfo.total}</div>
-      <div class="home-stat-label">Ertaga keladigan talaba</div>
-      ${homeSparklineSvg('#F0923D')}
-    </div>`;
+      <div class="home-stat-body">
+        <div class="home-stat-num">${tomorrowInfo.total}</div>
+        <div class="home-stat-label">Ertaga keladigan talaba</div>
+      </div>
+      <svg class="ic home-stat-go" aria-hidden="true"><use href="#i-arrow-right"></use></svg>
+    </button>`;
 
   // ----- Statistika (tanlangan oy, barcha guruhlar) -----
   homeRenderStatsOverview();
@@ -8829,6 +8840,16 @@ async function salAttExportPdf(){
 document.getElementById('salAttPdfBtn').addEventListener('click', salAttExportPdf);
 
 // "Barchasi" links jump straight into O'quv jarayoni's group list.
+// Bosh sahifa statistika kartalari: bosilganda tegishli ro'yxatga silliq o'tadi
+document.getElementById('homeTopStatRow').addEventListener('click', (e) => {
+  const card = e.target.closest('.home-stat-card[data-target]');
+  if (!card) return;
+  const list = document.getElementById(card.dataset.target);
+  const box = list && list.closest('.home-section-card');
+  if (!box) return;
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  box.classList.remove('home-flash'); void box.offsetWidth; box.classList.add('home-flash');
+});
 document.getElementById('homeSeeAllToday').addEventListener('click', (e) => {
   e.preventDefault(); switchView('oquv-groups'); loadOjGroups();
 });
