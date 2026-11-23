@@ -2013,6 +2013,25 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       #view-definition .dl-btn{flex:none;border:1px solid rgba(47,95,216,.35);background:rgba(47,95,216,.1);color:#2f5fd8;border-radius:99px;padding:4px 10px;font:inherit;font-size:.72rem;font-weight:700;cursor:pointer;}
       #view-definition .dl-btn:active{transform:scale(.96);}
       #view-definition .dl-btn.on{border-color:rgba(100,116,139,.4);background:rgba(100,116,139,.12);color:#64748b;}
+      /* Lug'at: ixcham ro'yxat (bitta karta ichida qatorlar, chapda raqam, o'ngda ✓ doira) */
+      #view-definition .dl-list{background:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.85);border-radius:16px;overflow:hidden;box-shadow:0 1px 4px rgba(30,42,74,.1);margin:8px 0;}
+      #view-definition .dl-list .dl-c{margin:0;border:0;border-bottom:1px solid rgba(30,42,74,.08);border-radius:0;background:transparent;padding:11px 12px;gap:11px;justify-content:flex-start;}
+      #view-definition .dl-list .dl-c:last-child{border-bottom:0;}
+      #view-definition .dl-num{flex:none;width:20px;font-size:.72rem;font-weight:800;color:#98a1b5;}
+      #view-definition .dl-c .def-en{font-size:.98rem;}
+      #view-definition .dl-c .def-uz{font-size:.88rem;font-weight:700;text-align:left;}
+      #view-definition .dl-c .def-hint{font-size:.82rem;font-weight:600;color:#98a1b5;}
+      #view-definition .dl-ck{flex:none;width:30px;height:30px;padding:0;border-radius:50%;border:2px solid #cfd8ee;background:transparent;color:#cfd8ee;display:grid;place-items:center;cursor:pointer;transition:background .15s,border-color .15s,color .15s;}
+      #view-definition .dl-ck:active{transform:scale(.92);}
+      #view-definition .dl-ck.on{background:#22c55e;border-color:#22c55e;color:#fff;}
+      #view-definition .dl-c.is-done .def-en{color:#8f98ad;}
+      #view-definition .dl-c.is-done .def-uz{color:#9db0e3;}
+      body.dark #view-definition .dl-list{background:rgba(23,29,44,.6);border-color:rgba(255,255,255,.1);box-shadow:none;}
+      body.dark #view-definition .dl-list .dl-c{border-bottom-color:rgba(255,255,255,.08);}
+      body.dark #view-definition .dl-ck{border-color:rgba(255,255,255,.28);color:rgba(255,255,255,.28);}
+      body.dark #view-definition .dl-ck.on{background:#22c55e;border-color:#22c55e;color:#fff;}
+      body.dark #view-definition .dl-c.is-done .def-en{color:#7e89a5;}
+      body.dark #view-definition .dl-c.is-done .def-uz{color:#6f86c4;}
       #view-definition .dg-item:disabled{opacity:.5;cursor:default;}
       #view-definition .dl-empty{text-align:center;padding:26px 10px;}
       body.dark #view-definition .dl-btn{color:#7da2ff;border-color:rgba(125,162,255,.4);background:rgba(125,162,255,.12);}
@@ -8387,9 +8406,10 @@ try{
       const openAll = tab === 'done' || _def.reveal;
       const rows = slice.map(x => {
         const w = x.w, isDone = tab === 'done';
-        return '<div class="def-row dl-row" data-def-row><div class="dl-main"><span class="def-en"><span class="def-num">' + (x.idx + 1) + '.</span> ' + dEsc(w.en) + '</span>' +
+        const ck = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+        return '<div class="def-row dl-row dl-c' + (isDone ? ' is-done' : '') + '" data-def-row><span class="dl-num">' + (x.idx + 1) + '</span><div class="dl-main"><span class="def-en">' + dEsc(w.en) + '</span>' +
           '<span class="def-uz"' + (openAll ? '' : ' hidden') + '>' + dEsc(w.uz) + '</span><span class="def-hint"' + (openAll ? ' hidden' : '') + '>ko‘rish</span></div>' +
-          '<button type="button" class="dl-btn' + (isDone ? ' on' : '') + '" data-dl="' + x.idx + '">' + (isDone ? 'Qaytarish' : 'Yodladim') + '</button></div>';
+          '<button type="button" class="dl-ck' + (isDone ? ' on' : '') + '" data-dl="' + x.idx + '" aria-label="' + (isDone ? 'Qaytarish' : 'Yodladim') + '" title="' + (isDone ? 'Qaytarish' : 'Yodladim') + '">' + ck + '</button></div>';
       }).join('');
       const empty = '<div class="dl-empty mkt-muted">' + (tab === 'done'
         ? 'Hali yodlangan so‘z yo‘q. So‘zni yodlagach «Yodladim» tugmasini bosing.'
@@ -8400,7 +8420,7 @@ try{
         dgButtonsHtml(words) +
         '<div class="du-bar">' + tabs + '</div>' +
         '<div class="du-bar">' + seg + (tab === 'todo' ? '<button type="button" class="du-link" data-def-toggle-all>' + (_def.reveal ? 'Hammasini yashirish' : 'Hammasini ko‘rsatish') + '</button>' : '') + '</div>' +
-        (rows ? pager + rows + pager : empty);
+        (rows ? pager + '<div class="dl-list">' + rows + '</div>' + pager : empty);
       return;
     }
     if(!_def.sets.length){ box.innerHTML = headHtml + '<p class="mkt-muted">Hali lug‘at qo‘shilmagan.</p>'; return; }
