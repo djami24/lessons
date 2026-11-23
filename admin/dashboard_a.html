@@ -1732,6 +1732,14 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         </div>
 
         <div class="field">
+          <span>Chatlar <span style="font-weight:400; color:var(--gray);">(admin panel, talaba va ota-ona kabinetlariga ta’sir qiladi; yozishmalar o‘chib ketmaydi)</span></span>
+          <select id="settingChatsHidden" class="st-select">
+            <option value="shown">Ko‘rsatish: chatlar hamma joyda ko‘rinadi</option>
+            <option value="hidden">Yashirish: chatlar berkitiladi, yozishmalar saqlanib qoladi</option>
+          </select>
+        </div>
+
+        <div class="field">
           <span>Asosiy rang (tugmalar, urg‘u)</span>
           <div style="display:flex; align-items:center; gap:1em;">
             <input type="color" id="settingColorPrimary" value="#D98E3F" style="width:56px; height:44px; padding:.2em; border-radius: var(--radius-s); border:1.5px solid var(--line); cursor:pointer;">
@@ -4454,6 +4462,7 @@ auth.onAuthStateChanged(async (user) => {
     const _sd = await db.collection('settings').doc('site').get();
     if(_sd.exists){
       if(window.setAdminBgMode) window.setAdminBgMode(_sd.data().adminBgMode);
+      if(window.setChatsHidden) window.setChatsHidden(_sd.data().chatsHidden === true);
       const _lu = (_sd.data().logoUrl || '').trim();
       const _im = document.querySelector('[data-site-logo] img');
       const _sp = document.querySelector('[data-site-logo]');
@@ -5500,6 +5509,7 @@ function _restoreLastAdminView(){
 }
 
 function switchView(view){
+  if(window._chatsHidden && (view === 'chats' || view === 'parent-chats')) view = 'home';
   try{
     const key = (view === 'course-sections' || view === 'course-topics')
       ? 'course-sections:' + (state.activeCourseId || '')
@@ -7458,6 +7468,7 @@ const DEFAULT_SITE_SETTINGS = {
   marqueeText: '',
   marqueeEnabled: true,
   adminBgMode: 'glass',
+  chatsHidden: false,
 
   heroTitle: 'Ingliz tilini o‘rganishning zamonaviy platformasi',
   heroTitle: 'Ingliz tilini o‘rganishning zamonaviy platformasi',
@@ -7588,6 +7599,7 @@ function fillSiteSettingsForm(data){
 
   document.getElementById('settingMarqueeEnabled').checked = data.marqueeEnabled !== false;
   document.getElementById('settingAdminBg').value = data.adminBgMode === 'plain' ? 'plain' : 'glass';
+  document.getElementById('settingChatsHidden').value = data.chatsHidden === true ? 'hidden' : 'shown';
   document.getElementById('settingMarqueeText').value = data.marqueeText || '';
 
   document.getElementById('settingHeroTitle').value = data.heroTitle || '';
@@ -8200,6 +8212,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
     marqueeText: document.getElementById('settingMarqueeText').value.trim(),
     marqueeEnabled: document.getElementById('settingMarqueeEnabled').checked,
     adminBgMode: document.getElementById('settingAdminBg').value === 'plain' ? 'plain' : 'glass',
+    chatsHidden: document.getElementById('settingChatsHidden').value === 'hidden',
 
     heroTitle: document.getElementById('settingHeroTitle').value.trim(),
     heroLead: document.getElementById('settingHeroLead').value.trim(),
@@ -8254,6 +8267,7 @@ document.getElementById('siteSettingsForm').addEventListener('submit', async (e)
 
     showToast('Sayt sozlamalari saqlandi.');
     if(window.setAdminBgMode) window.setAdminBgMode(data.adminBgMode);
+    if(window.setChatsHidden) window.setChatsHidden(data.chatsHidden === true);
 
     // Reflect the marquee toggle/text immediately on this page too: the
     // site-settings.js loader only reads settings once on page load, so
@@ -19064,5 +19078,30 @@ void main() {
 })();
 </script>
 <!-- ===== /Admin fon rejimi ===== -->
+<style>
+body.chats-hidden #view-chats,
+body.chats-hidden #view-parent-chats{ display:none !important; }
+</style>
+<script>
+// Chatlarni yashirish/ko'rsatish: faqat ko'rinishni o'zgartiradi, Firestore'dagi yozishmalarga tegmaydi.
+(function(){
+  window._chatsHidden = false;
+  window.setChatsHidden = function(hidden){
+    hidden = hidden === true;
+    window._chatsHidden = hidden;
+    document.body.classList.toggle('chats-hidden', hidden);
+    ['navChats','navParentChats'].forEach(function(id){
+      var a = document.getElementById(id), li = a && a.closest('li');
+      if(li) li.style.display = hidden ? 'none' : '';
+    });
+    if(hidden){
+      document.body.classList.remove('chat-fullscreen');
+      var v1 = document.getElementById('view-chats'), v2 = document.getElementById('view-parent-chats');
+      var open = (v1 && !v1.hidden) || (v2 && !v2.hidden);
+      if(open && typeof switchView === 'function') switchView('home');
+    }
+  };
+})();
+</script>
 </body>
 </html>
