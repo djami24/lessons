@@ -307,6 +307,27 @@ body.teacher-mode .admin-nav li:has(#navHome),body.teacher-mode .admin-nav li:ha
 .home-stat-orange{--c:#F0923D;}
 .home-section-card.home-flash{animation:homeFlash 1.2s ease;}
 @keyframes homeFlash{0%,100%{box-shadow:0 10px 26px -20px rgba(16,27,61,.35);}30%{box-shadow:0 0 0 3px rgba(47,111,237,.35);}}
+/* Dinamika grafigi (stLine) */
+.dn-stats{display:flex;gap:14px;margin-bottom:8px;flex-wrap:wrap;}
+.dn-stat{flex:1 1 180px;background:var(--paper-2,#f8f9fd);border-radius:14px;padding:12px 16px;}
+.dn-sl{display:flex;align-items:center;gap:8px;font-size:.8rem;font-weight:600;color:var(--adm-gray,var(--gray));}
+.dn-sl i{width:9px;height:9px;border-radius:50%;display:inline-block;}
+.dn-sv{font-size:2rem;font-weight:800;line-height:1.1;margin-top:4px;color:var(--adm-ink,var(--ink));}
+.dn-dl{font-size:.78rem;font-weight:700;margin-top:3px;color:var(--adm-gray,var(--gray));}
+.dn-dl span{font-weight:500;color:var(--adm-gray,var(--gray));}
+.dn-dl.up{color:#1a9d6b;} .dn-dl.down{color:#dc4a3b;}
+.dn-grid{stroke:var(--adm-line,#e5e8ef);}
+.dn-axis{fill:var(--adm-gray,#8a93a6);font-size:11px;}
+.dn-pt{fill:var(--paper,#fff);}
+.dn-col .dn-hit{fill:transparent;cursor:pointer;}
+.dn-col .dn-guide,.dn-col .dn-hl,.dn-col .dn-tip{opacity:0;pointer-events:none;transition:opacity .12s;}
+.dn-col:hover .dn-guide,.dn-col:hover .dn-hl,.dn-col:hover .dn-tip{opacity:1;}
+.dn-col .dn-guide{stroke:var(--adm-line,#c9cfe0);stroke-dasharray:3 4;}
+.dn-col .dn-hl{opacity:0;}
+.dn-col:hover .dn-hl{opacity:.2;}
+.dn-tip rect{fill:#141b3a;}
+.dn-tip text{fill:#fff;font-size:11px;}
+.dn-tip .dn-tt{fill:#aab1cc;font-size:10px;font-weight:600;}
 
 /* ---- Yesterday mini stat pills (circular icon badges) ---- */
 .home-mini-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:8px;}
@@ -9365,23 +9386,79 @@ function stKpi(label, num, delta, sub, spark, color){
 }
 
 function stLine(labels, series){
-  const W = 640, H = 230, L = 34, R = 10, T = 12, B = 26, iw = W - L - R, ih = H - T - B;
-  const x = i => L + (labels.length < 2 ? iw / 2 : i * iw / (labels.length - 1));
-  const y = v => T + ih - v / 100 * ih;
+  const W = 640, H = 240, L = 36, R = 24, T = 14, B = 28, iw = W - L - R, ih = H - T - B;
+  const n = labels.length;
+  const all = []; series.forEach(se => se.vals.forEach(v => { if (v !== null) all.push(v); }));
+  // Y o'qi: ma'lumot qaysi oraliqda bo'lsa, shu oraliqni kattalashtiramiz (0 dan emas)
+  let lo = all.length ? Math.max(0, Math.floor((Math.min.apply(null, all) - 5) / 10) * 10) : 0;
+  const span = 100 - lo, step = span <= 40 ? 10 : span <= 60 ? 20 : 25;
+  lo = Math.floor(lo / step) * step;
+  const ticks = []; for (let t = lo; t <= 100; t += step) ticks.push(t);
+  const x = i => L + (n < 2 ? iw / 2 : i * iw / (n - 1));
+  const y = v => T + ih * (1 - (v - lo) / (102 - lo));
+  const clamp = (v, a, b) => Math.max(Math.min(a, b), Math.min(Math.max(a, b), v));
+  const smooth = pts => {
+    let d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || pts[i + 1];
+      const c1y = clamp(p1[1] + (p2[1] - p0[1]) / 6, p1[1], p2[1]), c2y = clamp(p2[1] - (p3[1] - p1[1]) / 6, p1[1], p2[1]);
+      d += ' C' + (p1[0] + (p2[0] - p0[0]) / 6).toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + (p2[0] - (p3[0] - p1[0]) / 6).toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+    }
+    return d;
+  };
+  // yuqoridagi ko'rsatkichlar: oxirgi qiymat va oldingi nuqtaga nisbatan o'zgarish
+  const stats = series.map(se => {
+    const idx = []; se.vals.forEach((v, i) => { if (v !== null) idx.push(i); });
+    const cur = idx.length ? se.vals[idx[idx.length - 1]] : null;
+    const prv = idx.length > 1 ? se.vals[idx[idx.length - 2]] : null;
+    let dl = '<div class="dn-dl">-</div>';
+    if (cur !== null && prv !== null) {
+      const d = cur - prv, cls = d > 0 ? 'up' : d < 0 ? 'down' : '', ar = d > 0 ? '▲ +' : d < 0 ? '▼ −' : '= ';
+      dl = `<div class="dn-dl ${cls}">${ar}${Math.abs(d)}<span> oldingi nuqtadan</span></div>`;
+    }
+    return `<div class="dn-stat"><div class="dn-sl"><i style="background:${se.color}"></i>${escHtml(se.name)}</div><div class="dn-sv">${cur === null ? '-' : cur + '%'}</div>${dl}</div>`;
+  }).join('');
+
   let s = `<svg viewBox="0 0 ${W} ${H}" class="st-svg" role="img" aria-label="Dinamika grafigi">`;
-  [0,25,50,75,100].forEach(g => {
-    s += `<line x1="${L}" x2="${W-R}" y1="${y(g)}" y2="${y(g)}" stroke="#e5e8ef" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(g)+4}" text-anchor="end" font-size="10" fill="#8a93a6">${g}</text>`;
+  ticks.forEach(g => {
+    s += `<line class="dn-grid" x1="${L}" x2="${W - R}" y1="${y(g).toFixed(1)}" y2="${y(g).toFixed(1)}" stroke-dasharray="3 4"/><text class="dn-axis" x="${L - 8}" y="${(y(g) + 4).toFixed(1)}" text-anchor="end">${g}</text>`;
   });
-  const step = Math.ceil(labels.length / 10);
-  labels.forEach((l,i) => { if (i % step === 0) s += `<text x="${x(i)}" y="${H-8}" text-anchor="middle" font-size="10" fill="#8a93a6">${l}</text>`; });
+  const lstep = Math.ceil(n / 10);
+  labels.forEach((l, i) => { if (i % lstep === 0) s += `<text class="dn-axis" x="${x(i).toFixed(1)}" y="${H - 8}" text-anchor="middle">${escHtml(l)}</text>`; });
   series.forEach(se => {
-    let path = '', pen = false;
-    se.vals.forEach((v,i) => { if (v === null) { pen = false; return; } path += (pen ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(v).toFixed(1) + ' '; pen = true; });
-    if (path) s += `<path d="${path}" fill="none" stroke="${se.color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-    se.vals.forEach((v,i) => { if (v !== null) s += `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="3.6" fill="#fff" stroke="${se.color}" stroke-width="2"><title>${se.name}: ${v}% (${labels[i]})</title></circle>`; });
+    // null qiymatlar chiziqni uzadi: har bir uzluksiz bo'lak alohida silliq chiziq
+    let seg = [];
+    const flush = () => { if (seg.length > 1) s += `<path d="${smooth(seg)}" fill="none" stroke="${se.color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`; seg = []; };
+    se.vals.forEach((v, i) => { if (v === null) flush(); else seg.push([x(i), y(v)]); });
+    flush();
+    const lastI = se.vals.reduce((m, v, i) => v !== null ? i : m, -1);
+    se.vals.forEach((v, i) => {
+      if (v === null) return;
+      const cx = x(i).toFixed(1), cy = y(v).toFixed(1);
+      if (i === lastI) s += `<circle cx="${cx}" cy="${cy}" r="10" fill="${se.color}" opacity=".15"/><circle class="dn-pt" cx="${cx}" cy="${cy}" r="5.5" stroke="${se.color}" stroke-width="3"/>`;
+      else s += `<circle class="dn-pt" cx="${cx}" cy="${cy}" r="4" stroke="${se.color}" stroke-width="2.5"/>`;
+    });
   });
-  s += '</svg><div class="st-legend">' + series.map(se => `<span><i class="st-dot" style="background:${se.color}"></i>${se.name}</span>`).join('') + '</div>';
-  return s;
+  // har bir nuqta ustida: yo'naltiruvchi chiziq + tooltip (faqat CSS hover)
+  const colW = n < 2 ? iw : iw / (n - 1);
+  labels.forEach((l, i) => {
+    const cx = x(i), rows = series.filter(se => se.vals[i] !== null);
+    if (!rows.length) return;
+    const tw = 142, th = 30 + rows.length * 16, onLeft = cx > W / 2;
+    const avgY = rows.reduce((m, se) => m + y(se.vals[i]), 0) / rows.length;
+    const tx = onLeft ? cx - 12 - tw : cx + 12, ty = avgY < T + ih / 2 ? T + ih - th - 6 : T + 4;
+    s += `<g class="dn-col"><line class="dn-guide" x1="${cx.toFixed(1)}" x2="${cx.toFixed(1)}" y1="${T}" y2="${T + ih}"/>`;
+    rows.forEach(se => { s += `<circle class="dn-hl" cx="${cx.toFixed(1)}" cy="${y(se.vals[i]).toFixed(1)}" r="9" fill="${se.color}"/>`; });
+    s += `<rect class="dn-hit" x="${(cx - colW / 2).toFixed(1)}" y="${T}" width="${colW.toFixed(1)}" height="${ih}"/>`;
+    s += `<g class="dn-tip"><rect x="${tx.toFixed(1)}" y="${ty}" width="${tw}" height="${th}" rx="9"/><text class="dn-tt" x="${(tx + 12).toFixed(1)}" y="${ty + 18}">${escHtml(l)}</text>`;
+    rows.forEach((se, k) => {
+      const ry = ty + 36 + k * 16;
+      s += `<circle cx="${(tx + 16).toFixed(1)}" cy="${ry - 4}" r="3.5" fill="${se.color}"/><text x="${(tx + 26).toFixed(1)}" y="${ry}">${escHtml(se.name.replace(/\s*%$/, ''))}</text><text x="${(tx + tw - 12).toFixed(1)}" y="${ry}" text-anchor="end" font-weight="700">${se.vals[i]}%</text>`;
+    });
+    s += '</g></g>';
+  });
+  s += '</svg>';
+  return `<div class="dn-stats">${stats}</div>` + s;
 }
 
 function stDonut(title, parts){
