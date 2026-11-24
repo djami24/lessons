@@ -19,17 +19,17 @@
     font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; color:#000;
   }
   .role-wrap{ width:100%; max-width:440px; text-align:left; }
-  .role-wrap .brand{ display:inline-flex; align-items:center; gap:.6em; margin-bottom:3.2em; text-decoration:none; color:#000; font-weight:800; }
+  .role-wrap .brand{ display:inline-flex; align-items:center; gap:.6em; margin-bottom:2.6em; font-size:.95rem; text-decoration:none; color:#000; font-weight:800; }
   .role-card-box{ background:transparent; box-shadow:none; padding:0; border-radius:0; }
   /* glass-auth.css dan keladigan oq shisha karta/soya/xiralashtirishni o'chiramiz */
   .role-wrap .role-card-box{ background:transparent !important; box-shadow:none !important; border:0 !important; padding:0 !important; border-radius:0 !important; -webkit-backdrop-filter:none !important; backdrop-filter:none !important; }
-  .role-wrap .role-card-box::before, .role-wrap .role-card-box::after{ display:none !important; }
-  .role-card-box h1{ font-size:2.4rem; font-weight:800; letter-spacing:-.04em; line-height:1.08; color:#000; margin:0 0 .3em; }
-  .role-card-box > p{ color:#000; opacity:.6; font-size:1rem; margin:0 0 2.2em; }
+  .role-wrap::before, .role-wrap::after, .role-wrap .role-card-box::before, .role-wrap .role-card-box::after{ display:none !important; content:none !important; }
+  .role-card-box h1{ font-size:1.9rem; font-weight:800; letter-spacing:-.035em; line-height:1.08; color:#000; margin:0 0 .3em; }
+  .role-card-box > p{ color:#000; opacity:.6; font-size:.9rem; margin:0 0 1.8em; }
   .role-choice-grid{ display:flex; flex-direction:column; gap:12px; }
   .role-wrap .role-choice{
     display:flex; flex-direction:row; align-items:center; gap:14px; text-align:left;
-    padding:1.15em 1.2em; border-radius:18px; text-decoration:none; cursor:pointer;
+    padding:.95em 1.1em; border-radius:16px; text-decoration:none; cursor:pointer;
     background:#000 !important; color:#fff !important; border:1.5px solid #000 !important;
     box-shadow:0 8px 18px -8px rgba(0,0,0,.55);
     transition:transform .18s, box-shadow .18s, background .18s;
@@ -39,15 +39,15 @@
   .role-wrap .role-choice:focus-visible{ outline:2px solid #000; outline-offset:3px; }
   .role-choice-icon{ width:auto !important; height:auto !important; background:transparent !important; color:inherit !important; border-radius:0; display:flex; align-items:center; flex-shrink:0; }
   .role-choice-text{ flex:1; display:flex; flex-direction:column; gap:2px; }
-  .role-choice-title{ font-weight:800; font-size:1.1rem; color:inherit; }
-  .role-choice-sub{ font-size:.8rem; margin:0; color:inherit; opacity:.7; }
+  .role-choice-title{ font-weight:800; font-size:.98rem; color:inherit; }
+  .role-choice-sub{ font-size:.74rem; margin:0; color:inherit; opacity:.7; }
   .role-choice-arrow{ flex-shrink:0; opacity:.9; }
   .role-guest-btn{
     display:block; width:auto; margin:1.6em auto 0; padding:.4em; border:0; background:transparent;
-    color:#000; font-size:.95rem; font-weight:700; text-decoration:underline; text-align:center; cursor:pointer;
+    color:#000; font-size:.86rem; font-weight:700; text-decoration:underline; text-align:center; cursor:pointer;
   }
   .role-guest-btn:hover{ opacity:.65; }
-  .role-signin-row{ margin-top:2.4em; font-size:.88rem; color:#000; opacity:.7; line-height:1.6; text-align:center; }
+  .role-signin-row{ margin-top:2em; font-size:.8rem; color:#000; opacity:.7; line-height:1.6; text-align:center; }
   .role-signin-row a{ color:#000; font-weight:800; text-decoration:underline; }
   .role-signin-row a:hover{ opacity:.7; }
   .powered-by{ position:fixed; left:0; right:0; bottom:14px; text-align:center; }
@@ -61,10 +61,10 @@
 </head>
 <body class="role-body">
 
-<div class="role-wrap">
+<div class="role-wrap" style="background:transparent !important;box-shadow:none !important;border:0 !important;border-radius:0 !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;">
   <a href="./" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
 
-  <div class="role-card-box">
+  <div class="role-card-box" style="background:transparent !important;box-shadow:none !important;border:0 !important;border-radius:0 !important;padding:0 !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;">
     <h1 id="roleHeading">Kim sifatida kirasiz?</h1>
     <p id="roleSub">Profilingiz turini tanlang.</p>
 
