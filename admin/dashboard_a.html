@@ -1724,7 +1724,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <h3 style="margin-top:0;"><svg class="ic" aria-hidden="true"><use href="#i-palette"></use></svg> Ranglar</h3>
 
         <div class="field">
-          <span>Admin panel orqa foni <span style="font-weight:400; color:var(--gray);">(faqat admin panelga ta’sir qiladi)</span></span>
+          <span>Admin panel orqa foni <span style="font-weight:400; color:var(--gray);">(admin panel va talaba kabinetiga ta’sir qiladi)</span></span>
           <select id="settingAdminBg" class="st-select">
             <option value="glass">Shisha (glass) uslubi: rangli gradient fon</option>
             <option value="plain">Oddiy fon: kunduzi oq, tunda qora + katak effekti</option>
@@ -13780,7 +13780,29 @@ function todayHwRenderGroup(data, isToday){
 }
 function showTodayHwList(gid){ showTodayAttendanceList(gid, 'hw-no'); }
 
-async function loadTodayHomeworkCards(){
+// Guruh vaqti ("15:30–16:30") dan boshlanish daqiqasini oladi; vaqt kiritilmagan bo'lsa null
+function hwStartMinutes(str){
+  const m = [...String(str || '').matchAll(/(\d{1,2})\s*[:.]\s*(\d{2})/g)];
+  if(!m.length) return null;
+  const h = +m[0][1], mi = +m[0][2];
+  return (h < 24 && mi < 60) ? h * 60 + mi : null;
+}
+// Hozirgi vaqtga mos guruh: boshlanishiga 20 daqiqa qolgan paytdan boshlab shu guruh tanlanadi
+// va keyingi guruhning vaqti kelguncha (dars tugagach uy vazifa kiritish uchun) o'sha turadi.
+// Dars boshlanmagan bo'lsa — eng birinchi guruh.
+function hwPickGroupByTime(todayGroups){
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  let pick = null;
+  todayGroups.forEach(g => {
+    const s = hwStartMinutes(g.time);
+    if(s !== null && s - 20 <= nowMin) pick = g;   // vaqt bo'yicha tartiblangan, oxirgisi qoladi
+  });
+  return pick;
+}
+
+async function loadTodayHomeworkCards(keepManual){
+  if(!keepManual) window._hwManualGid = null;
   const grid = document.getElementById('todayHwGrid');
   const tabs = document.getElementById('todayHwTabs');
   const loading = document.getElementById('todayHwLoading');
@@ -13798,7 +13820,14 @@ async function loadTodayHomeworkCards(){
   const groups = await homeFetchGroupsWithStudents();
   loading.style.display = 'none';
 
-  const todayGroups = groups.filter(g => (g.days || []).includes(todayKey));
+  const todayGroups = groups.filter(g => (g.days || []).includes(todayKey))
+    .sort((a, b) => {
+      const sa = hwStartMinutes(a.time), sb = hwStartMinutes(b.time);
+      if(sa === null && sb === null) return 0;
+      if(sa === null) return 1;
+      if(sb === null) return -1;
+      return sa - sb;
+    });
   const otherGroups = groups.filter(g => !(g.days || []).includes(todayKey));
   const ordered = [...todayGroups, ...otherGroups];
 
@@ -13840,7 +13869,7 @@ async function loadTodayHomeworkCards(){
     tabs.dataset.bound = '1';
     tabs.addEventListener('click', (e) => {
       const b = e.target.closest('.hwb-tab');
-      if(b && typeof tabs._select === 'function') tabs._select(b.dataset.gid);
+      if(b && typeof tabs._select === 'function'){ window._hwManualGid = b.dataset.gid; tabs._select(b.dataset.gid); }
     });
   }
   tabs._select = selectGroup;
@@ -13855,7 +13884,16 @@ async function loadTodayHomeworkCards(){
     });
   }
 
-  await selectGroup(ordered[0].id);
+  let startGid = ordered[0].id;
+  if(window._hwManualGid && ordered.some(x => x.id === window._hwManualGid)){
+    startGid = window._hwManualGid;              // foydalanuvchi o'zi tanlagan (yangilash paytida saqlanadi)
+  } else {
+    const byTime = hwPickGroupByTime(todayGroups);
+    if(byTime) startGid = byTime.id;
+  }
+  await selectGroup(startGid);
+  const activeTab = tabs.querySelector('.hwb-tab.active');
+  if(activeTab && activeTab.scrollIntoView) activeTab.scrollIntoView({ block:'nearest', inline:'center' });
   ballLoad();
 
   const now = new Date();
@@ -13912,11 +13950,11 @@ function showTodayAttendanceList(groupId, kind){
 function startTodayHwAutoRefresh(){
   if(_todayHwAutoRefreshInterval) clearInterval(_todayHwAutoRefreshInterval);
   _todayHwAutoRefreshInterval = setInterval(() => {
-    if(!document.getElementById('view-home').hidden) loadTodayHomeworkCards();
+    if(!document.getElementById('view-home').hidden) loadTodayHomeworkCards(true);
   }, 60000);
 }
 
-document.getElementById('todayHwRefreshBtn').addEventListener('click', () => loadTodayHomeworkCards());
+document.getElementById('todayHwRefreshBtn').addEventListener('click', () => loadTodayHomeworkCards(true));
 
 /* ================================================================
    UY VAZIFA BALLARI (statistika formulasiga bog'liq emas)
