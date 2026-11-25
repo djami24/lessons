@@ -1827,6 +1827,12 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         .cwr-tabs .crls-tab small{font-weight:700;opacity:.75;margin-left:6px;}
         .cwr-qimg{display:block;max-width:100%;max-height:420px;border-radius:10px;margin-top:10px;cursor:zoom-in;}
         .cwr-qimg.zoom{max-height:none;cursor:zoom-out;}
+        .cwr-lb{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;touch-action:none;overflow:hidden;}
+        .cwr-lb img{max-width:94vw;max-height:86vh;transform-origin:center center;cursor:grab;user-select:none;-webkit-user-select:none;will-change:transform;}
+        .cwr-lb-bar{position:fixed;top:max(12px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:99px;background:rgba(30,30,30,.92);border:1px solid rgba(255,255,255,.18);z-index:2;}
+        .cwr-lb-bar button{min-width:38px;height:38px;padding:0 12px;border-radius:99px;border:0;background:rgba(255,255,255,.12);color:#fff;font:inherit;font-size:18px;font-weight:700;cursor:pointer;}
+        .cwr-lb-bar button[data-z="reset"]{font-size:13px;}
+        .cwr-lb-pct{color:#fff;font-size:13px;font-weight:700;min-width:46px;text-align:center;}
         .cwr-note{font-size:13px;color:var(--gray-500);margin:0 0 10px;}
         @media (max-width:600px){.cwr-text{min-height:46vh;font-size:16px;padding:14px;}}
       </style>
@@ -7299,6 +7305,79 @@ async function cwrSaveRemote(submit){
   }
 }
 
+// ---- Rasmni kattalashtirib ko'rish (lightbox): +/- tugmalari, g'ildirak, ikki barmoq, sudrab surish ----
+function cwrOpenLightbox(src){
+  const ov = document.createElement('div');
+  ov.className = 'cwr-lb';
+  ov.innerHTML = '<div class="cwr-lb-bar"><button type="button" data-z="out" aria-label="Kichraytirish">&minus;</button>' +
+    '<span class="cwr-lb-pct">100%</span><button type="button" data-z="in" aria-label="Kattalashtirish">+</button>' +
+    '<button type="button" data-z="reset">Asl holat</button><button type="button" data-z="close" aria-label="Yopish">&times;</button></div><img alt="" draggable="false">';
+  const img = ov.querySelector('img'), pct = ov.querySelector('.cwr-lb-pct');
+  img.src = src;
+  let s = 1, x = 0, y = 0, pinch0 = 0, moved = false;
+  const pts = new Map();
+  const prevOverflow = document.body.style.overflow;
+  document.body.style.overflow = 'hidden';
+  function apply(){ img.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')'; pct.textContent = Math.round(s * 100) + '%'; }
+  function zoom(f, cx, cy){
+    const ns = Math.min(8, Math.max(0.5, s * f));
+    const px = (cx == null ? 0 : cx - window.innerWidth / 2), py = (cy == null ? 0 : cy - window.innerHeight / 2);
+    x = px - (px - x) * (ns / s); y = py - (py - y) * (ns / s);
+    s = ns; apply();
+  }
+  function reset(){ s = 1; x = 0; y = 0; apply(); }
+  function close(){
+    document.removeEventListener('keydown', onKey);
+    document.body.style.overflow = prevOverflow;
+    ov.remove();
+  }
+  function onKey(e){
+    if(e.key === 'Escape') close();
+    else if(e.key === '+' || e.key === '=') zoom(1.25);
+    else if(e.key === '-') zoom(1 / 1.25);
+    else if(e.key === '0') reset();
+  }
+  document.addEventListener('keydown', onKey);
+  ov.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-z]');
+    if(b){
+      const z = b.dataset.z;
+      if(z === 'in') zoom(1.25); else if(z === 'out') zoom(1 / 1.25); else if(z === 'reset') reset(); else close();
+      return;
+    }
+    if(e.target === ov && !moved) close();
+  });
+  ov.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY < 0 ? 1.15 : 1 / 1.15, e.clientX, e.clientY); }, { passive: false });
+  img.addEventListener('dblclick', (e) => { if(s > 1.01){ reset(); } else { zoom(2.5, e.clientX, e.clientY); } });
+  ov.addEventListener('pointerdown', (e) => {
+    if(e.target.closest('.cwr-lb-bar')) return;
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    moved = false;
+    try{ ov.setPointerCapture(e.pointerId); }catch(err){}
+    if(pts.size === 2){ const a = Array.from(pts.values()); pinch0 = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y); }
+  });
+  ov.addEventListener('pointermove', (e) => {
+    const p = pts.get(e.pointerId);
+    if(!p) return;
+    if(pts.size === 1){
+      const dx = e.clientX - p.x, dy = e.clientY - p.y;
+      if(Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+      x += dx; y += dy; p.x = e.clientX; p.y = e.clientY; apply();
+    } else if(pts.size === 2){
+      p.x = e.clientX; p.y = e.clientY;
+      const a = Array.from(pts.values());
+      const d = Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y);
+      if(pinch0 > 0 && d > 0){ moved = true; zoom(d / pinch0, (a[0].x + a[1].x) / 2, (a[0].y + a[1].y) / 2); }
+      pinch0 = d;
+    }
+  });
+  const up = (e) => { pts.delete(e.pointerId); pinch0 = 0; setTimeout(() => { if(!pts.size) moved = false; }, 0); };
+  ov.addEventListener('pointerup', up);
+  ov.addEventListener('pointercancel', up);
+  document.body.appendChild(ov);
+  apply();
+}
+
 document.addEventListener('input', (e) => {
   if(!e.target || e.target.id !== 'cwrText' || !cwrS.cur) return;
   const k = cwrS.part;
@@ -7317,7 +7396,7 @@ document.addEventListener('input', (e) => {
 document.addEventListener('click', (e) => {
   let b;
   if((b = e.target.closest('[data-cwr-open]'))){ openCwrTask(b.dataset.cwrOpen); return; }
-  if((b = e.target.closest('[data-cwr-zoom]'))){ b.classList.toggle('zoom'); return; }
+  if((b = e.target.closest('[data-cwr-zoom]'))){ cwrOpenLightbox(b.src); return; }
   if(e.target.closest('#cwrBackList')){ showCwrList(); return; }
   if((b = e.target.closest('[data-cwr-part]'))){ cwrStoreLocal(); cwrS.part = b.dataset.cwrPart; renderCwrTask(); return; }
   if(e.target.closest('#cwrSaveDraft')){ cwrSaveRemote(false); return; }
