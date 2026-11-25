@@ -1301,6 +1301,7 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
       <li><a href="#" id="navPlacementTest"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg> Darajani bilish testi</a></li>
       <li><a href="#" id="navMyEssays" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Insholarim</a></li>
       <li><a href="#" id="navCEFR" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> CEFR</a></li>
+      <li><a href="#" id="navCefrWriting" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> CEFR Writing</a></li>
       <li><a href="#" id="navCefrRL" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 7h7M9 11h7"/></svg> CEFR RL</a></li>
       <li><a href="#" id="navIndArchive" style="display:none"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg> Arxiv</a></li>
       <li><a href="#" id="navWordGame"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M12 12h.01"/><path d="M7 12h.01"/><path d="M17 12h.01"/></svg> So’z o’yini</a></li>
@@ -1784,6 +1785,56 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
         </div>
       </div>
       <div id="archBody"></div>
+    </section>
+
+    <!-- ===== CEFR WRITING (Part 1.1 / Part 1.2 / Part 2) — admin biriktirgan savollar ===== -->
+    <section id="view-cwr" hidden>
+      <style>
+        #view-cwr .cwr-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+        #view-cwr .cwr-topbar h1{font-size:20px !important;line-height:1.2;margin:0;}
+        body.dark #view-cwr .cwr-topbar h1{color:#f1f1f1 !important;}
+        #view-cwr .cwr-sub{font-size:13px;color:var(--gray-500);margin:0 0 14px;}
+        .cwr-chip{display:inline-flex;align-items:center;font-size:11.5px;font-weight:800;padding:3px 11px;border-radius:99px;}
+        .cwr-chip--none{color:#6b7280;background:rgba(107,114,128,.14);}
+        .cwr-chip--draft{color:#b45309;background:rgba(245,158,11,.18);}
+        .cwr-chip--submitted{color:#2563eb;background:rgba(37,99,235,.14);}
+        .cwr-chip--graded{color:#059669;background:rgba(5,150,105,.16);}
+        .cwr-thead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+        .cwr-thead h2{margin:0;font-size:18px;flex:1;min-width:140px;overflow-wrap:anywhere;color:var(--gray-900);}
+        body.dark .cwr-thead h2{color:#f1f1f1;}
+        .cwr-q{background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:14.5px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--gray-900);}
+        body.dark .cwr-q{background:rgba(79,140,255,.1);border-color:rgba(79,140,255,.25);color:#e6e9f2;}
+        .cwr-q b{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--blue-600);margin-bottom:4px;}
+        .cwr-text{width:100%;min-height:52vh;resize:vertical;padding:16px 18px;border:1.5px solid var(--gray-200);border-radius:12px;background:var(--white);color:var(--gray-900);font:inherit;font-size:16.5px;line-height:1.75;outline:0;box-sizing:border-box;}
+        .cwr-text:focus{border-color:var(--blue-600);box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+        .cwr-text[readonly]{background:var(--gray-25,#f8fafc);}
+        body.dark .cwr-text{background:#0d0d0d;border-color:#1f1f1f;color:#f1f1f1;}
+        body.dark .cwr-text[readonly]{background:#101010;}
+        .cwr-foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;}
+        .cwr-wc{font-size:13px;font-weight:700;color:var(--gray-500);}
+        .cwr-wc.ok{color:#059669;} .cwr-wc.low{color:#b45309;}
+        .cwr-saved{font-size:12.5px;color:var(--gray-500);flex:1;}
+        .cwr-ghost{background:transparent;color:var(--gray-700);border:1.5px solid var(--gray-200);border-radius:10px;font:inherit;font-weight:700;font-size:14px;padding:10px 18px;cursor:pointer;}
+        body.dark .cwr-ghost{color:#c3cbe0;border-color:#2a2a2a;}
+        .cwr-ghost:disabled{opacity:.55;cursor:default;}
+        .cwr-fb{margin-top:14px;border:1.5px solid rgba(5,150,105,.35);background:rgba(5,150,105,.07);border-radius:12px;padding:12px 14px;font-size:14.5px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:var(--gray-900);}
+        body.dark .cwr-fb{color:#e6e9f2;}
+        .cwr-fb b{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#059669;margin-bottom:4px;}
+        .cwr-result{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:14px;padding:14px 16px;border-radius:12px;background:rgba(5,150,105,.08);border:1.5px solid rgba(5,150,105,.35);}
+        .cwr-result .big{font-size:32px;font-weight:900;color:#059669;line-height:1;}
+        .cwr-result .big small{font-size:13px;font-weight:700;color:var(--gray-500);margin-left:4px;}
+        .cwr-tabs .crls-tab small{font-weight:700;opacity:.75;margin-left:6px;}
+        .cwr-qimg{display:block;max-width:100%;max-height:420px;border-radius:10px;margin-top:10px;cursor:zoom-in;}
+        .cwr-qimg.zoom{max-height:none;cursor:zoom-out;}
+        .cwr-note{font-size:13px;color:var(--gray-500);margin:0 0 10px;}
+        @media (max-width:600px){.cwr-text{min-height:46vh;font-size:16px;padding:14px;}}
+      </style>
+      <div class="cwr-topbar">
+        <a href="#" id="backToHomeFromCwr" class="back-link crl-glass">Bosh sahifaga</a>
+        <div class="admin-header" style="margin:0;padding:0;border:0;"><h1>CEFR Writing</h1></div>
+      </div>
+      <div id="cwrListPane"></div>
+      <div id="cwrTaskPane" hidden></div>
     </section>
 
     <!-- ===== CEFR RL (Reading / Listening — 35 ta javob) ===== -->
@@ -2636,6 +2687,7 @@ async function enterDashboard(){
   await loadWriting();
   await loadMySubmissions();
   await loadCefrRLTests();
+  await loadCwrTasks();
   loadScheduleTable();     // ta'lim jadvali (fon, kutilmaydi)
   loadMyStats();           // shaxsiy statistika (fon, kutilmaydi)
   let _savedStudentView = null;
@@ -2846,7 +2898,7 @@ async function saveProgress(levelId, lessonId, passed, scorePct){
 
 // ---------- View switching ----------
 
-const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-rl', 'ind-archive', 'market', 'definition'];
+const VIEWS = ['home', 'listening-hw', 'my-essays', 'placement-test', 'profile', 'notifications', 'chat', 'teacher', 'word-game', 'reading-mocks', 'cefr-menu', 'cefr-writing', 'cefr-speaking', 'cefr-rl', 'cwr', 'ind-archive', 'market', 'definition'];
 
 // Bir vaqtning o'zida faqat bitta sidebar bandi ko'k (active) bo'lishi uchun:
 // avval BARCHA bandlardan 'active' klassini olib tashlaydi, so'ng kerakli
@@ -3018,6 +3070,7 @@ const STUDENT_VIEW_NAV_MAP = {
   'cefr-writing': 'navCEFR',
   'cefr-speaking': 'navCEFR',
   'cefr-rl': 'navCefrRL',
+  'cwr': 'navCefrWriting',
   'ind-archive': 'navIndArchive',
   'notifications': 'navNotifications',
   'chat': 'navChat',
@@ -3079,6 +3132,8 @@ function applyIndividualMode(){
   if(cefr){
     const li = cefr.parentElement, ul = li && li.parentElement;
     if(ul && ul.firstElementChild !== li) ul.insertBefore(li, ul.firstElementChild);
+    const cwNav = document.getElementById('navCefrWriting');
+    if(ul && cwNav) ul.insertBefore(cwNav.parentElement, li.nextSibling);
     cefr.classList.add('ind-cefr-btn');
     cefr.style.background = '#22c55e';
     cefr.style.borderColor = '#22c55e';
@@ -7066,6 +7121,210 @@ function ivShowResult(){
 
 // ---- Irr Verbs navigation handled by wgBackLink ----
 
+
+// ===== CEFR WRITING — admin biriktirgan savollar: Part 1.1, Part 1.2, Part 2 (talaba o'z profilida yozadi) =====
+// cefrWriting/{taskId}             — savol (faqat biriktirilgan talaba o'qiydi): { title, q:{p11,p12,p2}, assignedTo:[uid] }
+// cefrWritingSubs/{taskId__uid}    — talabaning inshosi: { taskId, studentId, studentName, p11, p12, p2, status, ... }
+//                                    admin feedback/ball qo'shadi: feedback:{p11,p12,p2}, scores:{...}, overall, generalFeedback
+const CWR_PARTS = [
+  { k: 'p11', label: 'Part 1.1', lo: 40,  range: "taxminan 50 so'z" },
+  { k: 'p12', label: 'Part 1.2', lo: 120, range: "120–150 so'z" },
+  { k: 'p2',  label: 'Part 2',   lo: 180, range: "180–200 so'z" }
+];
+const CWR_ST = { none: 'Yozilmagan', draft: 'Qoralama', submitted: 'Topshirilgan', graded: 'Baholangan' };
+const cwrS = { tasks: [], subs: {}, cur: null, part: 'p11', text: {}, timer: null };
+function cwrEsc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function cwrWc(s){ return (String(s || '').trim().match(/\S+/g) || []).length; }
+function cwrDraftKey(id){ return 'cwrDraft_' + currentUid + '_' + id; }
+function cwrStatus(id){ const s = cwrS.subs[id]; return s ? (s.status || 'draft') : 'none'; }
+function cwrLocked(id){ const st = cwrStatus(id); return st === 'submitted' || st === 'graded'; }
+function cwrChip(st){ return '<span class="cwr-chip cwr-chip--' + st + '">' + CWR_ST[st] + '</span>'; }
+function cwrPartsOf(t){ return CWR_PARTS.filter(p => (t.q && t.q[p.k]) || (t.img && t.img[p.k])); }
+function cwrMs(x){ return x && x.createdAt && x.createdAt.toMillis ? x.createdAt.toMillis() : 0; }
+
+async function loadCwrTasks(){
+  try{
+    const [t, a] = await Promise.all([
+      db.collection('cefrWriting').where('assignedTo', 'array-contains', currentUid).get(),
+      db.collection('cefrWritingSubs').where('studentId', '==', currentUid).get()
+    ]);
+    cwrS.tasks = t.docs.map(d => Object.assign({ id: d.id }, d.data())).sort((x, y) => cwrMs(y) - cwrMs(x));
+    cwrS.subs = {};
+    a.docs.forEach(d => { const x = d.data(); if(x.taskId) cwrS.subs[x.taskId] = x; });
+  } catch(err){
+    console.warn('CEFR Writing yuklanmadi:', err);
+    cwrS.tasks = []; cwrS.subs = {};
+  }
+  const nav = document.getElementById('navCefrWriting');
+  if(nav) nav.style.display = cwrS.tasks.length ? '' : 'none';
+}
+
+function showCwrList(){
+  document.getElementById('cwrTaskPane').hidden = true;
+  document.getElementById('cwrListPane').hidden = false;
+  cwrS.cur = null;
+  renderCwrList();
+}
+
+function renderCwrList(){
+  const el = document.getElementById('cwrListPane');
+  if(!cwrS.tasks.length){
+    el.innerHTML = '<div class="crls-panel">Sizga hali Writing savoli biriktirilmagan.</div>';
+    return;
+  }
+  el.innerHTML = '<p class="cwr-sub">Sizga biriktirilgan Writing savollari. Har bir savolda Part 1.1, Part 1.2 va Part 2 alohida yoziladi. Tugatgach hammasini topshiring, o&#39;qituvchi feedback va baho beradi.</p>' +
+    cwrS.tasks.map(t => {
+      const st = cwrStatus(t.id), s = cwrS.subs[t.id];
+      return '<div class="crls-card" data-cwr-open="' + cwrEsc(t.id) + '">' +
+        '<div class="t"><strong>' + cwrEsc(t.title || 'Writing') + '</strong>' +
+        '<span class="cwr-sub" style="margin:4px 0 0;display:block;">' + cwrPartsOf(t).map(p => p.label).join(' · ') + '</span></div>' +
+        (st === 'graded' && s.overall != null ? '<b style="color:#059669;">' + cwrEsc(s.overall) + ' ball</b>' : '') +
+        cwrChip(st) + '</div>';
+    }).join('');
+}
+
+function openCwrTask(id){
+  const t = cwrS.tasks.find(x => x.id === id);
+  if(!t) return;
+  const parts = cwrPartsOf(t);
+  if(!parts.length) return;
+  cwrS.cur = t;
+  cwrS.part = parts[0].k;
+  const s = cwrS.subs[id], locked = cwrLocked(id);
+  let ls = {};
+  try{ ls = JSON.parse(localStorage.getItem(cwrDraftKey(id)) || '{}') || {}; }catch(e){}
+  cwrS.text = {};
+  CWR_PARTS.forEach(p => {
+    cwrS.text[p.k] = locked ? ((s && s[p.k]) || '') : (ls[p.k] ? ls[p.k] : ((s && s[p.k]) || ''));
+  });
+  document.getElementById('cwrListPane').hidden = true;
+  document.getElementById('cwrTaskPane').hidden = false;
+  renderCwrTask();
+  window.scrollTo({ top: 0 });
+}
+
+function cwrWcLabel(k){
+  const p = CWR_PARTS.find(x => x.k === k), n = cwrWc(cwrS.text[k]);
+  return { n: n, text: n + " so'z · tavsiya: " + p.range, cls: n === 0 ? '' : (n >= p.lo ? 'ok' : 'low') };
+}
+
+function renderCwrTask(){
+  const t = cwrS.cur;
+  if(!t) return;
+  const id = t.id, st = cwrStatus(id), s = cwrS.subs[id] || {}, locked = cwrLocked(id), parts = cwrPartsOf(t);
+  const p = CWR_PARTS.find(x => x.k === cwrS.part);
+  let h = '<div class="cwr-thead"><button type="button" class="cwr-ghost" id="cwrBackList">&larr; Savollar</button><h2>' + cwrEsc(t.title || 'Writing') + '</h2>' + cwrChip(st) + '</div>';
+  if(st === 'graded'){
+    h += '<div class="cwr-result"><div class="big">' + (s.overall == null ? '—' : cwrEsc(s.overall)) + '<small>/ 75 ball</small></div>' +
+      '<div style="flex:1;min-width:200px;">' + (s.generalFeedback ? '<div class="cwr-fb" style="margin:0;"><b>Umumiy feedback</b>' + cwrEsc(s.generalFeedback) + '</div>' : '<span class="cwr-sub" style="margin:0;">Har bir part bo&#39;yicha feedback pastdagi tablarda.</span>') + '</div></div>';
+  } else if(st === 'submitted'){
+    h += '<p class="cwr-note">Topshirildi. O&#39;qituvchi tekshirib, baho va feedback beradi.</p>';
+  }
+  h += '<div class="crls-tabs cwr-tabs">' + parts.map(x =>
+    '<button type="button" class="crls-tab' + (x.k === cwrS.part ? ' active' : '') + '" data-cwr-part="' + x.k + '">' + x.label + '<small data-cwr-n="' + x.k + '">' + cwrWc(cwrS.text[x.k]) + '</small></button>'
+  ).join('') + '</div>';
+  const lab = cwrWcLabel(p.k);
+  h += '<div class="crls-panel">' +
+    '<div class="cwr-q"><b>' + p.label + '</b>' + cwrEsc((t.q && t.q[p.k]) || '') + (t.img && t.img[p.k] ? '<img src="' + cwrEsc(t.img[p.k]) + '" alt="" class="cwr-qimg" data-cwr-zoom="1">' : '') + '</div>' +
+    '<textarea id="cwrText" class="cwr-text" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="Javobingizni shu yerda yozing..."' + (locked ? ' readonly' : '') + '>' + cwrEsc(cwrS.text[p.k]) + '</textarea>' +
+    '<div class="cwr-foot"><span class="cwr-wc ' + lab.cls + '" id="cwrWc">' + lab.text + '</span><span class="cwr-saved" id="cwrSaved"></span>' +
+    (locked ? '' : '<button type="button" class="cwr-ghost" id="cwrSaveDraft">Qoralamani saqlash</button><button type="button" class="crls-btn" id="cwrSubmit">Hammasini topshirish</button>') +
+    '</div>';
+  if(st === 'graded'){
+    const fb = s.feedback && s.feedback[p.k], sc = s.scores && s.scores[p.k];
+    if(fb || sc != null){
+      h += '<div class="cwr-fb"><b>' + p.label + ' — feedback' + (sc != null ? ' · ' + cwrEsc(sc) + ' ball' : '') + '</b>' + (fb ? cwrEsc(fb) : '—') + '</div>';
+    }
+  }
+  h += '</div>';
+  document.getElementById('cwrTaskPane').innerHTML = h;
+  if(!locked){
+    const ta = document.getElementById('cwrText');
+    if(ta && !cwrS.text[p.k]) ta.focus();
+  }
+}
+
+function cwrStoreLocal(){
+  const t = cwrS.cur;
+  if(!t) return;
+  try{ localStorage.setItem(cwrDraftKey(t.id), JSON.stringify(cwrS.text)); }catch(e){}
+}
+
+async function cwrSaveRemote(submit){
+  const t = cwrS.cur;
+  if(!t || cwrLocked(t.id)) return;
+  const parts = cwrPartsOf(t);
+  if(submit){
+    const empty = parts.filter(p => !cwrWc(cwrS.text[p.k])).map(p => p.label);
+    const msg = empty.length
+      ? 'Bo\'sh qolgan partlar: ' + empty.join(', ') + '.\nBaribir topshirasizmi? Topshirgandan keyin o\'zgartirib bo\'lmaydi.'
+      : 'Hammasi topshiriladi va keyin o\'zgartirib bo\'lmaydi. Topshirasizmi?';
+    if(!confirm(msg)) return;
+  }
+  const btns = ['cwrSaveDraft', 'cwrSubmit'].map(i => document.getElementById(i)).filter(Boolean);
+  btns.forEach(b => { b.disabled = true; });
+  const saved = document.getElementById('cwrSaved');
+  try{
+    cwrStoreLocal();
+    const TS = firebase.firestore.FieldValue.serverTimestamp();
+    const data = {
+      taskId: t.id, studentId: currentUid,
+      studentName: (state.student && (state.student.name || state.student.email)) || '',
+      p11: cwrS.text.p11 || '', p12: cwrS.text.p12 || '', p2: cwrS.text.p2 || '',
+      status: submit ? 'submitted' : 'draft', updatedAt: TS
+    };
+    if(submit) data.submittedAt = TS;
+    await db.collection('cefrWritingSubs').doc(t.id + '__' + currentUid).set(data, { merge: true });
+    const local = Object.assign({}, cwrS.subs[t.id] || {}, data);
+    delete local.updatedAt; delete local.submittedAt;
+    cwrS.subs[t.id] = local;
+    if(submit){
+      try{ localStorage.removeItem(cwrDraftKey(t.id)); }catch(e){}
+      renderCwrTask();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if(saved){
+      const d = new Date(), p2 = n => String(n).padStart(2, '0');
+      saved.textContent = 'Saqlandi ✓ ' + p2(d.getHours()) + ':' + p2(d.getMinutes());
+    }
+  } catch(err){
+    if(saved) saved.textContent = 'Xatolik: ' + err.message;
+    else alert('Xatolik: ' + err.message);
+  } finally {
+    btns.forEach(b => { b.disabled = false; });
+  }
+}
+
+document.addEventListener('input', (e) => {
+  if(!e.target || e.target.id !== 'cwrText' || !cwrS.cur) return;
+  const k = cwrS.part;
+  cwrS.text[k] = e.target.value;
+  const lab = cwrWcLabel(k);
+  const w = document.getElementById('cwrWc');
+  if(w){ w.textContent = lab.text; w.className = 'cwr-wc ' + lab.cls; }
+  const n = document.querySelector('[data-cwr-n="' + k + '"]');
+  if(n) n.textContent = lab.n;
+  const sv = document.getElementById('cwrSaved');
+  if(sv) sv.textContent = 'Saqlanmagan o\'zgarishlar...';
+  clearTimeout(cwrS.timer);
+  cwrS.timer = setTimeout(() => { cwrStoreLocal(); const s2 = document.getElementById('cwrSaved'); if(s2) s2.textContent = 'Qurilmada saqlandi (serverga saqlash uchun «Qoralamani saqlash»)'; }, 600);
+});
+
+document.addEventListener('click', (e) => {
+  let b;
+  if((b = e.target.closest('[data-cwr-open]'))){ openCwrTask(b.dataset.cwrOpen); return; }
+  if((b = e.target.closest('[data-cwr-zoom]'))){ b.classList.toggle('zoom'); return; }
+  if(e.target.closest('#cwrBackList')){ showCwrList(); return; }
+  if((b = e.target.closest('[data-cwr-part]'))){ cwrStoreLocal(); cwrS.part = b.dataset.cwrPart; renderCwrTask(); return; }
+  if(e.target.closest('#cwrSaveDraft')){ cwrSaveRemote(false); return; }
+  if(e.target.closest('#cwrSubmit')){ cwrSaveRemote(true); return; }
+  if(e.target.closest('#backToHomeFromCwr')){ e.preventDefault(); renderHomeView(); return; }
+  if(e.target.closest('#navCefrWriting')){
+    e.preventDefault();
+    setActiveNav('navCefrWriting');
+    switchView('cwr');
+    showCwrList();
+  }
+});
 
 // ===== CEFR RL — admin biriktirgan mock: Reading + Listening (har biri 35 ta javob) =====
 // cefrRL/{testId}                 — mock (faqat biriktirilgan talaba o'qiydi)
