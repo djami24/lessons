@@ -2620,6 +2620,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="ind-tabs" role="tablist">
           <button type="button" class="ind-tab active" data-main-tab="students" role="tab">Talabalar</button>
           <button type="button" class="ind-tab" data-main-tab="lhw" role="tab">Listening uy vazifa</button>
+          <button type="button" class="ind-tab" data-main-tab="cwr" role="tab">CEFR Writing</button>
           <button type="button" class="ind-tab" data-main-tab="cefr" role="tab">CEFR RL</button>
         </div>
         <div class="ind-tools">
@@ -2689,6 +2690,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="ind-tabs" role="tablist">
           <button type="button" class="ind-tab" data-main-tab="students" role="tab">Talabalar</button>
           <button type="button" class="ind-tab" data-main-tab="lhw" role="tab">Listening uy vazifa</button>
+          <button type="button" class="ind-tab" data-main-tab="cwr" role="tab">CEFR Writing</button>
           <button type="button" class="ind-tab active" data-main-tab="cefr" role="tab">CEFR RL</button>
         </div>
         <div class="ind-tools">
@@ -2707,6 +2709,58 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div id="crlGrid" class="ind-grid"></div>
       </div>
 
+      <style>
+        .cwr-card{border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding:12px 16px;display:grid;grid-template-columns:minmax(160px,1.2fr) minmax(220px,1.4fr) auto;align-items:center;gap:8px 18px;}
+        .cwr-card h3{margin:0;font-size:1rem;overflow-wrap:anywhere;}
+        .cwr-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+        .cwr-tag{font-size:.7rem;font-weight:800;padding:.2em .7em;border-radius:99px;color:#7c3aed;background:rgba(124,58,237,.12);}
+        .cwr-meta{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;color:var(--gray);}
+        .cwr-meta b{color:inherit;}
+        .cwr-actions{display:flex;gap:8px;flex-wrap:wrap;justify-self:end;}
+        .cwr-names{font-size:.78rem;color:var(--gray);margin-top:4px;overflow-wrap:anywhere;}
+        .cwr-chip{display:inline-flex;font-size:.72rem;font-weight:800;padding:.2em .75em;border-radius:99px;}
+        .cwr-chip--none{color:#6b7280;background:rgba(107,114,128,.14);}
+        .cwr-chip--draft{color:#b45309;background:rgba(245,158,11,.16);}
+        .cwr-chip--submitted{color:#2563eb;background:rgba(37,99,235,.14);}
+        .cwr-chip--graded{color:#059669;background:rgba(5,150,105,.14);}
+        .cwr-row{border:1.5px solid var(--line);border-radius:12px;margin-bottom:10px;padding:10px 14px;}
+        .cwr-row-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+        .cwr-ball{font-weight:800;color:#059669;font-size:.85rem;}
+        .cwr-detail{margin-top:12px;display:flex;flex-direction:column;gap:14px;}
+        .cwr-part{border:1.5px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px;}
+        .cwr-part-h{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+        .cwr-q{font-size:.84rem;padding:.6em .8em;border-radius:10px;background:rgba(37,99,235,.08);white-space:pre-wrap;overflow-wrap:anywhere;}
+        .cwr-essay{font-size:.95rem;line-height:1.65;padding:.8em 1em;border:1.5px solid var(--line);border-radius:10px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:420px;overflow:auto;}
+        .cwr-lbl{display:flex;flex-direction:column;gap:4px;font-size:.8rem;font-weight:700;}
+        .cwr-lbl textarea,.cwr-lbl input,.cwr-form textarea{width:100%;padding:.6em .8em;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:inherit;font:inherit;font-weight:500;resize:vertical;}
+        .cwr-lbl input{max-width:140px;}
+        .cwr-form textarea{min-height:90px;}
+        .cwr-form label.cwr-lbl{margin-bottom:2px;}
+        #cwrGrid.ind-grid{grid-template-columns:1fr;gap:8px;}
+        @media (max-width:900px){.cwr-card{grid-template-columns:1fr;}.cwr-actions{justify-self:stretch;}}
+      </style>
+      <!-- CEFR Writing -->
+      <div id="indCwrPane" hidden>
+        <div class="ind-top">
+          <div>
+            <h1>CEFR Writing</h1>
+            <p>Savol yarating (Part 1.1, Part 1.2, Part 2) va individual talabalarni biriktiring. Faqat biriktirilgan talaba o&#39;z profilida yozadi; siz inshoga feedback va baho berasiz.</p>
+          </div>
+          <button class="btn btn-primary" id="cwrAddBtn">+ Yangi savol</button>
+        </div>
+        <div class="ind-tabs" role="tablist">
+          <button type="button" class="ind-tab" data-main-tab="students" role="tab">Talabalar</button>
+          <button type="button" class="ind-tab" data-main-tab="lhw" role="tab">Listening uy vazifa</button>
+          <button type="button" class="ind-tab active" data-main-tab="cwr" role="tab">CEFR Writing</button>
+          <button type="button" class="ind-tab" data-main-tab="cefr" role="tab">CEFR RL</button>
+        </div>
+        <div class="ind-tools">
+          <input type="search" id="cwrSearch" placeholder="Savol nomi yoki talaba ismi" aria-label="Qidirish">
+          <span id="cwrCount" style="color:var(--gray);font-size:.85rem;"></span>
+        </div>
+        <div id="cwrGrid" class="ind-grid"></div>
+      </div>
+
       <!-- Listening uy vazifa (faqat individual talabalar uchun) -->
       <div id="indLhwPane" hidden>
         <div class="ind-top">
@@ -2718,6 +2772,7 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <div class="ind-tabs" role="tablist">
           <button type="button" class="ind-tab" data-main-tab="students" role="tab">Talabalar</button>
           <button type="button" class="ind-tab active" data-main-tab="lhw" role="tab">Listening uy vazifa</button>
+          <button type="button" class="ind-tab" data-main-tab="cwr" role="tab">CEFR Writing</button>
           <button type="button" class="ind-tab" data-main-tab="cefr" role="tab">CEFR RL</button>
         </div>
         <div id="lhwIndRoot" class="lhw-root"></div>
@@ -3593,6 +3648,51 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
     <div id="crlStuBody"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('modalCefrStuRes')">Yopish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: CEFR Writing savol (yaratish / tahrirlash) ===== -->
+<div class="modal-overlay" id="modalCwr" hidden>
+  <div class="modal-box" style="max-width:760px;width:96vw;max-height:92vh;overflow:auto;">
+    <h2 class="modal-title" id="cwrFormTitle">Yangi CEFR Writing savoli</h2>
+    <div class="modal-form cwr-form">
+      <label class="cwr-lbl">Nomi
+        <input type="text" id="cwrTitle" maxlength="120" placeholder="Masalan: Writing Mock 1" autocomplete="off" style="max-width:none;">
+      </label>
+      <label class="cwr-lbl">Part 1.1 savoli <span class="crl-hint">(do&#39;stga norasmiy xat, ~50 so&#39;z)</span>
+        <textarea id="cwrQ_p11" placeholder="Part 1.1 savolini shu yerga yozing"></textarea>
+      </label>
+      <div style="margin:-4px 0 4px;"><input type="file" accept="image/*" data-imgfile="p11" style="font-size:.8rem;"><img id="cwrImgPrev_p11" alt="" style="display:none;max-width:240px;max-height:170px;border-radius:8px;margin-top:6px;border:1px solid var(--line);"><button type="button" class="btn btn-ghost btn-sm" id="cwrImgDel_p11" data-imgdel="p11" style="display:none;margin-top:6px;color:#dc2626;">Rasmni olib tashlash</button></div>
+      <label class="cwr-lbl">Part 1.2 savoli <span class="crl-hint">(rasmiy xat, 120-150 so&#39;z)</span>
+        <textarea id="cwrQ_p12" placeholder="Part 1.2 savolini shu yerga yozing"></textarea>
+      </label>
+      <div style="margin:-4px 0 4px;"><input type="file" accept="image/*" data-imgfile="p12" style="font-size:.8rem;"><img id="cwrImgPrev_p12" alt="" style="display:none;max-width:240px;max-height:170px;border-radius:8px;margin-top:6px;border:1px solid var(--line);"><button type="button" class="btn btn-ghost btn-sm" id="cwrImgDel_p12" data-imgdel="p12" style="display:none;margin-top:6px;color:#dc2626;">Rasmni olib tashlash</button></div>
+      <label class="cwr-lbl">Part 2 savoli <span class="crl-hint">(esse, 180-200 so&#39;z)</span>
+        <textarea id="cwrQ_p2" placeholder="Part 2 savolini shu yerga yozing"></textarea>
+      </label>
+      <div style="margin:-4px 0 4px;"><input type="file" accept="image/*" data-imgfile="p2" style="font-size:.8rem;"><img id="cwrImgPrev_p2" alt="" style="display:none;max-width:240px;max-height:170px;border-radius:8px;margin-top:6px;border:1px solid var(--line);"><button type="button" class="btn btn-ghost btn-sm" id="cwrImgDel_p2" data-imgdel="p2" style="display:none;margin-top:6px;color:#dc2626;">Rasmni olib tashlash</button></div>
+      <div>
+        <div class="ind-lbl">Biriktiriladigan talabalar (Individuals) <span id="cwrSelCount" style="font-weight:600;color:var(--gray);"></span></div>
+        <input type="text" id="cwrStuSearch" placeholder="Talaba qidirish" autocomplete="off" style="width:100%;margin-bottom:8px;padding:.55em .8em;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:inherit;font:inherit;">
+        <div id="cwrStuList" class="ind-pick-list"></div>
+      </div>
+      <p class="form-error" id="cwrFormError" role="alert" hidden></p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="cwrSaveBtn">Saqlash</button>
+        <button class="btn btn-ghost" onclick="closeModal('modalCwr')">Bekor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: CEFR Writing natijalar (tekshirish: feedback + baho) ===== -->
+<div class="modal-overlay" id="modalCwrRes" hidden>
+  <div class="modal-box" style="max-width:860px;width:96vw;max-height:92vh;overflow:auto;">
+    <h2 class="modal-title" id="cwrResTitle">Natijalar</h2>
+    <div id="cwrResBody" class="cwr-form"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalCwrRes')">Yopish</button>
     </div>
   </div>
 </div>
@@ -16274,6 +16374,7 @@ const Individuals = (function(){
     $('indListPane').hidden = false;
     $('indDetailPane').hidden = true;
     if($('indCefrPane')) $('indCefrPane').hidden = true;
+    if(document.getElementById('indCwrPane')) document.getElementById('indCwrPane').hidden = true;
     if($('indLhwPane')) $('indLhwPane').hidden = true;
     cur = null;
     await loadList();
@@ -16884,6 +16985,7 @@ const CefrRL = (function(){
     $('indDetailPane').hidden = true;
     if($('indLhwPane')) $('indLhwPane').hidden = true;
     $('indCefrPane').hidden = false;
+    if($('indCwrPane')) $('indCwrPane').hidden = true;
     $('crlGrid').innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i><i></i></div>';
     try{
       const [t, a] = await Promise.all([ col().orderBy('createdAt', 'desc').get(), attCol().get() ]);
@@ -17457,7 +17559,9 @@ $('crlStuBody').addEventListener('click', e => {
   document.getElementById('view-individuals').addEventListener('click', e => {
     const b = e.target.closest('[data-main-tab]');
     if(!b) return;
-    if(b.dataset.mainTab === 'cefr') open();
+    if($('indCwrPane')) $('indCwrPane').hidden = true;
+    if(b.dataset.mainTab === 'cwr') CefrWriting.open();
+    else if(b.dataset.mainTab === 'cefr') open();
     else if(b.dataset.mainTab === 'lhw') openLhw();
     else Individuals.open();
   });
@@ -17468,6 +17572,7 @@ $('crlStuBody').addEventListener('click', e => {
     $('indDetailPane').hidden = true;
     $('indCefrPane').hidden = true;
     $('indLhwPane').hidden = false;
+    if($('indCwrPane')) $('indCwrPane').hidden = true;
     if(window.ListeningHW){
       try{ ListeningHW.openAdmin({ mode: 'individual', rootId: 'lhwIndRoot' }); }
       catch(err){ if(typeof showToast === 'function') showToast('Listening xatolik: ' + err.message, true); }
@@ -17475,6 +17580,352 @@ $('crlStuBody').addEventListener('click', e => {
       $('lhwIndRoot').innerHTML = '<div class="lhw-empty">Listening moduli yuklanmadi (listening-hw.js topilmadi yoki xato). Faylni yuklang va sahifani yangilang.</div>';
     }
   }
+
+  return { open: open };
+})();
+
+// ===== CEFR Writing: Individuals ichida Writing savollari (Part 1.1, Part 1.2, Part 2) + feedback va baho =====
+// Firestore:
+//   cefrWriting/{taskId} { title, q:{p11,p12,p2}, assignedTo:[uid], assignedNames:{uid:name}, createdAt, updatedAt }
+//   cefrWritingSubs/{taskId__uid} { taskId, studentId, studentName, p11, p12, p2, status:'draft'|'submitted'|'graded',
+//        submittedAt, updatedAt, feedback:{p11,p12,p2}, scores:{p11,p12,p2}, overall, generalFeedback, gradedAt }
+const CefrWriting = (function(){
+  const PARTS = [
+    { k: 'p11', label: 'Part 1.1' },
+    { k: 'p12', label: 'Part 1.2' },
+    { k: 'p2',  label: 'Part 2' }
+  ];
+  const ST_LABEL = { none: 'Yozmagan', draft: 'Qoralama', submitted: 'Tekshirilmagan', graded: 'Baholangan' };
+  const $ = id => document.getElementById(id);
+  const esc = s => escapeHtml(String(s == null ? '' : s));
+  const col = () => db.collection('cefrWriting');
+  const subCol = () => db.collection('cefrWritingSubs');
+  const TS = () => firebase.firestore.FieldValue.serverTimestamp();
+  const SKEL = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i></div>';
+  const wc = s => (String(s || '').trim().match(/\S+/g) || []).length;
+
+  let tasks = [], subs = [], inds = [], indsLoaded = false;
+  let editing = null, resTask = null, resOpen = null;
+  let imgs = { p11: '', p12: '', p2: '' };
+
+  function compress(file){
+    return new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onerror = () => rej(new Error('Fayl o\'qilmadi'));
+      fr.onload = () => {
+        const im = new Image();
+        im.onerror = () => rej(new Error('Bu rasm emas'));
+        im.onload = () => {
+          let w = im.width, h = im.height;
+          const m = 1100;
+          if(Math.max(w, h) > m){ const k = m / Math.max(w, h); w = Math.round(w * k); h = Math.round(h * k); }
+          const cv = document.createElement('canvas');
+          let q = 0.8, out = '';
+          for(let i = 0; i < 7; i++){
+            cv.width = w; cv.height = h;
+            const x = cv.getContext('2d');
+            x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(im, 0, 0, w, h);
+            out = cv.toDataURL('image/jpeg', q);
+            if(out.length <= 330000) break;
+            q = Math.max(0.5, q - 0.1);
+            if(i >= 2){ w = Math.round(w * 0.8); h = Math.round(h * 0.8); }
+          }
+          res(out);
+        };
+        im.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+  function showImgs(){
+    PARTS.forEach(p => {
+      const v = imgs[p.k], pr = $('cwrImgPrev_' + p.k), dl = $('cwrImgDel_' + p.k);
+      pr.src = v || ''; pr.style.display = v ? 'block' : 'none'; dl.style.display = v ? 'inline-flex' : 'none';
+      const f = document.querySelector('[data-imgfile="' + p.k + '"]'); if(f && !v) f.value = '';
+    });
+  }
+  const sel = new Set();
+
+  function fmtTs(ts){
+    try{
+      const d = ts && ts.toDate ? ts.toDate() : null;
+      if(!d) return '';
+      const p = n => String(n).padStart(2, '0');
+      return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+    } catch(e){ return ''; }
+  }
+  function nameOf(uid, t){
+    const i = inds.find(x => x.id === uid);
+    if(i && i.name) return i.name;
+    return (t && t.assignedNames && t.assignedNames[uid]) || uid;
+  }
+  const subOf = (tid, uid) => subs.find(s => s.taskId === tid && s.studentId === uid) || null;
+  const statusOf = s => (s ? (s.status || 'draft') : 'none');
+  const chip = st => '<span class="cwr-chip cwr-chip--' + st + '">' + ST_LABEL[st] + '</span>';
+
+  async function loadInds(){
+    if(indsLoaded) return;
+    const snap = await db.collection('individuals').get();
+    inds = snap.docs.map(d => Object.assign({ id: d.id }, d.data()))
+      .sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    indsLoaded = true;
+  }
+
+  // ---------- Asosiy ro'yxat ----------
+  async function open(){
+    ['indListPane', 'indDetailPane', 'indCefrPane', 'indLhwPane'].forEach(id => { if($(id)) $(id).hidden = true; });
+    $('indCwrPane').hidden = false;
+    $('cwrGrid').innerHTML = SKEL;
+    try{
+      const [t, s] = await Promise.all([ col().orderBy('createdAt', 'desc').get(), subCol().get() ]);
+      tasks = t.docs.map(d => Object.assign({ id: d.id }, d.data()));
+      subs = s.docs.map(d => Object.assign({ id: d.id }, d.data()));
+      await loadInds().catch(() => {});
+    } catch(err){
+      $('cwrGrid').innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">Yuklashda xatolik: ' + esc(err.message) + '<br>Firestore qoidalariga <b>cefrWriting</b> va <b>cefrWritingSubs</b> qo&#39;shilganini tekshiring.</p>';
+      return;
+    }
+    render();
+  }
+
+  function render(){
+    const q = $('cwrSearch').value.trim().toLowerCase();
+    const list = tasks.filter(t => !q || [t.title].concat((t.assignedTo || []).map(u => nameOf(u, t))).join(' ').toLowerCase().indexOf(q) >= 0);
+    $('cwrCount').textContent = list.length + ' / ' + tasks.length + ' ta';
+    if(!list.length){
+      $('cwrGrid').innerHTML = '<p class="ind-empty" style="grid-column:1/-1;">' + (tasks.length ? 'Hech narsa topilmadi.' : 'Hali savol yo&#39;q. &laquo;+ Yangi savol&raquo; tugmasi bilan yarating.') + '</p>';
+      return;
+    }
+    $('cwrGrid').innerHTML = list.map(t => {
+      const as = t.assignedTo || [];
+      const mine = as.map(u => subOf(t.id, u));
+      const sent = mine.filter(s => s && (s.status === 'submitted' || s.status === 'graded')).length;
+      const graded = mine.filter(s => s && s.status === 'graded').length;
+      const pending = sent - graded;
+      const tags = PARTS.filter(p => (t.q && t.q[p.k]) || (t.img && t.img[p.k])).map(p => '<span class="cwr-tag">' + p.label + '</span>').join('');
+      return '<div class="cwr-card">' +
+        '<div><h3>' + esc(t.title || 'Nomsiz') + '</h3><div class="cwr-tags">' + tags + '</div></div>' +
+        '<div><div class="cwr-meta"><span>Talabalar: <b>' + as.length + '</b></span><span>Topshirgan: <b>' + sent + '</b></span><span>Baholangan: <b>' + graded + '</b></span>' +
+          (pending > 0 ? '<span class="cwr-chip cwr-chip--submitted">' + pending + ' ta tekshirilmagan</span>' : '') + '</div>' +
+          '<div class="cwr-names">' + esc(as.map(u => nameOf(u, t)).join(', ')) + '</div></div>' +
+        '<div class="cwr-actions">' +
+          '<button class="btn btn-primary btn-sm" data-act="res" data-id="' + esc(t.id) + '">Tekshirish</button>' +
+          '<button class="btn btn-ghost btn-sm" data-act="edit" data-id="' + esc(t.id) + '">Tahrirlash</button>' +
+          '<button class="btn btn-ghost btn-sm" style="color:#dc2626;" data-act="del" data-id="' + esc(t.id) + '">O&#39;chirish</button>' +
+        '</div></div>';
+    }).join('');
+  }
+
+  // ---------- Savol yaratish / tahrirlash ----------
+  function updateSelCount(){ $('cwrSelCount').textContent = sel.size ? '(' + sel.size + ' ta tanlandi)' : ''; }
+
+  function renderStuList(){
+    const q = $('cwrStuSearch').value.trim().toLowerCase();
+    const items = inds.filter(s => !q || [s.name, s.email, s.code].join(' ').toLowerCase().indexOf(q) >= 0);
+    const box = $('cwrStuList');
+    if(!inds.length){
+      box.innerHTML = '<p class="ind-empty" style="border:0;">Individuals ro&#39;yxatida talaba yo&#39;q. Avval &laquo;Talabalar&raquo; bo&#39;limida talaba qo&#39;shing.</p>';
+      return;
+    }
+    if(!items.length){ box.innerHTML = '<p class="ind-empty" style="border:0;">Hech narsa topilmadi.</p>'; return; }
+    box.innerHTML = items.map(s =>
+      '<label class="ind-pick' + (sel.has(s.id) ? ' sel' : '') + '" style="flex-direction:row;align-items:center;gap:10px;cursor:pointer;">' +
+        '<input type="checkbox" data-uid="' + esc(s.id) + '"' + (sel.has(s.id) ? ' checked' : '') + '>' +
+        '<span style="display:flex;flex-direction:column;"><strong>' + esc(s.name || s.email || 'Nomsiz') + '</strong>' +
+        '<small>' + esc([s.email, s.code ? 'ID: ' + s.code : ''].filter(Boolean).join(' · ')) + '</small></span>' +
+      '</label>'
+    ).join('');
+  }
+
+  async function openForm(task){
+    editing = task || null;
+    $('cwrFormError').hidden = true;
+    $('cwrFormTitle').textContent = task ? 'Savolni tahrirlash' : 'Yangi CEFR Writing savoli';
+    $('cwrTitle').value = task ? (task.title || '') : '';
+    PARTS.forEach(p => { $('cwrQ_' + p.k).value = (task && task.q && task.q[p.k]) || ''; });
+    imgs = { p11: '', p12: '', p2: '' };
+    PARTS.forEach(p => { imgs[p.k] = (task && task.img && task.img[p.k]) || ''; });
+    showImgs();
+    $('cwrStuSearch').value = '';
+    sel.clear();
+    (task ? (task.assignedTo || []) : []).forEach(u => sel.add(u));
+    openModal('modalCwr');
+    $('cwrStuList').innerHTML = SKEL;
+    try{ await loadInds(); }
+    catch(err){ $('cwrFormError').textContent = 'Yuklashda xatolik: ' + err.message; $('cwrFormError').hidden = false; }
+    updateSelCount(); renderStuList();
+    if(!task) setTimeout(() => $('cwrTitle').focus(), 80);
+  }
+
+  async function save(){
+    const err = $('cwrFormError'), btn = $('cwrSaveBtn');
+    err.hidden = true;
+    const title = $('cwrTitle').value.trim();
+    const q = {}; let any = false;
+    PARTS.forEach(p => { q[p.k] = $('cwrQ_' + p.k).value.trim(); if(q[p.k]) any = true; });
+    const fail = m => { err.textContent = m; err.hidden = false; };
+    if(!title) return fail('Savol nomini kiriting.');
+    PARTS.forEach(p => { if(imgs[p.k]) any = true; });
+    if(!any) return fail('Kamida bitta part (1.1, 1.2 yoki 2) savolini yozing.');
+    if(!sel.size) return fail('Kamida bitta talabani tanlang.');
+    const assigned = Array.from(sel), names = {};
+    assigned.forEach(u => { names[u] = nameOf(u, editing); });
+    btn.disabled = true;
+    try{
+      const img = {}; PARTS.forEach(p => { if(imgs[p.k]) img[p.k] = imgs[p.k]; });
+      const data = { title: title, q: q, img: img, assignedTo: assigned, assignedNames: names, updatedAt: TS() };
+      if(editing) await col().doc(editing.id).update(data);
+      else { data.createdAt = TS(); await col().doc().set(data); }
+      closeModal('modalCwr');
+      showToast(editing ? 'Savol yangilandi' : 'Savol saqlandi');
+      await open();
+    } catch(e){ fail('Xatolik: ' + e.message); }
+    finally { btn.disabled = false; }
+  }
+
+  async function removeTask(id){
+    const t = tasks.find(x => x.id === id);
+    if(!t) return;
+    if(!confirm('"' + (t.title || '') + '" savoli va talabalarning barcha yozganlari o\'chiriladi. Davom etasizmi?')) return;
+    try{
+      const snap = await subCol().where('taskId', '==', id).get();
+      const batch = db.batch();
+      snap.docs.forEach(d => batch.delete(d.ref));
+      batch.delete(col().doc(id));
+      await batch.commit();
+      showToast('O\'chirildi');
+      await open();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  // ---------- Tekshirish: inshoni o'qish, feedback va baho ----------
+  function openRes(id){
+    resTask = tasks.find(x => x.id === id);
+    if(!resTask) return;
+    resOpen = null;
+    $('cwrResTitle').textContent = 'Natijalar: ' + (resTask.title || '');
+    renderRes();
+    openModal('modalCwrRes');
+  }
+
+  function detailHtml(t, uid, s){
+    const locked = s.status === 'draft';
+    let h = '<div class="cwr-detail">';
+    h += locked
+      ? '<p class="crl-hint">Talaba hali topshirmagan (qoralama). Topshirgach baholay olasiz.</p>'
+      : '<p class="crl-hint">Topshirilgan: ' + esc(fmtTs(s.submittedAt) || '—') + (s.gradedAt ? ' · Baholangan: ' + esc(fmtTs(s.gradedAt)) : '') + '</p>';
+    PARTS.forEach(p => {
+      const qt = (t.q && t.q[p.k]) || '';
+      const qimg = t.img && t.img[p.k];
+      if(!qt && !qimg) return;
+      const essay = s[p.k] || '';
+      const fb = (s.feedback && s.feedback[p.k]) || '';
+      const sc = s.scores && s.scores[p.k];
+      h += '<div class="cwr-part"><div class="cwr-part-h"><b>' + p.label + '</b><span class="crl-hint">' + wc(essay) + ' so&#39;z</span></div>' +
+        '<div class="cwr-q">' + esc(qt) + (qimg ? '<img src="' + esc(qimg) + '" alt="" style="display:block;max-width:100%;max-height:360px;border-radius:8px;margin-top:8px;">' : '') + '</div>' +
+        '<div class="cwr-essay">' + (essay ? esc(essay) : '<i>Yozilmagan</i>') + '</div>' +
+        '<label class="cwr-lbl">Feedback<textarea id="cwrFb_' + p.k + '" rows="4"' + (locked ? ' disabled' : '') + ' placeholder="Shu part bo&#39;yicha izoh...">' + esc(fb) + '</textarea></label>' +
+        '<label class="cwr-lbl">Ball<input type="number" id="cwrSc_' + p.k + '" min="0" step="0.5" value="' + (sc == null ? '' : esc(sc)) + '"' + (locked ? ' disabled' : '') + '></label></div>';
+    });
+    h += '<div class="cwr-part"><label class="cwr-lbl">Umumiy feedback<textarea id="cwrFbGen" rows="3"' + (locked ? ' disabled' : '') + ' placeholder="Umumiy fikr (ixtiyoriy)">' + esc(s.generalFeedback || '') + '</textarea></label>' +
+      '<label class="cwr-lbl">Umumiy ball (0–75)<input type="number" id="cwrOverall" min="0" max="75" step="0.5" value="' + (s.overall == null ? '' : esc(s.overall)) + '"' + (locked ? ' disabled' : '') + '></label>' +
+      '<p class="crl-hint" style="margin:0;">Umumiy ball bo&#39;sh qolsa, partlar ballining o&#39;rtachasi olinadi.</p></div>';
+    h += '<div style="display:flex;gap:8px;flex-wrap:wrap;">' +
+      (locked ? '' : '<button class="btn btn-primary" data-save="' + esc(uid) + '">Baholashni saqlash</button>') +
+      '<button class="btn btn-ghost" style="color:#dc2626;" data-reset="' + esc(uid) + '">Qayta yozdirish (tozalash)</button></div></div>';
+    return h;
+  }
+
+  function renderRes(){
+    const t = resTask;
+    const as = t.assignedTo || [];
+    $('cwrResBody').innerHTML = as.map(uid => {
+      const s = subOf(t.id, uid), st = statusOf(s), isOpen = resOpen === uid;
+      return '<div class="cwr-row"><div class="cwr-row-top"><strong>' + esc(nameOf(uid, t)) + '</strong>' + chip(st) +
+        (s && s.status === 'graded' && s.overall != null ? '<span class="cwr-ball">' + esc(s.overall) + ' ball</span>' : '') +
+        '<span style="flex:1"></span>' +
+        (s ? '<button class="btn btn-primary btn-sm" data-view="' + esc(uid) + '">' + (isOpen ? 'Yopish' : (st === 'graded' ? 'Ko&#39;rish' : (st === 'draft' ? 'Qoralama' : 'Tekshirish'))) + '</button>' : '<span class="crl-hint">Hali yozmagan</span>') +
+        '</div>' + (isOpen && s ? detailHtml(t, uid, s) : '') + '</div>';
+    }).join('') || '<p class="ind-empty">Talaba biriktirilmagan.</p>';
+  }
+
+  async function saveGrade(uid){
+    const t = resTask, id = t.id + '__' + uid;
+    const s = subOf(t.id, uid);
+    if(!s) return;
+    const fb = {}, scores = {};
+    PARTS.forEach(p => {
+      const f = $('cwrFb_' + p.k);
+      if(!f) return;
+      fb[p.k] = f.value.trim();
+      const v = $('cwrSc_' + p.k).value;
+      if(v !== '' && !isNaN(Number(v))) scores[p.k] = Number(v);
+    });
+    let overall = $('cwrOverall').value;
+    overall = overall === '' ? null : Number(overall);
+    if(overall != null && (isNaN(overall) || overall < 0 || overall > 75)){ showToast('Umumiy ball 0 dan 75 gacha bo\'lishi kerak', true); return; }
+    if(overall == null){
+      const vals = Object.keys(scores).map(k => scores[k]);
+      if(vals.length) overall = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10;
+    }
+    const upd = { feedback: fb, scores: scores, overall: overall, generalFeedback: $('cwrFbGen').value.trim(), status: 'graded', gradedAt: TS() };
+    try{
+      await subCol().doc(id).set(upd, { merge: true });
+      Object.assign(s, upd, { gradedAt: null });
+      showToast('Baho va feedback saqlandi');
+      renderRes(); render();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  async function resetSub(uid){
+    const t = resTask;
+    if(!confirm('Talabaning yozgan inshosi va bahosi o\'chiriladi, u qaytadan yozadi. Davom etasizmi?')) return;
+    try{
+      await subCol().doc(t.id + '__' + uid).delete();
+      subs = subs.filter(x => !(x.taskId === t.id && x.studentId === uid));
+      resOpen = null;
+      showToast('Tozalandi');
+      renderRes(); render();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  // ---------- Hodisalar ----------
+  $('cwrAddBtn').addEventListener('click', () => openForm(null));
+  $('cwrSearch').addEventListener('input', render);
+  $('cwrGrid').addEventListener('click', e => {
+    const b = e.target.closest('[data-act]');
+    if(!b) return;
+    const id = b.dataset.id;
+    if(b.dataset.act === 'res') openRes(id);
+    else if(b.dataset.act === 'edit') openForm(tasks.find(x => x.id === id));
+    else if(b.dataset.act === 'del') removeTask(id);
+  });
+  $('cwrStuSearch').addEventListener('input', renderStuList);
+  $('cwrStuList').addEventListener('change', e => {
+    const c = e.target.closest('[data-uid]');
+    if(!c) return;
+    if(c.checked) sel.add(c.dataset.uid); else sel.delete(c.dataset.uid);
+    c.closest('.ind-pick').classList.toggle('sel', c.checked);
+    updateSelCount();
+  });
+  $('cwrSaveBtn').addEventListener('click', save);
+  $('cwrResBody').addEventListener('click', e => {
+    let b;
+    if((b = e.target.closest('[data-view]'))){ resOpen = resOpen === b.dataset.view ? null : b.dataset.view; renderRes(); }
+    else if((b = e.target.closest('[data-save]'))) saveGrade(b.dataset.save);
+    else if((b = e.target.closest('[data-reset]'))) resetSub(b.dataset.reset);
+  });
+
+  $('modalCwr').addEventListener('change', async e => {
+    const f = e.target.closest('[data-imgfile]');
+    if(!f || !f.files || !f.files[0]) return;
+    try{ imgs[f.dataset.imgfile] = await compress(f.files[0]); showImgs(); }
+    catch(err){ showToast('Rasm xatosi: ' + err.message, true); f.value = ''; }
+  });
+  $('modalCwr').addEventListener('click', e => {
+    const b = e.target.closest('[data-imgdel]');
+    if(b){ imgs[b.dataset.imgdel] = ''; showImgs(); }
+  });
 
   return { open: open };
 })();
