@@ -7139,7 +7139,11 @@ function cwrDraftKey(id){ return 'cwrDraft_' + currentUid + '_' + id; }
 function cwrStatus(id){ const s = cwrS.subs[id]; return s ? (s.status || 'draft') : 'none'; }
 function cwrLocked(id){ const st = cwrStatus(id); return st === 'submitted' || st === 'graded'; }
 function cwrChip(st){ return '<span class="cwr-chip cwr-chip--' + st + '">' + CWR_ST[st] + '</span>'; }
-function cwrPartsOf(t){ return CWR_PARTS.filter(p => (t.q && t.q[p.k]) || (t.img && t.img[p.k])); }
+function cwrPartsOf(t){
+  return Array.isArray(t.parts) ? CWR_PARTS.filter(p => t.parts.indexOf(p.k) >= 0)
+    : CWR_PARTS.filter(p => (t.q && t.q[p.k]) || (t.img && t.img[p.k]));
+}
+function cwrImgOf(t, k){ return (t.img && t.img[k]) || ((k === 'p11' || k === 'p12') && t.img && t.img.p1) || ''; }
 function cwrMs(x){ return x && x.createdAt && x.createdAt.toMillis ? x.createdAt.toMillis() : 0; }
 
 async function loadCwrTasks(){
@@ -7225,7 +7229,7 @@ function renderCwrTask(){
   ).join('') + '</div>';
   const lab = cwrWcLabel(p.k);
   h += '<div class="crls-panel">' +
-    '<div class="cwr-q"><b>' + p.label + '</b>' + cwrEsc((t.q && t.q[p.k]) || '') + (t.img && t.img[p.k] ? '<img src="' + cwrEsc(t.img[p.k]) + '" alt="" class="cwr-qimg" data-cwr-zoom="1">' : '') + '</div>' +
+    '<div class="cwr-q"><b>' + p.label + '</b>' + cwrEsc((t.q && t.q[p.k]) || '') + (cwrImgOf(t, p.k) ? '<img src="' + cwrEsc(cwrImgOf(t, p.k)) + '" alt="" class="cwr-qimg" data-cwr-zoom="1">' : '') + '</div>' +
     '<textarea id="cwrText" class="cwr-text" spellcheck="false" autocomplete="off" autocapitalize="off" autocorrect="off" placeholder="Javobingizni shu yerda yozing..."' + (locked ? ' readonly' : '') + '>' + cwrEsc(cwrS.text[p.k]) + '</textarea>' +
     '<div class="cwr-foot"><span class="cwr-wc ' + lab.cls + '" id="cwrWc">' + lab.text + '</span><span class="cwr-saved" id="cwrSaved"></span>' +
     (locked ? '' : '<button type="button" class="cwr-ghost" id="cwrSaveDraft">Qoralamani saqlash</button><button type="button" class="crls-btn" id="cwrSubmit">Hammasini topshirish</button>') +
