@@ -8217,7 +8217,7 @@ document.getElementById('themeToggle').addEventListener('click',function(){
   // ---- "Menyu": yon menyudagi qolgan bo'limlar pastdan chiqadigan ro'yxatda ----
   const wrap = document.getElementById('sbnSheetWrap');
   const list = document.getElementById('sbnSheetList');
-  const SHEET_IDS = ['navChat','navTeacher','navResultsCard','navPlacementTest','navCefrRL','navIndArchive','navWordGame'];
+  const SHEET_IDS = ['navChat','navTeacher','navResultsCard','navPlacementTest','navCefrRL','navCefrWriting','navIndArchive','navWordGame'];
   const sheetLinks = {}; // navId -> ro'yxatdagi element
   function closeSheet(){ wrap.hidden = true; items.menu.setAttribute('aria-expanded','false'); }
   function openSheet(){ wrap.hidden = false; items.menu.setAttribute('aria-expanded','true'); }
@@ -8280,6 +8280,8 @@ document.getElementById('themeToggle').addEventListener('click',function(){
     if(list.firstElementChild !== el) list.insertBefore(el, list.firstElementChild);
     const arSheet = sheetLinks.navIndArchive;
     if(arSheet) list.insertBefore(arSheet, el.nextSibling);
+    const cwSheet = sheetLinks.navCefrWriting;
+    if(cwSheet) list.insertBefore(cwSheet, el.nextSibling);
     el.classList.add('ind-cefr-btn');
     el.style.background = '#22c55e';
     el.style.borderColor = '#22c55e';
