@@ -2741,6 +2741,10 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         .cwr-check input{width:auto;margin:0;}
         .cwr-paste{margin-top:6px;padding:.7em .9em;border:1.5px dashed var(--line);border-radius:10px;font-size:.8rem;color:var(--gray);outline:0;cursor:pointer;}
         .cwr-paste:focus{border-color:#2563eb;background:rgba(37,99,235,.07);color:inherit;}
+        .ind-tab[data-main-tab="cwr"]{position:relative;}
+        .cwr-dot{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:99px;background:#ef4444;color:#fff;font-size:11px;font-weight:800;line-height:1;box-shadow:0 0 0 2px var(--surface,#fff);}
+        .ind-tab[data-main-tab="cwr"] .cwr-dot{position:absolute;top:-7px;right:-7px;}
+        #navIndividuals .cwr-dot{margin-left:8px;vertical-align:middle;}
         #cwrGrid.ind-grid{grid-template-columns:1fr;gap:8px;}
         @media (max-width:900px){.cwr-card{grid-template-columns:1fr;}.cwr-actions{justify-self:stretch;}}
       </style>
@@ -18005,6 +18009,29 @@ const CefrWriting = (function(){
   $('modalCwr').addEventListener('click', e => {
     const b = e.target.closest('[data-imgdel]');
     if(b){ imgs[b.dataset.imgdel] = ''; showImgs(); }
+  });
+
+  // ---------- Qizil belgi: tekshirilmagan (topshirilgan) inshololar soni ----------
+  // Tab ustida va yon menyudagi "Individuals" yonida ko'rinadi; yangi topshiriq kelsa o'zi yangilanadi.
+  function setBadge(n){
+    document.querySelectorAll('[data-main-tab="cwr"], #navIndividuals').forEach(btn => {
+      let d = btn.querySelector('.cwr-dot');
+      if(!n){ if(d) d.remove(); return; }
+      if(!d){ d = document.createElement('span'); d.className = 'cwr-dot'; btn.appendChild(d); }
+      d.textContent = n > 9 ? '9+' : String(n);
+      d.title = n + ' ta tekshirilmagan Writing';
+    });
+  }
+  let badgeUnsub = null;
+  firebase.auth().onAuthStateChanged(user => {
+    if(badgeUnsub){ badgeUnsub(); badgeUnsub = null; }
+    if(!user){ setBadge(0); return; }
+    try{
+      badgeUnsub = subCol().where('status', '==', 'submitted').onSnapshot(
+        snap => setBadge(snap.size),
+        () => setBadge(0)   // admin bo'lmasa yoki qoidalar yo'q bo'lsa jim o'tadi
+      );
+    } catch(e){}
   });
 
   return { open: open };
