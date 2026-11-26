@@ -2746,9 +2746,9 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         .cwr-check input{width:auto;margin:0;}
         .cwr-paste{margin-top:6px;padding:.7em .9em;border:1.5px dashed var(--line);border-radius:10px;font-size:.8rem;color:var(--gray);outline:0;cursor:pointer;}
         .cwr-paste:focus{border-color:#2563eb;background:rgba(37,99,235,.07);color:inherit;}
-        .ind-tab[data-main-tab="cwr"]{position:relative;}
+        .ind-tab[data-main-tab="cwr"],.ind-tab[data-main-tab="lhw"],.ind-tab[data-main-tab="cefr"]{position:relative;}
         .cwr-dot{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;box-sizing:border-box;border-radius:99px;background:#ef4444;color:#fff;font-size:11px;font-weight:800;line-height:1;box-shadow:0 0 0 2px var(--surface,#fff);}
-        .ind-tab[data-main-tab="cwr"] .cwr-dot{position:absolute;top:-7px;right:-7px;}
+        .ind-tab .cwr-dot{position:absolute;top:-7px;right:-7px;}
         #navIndividuals .cwr-dot{margin-left:8px;vertical-align:middle;}
         #cwrGrid.ind-grid{grid-template-columns:1fr;gap:8px;}
         @media (max-width:900px){.cwr-card{grid-template-columns:1fr;}.cwr-actions{justify-self:stretch;}}
@@ -17645,7 +17645,7 @@ $('crlStuBody').addEventListener('click', e => {
     if(!b) return;
     if($('indCwrPane')) $('indCwrPane').hidden = true;
     if(b.dataset.mainTab === 'cwr') CefrWriting.open();
-    else if(b.dataset.mainTab === 'cefr') open();
+    else if(b.dataset.mainTab === 'cefr'){ open(); if(typeof TabBadges !== 'undefined') TabBadges.seenRL(); }
     else if(b.dataset.mainTab === 'lhw') openLhw();
     else Individuals.open();
   });
@@ -18066,30 +18066,72 @@ const CefrWriting = (function(){
     if(b){ imgs[b.dataset.imgdel] = ''; showImgs(); }
   });
 
-  // ---------- Qizil belgi: tekshirilmagan (topshirilgan) inshololar soni ----------
-  // Tab ustida va yon menyudagi "Individuals" yonida ko'rinadi; yangi topshiriq kelsa o'zi yangilanadi.
-  function setBadge(n){
-    document.querySelectorAll('[data-main-tab="cwr"], #navIndividuals').forEach(btn => {
+  return { open: open };
+})();
+
+// ===== Individuals tablaridagi qizil belgilar: CEFR Writing, Listening uy vazifa, CEFR RL (+ yon menyudagi Individuals) =====
+//  - CEFR Writing: topshirilgan, hali baholanmagan inshololar soni
+//  - Listening uy vazifa: individual talabalarning tekshirilmagan dikta (eshitib yozish) javoblari soni
+//  - CEFR RL: oxirgi marta tabni ochganingizdan keyin kelgan yangi natijalar soni
+const TabBadges = (function(){
+  const counts = { cwr: 0, lhw: 0, cefr: 0 };
+  const SEL = { cwr: '[data-main-tab="cwr"]', lhw: '[data-main-tab="lhw"]', cefr: '[data-main-tab="cefr"]' };
+  const WHAT = { cwr: 'tekshirilmagan Writing', lhw: 'tekshirilmagan Listening dikta', cefr: 'yangi CEFR RL natijasi' };
+  const SEEN_KEY = 'adminSeenCefrRL';
+  function paint(sel, n, title){
+    document.querySelectorAll(sel).forEach(btn => {
       let d = btn.querySelector('.cwr-dot');
       if(!n){ if(d) d.remove(); return; }
       if(!d){ d = document.createElement('span'); d.className = 'cwr-dot'; btn.appendChild(d); }
       d.textContent = n > 9 ? '9+' : String(n);
-      d.title = n + ' ta tekshirilmagan Writing';
+      d.title = title;
     });
   }
-  let badgeUnsub = null;
-  firebase.auth().onAuthStateChanged(user => {
-    if(badgeUnsub){ badgeUnsub(); badgeUnsub = null; }
-    if(!user){ setBadge(0); return; }
-    try{
-      badgeUnsub = subCol().where('status', '==', 'submitted').onSnapshot(
-        snap => setBadge(snap.size),
-        () => setBadge(0)   // admin bo'lmasa yoki qoidalar yo'q bo'lsa jim o'tadi
-      );
-    } catch(e){}
-  });
+  function render(){
+    Object.keys(SEL).forEach(k => paint(SEL[k], counts[k], counts[k] + ' ta ' + WHAT[k]));
+    const total = counts.cwr + counts.lhw + counts.cefr;
+    paint('#navIndividuals', total, total + ' ta yangi (Individuals)');
+  }
+  function set(k, n){ counts[k] = n; render(); }
 
-  return { open: open };
+  let uCwr = null, uLhw = null, uRl = null, indIds = null;
+  function stopAll(){
+    [uCwr, uLhw, uRl].forEach(u => { if(u) u(); });
+    uCwr = uLhw = uRl = null; indIds = null;
+    set('cwr', 0); set('lhw', 0); set('cefr', 0);
+  }
+  function startRL(){
+    if(uRl){ uRl(); uRl = null; }
+    let since = 0;
+    try{ since = Number(localStorage.getItem(SEEN_KEY)) || 0; }catch(e){}
+    if(!since){ since = Date.now(); try{ localStorage.setItem(SEEN_KEY, String(since)); }catch(e){} }
+    try{
+      uRl = db.collection('cefrRLAttempts')
+        .where('submittedAt', '>', firebase.firestore.Timestamp.fromMillis(since))
+        .onSnapshot(s => set('cefr', s.size), () => set('cefr', 0));
+    } catch(e){}
+  }
+  function seenRL(){
+    try{ localStorage.setItem(SEEN_KEY, String(Date.now())); }catch(e){}
+    set('cefr', 0);
+    startRL();
+  }
+  function startAll(){
+    try{
+      uCwr = db.collection('cefrWritingSubs').where('status', '==', 'submitted')
+        .onSnapshot(s => set('cwr', s.size), () => set('cwr', 0));
+    } catch(e){}
+    try{
+      db.collection('individuals').get().then(sn => {
+        indIds = new Set(sn.docs.map(d => d.id));
+        uLhw = db.collection('listening_submissions').where('graded', '==', false).where('kind', '==', 'dictation')
+          .onSnapshot(s => set('lhw', s.docs.filter(d => indIds.has(d.data().studentId)).length), () => set('lhw', 0));
+      }).catch(() => {});
+    } catch(e){}
+    startRL();
+  }
+  firebase.auth().onAuthStateChanged(user => { stopAll(); if(user) startAll(); });
+  return { seenRL: seenRL };
 })();
 
 // ===== FIKRLAR (anonim): admin talabalarga savol yuboradi, talabalar ismsiz javob yozadi =====
@@ -18110,6 +18152,14 @@ const FeedbackAdmin = (function(){
       const p = n => String(n).padStart(2, '0');
       return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear();
     } catch(e){ return ''; }
+  }
+  const ms = x => (x && x.at && x.at.toMillis) ? x.at.toMillis() : 0;
+  function whenOf(x){
+    if(x.at && x.at.toDate){
+      const d = x.at.toDate(), p = n => String(n).padStart(2, '0');
+      return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+    }
+    return dayFmt(x.day);
   }
   const dayFmt = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? m[3] + '.' + m[2] + '.' + m[1] : (s || ''); };
 
@@ -18183,10 +18233,10 @@ const FeedbackAdmin = (function(){
   async function view(id){
     const r = reqs.find(x => x.id === id);
     if(!r) return;
-    const mine = resps.filter(x => x.requestId === id).sort((a, b) => String(b.day || '').localeCompare(String(a.day || '')));
+    const mine = resps.filter(x => x.requestId === id).sort((a, b) => (ms(b) - ms(a)) || String(b.day || '').localeCompare(String(a.day || '')));
     $('fbResTitle').textContent = r.title || 'Fikrlar';
     $('fbResBody').innerHTML = mine.length
-      ? mine.map(x => '<div class="fb-resp' + (x.seen !== true ? ' is-new' : '') + '"><div class="fb-day">' + esc(dayFmt(x.day)) +
+      ? mine.map(x => '<div class="fb-resp' + (x.seen !== true ? ' is-new' : '') + '"><div class="fb-day">' + esc(whenOf(x)) +
           (x.seen !== true ? '<span class="fb-new">Yangi</span>' : '') + '</div><div class="fb-text">' + esc(x.text) + '</div></div>').join('')
       : '<p class="ind-empty">Hali fikr kelmagan.</p>';
     openModal('modalFbRes');
