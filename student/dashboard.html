@@ -7177,7 +7177,7 @@ async function fbSubmit(id, text){
   const day = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
   const batch = db.batch();
   batch.set(db.collection('feedbackDone').doc(id + '__' + currentUid), { requestId: id, studentId: currentUid });
-  batch.set(db.collection('feedbackResponses').doc(), { requestId: id, text: text, day: day, seen: false });
+  batch.set(db.collection('feedbackResponses').doc(), { requestId: id, text: text, day: day, at: firebase.firestore.FieldValue.serverTimestamp(), seen: false });
   await batch.commit();
   fbS.done[id] = true;
   const nav = document.getElementById('navFeedback');
@@ -7259,7 +7259,7 @@ async function sendFeedback(id, btn){
     const day = d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
     const batch = db.batch();
     batch.set(db.collection('feedbackDone').doc(id + '__' + currentUid), { requestId: id, studentId: currentUid });
-    batch.set(db.collection('feedbackResponses').doc(), { requestId: id, text: text, day: day, seen: false });
+    batch.set(db.collection('feedbackResponses').doc(), { requestId: id, text: text, day: day, at: firebase.firestore.FieldValue.serverTimestamp(), seen: false });
     await batch.commit();
     fbS.done[id] = true;
     const nav = document.getElementById('navFeedback');
