@@ -991,6 +991,11 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
         <span class="nav-label">Xabar yuborish</span>
       </a></li>
+<li data-sec="aloqa"><a href="#" id="navFeedback">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span class="nav-label">Fikrlar</span>
+        <span id="navFeedbackBadge" class="notif-badge" hidden>0</span>
+      </a></li>
 <li data-sec="aloqa"><a href="#" id="navChats">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         <span class="nav-label">Chatlar</span>
@@ -2803,6 +2808,42 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
     </section>
 
     <!-- ===== FAOLLIK JURNALI (Activity Log) ===== -->
+    <section id="view-feedback" hidden>
+      <style>
+        .fb-card{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border:1.5px solid var(--line);border-radius:14px;background:var(--surface);padding:14px 18px;margin-bottom:10px;}
+        .fb-card h3{margin:0 0 4px;font-size:1rem;}
+        .fb-q{margin:0 0 6px;font-size:.85rem;color:var(--gray);white-space:pre-wrap;overflow-wrap:anywhere;}
+        .fb-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:.8rem;color:var(--gray);}
+        .fb-new{background:#ef4444;color:#fff;border-radius:99px;padding:.1em .7em;font-weight:800;font-size:.72rem;}
+        .fb-chip{font-size:.72rem;font-weight:800;padding:.2em .75em;border-radius:99px;}
+        .fb-chip.on{color:#059669;background:rgba(5,150,105,.14);} .fb-chip.off{color:#6b7280;background:rgba(107,114,128,.14);}
+        .fb-actions{display:flex;gap:8px;flex-wrap:wrap;}
+        .fb-resp{border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+        .fb-resp.is-new{border-color:#ef4444;}
+        .fb-day{font-size:.75rem;color:var(--gray);margin-bottom:6px;display:flex;gap:8px;align-items:center;}
+        .fb-text{font-size:.95rem;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;}
+      </style>
+      <div class="admin-header">
+        <div>
+          <h1>Fikrlar (anonim)</h1>
+          <p>Talabalarga savol yuboring (masalan, &laquo;Darslar haqida fikringiz&raquo;). Talaba yozib yuboradi, siz uni ism-familiyasiz ko&#39;rasiz.</p>
+        </div>
+      </div>
+      <div class="table-wrap" style="padding:20px;max-width:640px;margin-bottom:18px;">
+        <label class="field">
+          <span>Sarlavha</span>
+          <input type="text" id="fbTitle" value="Darslar haqida fikringiz" maxlength="100">
+        </label>
+        <label class="field">
+          <span>Izoh / savol</span>
+          <textarea id="fbText" rows="3" maxlength="500" placeholder="Masalan: Darslar sizga qanday ko&#39;rinyapti? Nimani yaxshilash kerak? Ochiq yozing, ismingiz ko&#39;rinmaydi." style="width:100%;padding:.6em .8em;border:1.5px solid var(--line);border-radius:10px;background:transparent;color:inherit;font:inherit;resize:vertical;"></textarea>
+        </label>
+        <button class="btn btn-primary" id="fbSendBtn">Barcha talabalarga yuborish</button>
+        <p class="crl-hint" style="margin:8px 0 0;">Talaba javobida ism, uid yoki aniq vaqt saqlanmaydi, faqat sana.</p>
+      </div>
+      <div id="fbList"></div>
+    </section>
+
     <section id="view-activity-log" hidden>
       <div class="oj-header">
         <div>
@@ -3722,6 +3763,17 @@ body.admin-theme.dark tr[style*="background:#fff5f5"]{ background:rgba(240,118,9
     <div id="cwrResBody" class="cwr-form"></div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('modalCwrRes')">Yopish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL: Anonim fikrlar ===== -->
+<div class="modal-overlay" id="modalFbRes" hidden>
+  <div class="modal-box" style="max-width:720px;width:96vw;max-height:92vh;overflow:auto;">
+    <h2 class="modal-title" id="fbResTitle">Fikrlar</h2>
+    <div id="fbResBody"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modalFbRes')">Yopish</button>
     </div>
   </div>
 </div>
@@ -5604,6 +5656,7 @@ const ADMIN_VIEW_NAV_MAP = {
   'gradebook': 'navGradebook',
   'teachers': 'navTeachers',
   'broadcast': 'navBroadcast',
+  'feedback': 'navFeedback',
   'chats': 'navChats',
   'parent-chats': 'navParentChats',
   'activity-log': 'navActivityLog',
@@ -5698,6 +5751,8 @@ function switchView(view){
   document.getElementById('navOquvJarayoni').classList.toggle('active', view === 'oquv-groups' || view === 'oquv-students' || view === 'oquv-progress');
   document.getElementById('navGradebook').classList.toggle('active', view === 'gradebook');
   document.getElementById('view-broadcast').hidden = view !== 'broadcast';
+  document.getElementById('view-feedback').hidden = view !== 'feedback';
+  document.getElementById('navFeedback').classList.toggle('active', view === 'feedback');
   document.getElementById('view-chats').hidden = view !== 'chats';
   document.body.classList.toggle('chat-fullscreen', view === 'chats');
   if(view === 'chats') window.scrollTo(0, 0);
@@ -18035,6 +18090,148 @@ const CefrWriting = (function(){
   });
 
   return { open: open };
+})();
+
+// ===== FIKRLAR (anonim): admin talabalarga savol yuboradi, talabalar ismsiz javob yozadi =====
+// feedbackRequests/{id}  { title, text, active, createdAt }
+// feedbackResponses/{id} { requestId, text, day:'YYYY-MM-DD', seen }   — ism/uid/aniq vaqt YO'Q
+// feedbackDone/{requestId__uid} { requestId, studentId }             — faqat "javob bergan" belgisi (matnga bog'lanmagan)
+const FeedbackAdmin = (function(){
+  const $ = id => document.getElementById(id);
+  const esc = s => escapeHtml(String(s == null ? '' : s));
+  const rc = () => db.collection('feedbackRequests');
+  const sc = () => db.collection('feedbackResponses');
+  let reqs = [], resps = [];
+
+  function fmtTs(ts){
+    try{
+      const d = ts && ts.toDate ? ts.toDate() : null;
+      if(!d) return '';
+      const p = n => String(n).padStart(2, '0');
+      return p(d.getDate()) + '.' + p(d.getMonth() + 1) + '.' + d.getFullYear();
+    } catch(e){ return ''; }
+  }
+  const dayFmt = s => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? m[3] + '.' + m[2] + '.' + m[1] : (s || ''); };
+
+  async function load(){
+    $('fbList').innerHTML = '<div class="sk-rows" role="status" aria-label="Yuklanmoqda"><i></i><i></i><i></i></div>';
+    try{
+      const [a, b] = await Promise.all([ rc().orderBy('createdAt', 'desc').get(), sc().get() ]);
+      reqs = a.docs.map(d => Object.assign({ id: d.id }, d.data()));
+      resps = b.docs.map(d => Object.assign({ id: d.id }, d.data()));
+    } catch(err){
+      $('fbList').innerHTML = '<p class="ind-empty">Yuklashda xatolik: ' + esc(err.message) + '<br>Firestore qoidalariga <b>feedbackRequests</b>, <b>feedbackResponses</b>, <b>feedbackDone</b> qo&#39;shilganini tekshiring.</p>';
+      return;
+    }
+    render();
+  }
+
+  function render(){
+    if(!reqs.length){
+      $('fbList').innerHTML = '<p class="ind-empty">Hali savol yuborilmagan. Yuqoridan yarating.</p>';
+      return;
+    }
+    $('fbList').innerHTML = reqs.map(r => {
+      const mine = resps.filter(x => x.requestId === r.id);
+      const fresh = mine.filter(x => x.seen !== true).length;
+      const on = r.active !== false;
+      return '<div class="fb-card"><div style="min-width:0;flex:1 1 320px;"><h3>' + esc(r.title || 'Fikr') + '</h3>' +
+        (r.text ? '<p class="fb-q">' + esc(r.text) + '</p>' : '') +
+        '<div class="fb-meta"><span>' + esc(fmtTs(r.createdAt)) + '</span><span><b>' + mine.length + '</b> ta fikr</span>' +
+        (fresh ? '<span class="fb-new">' + fresh + ' yangi</span>' : '') +
+        '<span class="fb-chip ' + (on ? 'on' : 'off') + '">' + (on ? 'Ochiq' : 'Yopiq') + '</span></div></div>' +
+        '<div class="fb-actions"><button class="btn btn-primary btn-sm" data-fb="view" data-id="' + esc(r.id) + '">Fikrlarni ko&#39;rish</button>' +
+        '<button class="btn btn-ghost btn-sm" data-fb="toggle" data-id="' + esc(r.id) + '">' + (on ? 'Yopish' : 'Qayta ochish') + '</button>' +
+        '<button class="btn btn-ghost btn-sm" style="color:#dc2626;" data-fb="del" data-id="' + esc(r.id) + '">O&#39;chirish</button></div></div>';
+    }).join('');
+  }
+
+  async function send(){
+    const title = $('fbTitle').value.trim(), text = $('fbText').value.trim();
+    if(!title){ showToast('Sarlavhani kiriting', true); return; }
+    const btn = $('fbSendBtn');
+    btn.disabled = true;
+    try{
+      await rc().doc().set({ title: title, text: text, active: true, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+      $('fbText').value = '';
+      showToast('Talabalarga yuborildi');
+      await load();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+    finally { btn.disabled = false; }
+  }
+
+  async function toggle(id){
+    const r = reqs.find(x => x.id === id);
+    if(!r) return;
+    try{ await rc().doc(id).update({ active: r.active === false }); r.active = r.active === false; render(); }
+    catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  async function remove(id){
+    if(!confirm('Savol va unga kelgan barcha fikrlar o\'chiriladi. Davom etasizmi?')) return;
+    try{
+      const snap = await sc().where('requestId', '==', id).get();
+      const batch = db.batch();
+      snap.docs.forEach(d => batch.delete(d.ref));
+      batch.delete(rc().doc(id));
+      await batch.commit();
+      showToast('O\'chirildi');
+      await load();
+    } catch(e){ showToast('Xatolik: ' + e.message, true); }
+  }
+
+  async function view(id){
+    const r = reqs.find(x => x.id === id);
+    if(!r) return;
+    const mine = resps.filter(x => x.requestId === id).sort((a, b) => String(b.day || '').localeCompare(String(a.day || '')));
+    $('fbResTitle').textContent = r.title || 'Fikrlar';
+    $('fbResBody').innerHTML = mine.length
+      ? mine.map(x => '<div class="fb-resp' + (x.seen !== true ? ' is-new' : '') + '"><div class="fb-day">' + esc(dayFmt(x.day)) +
+          (x.seen !== true ? '<span class="fb-new">Yangi</span>' : '') + '</div><div class="fb-text">' + esc(x.text) + '</div></div>').join('')
+      : '<p class="ind-empty">Hali fikr kelmagan.</p>';
+    openModal('modalFbRes');
+    const unseen = mine.filter(x => x.seen !== true);
+    if(unseen.length){
+      try{
+        const batch = db.batch();
+        unseen.forEach(x => batch.update(sc().doc(x.id), { seen: true }));
+        await batch.commit();
+        unseen.forEach(x => { x.seen = true; });
+        render();
+      } catch(e){}
+    }
+  }
+
+  function setBadge(n){
+    const b = $('navFeedbackBadge');
+    if(!b) return;
+    b.hidden = !n;
+    b.textContent = n > 99 ? '99+' : String(n);
+  }
+  let unsub = null;
+  firebase.auth().onAuthStateChanged(user => {
+    if(unsub){ unsub(); unsub = null; }
+    if(!user){ setBadge(0); return; }
+    try{
+      unsub = sc().where('seen', '==', false).onSnapshot(s => setBadge(s.size), () => setBadge(0));
+    } catch(e){}
+  });
+
+  $('fbSendBtn').addEventListener('click', send);
+  $('fbList').addEventListener('click', e => {
+    const b = e.target.closest('[data-fb]');
+    if(!b) return;
+    const id = b.dataset.id;
+    if(b.dataset.fb === 'view') view(id);
+    else if(b.dataset.fb === 'toggle') toggle(id);
+    else if(b.dataset.fb === 'del') remove(id);
+  });
+  $('navFeedback').addEventListener('click', e => {
+    e.preventDefault();
+    switchView('feedback');
+    load();
+  });
+  return { load: load };
 })();
 
 // ===== GURUH ANKETA =====
