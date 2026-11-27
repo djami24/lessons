@@ -1415,6 +1415,18 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
           .indh-modal-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
           .indh-later{cursor:pointer;font:inherit;font-weight:700;font-size:13px;padding:9px 16px;border-radius:10px;color:var(--gray-700);background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.85);}
           body.dark .indh-later{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14);color:#c3cbe0;}
+          .indh-off{cursor:pointer;font:inherit;font-weight:600;font-size:12.5px;padding:6px 10px;border:0;background:none;color:var(--gray-400);text-decoration:underline;margin-top:10px;}
+          .indh-off:hover{color:var(--gray-700);}
+          .mr-set{display:none;align-items:center;justify-content:space-between;gap:16px;max-width:460px;margin-top:22px;padding:14px 16px;border-radius:14px;border:1px solid var(--gray-100);background:var(--gray-50,#f8fafc);}
+          body.ind-mode .mr-set{display:flex;}
+          .mr-set-t b{display:block;font-size:14px;color:var(--gray-900);}
+          .mr-set-t span{display:block;margin-top:2px;font-size:12px;line-height:1.45;color:var(--gray-500);}
+          body.dark .mr-set{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);}
+          body.dark .mr-set-t b{color:#f1f1f1;}
+          .mr-sw{position:relative;flex:none;width:46px;height:26px;border-radius:999px;border:0;padding:0;cursor:pointer;background:#cbd5e1;transition:background .18s;}
+          .mr-sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .18s;}
+          .mr-sw[aria-checked="true"]{background:#2563eb;}
+          .mr-sw[aria-checked="true"]::after{transform:translateX(20px);}
           .indh-big{font-size:22px;font-weight:800;line-height:1.25;color:var(--gray-900);}
           .indh-sub{font-size:12.5px;color:var(--gray-500);margin-top:4px;line-height:1.45;}
           .indh-ok{color:#1e7e34;} .indh-late{color:#a15c00;} .indh-bad{color:#c0392b;}
@@ -2291,6 +2303,14 @@ body.dark #view-cefr-writing .admin-header button,body.dark #view-cefr-speaking 
             <button type="submit" class="btn btn-amber" id="profileSaveBtn">Saqlash</button>
           </div>
         </form>
+
+        <div class="mr-set" id="mockRemindSetting">
+          <div class="mr-set-t">
+            <b>Mock eslatmasi</b>
+            <span>Har safar kirganda yechilmagan mock haqida eslatma chiqadi. O&#8216;chirib qo&#8216;ysangiz, chiqmaydi.</span>
+          </div>
+          <button type="button" class="mr-sw" id="mockRemindSwitch" role="switch" aria-checked="true" aria-label="Mock eslatmasi"></button>
+        </div>
       </div>
 
     <div class="profile-user-row" id="profileUserRow">
@@ -3392,9 +3412,20 @@ async function renderIndArchive(){
     '<h3 style="font-size:15px;margin:6px 0 10px;">Barcha yechilgan testlar (' + items.length + ')</h3><div class="arch-list">' + rows + '</div>';
 }
 
+// Mock eslatmasini yoqish/o'chirish (har bir talaba uchun alohida, shu qurilmada saqlanadi)
+function indRemindKey(){ return 'efIndMockRemind_' + (currentUid || ''); }
+function indRemindEnabled(){
+  try { return localStorage.getItem(indRemindKey()) !== 'off'; } catch(e){ return true; }
+}
+function indRemindSet(on){
+  try { if(on) localStorage.removeItem(indRemindKey()); else localStorage.setItem(indRemindKey(), 'off'); } catch(e){}
+  const sw = document.getElementById('mockRemindSwitch');
+  if(sw) sw.setAttribute('aria-checked', on ? 'true' : 'false');
+}
+
 // Har safar kirganda: yechilmagan mock bo'lsa eslatma
 function showIndMockReminder(){
-  if(!state.indVerified || window._indRemindShown) return;
+  if(!state.indVerified || window._indRemindShown || !indRemindEnabled()) return;
   const pending = (crls.tests || []).filter(t => CRLS_SECS.some(sec => !crlsAtt(t.id, sec)));
   if(!pending.length) return;
   window._indRemindShown = true;
@@ -3417,6 +3448,7 @@ function showIndMockReminder(){
         '<button type="button" class="indh-go" id="indRemGo" data-id="' + E(t.id) + '">Mock yechish ' + indIcon('arrow', 15) + '</button>' +
         '<button type="button" class="indh-later" id="indRemLater">Keyinroq</button>' +
       '</div>' +
+      '<button type="button" class="indh-off" id="indRemOff">Eslatmani o&#8216;chirish</button>' +
     '</div>';
   document.body.appendChild(ov);
   const close = () => { if(ov.parentNode) ov.parentNode.removeChild(ov); document.removeEventListener('keydown', onKey); };
@@ -3424,6 +3456,12 @@ function showIndMockReminder(){
   document.addEventListener('keydown', onKey);
   ov.addEventListener('click', (e) => {
     if(e.target === ov || e.target.closest('#indRemLater')){ close(); return; }
+    if(e.target.closest('#indRemOff')){
+      indRemindSet(false);
+      close();
+      if(typeof showToast === 'function') showToast('Mock eslatmasi o\u2018chirildi. Profil bo\u2018limidan qayta yoqishingiz mumkin.');
+      return;
+    }
     const go = e.target.closest('#indRemGo');
     if(go){
       close();
@@ -3435,6 +3473,13 @@ function showIndMockReminder(){
 }
 
 document.addEventListener('click', (e) => {
+  const mrSw = e.target.closest('#mockRemindSwitch');
+  if(mrSw){
+    const on = mrSw.getAttribute('aria-checked') !== 'true';
+    indRemindSet(on);
+    if(typeof showToast === 'function') showToast(on ? 'Mock eslatmasi yoqildi.' : 'Mock eslatmasi o\u2018chirildi.');
+    return;
+  }
   if(e.target.closest('#navIndArchive')){
     e.preventDefault();
     setActiveNav('navIndArchive');
@@ -5520,6 +5565,8 @@ function renderProfile(){
   document.getElementById('profileError').hidden = true;
   document.getElementById('profileNotice').hidden = true;
   document.getElementById('emojiPickerGrid').hidden = true;
+  const mrSw = document.getElementById('mockRemindSwitch');
+  if(mrSw) mrSw.setAttribute('aria-checked', indRemindEnabled() ? 'true' : 'false');
 
   switchView('profile');
 }
