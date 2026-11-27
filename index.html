@@ -259,6 +259,19 @@ body.home-body .hm-nav .home-nav-toggle{ border-radius:14px; }
   body.home-body .hm-nav-login{ padding:.55em .85em; gap:.4em; font-size:.84rem; }
   body.home-body .hm-nav .home-nav-toggle{ width:36px; height:36px; }
 }
+/* ===== "Ochish" tugmasi ko'rinadigan + mobilda ixcham kartalar ===== */
+.hm-tool > div{min-width:0;}
+.hm-tools .hm-tool-go{color:var(--ink,#14213d);padding:.42em 1em;border-radius:999px;background:rgba(255,255,255,.85);border:1px solid rgba(20,33,61,.2);font-size:.92rem;line-height:1.2;transition:background .2s,color .2s,border-color .2s;}
+.hm-tools .hm-tool:hover .hm-tool-go{background:var(--ink,#14213d);color:#fff;border-color:var(--ink,#14213d);}
+@media (max-width:860px){
+  .hm-tools{gap:.7em;}
+  .hm-tool{flex-wrap:nowrap;gap:.8em;padding:.85em 1em;border-radius:14px;}
+  .hm-tool .hm-ico{width:40px;height:40px;border-radius:11px;}
+  .hm-tool .hm-ico .hm-ic{width:20px;height:20px;}
+  .hm-tool h3{font-size:1rem;margin:0 0 .15em;}
+  .hm-tool p{font-size:.86rem;line-height:1.4;}
+  .hm-tools .hm-tool-go{margin-left:auto;padding:.35em .8em;font-size:.82rem;}
+}
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -344,14 +357,14 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
         <div><h3 data-site-tool-1-title>Reading Mock</h3><p data-site-tool-1-text>Reading formatidagi mashq testlari va natijalar tahlili.</p></div>
         <span class="hm-tool-go" data-site-tools-btn>Ochish</span>
       </a>
+      <a class="hm-tool" href="vocab_uz.html">
+        <span class="hm-ico"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
+        <div><h3>Topical Vocabulary</h3><p>Mavzulashtirilgan inglizcha so‘zlar o‘zbekcha tarjima va misollar bilan.</p></div>
+        <span class="hm-tool-go" data-site-tools-btn>Ochish</span>
+      </a>
       <a class="hm-tool" href="https://vocabme.netlify.app" target="_blank" rel="noopener">
         <span class="hm-ico"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></span>
         <div><h3 data-site-tool-2-title>Lug'at</h3><p data-site-tool-2-text>Inglizcha-o‘zbekcha so‘zlarni darajalar bo‘yicha o‘rganing va testda sinang.</p></div>
-        <span class="hm-tool-go" data-site-tools-btn>Ochish</span>
-      </a>
-      <a class="hm-tool" href="vocab_uz.html">
-        <span class="hm-ico"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
-        <div><h3>Vocab Uz</h3><p>Mavzulashtirilgan inglizcha so‘zlar o‘zbekcha tarjima va misollar bilan.</p></div>
         <span class="hm-tool-go" data-site-tools-btn>Ochish</span>
       </a>
     </div>
