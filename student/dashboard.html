@@ -7702,7 +7702,15 @@ function renderCefrRLList(){
   const mode = sortEl ? sortEl.value : 'std';
   const list = crls.tests.slice();
   if(mode === 'done') list.sort((x, y) => crlsDoneCount(y) - crlsDoneCount(x));
-  else if(mode === 'todo') list.sort((x, y) => crlsDoneCount(x) - crlsDoneCount(y));
+  else if(mode === 'todo'){
+    // Faqat bajarilmagan testlar: kamida bitta bo'limi (Reading yoki Listening) yechilmagan
+    for(let i = list.length - 1; i >= 0; i--){ if(crlsDoneCount(list[i]) >= CRLS_SECS.length) list.splice(i, 1); }
+    list.sort((x, y) => crlsDoneCount(x) - crlsDoneCount(y));
+    if(!list.length){
+      box.innerHTML = '<div class="empty-state"><h3>Bajarilmagan test yo‘q</h3><p>Barcha testlarni yechib bo‘lgansiz. Barakalla!</p></div>';
+      return;
+    }
+  }
   else if(mode === 'best' || mode === 'worst'){
     list.sort((x, y) => {
       const p = crlsBallSum(x), q = crlsBallSum(y);
