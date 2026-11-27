@@ -275,6 +275,27 @@ body.home-body .hm-nav .home-nav-toggle{ border-radius:14px; }
 .hm-tg-row{display:flex;flex-wrap:wrap;gap:.6em;}
 button.hm-tg{font:inherit;font-weight:600;font-size:.92rem;cursor:pointer;}
 button.hm-tg[disabled]{opacity:.6;cursor:wait;}
+/* ===== Barcha tugmalar: "Ochish" tugmasi dizaynida (oq, yupqa chiziq; hover'da qora) ===== */
+body.home-body :is(.btn-primary,.btn-outline-teal,.hm-tg,.tsl-nav-btn,.home-nav-toggle,.hm-nav-login){
+  color:var(--ink,#14213d);
+  background:rgba(255,255,255,.85);
+  border:1px solid rgba(20,33,61,.2);
+  text-shadow:none; box-shadow:none; filter:none;
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+  transition:background .2s,color .2s,border-color .2s;
+}
+body.home-body :is(.btn-primary,.btn-outline-teal,.hm-tg,.hm-nav-login){border-radius:999px;font-weight:700;}
+body.home-body :is(.btn-primary,.btn-outline-teal,.hm-nav-login,.hm-tg)::before,
+body.home-body :is(.btn-primary,.btn-outline-teal,.hm-nav-login,.hm-tg)::after{display:none !important;}
+body.home-body :is(.btn-primary,.btn-outline-teal,.hm-tg,.tsl-nav-btn,.home-nav-toggle,.hm-nav-login):hover{
+  color:#fff; background:var(--ink,#14213d); border-color:var(--ink,#14213d);
+  text-shadow:none; box-shadow:none; filter:none; transform:none;
+}
+body.home-body :is(.btn-primary,.btn-outline-teal,.hm-tg,.hm-nav-login):active{transform:none;}
+body.home-body .hm-tg .hm-ic,body.home-body .hm-nav-login svg{color:currentColor;}
+body.home-body .hm-tg:hover .hm-ic{color:#fff;}
+body.home-body .home-nav-toggle span{background:var(--ink,#14213d);}
+body.home-body .home-nav-toggle:hover span{background:#fff;}
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
