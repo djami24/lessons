@@ -272,6 +272,9 @@ body.home-body .hm-nav .home-nav-toggle{ border-radius:14px; }
   .hm-tool p{font-size:.86rem;line-height:1.4;}
   .hm-tools .hm-tool-go{margin-left:auto;padding:.35em .8em;font-size:.82rem;}
 }
+.hm-tg-row{display:flex;flex-wrap:wrap;gap:.6em;}
+button.hm-tg{font:inherit;font-weight:600;font-size:.92rem;cursor:pointer;}
+button.hm-tg[disabled]{opacity:.6;cursor:wait;}
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
@@ -338,7 +341,10 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
     </div>
     <div class="hm-visual-wrap">
       <div class="hm-visual" data-site-hero-visual><svg class="hm-visual-art" viewBox="0 0 400 300" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice"><rect width="400" height="300" fill="var(--paper-2)"/><rect x="48" y="52" width="304" height="196" rx="18" fill="var(--paper)" stroke="var(--line)" stroke-width="2"/><g stroke="var(--teal)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M200 96c-20-12-48-14-70-8v94c22-6 50-4 70 8"/><path d="M200 96c20-12 48-14 70-8v94c-22-6-50-4-70 8"/><path d="M200 96v94"/></g><g stroke="var(--amber)" stroke-width="6" stroke-linecap="round"><path d="M88 216h56"/><path d="M256 216h56"/></g></svg></div>
-      <a class="hm-tg" href="https://t.me/djami_teacher" target="_blank" rel="noopener noreferrer"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span data-site-hero-tg-text>Telegram kanalimiz</span></a>
+      <div class="hm-tg-row">
+        <a class="hm-tg" href="https://t.me/djami_teacher" target="_blank" rel="noopener noreferrer"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg><span data-site-hero-tg-text>Telegram kanalimiz</span></a>
+        <button type="button" class="hm-tg hm-share" id="hmShareTg" aria-label="Rasmni Telegramda ulashish"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span>Telegramda ulashish</span></button>
+      </div>
     </div>
   </section>
 
@@ -1548,5 +1554,37 @@ void main() {
 })();
 </script>
 <!-- ===== /CursorGrid ===== -->
+<script>
+/* Hero rasmni Telegramda ulashish: telefonda rasmning o'zi ulashiladi (Telegram -> kontaktlar), bo'lmasa havola orqali */
+(function(){
+  var btn=document.getElementById('hmShareTg'); if(!btn) return;
+  var SITE='https://djamilessons.uz/';
+  var TEXT='Topical Vocabulary — B2–C2 darajadagi mavzulashtirilgan inglizcha so‘zlar, o‘zbekcha tarjima va misollar bilan.';
+  var file=null, trying=false;
+  function heroImg(){ return document.querySelector('[data-site-hero-visual] img'); }
+  function prepare(){
+    if(file||trying||!navigator.canShare) return;
+    var img=heroImg(); if(!img||!(img.currentSrc||img.src)) return;
+    trying=true;
+    fetch(img.currentSrc||img.src,{mode:'cors'}).then(function(r){ if(!r.ok) throw 0; return r.blob(); }).then(function(bl){
+      var ext=(bl.type.split('/')[1]||'png').replace('jpeg','jpg').split('+')[0];
+      var f=new File([bl],'topical-vocabulary.'+ext,{type:bl.type||'image/png'});
+      if(navigator.canShare({files:[f]})) file=f;
+    }).catch(function(){}).then(function(){ trying=false; });
+  }
+  [1200,3500,7000].forEach(function(t){ setTimeout(prepare,t); });
+  window.addEventListener('load',function(){ setTimeout(prepare,600); });
+  function viaLink(){
+    window.open('https://t.me/share/url?url='+encodeURIComponent(SITE)+'&text='+encodeURIComponent(TEXT),'_blank','noopener');
+  }
+  btn.addEventListener('click',function(){
+    if(file){
+      navigator.share({files:[file],text:TEXT+' '+SITE}).catch(function(e){ if(!e||e.name!=='AbortError') viaLink(); });
+    } else {
+      prepare(); viaLink();
+    }
+  });
+})();
+</script>
 </body>
 </html>
