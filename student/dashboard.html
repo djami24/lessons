@@ -3379,7 +3379,7 @@ async function renderIndArchive(){
   }
   // Bo'limlar bo'yicha o'zgarish
   let sumDelta = 0, haveDelta = false;
-  const cards = CRLS_SECS.map(sec => {
+  const cards = CRLS_SECS.filter(sec => crlsAnyHas(sec) || items.some(x => x.sec === sec)).map(sec => {
     const arr = items.filter(x => x.sec === sec && x.ball != null);
     if(!arr.length) return '<div class="indh-card"><h3>' + E(CRLS_LABEL[sec]) + '</h3><div class="indh-sub" style="margin-top:0;">Hali yechilmagan</div></div>';
     const last = arr[arr.length - 1];
@@ -3426,12 +3426,12 @@ function indRemindSet(on){
 // Har safar kirganda: yechilmagan mock bo'lsa eslatma
 function showIndMockReminder(){
   if(!state.indVerified || window._indRemindShown || !indRemindEnabled()) return;
-  const pending = (crls.tests || []).filter(t => CRLS_SECS.some(sec => !crlsAtt(t.id, sec)));
+  const pending = (crls.tests || []).filter(t => crlsSecs(t).some(sec => !crlsAtt(t.id, sec)));
   if(!pending.length) return;
   window._indRemindShown = true;
   const E = crlsEsc;
   const t = pending[0];
-  const left = CRLS_SECS.filter(sec => !crlsAtt(t.id, sec)).map(sec => CRLS_LABEL[sec]).join(' va ');
+  const left = crlsSecs(t).filter(sec => !crlsAtt(t.id, sec)).map(sec => CRLS_LABEL[sec]).join(' va ');
   const solvedAny = Object.keys(crls.attempts || {}).length > 0;
   const ov = document.createElement('div');
   ov.className = 'indh-modal-ov';
@@ -3616,6 +3616,7 @@ async function renderIndividualHome(){
       const arch = await indArchiveData();
       const rows = [];
       for(const sec of CRLS_SECS){
+        if(!crlsAnyHas(sec)) continue;
         const L = arch.slice().reverse().find(x => x.sec === sec);
         if(!L){
           rows.push('<div class="indh-mock"><div class="indh-mock-lbl">' + E(CRLS_LABEL[sec]) + '</div><div class="indh-mock-info"><div class="indh-sub" style="margin:0;">Hali yechilmagan</div></div></div>');
@@ -3630,7 +3631,7 @@ async function renderIndividualHome(){
       }
       let prompt = '';
       const latest = crls.tests[0];
-      const left = CRLS_SECS.filter(sec => !crlsAtt(latest.id, sec));
+      const left = crlsSecs(latest).filter(sec => !crlsAtt(latest.id, sec));
       if(left.length){
         prompt = '<div class="indh-prompt"><div class="indh-prompt-t"><b>Mock yechasizmi?</b><span>' + E(latest.title || 'Mock') + ' &middot; ' +
           left.map(sec => E(CRLS_LABEL[sec])).join(' va ') + ' hali yechilmagan</span></div>' +
@@ -7690,7 +7691,14 @@ function crlsBallSum(t){
   if(!secs.length) return null;
   return secs.reduce((s, sec) => s + crlsBall(sec, sc[sec]), 0);
 }
-function crlsDoneCount(t){ return CRLS_SECS.filter(s => crlsAtt(t.id, s)).length; }
+// Admin mockga qaysi bo'limlarni kiritgan bo'lsa, faqat shular (eski mocklarda maydon yo'q: ikkala bo'lim bor)
+function crlsSecs(t){
+  if(!t || !Array.isArray(t.sections)) return CRLS_SECS;
+  const r = CRLS_SECS.filter(s => t.sections.indexOf(s) >= 0);
+  return r.length ? r : CRLS_SECS;
+}
+function crlsAnyHas(sec){ return (crls.tests || []).some(t => crlsSecs(t).indexOf(sec) >= 0); }
+function crlsDoneCount(t){ return crlsSecs(t).filter(s => crlsAtt(t.id, s)).length; }
 
 function renderCefrRLList(){
   const box = document.getElementById('crlsList');
@@ -7703,11 +7711,10 @@ function renderCefrRLList(){
   const list = crls.tests.slice();
   if(mode === 'done') list.sort((x, y) => crlsDoneCount(y) - crlsDoneCount(x));
   else if(mode === 'todo'){
-    // Faqat bajarilmagan testlar: kamida bitta bo'limi (Reading yoki Listening) yechilmagan
-    for(let i = list.length - 1; i >= 0; i--){ if(crlsDoneCount(list[i]) >= CRLS_SECS.length) list.splice(i, 1); }
-    list.sort((x, y) => crlsDoneCount(x) - crlsDoneCount(y));
+    // Faqat bajarilmagan testlar: hech bir bo'limi (Reading ham, Listening ham) yechilmagan
+    for(let i = list.length - 1; i >= 0; i--){ if(crlsDoneCount(list[i]) > 0) list.splice(i, 1); }
     if(!list.length){
-      box.innerHTML = '<div class="empty-state"><h3>Bajarilmagan test yo‘q</h3><p>Barcha testlarni yechib bo‘lgansiz. Barakalla!</p></div>';
+      box.innerHTML = '<div class="empty-state"><h3>Bajarilmagan test yo‘q</h3><p>Barcha testlarni boshlab bo‘lgansiz. Barakalla!</p></div>';
       return;
     }
   }
@@ -7721,14 +7728,14 @@ function renderCefrRLList(){
     });
   }
   box.innerHTML = list.map(t => {
-    const st = CRLS_SECS.map(sec => {
+    const st = crlsSecs(t).map(sec => {
       const a = crlsAtt(t.id, sec);
       return '<span class="crls-st ' + (a ? 'done' : 'todo') + '">' + CRLS_LABEL[sec] + (a ? ' ✓' : '') + '</span>';
     }).join(' ');
     const ball = crlsBallSum(t);
     const avg = ball === null ? '' : ' · <span class="crls-avg">Ball: <b>' + ball + '</b></span>';
     return '<div class="crls-card" data-id="' + crlsEsc(t.id) + '">' +
-      '<div class="t"><strong>' + crlsEsc(t.title || 'Mock') + '</strong><span>Reading 35 ta · Listening 35 ta' + avg + '</span></div>' + st +
+      '<div class="t"><strong>' + crlsEsc(t.title || 'Mock') + '</strong><span>' + crlsSecs(t).map(sec => CRLS_LABEL[sec] + ' 35 ta').join(' · ') + avg + '</span></div>' + st +
     '</div>';
   }).join('');
   // Natijalar hali yuklanmagan bo'lsa, yuklab, ro'yxatni qayta chizamiz
@@ -7748,7 +7755,8 @@ function openCefrRLTest(id){
   const t = crls.tests.find(x => x.id === id);
   if(!t) return;
   crls.cur = t;
-  crls.sec = !crlsAtt(id, 'reading') ? 'reading' : (!crlsAtt(id, 'listening') ? 'listening' : 'reading');
+  const _ss = crlsSecs((crls.tests || []).find(x => x.id === id));
+  crls.sec = _ss.find(sec => !crlsAtt(id, sec)) || _ss[0];
   document.getElementById('crlsListPane').hidden = true;
   document.getElementById('crlsTestPane').hidden = false;
   window.scrollTo(0, 0);
@@ -7756,7 +7764,7 @@ function openCefrRLTest(id){
 }
 
 function crlsHead(t){
-  const tabs = CRLS_SECS.map(sec => {
+  const tabs = crlsSecs(t).map(sec => {
     const a = crlsAtt(t.id, sec);
     return '<button type="button" class="crls-tab' + (crls.sec === sec ? ' active' : '') + '" data-sec="' + sec + '">' + CRLS_LABEL[sec] + (a ? ' ✓' : '') + '</button>';
   }).join('');
