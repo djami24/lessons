@@ -1574,7 +1574,10 @@ void main() {
   [1200,3500,7000].forEach(function(t){ setTimeout(prepare,t); });
   window.addEventListener('load',function(){ setTimeout(prepare,600); });
   function viaLink(){
-    window.open('https://t.me/share/url?url='+encodeURIComponent(SITE)+'&text='+encodeURIComponent(TEXT),'_blank','noopener');
+    /* Telegram ichki brauzeri fayl ulashishni qo'llamaydi: rasmning havolasini birinchi qilib yuboramiz, Telegram uni rasm ko'rinishida ochadi */
+    var img=heroImg(), src=img&&(img.currentSrc||img.src), withImg=!!(src&&/^https?:/i.test(src));
+    var url=withImg?src:SITE, text=withImg?(TEXT+' '+SITE):TEXT;
+    window.open('https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(text),'_blank','noopener');
   }
   btn.addEventListener('click',function(){
     if(file){
