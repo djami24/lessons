@@ -296,6 +296,29 @@ body.home-body .hm-tg .hm-ic,body.home-body .hm-nav-login svg{color:currentColor
 body.home-body .hm-tg:hover .hm-ic{color:#fff;}
 body.home-body .home-nav-toggle span{background:var(--ink,#14213d);}
 body.home-body .home-nav-toggle:hover span{background:#fff;}
+/* Navbar havolalari ("Bosh sahifa", "Reading Mock", ...) — xuddi shu dizayn */
+body.home-body .hm-nav .home-nav-links a{
+  color:var(--ink,#14213d); background:rgba(255,255,255,.85);
+  border:1px solid rgba(20,33,61,.2); border-radius:999px; box-shadow:none;
+  transition:background .2s,color .2s,border-color .2s;
+}
+body.home-body .hm-nav .home-nav-links a:hover{color:#fff;background:var(--ink,#14213d);border-color:var(--ink,#14213d);box-shadow:none;}
+body.home-body .hm-nav .home-nav-links a.is-current{color:var(--ink,#14213d);background:rgba(255,255,255,.85);border:1.5px solid var(--ink,#14213d);box-shadow:none;}
+body.home-body .hm-nav .home-nav-links a.is-current:hover{color:#fff;background:var(--ink,#14213d);}
+/* Suzib yuruvchi aloqa tugmalari (telefon / Telegram) */
+body.home-body :is(a,button)[class*="fab"],
+body.home-body [class*="fab"] :is(a,button){
+  color:var(--ink,#14213d) !important; background:rgba(255,255,255,.85) !important;
+  border:1px solid rgba(20,33,61,.2) !important; box-shadow:none !important;
+  -webkit-backdrop-filter:none !important; backdrop-filter:none !important; filter:none !important;
+  transition:background .2s,color .2s,border-color .2s;
+}
+body.home-body :is(a,button)[class*="fab"]:hover,
+body.home-body [class*="fab"] :is(a,button):hover{
+  color:#fff !important; background:var(--ink,#14213d) !important; border-color:var(--ink,#14213d) !important;
+}
+body.home-body :is(a,button)[class*="fab"] svg,
+body.home-body [class*="fab"] :is(a,button) svg{color:currentColor !important;stroke:currentColor !important;}
 </style>
 <script>
   window.vmtrcq = window.vmtrcq || [];
