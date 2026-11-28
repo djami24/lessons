@@ -121,6 +121,7 @@
   // O'rin talabaning ENG SO'NGGI topshirgan uniti bo'yicha: shu guruhda o'sha unitdan
   // ball olgan barcha talabalar orasida solishtiriladi.
   GB.groupRank = function(data, student){
+    GB._data = data;   // guruh reytingi oynasi (GB.openGroupBoard) shu ma'lumotdan foydalanadi
     const mySum = GB.summarize(student, GB.unitsFor(data, student.group));
     if(!mySum.latest) return null;
     const unit = mySum.latest.unit, myScore = mySum.latest.score;
@@ -306,6 +307,72 @@
     return h;
   };
 
+
+  /* ---------- guruh reytingi: talabaning guruhidagi hamma natijalar, o'rinlari bilan ---------- */
+  // mode: '' (o'rtacha ball) yoki unit nomi. Qaytaradi: tartiblangan [{s, score, rank}]
+  GB.groupBoard = function(data, student, mode){
+    const rows = [];
+    (data.students || []).forEach(s => {
+      if(s.group !== student.group) return;
+      let v = null;
+      if(mode){
+        v = GB.num(s.scores ? s.scores[mode] : undefined);
+      } else {
+        const sm = GB.summarize(s, GB.unitsFor(data, s.group));
+        v = sm.avg;
+      }
+      if(v !== null) rows.push({ s, score: v });
+    });
+    rows.sort((a, b) => b.score - a.score || String(a.s.name).localeCompare(String(b.s.name)));
+    rows.forEach(r => { r.rank = 1 + rows.filter(o => o.score > r.score + 1e-9).length; });
+    return rows;
+  };
+
+  GB.openGroupBoard = function(ctx){
+    const data = GB._data, student = ctx.student;
+    if(!data) return;
+    GB.injectCss();
+    const units = GB.unitsFor(data, student.group);
+    const sum = ctx.sum || GB.summarize(student, units);
+    let mode = sum.latest ? sum.latest.unit : '';
+    const old = document.getElementById('gb-board'); if(old) old.remove();
+    const ov = document.createElement('div');
+    ov.id = 'gb-board';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(8,12,24,.75);display:flex;align-items:flex-end;justify-content:center;font-family:inherit;';
+    const opts = '<option value="">O\'rtacha ball</option>' +
+      units.map(u => '<option value="' + GB.esc(u) + '">' + GB.esc(u) + '</option>').join('');
+    ov.innerHTML =
+      '<div style="background:var(--gb-panel,#fff);color:var(--gb-ink,#1c212e);width:100%;max-width:520px;max-height:88vh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;overflow:hidden;">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px 8px;">' +
+          '<b style="font-size:16px;">' + GB.esc(student.group || 'Guruh') + ' · reyting</b>' +
+          '<button type="button" id="gb-board-x" style="flex:none;width:34px;height:34px;border-radius:50%;border:0;background:rgba(125,136,160,.18);color:inherit;font-size:20px;cursor:pointer;">&times;</button>' +
+        '</div>' +
+        '<div style="padding:0 16px 10px;display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--gb-dim,#6b7484);">' +
+          '<span>Bo\'yicha</span><select id="gb-board-sel" style="flex:1;min-width:0;font:inherit;font-size:13px;padding:7px 8px;border-radius:8px;border:1px solid var(--gb-line,#e2e5ec);background:var(--gb-panel,#fff);color:var(--gb-ink,#1c212e);">' + opts + '</select>' +
+        '</div>' +
+        '<div id="gb-board-list" style="overflow:auto;padding:0 16px 16px;display:flex;flex-direction:column;gap:6px;"></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    const sel = ov.querySelector('#gb-board-sel'), list = ov.querySelector('#gb-board-list');
+    sel.value = mode;
+    const paint = () => {
+      const rows = GB.groupBoard(data, student, sel.value);
+      if(!rows.length){ list.innerHTML = '<div class="gb-empty" style="padding:14px 0;">Bu bo\'yicha hali natija yo\'q.</div>'; return; }
+      list.innerHTML = rows.map(r => {
+        const me = r.s === student || (r.s.id && r.s.id === student.id);
+        const shown = sel.value ? r.score : GB.fmtNum(r.score);
+        const col = GB.tier(r.score).color;
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;border:1px solid ' + (me ? 'var(--gb-accent,#2f5fd8)' : 'var(--gb-line,#e2e5ec)') + ';' + (me ? 'background:rgba(47,95,216,.09);' : '') + '">' +
+          '<span style="flex:none;width:30px;text-align:center;">' + GB.medal(r.rank, 24) + '</span>' +
+          '<span style="flex:1;min-width:0;font-size:14px;font-weight:' + (me ? 800 : 600) + ';overflow-wrap:anywhere;">' + GB.esc(r.s.name) + (me ? ' <small style="font-weight:600;opacity:.7;">(siz)</small>' : '') + '</span>' +
+          '<b style="flex:none;font-size:16px;color:' + col + ';">' + GB.esc(shown) + '</b></div>';
+      }).join('');
+    };
+    sel.addEventListener('change', paint);
+    paint();
+    ov.addEventListener('click', e => { if(e.target === ov || e.target.id === 'gb-board-x') ov.remove(); });
+  };
+
   /* ---------- batafsil jadval (modal yoki sahifa ichida) ---------- */
   function sortedRows(student, units, sum, mode){
     const bySc = {};
@@ -357,6 +424,7 @@
           '<option value="score_desc">Ball (yuqoridan pastga)</option>' +
           '<option value="score_asc">Ball (pastdan yuqoriga)</option>' +
         '</select></label>' +
+        '<button type="button" class="gb-btn" style="flex:1 1 100%;" data-gb-board="1">' + GB.icon('trophy', 15) + 'Guruh reytingi</button>' +
         '<button type="button" class="gb-btn" data-gb-share="image">' + GB.icon('image', 15) + 'Rasm</button>' +
         '<button type="button" class="gb-btn" data-gb-share="pdf">' + GB.icon('pdf', 15) + 'PDF</button>' +
         '<span class="gb-status" aria-live="polite"></span>' +
@@ -368,6 +436,11 @@
       listEl.innerHTML = tableBody(student, units, sum, e.target.value);
     });
     const status = el.querySelector('.gb-status');
+    const boardBtn = el.querySelector('[data-gb-board]');
+    if(boardBtn){
+      if(!GB._data) boardBtn.style.display = 'none';
+      else boardBtn.addEventListener('click', () => GB.openGroupBoard(ctx));
+    }
     el.querySelectorAll('[data-gb-share]').forEach(btn => {
       btn.addEventListener('click', async () => {
         const all = el.querySelectorAll('[data-gb-share]');
