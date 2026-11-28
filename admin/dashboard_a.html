@@ -12583,8 +12583,66 @@ async function loadGradebook(){
     } catch(err){ console.error('Gradebook load failed:', err); }
     gbLoaded = true;
   }
+  gbSnapScores();
   renderGbAdminGradeTable();
   loadGbVisitStats();
+}
+
+// ===== Natija bildirishnomalari: saqlashdan oldingi ballar surati =====
+let gbScoreBase = {};
+function gbSnapScores(){
+  gbScoreBase = {};
+  gbData.students.forEach(s => {
+    const o = {};
+    Object.keys(s.scores || {}).forEach(u => { o[u] = s.scores[u]; });
+    gbScoreBase[s.id] = o;
+  });
+}
+// Yangi kiritilgan (avval bo'sh bo'lgan) ballar ro'yxati
+function gbPendingResults(){
+  const list = [];
+  gbData.students.forEach(s => {
+    const base = gbScoreBase[s.id] || {};
+    Object.keys(s.scores || {}).forEach(u => {
+      const v = s.scores[u];
+      if(v === '' || v === null || v === undefined) return;
+      if(base[u] === undefined) list.push({ s, unit: u });
+    });
+  });
+  return list;
+}
+async function gbFindStudentUid(code){
+  const tries = [...new Set([code, code.toUpperCase(), code.toLowerCase()])];
+  for(const c of tries){
+    const q = await db.collection('students').where('oquvProgressCode','==',c).limit(1).get();
+    if(!q.empty) return q.docs[0].id;
+  }
+  return null;
+}
+// Talabaga "unit natijangiz chiqdi" bildirishnomasini yuboradi. Qaytaradi: {sent, noId, noAccount}
+async function gbSendResultNotifs(pending){
+  const res = { sent:0, noId:0, noAccount:0 };
+  const uidCache = {};
+  for(const p of pending){
+    const code = (p.s.progressId || '').trim();
+    if(!code){ res.noId++; continue; }
+    if(!(code in uidCache)){
+      try{ uidCache[code] = await gbFindStudentUid(code); }catch(e){ uidCache[code] = null; }
+    }
+    const uid = uidCache[code];
+    if(!uid){ res.noAccount++; continue; }
+    try{
+      await db.collection('result_notifications').add({
+        studentUid: uid,
+        unit: p.unit,
+        title: 'Natijangiz chiqdi',
+        body: 'Sizning ' + p.unit + ' natijangiz javobi chiqdi. Natijani bosh sahifada ko\u2018rishingiz mumkin.',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      res.sent++;
+    }catch(e){ console.warn('Natija bildirishnomasi yuborilmadi:', e); }
+  }
+  return res;
 }
 
 async function saveGradebook(){
@@ -12607,10 +12665,23 @@ document.getElementById('gbSaveBtn').addEventListener('click', async () => {
   const status = document.getElementById('gbSaveStatus');
   btn.disabled = true;
   status.textContent = 'Saqlanmoqda\u2026';
+  const pending = gbPendingResults();
   const ok = await saveGradebook();
-  status.textContent = ok ? 'Saqlandi \u2713' : "Xatolik yuz berdi, qayta urinib ko'ring.";
+  let msg = ok ? 'Saqlandi \u2713' : "Xatolik yuz berdi, qayta urinib ko'ring.";
+  let hold = 2500;
+  if(ok && pending.length){
+    status.textContent = 'Talabalarga xabar yuborilmoqda\u2026';
+    const r = await gbSendResultNotifs(pending);
+    gbSnapScores();
+    msg = 'Saqlandi \u2713 \u00b7 ' + r.sent + ' ta talabaga xabar yuborildi';
+    const skipped = r.noId + r.noAccount;
+    if(skipped){ msg += ' (' + skipped + ' tasiga yuborilmadi: ID yo\u2018q yoki talaba ID\u2019ni sayt hisobiga kiritmagan)'; hold = 7000; }
+  } else if(ok){
+    gbSnapScores();
+  }
+  status.textContent = msg;
   btn.disabled = false;
-  setTimeout(() => { status.textContent = ''; }, 2500);
+  setTimeout(() => { status.textContent = ''; }, hold);
 });
 
 // ---- Units (per group) ----
