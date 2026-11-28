@@ -117,18 +117,22 @@
     };
   };
 
-  // Faqat talabaning o'z o'rni (boshqalarning ismi qaytarilmaydi)
+  // Faqat talabaning o'z o'rni (boshqalarning ismi qaytarilmaydi).
+  // O'rin talabaning ENG SO'NGGI topshirgan uniti bo'yicha: shu guruhda o'sha unitdan
+  // ball olgan barcha talabalar orasida solishtiriladi.
   GB.groupRank = function(data, student){
+    const mySum = GB.summarize(student, GB.unitsFor(data, student.group));
+    if(!mySum.latest) return null;
+    const unit = mySum.latest.unit, myScore = mySum.latest.score;
     const rows = [];
     (data.students || []).forEach(s => {
       if(s.group !== student.group) return;
-      const sm = GB.summarize(s, GB.unitsFor(data, s.group));
-      if(sm.avg !== null) rows.push({ s, avg: sm.avg });
+      const sc = GB.num(s.scores ? s.scores[unit] : undefined);
+      if(sc !== null) rows.push({ s, score: sc });
     });
-    const me = rows.find(r => r.s === student || (r.s.id && r.s.id === student.id));
-    if(!me) return null;
-    const rank = 1 + rows.filter(r => r.avg > me.avg + 1e-9).length;
-    return { rank, total: rows.length };
+    if(!rows.length) return null;
+    const rank = 1 + rows.filter(r => r.score > myScore + 1e-9).length;
+    return { rank, total: rows.length, unit };
   };
 
   GB.tier = function(score){
@@ -283,7 +287,7 @@
       h += '<div class="gb-spark">' + sp + '</div><p class="gb-spark-cap">Barcha unitlar bo\'yicha ballar dinamikasi (' + sum.count + ' ta)</p>';
     }
     h += '<div class="gb-avgline">O\'rtacha ' + GB.esc(GB.fmtNum(sum.avg)) +
-      (rank ? ' \u00b7 guruhda ' + rank.rank + '-o\'rin <span style="font-weight:500;opacity:.7">(' + rank.total + ' tadan)</span>' : '') + '</div>';
+      (rank ? ' \u00b7 guruhda ' + rank.rank + '-o\'rin <span style="font-weight:500;opacity:.7">(' + rank.total + ' tadan' + (rank.unit ? ', ' + GB.esc(rank.unit) : '') + ')</span>' : '') + '</div>';
     h += '<div class="gb-chips"><span class="gb-chip pass">O\'tgan: ' + sum.passed + '</span><span class="gb-chip fail">Qayta: ' + sum.retake.length + '</span></div>';
     if(sum.count >= 2 && sum.best && sum.worst && sum.best !== sum.worst){
       h += '<div class="gb-bw">' +
