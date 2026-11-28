@@ -111,19 +111,23 @@
     .dj-bot.is-talk .dj-body-g{ animation:djHop .36s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 100%; }
     @keyframes djHop{ 0%,100%{ transform:scale(1,1) } 50%{ transform:scale(1.015,.985) } }
 
-    .dj-body{ fill:#0a0a0a; stroke:#000; stroke-width:1.5; }
-    body.dark .dj-body{ fill:#16192b; stroke:#8da0e8; }
+    .dj-body{ fill:url(#djGrad); stroke:#1c2a6b; stroke-width:1.6; }
+    body.dark .dj-body{ stroke:#c9d6ff; }
     body.dark .dj-bubble{ background:#0c0c0c; color:#fff; border-color:#fff; }
     body.dark .dj-bubble::after{ background:#0c0c0c; border-color:#fff; }
     body.dark .dj-tg{ background:#fff; color:#000; }
 
-    /* Tor ekran / telefon: pastki o'ng burchakda */
+    /* Tor ekran / telefon: pastki o'ng burchakda, ixcham */
     @media (max-width:1079px){
-      .dj-bot{ position:fixed; left:auto; top:auto; right:12px; bottom:38px; width:min(230px, calc(100vw - 24px)); align-items:flex-end; }
-      .dj-bubble::after{ left:auto; right:44px; margin-left:0; }
-      .dj-mascot{ width:96px; margin-right:12px; }
-      .dj-x{ display:block; }
-      .dj-text{ padding-right:12px; }
+      .dj-bot{ position:fixed; left:auto; top:auto; right:8px; bottom:30px; width:min(176px, calc(100vw - 16px)); align-items:flex-end; }
+      .dj-bubble{ padding:8px 10px; border-radius:13px; }
+      .dj-bubble::after{ left:auto; right:30px; margin-left:0; width:11px; height:11px; bottom:-6.5px; }
+      .dj-text{ font-size:.72rem; line-height:1.35; padding-right:14px; }
+      .dj-tg{ display:none; margin-top:7px; padding:.4em .7em; font-size:.7rem; }
+      .dj-tg svg{ width:13px; height:13px; }
+      .dj-bot.is-done .dj-tg{ display:inline-flex; }
+      .dj-mascot{ width:62px; margin:3px 14px 0 0; }
+      .dj-x{ display:block; top:1px; right:3px; width:20px; height:20px; font-size:16px; }
       .dj-bot.is-closed .dj-bubble{ display:none; }
     }
     @media (prefers-reduced-motion:reduce){
@@ -145,7 +149,8 @@
     </div>
 
     <svg class="dj-mascot" id="djMascot" viewBox="0 0 170 176" role="img" aria-label="Djami yordamchisi" tabindex="0">
-      <ellipse class="dj-shadow" cx="85" cy="168" rx="40" ry="5.5" fill="#000"/>
+      <defs><linearGradient id="djGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fb0ff"/><stop offset="1" stop-color="#5b72f0"/></linearGradient></defs>
+      <ellipse class="dj-shadow" cx="85" cy="168" rx="40" ry="5.5" fill="#1c2a6b"/>
       <g class="dj-float">
         <g class="dj-body-g">
           <!-- oyoqlar -->
@@ -155,19 +160,19 @@
           <ellipse cx="29" cy="110" rx="9" ry="14" transform="rotate(14 29 110)" class="dj-body"/>
           <!-- tana -->
           <path class="dj-body" d="M85 34C125 34 147 68 147 104c0 36-26 56-62 56S23 140 23 104C23 68 45 34 85 34Z"/>
-          <path d="M44 78c4-14 16-24 30-27" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="5" stroke-linecap="round"/>
+          <path d="M44 78c4-14 16-24 30-27" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
           <!-- yonoqlar -->
-          <circle cx="45" cy="121" r="7.5" fill="#7f93ee" fill-opacity=".55"/>
-          <circle cx="125" cy="121" r="7.5" fill="#7f93ee" fill-opacity=".55"/>
+          <circle cx="45" cy="121" r="7.5" fill="#ff8fa3" fill-opacity=".6"/>
+          <circle cx="125" cy="121" r="7.5" fill="#ff8fa3" fill-opacity=".6"/>
           <!-- ko'zlar -->
           <g class="dj-eye e1"><ellipse cx="63" cy="98" rx="13" ry="15" fill="#fff"/>
-            <g class="dj-pupil" id="djP1"><circle cx="63" cy="100" r="7" fill="#0a0a0a"/><circle cx="60.5" cy="97" r="2.3" fill="#fff"/></g></g>
+            <g class="dj-pupil" id="djP1"><circle cx="63" cy="100" r="7" fill="#1c2a6b"/><circle cx="60.5" cy="97" r="2.3" fill="#fff"/></g></g>
           <g class="dj-eye e2"><ellipse cx="107" cy="98" rx="13" ry="15" fill="#fff"/>
-            <g class="dj-pupil" id="djP2"><circle cx="107" cy="100" r="7" fill="#0a0a0a"/><circle cx="104.5" cy="97" r="2.3" fill="#fff"/></g></g>
+            <g class="dj-pupil" id="djP2"><circle cx="107" cy="100" r="7" fill="#1c2a6b"/><circle cx="104.5" cy="97" r="2.3" fill="#fff"/></g></g>
           <!-- og'iz -->
-          <path class="dj-mouth-smile" d="M72 126q13 12 26 0" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>
+          <path class="dj-mouth-smile" d="M72 126q13 12 26 0" fill="none" stroke="#1c2a6b" stroke-width="3.2" stroke-linecap="round"/>
           <g class="dj-mouth-open" id="djMouth">
-            <ellipse cx="85" cy="128" rx="10" ry="9" fill="#fff"/>
+            <ellipse cx="85" cy="128" rx="10" ry="9" fill="#1c2a6b"/>
             <ellipse cx="85" cy="133" rx="6" ry="3.6" fill="#ff8fa3"/>
           </g>
           <!-- o'ng qo'l (salom beradi) -->
@@ -176,10 +181,10 @@
             <circle cx="145" cy="97" r="4" fill="#fff"/>
           </g>
           <!-- bitiruvchi shapka -->
-          <path d="M60 38v14q25 13 50 0V38q-25 10-50 0Z" fill="#dfe3f3" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M85 15 131 33 85 51 39 33Z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M85 33 124 38v14" fill="none" stroke="#7f93ee" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="124" cy="55" r="3.6" fill="#7f93ee"/>
+          <path d="M60 38v14q25 13 50 0V38q-25 10-50 0Z" fill="#dfe3f3" stroke="#1c2a6b" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M85 15 131 33 85 51 39 33Z" fill="#fff" stroke="#1c2a6b" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M85 33 124 38v14" fill="none" stroke="#1c2a6b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="124" cy="55" r="3.6" fill="#1c2a6b"/>
         </g>
       </g>
     </svg>
