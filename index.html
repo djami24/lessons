@@ -346,6 +346,47 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
 @keyframes ttBlink{0%,55%{opacity:1}80%,100%{opacity:0}}
 @media (prefers-reduced-motion:reduce){.tt-cursor::after{animation:none}}
 </style>
+<style id="authPills">
+/* ===== Ro'yxatdan o'tish / Kirish — pill tugmalar (ikonka | chiziq | matn) ===== */
+body.home-body .hm-pill{
+  --pill-ink:#0b0b0c;
+  display:inline-flex; align-items:center; justify-content:center; gap:.85em;
+  box-sizing:border-box; min-height:56px; padding:.5em 1.7em;
+  border-radius:999px; text-decoration:none; white-space:nowrap; cursor:pointer;
+  font-family:inherit; font-weight:800; font-size:1.05rem; line-height:1; letter-spacing:-.005em;
+  text-shadow:none; box-shadow:none; filter:none; transform:none; overflow:visible;
+  -webkit-backdrop-filter:none; backdrop-filter:none;
+  transition:background .2s,color .2s,border-color .2s,transform .15s;
+}
+body.home-body .hm-pill::before,body.home-body .hm-pill::after{display:none !important;}
+body.home-body .hm-pill-ic{width:1.45em;height:1.45em;flex:none;color:currentColor;}
+body.home-body .hm-pill-sep{display:block;align-self:center;width:1.5px;height:1.7em;flex:none;background:currentColor;border-radius:2px;opacity:.9;}
+/* Ro'yxatdan o'tish: oq, qora ramka */
+body.home-body .hm-pill.hm-pill-outline{background:#fff;color:var(--pill-ink);border:2.5px solid var(--pill-ink);}
+body.home-body .hm-pill.hm-pill-outline:hover{background:var(--pill-ink);color:#fff;border-color:var(--pill-ink);}
+/* Kirish: to'liq qora */
+body.home-body .hm-pill.hm-pill-solid{background:var(--pill-ink);color:#fff;border:2.5px solid var(--pill-ink);}
+body.home-body .hm-pill.hm-pill-solid .hm-pill-sep{opacity:.75;}
+body.home-body .hm-pill.hm-pill-solid:hover{background:#fff;color:var(--pill-ink);border-color:var(--pill-ink);}
+body.home-body .hm-pill:active{transform:scale(.98);}
+body.home-body .hm-pill:focus-visible{outline:3px solid #2e6fed;outline-offset:3px;}
+/* Kichik variant (navbar va kartalar) */
+body.home-body .hm-pill.hm-pill-sm{min-height:44px;padding:.4em 1.25em;font-size:.95rem;gap:.7em;border-width:2px;}
+body.home-body .hm-pill-sm .hm-pill-sep{height:1.4em;}
+body.home-body .hm-cta{gap:.9em 1.1em;}
+body.home-body .hm-card-actions{display:flex;flex-wrap:wrap;gap:.7em;}
+@media (max-width:860px){
+  body.home-body .hm-nav .hm-pill.hm-pill-sm{min-height:38px;padding:.3em 1em;font-size:.86rem;gap:.55em;}
+}
+@media (max-width:520px){
+  body.home-body .hm-cta .hm-pill{flex:1 1 100%;}
+  body.home-body .hm-card-actions .hm-pill{flex:1 1 100%;}
+}
+@media (max-width:400px){
+  body.home-body .hm-nav .hm-pill.hm-pill-sm{padding:.3em .8em;}
+  body.home-body .hm-nav .hm-pill.hm-pill-sm .hm-pill-sep{display:none;}
+}
+</style>
 </head>
 <body class="home-body">
 <div class="site-marquee" data-site-marquee style="display:none">
@@ -364,7 +405,7 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
   </nav>
 
   <div class="home-topbar-links">
-    <a href="kirish.html?mode=login" class="hm-nav-login"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span data-site-login-btn>Kirish</span></a>
+    <a href="kirish.html?mode=login" class="hm-pill hm-pill-solid hm-pill-sm"><svg class="hm-pill-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h3.5A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5H15"/><polyline points="10 16.5 14.5 12 10 7.5"/><line x1="14.5" y1="12" x2="3" y2="12"/></svg><i class="hm-pill-sep" aria-hidden="true"></i><span data-site-login-btn>Kirish</span></a>
     <button type="button" class="home-nav-toggle" id="homeNavToggle" aria-label="Menyu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
@@ -379,8 +420,8 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
       <h1 class="hm-title" data-site-hero-title>Ingliz tilini o‘rganishning zamonaviy platformasi</h1>
       <p class="hm-lead" data-site-hero-lead>General English va CEFR kurslari bo‘yicha sifatli darslar, testlar va amaliy mashqlar.</p>
       <div class="hm-cta">
-        <a href="kirish.html?mode=register" class="btn btn-primary hm-btn" data-site-register-btn>Ro'yxatdan o'tish</a>
-        <p class="hm-login"><span data-site-login-hint>Hisobingiz bormi?</span> <a href="kirish.html?mode=login" data-site-login-btn>Kirish</a></p>
+        <a href="kirish.html?mode=register" class="hm-pill hm-pill-outline"><svg class="hm-pill-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7.6" r="4.3"/><path d="M3.8 20.2c0-3.7 3.7-6.1 8.2-6.1s8.2 2.4 8.2 6.1c0 1-.7 1.6-1.6 1.6H5.4c-.9 0-1.6-.6-1.6-1.6z"/></svg><i class="hm-pill-sep" aria-hidden="true"></i><span data-site-register-btn>Ro'yxatdan o'tish</span></a>
+        <a href="kirish.html?mode=login" class="hm-pill hm-pill-solid"><svg class="hm-pill-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h3.5A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5H15"/><polyline points="10 16.5 14.5 12 10 7.5"/><line x1="14.5" y1="12" x2="3" y2="12"/></svg><i class="hm-pill-sep" aria-hidden="true"></i><span data-site-login-btn>Kirish</span></a><span data-site-login-hint hidden>Hisobingiz bormi?</span>
       </div>
     </div>
     <div class="hm-visual-wrap">
@@ -426,16 +467,16 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
         <div class="hm-card-head"><span class="hm-ico"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg></span>
           <div><h3 data-site-access-student-title>Talaba</h3><p data-site-access-student-text>Darslar, test natijalari va reyting.</p></div></div>
         <div class="hm-card-actions">
-          <a href="student/login.html" class="btn btn-primary" data-site-login-btn>Kirish</a>
-          <a href="student/register.html" class="btn btn-outline-teal" data-site-register-btn>Ro'yxatdan o'tish</a>
+          <a href="student/login.html" class="hm-pill hm-pill-solid hm-pill-sm"><svg class="hm-pill-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h3.5A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5H15"/><polyline points="10 16.5 14.5 12 10 7.5"/><line x1="14.5" y1="12" x2="3" y2="12"/></svg><i class="hm-pill-sep" aria-hidden="true"></i><span data-site-login-btn>Kirish</span></a>
+          <a href="student/register.html" class="hm-pill hm-pill-outline hm-pill-sm"><svg class="hm-pill-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7.6" r="4.3"/><path d="M3.8 20.2c0-3.7 3.7-6.1 8.2-6.1s8.2 2.4 8.2 6.1c0 1-.7 1.6-1.6 1.6H5.4c-.9 0-1.6-.6-1.6-1.6z"/></svg><i class="hm-pill-sep" aria-hidden="true"></i><span data-site-register-btn>Ro'yxatdan o'tish</span></a>
         </div>
       </div>
       <div class="hm-card">
         <div class="hm-card-head"><span class="hm-ico"><svg class="hm-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
           <div><h3 data-site-access-parent-title>Ota-ona</h3><p data-site-access-parent-text>Farzandingizning davomati va uy vazifalarini kuzating.</p></div></div>
         <div class="hm-card-actions">
-          <a href="parent/login.html" class="btn btn-primary" data-site-login-btn>Kirish</a>
-          <a href="parent/register.html" class="btn btn-outline-teal" data-site-register-btn>Ro'yxatdan o'tish</a>
+          <a href="parent/login.html" class="hm-pill hm-pill-solid hm-pill-sm"><svg class="hm-pill-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h3.5A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5H15"/><polyline points="10 16.5 14.5 12 10 7.5"/><line x1="14.5" y1="12" x2="3" y2="12"/></svg><i class="hm-pill-sep" aria-hidden="true"></i><span data-site-login-btn>Kirish</span></a>
+          <a href="parent/register.html" class="hm-pill hm-pill-outline hm-pill-sm"><svg class="hm-pill-ic" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7.6" r="4.3"/><path d="M3.8 20.2c0-3.7 3.7-6.1 8.2-6.1s8.2 2.4 8.2 6.1c0 1-.7 1.6-1.6 1.6H5.4c-.9 0-1.6-.6-1.6-1.6z"/></svg><i class="hm-pill-sep" aria-hidden="true"></i><span data-site-register-btn>Ro'yxatdan o'tish</span></a>
         </div>
       </div>
     </div>
