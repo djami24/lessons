@@ -92,32 +92,20 @@
       color:inherit; opacity:.5; font-size:18px; line-height:1; cursor:pointer; }
     .dj-x:hover{ opacity:1; }
 
-    .dj-mascot{ width:150px; height:auto; margin-top:6px; cursor:pointer; overflow:visible; -webkit-tap-highlight-color:transparent; }
-    .dj-mascot:focus-visible{ outline:2px solid #7f93ee; outline-offset:4px; border-radius:24px; }
-    .dj-mascot{ touch-action:pan-y; user-select:none; -webkit-user-select:none; cursor:grab; transform-origin:50% 92%;
-      transition:transform .6s cubic-bezier(.34,1.56,.64,1); }
+    .dj-mascot{ position:relative; width:150px; margin-top:6px; cursor:grab; touch-action:pan-y;
+      user-select:none; -webkit-user-select:none; -webkit-tap-highlight-color:transparent;
+      transform-origin:50% 92%; transition:transform .6s cubic-bezier(.34,1.56,.64,1); }
     .dj-mascot.is-drag{ transition:none; cursor:grabbing; }
-    .dj-face{ transition:transform .6s cubic-bezier(.34,1.56,.64,1); }
-    .dj-mascot.is-drag .dj-face{ transition:none; }
+    .dj-mascot:focus-visible{ outline:2px solid #5b72f0; outline-offset:4px; border-radius:24px; }
     .dj-float{ animation:djFloat 3.2s ease-in-out infinite; }
     @keyframes djFloat{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-5px) } }
-    .dj-shadow{ animation:djShadow 3.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
-    @keyframes djShadow{ 0%,100%{ transform:scale(1); opacity:.14 } 50%{ transform:scale(.88); opacity:.09 } }
-    .dj-eye{ transform-box:fill-box; transform-origin:center; animation:djBlink 4.6s infinite; }
-    .dj-eye.e2{ animation-delay:.02s; }
-    @keyframes djBlink{ 0%,93%,100%{ transform:scaleY(1) } 96%{ transform:scaleY(.08) } }
-    .dj-arm{ transform-box:view-box; transform-origin:134px 112px; }
-    .dj-bot.is-wave .dj-arm{ animation:djWave .55s ease-in-out 4; }
-    @keyframes djWave{ 0%,100%{ transform:rotate(0) } 50%{ transform:rotate(-38deg) } }
-    .dj-mouth-open{ display:none; transform-box:fill-box; transform-origin:50% 25%; }
-    .dj-bot.is-talk .dj-mouth-open{ display:block; }
-    .dj-bot.is-talk .dj-mouth-smile{ display:none; }
-    .dj-pupil{ transition:transform .12s ease-out; }
-    .dj-bot.is-talk .dj-body-g{ animation:djHop .36s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 100%; }
-    @keyframes djHop{ 0%,100%{ transform:scale(1,1) } 50%{ transform:scale(1.015,.985) } }
-
-    .dj-body{ fill:url(#djGrad); stroke:#1c2a6b; stroke-width:1.6; }
-    body.dark .dj-body{ stroke:#c9d6ff; }
+    .dj-img{ display:block; width:100%; height:auto; pointer-events:none; -webkit-user-drag:none;
+      transform-origin:50% 100%; transition:transform .12s ease-out; filter:drop-shadow(0 8px 10px rgba(30,60,200,.2)); }
+    .dj-shade{ width:62%; height:8px; margin:3px auto 0; border-radius:50%; background:rgba(28,42,107,.18); filter:blur(3px);
+      animation:djShadow 3.2s ease-in-out infinite; }
+    @keyframes djShadow{ 0%,100%{ transform:scaleX(1); opacity:1 } 50%{ transform:scaleX(.82); opacity:.6 } }
+    .dj-bot.is-wave .dj-img{ animation:djHello .9s ease-out 1; }
+    @keyframes djHello{ 0%{ transform:scale(.88,1.1) translateY(10px) } 40%{ transform:scale(1.06,.94) } 70%{ transform:scale(.98,1.03) } 100%{ transform:none } }
     body.dark .dj-bubble{ background:#0c0c0c; color:#fff; border-color:#fff; }
     body.dark .dj-bubble::after{ background:#0c0c0c; border-color:#fff; }
     body.dark .dj-tg{ background:#fff; color:#000; }
@@ -131,12 +119,12 @@
       .dj-tg{ display:none; margin-top:7px; padding:.4em .7em; font-size:.7rem; }
       .dj-tg svg{ width:13px; height:13px; }
       .dj-bot.is-done .dj-tg{ display:inline-flex; }
-      .dj-mascot{ width:62px; margin:3px 14px 0 0; }
+      .dj-mascot{ width:70px; margin:3px 10px 0 0; }
       .dj-x{ display:block; top:1px; right:3px; width:20px; height:20px; font-size:16px; }
       .dj-bot.is-closed .dj-bubble{ display:none; }
     }
     @media (prefers-reduced-motion:reduce){
-      .dj-float,.dj-shadow,.dj-eye,.dj-caret,.dj-bot.is-wave .dj-arm,.dj-bot.is-talk .dj-body-g{ animation:none !important; }
+      .dj-float,.dj-shade,.dj-caret,.dj-bot.is-wave .dj-img{ animation:none !important; }
     }
   </style>
 
@@ -153,48 +141,15 @@
       </a>
     </div>
 
-    <svg class="dj-mascot" id="djMascot" viewBox="0 0 170 176" role="img" aria-label="Djami yordamchisi" tabindex="0">
-      <defs><linearGradient id="djGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fb0ff"/><stop offset="1" stop-color="#5b72f0"/></linearGradient></defs>
-      <ellipse class="dj-shadow" cx="85" cy="168" rx="40" ry="5.5" fill="#1c2a6b"/>
-      <g class="dj-float">
-        <g class="dj-body-g">
-          <!-- oyoqlar -->
-          <ellipse cx="62" cy="160" rx="14" ry="6.5" class="dj-body"/>
-          <ellipse cx="108" cy="160" rx="14" ry="6.5" class="dj-body"/>
-          <!-- chap qo'l -->
-          <ellipse cx="29" cy="110" rx="9" ry="14" transform="rotate(14 29 110)" class="dj-body"/>
-          <!-- tana -->
-          <path class="dj-body" d="M85 34C125 34 147 68 147 104c0 36-26 56-62 56S23 140 23 104C23 68 45 34 85 34Z"/>
-          <path d="M44 78c4-14 16-24 30-27" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
-          <g class="dj-face" id="djFace">
-          <!-- yonoqlar -->
-          <circle cx="45" cy="121" r="7.5" fill="#ff8fa3" fill-opacity=".6"/>
-          <circle cx="125" cy="121" r="7.5" fill="#ff8fa3" fill-opacity=".6"/>
-          <!-- ko'zlar -->
-          <g class="dj-eye e1"><ellipse cx="63" cy="98" rx="13" ry="15" fill="#fff"/>
-            <g class="dj-pupil" id="djP1"><circle cx="63" cy="100" r="7" fill="#1c2a6b"/><circle cx="60.5" cy="97" r="2.3" fill="#fff"/></g></g>
-          <g class="dj-eye e2"><ellipse cx="107" cy="98" rx="13" ry="15" fill="#fff"/>
-            <g class="dj-pupil" id="djP2"><circle cx="107" cy="100" r="7" fill="#1c2a6b"/><circle cx="104.5" cy="97" r="2.3" fill="#fff"/></g></g>
-          <!-- og'iz -->
-          <path class="dj-mouth-smile" d="M72 126q13 12 26 0" fill="none" stroke="#1c2a6b" stroke-width="3.2" stroke-linecap="round"/>
-          <g class="dj-mouth-open" id="djMouth">
-            <ellipse cx="85" cy="128" rx="10" ry="9" fill="#1c2a6b"/>
-            <ellipse cx="85" cy="133" rx="6" ry="3.6" fill="#ff8fa3"/>
-          </g>
-          </g>
-          <!-- o'ng qo'l (salom beradi) -->
-          <g class="dj-arm">
-            <ellipse cx="141" cy="108" rx="9" ry="14" transform="rotate(-14 141 108)" class="dj-body"/>
-            <circle cx="145" cy="97" r="4" fill="#fff"/>
-          </g>
-          <!-- bitiruvchi shapka -->
-          <path d="M60 38v14q25 13 50 0V38q-25 10-50 0Z" fill="#dfe3f3" stroke="#1c2a6b" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M85 15 131 33 85 51 39 33Z" fill="#fff" stroke="#1c2a6b" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M85 33 124 38v14" fill="none" stroke="#1c2a6b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="124" cy="55" r="3.6" fill="#1c2a6b"/>
-        </g>
-      </g>
-    </svg>
+    <div class="dj-mascot" id="djMascot" role="img" aria-label="Djami yordamchisi" tabindex="0">
+      <div class="dj-float">
+        <picture>
+          <source srcset="assets/mascot.webp" type="image/webp">
+          <img class="dj-img" id="djImg" src="assets/mascot.png" alt="" width="420" height="461" draggable="false">
+        </picture>
+        <div class="dj-shade"></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -202,14 +157,13 @@
     var bot = document.getElementById('djBot');
     var typed = document.getElementById('djTyped');
     var mascot = document.getElementById('djMascot');
-    var mouth = document.getElementById('djMouth');
-    var p1 = document.getElementById('djP1'), p2 = document.getElementById('djP2');
+    var img = document.getElementById('djImg');
     var closeBtn = document.getElementById('djClose');
     var TEXT = 'Sahifangizga kira olmayapsizmi? Adminga murojaat eting';
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var timers = [], mouthTimer = 0, run = 0;
 
-    function clearAll() { timers.forEach(clearTimeout); timers = []; clearInterval(mouthTimer); }
+    function clearAll() { timers.forEach(clearTimeout); timers = []; clearInterval(mouthTimer); img.style.transform = ''; }
     function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
     function caret() { return '<span class="dj-caret"></span>'; }
 
@@ -227,7 +181,8 @@
         if (i === 0) {
           bot.classList.add('is-talk');
           mouthTimer = setInterval(function () {
-            mouth.style.transform = 'scaleY(' + (0.25 + Math.random() * 0.75).toFixed(2) + ')';
+            var r = Math.random();
+            img.style.transform = 'scale(' + (1 + r * 0.025).toFixed(3) + ',' + (1 - r * 0.04).toFixed(3) + ') rotate(' + ((Math.random() - 0.5) * 3).toFixed(1) + 'deg)';
           }, 110);
         }
         i++;
@@ -237,6 +192,7 @@
         if (i >= TEXT.length) {
           later(function () {
             clearInterval(mouthTimer);
+            img.style.transform = '';
             bot.classList.remove('is-talk');
             bot.classList.add('is-done');
             typed.textContent = TEXT;
@@ -248,23 +204,10 @@
       }, 900);
     }
 
-    // Ko'zlar kursorga qarab turadi
-    window.addEventListener('pointermove', function (e) {
-      var r = mascot.getBoundingClientRect();
-      var cx = r.left + r.width / 2, cy = r.top + r.height * 0.58;
-      var dx = e.clientX - cx, dy = e.clientY - cy;
-      var d = Math.hypot(dx, dy) || 1;
-      var k = Math.min(d / 160, 1) * 4.5;
-      var t = 'translate(' + (dx / d * k).toFixed(2) + 'px,' + (dy / d * k).toFixed(2) + 'px)';
-      p1.style.transform = t; p2.style.transform = t;
-    }, { passive: true });
-
     // Sichqoncha / barmoq bilan ushlab chapga-o'ngga burish
-    var face = document.getElementById('djFace');
     var dragging = false, startX = 0, moved = false, justDragged = false;
     function turn(v) {
-      mascot.style.transform = v ? 'perspective(600px) rotateY(' + (v * 42).toFixed(1) + 'deg)' : '';
-      face.style.transform = v ? 'translateX(' + (v * 17).toFixed(1) + 'px)' : '';
+      mascot.style.transform = v ? 'perspective(600px) rotateY(' + (v * 34).toFixed(1) + 'deg) rotate(' + (v * -3).toFixed(1) + 'deg)' : '';
     }
     mascot.addEventListener('pointerdown', function (e) {
       dragging = true; moved = false; startX = e.clientX;
