@@ -2757,6 +2757,7 @@ async function enterDashboard(){
   try{ _savedStudentView = sessionStorage.getItem('studentLastView'); }catch(err){}
   renderHomeView();
   startNotifListener();
+  startResultNotifListener();
   startChatUnreadListener();
   startPresenceHeartbeat(currentUid, 'student');
   watchPresenceStatus('teacher-status', (status) => {
@@ -5695,11 +5696,46 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
 
 // ===== NOTIFICATIONS =====
 
+// ===== Natija bildirishnomalari (result_notifications) =====
+let _resNotifs = [];   // [{id:'r_<docId>', data:()=>d}]
+function resUnreadCount(){
+  let readSet = [];
+  try{ readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]'); }catch(e){}
+  return _resNotifs.filter(x => !readSet.includes(x.id)).length;
+}
+function startResultNotifListener(){
+  let first = true;
+  db.collection('result_notifications')
+    .where('studentUid', '==', currentUid)
+    .onSnapshot(snap => {
+      _resNotifs = snap.docs.map(doc => ({ id: 'r_' + doc.id, data: () => doc.data() }));
+      let readSet = [];
+      try{ readSet = JSON.parse(localStorage.getItem('efReadNotifs_' + currentUid) || '[]'); }catch(e){}
+      // Yangi (o'qilmagan) natijalar uchun popup: sahifa ochilganda ham, real vaqtda ham
+      snap.docChanges().forEach(ch => {
+        if(ch.type !== 'added') return;
+        const id = 'r_' + ch.doc.id;
+        const d = ch.doc.data();
+        if(readSet.includes(id) || !(d.title || d.body)) return;
+        showNotifPopup(id, d.title || 'Natijangiz chiqdi', d.body || '', '');
+      });
+      first = false;
+      if(typeof updateNotifBadge === 'function') updateNotifBadge();
+      const listView = document.getElementById('view-notifications');
+      if(listView && !listView.hidden) loadNotifications();
+    }, err => console.warn('result_notifications:', err));
+}
+
 async function loadNotifications(){
-  const snap = await db.collection('notifications')
+  const snap0 = await db.collection('notifications')
     .orderBy('createdAt', 'desc')
     .limit(30)
     .get();
+  const _ms = x => { const c = x.data().createdAt; return c && c.toMillis ? c.toMillis() : Date.now(); };
+  const snap = {
+    docs: [...snap0.docs, ..._resNotifs].sort((x, y) => _ms(y) - _ms(x)),
+    empty: snap0.empty && _resNotifs.length === 0
+  };
 
   const listEl = document.getElementById('notifList');
   const emptyEl = document.getElementById('notifEmpty');
@@ -6085,6 +6121,7 @@ function updateNotifBadge(){
   db.collection('notifications').orderBy('createdAt','desc').limit(30).get().then(snap => {
     let unread = 0;
     snap.docs.forEach(doc => { if(!readSet.includes(doc.id)) unread++; });
+    unread += resUnreadCount();
     const badge = document.getElementById('notifBadge');
     if(badge){
       badge.textContent = unread;
@@ -6149,6 +6186,7 @@ function startNotifListener(){
       snap.docs.forEach(doc => {
         if(!readSet.includes(doc.id)) unread++;
       });
+      unread += resUnreadCount();
       const badge = document.getElementById('notifBadge');
       if(badge){
         badge.textContent = unread;
