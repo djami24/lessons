@@ -64,6 +64,198 @@
 <div class="role-wrap" style="background:transparent !important;box-shadow:none !important;border:0 !important;border-radius:0 !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;">
   <a href="./" class="brand"><span class="brand-mark brand-mark-logo" data-site-logo><img src="assets/logo.png" alt="Djami Lessons"></span><span data-site-brand-name>Djami Lessons</span></a>
 
+  <!-- ===== Djami mascot: gapiradigan yordamchi ===== -->
+  <style>
+    .role-wrap{ position:relative; }
+    .dj-bot{ position:absolute; left:calc(100% + 48px); top:34px; width:250px; z-index:5;
+      display:flex; flex-direction:column; align-items:center; }
+    .dj-bubble{ position:relative; width:100%; background:#fff; color:#000; border:1.5px solid #000; border-radius:18px;
+      padding:14px 16px 14px; box-shadow:0 12px 26px -16px rgba(0,0,0,.5);
+      opacity:0; transform:translateY(8px) scale(.96); transform-origin:50% 100%;
+      transition:opacity .3s, transform .3s; }
+    .dj-bot.is-on .dj-bubble{ opacity:1; transform:none; }
+    .dj-bubble::after{ content:""; position:absolute; left:50%; bottom:-8.5px; width:14px; height:14px; margin-left:-7px;
+      background:#fff; border-right:1.5px solid #000; border-bottom:1.5px solid #000; transform:rotate(45deg); }
+    .dj-text{ position:relative; font-size:.9rem; font-weight:600; line-height:1.45; letter-spacing:-.005em; }
+    .dj-text .dj-ghost{ visibility:hidden; display:block; }
+    .dj-text .dj-typed{ position:absolute; inset:0; display:block; }
+    .dj-caret{ display:inline-block; width:2px; height:1em; margin-left:1px; vertical-align:-.12em; background:currentColor; animation:djCaret .8s steps(1) infinite; }
+    .dj-bot.is-done .dj-caret{ display:none; }
+    @keyframes djCaret{ 50%{ opacity:0 } }
+    .dj-tg{ display:inline-flex; align-items:center; gap:.5em; margin-top:12px; padding:.55em .95em; border-radius:999px;
+      background:#000; color:#fff; font-size:.82rem; font-weight:800; text-decoration:none;
+      opacity:0; transform:translateY(4px); pointer-events:none; transition:opacity .3s, transform .3s, background .18s; }
+    .dj-bot.is-done .dj-tg{ opacity:1; transform:none; pointer-events:auto; }
+    .dj-tg:hover{ background:#229ed9; }
+    .dj-tg:focus-visible{ outline:2px solid #000; outline-offset:3px; }
+    .dj-x{ display:none; position:absolute; top:4px; right:6px; width:22px; height:22px; border:0; background:transparent;
+      color:inherit; opacity:.5; font-size:18px; line-height:1; cursor:pointer; }
+    .dj-x:hover{ opacity:1; }
+
+    .dj-mascot{ width:150px; height:auto; margin-top:6px; cursor:pointer; overflow:visible; -webkit-tap-highlight-color:transparent; }
+    .dj-mascot:focus-visible{ outline:2px solid #7f93ee; outline-offset:4px; border-radius:24px; }
+    .dj-float{ animation:djFloat 3.2s ease-in-out infinite; }
+    @keyframes djFloat{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-5px) } }
+    .dj-shadow{ animation:djShadow 3.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
+    @keyframes djShadow{ 0%,100%{ transform:scale(1); opacity:.14 } 50%{ transform:scale(.88); opacity:.09 } }
+    .dj-eye{ transform-box:fill-box; transform-origin:center; animation:djBlink 4.6s infinite; }
+    .dj-eye.e2{ animation-delay:.02s; }
+    @keyframes djBlink{ 0%,93%,100%{ transform:scaleY(1) } 96%{ transform:scaleY(.08) } }
+    .dj-arm{ transform-box:view-box; transform-origin:134px 112px; }
+    .dj-bot.is-wave .dj-arm{ animation:djWave .55s ease-in-out 4; }
+    @keyframes djWave{ 0%,100%{ transform:rotate(0) } 50%{ transform:rotate(-38deg) } }
+    .dj-mouth-open{ display:none; transform-box:fill-box; transform-origin:50% 25%; }
+    .dj-bot.is-talk .dj-mouth-open{ display:block; }
+    .dj-bot.is-talk .dj-mouth-smile{ display:none; }
+    .dj-pupil{ transition:transform .12s ease-out; }
+    .dj-bot.is-talk .dj-body-g{ animation:djHop .36s ease-in-out infinite; transform-box:fill-box; transform-origin:50% 100%; }
+    @keyframes djHop{ 0%,100%{ transform:scale(1,1) } 50%{ transform:scale(1.015,.985) } }
+
+    .dj-body{ fill:#0a0a0a; stroke:#000; stroke-width:1.5; }
+    body.dark .dj-body{ fill:#16192b; stroke:#8da0e8; }
+    body.dark .dj-bubble{ background:#0c0c0c; color:#fff; border-color:#fff; }
+    body.dark .dj-bubble::after{ background:#0c0c0c; border-color:#fff; }
+    body.dark .dj-tg{ background:#fff; color:#000; }
+
+    /* Tor ekran / telefon: pastki o'ng burchakda */
+    @media (max-width:1079px){
+      .dj-bot{ position:fixed; left:auto; top:auto; right:12px; bottom:38px; width:min(230px, calc(100vw - 24px)); align-items:flex-end; }
+      .dj-bubble::after{ left:auto; right:44px; margin-left:0; }
+      .dj-mascot{ width:96px; margin-right:12px; }
+      .dj-x{ display:block; }
+      .dj-text{ padding-right:12px; }
+      .dj-bot.is-closed .dj-bubble{ display:none; }
+    }
+    @media (prefers-reduced-motion:reduce){
+      .dj-float,.dj-shadow,.dj-eye,.dj-caret,.dj-bot.is-wave .dj-arm,.dj-bot.is-talk .dj-body-g{ animation:none !important; }
+    }
+  </style>
+
+  <div class="dj-bot" id="djBot" aria-live="polite">
+    <div class="dj-bubble" role="status">
+      <button class="dj-x" id="djClose" type="button" aria-label="Yopish">×</button>
+      <div class="dj-text">
+        <span class="dj-ghost">Sahifangizga kira olmayapsizmi? Adminga murojaat eting</span>
+        <span class="dj-typed" id="djTyped"></span>
+      </div>
+      <a class="dj-tg" id="djTg" href="https://t.me/djamiteacher" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.1 9.3-8.4c.4-.4-.1-.6-.6-.2L6.1 13.9 1.2 12.4c-1.1-.3-1.1-1 .2-1.6L20.5 3.4c.9-.3 1.7.2 1.4.9z"/></svg>
+        @djamiteacher
+      </a>
+    </div>
+
+    <svg class="dj-mascot" id="djMascot" viewBox="0 0 170 176" role="img" aria-label="Djami yordamchisi" tabindex="0">
+      <ellipse class="dj-shadow" cx="85" cy="168" rx="40" ry="5.5" fill="#000"/>
+      <g class="dj-float">
+        <g class="dj-body-g">
+          <!-- oyoqlar -->
+          <ellipse cx="62" cy="160" rx="14" ry="6.5" class="dj-body"/>
+          <ellipse cx="108" cy="160" rx="14" ry="6.5" class="dj-body"/>
+          <!-- chap qo'l -->
+          <ellipse cx="29" cy="110" rx="9" ry="14" transform="rotate(14 29 110)" class="dj-body"/>
+          <!-- tana -->
+          <path class="dj-body" d="M85 34C125 34 147 68 147 104c0 36-26 56-62 56S23 140 23 104C23 68 45 34 85 34Z"/>
+          <path d="M44 78c4-14 16-24 30-27" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="5" stroke-linecap="round"/>
+          <!-- yonoqlar -->
+          <circle cx="45" cy="121" r="7.5" fill="#7f93ee" fill-opacity=".55"/>
+          <circle cx="125" cy="121" r="7.5" fill="#7f93ee" fill-opacity=".55"/>
+          <!-- ko'zlar -->
+          <g class="dj-eye e1"><ellipse cx="63" cy="98" rx="13" ry="15" fill="#fff"/>
+            <g class="dj-pupil" id="djP1"><circle cx="63" cy="100" r="7" fill="#0a0a0a"/><circle cx="60.5" cy="97" r="2.3" fill="#fff"/></g></g>
+          <g class="dj-eye e2"><ellipse cx="107" cy="98" rx="13" ry="15" fill="#fff"/>
+            <g class="dj-pupil" id="djP2"><circle cx="107" cy="100" r="7" fill="#0a0a0a"/><circle cx="104.5" cy="97" r="2.3" fill="#fff"/></g></g>
+          <!-- og'iz -->
+          <path class="dj-mouth-smile" d="M72 126q13 12 26 0" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"/>
+          <g class="dj-mouth-open" id="djMouth">
+            <ellipse cx="85" cy="128" rx="10" ry="9" fill="#fff"/>
+            <ellipse cx="85" cy="133" rx="6" ry="3.6" fill="#ff8fa3"/>
+          </g>
+          <!-- o'ng qo'l (salom beradi) -->
+          <g class="dj-arm">
+            <ellipse cx="141" cy="108" rx="9" ry="14" transform="rotate(-14 141 108)" class="dj-body"/>
+            <circle cx="145" cy="97" r="4" fill="#fff"/>
+          </g>
+          <!-- bitiruvchi shapka -->
+          <path d="M60 38v14q25 13 50 0V38q-25 10-50 0Z" fill="#dfe3f3" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M85 15 131 33 85 51 39 33Z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+          <path d="M85 33 124 38v14" fill="none" stroke="#7f93ee" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="124" cy="55" r="3.6" fill="#7f93ee"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <script>
+  (function () {
+    var bot = document.getElementById('djBot');
+    var typed = document.getElementById('djTyped');
+    var mascot = document.getElementById('djMascot');
+    var mouth = document.getElementById('djMouth');
+    var p1 = document.getElementById('djP1'), p2 = document.getElementById('djP2');
+    var closeBtn = document.getElementById('djClose');
+    var TEXT = 'Sahifangizga kira olmayapsizmi? Adminga murojaat eting';
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var timers = [], mouthTimer = 0, run = 0;
+
+    function clearAll() { timers.forEach(clearTimeout); timers = []; clearInterval(mouthTimer); }
+    function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+    function caret() { return '<span class="dj-caret"></span>'; }
+
+    function speak() {
+      clearAll();
+      var id = ++run;
+      bot.classList.remove('is-done', 'is-talk', 'is-closed');
+      bot.classList.add('is-on');
+      typed.textContent = '';
+      if (reduce) { typed.textContent = TEXT; bot.classList.add('is-done'); return; }
+      bot.classList.remove('is-wave'); void bot.offsetWidth; bot.classList.add('is-wave');
+      var i = 0;
+      later(function step() {
+        if (id !== run) return;
+        if (i === 0) {
+          bot.classList.add('is-talk');
+          mouthTimer = setInterval(function () {
+            mouth.style.transform = 'scaleY(' + (0.25 + Math.random() * 0.75).toFixed(2) + ')';
+          }, 110);
+        }
+        i++;
+        typed.innerHTML = '';
+        typed.appendChild(document.createTextNode(TEXT.slice(0, i)));
+        typed.insertAdjacentHTML('beforeend', caret());
+        if (i >= TEXT.length) {
+          later(function () {
+            clearInterval(mouthTimer);
+            bot.classList.remove('is-talk');
+            bot.classList.add('is-done');
+            typed.textContent = TEXT;
+          }, 250);
+          return;
+        }
+        var ch = TEXT.charAt(i - 1);
+        later(step, ch === '?' ? 380 : (ch === ' ' ? 55 : 42));
+      }, 900);
+    }
+
+    // Ko'zlar kursorga qarab turadi
+    window.addEventListener('pointermove', function (e) {
+      var r = mascot.getBoundingClientRect();
+      var cx = r.left + r.width / 2, cy = r.top + r.height * 0.58;
+      var dx = e.clientX - cx, dy = e.clientY - cy;
+      var d = Math.hypot(dx, dy) || 1;
+      var k = Math.min(d / 160, 1) * 4.5;
+      var t = 'translate(' + (dx / d * k).toFixed(2) + 'px,' + (dy / d * k).toFixed(2) + 'px)';
+      p1.style.transform = t; p2.style.transform = t;
+    }, { passive: true });
+
+    mascot.addEventListener('click', speak);
+    mascot.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(); } });
+    closeBtn.addEventListener('click', function () { clearAll(); bot.classList.remove('is-talk'); bot.classList.add('is-closed', 'is-done'); typed.textContent = TEXT; });
+
+    if (document.readyState === 'complete') speak(); else window.addEventListener('load', speak);
+  })();
+  </script>
+  <!-- ===== /Djami mascot ===== -->
+
   <div class="role-card-box" style="background:transparent !important;box-shadow:none !important;border:0 !important;border-radius:0 !important;padding:0 !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;">
     <h1 id="roleHeading">Kim sifatida kirasiz?</h1>
     <p id="roleSub">Profilingiz turini tanlang.</p>
