@@ -14730,11 +14730,15 @@ function ojBuildStudentReportHtml(studentName, groupName, studentId, stats) {
 
 // Berilgan HTML'ni ekrandan tashqaridagi #pdfRenderRoot ichiga joylab,
 // html2canvas orqali rasmga (canvas) aylantiradi.
-async function ojRenderNodeToCanvas(html) {
+async function ojRenderNodeToCanvas(html, wantScale) {
   const root = document.getElementById('pdfRenderRoot');
   root.innerHTML = html;
   await new Promise(r => setTimeout(r, 60)); // shrift/emoji joylashib ulgurishi uchun kichik pauza
-  const canvas = await html2canvas(root, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+  // Yuqori aniqlik: kerakli scale, lekin brauzer canvas chegarasidan oshmasligi uchun cheklanadi
+  let sc = wantScale || 2;
+  const h = Math.max(1, root.scrollHeight), w = Math.max(1, root.scrollWidth);
+  sc = Math.max(1, Math.min(sc, 15000 / h, 15000 / w));
+  const canvas = await html2canvas(root, { scale: sc, backgroundColor: '#ffffff', useCORS: true });
   root.innerHTML = '';
   return canvas;
 }
@@ -15105,7 +15109,7 @@ document.getElementById('grpRepMonth').addEventListener('change', e => { _rpMont
     const g = _grpRepGroups.find(x => x.id === document.getElementById('grpRepGroup').value);
     if (!g || !_grpRepHtml) return;
     prog('Rasm tayyorlanmoqda…');
-    const canvas = await ojRenderNodeToCanvas(_grpRepHtml);
+    const canvas = await ojRenderNodeToCanvas(_grpRepHtml, 4);
     const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
     if (!blob) throw new Error('toBlob');
     const url = URL.createObjectURL(blob), a = document.createElement('a');
