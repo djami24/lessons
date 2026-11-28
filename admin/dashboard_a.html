@@ -12611,13 +12611,19 @@ function gbPendingResults(){
   });
   return list;
 }
+let _gbStuCodeMap = null;
 async function gbFindStudentUid(code){
-  const tries = [...new Set([code, code.toUpperCase(), code.toLowerCase()])];
-  for(const c of tries){
-    const q = await db.collection('students').where('oquvProgressCode','==',c).limit(1).get();
-    if(!q.empty) return q.docs[0].id;
+  const norm = s => String(s || '').trim().toLowerCase();
+  if(!_gbStuCodeMap || !_gbStuCodeMap[norm(code)]){
+    // Barcha talabalarni bir marta o'qib, ID'ni katta-kichik harf/bo'shliqsiz solishtiramiz
+    const snap = await db.collection('students').get();
+    _gbStuCodeMap = {};
+    snap.docs.forEach(d => {
+      const x = d.data() || {};
+      [x.oquvProgressCode, x.individualCode].forEach(c => { if(c) _gbStuCodeMap[norm(c)] = d.id; });
+    });
   }
-  return null;
+  return _gbStuCodeMap[norm(code)] || null;
 }
 // Talabaga "unit natijangiz chiqdi" bildirishnomasini yuboradi. Qaytaradi: {sent, noId, noAccount}
 async function gbSendResultNotifs(pending){
@@ -12627,7 +12633,7 @@ async function gbSendResultNotifs(pending){
     const code = (p.s.progressId || '').trim();
     if(!code){ res.noId++; continue; }
     if(!(code in uidCache)){
-      try{ uidCache[code] = await gbFindStudentUid(code); }catch(e){ uidCache[code] = null; }
+      try{ uidCache[code] = await gbFindStudentUid(code); }catch(e){ console.error('Talaba qidirishda xato:', e); res.err = e.message; uidCache[code] = null; }
     }
     const uid = uidCache[code];
     if(!uid){ res.noAccount++; continue; }
@@ -12640,7 +12646,7 @@ async function gbSendResultNotifs(pending){
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
       res.sent++;
-    }catch(e){ console.warn('Natija bildirishnomasi yuborilmadi:', e); }
+    }catch(e){ console.error('Natija bildirishnomasi yuborilmadi:', e); res.err = e.message; }
   }
   return res;
 }
@@ -12674,6 +12680,7 @@ document.getElementById('gbSaveBtn').addEventListener('click', async () => {
     const r = await gbSendResultNotifs(pending);
     gbSnapScores();
     msg = 'Saqlandi \u2713 \u00b7 ' + r.sent + ' ta talabaga xabar yuborildi';
+    if(r.err){ msg += ' \u00b7 XATO: ' + r.err; hold = 10000; }
     const skipped = r.noId + r.noAccount;
     if(skipped){ msg += ' (' + skipped + ' tasiga yuborilmadi: ID yo\u2018q yoki talaba ID\u2019ni sayt hisobiga kiritmagan)'; hold = 7000; }
   } else if(ok){
