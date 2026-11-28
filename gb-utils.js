@@ -19,7 +19,7 @@
   const GB = window.GB = {};
 
   /* ---------- sozlamalar (bitta joyda o'zgartiriladi) ---------- */
-  GB.VERSION = '3';
+  GB.VERSION = '5';
   GB.RETAKE_BELOW = 65;  // shu balldan past unit — qayta topshirish kerak
   GB.RED_BELOW    = 60;  // 60 dan past — qizil
   GB.GREEN_FROM   = 85;  // shundan yuqori — yashil, oraliq — sariq
