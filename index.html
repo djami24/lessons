@@ -350,33 +350,33 @@ html.rv-on :is(.hm-stat,.hm-sec > h2,.hm-tool,.hm-card,.lb-section,.tsl-section,
 /* ===== Ro'yxatdan o'tish / Kirish — pill tugmalar (ikonka | chiziq | matn) ===== */
 body.home-body .hm-pill{
   --pill-ink:#0b0b0c;
-  display:inline-flex; align-items:center; justify-content:center; gap:.85em;
-  box-sizing:border-box; min-height:56px; padding:.5em 1.7em;
+  display:inline-flex; align-items:center; justify-content:center; gap:.7em;
+  box-sizing:border-box; min-height:46px; padding:.4em 1.35em;
   border-radius:999px; text-decoration:none; white-space:nowrap; cursor:pointer;
-  font-family:inherit; font-weight:800; font-size:1.05rem; line-height:1; letter-spacing:-.005em;
+  font-family:inherit; font-weight:800; font-size:.95rem; line-height:1; letter-spacing:-.005em;
   text-shadow:none; box-shadow:none; filter:none; transform:none; overflow:visible;
   -webkit-backdrop-filter:none; backdrop-filter:none;
   transition:background .2s,color .2s,border-color .2s,transform .15s;
 }
 body.home-body .hm-pill::before,body.home-body .hm-pill::after{display:none !important;}
 body.home-body .hm-pill-ic{width:1.45em;height:1.45em;flex:none;color:currentColor;}
-body.home-body .hm-pill-sep{display:block;align-self:center;width:1.5px;height:1.7em;flex:none;background:currentColor;border-radius:2px;opacity:.9;}
+body.home-body .hm-pill-sep{display:block;align-self:center;width:1.5px;height:1.5em;flex:none;background:currentColor;border-radius:2px;opacity:.9;}
 /* Ro'yxatdan o'tish: oq, qora ramka */
-body.home-body .hm-pill.hm-pill-outline{background:#fff;color:var(--pill-ink);border:2.5px solid var(--pill-ink);}
+body.home-body .hm-pill.hm-pill-outline{background:#fff;color:var(--pill-ink);border:2px solid var(--pill-ink);}
 body.home-body .hm-pill.hm-pill-outline:hover{background:var(--pill-ink);color:#fff;border-color:var(--pill-ink);}
 /* Kirish: to'liq qora */
-body.home-body .hm-pill.hm-pill-solid{background:var(--pill-ink);color:#fff;border:2.5px solid var(--pill-ink);}
+body.home-body .hm-pill.hm-pill-solid{background:var(--pill-ink);color:#fff;border:2px solid var(--pill-ink);}
 body.home-body .hm-pill.hm-pill-solid .hm-pill-sep{opacity:.75;}
 body.home-body .hm-pill.hm-pill-solid:hover{background:#fff;color:var(--pill-ink);border-color:var(--pill-ink);}
 body.home-body .hm-pill:active{transform:scale(.98);}
 body.home-body .hm-pill:focus-visible{outline:3px solid #2e6fed;outline-offset:3px;}
 /* Kichik variant (navbar va kartalar) */
-body.home-body .hm-pill.hm-pill-sm{min-height:44px;padding:.4em 1.25em;font-size:.95rem;gap:.7em;border-width:2px;}
-body.home-body .hm-pill-sm .hm-pill-sep{height:1.4em;}
+body.home-body .hm-pill.hm-pill-sm{min-height:38px;padding:.3em 1.05em;font-size:.86rem;gap:.55em;border-width:2px;}
+body.home-body .hm-pill-sm .hm-pill-sep{height:1.25em;}
 body.home-body .hm-cta{gap:.9em 1.1em;}
 body.home-body .hm-card-actions{display:flex;flex-wrap:wrap;gap:.7em;}
 @media (max-width:860px){
-  body.home-body .hm-nav .hm-pill.hm-pill-sm{min-height:38px;padding:.3em 1em;font-size:.86rem;gap:.55em;}
+  body.home-body .hm-nav .hm-pill.hm-pill-sm{min-height:34px;padding:.25em .9em;font-size:.8rem;gap:.5em;}
 }
 @media (max-width:520px){
   body.home-body .hm-cta .hm-pill{flex:1 1 100%;}
