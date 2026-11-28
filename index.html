@@ -466,6 +466,32 @@ body.home-body .site-footer-inner{max-width:1115px;}
   body.home-body .hm-card{padding:1.1em 1em;gap:1em;}
   body.home-body .hm-visual-wrap{max-width:460px;}
 }
+/* ===== Statistika paneli: ikonkali, qora ramkali ===== */
+body.home-body .hm-stats{--st-ink:#0b0b0c;--st-paper:#fff;
+  background:var(--st-paper);border:2px solid var(--st-ink);border-radius:24px;box-shadow:none;overflow:hidden;
+  -webkit-backdrop-filter:none;backdrop-filter:none;padding:.3em 0;}
+body.home-body .hm-stat,body.home-body .hm-stat:first-child{display:flex;align-items:center;gap:.8em;padding:.85em 1.1em;border-left:1.5px solid var(--st-ink);}
+body.home-body .hm-stat:first-child{border-left:0;}
+body.home-body .hm-stat-ic{flex:none;width:40px;height:40px;border-radius:50%;background:var(--st-ink);color:var(--st-paper);display:grid;place-items:center;}
+body.home-body .hm-stat-ic svg{width:19px;height:19px;}
+body.home-body .hm-stat-txt{min-width:0;}
+body.home-body .hm-stat strong{font-size:1.5rem;font-weight:800;}
+body.home-body .hm-stat span{margin-top:.25em;font-size:.84rem;line-height:1.35;}
+html[data-theme="dark"] body.home-body .hm-stats{--st-ink:#f2f4f8;--st-paper:#0d0f12;background:var(--st-paper);border-color:var(--st-ink);}
+html[data-theme="dark"] body.home-body .hm-stat{border-left-color:var(--st-ink);}
+@media (max-width:860px){
+  body.home-body .hm-stat:nth-child(odd){border-left:0;padding-left:1.1em;}
+  body.home-body .hm-stat:nth-child(even){border-left:1.5px solid var(--st-ink);}
+  body.home-body .hm-stat:nth-child(n+3){border-top:1.5px solid var(--st-ink);}
+}
+@media (max-width:480px){
+  body.home-body .hm-stat,body.home-body .hm-stat:first-child{gap:.6em;padding:.8em .75em;}
+  body.home-body .hm-stat:nth-child(odd){padding-left:.75em;}
+  body.home-body .hm-stat-ic{width:32px;height:32px;}
+  body.home-body .hm-stat-ic svg{width:16px;height:16px;}
+  body.home-body .hm-stat strong{font-size:1.2rem;}
+  body.home-body .hm-stat span{font-size:.78rem;}
+}
 </style>
 </head>
 <body class="home-body">
@@ -514,10 +540,10 @@ body.home-body .site-footer-inner{max-width:1115px;}
   </section>
 
   <section class="hm-stats" aria-label="Raqamlar">
-    <div class="hm-stat"><strong data-site-stat-1-value>5,000+</strong><span data-site-stat-1-label>faol talabalar</span></div>
-    <div class="hm-stat"><strong data-site-stat-2-value>A1–C2</strong><span data-site-stat-2-label>barcha CEFR darajalari</span></div>
-    <div class="hm-stat"><strong data-site-stat-3-value>4 bo‘lim</strong><span data-site-stat-3-label>Listening, Reading, Writing, Speaking</span></div>
-    <div class="hm-stat"><strong data-site-stat-4-value>B2</strong><span data-site-stat-4-label>CEFR sertifikatini olgan talabalarimiz</span></div>
+    <div class="hm-stat"><i class="hm-stat-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></i><div class="hm-stat-txt"><strong data-site-stat-1-value>5,000+</strong><span data-site-stat-1-label>faol talabalar</span></div></div>
+    <div class="hm-stat"><i class="hm-stat-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></i><div class="hm-stat-txt"><strong data-site-stat-2-value>A1–C2</strong><span data-site-stat-2-label>barcha CEFR darajalari</span></div></div>
+    <div class="hm-stat"><i class="hm-stat-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></i><div class="hm-stat-txt"><strong data-site-stat-3-value>4 bo‘lim</strong><span data-site-stat-3-label>Listening, Reading, Writing, Speaking</span></div></div>
+    <div class="hm-stat"><i class="hm-stat-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg></i><div class="hm-stat-txt"><strong data-site-stat-4-value>B2</strong><span data-site-stat-4-label>CEFR sertifikatini olgan talabalarimiz</span></div></div>
   </section>
 
   <section class="hm-sec" id="imkoniyatlar">
