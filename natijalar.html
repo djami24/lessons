@@ -14,32 +14,32 @@
 <style>
   :root{
     color-scheme: dark;
-    --bg: #121826;
-    --bg-2: #0d121c;
-    --bg-grad-1: #182236;
-    --panel: #1c2536;
-    --panel-2: #212d40;
-    --line: #2e3b52;
-    --ink: #eef1f0;
-    --ink-dim: #93a0b5;
-    --brass: #c9a227;
-    --brass-dim: #8a7325;
+    --bg: #0d0d0d;
+    --bg-2: #0d0d0d;
+    --bg-grad-1: #0d0d0d;
+    --panel: #141414;
+    --panel-2: #171717;
+    --line: #1f1f1f;
+    --ink: #f1f1f1;
+    --ink-dim: #8a8a8a;
+    --brass: #4f7ff2;
+    --brass-dim: #3b66d4;
     --pass: #5fae95;
     --fail: #c15a44;
     --shadow: 0 24px 50px -25px rgba(0,0,0,0.65);
   }
   body.light-mode{
     color-scheme: light;
-    --bg: #f2eee2;
-    --bg-2: #e8e2cf;
-    --bg-grad-1: #ffffff;
+    --bg: #f6f7fb;
+    --bg-2: #f6f7fb;
+    --bg-grad-1: #f6f7fb;
     --panel: #ffffff;
-    --panel-2: #f7f3e6;
-    --line: #ddd5bd;
-    --ink: #201c12;
-    --ink-dim: #6c6350;
-    --brass: #a97e2b;
-    --brass-dim: #8a7325;
+    --panel-2: #ffffff;
+    --line: #e2e5ec;
+    --ink: #1c212e;
+    --ink-dim: #6b7484;
+    --brass: #2f5fd8;
+    --brass-dim: #2549a8;
     --pass: #2f7a5a;
     --fail: #b8503b;
     --shadow: 0 24px 50px -25px rgba(0,0,0,0.15);
@@ -126,7 +126,7 @@
   .corner-admin-btn.in-admin{
     background: var(--brass);
     border-color: var(--brass);
-    color: #241c05;
+    color: #ffffff;
   }
 
   .brand{
@@ -196,7 +196,7 @@
     font-weight:600;
     font-size: 13px;
     background: var(--brass);
-    color: #241c05;
+    color: #ffffff;
     border: none;
     border-radius: 8px;
     padding: 0 22px;
@@ -414,7 +414,7 @@
   .mode-option:has(input:checked){
     border-color: var(--brass);
     color: var(--ink);
-    background: rgba(201,162,39,0.1);
+    background: rgba(47,95,216,0.1);
   }
 
   .chip-list{
@@ -582,7 +582,7 @@
     border: 1px solid var(--line); border-radius: 999px; padding: 7px 14px; cursor:pointer;
   }
   .lb-tabs button:hover{ color: var(--ink); border-color: var(--brass-dim); }
-  .lb-tabs button.active{ background: var(--brass); border-color: var(--brass); color: #241c05; }
+  .lb-tabs button.active{ background: var(--brass); border-color: var(--brass); color: #ffffff; }
   .lb-selects{ display:flex; flex-wrap:wrap; gap:10px; margin-left:auto; }
   .lb-selects select{
     font-family:'Source Sans 3', sans-serif; font-size: 13px;
