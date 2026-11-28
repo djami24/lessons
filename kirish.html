@@ -94,6 +94,11 @@
 
     .dj-mascot{ width:150px; height:auto; margin-top:6px; cursor:pointer; overflow:visible; -webkit-tap-highlight-color:transparent; }
     .dj-mascot:focus-visible{ outline:2px solid #7f93ee; outline-offset:4px; border-radius:24px; }
+    .dj-mascot{ touch-action:pan-y; user-select:none; -webkit-user-select:none; cursor:grab; transform-origin:50% 92%;
+      transition:transform .6s cubic-bezier(.34,1.56,.64,1); }
+    .dj-mascot.is-drag{ transition:none; cursor:grabbing; }
+    .dj-face{ transition:transform .6s cubic-bezier(.34,1.56,.64,1); }
+    .dj-mascot.is-drag .dj-face{ transition:none; }
     .dj-float{ animation:djFloat 3.2s ease-in-out infinite; }
     @keyframes djFloat{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-5px) } }
     .dj-shadow{ animation:djShadow 3.2s ease-in-out infinite; transform-box:fill-box; transform-origin:center; }
@@ -161,6 +166,7 @@
           <!-- tana -->
           <path class="dj-body" d="M85 34C125 34 147 68 147 104c0 36-26 56-62 56S23 140 23 104C23 68 45 34 85 34Z"/>
           <path d="M44 78c4-14 16-24 30-27" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="5" stroke-linecap="round"/>
+          <g class="dj-face" id="djFace">
           <!-- yonoqlar -->
           <circle cx="45" cy="121" r="7.5" fill="#ff8fa3" fill-opacity=".6"/>
           <circle cx="125" cy="121" r="7.5" fill="#ff8fa3" fill-opacity=".6"/>
@@ -174,6 +180,7 @@
           <g class="dj-mouth-open" id="djMouth">
             <ellipse cx="85" cy="128" rx="10" ry="9" fill="#1c2a6b"/>
             <ellipse cx="85" cy="133" rx="6" ry="3.6" fill="#ff8fa3"/>
+          </g>
           </g>
           <!-- o'ng qo'l (salom beradi) -->
           <g class="dj-arm">
@@ -252,7 +259,35 @@
       p1.style.transform = t; p2.style.transform = t;
     }, { passive: true });
 
-    mascot.addEventListener('click', speak);
+    // Sichqoncha / barmoq bilan ushlab chapga-o'ngga burish
+    var face = document.getElementById('djFace');
+    var dragging = false, startX = 0, moved = false, justDragged = false;
+    function turn(v) {
+      mascot.style.transform = v ? 'perspective(600px) rotateY(' + (v * 42).toFixed(1) + 'deg)' : '';
+      face.style.transform = v ? 'translateX(' + (v * 17).toFixed(1) + 'px)' : '';
+    }
+    mascot.addEventListener('pointerdown', function (e) {
+      dragging = true; moved = false; startX = e.clientX;
+      try { mascot.setPointerCapture(e.pointerId); } catch (err) {}
+      mascot.classList.add('is-drag');
+    });
+    mascot.addEventListener('pointermove', function (e) {
+      if (!dragging) return;
+      var dx = e.clientX - startX;
+      if (Math.abs(dx) > 4) moved = true;
+      turn(Math.max(-1, Math.min(1, dx / 90)));
+    });
+    function release() {
+      if (!dragging) return;
+      dragging = false;
+      justDragged = moved;
+      setTimeout(function () { justDragged = false; }, 60);
+      mascot.classList.remove('is-drag');
+      turn(0);
+    }
+    mascot.addEventListener('pointerup', release);
+    mascot.addEventListener('pointercancel', release);
+    mascot.addEventListener('click', function () { if (!justDragged) speak(); });
     mascot.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); speak(); } });
     closeBtn.addEventListener('click', function () { clearAll(); bot.classList.remove('is-talk'); bot.classList.add('is-closed', 'is-done'); typed.textContent = TEXT; });
 
